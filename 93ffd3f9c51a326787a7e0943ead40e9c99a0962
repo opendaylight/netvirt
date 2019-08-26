@@ -55,6 +55,60 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_53521a14",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 657,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Moved these methods to new util class(StatefulAclServiceHelper)",
+      "parentUuid": "9a245df4_adab3788",
+      "revId": "93ffd3f9c51a326787a7e0943ead40e9c99a0962",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_f9717578",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 657,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Currently, Stateful mode only supported by Netvirt and other mode\u0027s implementations were removed from the netvirt.",
+      "parentUuid": "ba1f61a0_2d3b00ec",
+      "revId": "93ffd3f9c51a326787a7e0943ead40e9c99a0962",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_995dd9ec",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 657,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_0db39ce9",
+      "revId": "93ffd3f9c51a326787a7e0943ead40e9c99a0962",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_adc37036",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
         "patchSetId": 5
@@ -66,6 +120,24 @@
       "writtenOn": "2017-09-25T19:53:58Z",
       "side": 1,
       "message": "1) Avoid magic number\n2 Can we add a default timeout for this scenario in the configuration object?",
+      "revId": "93ffd3f9c51a326787a7e0943ead40e9c99a0962",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_396cad9c",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 658,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Done. I think, the addition of default timeout for this scenario is not needed. I have initialized the variable with the timeout of ICMP protocol.",
+      "parentUuid": "ba1f61a0_adc37036",
       "revId": "93ffd3f9c51a326787a7e0943ead40e9c99a0962",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -89,6 +161,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_1969e98b",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_4dcf5456",
+      "revId": "93ffd3f9c51a326787a7e0943ead40e9c99a0962",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_ad76d003",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
         "patchSetId": 5
@@ -100,6 +190,24 @@
       "writtenOn": "2017-09-25T19:53:58Z",
       "side": 1,
       "message": "Use more meaning variable name ? reflectionFlowName doesn\u0027t fully explain the flow meaning.\nclearCtMarkFlowName or stopExistingTrafficAfterRuleDeletedFlowName",
+      "revId": "93ffd3f9c51a326787a7e0943ead40e9c99a0962",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_790585c1",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_ad76d003",
       "revId": "93ffd3f9c51a326787a7e0943ead40e9c99a0962",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -123,6 +231,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_590a41d3",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_4d3d942a",
+      "revId": "93ffd3f9c51a326787a7e0943ead40e9c99a0962",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_ed7c48ee",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
         "patchSetId": 5
@@ -140,6 +266,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_399f8d61",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Yes, The spec needs to be update with this changes. This changes has been added because, removing of ingress rule affecting the egress communication and vice versa. To avoid this collision, we have to add \"-rpl\" in ct_state condition.I will update this in the spec.",
+      "parentUuid": "ba1f61a0_ed7c48ee",
+      "revId": "93ffd3f9c51a326787a7e0943ead40e9c99a0962",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_8decacbc",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
         "patchSetId": 5
@@ -151,6 +295,24 @@
       "writtenOn": "2017-09-25T19:53:58Z",
       "side": 1,
       "message": "1) nxCtMarkClearAction\n2) drop the comment because it is wrong",
+      "revId": "93ffd3f9c51a326787a7e0943ead40e9c99a0962",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_199c4969",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_8decacbc",
       "revId": "93ffd3f9c51a326787a7e0943ead40e9c99a0962",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -191,6 +353,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_7988e522",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_2d82e0ff",
+      "revId": "93ffd3f9c51a326787a7e0943ead40e9c99a0962",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_ed92884a",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
         "patchSetId": 5
@@ -208,6 +388,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_598d2131",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_ed92884a",
+      "revId": "93ffd3f9c51a326787a7e0943ead40e9c99a0962",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_8da78ca6",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
         "patchSetId": 5
@@ -219,6 +417,24 @@
       "writtenOn": "2017-09-25T19:53:58Z",
       "side": 1,
       "message": "1) use hex format, ie 0x1\n2) define as constants in AclConstants.java?\n3) space after coma",
+      "revId": "93ffd3f9c51a326787a7e0943ead40e9c99a0962",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_b9825dfe",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_8da78ca6",
       "revId": "93ffd3f9c51a326787a7e0943ead40e9c99a0962",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
