@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_06b0598a",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_cf913f54",
+      "revId": "037710d63236424bb77b4d23d313f02e0b961c3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_ebd7d0bd",
         "filename": "docs/specs/acl-impl.rst",
         "patchSetId": 8
@@ -30,6 +48,30 @@
       "writtenOn": "2017-08-07T10:50:17Z",
       "side": 1,
       "message": "There is a \"ct_state\u003d+new+trk actions\u003ddrop\" flow tied with lport tag (in both the directions) for measuring drop statistics. Does this flow provide correct stats after this is implemented?",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 44
+      },
+      "revId": "037710d63236424bb77b4d23d313f02e0b961c3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_52e928b7",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Now i have changed the match condition in the drop flow, to measure the statistics correctly",
+      "parentUuid": "ba1f61a0_ebd7d0bd",
       "range": {
         "startLine": 61,
         "startChar": 0,
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_c66da106",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_64e5d5a7",
+      "revId": "037710d63236424bb77b4d23d313f02e0b961c3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_8b9574e6",
         "filename": "docs/specs/acl-impl.rst",
         "patchSetId": 8
@@ -70,6 +130,30 @@
       "writtenOn": "2017-08-07T10:50:17Z",
       "side": 1,
       "message": "Instead of using a separate tables, is it possible to use tables 211/241 with higher priority values?",
+      "range": {
+        "startLine": 79,
+        "startChar": 81,
+        "endLine": 79,
+        "endChar": 99
+      },
+      "revId": "037710d63236424bb77b4d23d313f02e0b961c3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_f2081c93",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "table 211/241 are matching the packets with the destination. If we missed these tables, we may skip the destination checks. So, For safer implementation, We introducing the new tables.",
+      "parentUuid": "ba1f61a0_8b9574e6",
       "range": {
         "startLine": 79,
         "startChar": 81,
@@ -117,6 +201,42 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_cfec3892",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Yes we have to update the pipeline as well. Please refer the latest spec which describes the new approach.\n\nAlso, attach the html file for the new spec to verify the format.",
+      "parentUuid": "ba1f61a0_19085e2c",
+      "revId": "037710d63236424bb77b4d23d313f02e0b961c3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_52000867",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Now the approach has been changed slightly.. Now the traffic will uses the pipeline like,\n\n211/241 \u003e\u003e 212/242 \u003e\u003e 210/240 \u003e\u003e 213/243.",
+      "parentUuid": "ba1f61a0_a4950de6",
+      "revId": "037710d63236424bb77b4d23d313f02e0b961c3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_cbb64c8a",
         "filename": "docs/specs/acl-impl.rst",
         "patchSetId": 8
@@ -128,6 +248,30 @@
       "writtenOn": "2017-08-07T10:50:17Z",
       "side": 1,
       "message": "Need to have a default timeout for the protocols not listed below but are supported by conntrack.",
+      "range": {
+        "startLine": 84,
+        "startChar": 31,
+        "endLine": 84,
+        "endChar": 48
+      },
+      "revId": "037710d63236424bb77b4d23d313f02e0b961c3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_3203d474",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_cbb64c8a",
       "range": {
         "startLine": 84,
         "startChar": 31,
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_f2165ca6",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "All protocol related traffics will be sent atleast one packet before the timeout reached.",
+      "parentUuid": "ba1f61a0_eb7350e5",
+      "range": {
+        "startLine": 94,
+        "startChar": 99,
+        "endLine": 94,
+        "endChar": 114
+      },
+      "revId": "037710d63236424bb77b4d23d313f02e0b961c3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_2b2c48ab",
         "filename": "docs/specs/acl-impl.rst",
         "patchSetId": 8
@@ -186,6 +354,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_d22198fc",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Every new traffic, ct_label will have the default value 0. \n\nWhen we delete the SG rule, the packets of existing communication will be dropped by the default drop flow. If we restore the SG rule again, then the packets will be matched by the new flow. This new SG flow will change the ct_label value to 1 and further  packets will be matched by the conntrack flow straightly.",
+      "parentUuid": "ba1f61a0_2b2c48ab",
+      "range": {
+        "startLine": 99,
+        "startChar": 0,
+        "endLine": 99,
+        "endChar": 31
+      },
+      "revId": "037710d63236424bb77b4d23d313f02e0b961c3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_c472c1e4",
         "filename": "docs/specs/acl-impl.rst",
         "patchSetId": 8
@@ -197,6 +389,24 @@
       "writtenOn": "2017-08-04T18:51:09Z",
       "side": 1,
       "message": "How about the first packet of a connection it will not have a ct_lable set to 0? Or the table 240 sets it?",
+      "revId": "037710d63236424bb77b4d23d313f02e0b961c3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_5285a8ce",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Every new connection, the ct_label will be zero (default). So, We can avoid the reset of ct_label in the flow.",
+      "parentUuid": "ba1f61a0_c472c1e4",
       "revId": "037710d63236424bb77b4d23d313f02e0b961c3f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -231,6 +441,24 @@
       "writtenOn": "2017-08-04T18:51:09Z",
       "side": 1,
       "message": "Is this a 128bit [1] value?\n\n[1]https://github.com/openvswitch/ovs/blob/master/include/openvswitch/flow.h#L116",
+      "revId": "037710d63236424bb77b4d23d313f02e0b961c3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_040a1221",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_576cc19c",
       "revId": "037710d63236424bb77b4d23d313f02e0b961c3f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
