@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_01bac709",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-07-21T00:08:24Z",
+      "side": 1,
+      "message": "is this flow modified from the one for new state?\n\nct_state\u003d+new+trk",
+      "revId": "f187bda6e051f72c814ff75203c7f88edee35685",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_e141733a",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-07-21T00:08:24Z",
+      "side": 1,
+      "message": "Table 212/242 are named \u0027EGRESS/INGRESS_ACL_REMOTE_TABLE\u0027.\nThe changes are FILTERing related flows, could they possibly go to \u0027FILTER\u0027 tables which are 213/243 \u0027EGRESS/INGRESS_FILTER_TABLE\u0027.",
+      "revId": "f187bda6e051f72c814ff75203c7f88edee35685",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_a1101b02",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-07-21T00:08:24Z",
+      "side": 1,
+      "message": "why we continue on ACL3 table, could we just drop here instead of going to ACL3 and drop there?",
+      "revId": "f187bda6e051f72c814ff75203c7f88edee35685",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_41d79f23",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-07-21T00:08:24Z",
+      "side": 1,
+      "message": "I feel that a clean solution should not modify any existing flows with temporary artifacts (matching/setting label).\nInstead we might want to add new flows to handle the special cases and these flows will timeout and go away, leaving the original flow pipeline for usual processing.\n\nCould we do something like this:\n\n1) Continue to use label value \u003d 0x1 to indicate that the associate ACL rule was deleted\n2) When ACL rule is deleted, install a flow matching on +est with to set the connection label to 0x1 and also drop the flow\n3) install another flow (could be global) to drop any +est with label\u003d0x1\n4) When ACL rule is reinstated, install another flow matching +est and label\u003d\u003d0x1, setting the label back to default value (0), and resubmit the flows",
+      "revId": "f187bda6e051f72c814ff75203c7f88edee35685",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
