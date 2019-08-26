@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_e75afc28",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-08-30T17:02:56Z",
+      "side": 1,
+      "message": "ACL enhancement is an open topic name..\n\nCan we use a more specific topic name reflecting this feature?",
+      "revId": "a5f6c81db57baf6ec1d1b35ca4a0741eeb54f24e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_87498062",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-08-30T17:02:56Z",
+      "side": 1,
+      "message": "Remove the ICMP rule",
+      "revId": "a5f6c81db57baf6ec1d1b35ca4a0741eeb54f24e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_c776d8a3",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-08-30T17:02:56Z",
+      "side": 1,
+      "message": "Can you please point here , which table and which acl flow in that results in the incorrect behaviour of continuing traffic?\n\nOr are we saying that even if we remove all the ICMP specific flow-rules from all the ACL tables for the VM in the VMs hypervisor, the ping from VM to DHCP Server will continue?\n\nI realize that this problem was there in stock openstack neutron sg-iptables-conntrack implementation also, but not sure if it was fixed there...",
+      "revId": "a5f6c81db57baf6ec1d1b35ca4a0741eeb54f24e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_476ae8b3",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-08-30T17:02:56Z",
+      "side": 1,
+      "message": "would you want to add here:\nSG Rule addition and removal from existing SG associated to ports.",
+      "revId": "a5f6c81db57baf6ec1d1b35ca4a0741eeb54f24e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_e77f9c64",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-08-30T17:02:56Z",
+      "side": 1,
+      "message": "can you clarify on priority of the matched SG Flow.\n\ni.e, can you please paste the matched SG flow for ICMP here?",
+      "revId": "a5f6c81db57baf6ec1d1b35ca4a0741eeb54f24e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_2771b476",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-08-30T17:02:56Z",
+      "side": 1,
+      "message": "all the flow rule changes discussed above are in Conntrack Table which is ACL3 and ACL4.  It is not clear what is the role of the new table 210 and 240.",
+      "revId": "a5f6c81db57baf6ec1d1b35ca4a0741eeb54f24e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
