@@ -19,6 +19,76 @@
     },
     {
       "key": {
+        "uuid": "148f081a_ea3c0b5c",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-12-19T07:40:21Z",
+      "side": 1,
+      "message": "Ok, that should be fine.",
+      "parentUuid": "ecf44ce1_3dc328ec",
+      "revId": "10a86b4f667a4c30cb7d18de0714838305a3b3df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "03409c48_e66c791f",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-12-13T12:40:05Z",
+      "side": 1,
+      "message": "Hardtime out would be better as idle timeout can lead to the flows never being deleted.",
+      "revId": "10a86b4f667a4c30cb7d18de0714838305a3b3df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4e3d969d_702d25f2",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-12-19T07:40:21Z",
+      "side": 1,
+      "message": "The conntrack entry times out much fast(if no other allow rule is present), and the current default timeout values should be sufficiently large. \n\nWith idle timeout if there is an existing connection say ping, and there is a second SG allows ICMP, these rules never timeout though are allowing the traffic.",
+      "parentUuid": "a65ca557_53989b64",
+      "revId": "10a86b4f667a4c30cb7d18de0714838305a3b3df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "debf53ca_f41b04f4",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-12-13T12:53:34Z",
+      "side": 1,
+      "message": "These needs to be programmed only for a SG update and not for a port delete else it will lead to stale flows given the timeout is large.",
+      "revId": "10a86b4f667a4c30cb7d18de0714838305a3b3df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "03ebfebe_65fddcde",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
         "patchSetId": 16
@@ -67,6 +137,23 @@
       "side": 1,
       "message": "ya that\u0027s right. I think it should work.",
       "parentUuid": "cbc0f52e_f0eb5e8f",
+      "revId": "10a86b4f667a4c30cb7d18de0714838305a3b3df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c744e0a6_cf4ce904",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/StatefulAclServiceHelper.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-12-13T12:40:05Z",
+      "side": 1,
+      "message": "Can we use the AclUtil class? do we need an extra class?",
       "revId": "10a86b4f667a4c30cb7d18de0714838305a3b3df",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
