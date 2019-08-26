@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_5669498a",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-08T16:26:26Z",
+      "side": 1,
+      "message": "other protocol is  intended to be used for protocol other than the supported one(TCP UDP and ICMP). I think we should be adding a ip rule with the protocol set to the one configured (via other protocol) in the reverse direction.",
+      "revId": "ad1a1ea70465107b8c30ca5fd7462fe7d0c8ed7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
