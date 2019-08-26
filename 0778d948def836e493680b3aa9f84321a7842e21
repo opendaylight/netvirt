@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_c5c35b55",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-06T01:51:37Z",
+      "side": 1,
+      "message": "goto_table",
+      "range": {
+        "startLine": 185,
+        "startChar": 76,
+        "endLine": 185,
+        "endChar": 84
+      },
+      "revId": "0778d948def836e493680b3aa9f84321a7842e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
