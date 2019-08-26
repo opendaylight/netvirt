@@ -2,6 +2,76 @@
   "comments": [
     {
       "key": {
+        "uuid": "ba1f61a0_fe972938",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-08-30T06:33:32Z",
+      "side": 1,
+      "message": "Does this mean we will have a +est rule per sg rule?",
+      "revId": "8b98fdf05b3a8efe0bfd6fedfa48b70cc9602e34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_de9ce55f",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-08-30T06:33:32Z",
+      "side": 1,
+      "message": "With the proposed ACL enhancement flows will not have unique priority but a common priority.",
+      "revId": "8b98fdf05b3a8efe0bfd6fedfa48b70cc9602e34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_be7bf1f3",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-08-30T08:34:16Z",
+      "side": 1,
+      "message": "Do we require a unique id. If I understand correctly this is to prevent the packet hitting the +trk rule table 213 flow until the table 210 flow timesout. Is that better than a unique id, as generating a unique id for priority added a significant performance degradation and hence was proposed to be removed.",
+      "parentUuid": "ba1f61a0_be2db100",
+      "revId": "8b98fdf05b3a8efe0bfd6fedfa48b70cc9602e34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_352437c4",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-09-01T08:44:10Z",
+      "side": 1,
+      "message": "we are planning to use aclservice-config.yang right? May be we can think of reducing the default values here. Learn mode will soon be deprecated so this config will be used only for these drop rules.",
+      "parentUuid": "ba1f61a0_75718f43",
+      "revId": "8b98fdf05b3a8efe0bfd6fedfa48b70cc9602e34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_3ea541a2",
         "filename": "docs/specs/acl-impl.rst",
         "patchSetId": 12
