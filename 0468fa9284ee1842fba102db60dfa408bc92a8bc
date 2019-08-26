@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_8ec5213e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 396
+      },
+      "writtenOn": "2017-02-15T22:39:51Z",
+      "side": 1,
+      "message": "A recommendation is to wrap the body at 72 characters.\nhttps://chris.beams.io/posts/git-commit/#wrap-72",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 88
+      },
+      "revId": "0468fa9284ee1842fba102db60dfa408bc92a8bc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ee02ed6d",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 396
+      },
+      "writtenOn": "2017-02-15T22:39:51Z",
+      "side": 1,
+      "message": "The two space should be one space.",
+      "range": {
+        "startLine": 156,
+        "startChar": 65,
+        "endLine": 156,
+        "endChar": 67
+      },
+      "revId": "0468fa9284ee1842fba102db60dfa408bc92a8bc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
