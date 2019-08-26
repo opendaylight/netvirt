@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "1a622d24_b4421a3c",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 494,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-23T11:36:36Z",
+      "side": 1,
+      "message": "Can tunnel id be added for TCP and UDP as well? This helps in overlapping ip address. Also we can think of learning ip rule itself rather than adding all individual(tcp,udp and icmp) protocol rules.",
+      "revId": "7f7e10d2ec18315ecb8a086c6461ababb6954458",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_06dc6c72",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
         "patchSetId": 2
