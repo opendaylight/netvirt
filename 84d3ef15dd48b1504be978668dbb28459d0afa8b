@@ -1,0 +1,225 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_3c5ec876",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-24T23:01:38Z",
+      "side": 1,
+      "message": "Please explain the background and solution for the issue",
+      "revId": "84d3ef15dd48b1504be978668dbb28459d0afa8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bc72b80e",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-24T23:01:38Z",
+      "side": 1,
+      "message": "- please use volatile and ConcurrentHashMap for threadsafe\n- plural \u0027Ports\u0027, ie segmentationToPorts\n- where do we clean up this map when network is removed?",
+      "revId": "84d3ef15dd48b1504be978668dbb28459d0afa8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1ceca429",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-24T23:01:38Z",
+      "side": 1,
+      "message": "Please update the javadoc/sample flow according to the new logic",
+      "revId": "84d3ef15dd48b1504be978668dbb28459d0afa8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9cc6d498",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-24T23:01:38Z",
+      "side": 1,
+      "message": "Line too long",
+      "revId": "84d3ef15dd48b1504be978668dbb28459d0afa8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_dce5fc38",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-24T23:01:38Z",
+      "side": 1,
+      "message": "flow name can be improved",
+      "revId": "84d3ef15dd48b1504be978668dbb28459d0afa8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_dcbcdc08",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-24T23:01:38Z",
+      "side": 1,
+      "message": "can this happen?",
+      "revId": "84d3ef15dd48b1504be978668dbb28459d0afa8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1c630443",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-24T23:01:38Z",
+      "side": 1,
+      "message": "can you do macAddrOfPortPairList.remove(ofPortMacAddressPair)\n\nfor the  block 127-133?",
+      "revId": "84d3ef15dd48b1504be978668dbb28459d0afa8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9c225450",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-24T23:01:38Z",
+      "side": 1,
+      "message": "we could refactor this block 88-135 into separate method so that the main method just simply calls two methods:\ntry {\n - programBCastProviderNetworkOutput..\n - programExistingBCastProviderNetworkOutput..\n}",
+      "revId": "84d3ef15dd48b1504be978668dbb28459d0afa8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9ce9b4e8",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-24T23:01:38Z",
+      "side": 1,
+      "message": "same flow name as in line 98?",
+      "revId": "84d3ef15dd48b1504be978668dbb28459d0afa8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7c25f007",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-24T23:01:38Z",
+      "side": 1,
+      "message": "indentation",
+      "revId": "84d3ef15dd48b1504be978668dbb28459d0afa8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1c2f8440",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-24T23:01:38Z",
+      "side": 1,
+      "message": "- We could move this method to InstructionUtils which contains all instruction-related logic and possibly reactoring.\n\n- Common practices for writing method are to return object as result and not to modify passing objects.\nSo this method could be written as:\n\nprivate Instruction createOutputPortInstruction(int index, Long dpidLong, Long ofPort)",
+      "revId": "84d3ef15dd48b1504be978668dbb28459d0afa8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5c258c5a",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-24T23:01:38Z",
+      "side": 1,
+      "message": "We could move this method to InstructionUtils which contains all instruction-related logic",
+      "revId": "84d3ef15dd48b1504be978668dbb28459d0afa8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7cc33089",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-24T23:01:38Z",
+      "side": 1,
+      "message": "typo \u0027populateSegmentaionCache\u0027",
+      "revId": "84d3ef15dd48b1504be978668dbb28459d0afa8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
