@@ -1,0 +1,210 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_0db39ce9",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 657,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-25T19:53:58Z",
+      "side": 1,
+      "message": "1) use \u0027Integer\u0027 as returned tyep\n2) Change method name to reflect that timeout value is for \u0027ApplyStatefulChangeForExistingTraffic\u0027 scenario",
+      "revId": "93ffd3f9c51a326787a7e0943ead40e9c99a0962",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_2d3b00ec",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 657,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-25T21:14:14Z",
+      "side": 1,
+      "message": "Also this method should be in AbstractAclServiceImpl since it is not applicable to other ACl modes",
+      "parentUuid": "ba1f61a0_0db39ce9",
+      "revId": "93ffd3f9c51a326787a7e0943ead40e9c99a0962",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_adab3788",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 657,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-10-06T01:07:55Z",
+      "side": 1,
+      "message": "For the sake of code clarity, it still is preferable that Stateful-related logic should be in StatefulAclServiceImpl class",
+      "parentUuid": "9a245df4_f9717578",
+      "revId": "93ffd3f9c51a326787a7e0943ead40e9c99a0962",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_adc37036",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 658,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-25T19:53:58Z",
+      "side": 1,
+      "message": "1) Avoid magic number\n2 Can we add a default timeout for this scenario in the configuration object?",
+      "revId": "93ffd3f9c51a326787a7e0943ead40e9c99a0962",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_4dcf5456",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-25T19:53:58Z",
+      "side": 1,
+      "message": "1) NxCtAction nxCtMarkSetAction\n2) drop the comment since it looks out of place",
+      "revId": "93ffd3f9c51a326787a7e0943ead40e9c99a0962",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_ad76d003",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-25T19:53:58Z",
+      "side": 1,
+      "message": "Use more meaning variable name ? reflectionFlowName doesn\u0027t fully explain the flow meaning.\nclearCtMarkFlowName or stopExistingTrafficAfterRuleDeletedFlowName",
+      "revId": "93ffd3f9c51a326787a7e0943ead40e9c99a0962",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_4d3d942a",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-25T19:53:58Z",
+      "side": 1,
+      "message": "consider move this block to a new method with sample flow in java doc",
+      "revId": "93ffd3f9c51a326787a7e0943ead40e9c99a0962",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_ed7c48ee",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-25T19:53:58Z",
+      "side": 1,
+      "message": "I don\u0027t see this in the spec, the spec needs updates?",
+      "revId": "93ffd3f9c51a326787a7e0943ead40e9c99a0962",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_8decacbc",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-25T19:53:58Z",
+      "side": 1,
+      "message": "1) nxCtMarkClearAction\n2) drop the comment because it is wrong",
+      "revId": "93ffd3f9c51a326787a7e0943ead40e9c99a0962",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_8d430cae",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulIngressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-25T19:53:58Z",
+      "side": 1,
+      "message": "please comments for egress...",
+      "revId": "93ffd3f9c51a326787a7e0943ead40e9c99a0962",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_2d82e0ff",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-25T19:53:58Z",
+      "side": 1,
+      "message": "1) Drop the \"AclRemote\" from name\n2) Consider using a more meaningful, self-explanatory name, such as \u0027addEgressApplyStatefulAclChangeForExistingTrafficTableMissFlow\u0027\n3) Move this method to addStatefulEgressDefaultFlows method",
+      "revId": "93ffd3f9c51a326787a7e0943ead40e9c99a0962",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_8da78ca6",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-25T19:53:58Z",
+      "side": 1,
+      "message": "1) use hex format, ie 0x1\n2) define as constants in AclConstants.java?\n3) space after coma",
+      "revId": "93ffd3f9c51a326787a7e0943ead40e9c99a0962",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
