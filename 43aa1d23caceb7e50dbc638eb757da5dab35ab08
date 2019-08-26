@@ -1,0 +1,618 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_d3fc2642",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "Please update the commit message with problem and solution descriptions",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b38362cb",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "Please check for lines exceeding max length",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_709570e3",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "Please see my comment in VlanProvider regarding providing a single method in this class. The single public method will call the methods you have below\n\nIn the javadoc for that single method please describe the provider network flow entries that are programmed. For example, flows for unicast, multicast, broadcast, router to router communication, etc,...",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_10a50447",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "This flow entry is for broadcast from an router interface.\nThe method :\n- outputs the packet to other router interfaces\n- pushes Vlan-id and output to the external interface\n\nDo I get it right?\n\nFor the sake of clarity and maintainability plaese update the javadoc and the method name according the actual functionality.",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b35882fb",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "typo at line 84: 4196-\u003evlan_vid",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d31a6617",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "update flow name to indicate BC",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d36c26a0",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "please use constant instead \u00275\u0027",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_13eceef2",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "single space around \u0027\u003d\u0027",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_73a1faa8",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "javadoc to describe functionality and sample flow",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f36cca38",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "Update flow name same as above",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_935bbef5",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "please use constant instead \u00275\u0027",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f07680d7",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "The description of the method and the name is too general to understand, please update the javadoc and if possible, the method name, ie is this the flow from one router interface to another?",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d34ee6c1",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "flow name can be improved. starting with the Service name, ie \"ProviderNetwork_\".\nPlease update other flow names as well",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d3454616",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "please use constant instead number",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_336c929c",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "please use constant instead number",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1367ceb8",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "please use constant instead number",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_10018406",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "The description of the method and the name is too general to understand, please update the javadoc and if possible, the method name, ie is this to handle BC from external router interface to another? We pop the Vlan and output to internal router interfaces? Please document as such.",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_73057ac1",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "please use constant instead number",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3355b2c6",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "\u0027NORMAL\u0027? I thought we are trying to get rid of the NORMAL instructions? Anyway, the javadoc and the method name don\u0027t match each other, please update.\n\nThis entry flow matches packet from internal router interface, pushes Vlan and output to the external router interface?",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1046a44f",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "Capital P for \u0027...Push..\u0027",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_735e1aeb",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "please use constant instead number",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_53f15669",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "remove extra empty line",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b3e8827d",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "normal?",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b30fe2e0",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "This entry flow matches packet from extra router interface, pops Vlan and output to internal router interfaces?",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_536156a7",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "please use constant instead number",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3303f2b9",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 436,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "Please update java doc and method name to reflect that we program flow for external bridge",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_530836d9",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "please use constant instead number",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_13b98e15",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "typo: populateSegmentaionCache",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f001603a",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/VLANProvider.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "Since these will be a sequential list of calls from a single service (vlanResponderProvider), can we provide a single method from VlanResponderProvider, like programProviderNetworkRules, and call it instead of calling a long list of methods. That way we could hide the implementation of provider network rules inside the VlanResponderProvider",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f04a0026",
+        "filename": "openstack/utils/mdsal-openflow/src/main/java/org/opendaylight/netvirt/utils/mdsal/openflow/InstructionUtils.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "This method is very similar to the existing method addOutputPortInstructions, please refactor and reuse",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_314927b8",
+        "filename": "openstack/utils/mdsal-openflow/src/main/java/org/opendaylight/netvirt/utils/mdsal/openflow/InstructionUtils.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T17:26:34Z",
+      "side": 1,
+      "message": "Ok, thanks",
+      "parentUuid": "fafc7978_bf268366",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1067c4b8",
+        "filename": "openstack/utils/mdsal-openflow/src/main/java/org/opendaylight/netvirt/utils/mdsal/openflow/InstructionUtils.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "This one could reuse the existing method createOutputPortInstruction by passing the index?",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_502f8c3e",
+        "filename": "openstack/utils/mdsal-openflow/src/main/java/org/opendaylight/netvirt/utils/mdsal/openflow/InstructionUtils.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "missing java doc",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b026b866",
+        "filename": "openstack/utils/mdsal-openflow/src/main/java/org/opendaylight/netvirt/utils/mdsal/openflow/InstructionUtils.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "missing javadoc",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_10ece4f2",
+        "filename": "openstack/utils/mdsal-openflow/src/main/java/org/opendaylight/netvirt/utils/mdsal/openflow/MatchUtils.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T00:44:18Z",
+      "side": 1,
+      "message": "The body could reuse existing methods such as:\n\nreturn createDestEthMatch(createEthSrcMatch(matchBuilder, sMacAddr), dMacAddr, mask);",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_71ca8f1b",
+        "filename": "openstack/utils/mdsal-openflow/src/main/java/org/opendaylight/netvirt/utils/mdsal/openflow/MatchUtils.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-24T17:26:34Z",
+      "side": 1,
+      "message": "Ok, thank you for explaning",
+      "parentUuid": "fafc7978_7fba5be2",
+      "revId": "43aa1d23caceb7e50dbc638eb757da5dab35ab08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
