@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_f093fa4c",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Yes. +new has been removed from the ct_state.\n\nAfter deleting the rule, The packets of already established connection will not hit the high priority conntrack flow(+est), then it will check whether flow table contains any flow that will match the packets. Since the packets are already established, The packets are not hitting the SG flow because of +new flag of ct_state. So I removed the +new from the state and added a extra match for ct_label.",
+      "parentUuid": "da2a55be_01bac709",
+      "revId": "f187bda6e051f72c814ff75203c7f88edee35685",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_e141733a",
         "filename": "docs/specs/acl-impl.rst",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2017-07-21T00:08:24Z",
       "side": 1,
       "message": "Table 212/242 are named \u0027EGRESS/INGRESS_ACL_REMOTE_TABLE\u0027.\nThe changes are FILTERing related flows, could they possibly go to \u0027FILTER\u0027 tables which are 213/243 \u0027EGRESS/INGRESS_FILTER_TABLE\u0027.",
+      "revId": "f187bda6e051f72c814ff75203c7f88edee35685",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_509be666",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "No. The ct_label value change should done before the packets comes into the ACL3 table. So, I have used the ACL2 tables to change the ct_label   value. If ACL2 have some special meaning, We have to introduce a new table for this new flow and resubmit all the packets to the new table before coming to ACL3.",
+      "parentUuid": "da2a55be_e141733a",
       "revId": "f187bda6e051f72c814ff75203c7f88edee35685",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_90a43ea7",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "We continue the packets to ACL3 table, to check whether the flow table still having any other flow that will match this packet. \nThis is will be useful when VM associated with two similar flows.\nFor example, VM having SG1 and SG2, Both SGs having ALL ICMP rule.",
+      "parentUuid": "da2a55be_a1101b02",
+      "revId": "f187bda6e051f72c814ff75203c7f88edee35685",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_41d79f23",
         "filename": "docs/specs/acl-impl.rst",
         "patchSetId": 2
@@ -64,6 +118,24 @@
       "writtenOn": "2017-07-21T00:08:24Z",
       "side": 1,
       "message": "I feel that a clean solution should not modify any existing flows with temporary artifacts (matching/setting label).\nInstead we might want to add new flows to handle the special cases and these flows will timeout and go away, leaving the original flow pipeline for usual processing.\n\nCould we do something like this:\n\n1) Continue to use label value \u003d 0x1 to indicate that the associate ACL rule was deleted\n2) When ACL rule is deleted, install a flow matching on +est with to set the connection label to 0x1 and also drop the flow\n3) install another flow (could be global) to drop any +est with label\u003d0x1\n4) When ACL rule is reinstated, install another flow matching +est and label\u003d\u003d0x1, setting the label back to default value (0), and resubmit the flows",
+      "revId": "f187bda6e051f72c814ff75203c7f88edee35685",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_d0dcf614",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "We discussed this kind of solution earlier, but it require more flows to be install and it having some drawbacks.\n\nWhen ACL rule is deleted, we should not drop the packets instead we should allow the packet to ACL3 table to check any flow is still available to match. For this purpose, some match condition changes required in original flow.",
+      "parentUuid": "da2a55be_41d79f23",
       "revId": "f187bda6e051f72c814ff75203c7f88edee35685",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
