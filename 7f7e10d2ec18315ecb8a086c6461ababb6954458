@@ -34,6 +34,42 @@
       "revId": "7f7e10d2ec18315ecb8a086c6461ababb6954458",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_abe3d831",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 494,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "When we apply Other_protocols-\u003eANY and custom TCP rule to the instance, the TCP flow getting overlapped. So, to differentiate these two flows we have included the tunnel_id match in the other_Protocols \u003e ANY rule. tun_id match will differentiate the TCP flows created by Other_protocols-\u003eANY and custom TCP rules.\n\nIf we add tun_id match in custom TCP or UDP also, then flow will be overlapped again due to same match condition.\n\nFor IP rule, We thinking of two resubmit tables(Ingress and Egress). our concern is even if we use two separate tables for ingress and egress the reverse direction will be allowed duo learned rule created. we are working on this to resolve.",
+      "parentUuid": "1a622d24_b4421a3c",
+      "revId": "7f7e10d2ec18315ecb8a086c6461ababb6954458",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ec9caa5f",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 494,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Aswin,\n\nUsed reg value instead of tunnel id in otherprotocols_ANY rules to avoid overlapping.",
+      "parentUuid": "1a622d24_06dc6c72",
+      "revId": "7f7e10d2ec18315ecb8a086c6461ababb6954458",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
