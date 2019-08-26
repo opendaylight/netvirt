@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_2d67d5ea",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-08-31T06:35:40Z",
+      "side": 1,
+      "message": "I think committing it each time until the connection times out may scale better than creating unique id ,which has known issue in scale setup.",
+      "parentUuid": "ba1f61a0_a1d7544a",
+      "revId": "8b98fdf05b3a8efe0bfd6fedfa48b70cc9602e34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_352437c4",
         "filename": "docs/specs/acl-impl.rst",
         "patchSetId": 12
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "we are planning to use aclservice-config.yang right? May be we can think of reducing the default values here. Learn mode will soon be deprecated so this config will be used only for these drop rules.",
       "parentUuid": "ba1f61a0_75718f43",
+      "revId": "8b98fdf05b3a8efe0bfd6fedfa48b70cc9602e34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_6d01c337",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-09-04T08:09:07Z",
+      "side": 1,
+      "message": "+1 , I think it is fine ,since we have the option to change it \n\n@Shashi Do you have any thoughts to share?",
+      "parentUuid": "ba1f61a0_785066d4",
       "revId": "8b98fdf05b3a8efe0bfd6fedfa48b70cc9602e34",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
