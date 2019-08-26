@@ -1,0 +1,97 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_b42797b5",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-08-28T14:02:52Z",
+      "side": 1,
+      "message": "Bug id may not be required.",
+      "range": {
+        "startLine": 8,
+        "startChar": 46,
+        "endLine": 8,
+        "endChar": 66
+      },
+      "revId": "8ab4ccf36951e5b95a0cf86c8d6d2e9f44f6f466",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_1985feac",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-08-28T14:02:52Z",
+      "side": 1,
+      "message": "This needs to be added only if it is the last rule after checking the acl-ports-lookup  model. Does that make sense?",
+      "revId": "8ab4ccf36951e5b95a0cf86c8d6d2e9f44f6f466",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_991c4e79",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-08-28T14:02:52Z",
+      "side": 1,
+      "message": "This can be the ACL1 table. and we can name it ACL1 through ACL4",
+      "revId": "8ab4ccf36951e5b95a0cf86c8d6d2e9f44f6f466",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_beb811c9",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-08-30T06:33:32Z",
+      "side": 1,
+      "message": "Why packet should be sent table 210  after 212? If it is the first table I thought we could avoid a ct_lookup for deleted rules. Will it hit any issue if it is the first table?  If so I think it is better to reorder the table so that packet goes from 210-213. So current 211 is changed to 210 and so on.",
+      "parentUuid": "ba1f61a0_0f85b0ac",
+      "revId": "8ab4ccf36951e5b95a0cf86c8d6d2e9f44f6f466",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_5e1bd5c9",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-08-30T08:34:16Z",
+      "side": 1,
+      "message": "I think it better to have the packet traverse through the table in order.",
+      "parentUuid": "ba1f61a0_3ecc216a",
+      "revId": "8ab4ccf36951e5b95a0cf86c8d6d2e9f44f6f466",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
