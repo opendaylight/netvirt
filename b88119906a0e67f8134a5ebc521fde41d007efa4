@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_dbf6905c",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 18
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-09-08T13:20:24Z",
+      "side": 1,
+      "message": "nitpick remove different priority.",
+      "revId": "b88119906a0e67f8134a5ebc521fde41d007efa4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_7b3964f1",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 18
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-09-08T13:20:24Z",
+      "side": 1,
+      "message": "nitpick remove",
+      "revId": "b88119906a0e67f8134a5ebc521fde41d007efa4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_5ba2a04b",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 18
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-09-08T13:20:24Z",
+      "side": 1,
+      "message": "Update the spec later if required once action structure is finalized.",
+      "revId": "b88119906a0e67f8134a5ebc521fde41d007efa4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_fb55541e",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 18
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-09-08T13:20:24Z",
+      "side": 1,
+      "message": "Add a test case for overlapping rules.",
+      "revId": "b88119906a0e67f8134a5ebc521fde41d007efa4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
