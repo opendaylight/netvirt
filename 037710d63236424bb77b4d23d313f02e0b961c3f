@@ -36,6 +36,23 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_a4950de6",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-08-04T18:51:09Z",
+      "side": 1,
+      "message": "is it possible to just set the label and send the packet directly to ACL 2 table and avoid a ct lookup?",
+      "revId": "037710d63236424bb77b4d23d313f02e0b961c3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_19085e2c",
         "filename": "docs/specs/acl-impl.rst",
         "patchSetId": 8
