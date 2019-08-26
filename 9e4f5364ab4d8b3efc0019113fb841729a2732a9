@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "da2a55be_590a2122",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-07-10T18:31:34Z",
+      "side": 1,
+      "message": "Could simplify the block 88-103 as:\n\n\nsyncFlow(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE, dropFlowName,\n                    AclConstants.CT_STATE_DROP_FLOW_PRIORITY, \"ACL\", AclConstants.DROP_FLOW_IDLE_TIMOUT,\n                        AclConstants.DROP_FLOW_HARD_TIMOUT, AclConstants.COOKIE_ACL_BASE, dropMatches,\n                            instructions, addOrRemove \u003d\u003d NwConstants.ADD_FLOW? NwConstants.DEL_FLOW : NwConstants.ADD_FLOW);",
+      "revId": "9e4f5364ab4d8b3efc0019113fb841729a2732a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_27f904ea",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
         "patchSetId": 2
@@ -13,6 +30,23 @@
       "writtenOn": "2017-07-11T09:10:24Z",
       "side": 1,
       "message": "Do we need to add a drop flow in case of flow addition?",
+      "revId": "9e4f5364ab4d8b3efc0019113fb841729a2732a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_199c29c0",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-07-10T18:31:34Z",
+      "side": 1,
+      "message": "I wonder if we could just simply set the hard time out to 5 seconds for the drop flow. Then we might not have to delete the drop flow (in the else statement below)",
       "revId": "9e4f5364ab4d8b3efc0019113fb841729a2732a9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
