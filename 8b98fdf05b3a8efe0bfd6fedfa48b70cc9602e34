@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_3ea541a2",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-08-30T06:33:32Z",
+      "side": 1,
+      "message": "Does this match only label or ct_mark as well? I am little confused with table above.",
+      "revId": "8b98fdf05b3a8efe0bfd6fedfa48b70cc9602e34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
