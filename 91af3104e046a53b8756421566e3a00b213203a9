@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_bf3e488a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2333,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-31T12:39:23Z",
+      "side": 1,
+      "message": "add addArpResponderFlow in the beginning of the log. Mayeb change message to addArpResponderFlow: elanInstance is null, Failed to install...",
+      "revId": "91af3104e046a53b8756421566e3a00b213203a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
