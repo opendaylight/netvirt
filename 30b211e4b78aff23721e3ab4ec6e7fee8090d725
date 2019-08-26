@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_b4d4be47",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 396
+      },
+      "writtenOn": "2017-02-15T22:39:51Z",
+      "side": 1,
+      "message": "What kind of deletion events? An event of deletion of an interface in OVSDB? I think it\u0027s better to specify which kind of events this change is related to.",
+      "range": {
+        "startLine": 11,
+        "startChar": 22,
+        "endLine": 11,
+        "endChar": 28
+      },
+      "revId": "30b211e4b78aff23721e3ab4ec6e7fee8090d725",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d4d18258",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 396
+      },
+      "writtenOn": "2017-02-15T22:39:51Z",
+      "side": 1,
+      "message": "A recommendation is to wrap the body at 72 characters.\nhttps://chris.beams.io/posts/git-commit/#wrap-72",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 88
+      },
+      "revId": "30b211e4b78aff23721e3ab4ec6e7fee8090d725",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_74fff6aa",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 396
+      },
+      "writtenOn": "2017-02-15T22:39:51Z",
+      "side": 1,
+      "message": "What is this node? I think we should explain what kind of node is expected to be passed as the parameter.\n\nI think this is the Node which the target NeutronPort is currently associated with.",
+      "range": {
+        "startLine": 139,
+        "startChar": 19,
+        "endLine": 139,
+        "endChar": 28
+      },
+      "revId": "30b211e4b78aff23721e3ab4ec6e7fee8090d725",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9477fa39",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/NetworkingProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 396
+      },
+      "writtenOn": "2017-02-15T22:39:51Z",
+      "side": 1,
+      "message": "Typo? Two \"is\" and a space between \"port\" and \"?\".\n\nAnyway, I think it should be \"Whether the Neutron Port associated with the removed interface is a port being migrated to a new node\", just for an example.",
+      "range": {
+        "startLine": 51,
+        "startChar": 29,
+        "endLine": 51,
+        "endChar": 59
+      },
+      "revId": "30b211e4b78aff23721e3ab4ec6e7fee8090d725",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_34472e1f",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/SecurityGroupCacheManger.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 396
+      },
+      "writtenOn": "2017-02-15T22:39:51Z",
+      "side": 1,
+      "message": "I don\u0027t think this is good design. The objective of this interface is to maintain mappings between a security group and the ports have the security group as a remote security group. However, Node is not directly related to this objective. So adding NodeId as a parameter to methods of this interface is not good design. That being said, addToCache has already had NodeId as in its parameters. Therefore, I\u0027m ok with this as of now.",
+      "range": {
+        "startLine": 50,
+        "startChar": 9,
+        "endLine": 50,
+        "endChar": 77
+      },
+      "revId": "30b211e4b78aff23721e3ab4ec6e7fee8090d725",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f4864612",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 396
+      },
+      "writtenOn": "2017-02-15T22:39:51Z",
+      "side": 1,
+      "message": "The two space should be one space.",
+      "range": {
+        "startLine": 156,
+        "startChar": 65,
+        "endLine": 156,
+        "endChar": 67
+      },
+      "revId": "30b211e4b78aff23721e3ab4ec6e7fee8090d725",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
