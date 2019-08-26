@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_691ea50d",
+        "filename": "docs/specs/index.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2017-09-18T13:07:10Z",
+      "side": 1,
+      "message": "Please rename with \"acl_reflection_on_existing_traffic\" which is mentioned as topic in the spec.\nAlso rename file \"acl-impl.rst\" as \"acl_reflection_on_existing_traffic.rst\".",
+      "range": {
+        "startLine": 15,
+        "startChar": 45,
+        "endLine": 15,
+        "endChar": 55
+      },
+      "revId": "010d057829459b07ebf13d65069bcd91b2e10454",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
