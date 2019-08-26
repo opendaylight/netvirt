@@ -20,6 +20,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_a70b6e7b",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "As we didn\u0027t set the ethernet type in TCP_SECURITY_GROUP_RULE_ANY rule, this portSecurityRule.getSecurityRuleEthertype() always return null when we apply ANY rule.\n\nSame comment would be applied for ingressAclService.java",
+      "revId": "332252371ac1386282f9f481deb413fb0d6cf927",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_18b8db28",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
         "patchSetId": 4
@@ -38,6 +55,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_87858ad0",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 518,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Same comment above",
+      "revId": "332252371ac1386282f9f481deb413fb0d6cf927",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f8b23747",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
         "patchSetId": 4
@@ -50,6 +84,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "fafc7978_e76f3629",
+      "revId": "332252371ac1386282f9f481deb413fb0d6cf927",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e76f3629",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 690,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Same comment above",
       "revId": "332252371ac1386282f9f481deb413fb0d6cf927",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
