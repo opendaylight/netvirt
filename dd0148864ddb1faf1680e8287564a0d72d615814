@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_16f6b1d7",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-08T16:29:03Z",
+      "side": 1,
+      "message": "Venkat,\n\nI think the issue is since we have both ingress and egress uses the same table and same regx for learn. If we could manage to use different for ingress and egress table we  could solve this?",
+      "parentUuid": "1a622d24_b7526411",
+      "revId": "dd0148864ddb1faf1680e8287564a0d72d615814",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_1d209c48",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
         "patchSetId": 7
