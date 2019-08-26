@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_7322a6ba",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_1d6a5a1a",
+      "revId": "4e3101bf9716c8ad2fc1616b4323d400cb3ea06f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_5d4692c0",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
         "patchSetId": 1
@@ -54,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_9613c85b",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Changed the flow name as \"Egress\" + lportTag + \"_DropAfterRuleDeleted\". \n\nThe deleted and newly added rules will have different rule name. So, I skipped the addition of rule name in the flow name.",
+      "parentUuid": "da2a55be_5d4692c0",
+      "revId": "4e3101bf9716c8ad2fc1616b4323d400cb3ea06f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_bd122eb2",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
         "patchSetId": 1
@@ -65,6 +101,24 @@
       "writtenOn": "2017-07-08T00:22:56Z",
       "side": 1,
       "message": "To be consistent with the ct value \u0027TRACKED_EST_CT_STATE\u0027, the mask should be TRACKED_EST_CT_STATE_MASK",
+      "revId": "4e3101bf9716c8ad2fc1616b4323d400cb3ea06f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_7610d44e",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_bd122eb2",
       "revId": "4e3101bf9716c8ad2fc1616b4323d400cb3ea06f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -88,6 +142,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_d61d4068",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_9d176aa3",
+      "revId": "4e3101bf9716c8ad2fc1616b4323d400cb3ea06f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_7d771603",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
         "patchSetId": 1
@@ -105,6 +177,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_5621509e",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Yes.. ODL will send a delete request to the switch only if the flow exists in the DS.",
+      "parentUuid": "da2a55be_7d771603",
+      "revId": "4e3101bf9716c8ad2fc1616b4323d400cb3ea06f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_dd11e2ad",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
         "patchSetId": 1
@@ -116,6 +206,24 @@
       "writtenOn": "2017-07-08T00:22:56Z",
       "side": 1,
       "message": "Avoid using the magic number \u00275\u0027, and \u00270\u0027. We could use the AclserviceConfig to get the default IdleTimeOut and HardTimeout,...",
+      "revId": "4e3101bf9716c8ad2fc1616b4323d400cb3ea06f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_36265cb8",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_dd11e2ad",
       "revId": "4e3101bf9716c8ad2fc1616b4323d400cb3ea06f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
