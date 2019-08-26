@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_1ec95d59",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "No. We will not have +est rule per SG rule. This means all established packets of every traffic will have the ct_label value as 1 and ct_mark as the priority of flow matched",
+      "parentUuid": "ba1f61a0_fe972938",
+      "revId": "8b98fdf05b3a8efe0bfd6fedfa48b70cc9602e34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_de9ce55f",
         "filename": "docs/specs/acl-impl.rst",
         "patchSetId": 12
@@ -108,6 +126,78 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_785066d4",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Yes.. Initially i have used the default timeout, mentioned in the aclservice-config.yang. But Shasidar commented out to use the default timeout of conntrack.\n\nShall I follow the default timeout of aclservice-config yang file to resolve this issue?",
+      "parentUuid": "ba1f61a0_352437c4",
+      "revId": "8b98fdf05b3a8efe0bfd6fedfa48b70cc9602e34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_be2db100",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Then, We will use any other property that having the unique value or We have to find a algorithm that generates the unique value for each flow.",
+      "parentUuid": "ba1f61a0_de9ce55f",
+      "revId": "8b98fdf05b3a8efe0bfd6fedfa48b70cc9602e34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_a1d7544a",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Unique id is for preventing the packets from multiple commits in conntrack. Until table 210 flow timeout, the packets will skip the \"+est\" flow in table 213 and again will commit to the conntrack by any other matching flow. The packets will commit to the conntrack continuously until the table 210 flow gets timeout. TO avoid this we are going for unique id to resolve this issue.",
+      "parentUuid": "ba1f61a0_be7bf1f3",
+      "revId": "8b98fdf05b3a8efe0bfd6fedfa48b70cc9602e34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_75718f43",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Re-Committing the packets to conntrack will happen for each time and for each new connection also. This issue will be exist until the flow reaches the timeout. \n\nSince we are configured high hard timeout (e.g, For TCP, 5 days), the recommitting will be exist for 5 days includes old and new TCP connection.\n\nReducing the hard timeout will resolve this issue.",
+      "parentUuid": "ba1f61a0_2d67d5ea",
+      "revId": "8b98fdf05b3a8efe0bfd6fedfa48b70cc9602e34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_3ea541a2",
         "filename": "docs/specs/acl-impl.rst",
         "patchSetId": 12
@@ -119,6 +209,24 @@
       "writtenOn": "2017-08-30T06:33:32Z",
       "side": 1,
       "message": "Does this match only label or ct_mark as well? I am little confused with table above.",
+      "revId": "8b98fdf05b3a8efe0bfd6fedfa48b70cc9602e34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_7ec21935",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Yes, Here ct_label match is enough to identify the established packets.",
+      "parentUuid": "ba1f61a0_3ea541a2",
       "revId": "8b98fdf05b3a8efe0bfd6fedfa48b70cc9602e34",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
