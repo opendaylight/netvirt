@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f3593761_6253843e",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/StatefulAclServiceHelper.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T05:18:50Z",
+      "side": 1,
+      "message": "A helper class with static methods shouldn\u0027t be abstract.  It should be final with a private constructor (otherwise checkstyle will flag this in the next odlparent version).",
+      "range": {
+        "startLine": 25,
+        "startChar": 7,
+        "endLine": 25,
+        "endChar": 15
+      },
+      "revId": "efec4813f6c780e03f5e4453ed892cf3bd579437",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
