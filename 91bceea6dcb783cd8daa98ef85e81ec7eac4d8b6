@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ac16113_ad0d37e5",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/FlowEntryObjectsBase.xtend",
+        "patchSetId": 18
+      },
+      "lineNbr": 1660,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-12-22T18:50:37Z",
+      "side": 1,
+      "message": "nwconstants here as well.",
+      "revId": "91bceea6dcb783cd8daa98ef85e81ec7eac4d8b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
