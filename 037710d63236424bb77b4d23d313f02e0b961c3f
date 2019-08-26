@@ -19,6 +19,29 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_ebd7d0bd",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2017-08-07T10:50:17Z",
+      "side": 1,
+      "message": "There is a \"ct_state\u003d+new+trk actions\u003ddrop\" flow tied with lport tag (in both the directions) for measuring drop statistics. Does this flow provide correct stats after this is implemented?",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 44
+      },
+      "revId": "037710d63236424bb77b4d23d313f02e0b961c3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_64e5d5a7",
         "filename": "docs/specs/acl-impl.rst",
         "patchSetId": 8
@@ -30,6 +53,29 @@
       "writtenOn": "2017-08-04T18:51:09Z",
       "side": 1,
       "message": "we need to add this for +rel as well.",
+      "revId": "037710d63236424bb77b4d23d313f02e0b961c3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_8b9574e6",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2017-08-07T10:50:17Z",
+      "side": 1,
+      "message": "Instead of using a separate tables, is it possible to use tables 211/241 with higher priority values?",
+      "range": {
+        "startLine": 79,
+        "startChar": 81,
+        "endLine": 79,
+        "endChar": 99
+      },
       "revId": "037710d63236424bb77b4d23d313f02e0b961c3f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -65,6 +111,75 @@
       "side": 1,
       "message": "We need to update the pipeline as per this? Or I am missing something?",
       "parentUuid": "ba1f61a0_52000867",
+      "revId": "037710d63236424bb77b4d23d313f02e0b961c3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_cbb64c8a",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2017-08-07T10:50:17Z",
+      "side": 1,
+      "message": "Need to have a default timeout for the protocols not listed below but are supported by conntrack.",
+      "range": {
+        "startLine": 84,
+        "startChar": 31,
+        "endLine": 84,
+        "endChar": 48
+      },
+      "revId": "037710d63236424bb77b4d23d313f02e0b961c3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_eb7350e5",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2017-08-07T10:50:17Z",
+      "side": 1,
+      "message": "What\u0027s the behavior if no packets hits the flow with in the hard timeout set to the flow?",
+      "range": {
+        "startLine": 94,
+        "startChar": 99,
+        "endLine": 94,
+        "endChar": 114
+      },
+      "revId": "037710d63236424bb77b4d23d313f02e0b961c3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_2b2c48ab",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2017-08-07T10:50:17Z",
+      "side": 1,
+      "message": "By the time SG rule is restored back, if one of the data packets had pass through the 210/240 flows, ct_label value would have been set to 0. How is this situation handled during restoration of SG rules?",
+      "range": {
+        "startLine": 99,
+        "startChar": 0,
+        "endLine": 99,
+        "endChar": 31
+      },
       "revId": "037710d63236424bb77b4d23d313f02e0b961c3f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
