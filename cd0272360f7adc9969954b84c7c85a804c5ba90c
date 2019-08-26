@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_c230a4ea",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-07-25T21:12:19Z",
+      "side": 1,
+      "message": "This spec describes the new implementation for applying ACL changes on existing communication. \n\nIn current ACL implementation, once a connection had been committed to the connection tracker, the connection would continue to be allowed, even if the policy defined in the ACL table changed.  This approach changes the implementation so that existing connections are affected by policy changes.",
+      "revId": "cd0272360f7adc9969954b84c7c85a804c5ba90c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_82d98c85",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-07-25T21:12:19Z",
+      "side": 1,
+      "message": "It is helpful if we describes the pipeline flows with the ct_label usage and highlight changes for each scenarios:\n1) Rule added:\n  a) New connections\n  b) Est connections\n  c) Others? ie inv, rel,..\n\n2) Rule deleted\n  a) new connections\n  b) Est conn\n  c) Others? ie inv, rel,..\n  d) Duplicate rules \n\n3) Rule reinstated\n  a) new connections\n  b) Est conn\n  c) Others? ie inv, rel,..",
+      "revId": "cd0272360f7adc9969954b84c7c85a804c5ba90c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_427314b1",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-07-25T21:12:19Z",
+      "side": 1,
+      "message": "It will be helpful if we list example of real ACL flows that are relevant to the scenarios and highlight the changes",
+      "revId": "cd0272360f7adc9969954b84c7c85a804c5ba90c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
