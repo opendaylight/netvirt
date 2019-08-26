@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_ebc7ae10",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_590a2122",
+      "revId": "9e4f5364ab4d8b3efc0019113fb841729a2732a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_27f904ea",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2017-07-11T09:10:24Z",
       "side": 1,
       "message": "Do we need to add a drop flow in case of flow addition?",
+      "revId": "9e4f5364ab4d8b3efc0019113fb841729a2732a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_cbf3ca71",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "No, We are deleting the DROP flow in case of flow addition.",
+      "parentUuid": "da2a55be_27f904ea",
       "revId": "9e4f5364ab4d8b3efc0019113fb841729a2732a9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_6bdbbeed",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Here we are setting idle timeout as 5 seconds, not hard timeout. So we need else condition to delete the DROP flow",
+      "parentUuid": "da2a55be_199c29c0",
+      "revId": "9e4f5364ab4d8b3efc0019113fb841729a2732a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_a748545c",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
         "patchSetId": 2
@@ -64,6 +118,30 @@
       "writtenOn": "2017-07-11T09:10:24Z",
       "side": 1,
       "message": "We can use the timeout as in the below file. This is now used for learn rule timeout.\n\n\n[1]https://github.com/opendaylight/netvirt/blob/master/vpnservice/aclservice/impl/src/main/yang/aclservice-config.yang",
+      "range": {
+        "startLine": 100,
+        "startChar": 82,
+        "endLine": 100,
+        "endChar": 103
+      },
+      "revId": "9e4f5364ab4d8b3efc0019113fb841729a2732a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_613abfce",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Default timeout for TCP as per above link is 5 minutes. So the DROP flow will be exists in the flow table for 5 minutes. It will stop the further TCP communication to the particular VM. \n\nFor example, When we delete the ALL TCP rule, it will add the ALL TCP DROP flow with idle_timeout(5 mins).  If we add the Other_Protocol \u003d 6 rule to the VM, the TCP communication should happen for that VM, but it will not work as the DROP flow added by ALL TCP is still exists in the flow table.\n\nIf we increase the timeout, then communication will not work until the idle timeout reaches.",
+      "parentUuid": "da2a55be_a748545c",
       "range": {
         "startLine": 100,
         "startChar": 82,
