@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_b7526411",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 824
+      },
+      "writtenOn": "2016-12-06T18:40:51Z",
+      "side": 1,
+      "message": "Aswin,\n\nthanks for review and the comment.\nadding a flow entry for \"ip\" match and a learn entry as you have mentioned causes the traffic allowed from both ingress/egress irrespecitve of the direction in the rule. So, We are converting a security rule for ANY as UDP(ALL) + TCP (ALL) + ICMP (ALL) + flow entry with ip match for rest of the protocols. The  ip match would not have a learn entry associated. This  way our testing exhibits behavior similar to using openstack without ODL",
+      "parentUuid": "1a622d24_1de7fc13",
+      "revId": "dd0148864ddb1faf1680e8287564a0d72d615814",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
