@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_3bb606fb",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-07-27T18:57:08Z",
+      "side": 1,
+      "message": "please indicate tables explicitly  (213,243),",
+      "revId": "591581375abacfd1d873f4e7d041dd49d0b4461e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_3b11e605",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-07-27T18:57:08Z",
+      "side": 1,
+      "message": "1) Please indicate the table #, also change all subsequent sample flows as well\n2) For completeness, please add flow samples for 213 and 243, and change all subsequent sample flows as well\n3) The ct_state **ct_state\u003d+trk** is modified from **ct_state\u003d+new+trk**",
+      "revId": "591581375abacfd1d873f4e7d041dd49d0b4461e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_1bb982e9",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-07-27T18:57:08Z",
+      "side": 1,
+      "message": "please indicate tables explicitly  (213,243),",
+      "revId": "591581375abacfd1d873f4e7d041dd49d0b4461e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_9b1c52c3",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-07-27T18:57:08Z",
+      "side": 1,
+      "message": "Please forgive me for bringing back this question on using table 212 and 242.\n\nThe ingress flow pipe line for SG is:\n--\u003e table 211 - if SRC match allowed goto table 212\n--\u003e table 212 - if DST match allowed goto table 213\n--\u003e table 213 - ACL filter match goto dispatcher table\n\nWhere do you insert the delete flow in table 212\n? give it a high priority so that it bypasses the destination validation? can we bypass the destination validation? The safer solution is creating new table instead of hijacking the REMOTE ACL table",
+      "revId": "591581375abacfd1d873f4e7d041dd49d0b4461e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
