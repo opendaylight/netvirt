@@ -1,0 +1,243 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_8e43f111",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-28T21:54:30Z",
+      "side": 1,
+      "message": "Please add more info to the commit message",
+      "revId": "bf2d009293541eb9feea0acf6d476a345ae52cb5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_b1561404",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 678,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-28T21:54:30Z",
+      "side": 1,
+      "message": "1) Java doc\n2) Consider use method name that reflects what it does instead of how, for example: syncFlowForApplyChangeForExistingTraffic\n\n3) This method is only for StatefulAcl, i suggest putting this method in a new abstract class that extends from AbstractAclServiceImpl and in turn is extended from AbstractEgress/IngressAclServiceImpl class.\n\n4) Move the method getIdleTimoutForApplyStatefulChangeOnExistingTraffic to new method in 3) and rename to \u0027getIdleTimoutForApplyChangeOnExistingTrafficFlow\u0027",
+      "revId": "bf2d009293541eb9feea0acf6d476a345ae52cb5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_d16588e1",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 679,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-28T21:54:30Z",
+      "side": 1,
+      "message": "use \u0027applyChangeOnExistingTrafficFlowName\u0027 to be consistent with the method name",
+      "range": {
+        "startLine": 679,
+        "startChar": 38,
+        "endLine": 679,
+        "endChar": 57
+      },
+      "revId": "bf2d009293541eb9feea0acf6d476a345ae52cb5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_f1cc0c6c",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-28T21:54:30Z",
+      "side": 1,
+      "message": "Please see comments for AbstractIngressAclServiceImpl",
+      "revId": "bf2d009293541eb9feea0acf6d476a345ae52cb5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_115c4018",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractIngressAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-28T21:54:30Z",
+      "side": 1,
+      "message": "Only Stateful mode need to go to the new table, other ACL modes should continue to go to ACL filter table",
+      "revId": "bf2d009293541eb9feea0acf6d476a345ae52cb5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_91add09d",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractIngressAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-28T21:54:30Z",
+      "side": 1,
+      "message": "Consider changing method name and the NwConstants to be consistent with the rest of the changes, for example ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE",
+      "revId": "bf2d009293541eb9feea0acf6d476a345ae52cb5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_f17ecc17",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractIngressAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-28T21:54:30Z",
+      "side": 1,
+      "message": "Does this change relate to the BUG?",
+      "revId": "bf2d009293541eb9feea0acf6d476a345ae52cb5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_919b1065",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-28T21:54:30Z",
+      "side": 1,
+      "message": "change name to be consistent with the above method.\n\naddStatefulEgressApplyAclChangeForExistingTrafficTableMissFlow",
+      "range": {
+        "startLine": 167,
+        "startChar": 8,
+        "endLine": 167,
+        "endChar": 67
+      },
+      "revId": "bf2d009293541eb9feea0acf6d476a345ae52cb5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_f1a52ca2",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-28T21:54:30Z",
+      "side": 1,
+      "message": "check if stateful",
+      "revId": "bf2d009293541eb9feea0acf6d476a345ae52cb5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_11a720a8",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-28T21:54:30Z",
+      "side": 1,
+      "message": "change to be consistent with method name",
+      "range": {
+        "startLine": 231,
+        "startChar": 17,
+        "endLine": 231,
+        "endChar": 61
+      },
+      "revId": "bf2d009293541eb9feea0acf6d476a345ae52cb5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_31ace48b",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-28T21:54:30Z",
+      "side": 1,
+      "message": "change to be consistent with method name",
+      "revId": "bf2d009293541eb9feea0acf6d476a345ae52cb5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_51bcf8ba",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-28T21:54:30Z",
+      "side": 1,
+      "message": "please see comment for egress method",
+      "revId": "bf2d009293541eb9feea0acf6d476a345ae52cb5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_b1af347c",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-28T21:54:30Z",
+      "side": 1,
+      "message": "please see comments for egress method",
+      "revId": "bf2d009293541eb9feea0acf6d476a345ae52cb5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
