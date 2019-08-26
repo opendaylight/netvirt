@@ -2,6 +2,477 @@
   "comments": [
     {
       "key": {
+        "uuid": "ba1f61a0_2a66862a",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-06T01:51:37Z",
+      "side": 1,
+      "message": "that ensures ACL policy changes will affect existing connections as well.",
+      "revId": "0778d948def836e493680b3aa9f84321a7842e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_6a6cfe08",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-06T01:51:37Z",
+      "side": 1,
+      "message": "Further traffic will match the global conntrack flow and go",
+      "range": {
+        "startLine": 21,
+        "startChar": 75,
+        "endLine": 22,
+        "endChar": 29
+      },
+      "revId": "0778d948def836e493680b3aa9f84321a7842e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_ea7f4ea9",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-06T01:51:37Z",
+      "side": 1,
+      "message": "the ACL flow getting removed from the respective tables",
+      "range": {
+        "startLine": 25,
+        "startChar": 36,
+        "endLine": 25,
+        "endChar": 106
+      },
+      "revId": "0778d948def836e493680b3aa9f84321a7842e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_aa60b601",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-06T01:51:37Z",
+      "side": 1,
+      "message": "because the the connection still exists as \u0027committed\u0027 in the conntrack tracker",
+      "range": {
+        "startLine": 26,
+        "startChar": 38,
+        "endLine": 27,
+        "endChar": 21
+      },
+      "revId": "0778d948def836e493680b3aa9f84321a7842e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_aa2716c9",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-06T01:51:37Z",
+      "side": 1,
+      "message": "with SG?",
+      "revId": "0778d948def836e493680b3aa9f84321a7842e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_4a3f7ad6",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-06T01:51:37Z",
+      "side": 1,
+      "message": "to/from",
+      "range": {
+        "startLine": 49,
+        "startChar": 34,
+        "endLine": 49,
+        "endChar": 38
+      },
+      "revId": "0778d948def836e493680b3aa9f84321a7842e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_2502370a",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-06T01:51:37Z",
+      "side": 1,
+      "message": "respective SG flow which commits the packets into the connection tracker and changes the ct_mark value to 1",
+      "range": {
+        "startLine": 62,
+        "startChar": 35,
+        "endLine": 63,
+        "endChar": 22
+      },
+      "revId": "0778d948def836e493680b3aa9f84321a7842e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_e58e5f78",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-06T01:51:37Z",
+      "side": 1,
+      "message": "do you want to match **ct_mark\u003d0** before setting it to 1",
+      "revId": "0778d948def836e493680b3aa9f84321a7842e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_2e016faf",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-07T22:56:20Z",
+      "side": 1,
+      "message": "Is this because the ct_mark is always zero when the packet arrives at this flow? Do we do commit conntrack for each and every packet for the +est connection if we remove the +new\n\nPlease clarify this in the document",
+      "parentUuid": "ba1f61a0_d6530fe0",
+      "revId": "0778d948def836e493680b3aa9f84321a7842e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_e51bff70",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-06T01:51:37Z",
+      "side": 1,
+      "message": "with different priority?",
+      "range": {
+        "startLine": 75,
+        "startChar": 11,
+        "endLine": 75,
+        "endChar": 36
+      },
+      "revId": "0778d948def836e493680b3aa9f84321a7842e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_45800b46",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-06T01:51:37Z",
+      "side": 1,
+      "message": "my mind is still hazy from the vacation break, could you elaborate more on the removal of the duplicate flow scenario?",
+      "revId": "0778d948def836e493680b3aa9f84321a7842e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_e5e5bf38",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-06T01:51:37Z",
+      "side": 1,
+      "message": "There are two flows mentioned above, only the the first flow handles established state",
+      "range": {
+        "startLine": 83,
+        "startChar": 8,
+        "endLine": 83,
+        "endChar": 22
+      },
+      "revId": "0778d948def836e493680b3aa9f84321a7842e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_05d8d379",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-06T01:51:37Z",
+      "side": 1,
+      "message": "This is the first time you mention ACL4 but I have not seen any explanation about it previously",
+      "range": {
+        "startLine": 88,
+        "startChar": 23,
+        "endLine": 88,
+        "endChar": 28
+      },
+      "revId": "0778d948def836e493680b3aa9f84321a7842e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_256197a9",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-06T01:51:37Z",
+      "side": 1,
+      "message": "Tables 212 and 242 are not new, they are re-purposed. We should add somethings like \"Please see the Pipeline changes section\"",
+      "revId": "0778d948def836e493680b3aa9f84321a7842e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_851fa307",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-06T01:51:37Z",
+      "side": 1,
+      "message": "I don\u0027t see [1] or [2], why jumping to [3]?",
+      "range": {
+        "startLine": 97,
+        "startChar": 3,
+        "endLine": 97,
+        "endChar": 6
+      },
+      "revId": "0778d948def836e493680b3aa9f84321a7842e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_050d73e9",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-06T01:51:37Z",
+      "side": 1,
+      "message": "In current implementation, first we check for source match (table 211), and secondly destination match (table 212). Is there any reason for checking destination first?",
+      "range": {
+        "startLine": 112,
+        "startChar": 100,
+        "endLine": 112,
+        "endChar": 127
+      },
+      "revId": "0778d948def836e493680b3aa9f84321a7842e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_85f843c4",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-06T01:51:37Z",
+      "side": 1,
+      "message": "New flow in table 212",
+      "range": {
+        "startLine": 114,
+        "startChar": 45,
+        "endLine": 114,
+        "endChar": 91
+      },
+      "revId": "0778d948def836e493680b3aa9f84321a7842e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_4513eb0c",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-06T01:51:37Z",
+      "side": 1,
+      "message": "packets",
+      "range": {
+        "startLine": 117,
+        "startChar": 23,
+        "endLine": 117,
+        "endChar": 32
+      },
+      "revId": "0778d948def836e493680b3aa9f84321a7842e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_e5013fb0",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-06T01:51:37Z",
+      "side": 1,
+      "message": "Currently",
+      "range": {
+        "startLine": 120,
+        "startChar": 0,
+        "endLine": 120,
+        "endChar": 3
+      },
+      "revId": "0778d948def836e493680b3aa9f84321a7842e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_252fd740",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-06T01:51:37Z",
+      "side": 1,
+      "message": "we",
+      "range": {
+        "startLine": 121,
+        "startChar": 0,
+        "endLine": 121,
+        "endChar": 2
+      },
+      "revId": "0778d948def836e493680b3aa9f84321a7842e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_c5febbad",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-06T01:51:37Z",
+      "side": 1,
+      "message": "Table 212 will be used to install the new flows which flips the ct_mark flag value when we delete the SG flow",
+      "range": {
+        "startLine": 121,
+        "startChar": 74,
+        "endLine": 122,
+        "endChar": 58
+      },
+      "revId": "0778d948def836e493680b3aa9f84321a7842e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_c5151be6",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-06T01:51:37Z",
+      "side": 1,
+      "message": "and proceed successfully",
+      "range": {
+        "startLine": 130,
+        "startChar": 65,
+        "endLine": 130,
+        "endChar": 108
+      },
+      "revId": "0778d948def836e493680b3aa9f84321a7842e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_c5c35b55",
         "filename": "docs/specs/acl-impl.rst",
         "patchSetId": 14
@@ -19,6 +490,98 @@
         "endLine": 185,
         "endChar": 84
       },
+      "revId": "0778d948def836e493680b3aa9f84321a7842e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_45b80be5",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-06T01:51:37Z",
+      "side": 1,
+      "message": "I would like to see ALL relevant SG flows when a VM is created BEFORE and AFTER the changes. Currently the relevant SG flows for a VM with default SG are below, what are the flows after the changes:\n\n cookie\u003d0x6900000, duration\u003d30.590s, table\u003d17, n_packets\u003d108, n_bytes\u003d10624, priority\u003d10,metadata\u003d0x20000000000/0xffffff0000000000 actions\u003dwrite_metadata:0x9000021389000000/0xfffffffffffffffe,goto_table:211\n\n cookie\u003d0x6900000, duration\u003d30.247s, table\u003d211, n_packets\u003d0, n_bytes\u003d0, priority\u003d61010,ipv6,dl_src\u003dfa:16:3e:93:dc:92,ipv6_src\u003dfe80::f816:3eff:fe93:dc92 actions\u003dct(table\u003d212,zone\u003d5001)\n cookie\u003d0x6900000, duration\u003d30.236s, table\u003d211, n_packets\u003d96, n_bytes\u003d9312, priority\u003d61010,ip,dl_src\u003dfa:16:3e:93:dc:92,nw_src\u003d10.100.5.3 actions\u003dct(table\u003d212,zone\u003d5001)\n cookie\u003d0x6900000, duration\u003d486.527s, table\u003d211, n_packets\u003d2, n_bytes\u003d180, priority\u003d0 actions\u003ddrop\n cookie\u003d0x6900000, duration\u003d30.157s, table\u003d212, n_packets\u003d0, n_bytes\u003d0, priority\u003d50,ipv6,metadata\u003d0x1389000000/0xffff000000,ipv6_dst\u003dfe80::f816:3eff:fe93:dc92 actions\u003dwrite_metadata:0x2/0xfffffe,goto_table:213\n cookie\u003d0x6900000, duration\u003d30.152s, table\u003d212, n_packets\u003d0, n_bytes\u003d0, priority\u003d50,ip,metadata\u003d0x1389000000/0xffff000000,nw_dst\u003d10.100.5.3 actions\u003dwrite_metadata:0x2/0xfffffe,goto_table:213\n cookie\u003d0x6900000, duration\u003d486.527s, table\u003d212, n_packets\u003d96, n_bytes\u003d9312, priority\u003d0 actions\u003dgoto_table:213\n cookie\u003d0x6900000, duration\u003d486.056s, table\u003d213, n_packets\u003d80, n_bytes\u003d8128, priority\u003d62020,ct_state\u003d-new+est-rel-inv+trk actions\u003dresubmit(,17)\n cookie\u003d0x6900000, duration\u003d485.948s, table\u003d213, n_packets\u003d0, n_bytes\u003d0, priority\u003d62020,ct_state\u003d-new-est+rel-inv+trk actions\u003dresubmit(,17)\n cookie\u003d0x6900001, duration\u003d30.184s, table\u003d213, n_packets\u003d0, n_bytes\u003d0, priority\u003d62015,ct_state\u003d+inv+trk,metadata\u003d0x20000000000/0xfffff0000000000 actions\u003ddrop\n cookie\u003d0x6900000, duration\u003d30.177s, table\u003d213, n_packets\u003d16, n_bytes\u003d1184, priority\u003d1000,ct_state\u003d+new+trk,ip,metadata\u003d0x20000000000/0xfffff0000000000 actions\u003dct(commit,zone\u003d5001),resubmit(,17)\n cookie\u003d0x6900000, duration\u003d30.168s, table\u003d213, n_packets\u003d0, n_bytes\u003d0, priority\u003d1001,ct_state\u003d+new+trk,ipv6,metadata\u003d0x20000000000/0xfffff0000000000 actions\u003dct(commit,zone\u003d5001),resubmit(,17)\n cookie\u003d0x6900001, duration\u003d30.207s, table\u003d213, n_packets\u003d0, n_bytes\u003d0, priority\u003d50,ct_state\u003d+new+trk,metadata\u003d0x20000000000/0xfffff0000000000 actions\u003ddrop\n\n cookie\u003d0x6900000, duration\u003d30.400s, table\u003d241, n_packets\u003d64, n_bytes\u003d6788, priority\u003d61010,ip,dl_dst\u003dfa:16:3e:93:dc:92,nw_dst\u003d10.100.5.3 actions\u003dct(table\u003d242,zone\u003d5001)\n cookie\u003d0x6900000, duration\u003d486.527s, table\u003d241, n_packets\u003d0, n_bytes\u003d0, priority\u003d0 actions\u003ddrop\n cookie\u003d0x6900000, duration\u003d30.338s, table\u003d242, n_packets\u003d0, n_bytes\u003d0, priority\u003d50,ipv6,metadata\u003d0x1389000000/0xffff000000,ipv6_src\u003dfe80::f816:3eff:fe93:dc92 actions\u003dwrite_metadata:0x2/0xfffffe,goto_table:243\n cookie\u003d0x6900000, duration\u003d30.325s, table\u003d242, n_packets\u003d0, n_bytes\u003d0, priority\u003d50,ip,metadata\u003d0x1389000000/0xffff000000,nw_src\u003d10.100.5.3 actions\u003dwrite_metadata:0x2/0xfffffe,goto_table:243\n cookie\u003d0x6900000, duration\u003d486.527s, table\u003d242, n_packets\u003d64, n_bytes\u003d6788, priority\u003d0 actions\u003dgoto_table:243\n cookie\u003d0x6900000, duration\u003d485.948s, table\u003d243, n_packets\u003d64, n_bytes\u003d6788, priority\u003d62020,ct_state\u003d-new+est-rel-inv+trk actions\u003dresubmit(,220)\n cookie\u003d0x6900000, duration\u003d485.948s, table\u003d243, n_packets\u003d0, n_bytes\u003d0, priority\u003d62020,ct_state\u003d-new-est+rel-inv+trk actions\u003dresubmit(,220)\n cookie\u003d0x6900001, duration\u003d30.392s, table\u003d243, n_packets\u003d0, n_bytes\u003d0, priority\u003d62015,ct_state\u003d+inv+trk,reg6\u003d0x200/0xfffff00 actions\u003ddrop\n cookie\u003d0x6900000, duration\u003d30.352s, table\u003d243, n_packets\u003d0, n_bytes\u003d0, priority\u003d1000,ct_state\u003d+new+trk,ip,reg6\u003d0x200/0xfffff00,metadata\u003d0x2/0xfffffe actions\u003dct(commit,zone\u003d5001),resubmit(,220)\n cookie\u003d0x6900000, duration\u003d30.345s, table\u003d243, n_packets\u003d0, n_bytes\u003d0, priority\u003d1001,ct_state\u003d+new+trk,ipv6,reg6\u003d0x200/0xfffff00,metadata\u003d0x2/0xfffffe actions\u003dct(commit,zone\u003d5001),resubmit(,220)\n cookie\u003d0x6900001, duration\u003d30.400s, table\u003d243, n_packets\u003d0, n_bytes\u003d0, priority\u003d50,ct_state\u003d+new+trk,reg6\u003d0x200/0xfffff00 actions\u003ddrop",
+      "revId": "0778d948def836e493680b3aa9f84321a7842e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_ce937359",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-07T22:56:20Z",
+      "side": 1,
+      "message": "The flow sample is very useful for reviewers to see the pipeline as a whole, and also serves as reference for implementation. Please include both before and after flow in the document as well.\nI have some comments (with \u003cVINH\u003e prefixes) on the flow sample you quoted above:\n\n cookie\u003d0x6900000, duration\u003d30.590s, table\u003d17, n_packets\u003d108, n_bytes\u003d10624, priority\u003d10,metadata\u003d0x20000000000/0xffffff0000000000 actions\u003dwrite_metadata:0x9000021389000000/0xfffffffffffffffe,goto_table:210\n cookie\u003d0x6900000, duration\u003d30.247s, table\u003d210, n_packets\u003d0, n_bytes\u003d0, priority\u003d61010,ipv6,dl_src\u003dfa:16:3e:93:dc:92,ipv6_src\u003dfe80::f816:3eff:fe93:dc92 actions\u003dct(table\u003d212,zone\u003d5001)\n\n\u003cVINH\u003e actions\u003dct(table\u003d211,zone\u003d5001)\n\n cookie\u003d0x6900000, duration\u003d30.236s, table\u003d210, n_packets\u003d96, n_bytes\u003d9312, priority\u003d61010,ip,dl_src\u003dfa:16:3e:93:dc:92,nw_src\u003d10.100.5.3 actions\u003dct(table\u003d212,zone\u003d5001)\n\u003cVINH\u003e actions\u003dct(table\u003d211,zone\u003d5001)\n\n cookie\u003d0x6900000, duration\u003d486.527s, table\u003d210, n_packets\u003d2, n_bytes\u003d180, priority\u003d0 actions\u003ddrop\n\n cookie\u003d0x6900000, duration\u003d30.157s, table\u003d211, n_packets\u003d0, n_bytes\u003d0, priority\u003d50,ipv6,metadata\u003d0x1389000000/0xffff000000,ipv6_dst\u003dfe80::f816:3eff:fe93:dc92 actions\u003dwrite_metadata:0x2/0xfffffe,goto_table:213\n\u003cVINH\u003e\ngoto_table:212\n cookie\u003d0x6900000, duration\u003d30.152s, table\u003d211, n_packets\u003d0, n_bytes\u003d0, priority\u003d50,ip,metadata\u003d0x1389000000/0xffff000000,nw_dst\u003d10.100.5.3 actions\u003dwrite_metadata:0x2/0xfffffe,goto_table:213\n\u003cVINH\u003e\ngoto_table:212\n cookie\u003d0x6900000, duration\u003d486.527s, table\u003d211, n_packets\u003d96, n_bytes\u003d9312, priority\u003d0 actions\u003dgoto_table:212\n\n cookie\u003d0x6900000, duration\u003d486.527s, table\u003d212, n_packets\u003d96, n_bytes\u003d9312, priority\u003d0 actions\u003dgoto_table:213\n\n cookie\u003d0x6900000, duration\u003d486.056s, table\u003d213, n_packets\u003d80, n_bytes\u003d8128, priority\u003d62020,ct_state\u003d-new+est-rel-inv+trk actions\u003dresubmit(,17)\n cookie\u003d0x6900000, duration\u003d485.948s, table\u003d213, n_packets\u003d0, n_bytes\u003d0, priority\u003d62020,ct_state\u003d-new-est+rel-inv+trk actions\u003dresubmit(,17)\n\u003cVINH\u003e ct_mark\u003d0x1 match for the above two flows\n\n cookie\u003d0x6900001, duration\u003d30.184s, table\u003d213, n_packets\u003d0, n_bytes\u003d0, priority\u003d62015,ct_state\u003d+inv+trk,metadata\u003d0x20000000000/0xfffff0000000000 actions\u003ddrop\n\n cookie\u003d0x6900000, duration\u003d30.177s, table\u003d213, n_packets\u003d16, n_bytes\u003d1184, priority\u003d1000,ct_state\u003d+trk,ip,metadata\u003d0x20000000000/0xfffff0000000000 actions\u003dct(commit,zone\u003d5001,exec(set_field:0x1-\u003ect_mark)),resubmit(,17)\n cookie\u003d0x6900000, duration\u003d30.168s, table\u003d213, n_packets\u003d0, n_bytes\u003d0, priority\u003d1001,ct_state\u003d+trk,ipv6,metadata\u003d0x20000000000/0xfffff0000000000 actions\u003dct(commit,zone\u003d5001),resubmit(,17)\n\u003cVINH\u003e same treatment as ip\n\n cookie\u003d0x6900001, duration\u003d30.207s, table\u003d213, n_packets\u003d0, n_bytes\u003d0, priority\u003d50,ct_state\u003d+trk,metadata\u003d0x20000000000/0xfffff0000000000 actions\u003ddrop\n cookie\u003d0x6900000, duration\u003d30.400s, table\u003d240, n_packets\u003d64, n_bytes\u003d6788, priority\u003d61010,ip,dl_dst\u003dfa:16:3e:93:dc:92,nw_dst\u003d10.100.5.3 actions\u003dct(table\u003d242,zone\u003d5001)\n\u003cVINH\u003e actions\u003dct(table\u003d241,zone\u003d5001)\n cookie\u003d0x6900000, duration\u003d486.527s, table\u003d240, n_packets\u003d0, n_bytes\u003d0, priority\u003d0 actions\u003ddrop\n cookie\u003d0x6900000, duration\u003d30.338s, table\u003d241, n_packets\u003d0, n_bytes\u003d0, priority\u003d50,ipv6,metadata\u003d0x1389000000/0xffff000000,ipv6_src\u003dfe80::f816:3eff:fe93:dc92 actions\u003dwrite_metadata:0x2/0xfffffe,goto_table:243\n cookie\u003d0x6900000, duration\u003d30.325s, table\u003d241, n_packets\u003d0, n_bytes\u003d0, priority\u003d50,ip,metadata\u003d0x1389000000/0xffff000000,nw_src\u003d10.100.5.3 actions\u003dwrite_metadata:0x2/0xfffffe,goto_table:243\n\u003cVINH\u003e go_table:242 for both flows\n cookie\u003d0x6900000, duration\u003d486.527s, table\u003d241, n_packets\u003d64, n_bytes\u003d6788, priority\u003d0 actions\u003dgoto_table:242\n cookie\u003d0x6900000, duration\u003d486.527s, table\u003d242, n_packets\u003d64, n_bytes\u003d6788, priority\u003d0 actions\u003dgoto_table:243\n cookie\u003d0x6900000, duration\u003d485.948s, table\u003d243, n_packets\u003d64, n_bytes\u003d6788, priority\u003d62020,ct_state\u003d-new+est-rel-inv+trk,ct_mark\u003d1 actions\u003dresubmit(,220)\n\u003cVINH\u003e use hex format for consistency, ct_mark\u003d0x1\n cookie\u003d0x6900000, duration\u003d485.948s, table\u003d243, n_packets\u003d0, n_bytes\u003d0, priority\u003d62020,ct_state\u003d-new-est+rel-inv+trk actions\u003dresubmit(,220)\n\u003cVINH\u003e ct_mark\u003d0x1 match\n cookie\u003d0x6900001, duration\u003d30.392s, table\u003d243, n_packets\u003d0, n_bytes\u003d0, priority\u003d62015,ct_state\u003d+inv+trk,reg6\u003d0x200/0xfffff00 actions\u003ddrop\n cookie\u003d0x6900000, duration\u003d30.352s, table\u003d243, n_packets\u003d0, n_bytes\u003d0, priority\u003d1000,ct_state\u003d+trk,ip,reg6\u003d0x200/0xfffff00,metadata\u003d0x2/0xfffffe actions\u003dct(commit,zone\u003d5001,exec(set_field:0x1-\u003ect_mark)),resubmit(,220)\n cookie\u003d0x6900000, duration\u003d30.345s, table\u003d243, n_packets\u003d0, n_bytes\u003d0, priority\u003d1001,ct_state\u003d+trk,ipv6,reg6\u003d0x200/0xfffff00,metadata\u003d0x2/0xfffffe actions\u003dct(commit,zone\u003d5001),resubmit(,220)\n\u003cVINH\u003e same traetment as ip\n cookie\u003d0x6900001, duration\u003d30.400s, table\u003d243, n_packets\u003d0, n_bytes\u003d0, priority\u003d50,ct_state\u003d+trk,reg6\u003d0x200/0xfffff00 actions\u003ddrop\n\nBelow two flows will be installed when we delete the SG flow,\n cookie\u003d0x6900000, duration\u003d30.177s, table\u003d213, n_packets\u003d16, n_bytes\u003d1184, priority\u003d1000,ct_state\u003d+trk,ip,metadata\u003d0x20000000000/0xfffff0000000000,ct_mark\u003d1 actions\u003dct(commit,zone\u003d5001,exec(set_field:0-\u003ect_mark)),resubmit(,17)\n\n\u003cVINH\u003e Do you mean:\ntable\u003d212,...,goto_table:213\n\n cookie\u003d0x6900000, duration\u003d30.352s, table\u003d242, n_packets\u003d0, n_bytes\u003d0, priority\u003d1000,ct_state\u003d+trk,ip,reg6\u003d0x200/0xfffff00,metadata\u003d0x2/0xfffffe,ct_mark\u003d1 actions\u003dactions\u003dct(commit,exec(set_field:0-\u003ect_mark))goto_table:243\n\n\u003cVINH\u003e timeout???",
+      "parentUuid": "ba1f61a0_56255f5a",
+      "revId": "0778d948def836e493680b3aa9f84321a7842e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_85cde387",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-06T01:51:37Z",
+      "side": 1,
+      "message": "This section is not needed since we already mention in \"Pineline changes\" section",
+      "revId": "0778d948def836e493680b3aa9f84321a7842e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_eef91781",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-07T22:56:20Z",
+      "side": 1,
+      "message": "Do this approach incurs significantly more conntrack commits and set_fields?",
+      "range": {
+        "startLine": 269,
+        "startChar": 0,
+        "endLine": 269,
+        "endChar": 4
+      },
+      "revId": "0778d948def836e493680b3aa9f84321a7842e21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_0eed8bb7",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-07T23:09:44Z",
+      "side": 1,
+      "message": "test for restore the rule before the new flow in 212/242 timeouts?",
       "revId": "0778d948def836e493680b3aa9f84321a7842e21",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
