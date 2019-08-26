@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_45908fec",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_ce7301e6",
+      "revId": "91b7faf16c4b85ac69979099f1f492c726148399",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_2e81fd8f",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
         "patchSetId": 10
@@ -30,6 +48,30 @@
       "writtenOn": "2017-10-07T00:43:23Z",
       "side": 1,
       "message": "Please change method name to be consistent with changes in Egress counterpart\n\nie addStatefulIngressApplyAclChangeForExistingTrafficTableMissFlow",
+      "range": {
+        "startLine": 271,
+        "startChar": 8,
+        "endLine": 271,
+        "endChar": 68
+      },
+      "revId": "91b7faf16c4b85ac69979099f1f492c726148399",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a5bceb6d",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_2e81fd8f",
       "range": {
         "startLine": 271,
         "startChar": 8,
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_8568c7f6",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/StatefulAclServiceHelper.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_0ea7d950",
+      "revId": "91b7faf16c4b85ac69979099f1f492c726148399",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_ae6ded06",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/StatefulAclServiceHelper.java",
         "patchSetId": 10
@@ -70,6 +130,24 @@
       "writtenOn": "2017-10-07T00:43:23Z",
       "side": 1,
       "message": "Please elaborate more on how/when this method is needed",
+      "revId": "91b7faf16c4b85ac69979099f1f492c726148399",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_85c1e7e6",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/StatefulAclServiceHelper.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_ae6ded06",
       "revId": "91b7faf16c4b85ac69979099f1f492c726148399",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -93,6 +171,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_e5b6e389",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/StatefulAclServiceHelper.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_ee76c5d7",
+      "revId": "91b7faf16c4b85ac69979099f1f492c726148399",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_8e72a9e3",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/StatefulAclServiceHelper.java",
         "patchSetId": 10
@@ -110,6 +206,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_c5bbdf70",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/StatefulAclServiceHelper.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_8e72a9e3",
+      "revId": "91b7faf16c4b85ac69979099f1f492c726148399",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_4e68b1f5",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/StatefulAclServiceHelper.java",
         "patchSetId": 10
@@ -121,6 +235,24 @@
       "writtenOn": "2017-10-07T00:43:23Z",
       "side": 1,
       "message": "remove empty line",
+      "revId": "91b7faf16c4b85ac69979099f1f492c726148399",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_25b0fb8a",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/StatefulAclServiceHelper.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_4e68b1f5",
       "revId": "91b7faf16c4b85ac69979099f1f492c726148399",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
