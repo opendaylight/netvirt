@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ff15c20a_0a84c06a",
+        "filename": "tox.ini",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 6258
+      },
+      "writtenOn": "2019-08-27T14:48:08Z",
+      "side": 1,
+      "message": "Do we want to change this to py3.4 here?\n\nenvlist \u003d coala,docs,pre-commit,py3.4",
+      "range": {
+        "startLine": 3,
+        "startChar": 1,
+        "endLine": 3,
+        "endChar": 31
+      },
+      "revId": "9ae4f2f3d556d396c64f02d68ac4603b53fe02e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
