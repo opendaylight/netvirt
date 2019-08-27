@@ -25,10 +25,21 @@ import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.utils.SuperTypeUtil;
+import org.opendaylight.netvirt.elan.l2gw.ha.commands.LocalMcastCmd;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.LocalUcastCmd;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.MergeCommand;
+import org.opendaylight.netvirt.elan.l2gw.ha.commands.PhysicalLocatorCmd;
+import org.opendaylight.netvirt.elan.l2gw.ha.commands.RemoteMcastCmd;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.RemoteUcastCmd;
+import org.opendaylight.netvirt.elan.l2gw.ha.commands.TerminationPointCmd;
+import org.opendaylight.netvirt.elan.l2gw.ha.commands.TunnelCmd;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LocalMcastMacs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LocalUcastMacs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteMcastMacs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteUcastMacs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical._switch.attributes.Tunnels;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -41,11 +52,29 @@ public abstract class MergeCommandsAggregator<BuilderTypeT extends Builder, AugT
 
     protected Map<Class<?>, MergeCommand> commands = new HashMap<>();
 
+    private final Map<Class, Boolean> operSkipCommands = new HashMap<>();
+    private final Map<Class, Boolean> configSkipCommands = new HashMap<>();
+
     private final BiPredicate<Class<? extends Datastore>, Class> skipCopy =
-        (dsType, cmdType) -> (Configuration.class.equals(dsType) ? commands.get(cmdType) instanceof LocalUcastCmd
-                : commands.get(cmdType) instanceof RemoteUcastCmd);
+        (dsType, cmdType) -> (Configuration.class.equals(dsType) ? configSkipCommands.containsKey(cmdType)
+                : operSkipCommands.containsKey(cmdType));
 
     protected MergeCommandsAggregator() {
+        operSkipCommands.put(RemoteUcastCmd.class, Boolean.TRUE);
+        operSkipCommands.put(RemoteMcastCmd.class, Boolean.TRUE);
+        operSkipCommands.put(TerminationPointCmd.class, Boolean.TRUE);
+        operSkipCommands.put(LocalMcastCmd.class, Boolean.TRUE);
+        operSkipCommands.put(PhysicalLocatorCmd.class, Boolean.TRUE);
+        operSkipCommands.put(TunnelCmd.class, Boolean.TRUE);
+
+        operSkipCommands.put(RemoteMcastMacs.class, Boolean.TRUE);
+        operSkipCommands.put(RemoteUcastMacs.class, Boolean.TRUE);
+        operSkipCommands.put(LocalMcastMacs.class, Boolean.TRUE);
+        operSkipCommands.put(TerminationPoint.class, Boolean.TRUE);
+        operSkipCommands.put(Tunnels.class, Boolean.TRUE);
+
+        configSkipCommands.put(LocalUcastCmd.class, Boolean.TRUE);
+        configSkipCommands.put(LocalUcastMacs.class, Boolean.TRUE);
     }
 
     protected void addCommand(MergeCommand mergeCommand) {

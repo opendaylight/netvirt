@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import javax.annotation.PreDestroy;
@@ -127,10 +128,10 @@ public abstract class HwvtepNodeBaseListener<D extends Datastore>
             be = beforeAugmentaion.getManagers();
         }
 
-        if (up != null && be != null && up.size() > 0 && be.size() > 0) {
+        if (up != null) {
             Managers m1 = up.get(0);
             Managers m2 = be.get(0);
-            if (!m1.equals(m2)) {
+            if (!Objects.equals(m1, m2)) {
                 LOG.trace("Manager entry updated for node {} ", updatedChildNode.getNodeId().getValue());
                 HwvtepHAUtil.addToCacheIfHAChildNode(childPath, updatedChildNode, hwvtepNodeHACache);
             }
