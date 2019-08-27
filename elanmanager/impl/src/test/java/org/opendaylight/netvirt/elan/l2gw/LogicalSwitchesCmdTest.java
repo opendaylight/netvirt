@@ -17,9 +17,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.LogicalSwitchesCmd;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
@@ -98,6 +96,7 @@ public class LogicalSwitchesCmdTest extends AbstractConcurrentDataBrokerTest {
         assertEquals("should copy the logical switches ", 2, dstBuilder.getLogicalSwitches().size());
     }
 
+    /*
     @Test
     public void testOneLogicalSwitchAddedUpdate() throws Exception {
         existingData = getData(new LogicalSwitches[]{logicalSwitches[0], logicalSwitches[1]});
@@ -174,7 +173,7 @@ public class LogicalSwitchesCmdTest extends AbstractConcurrentDataBrokerTest {
         updatedData = getData(new LogicalSwitches[]{logicalSwitches[0], logicalSwitches[1]});
         cmd.mergeOpUpdate(existingData, updatedData, originalData, haNodePath, tx);
         Mockito.verifyNoMoreInteractions(tx);
-    }
+    } */
 
     LogicalSwitches buildData(String name, String tunnelKey) {
         LogicalSwitchesBuilder logicalSwitchesBuilder = new LogicalSwitchesBuilder();

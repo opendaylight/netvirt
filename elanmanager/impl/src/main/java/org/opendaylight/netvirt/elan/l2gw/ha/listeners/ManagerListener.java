@@ -34,6 +34,7 @@ public final class ManagerListener extends AsyncClusteredDataTreeChangeListenerB
 
     @Inject
     public ManagerListener(DataBroker dataBroker, HwvtepNodeHACache hwvtepNodeHACache) {
+        super(Managers.class, ManagerListener.class);
         this.dataBroker = dataBroker;
         this.hwvtepNodeHACache = hwvtepNodeHACache;
     }
