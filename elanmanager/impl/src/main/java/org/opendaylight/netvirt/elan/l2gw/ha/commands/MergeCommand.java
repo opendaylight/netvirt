@@ -12,6 +12,7 @@ import static org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil.isEmptyList;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -129,18 +130,32 @@ public abstract class MergeCommand<T extends DataObject, Y extends Builder, Z ex
     }
 
     public List<T> transform(InstanceIdentifier<Node> nodePath, List<T> list) {
-        return list.stream().map(t -> transform(nodePath, t)).collect(Collectors.toList());
+        if (list != null) {
+            return list.stream().map(t -> transform(nodePath, t)).collect(Collectors.toList());
+        }
+        return new ArrayList<>();
     }
 
     public abstract T transform(InstanceIdentifier<Node> nodePath, T objT);
+
+    List<T> getDataSafe(Z existingData) {
+        if (existingData == null) {
+            return Collections.EMPTY_LIST;
+        }
+        List<T> result = getData(existingData);
+        if (result == null) {
+            return Collections.EMPTY_LIST;
+        }
+        return result;
+    }
 
     @Override
     public void mergeOperationalData(Y dst,
                                      Z existingData,
                                      Z src,
                                      InstanceIdentifier<Node> nodePath) {
-        List<T> origDstData = getData(existingData);
-        List<T> srcData = getData(src);
+        List<T> origDstData = getDataSafe(existingData);
+        List<T> srcData = getDataSafe(src);
         List<T> data = transformOpData(origDstData, srcData, nodePath);
         setData(dst, data);
         if (!isEmptyList(data)) {
@@ -149,10 +164,11 @@ public abstract class MergeCommand<T extends DataObject, Y extends Builder, Z ex
         }
     }
 
+    @Override
     public void mergeConfigData(Y dst,
                                 Z src,
                                 InstanceIdentifier<Node> nodePath) {
-        List<T> data        = getData(src);
+        List<T> data        = getDataSafe(src);
         List<T> transformed = transformConfigData(data, nodePath);
         setData(dst, transformed);
         if (!isEmptyList(data)) {

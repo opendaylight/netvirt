@@ -43,4 +43,13 @@ public interface IMergeCommand<T extends DataObject, Y extends Builder, Z extend
                        InstanceIdentifier<Node> nodePath,
                        ReadWriteTransaction tx);
 
+    /**
+     * Abstract function to merge data from src to dst in Config Topology.
+     * @param dst builder which will be used to build concrete object
+     * @param src builder which are to be merged in destination
+     * @param nodePath nodePath of dest
+     */
+    void mergeConfigData(Y dst,
+                         Z src,
+                         InstanceIdentifier<Node> nodePath);
 }
