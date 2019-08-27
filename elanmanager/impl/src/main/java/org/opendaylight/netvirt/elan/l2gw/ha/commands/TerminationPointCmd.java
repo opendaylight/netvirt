@@ -23,8 +23,12 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPointBuilder;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TerminationPointCmd extends MergeCommand<TerminationPoint, NodeBuilder, Node> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(TerminationPointCmd.class);
 
     public TerminationPointCmd() {
     }
@@ -69,6 +73,9 @@ public class TerminationPointCmd extends MergeCommand<TerminationPoint, NodeBuil
         if (augmentation.getVlanBindings() != null && augmentation.getVlanBindings().size() > 0) {
             tpAugmentationBuilder.setVlanBindings(augmentation.getVlanBindings().stream().map(
                 vlanBindings -> {
+                    if (vlanBindings.getLogicalSwitchRef() == null) {
+                        LOG.error("Failed to get logical switch ref for vlan binding {} {} ", path, src);
+                    }
                     VlanBindingsBuilder vlanBindingsBuilder = new VlanBindingsBuilder(vlanBindings);
                     vlanBindingsBuilder.setLogicalSwitchRef(
                             HwvtepHAUtil.convertLogicalSwitchRef(vlanBindings.getLogicalSwitchRef(), path));
