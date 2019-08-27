@@ -249,6 +249,14 @@ public final class HwvtepHAUtil {
         return null;
     }
 
+    @Nullable
+    public static String getPsName(String psNodeId) {
+        if (psNodeId.contains(PHYSICALSWITCH)) {
+            return psNodeId.substring(psNodeId.indexOf(PHYSICALSWITCH) + PHYSICALSWITCH.length());
+        }
+        return null;
+    }
+
     public static InstanceIdentifier<Node> getGlobalNodePathFromPSNode(Node psNode) {
         String psNodeId = psNode.getNodeId().getValue();
         if (psNodeId.contains(PHYSICALSWITCH)) {

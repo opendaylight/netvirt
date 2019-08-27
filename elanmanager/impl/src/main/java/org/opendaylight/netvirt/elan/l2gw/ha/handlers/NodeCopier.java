@@ -113,12 +113,12 @@ public class NodeCopier {
                 existingDstGlobalNodeOptional.isPresent() ? existingDstGlobalNodeOptional.get() : null;
         HwvtepGlobalAugmentation existingHAGlobalData = HwvtepHAUtil.getGlobalAugmentationOfNode(existingDstGlobalNode);
 
-        globalAugmentationMerger.mergeOperationalData(haBuilder, existingHAGlobalData, srcGlobalAugmentation, dstPath);
-        globalNodeMerger.mergeOperationalData(haNodeBuilder,
-                existingDstGlobalNode, srcGlobalNodeOptional.get(), dstPath);
-
 
         if (Operational.class.equals(datastoreType)) {
+            globalAugmentationMerger.mergeOperationalData(haBuilder, existingHAGlobalData, srcGlobalAugmentation,
+                    dstPath);
+            globalNodeMerger.mergeOperationalData(haNodeBuilder,
+                    existingDstGlobalNode, srcGlobalNodeOptional.get(), dstPath);
             haBuilder.setManagers(HwvtepHAUtil.buildManagersForHANode(srcGlobalNodeOptional.get(),
                     existingDstGlobalNodeOptional));
             //Also update the manager section in config which helps in cluster reboot scenarios
@@ -130,7 +130,11 @@ public class NodeCopier {
                         confTx.put(managerIid, manager, CREATE_MISSING_PARENTS);
                     })), LOG, "Error updating the manager section in config");
 
+        } else {
+            globalAugmentationMerger.mergeConfigData(haBuilder, srcGlobalAugmentation, dstPath);
+            globalNodeMerger.mergeConfigData(haNodeBuilder, srcGlobalNodeOptional.get(), dstPath);
         }
+
         haBuilder.setDbVersion(srcGlobalAugmentation.getDbVersion());
         haNodeBuilder.addAugmentation(HwvtepGlobalAugmentation.class, haBuilder.build());
         Node haNode = haNodeBuilder.build();
