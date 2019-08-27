@@ -12,6 +12,7 @@ import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,7 +49,7 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener<Operational>
     public HAOpClusteredListener(DataBroker db, HwvtepNodeHACache hwvtepNodeHACache,
                                  MetricProvider metricProvider) throws Exception {
         super(OPERATIONAL, db, hwvtepNodeHACache, metricProvider, false);
-        LOG.info("Registering HAOpClusteredListener");
+        LOG.info("Registering HAOpClusteredListener VERSION-1");
     }
 
     public Set<InstanceIdentifier<Node>> getConnectedNodes() {
@@ -145,6 +146,8 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener<Operational>
         } else {
             waitingJobs.computeIfAbsent(iid, key -> Sets.newConcurrentHashSet()).add(consumer);
         }
+        waitingJobs.putIfAbsent(iid, new HashSet<>());
+        waitingJobs.get(iid).add(consumer);
     }
 }
 
