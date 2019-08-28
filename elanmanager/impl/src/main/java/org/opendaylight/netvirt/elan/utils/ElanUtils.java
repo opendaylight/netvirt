@@ -1644,4 +1644,8 @@ public class ElanUtils {
         return InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId("openflow:" + dpnId)))
                 .augmentation(FlowCapableNode.class).child(Group.class, new GroupKey(new GroupId(groupId))).build();
     }
+
+    public static String getBcGroupUpdateKey(String elanName) {
+        return "bc.group.update." + elanName;
+    }
 }

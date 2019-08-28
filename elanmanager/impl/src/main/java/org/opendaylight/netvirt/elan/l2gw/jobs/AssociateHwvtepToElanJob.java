@@ -11,7 +11,6 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -21,6 +20,7 @@ import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
+import org.opendaylight.netvirt.elan.l2gw.utils.ElanRefUtil;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
@@ -45,12 +45,13 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
     private final ElanInstance elanInstance;
     private final Devices l2Device;
     private final Integer defaultVlan;
-    private final boolean createLogicalSwitch;
+    private final ElanRefUtil elanRefUtil;
 
     public AssociateHwvtepToElanJob(DataBroker broker, ElanL2GatewayUtils elanL2GatewayUtils,
-            ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils, ElanInstanceCache elanInstanceCache,
-            L2GatewayDevice l2GatewayDevice, ElanInstance elanInstance, Devices l2Device, Integer defaultVlan,
-            boolean createLogicalSwitch) {
+                                    ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
+                                    ElanInstanceCache elanInstanceCache, L2GatewayDevice l2GatewayDevice,
+                                    ElanInstance elanInstance, Devices l2Device, Integer defaultVlan,
+                                    ElanRefUtil elanRefUtil) {
         this.broker = broker;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
@@ -59,7 +60,7 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
         this.elanInstance = elanInstance;
         this.l2Device = l2Device;
         this.defaultVlan = defaultVlan;
-        this.createLogicalSwitch = createLogicalSwitch;
+        this.elanRefUtil = elanRefUtil;
         LOG.debug("created assosiate l2gw connection job for {} {} ", elanInstance.getElanInstanceName(),
                 l2GatewayDevice.getHwvtepNodeId());
     }
@@ -78,21 +79,15 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
                 ElanL2GatewayUtils.getLogicalSwitchFromElan(elanInstanceName));
 
         // Create Logical Switch if it's not created already in the device
-        if (createLogicalSwitch) {
-            LOG.info("creating logical switch {} for {} ", elanInstanceName, hwvtepNodeId);
+        LOG.info("creating logical switch {} for {} ", elanInstanceName, hwvtepNodeId);
+        createLogicalSwitch();
+        String logicalSwitchName = ElanL2GatewayUtils.getLogicalSwitchFromElan(elanInstanceName);
+        LOG.info("{} is already created in {}; adding remaining configurations", logicalSwitchName, hwvtepNodeId);
 
-            return Collections.singletonList(createLogicalSwitch());
-        } else {
-            createLogicalSwitch();
-            String logicalSwitchName = ElanL2GatewayUtils.getLogicalSwitchFromElan(elanInstanceName);
-            LOG.info("{} is already created in {}; adding remaining configurations", logicalSwitchName, hwvtepNodeId);
-
-            LogicalSwitchAddedJob logicalSwitchAddedJob =
-                    new LogicalSwitchAddedJob(elanL2GatewayUtils, elanL2GatewayMulticastUtils,
-                        logicalSwitchName, l2Device, l2GatewayDevice, defaultVlan
-                    );
-            return logicalSwitchAddedJob.call();
-        }
+        LogicalSwitchAddedJob logicalSwitchAddedJob =
+                new LogicalSwitchAddedJob(elanL2GatewayUtils, elanL2GatewayMulticastUtils,
+                        logicalSwitchName, l2Device, l2GatewayDevice, defaultVlan, elanRefUtil, broker);
+        return logicalSwitchAddedJob.call();
     }
 
     private ListenableFuture<Void> createLogicalSwitch() {
