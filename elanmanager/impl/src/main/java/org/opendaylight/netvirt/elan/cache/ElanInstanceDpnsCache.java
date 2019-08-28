@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.elan.cache;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -41,5 +42,10 @@ public class ElanInstanceDpnsCache {
     public Collection<DpnInterfaces> get(@NonNull String elanInstanceName) {
         Set<DpnInterfaces> dpns = elanInstanceToDpnsCache.get(elanInstanceName);
         return dpns != null ? Collections.unmodifiableCollection(dpns) : Collections.emptyList();
+    }
+
+    @NonNull
+    public Map<String, Set<DpnInterfaces>> getElanDpns() {
+        return elanInstanceToDpnsCache;
     }
 }

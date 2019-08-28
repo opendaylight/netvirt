@@ -31,13 +31,11 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
-import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpClusteredListener;
 import org.opendaylight.netvirt.elan.l2gw.jobs.AssociateHwvtepToElanJob;
 import org.opendaylight.netvirt.elan.l2gw.jobs.DisAssociateHwvtepFromElanJob;
-import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepLogicalSwitchListener;
 import org.opendaylight.netvirt.elan.l2gw.listeners.LocalUcastMacListener;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
@@ -75,13 +73,14 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
     private final List<AutoCloseable> closeables = new CopyOnWriteArrayList<>();
     private final HwvtepNodeHACache hwvtepNodeHACache;
     private final HAOpClusteredListener haOpClusteredListener;
+    private final ElanRefUtil elanRefUtil;
 
     @Inject
     public L2GatewayConnectionUtils(DataBroker dataBroker,
             ElanClusterUtils elanClusterUtils, ElanL2GatewayUtils elanL2GatewayUtils,
             JobCoordinator jobCoordinator, ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
             L2GatewayCache l2GatewayCache, HAOpClusteredListener haOpClusteredListener,
-            ElanInstanceCache elanInstanceCache, HwvtepNodeHACache hwvtepNodeHACache) {
+            ElanInstanceCache elanInstanceCache, HwvtepNodeHACache hwvtepNodeHACache, ElanRefUtil elanRefUtil) {
         this.broker = dataBroker;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.elanClusterUtils = elanClusterUtils;
@@ -91,6 +90,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
         this.haOpClusteredListener = haOpClusteredListener;
         this.elanInstanceCache = elanInstanceCache;
         this.hwvtepNodeHACache = hwvtepNodeHACache;
+        this.elanRefUtil = elanRefUtil;
     }
 
     @Override
@@ -309,23 +309,10 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
                         ElanL2GatewayUtils.getLogicalSwitchFromElan(elanName));
 
                 // Add L2 Gateway device to 'ElanL2GwDevice' cache
-                boolean createLogicalSwitch;
-                LogicalSwitches logicalSwitch = HwvtepUtils.getLogicalSwitch(broker, LogicalDatastoreType.CONFIGURATION,
-                        hwvtepNodeId, elanName);
-                if (logicalSwitch == null) {
-                    HwvtepLogicalSwitchListener hwVTEPLogicalSwitchListener = new HwvtepLogicalSwitchListener(
-                            elanInstanceCache, elanL2GatewayUtils, elanClusterUtils, elanL2GatewayMulticastUtils,
-                            this, l2GatewayDevice, elanName, l2Device, defaultVlan, l2GwConnId, hwvtepNodeHACache);
-                    hwVTEPLogicalSwitchListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);
-                    closeables.add(hwVTEPLogicalSwitchListener);
-                    createLogicalSwitch = true;
-                } else {
-                    addL2DeviceToElanL2GwCache(elanName, l2GatewayDevice, l2GwConnId, l2Device);
-                    createLogicalSwitch = false;
-                }
+                addL2DeviceToElanL2GwCache(elanName, l2GatewayDevice, l2GwConnId, l2Device);
                 AssociateHwvtepToElanJob associateHwvtepToElanJob = new AssociateHwvtepToElanJob(broker,
                         elanL2GatewayUtils, elanL2GatewayMulticastUtils, elanInstanceCache, l2GatewayDevice,
-                        elanInstance, l2Device, defaultVlan, createLogicalSwitch);
+                        elanInstance, l2Device, defaultVlan, elanRefUtil);
 
                 elanClusterUtils.runOnlyInOwnerNode(associateHwvtepToElanJob.getJobKey(),
                         "create logical switch in hwvtep topo", associateHwvtepToElanJob);
