@@ -574,7 +574,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             return;
         }
 
-        LOG.debug("updateExternalElanNetworks, orig bridge {} . updated bridge {}", origNode, updatedNode);
+        LOG.trace("updateExternalElanNetworks, orig bridge {} . updated bridge {}", origNode, updatedNode);
 
         Map<String, String> origProviderMappping = getMapFromOtherConfig(origNode,
                 ElanBridgeManager.PROVIDER_MAPPINGS_KEY);

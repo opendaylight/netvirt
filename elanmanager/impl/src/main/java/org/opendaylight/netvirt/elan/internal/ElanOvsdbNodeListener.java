@@ -80,7 +80,7 @@ public class ElanOvsdbNodeListener extends AsyncDataTreeChangeListenerBase<Node,
 
     @Override
     protected void update(InstanceIdentifier<Node> identifier, Node original, Node update) {
-        LOG.debug("ElanOvsdbNodeListener.update, updated node detected. original: {} new: {}", original, update);
+        LOG.debug("ElanOvsdbNodeListener.update, updated node detected. original: NodeId = {}", original.getNodeId());
         boolean integrationBridgeExist = bridgeMgr.isBridgeOnOvsdbNode(update, bridgeMgr.getIntegrationBridgeName());
         // ignore updates where the bridge was deleted
         if (!(bridgeMgr.isBridgeOnOvsdbNode(original, bridgeMgr.getIntegrationBridgeName())
