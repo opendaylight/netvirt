@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -39,7 +40,6 @@ public class ElanGroupCache extends AsyncClusteredDataTreeChangeListenerBase<Gro
     private final Scheduler scheduler;
     private final Map<InstanceIdentifier<Group>, Group> groupsById = new ConcurrentHashMap<>();
     private final Map<InstanceIdentifier<Group>, Collection<Runnable>> waitingJobs = new ConcurrentHashMap<>();
-    private volatile boolean initialized = false;
 
     @Inject
     public ElanGroupCache(final DataBroker dataBroker, final Scheduler scheduler) {
@@ -48,11 +48,9 @@ public class ElanGroupCache extends AsyncClusteredDataTreeChangeListenerBase<Gro
         this.scheduler = scheduler;
     }
 
+    @PostConstruct
     public synchronized void init() {
-        if (!initialized) {
-            initialized = true;
-            this.registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
-        }
+        this.registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
