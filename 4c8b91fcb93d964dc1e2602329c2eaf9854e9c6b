@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7964b17d_082f92eb",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-08-28T06:35:14Z",
+      "side": 1,
+      "message": "Instead of having an new API(just to catch runtime exception), can\u0027t we update the existing removeFibEntry to catch and handle RuntimeException ??",
+      "range": {
+        "startLine": 395,
+        "startChar": 4,
+        "endLine": 398,
+        "endChar": 26
+      },
+      "revId": "4c8b91fcb93d964dc1e2602329c2eaf9854e9c6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
