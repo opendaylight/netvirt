@@ -21,8 +21,10 @@ import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceDpnsCache;
+import org.opendaylight.netvirt.elan.l2gw.jobs.BcGroupUpdateJob;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
+import org.opendaylight.netvirt.elan.l2gw.utils.ElanRefUtil;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
@@ -47,6 +49,7 @@ public class ElanDpnInterfaceClusteredListener
     private final JobCoordinator jobCoordinator;
     private final ElanInstanceCache elanInstanceCache;
     private final ElanInstanceDpnsCache elanInstanceDpnsCache;
+    private final ElanRefUtil elanRefUtil;
 
     @Inject
     public ElanDpnInterfaceClusteredListener(DataBroker broker, EntityOwnershipUtils entityOwnershipUtils,
@@ -54,7 +57,8 @@ public class ElanDpnInterfaceClusteredListener
                                              ElanClusterUtils elanClusterUtils, JobCoordinator jobCoordinator,
                                              ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
                                              ElanInstanceCache elanInstanceCache,
-                                             ElanInstanceDpnsCache elanInstanceDpnsCache) {
+                                             ElanInstanceDpnsCache elanInstanceDpnsCache,
+                                             ElanRefUtil elanRefUtil) {
         this.broker = broker;
         this.entityOwnershipUtils = entityOwnershipUtils;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
@@ -63,6 +67,7 @@ public class ElanDpnInterfaceClusteredListener
         this.jobCoordinator = jobCoordinator;
         this.elanInstanceCache = elanInstanceCache;
         this.elanInstanceDpnsCache = elanInstanceDpnsCache;
+        this.elanRefUtil = elanRefUtil;
     }
 
     @PostConstruct
@@ -101,6 +106,8 @@ public class ElanDpnInterfaceClusteredListener
             try {
                 if (entityOwnershipUtils.isEntityOwner(HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
                         HwvtepSouthboundConstants.ELAN_ENTITY_NAME)) {
+                    BcGroupUpdateJob.updateAllBcGroups(elanName, elanRefUtil, elanL2GatewayMulticastUtils, broker);
+
                     // deleting Elan L2Gw Devices UcastLocalMacs From Dpn
                     elanL2GatewayUtils.deleteElanL2GwDevicesUcastLocalMacsFromDpn(elanName,
                             dpnInterfaces.getDpId());
@@ -142,6 +149,7 @@ public class ElanDpnInterfaceClusteredListener
                     HwvtepSouthboundConstants.ELAN_ENTITY_NAME)) {
                 ElanInstance elanInstance = elanInstanceCache.get(elanName).orNull();
                 if (elanInstance != null) {
+                    BcGroupUpdateJob.updateAllBcGroups(elanName, elanRefUtil, elanL2GatewayMulticastUtils, broker);
                     elanL2GatewayUtils.installElanL2gwDevicesLocalMacsInDpn(
                             dpnInterfaces.getDpId(), elanInstance, dpnInterfaces.getInterfaces().get(0));
 

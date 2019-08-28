@@ -134,6 +134,10 @@ public class ElanL2GatewayMulticastUtils {
         return new ExternalTepsBuilder().setTepIp(device.getTunnelIp()).setNodeid(device.getHwvtepNodeId()).build();
     }
 
+    public IInterfaceManager getInterfaceManager() {
+        return interfaceManager;
+    }
+
     /**
      * Updates the remote mcast mac table for all the devices in this elan
      * includes all the dpn tep ips and other devices tep ips in broadcast
@@ -217,7 +221,7 @@ public class ElanL2GatewayMulticastUtils {
     }
 
     public void updateRemoteBroadcastGroupForAllElanDpns(ElanInstance elanInfo,
-            TypedWriteTransaction<Datastore.Configuration> confTx) {
+                                                         TypedWriteTransaction<Datastore.Configuration> confTx) {
         List<DpnInterfaces> dpns = elanUtils.getInvolvedDpnsInElan(elanInfo.getElanInstanceName());
         for (DpnInterfaces dpn : dpns) {
             setupElanBroadcastGroups(elanInfo, dpn.getDpId(), confTx);
