@@ -1389,7 +1389,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             InstanceIdentifier<AdjacenciesOp> path = identifier.augmentation(AdjacenciesOp.class);
             Optional<AdjacenciesOp> adjacencies = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                     LogicalDatastoreType.OPERATIONAL, path);
-            boolean isNonPrimaryAdjIp = Boolean.FALSE;
+            boolean isLearntIP = false;
             String primaryRd = vpnUtil.getVpnRd(vpnName);
             LOG.info("removeAdjacenciesFromVpn: For interface {} on dpn {} RD recovered for vpn {} as rd {}",
                     interfaceName, dpnId, vpnName, primaryRd);
@@ -1409,7 +1409,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         List<String> nhList;
                         if (nextHop.getAdjacencyType() != AdjacencyType.PrimaryAdjacency) {
                             nhList = getNextHopForNonPrimaryAdjacency(nextHop, vpnName, dpnId, interfaceName);
-                            isNonPrimaryAdjIp = Boolean.TRUE;
+                            isLearntIP = nextHop.getAdjacencyType() == AdjacencyType.LearntIp ? true : false;
                         } else {
                             // This is a primary adjacency
                             nhList = nextHop.getNextHopIpList() != null ? nextHop.getNextHopIpList()
@@ -1444,7 +1444,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                 vpnVipToPort.getPortName(), ip, dpnId, vpnName);
                     }
                     // Remove the MIP-IP from VpnPortIpToPort.
-                    if (isNonPrimaryAdjIp) {
+                    if (isLearntIP) {
                         VpnPortipToPort persistedIp = vpnUtil.getVpnPortipToPort(vpnName, ip);
                         if (persistedIp != null && persistedIp.isLearntIp()
                                 && persistedIp.getPortName().equals(interfaceName)) {
