@@ -7,21 +7,19 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-
-import java.util.Collections;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
+import org.opendaylight.netvirt.elan.l2gw.jobs.BcGroupUpdateJob;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
-import org.opendaylight.netvirt.elan.utils.ElanConstants;
+import org.opendaylight.netvirt.elan.l2gw.utils.ElanRefUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ExternalTeps;
@@ -30,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class ElanExtnTepListener extends AsyncDataTreeChangeListenerBase<ExternalTeps, ElanExtnTepListener> {
+public class ElanExtnTepListener extends AsyncClusteredDataTreeChangeListenerBase<ExternalTeps, ElanExtnTepListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanExtnTepListener.class);
 
@@ -39,19 +37,20 @@ public class ElanExtnTepListener extends AsyncDataTreeChangeListenerBase<Externa
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
     private final JobCoordinator jobCoordinator;
     private final ElanInstanceCache elanInstanceCache;
+    private final ElanRefUtil elanRefUtil;
 
     @Inject
     public ElanExtnTepListener(DataBroker dataBroker, ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
-            JobCoordinator jobCoordinator, ElanInstanceCache elanInstanceCache) {
+            JobCoordinator jobCoordinator, ElanInstanceCache elanInstanceCache, ElanRefUtil elanRefUtil) {
         super(ExternalTeps.class, ElanExtnTepListener.class);
         this.broker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
         this.jobCoordinator = jobCoordinator;
         this.elanInstanceCache = elanInstanceCache;
+        this.elanRefUtil = elanRefUtil;
     }
 
-    @Override
     @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, broker);
@@ -65,7 +64,7 @@ public class ElanExtnTepListener extends AsyncDataTreeChangeListenerBase<Externa
     @Override
     protected void add(InstanceIdentifier<ExternalTeps> instanceIdentifier, ExternalTeps tep) {
         LOG.trace("ExternalTeps add received {}", instanceIdentifier);
-        updateElanRemoteBroadCastGroup(instanceIdentifier);
+        updateBcGroupOfElan(instanceIdentifier, tep);
     }
 
     @Override
@@ -75,21 +74,12 @@ public class ElanExtnTepListener extends AsyncDataTreeChangeListenerBase<Externa
     @Override
     protected void remove(InstanceIdentifier<ExternalTeps> instanceIdentifier, ExternalTeps tep) {
         LOG.trace("ExternalTeps remove received {}", instanceIdentifier);
-        updateElanRemoteBroadCastGroup(instanceIdentifier);
+        updateBcGroupOfElan(instanceIdentifier, tep);
     }
 
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    private void updateElanRemoteBroadCastGroup(final InstanceIdentifier<ExternalTeps> iid) {
-        String elanName = iid.firstKeyOf(ElanInstance.class).getElanInstanceName();
-        ElanInstance elanInfo = elanInstanceCache.get(elanName).orNull();
-        if (elanInfo == null) {
-            return;
-        }
-
-        jobCoordinator.enqueueJob(elanName,
-            () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
-                confTx -> elanL2GatewayMulticastUtils.updateRemoteBroadcastGroupForAllElanDpns(elanInfo, confTx))),
-            ElanConstants.JOB_MAX_RETRIES);
+    protected void updateBcGroupOfElan(InstanceIdentifier<ExternalTeps> instanceIdentifier, ExternalTeps tep) {
+        String elanName = instanceIdentifier.firstKeyOf(ElanInstance.class).getElanInstanceName();
+        BcGroupUpdateJob.updateAllBcGroups(elanName, elanRefUtil, elanL2GatewayMulticastUtils, broker);
     }
 
     @Override

@@ -94,6 +94,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
@@ -101,9 +102,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.external.tunnel.list.ExternalTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group.buckets.Bucket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.Group;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.GroupKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInterface.EtreeInterfaceType;
@@ -167,6 +173,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private final JobCoordinator jobCoordinator;
     private final ElanInstanceCache elanInstanceCache;
     private final ElanInterfaceCache elanInterfaceCache;
+    private final ElanGroupCache elanGroupCache;
 
     private final Map<String, ConcurrentLinkedQueue<ElanInterface>>
         unProcessedElanInterfaces = new ConcurrentHashMap<>();
@@ -182,6 +189,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                                 final ElanInstanceCache elanInstanceCache,
                                 final ElanInterfaceCache elanInterfaceCache,
                                 final ElanServiceRecoveryHandler elanServiceRecoveryHandler,
+                                ElanGroupCache elanGroupCache,
                                 final ServiceRecoveryRegistry serviceRecoveryRegistry) {
         super(ElanInterface.class, ElanInterfaceManager.class);
         this.broker = dataBroker;
@@ -199,6 +207,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
         this.elanInstanceCache = elanInstanceCache;
         this.elanInterfaceCache = elanInterfaceCache;
+        this.elanGroupCache = elanGroupCache;
         serviceRecoveryRegistry.addRecoverableListener(elanServiceRecoveryHandler.buildServiceRegistryKey(), this);
     }
 
@@ -251,7 +260,6 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     private static class RemoveElanInterfaceHolder {
         boolean isLastElanInterface = false;
-        boolean isLastInterfaceOnDpn = false;
         BigInteger dpId = null;
     }
 
@@ -301,7 +309,6 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                             }
                             unsetExternalTunnelTable(holder.dpId, elanInfo, flowTx);
                         }
-                        holder.isLastInterfaceOnDpn = true;
                     } else {
                         setupLocalBroadcastGroups(elanInfo, dpnInterfaces, interfaceInfo, flowTx);
                     }
@@ -310,11 +317,6 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         }));
         futures.forEach(ElanUtils::waitForTransactionToComplete);
 
-        if (holder.isLastInterfaceOnDpn && holder.dpId != null && isVxlanNetworkOrVxlanSegment(elanInfo)) {
-            futures.add(
-                ElanUtils.waitForTransactionToComplete(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
-                    confTx -> setElanAndEtreeBCGrouponOtherDpns(elanInfo, holder.dpId, confTx))));
-        }
         InterfaceRemoveWorkerOnElanInterface removeInterfaceWorker = new InterfaceRemoveWorkerOnElanInterface(
                 interfaceName, elanInfo, interfaceInfo, this, holder.isLastElanInterface);
         jobCoordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(interfaceName), removeInterfaceWorker,
@@ -798,20 +800,19 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 handleExternalInterfaceEvent(elanInstance, holder.dpnInterfaces, holder.dpId);
             }
         }
-
-        if (holder.isFirstInterfaceInDpn && isVxlanNetworkOrVxlanSegment(elanInstance)) {
-            //update the remote-DPNs remoteBC group entry with Tunnels
-            LOG.trace("update remote bc group for elan {} on other DPNs for newly added dpn {}", elanInstance,
-                holder.dpId);
-            futures.add(
-                ElanUtils.waitForTransactionToComplete(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
-                    confTx -> setElanAndEtreeBCGrouponOtherDpns(elanInstance, holder.dpId, confTx))));
+        if (holder.isFirstInterfaceInDpn) {
+            // ELAN's 1st ElanInterface added to this DPN
+            LOG.debug("Adding dpn into operational dpn list {}", holder.dpId);
+            futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, operTx -> {
+                operTx.put(ElanUtils.getElanDpnInterfaceOperationalDataPath(elanInstanceName, holder.dpId),
+                        holder.dpnInterfaces, CREATE_MISSING_PARENTS);
+            }));
+        } else {
+            LOG.debug("Updated dpn into operational dpn list {}", holder.dpId);
         }
 
-        String jobKey = ElanUtils.getElanInterfaceJobKey(interfaceName);
-        InterfaceAddWorkerOnElanInterface addWorker = new InterfaceAddWorkerOnElanInterface(jobKey,
-                elanInterface, interfaceInfo, elanInstance, holder.isFirstInterfaceInDpn, this);
-        jobCoordinator.enqueueJob(jobKey, addWorker, ElanConstants.JOB_MAX_RETRIES);
+        scheduleElanInterfaceWorkerAfterRemoteBcGroup(elanInstance, interfaceInfo, holder.dpnInterfaces,
+                holder.isFirstInterfaceInDpn, elanInterface);
         return futures;
     }
 
@@ -981,20 +982,39 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         setupLocalBroadcastGroups(elanInfo, dpnInterfaces, interfaceInfo, confTx);
         if (isFirstInterfaceInDpn) {
             LOG.trace("waitTimeForSyncInstall is {}", WAIT_TIME_FOR_SYNC_INSTALL);
-            BigInteger dpId = interfaceInfo.getDpId();
-            // RemoteBroadcast Group creation
-            try {
-                Thread.sleep(WAIT_TIME_FOR_SYNC_INSTALL);
-            } catch (InterruptedException e1) {
-                LOG.warn("Error while waiting for local BC group for ELAN {} to install", elanInfo);
-            }
-            elanL2GatewayMulticastUtils.setupElanBroadcastGroups(elanInfo, dpnInterfaces, dpId, confTx);
             try {
                 Thread.sleep(WAIT_TIME_FOR_SYNC_INSTALL);
             } catch (InterruptedException e1) {
                 LOG.warn("Error while waiting for local BC group for ELAN {} to install", elanInfo);
             }
         }
+    }
+
+    public InstanceIdentifier<Group> getGroupIid(ElanInstance elanInfo, BigInteger dpnId) {
+        long remoteBcGroupId = ElanUtils.getElanRemoteBCGId(elanInfo.getElanTag());
+        return InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, new NodeKey(new org.opendaylight.yang.gen.v1.urn.opendaylight
+                        .inventory.rev130819.NodeId("openflow:" + dpnId.toString())))
+                .augmentation(FlowCapableNode.class)
+                .child(Group.class, new GroupKey(new GroupId(remoteBcGroupId))).build();
+    }
+
+    public void scheduleElanInterfaceWorkerAfterRemoteBcGroup(ElanInstance elanInfo,
+                                                              InterfaceInfo interfaceInfo,
+                                                              DpnInterfaces dpnInterfaces,
+                                                              boolean isFirstInterfaceInDpn,
+                                                              ElanInterface elanInterface) {
+        if (!isOperational(interfaceInfo)) {
+            LOG.debug("Interface {} is not operational", elanInterface.getName());
+            return;
+        }
+        String elanInterfaceJobKey = ElanUtils.getElanInterfaceJobKey(interfaceInfo.getInterfaceName());
+        InterfaceAddWorkerOnElanInterface addWorker = new InterfaceAddWorkerOnElanInterface(elanInterfaceJobKey,
+                elanInterface, interfaceInfo, elanInfo, isFirstInterfaceInDpn, this);
+        InstanceIdentifier<Group> groupInstanceId = getGroupIid(elanInfo, dpnInterfaces.getDpId());
+        elanGroupCache.addJobToWaitList(groupInstanceId, () -> {
+            jobCoordinator.enqueueJob(elanInterfaceJobKey, addWorker, ElanConstants.JOB_MAX_RETRIES);
+        });
     }
 
     public void setupFilterEqualsTable(ElanInstance elanInfo, InterfaceInfo interfaceInfo,
@@ -1034,80 +1054,6 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             getMatchesForFilterEqualsLPortTag(ifTag), MDSALUtil.buildInstructionsDrop());
 
         mdsalManager.removeFlow(flowTx, interfaceInfo.getDpId(), flowEntity);
-    }
-
-    private void setElanAndEtreeBCGrouponOtherDpns(ElanInstance elanInfo, BigInteger dpId,
-            TypedWriteTransaction<Configuration> confTx) {
-        int elanTag = elanInfo.getElanTag().intValue();
-        long groupId = ElanUtils.getElanRemoteBCGId(elanTag);
-        setBCGrouponOtherDpns(elanInfo, dpId, elanTag, groupId, confTx);
-        EtreeInstance etreeInstance = elanInfo.augmentation(EtreeInstance.class);
-        if (etreeInstance != null) {
-            int etreeLeafTag = etreeInstance.getEtreeLeafTagVal().getValue().intValue();
-            long etreeLeafGroupId = ElanUtils.getEtreeLeafRemoteBCGId(etreeLeafTag);
-            setBCGrouponOtherDpns(elanInfo, dpId, etreeLeafTag, etreeLeafGroupId, confTx);
-        }
-    }
-
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    private void setBCGrouponOtherDpns(ElanInstance elanInfo, BigInteger dpId, int elanTag, long groupId,
-            TypedWriteTransaction<Configuration> confTx) {
-        int bucketId = 0;
-        ElanDpnInterfacesList elanDpns = elanUtils.getElanDpnInterfacesList(elanInfo.getElanInstanceName());
-        if (elanDpns != null) {
-            List<DpnInterfaces> dpnInterfaces = elanDpns.nonnullDpnInterfaces();
-            for (DpnInterfaces dpnInterface : dpnInterfaces) {
-                List<Bucket> remoteListBucketInfo = new ArrayList<>();
-                if (elanUtils.isDpnPresent(dpnInterface.getDpId()) && !Objects.equals(dpnInterface.getDpId(), dpId)
-                        && dpnInterface.getInterfaces() != null && !dpnInterface.getInterfaces().isEmpty()) {
-                    List<Action> listAction = new ArrayList<>();
-                    int actionKey = 0;
-                    listAction.add(new ActionGroup(ElanUtils.getElanLocalBCGId(elanTag)).buildAction(++actionKey));
-                    remoteListBucketInfo.add(MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, bucketId,
-                            MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
-                    bucketId++;
-                    for (DpnInterfaces otherFes : dpnInterfaces) {
-                        if (elanUtils.isDpnPresent(otherFes.getDpId()) && !Objects.equals(otherFes.getDpId(),
-                            dpnInterface.getDpId()) && otherFes.getInterfaces() != null
-                            && !otherFes.getInterfaces().isEmpty()) {
-                            try {
-                                List<Action> remoteListActionInfo = elanItmUtils.getInternalTunnelItmEgressAction(
-                                        dpnInterface.getDpId(), otherFes.getDpId(),
-                                        elanUtils.isOpenstackVniSemanticsEnforced()
-                                                ? ElanUtils.getVxlanSegmentationId(elanInfo) : elanTag);
-                                if (!remoteListActionInfo.isEmpty()) {
-                                    remoteListBucketInfo.add(MDSALUtil.buildBucket(remoteListActionInfo, MDSALUtil
-                                            .GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
-                                    bucketId++;
-                                }
-                            } catch (Exception ex) {
-                                LOG.error("setElanBCGrouponOtherDpns failed due to Exception caught; "
-                                        + "Logical Group Interface not found between source Dpn - {}, "
-                                        + "destination Dpn - {} ", dpnInterface.getDpId(), otherFes.getDpId(), ex);
-                                return;
-                            }
-                        }
-                    }
-                    List<Bucket> elanL2GwDevicesBuckets = elanL2GatewayMulticastUtils
-                            .getRemoteBCGroupBucketsOfElanL2GwDevices(elanInfo, dpnInterface.getDpId(), bucketId);
-                    remoteListBucketInfo.addAll(elanL2GwDevicesBuckets);
-
-                    if (remoteListBucketInfo.isEmpty()) {
-                        LOG.debug("No ITM is present on Dpn - {} ", dpnInterface.getDpId());
-                        continue;
-                    }
-                    Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
-                            MDSALUtil.buildBucketLists(remoteListBucketInfo));
-                    LOG.trace("Installing remote bc group {} on dpnId {}", group, dpnInterface.getDpId());
-                    mdsalManager.addGroup(confTx, dpnInterface.getDpId(), group);
-                }
-            }
-            try {
-                Thread.sleep(WAIT_TIME_FOR_SYNC_INSTALL);
-            } catch (InterruptedException e1) {
-                LOG.warn("Error while waiting for remote BC group on other DPNs for ELAN {} to install", elanInfo);
-            }
-        }
     }
 
     private static List<MatchInfo> buildMatchesForVni(Long vni) {
@@ -1568,10 +1514,6 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         interfaceNames.add(interfaceName);
         DpnInterfaces dpnInterface = new DpnInterfacesBuilder().setDpId(dpId).setInterfaces(interfaceNames)
                 .withKey(new DpnInterfacesKey(dpId)).build();
-        tx.put(ElanUtils.getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId), dpnInterface,
-                CREATE_MISSING_PARENTS);
-        LOG.trace("Created operational dpn interfaces for elan: {} with interfaces: {}", elanInstanceName,
-                interfaceNames);
         return dpnInterface;
     }
 
