@@ -12,6 +12,8 @@ import java.util.Collections;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import org.apache.commons.lang3.math.NumberUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -83,11 +85,20 @@ public class ElanTunnelInterfaceStateListener extends AsyncDataTreeChangeListene
             return;
         }
         jobCoordinator.enqueueJob(add.getTunnelInterfaceName(), () -> {
-            BigInteger srcDpId = new BigInteger(add.getSrcInfo().getTepDeviceId());
-            BigInteger dstDpId = new BigInteger(add.getDstInfo().getTepDeviceId());
-            LOG.info("Handling tunnel state event for srcDpId {} and dstDpId {} ",
-                    srcDpId, dstDpId);
-            elanInterfaceManager.handleInternalTunnelStateEvent(srcDpId, dstDpId);
+            String srcTepDeviceId = add.getSrcInfo().getTepDeviceId();
+            String dstTepDeviceId = add.getDstInfo().getTepDeviceId();
+            BigInteger srcDpId = null;
+            BigInteger dstDpId = null;
+            if (NumberUtils.isDigits(srcTepDeviceId) && NumberUtils.isDigits(dstTepDeviceId)) {
+                srcDpId = new BigInteger(add.getSrcInfo().getTepDeviceId());
+                dstDpId = new BigInteger(add.getDstInfo().getTepDeviceId());
+                LOG.info("Handling tunnel state event for srcDpId {} and dstDpId {} ",
+                        srcDpId, dstDpId);
+                elanInterfaceManager.handleInternalTunnelStateEvent(srcDpId, dstDpId);
+            } else {
+                LOG.error("Invalid Source TepDeviceID {} or Destination TepDeviceID {}",
+                        srcTepDeviceId,  dstTepDeviceId);
+            }
             return Collections.emptyList();
         }, ElanConstants.JOB_MAX_RETRIES);
     }
