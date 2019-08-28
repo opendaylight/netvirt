@@ -251,7 +251,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     private static class RemoveElanInterfaceHolder {
         boolean isLastElanInterface = false;
-        boolean isLastInterfaceOnDpn = false;
+        //boolean isLastInterfaceOnDpn = false;
         BigInteger dpId = null;
     }
 
@@ -301,7 +301,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                             }
                             unsetExternalTunnelTable(holder.dpId, elanInfo, flowTx);
                         }
-                        holder.isLastInterfaceOnDpn = true;
+                        //holder.isLastInterfaceOnDpn = true;
                     } else {
                         setupLocalBroadcastGroups(elanInfo, dpnInterfaces, interfaceInfo, flowTx);
                     }
@@ -310,11 +310,11 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         }));
         futures.forEach(ElanUtils::waitForTransactionToComplete);
 
-        if (holder.isLastInterfaceOnDpn && holder.dpId != null && isVxlanNetworkOrVxlanSegment(elanInfo)) {
+        /*if (holder.isLastInterfaceOnDpn && holder.dpId != null && isVxlanNetworkOrVxlanSegment(elanInfo)) {
             futures.add(
                 ElanUtils.waitForTransactionToComplete(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                     confTx -> setElanAndEtreeBCGrouponOtherDpns(elanInfo, holder.dpId, confTx))));
-        }
+        }*/
         InterfaceRemoveWorkerOnElanInterface removeInterfaceWorker = new InterfaceRemoveWorkerOnElanInterface(
                 interfaceName, elanInfo, interfaceInfo, this, holder.isLastElanInterface);
         jobCoordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(interfaceName), removeInterfaceWorker,
@@ -783,15 +783,25 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 handleExternalInterfaceEvent(elanInstance, holder.dpnInterfaces, holder.dpId);
             }
         }
+        if (holder.isFirstInterfaceInDpn) {
+            // ELAN's 1st ElanInterface added to this DPN
+            LOG.debug("Adding dpn into operational dpn list {}", holder.dpId);
+            futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, operTx -> {
+                operTx.put(ElanUtils.getElanDpnInterfaceOperationalDataPath(elanInstanceName, holder.dpId),
+                        holder.dpnInterfaces, CREATE_MISSING_PARENTS);
+            }));
+        } else {
+            LOG.debug("Updated dpn into operational dpn list {}", holder.dpId);
+        }
 
-        if (holder.isFirstInterfaceInDpn && isVxlanNetworkOrVxlanSegment(elanInstance)) {
+        /*if (holder.isFirstInterfaceInDpn && isVxlanNetworkOrVxlanSegment(elanInstance)) {
             //update the remote-DPNs remoteBC group entry with Tunnels
             LOG.trace("update remote bc group for elan {} on other DPNs for newly added dpn {}", elanInstance,
                 holder.dpId);
             futures.add(
                 ElanUtils.waitForTransactionToComplete(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                     confTx -> setElanAndEtreeBCGrouponOtherDpns(elanInstance, holder.dpId, confTx))));
-        }
+        }*/
 
         String jobKey = ElanUtils.getElanInterfaceJobKey(interfaceName);
         InterfaceAddWorkerOnElanInterface addWorker = new InterfaceAddWorkerOnElanInterface(jobKey,
@@ -961,14 +971,14 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         setupLocalBroadcastGroups(elanInfo, dpnInterfaces, interfaceInfo, confTx);
         if (isFirstInterfaceInDpn) {
             LOG.trace("waitTimeForSyncInstall is {}", WAIT_TIME_FOR_SYNC_INSTALL);
-            BigInteger dpId = interfaceInfo.getDpId();
+            //BigInteger dpId = interfaceInfo.getDpId();
             // RemoteBroadcast Group creation
             try {
                 Thread.sleep(WAIT_TIME_FOR_SYNC_INSTALL);
             } catch (InterruptedException e1) {
                 LOG.warn("Error while waiting for local BC group for ELAN {} to install", elanInfo);
             }
-            elanL2GatewayMulticastUtils.setupElanBroadcastGroups(elanInfo, dpnInterfaces, dpId, confTx);
+            //elanL2GatewayMulticastUtils.setupElanBroadcastGroups(elanInfo, dpnInterfaces, dpId, confTx);
             try {
                 Thread.sleep(WAIT_TIME_FOR_SYNC_INSTALL);
             } catch (InterruptedException e1) {
@@ -1012,7 +1022,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         mdsalManager.removeFlow(flowTx, interfaceInfo.getDpId(), flowEntity);
     }
 
-    private void setElanAndEtreeBCGrouponOtherDpns(ElanInstance elanInfo, BigInteger dpId,
+    /*private void setElanAndEtreeBCGrouponOtherDpns(ElanInstance elanInfo, BigInteger dpId,
             TypedWriteTransaction<Configuration> confTx) {
         int elanTag = elanInfo.getElanTag().intValue();
         long groupId = ElanUtils.getElanRemoteBCGId(elanTag);
@@ -1023,8 +1033,9 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             long etreeLeafGroupId = ElanUtils.getEtreeLeafRemoteBCGId(etreeLeafTag);
             setBCGrouponOtherDpns(elanInfo, dpId, etreeLeafTag, etreeLeafGroupId, confTx);
         }
-    }
+    }*/
 
+    /*
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void setBCGrouponOtherDpns(ElanInstance elanInfo, BigInteger dpId, int elanTag, long groupId,
             TypedWriteTransaction<Configuration> confTx) {
@@ -1084,7 +1095,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 LOG.warn("Error while waiting for remote BC group on other DPNs for ELAN {} to install", elanInfo);
             }
         }
-    }
+    }*/
 
     private static List<MatchInfo> buildMatchesForVni(Long vni) {
         List<MatchInfo> mkMatches = new ArrayList<>();
@@ -1535,8 +1546,6 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         interfaceNames.add(interfaceName);
         DpnInterfaces dpnInterface = new DpnInterfacesBuilder().setDpId(dpId).setInterfaces(interfaceNames)
                 .withKey(new DpnInterfacesKey(dpId)).build();
-        tx.put(ElanUtils.getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId), dpnInterface,
-                CREATE_MISSING_PARENTS);
         return dpnInterface;
     }
 
