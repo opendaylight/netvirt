@@ -90,15 +90,15 @@ public class QosTerminationPointListener extends
 
     private boolean isBandwidthRuleCleared(OvsdbTerminationPointAugmentation original,
                                          OvsdbTerminationPointAugmentation update) {
-        if ((update.getIngressPolicingRate() == 0 && update.getIngressPolicingBurst() == 0)
-                && (original.getIngressPolicingRate() != 0 || original.getIngressPolicingBurst() != 0)) {
+        if ((!isIngressPolicingRateConfiged(update) && !isIngressPolicingBurstConfiged(update))
+                && (isIngressPolicingRateConfiged(original) || isIngressPolicingBurstConfiged(original))) {
             return true;
         }
         return false;
     }
 
     private boolean isBandwidthRuleApplied(OvsdbTerminationPointAugmentation tp) {
-        if (tp.getIngressPolicingRate() != 0 || tp.getIngressPolicingBurst() != 0) {
+        if (isIngressPolicingRateConfiged(tp) || isIngressPolicingBurstConfiged(tp)) {
             return true;
         }
         return false;
@@ -106,11 +106,25 @@ public class QosTerminationPointListener extends
 
     private boolean isBandwidthRuleApplied(OvsdbTerminationPointAugmentation original,
                                            OvsdbTerminationPointAugmentation update) {
-        if ((original.getIngressPolicingRate() == 0 && original.getIngressPolicingBurst() == 0)
-                && (update.getIngressPolicingRate() != 0 || update.getIngressPolicingBurst() != 0)) {
+        if ((!isIngressPolicingRateConfiged(original) && !isIngressPolicingBurstConfiged(original))
+                && (isIngressPolicingRateConfiged(update) || isIngressPolicingBurstConfiged(update))) {
             return true;
         }
         return false;
+    }
+
+    private boolean isIngressPolicingRateConfiged(OvsdbTerminationPointAugmentation tp) {
+        if (tp.getIngressPolicingRate() == null || tp.getIngressPolicingRate() == 0) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isIngressPolicingBurstConfiged(OvsdbTerminationPointAugmentation tp) {
+        if (tp.getIngressPolicingBurst() == null || tp.getIngressPolicingBurst() == 0) {
+            return false;
+        }
+        return true;
     }
 
     @Override
