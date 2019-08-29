@@ -82,14 +82,19 @@ public class ElanTunnelInterfaceStateListener extends AsyncDataTreeChangeListene
             LOG.trace("Returning because unsupported tunnelOperStatus {}", tunOpStatus);
             return;
         }
-        jobCoordinator.enqueueJob(add.getTunnelInterfaceName(), () -> {
+        try {
             BigInteger srcDpId = new BigInteger(add.getSrcInfo().getTepDeviceId());
             BigInteger dstDpId = new BigInteger(add.getDstInfo().getTepDeviceId());
-            LOG.info("Handling tunnel state event for srcDpId {} and dstDpId {} ",
-                    srcDpId, dstDpId);
-            elanInterfaceManager.handleInternalTunnelStateEvent(srcDpId, dstDpId);
-            return Collections.emptyList();
-        }, ElanConstants.JOB_MAX_RETRIES);
+            jobCoordinator.enqueueJob(add.getTunnelInterfaceName(), () -> {
+                LOG.info("Handling tunnel state event for srcDpId {} and dstDpId {} ",
+                        srcDpId, dstDpId);
+                elanInterfaceManager.handleInternalTunnelStateEvent(srcDpId, dstDpId);
+                return Collections.emptyList();
+            }, ElanConstants.JOB_MAX_RETRIES);
+        } catch (NumberFormatException e) {
+            LOG.error("Invalid source TepDeviceId {} or destination TepDeviceId {}", add.getSrcInfo().getTepDeviceId(),
+                add.getDstInfo().getTepDeviceId());
+        }
     }
 
     @Override
