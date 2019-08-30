@@ -8,12 +8,18 @@
 
 package org.opendaylight.netvirt.qosservice;
 
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collections;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -28,12 +34,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.a
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.port._interface.attributes.InterfaceExternalIds;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.southboundrpc.rev190820.ConfigureTerminationPointWithQosInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.southboundrpc.rev190820.ConfigureTerminationPointWithQosInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.southboundrpc.rev190820.ConfigureTerminationPointWithQosOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.southboundrpc.rev190820.SouthBoundRpcService;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,12 +60,14 @@ public class QosTerminationPointListener extends
     private final QosAlertManager qosAlertManager;
     private final ManagedNewTransactionRunner txRunner;
     private final JobCoordinator jobCoordinator;
+    private final SouthBoundRpcService southBoundRpcService;
 
     @Inject
     public QosTerminationPointListener(final DataBroker dataBroker,
                                        final QosNeutronUtils qosNeutronUtils,
                                        final QosEosHandler qosEosHandler,
                                        final QosAlertManager qosAlertManager,
+                                       final SouthBoundRpcService southBoundRpcService,
                                        final JobCoordinator jobCoordinator) {
         super(OvsdbTerminationPointAugmentation.class, QosTerminationPointListener.class);
         this.dataBroker = dataBroker;
@@ -61,6 +75,7 @@ public class QosTerminationPointListener extends
         this.qosEosHandler = qosEosHandler;
         this.qosAlertManager = qosAlertManager;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
+        this.southBoundRpcService = southBoundRpcService;
         this.jobCoordinator = jobCoordinator;
     }
 
@@ -158,7 +173,32 @@ public class QosTerminationPointListener extends
             Port port = qosNeutronUtils.getNeutronPort(ifaceId);
             if (port != null) {
                 LOG.debug("add tp augmentation: iface-id: {}, name: {} ", ifaceId, tpAugment.getName());
-                setPortBandwidthRule(instanceIdentifier, tpAugment, port);
+                //setPortBandwidthRule(instanceIdentifier, tpAugment, port);
+                LOG.error("Calling OVSDB RPC to directly update the QoS on Interface {}",tpAugment.getName());
+
+                InstanceIdentifier<Node> nodeIid = instanceIdentifier.firstIdentifierOf(Node.class);
+                LOG.error("nodeIid {}", nodeIid.toString());
+                NodeKey nodeKey = nodeIid.firstKeyOf(Node.class);
+                ConfigureTerminationPointWithQosInput input = new ConfigureTerminationPointWithQosInputBuilder()
+                    .setNodeRef(nodeKey.getNodeId())
+                    .setTerminationPointName(tpAugment.getName())
+                    .setIngressPolicingRate(Long.valueOf(10))
+                    .setIngressPolicingBurst(Long.valueOf(30)).build();
+                ListenableFuture<RpcResult<ConfigureTerminationPointWithQosOutput>> testFeature = southBoundRpcService.configureTerminationPointWithQos(input);
+
+                Futures
+                    .addCallback(testFeature, new FutureCallback<RpcResult<ConfigureTerminationPointWithQosOutput>>() {
+
+                        @Override
+                        public void onFailure(@NonNull Throwable error) {
+                            LOG.error("SouthBound RPC call to Interface {}  with Qos Params failed", tpAugment.getName(), error);
+                        }
+
+                        @Override
+                        public void onSuccess(@NonNull RpcResult<ConfigureTerminationPointWithQosOutput> result) {
+                            LOG.error("SouthBound RPC call to Interface {}  with Qos Params Success", tpAugment.getName());
+                        }
+                    }, MoreExecutors.directExecutor());
             }
         }
     }
