@@ -38,7 +38,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 
     <odl:rpc-service id="opendaylightDirectStatisticsService"
                      interface="org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.OpendaylightDirectStatisticsService" />
-
+    <odl:rpc-service id="southBoundRpcService"
+                     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.southboundrpc.rev190820.SouthBoundRpcService" />
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
 
