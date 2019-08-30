@@ -1190,7 +1190,8 @@ public class ElanUtils {
 
         // Updates the ElanInstance Config DS by setting the just acquired
         // elanTag
-        ElanInstanceBuilder elanInstanceBuilder = new ElanInstanceBuilder().setElanInstanceName(elanInstanceName)
+        ElanInstanceBuilder elanInstanceBuilder = new ElanInstanceBuilder(elanInstanceAdded)
+                .setElanInstanceName(elanInstanceName)
                 .setDescription(elanInstanceAdded.getDescription())
                 .setMacTimeout(elanInstanceAdded.getMacTimeout() == null
                         ? Uint32.valueOf(ElanConstants.DEFAULT_MAC_TIME_OUT) : elanInstanceAdded.getMacTimeout())
