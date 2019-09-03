@@ -1170,6 +1170,8 @@ public class ElanUtils {
             elanInstanceBuilder.addAugmentation(EtreeInstance.class, etreeInstance);
         }
         ElanInstance elanInstanceWithTag = elanInstanceBuilder.build();
+        LOG.trace("Updated elan Operational DS for elan: {} with elanTag: {} and interfaces: {}", elanInstanceName,
+                elanTag, elanInterfaces);
         confTx.merge(ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName), elanInstanceWithTag,
             CREATE_MISSING_PARENTS);
         return elanInstanceWithTag;
