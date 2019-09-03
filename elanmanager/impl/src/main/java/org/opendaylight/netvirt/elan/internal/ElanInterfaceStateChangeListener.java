@@ -104,6 +104,7 @@ public class ElanInterfaceStateChangeListener
         String interfaceName =  intrf.getName();
         Optional<ElanInterface> elanInterface = elanInterfaceCache.get(interfaceName);
         if (!elanInterface.isPresent()) {
+            LOG.warn("Elan interface {} is not present.", interfaceName);
             return;
         }
         InstanceIdentifier<ElanInterface> elanInterfaceId = ElanUtils
