@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanInstance, ElanInstanceManager> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanInstanceManager.class);
+    private static final Logger EVENT_LOGGER = LoggerFactory.getLogger("NetvirtEventLogger");
 
     private final DataBroker broker;
     private final ManagedNewTransactionRunner txRunner;
@@ -74,6 +75,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
     protected void remove(InstanceIdentifier<ElanInstance> identifier, ElanInstance deletedElan) {
         LOG.trace("Remove ElanInstance - Key: {}, value: {}", identifier, deletedElan);
         String elanName = deletedElan.getElanInstanceName();
+        EVENT_LOGGER.debug("ELAN-Instance, REMOVE {}",elanName);
         elanInterfaceCache.getInterfaceNames(elanName).forEach(
             elanInterfaceName -> jobCoordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(elanInterfaceName),
                 () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
@@ -101,6 +103,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
 
     @Override
     protected void update(InstanceIdentifier<ElanInstance> identifier, ElanInstance original, ElanInstance update) {
+        EVENT_LOGGER.debug("ELAN-Instance, UPDATE {}", original.getElanInstanceName());
         Long existingElanTag = original.getElanTag();
         String elanName = update.getElanInstanceName();
         if (existingElanTag == null || !existingElanTag.equals(update.getElanTag())) {
@@ -123,6 +126,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
     protected void add(InstanceIdentifier<ElanInstance> identifier, ElanInstance elanInstanceAdded) {
         LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, operTx -> {
             String elanInstanceName  = elanInstanceAdded.getElanInstanceName();
+            EVENT_LOGGER.debug("ELAN-Instance, ADD {}", elanInstanceName);
             Elan elanInfo = ElanUtils.getElanByName(operTx, elanInstanceName);
             if (elanInfo == null) {
                 LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
