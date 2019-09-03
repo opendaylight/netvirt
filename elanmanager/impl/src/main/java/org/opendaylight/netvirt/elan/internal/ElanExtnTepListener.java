@@ -13,10 +13,6 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
-import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.l2gw.jobs.BcGroupUpdateJob;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanRefUtil;
@@ -33,21 +29,15 @@ public class ElanExtnTepListener extends AsyncClusteredDataTreeChangeListenerBas
     private static final Logger LOG = LoggerFactory.getLogger(ElanExtnTepListener.class);
 
     private final DataBroker broker;
-    private final ManagedNewTransactionRunner txRunner;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
-    private final JobCoordinator jobCoordinator;
-    private final ElanInstanceCache elanInstanceCache;
     private final ElanRefUtil elanRefUtil;
 
     @Inject
     public ElanExtnTepListener(DataBroker dataBroker, ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
-            JobCoordinator jobCoordinator, ElanInstanceCache elanInstanceCache, ElanRefUtil elanRefUtil) {
+                               ElanRefUtil elanRefUtil) {
         super(ExternalTeps.class, ElanExtnTepListener.class);
         this.broker = dataBroker;
-        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
-        this.jobCoordinator = jobCoordinator;
-        this.elanInstanceCache = elanInstanceCache;
         this.elanRefUtil = elanRefUtil;
     }
 

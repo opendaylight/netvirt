@@ -13,10 +13,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.List;
 import java.util.concurrent.Callable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
-import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
@@ -37,24 +35,20 @@ import org.slf4j.LoggerFactory;
 public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<Void>>> {
     private static final Logger LOG = LoggerFactory.getLogger(AssociateHwvtepToElanJob.class);
 
-    private final DataBroker broker;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
-    private final ElanInstanceCache elanInstanceCache;
     private final L2GatewayDevice l2GatewayDevice;
     private final ElanInstance elanInstance;
     private final Devices l2Device;
     private final Integer defaultVlan;
     private final ElanRefUtil elanRefUtil;
 
-    public AssociateHwvtepToElanJob(DataBroker broker, ElanL2GatewayUtils elanL2GatewayUtils,
-            ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils, ElanInstanceCache elanInstanceCache,
-            L2GatewayDevice l2GatewayDevice, ElanInstance elanInstance, Devices l2Device, Integer defaultVlan,
-            ElanRefUtil elanRefUtil) {
-        this.broker = broker;
+    public AssociateHwvtepToElanJob(ElanL2GatewayUtils elanL2GatewayUtils,
+                                    ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
+                                    L2GatewayDevice l2GatewayDevice, ElanInstance elanInstance,
+                                    Devices l2Device, Integer defaultVlan, ElanRefUtil elanRefUtil) {
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
-        this.elanInstanceCache = elanInstanceCache;
         this.l2GatewayDevice = l2GatewayDevice;
         this.elanInstance = elanInstance;
         this.l2Device = l2Device;
@@ -85,7 +79,8 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
 
         LogicalSwitchAddedJob logicalSwitchAddedJob =
                 new LogicalSwitchAddedJob(elanL2GatewayUtils, elanL2GatewayMulticastUtils,
-                        logicalSwitchName, l2Device, l2GatewayDevice, defaultVlan, elanRefUtil, broker);
+                        logicalSwitchName, l2Device, l2GatewayDevice, defaultVlan, elanRefUtil,
+                        elanRefUtil.getDataBroker());
         return logicalSwitchAddedJob.call();
     }
 
@@ -98,7 +93,7 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
         LOG.trace("logical switch {} is created on {} with VNI {}", logicalSwitchName,
                 l2GatewayDevice.getHwvtepNodeId(), segmentationId);
         NodeId hwvtepNodeId = new NodeId(l2GatewayDevice.getHwvtepNodeId());
-        String dbVersion = HwvtepUtils.getDbVersion(broker,hwvtepNodeId);
+        String dbVersion = HwvtepUtils.getDbVersion(elanRefUtil.getDataBroker(), hwvtepNodeId);
         if (SouthboundUtils.compareDbVersionToMinVersion(dbVersion, "1.6.0")) {
             replicationMode = "source_node";
         }
@@ -109,7 +104,8 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
         LogicalSwitches logicalSwitch = HwvtepSouthboundUtils.createLogicalSwitch(logicalSwitchName,
                 elanInstance.getDescription(), segmentationId, replicationMode);
 
-        ListenableFuture<Void> lsCreateFuture = HwvtepUtils.addLogicalSwitch(broker, hwvtepNodeId, logicalSwitch);
+        ListenableFuture<Void> lsCreateFuture = HwvtepUtils.addLogicalSwitch(elanRefUtil.getDataBroker(),
+                hwvtepNodeId, logicalSwitch);
         Futures.addCallback(lsCreateFuture, new FutureCallback<Void>() {
             @Override
             public void onSuccess(Void noarg) {

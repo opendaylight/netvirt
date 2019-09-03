@@ -12,7 +12,6 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlanNetworkOrVxlanSegment;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.SettableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,9 +40,12 @@ import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.netvirt.elan.l2gw.jobs.HwvtepDeviceMcastMacUpdateJob;
+import org.opendaylight.netvirt.elan.l2gw.jobs.McastUpdateJob;
+import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanItmUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
+import org.opendaylight.netvirt.elan.utils.Scheduler;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -99,10 +101,14 @@ public class ElanL2GatewayMulticastUtils {
     private final ElanUtils elanUtils;
     private final IMdsalApiManager mdsalManager;
     private final IInterfaceManager interfaceManager;
+    private final ElanClusterUtils elanClusterUtils;
+    private final Scheduler scheduler;
 
     @Inject
     public ElanL2GatewayMulticastUtils(DataBroker broker, ElanItmUtils elanItmUtils, JobCoordinator jobCoordinator,
-            ElanUtils elanUtils, IMdsalApiManager mdsalManager, IInterfaceManager interfaceManager) {
+                                       ElanUtils elanUtils, IMdsalApiManager mdsalManager,
+                                       IInterfaceManager interfaceManager, ElanClusterUtils elanClusterUtils,
+                                       Scheduler scheduler) {
         this.broker = broker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
         this.elanItmUtils = elanItmUtils;
@@ -110,6 +116,8 @@ public class ElanL2GatewayMulticastUtils {
         this.elanUtils = elanUtils;
         this.mdsalManager = mdsalManager;
         this.interfaceManager = interfaceManager;
+        this.elanClusterUtils = elanClusterUtils;
+        this.scheduler = scheduler;
     }
 
     /**
@@ -165,13 +173,12 @@ public class ElanL2GatewayMulticastUtils {
         prepareRemoteMcastMacUpdateOnDevice(elanName, device);
     }
 
-    public void prepareRemoteMcastMacUpdateOnDevice(String elanName,
-            L2GatewayDevice device) {
+    public ListenableFuture<Void> prepareRemoteMcastMacUpdateOnDevice(String elanName, L2GatewayDevice device) {
         Collection<L2GatewayDevice> elanL2gwDevices = ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName);
         List<DpnInterfaces> dpns = elanUtils.getElanDPNByName(elanName);
         List<IpAddress> dpnsTepIps = getAllTepIpsOfDpns(device, dpns);
         List<IpAddress> l2GwDevicesTepIps = getAllTepIpsOfL2GwDevices(elanL2gwDevices);
-        prepareRemoteMcastMacEntry(elanName, device, dpnsTepIps, l2GwDevicesTepIps);
+        return prepareRemoteMcastMacEntry(elanName, device, dpnsTepIps, l2GwDevicesTepIps);
     }
 
     /**
@@ -186,33 +193,12 @@ public class ElanL2GatewayMulticastUtils {
      * @param updateThisDevice
      *            the update this device
      */
-    private void updateMcastMacsForAllElanDevices(String elanName, L2GatewayDevice device,
+    public void updateMcastMacsForAllElanDevices(String elanName, L2GatewayDevice device,
                                                                     boolean updateThisDevice) {
-
-        SettableFuture<Void> ft = SettableFuture.create();
-        ft.set(null);
-
-        List<DpnInterfaces> dpns = elanUtils.getElanDPNByName(elanName);
-
-        Collection<L2GatewayDevice> devices = ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName);
-
-        List<IpAddress> dpnsTepIps = getAllTepIpsOfDpns(device, dpns);
-        List<IpAddress> l2GwDevicesTepIps = getAllTepIpsOfL2GwDevices(devices);
-        // if (allTepIps.size() < 2) {
-        // LOG.debug("no other devices are found in the elan {}", elanName);
-        // return ft;
-        // }
-
         if (updateThisDevice) {
-            prepareRemoteMcastMacEntry(elanName, device, dpnsTepIps, l2GwDevicesTepIps);
-        }
-
-        // TODO: Need to revisit below logic as logical switches might not be
-        // present to configure RemoteMcastMac entry
-        for (L2GatewayDevice otherDevice : devices) {
-            if (!otherDevice.getDeviceName().equals(device.getDeviceName())) {
-                prepareRemoteMcastMacEntry(elanName, otherDevice, dpnsTepIps, l2GwDevicesTepIps);
-            }
+            McastUpdateJob.updateAllMcastsForConnectionAdd(elanName, this, elanClusterUtils);
+        } else {
+            McastUpdateJob.updateAllMcastsForConnectionDelete(elanName, this, elanClusterUtils, device);
         }
     }
 
@@ -429,7 +415,7 @@ public class ElanL2GatewayMulticastUtils {
      *            the l2 gw devices tep ips
      * @return the write transaction
      */
-    private void prepareRemoteMcastMacEntry(String elanName,
+    private ListenableFuture<Void> prepareRemoteMcastMacEntry(String elanName,
                                              L2GatewayDevice device, List<IpAddress> dpnsTepIps,
                                              List<IpAddress> l2GwDevicesTepIps) {
         NodeId nodeId = new NodeId(device.getHwvtepNodeId());
@@ -465,9 +451,9 @@ public class ElanL2GatewayMulticastUtils {
             remoteTepIps.add(dhcpDesignatedSwitchTepIp);
         }
         String logicalSwitchName = ElanL2GatewayUtils.getLogicalSwitchFromElan(elanName);
-        putRemoteMcastMac(nodeId, logicalSwitchName, remoteTepIps);
         LOG.info("Adding RemoteMcastMac for node: {} with physical locators: {}", device.getHwvtepNodeId(),
                 remoteTepIps);
+        return putRemoteMcastMac(nodeId, logicalSwitchName, remoteTepIps);
     }
 
     /**
@@ -480,7 +466,7 @@ public class ElanL2GatewayMulticastUtils {
      * @param tepIps
      *            the tep ips
      */
-    private static void putRemoteMcastMac(NodeId nodeId, String logicalSwitchName,
+    private static ListenableFuture<Void> putRemoteMcastMac(NodeId nodeId, String logicalSwitchName,
             ArrayList<IpAddress> tepIps) {
         List<LocatorSet> locators = new ArrayList<>();
         for (IpAddress tepIp : tepIps) {
@@ -498,7 +484,7 @@ public class ElanL2GatewayMulticastUtils {
                 .setLocatorSet(locators).build();
         InstanceIdentifier<RemoteMcastMacs> iid = HwvtepSouthboundUtils.createRemoteMcastMacsInstanceIdentifier(nodeId,
                 remoteMcastMac.key());
-        ResourceBatchingManager.getInstance().put(ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY,
+        return ResourceBatchingManager.getInstance().put(ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY,
                 iid, remoteMcastMac);
 
     }
@@ -571,7 +557,7 @@ public class ElanL2GatewayMulticastUtils {
      *            the logical switch name
      * @return the listenable future
      */
-    private ListenableFuture<Void> deleteRemoteMcastMac(NodeId nodeId, String logicalSwitchName) {
+    public ListenableFuture<Void> deleteRemoteMcastMac(NodeId nodeId, String logicalSwitchName) {
         InstanceIdentifier<LogicalSwitches> logicalSwitch = HwvtepSouthboundUtils
                 .createLogicalSwitchesInstanceIdentifier(nodeId, new HwvtepNodeName(logicalSwitchName));
         RemoteMcastMacsKey remoteMcastMacsKey = new RemoteMcastMacsKey(new HwvtepLogicalSwitchRef(logicalSwitch),

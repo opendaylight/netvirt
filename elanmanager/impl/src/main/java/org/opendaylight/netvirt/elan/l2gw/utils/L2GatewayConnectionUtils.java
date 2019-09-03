@@ -31,13 +31,10 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
-import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
-import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpClusteredListener;
 import org.opendaylight.netvirt.elan.l2gw.jobs.AssociateHwvtepToElanJob;
 import org.opendaylight.netvirt.elan.l2gw.jobs.DisAssociateHwvtepFromElanJob;
 import org.opendaylight.netvirt.elan.l2gw.listeners.LocalUcastMacListener;
-import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
@@ -63,33 +60,23 @@ import org.slf4j.LoggerFactory;
 public class L2GatewayConnectionUtils implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(L2GatewayConnectionUtils.class);
 
-    private final DataBroker broker;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
-    private final ElanClusterUtils elanClusterUtils;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
-    private final JobCoordinator jobCoordinator;
     private final L2GatewayCache l2GatewayCache;
-    private final ElanInstanceCache elanInstanceCache;
     private final List<AutoCloseable> closeables = new CopyOnWriteArrayList<>();
     private final HwvtepNodeHACache hwvtepNodeHACache;
     private final HAOpClusteredListener haOpClusteredListener;
     private final ElanRefUtil elanRefUtil;
 
     @Inject
-    public L2GatewayConnectionUtils(DataBroker dataBroker, ElanClusterUtils elanClusterUtils,
-                                    ElanL2GatewayUtils elanL2GatewayUtils, JobCoordinator jobCoordinator,
+    public L2GatewayConnectionUtils(ElanL2GatewayUtils elanL2GatewayUtils,
                                     ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
                                     L2GatewayCache l2GatewayCache, HAOpClusteredListener haOpClusteredListener,
-                                    ElanInstanceCache elanInstanceCache, HwvtepNodeHACache hwvtepNodeHACache,
-                                    ElanRefUtil elanRefUtil) {
-        this.broker = dataBroker;
+                                    HwvtepNodeHACache hwvtepNodeHACache, ElanRefUtil elanRefUtil) {
         this.elanL2GatewayUtils = elanL2GatewayUtils;
-        this.elanClusterUtils = elanClusterUtils;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
-        this.jobCoordinator = jobCoordinator;
         this.l2GatewayCache = l2GatewayCache;
         this.haOpClusteredListener = haOpClusteredListener;
-        this.elanInstanceCache = elanInstanceCache;
         this.hwvtepNodeHACache = hwvtepNodeHACache;
         this.elanRefUtil = elanRefUtil;
     }
@@ -197,7 +184,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
         // Taking cluster reboot scenario , if Elan instance is not available when l2GatewayConnection add events
         // comes we need to wait for elaninstance to resolve. Hence updating the map with the runnable .
         // When elanInstance add comes , it look in to the map and run the associated runnable associated with it.
-        ElanInstance elanInstance = elanInstanceCache.get(networkUuid.getValue(),
+        ElanInstance elanInstance = elanRefUtil.getElanInstanceCache().get(networkUuid.getValue(),
             () -> addL2GatewayConnection(input, l2GwDeviceName)).orNull();
         if (elanInstance == null) {
             return;
@@ -208,7 +195,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
         } else {
             Uuid l2GatewayId = input.getL2gatewayId();
             if (l2Gateway == null) {
-                l2Gateway = getNeutronL2gateway(broker, l2GatewayId);
+                l2Gateway = getNeutronL2gateway(elanRefUtil.getDataBroker(), l2GatewayId);
             }
             if (l2Gateway == null) {
                 LOG.error("L2Gateway with id {} is not present", l2GatewayId.getValue());
@@ -238,7 +225,8 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
         if (l2gwDevicesToBeDeleted.isEmpty()) {
             //delete logical switch
             Uuid l2GatewayId = input.getL2gatewayId();
-            L2gateway l2Gateway = L2GatewayConnectionUtils.getNeutronL2gateway(broker, l2GatewayId);
+            L2gateway l2Gateway = L2GatewayConnectionUtils.getNeutronL2gateway(elanRefUtil.getDataBroker(),
+                    l2GatewayId);
             if (l2Gateway == null) {
                 LOG.error("Failed to find the l2gateway for the connection {}", input.getUuid());
                 return;
@@ -270,10 +258,10 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
 
             DisAssociateHwvtepFromElanJob disAssociateHwvtepToElanJob =
                     new DisAssociateHwvtepFromElanJob(elanL2GatewayUtils, elanL2GatewayMulticastUtils,
-                            elanL2GwDevice, elanName,
-                        l2Device, defaultVlan, hwvtepNodeId, isLastL2GwConnDeleted);
-            elanClusterUtils.runOnlyInOwnerNode(disAssociateHwvtepToElanJob.getJobKey(), "remove l2gw connection job",
-                    disAssociateHwvtepToElanJob);
+                            elanL2GwDevice, elanName, l2Device, defaultVlan, hwvtepNodeId, isLastL2GwConnDeleted,
+                            elanRefUtil, elanRefUtil.getDataBroker());
+            elanRefUtil.getElanClusterUtils().runOnlyInOwnerNode(disAssociateHwvtepToElanJob.getJobKey(),
+                    "remove l2gw connection job", disAssociateHwvtepToElanJob);
         }
     }
 
@@ -313,11 +301,10 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
                 boolean createLogicalSwitch;
                 addL2DeviceToElanL2GwCache(elanName, l2GatewayDevice, l2GwConnId, l2Device);
 
-                AssociateHwvtepToElanJob associateHwvtepToElanJob = new AssociateHwvtepToElanJob(broker,
-                        elanL2GatewayUtils, elanL2GatewayMulticastUtils, elanInstanceCache, l2GatewayDevice,
-                        elanInstance, l2Device, defaultVlan, elanRefUtil);
+                AssociateHwvtepToElanJob associateHwvtepToElanJob = new AssociateHwvtepToElanJob(elanL2GatewayUtils,
+                        elanL2GatewayMulticastUtils, l2GatewayDevice, elanInstance, l2Device, defaultVlan, elanRefUtil);
 
-                elanClusterUtils.runOnlyInOwnerNode(associateHwvtepToElanJob.getJobKey(),
+                elanRefUtil.getElanClusterUtils().runOnlyInOwnerNode(associateHwvtepToElanJob.getJobKey(),
                         "create logical switch in hwvtep topo", associateHwvtepToElanJob);
 
             } else {
@@ -362,15 +349,17 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
     private void readAndCopyLocalUcastMacsToCache(final String elanName, final L2GatewayDevice l2GatewayDevice) {
         final InstanceIdentifier<Node> nodeIid = HwvtepSouthboundUtils.createInstanceIdentifier(
                 new NodeId(l2GatewayDevice.getHwvtepNodeId()));
-        jobCoordinator.enqueueJob(elanName + ":" + l2GatewayDevice.getDeviceName(), () -> {
+        elanRefUtil.getJobCoordinator().enqueueJob(elanName + ":" + l2GatewayDevice.getDeviceName(), () -> {
             final SettableFuture settableFuture = SettableFuture.create();
-            Futures.addCallback(broker.newReadOnlyTransaction().read(LogicalDatastoreType.OPERATIONAL,
-                    nodeIid), new SettableFutureCallback<Optional<Node>>(settableFuture) {
+            Futures.addCallback(elanRefUtil.getDataBroker().newReadOnlyTransaction()
+                    .read(LogicalDatastoreType.OPERATIONAL, nodeIid),
+                    new SettableFutureCallback<Optional<Node>>(settableFuture) {
                         @Override
                         public void onSuccess(@NonNull Optional<Node> resultNode) {
                             LocalUcastMacListener localUcastMacListener =
-                                    new LocalUcastMacListener(broker, haOpClusteredListener,
-                                            elanL2GatewayUtils, jobCoordinator, elanInstanceCache, hwvtepNodeHACache);
+                                    new LocalUcastMacListener(elanRefUtil.getDataBroker(), haOpClusteredListener,
+                                            elanL2GatewayUtils, elanRefUtil.getJobCoordinator(),
+                                            elanRefUtil.getElanInstanceCache(), hwvtepNodeHACache);
                             settableFuture.set(resultNode);
                             Optional<Node> nodeOptional = resultNode;
                             if (nodeOptional.isPresent()) {
@@ -404,7 +393,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
      */
     public List<L2gatewayConnection> getL2GwConnectionsByL2GatewayId(Uuid l2GatewayId) {
         List<L2gatewayConnection> l2GwConnections = new ArrayList<>();
-        List<L2gatewayConnection> allL2GwConns = getAllL2gatewayConnections(broker);
+        List<L2gatewayConnection> allL2GwConns = getAllL2gatewayConnections(elanRefUtil.getDataBroker());
         for (L2gatewayConnection l2GwConn : allL2GwConns) {
             if (Objects.equals(l2GwConn.getL2gatewayId(), l2GatewayId)) {
                 l2GwConnections.add(l2GwConn);

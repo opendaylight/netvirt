@@ -12,9 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.eclipse.jdt.annotation.Nullable;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
+import org.opendaylight.netvirt.elan.l2gw.utils.ElanRefUtil;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
@@ -35,12 +37,15 @@ public class DisAssociateHwvtepFromElanJob implements Callable<List<ListenableFu
     private final Integer defaultVlan;
     private final boolean isLastL2GwConnDeleted;
     private final NodeId hwvtepNodeId;
+    private final ElanRefUtil elanRefUtil;
+    private final DataBroker dataBroker;
 
     public DisAssociateHwvtepFromElanJob(ElanL2GatewayUtils elanL2GatewayUtils,
                                          ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
                                          @Nullable L2GatewayDevice l2GatewayDevice, String elanName,
-                                         Devices l2Device,
-                                         Integer defaultVlan, String nodeId, boolean isLastL2GwConnDeleted) {
+                                         Devices l2Device, Integer defaultVlan, String nodeId,
+                                         boolean isLastL2GwConnDeleted,
+                                         ElanRefUtil elanRefUtil, DataBroker dataBroker) {
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
         this.l2GatewayDevice = l2GatewayDevice;
@@ -49,6 +54,8 @@ public class DisAssociateHwvtepFromElanJob implements Callable<List<ListenableFu
         this.defaultVlan = defaultVlan;
         this.isLastL2GwConnDeleted = isLastL2GwConnDeleted;
         this.hwvtepNodeId = new NodeId(nodeId);
+        this.elanRefUtil = elanRefUtil;
+        this.dataBroker = dataBroker;
         LOG.info("created disassociate l2gw connection job for {}", elanName);
     }
 

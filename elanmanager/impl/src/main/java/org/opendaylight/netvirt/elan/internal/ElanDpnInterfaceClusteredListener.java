@@ -13,19 +13,18 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
-import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
-import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
-import org.opendaylight.netvirt.elan.cache.ElanInstanceDpnsCache;
 import org.opendaylight.netvirt.elan.l2gw.jobs.BcGroupUpdateJob;
+import org.opendaylight.netvirt.elan.l2gw.jobs.DpnDmacJob;
+import org.opendaylight.netvirt.elan.l2gw.jobs.McastUpdateJob;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanRefUtil;
-import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
+import org.opendaylight.netvirt.elan.utils.ElanDmacUtils;
+import org.opendaylight.netvirt.elan.utils.ElanItmUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
@@ -41,38 +40,30 @@ public class ElanDpnInterfaceClusteredListener
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanDpnInterfaceClusteredListener.class);
 
-    private final DataBroker broker;
     private final EntityOwnershipUtils entityOwnershipUtils;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
-    private final ElanClusterUtils elanClusterUtils;
-    private final JobCoordinator jobCoordinator;
-    private final ElanInstanceCache elanInstanceCache;
-    private final ElanInstanceDpnsCache elanInstanceDpnsCache;
     private final ElanRefUtil elanRefUtil;
+    private final ElanDmacUtils elanDmacUtils;
+    private final ElanItmUtils elanItmUtils;
 
     @Inject
-    public ElanDpnInterfaceClusteredListener(DataBroker broker, EntityOwnershipUtils entityOwnershipUtils,
+    public ElanDpnInterfaceClusteredListener(EntityOwnershipUtils entityOwnershipUtils,
                                              ElanL2GatewayUtils elanL2GatewayUtils,
-                                             ElanClusterUtils elanClusterUtils, JobCoordinator jobCoordinator,
                                              ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
-                                             ElanInstanceCache elanInstanceCache,
-                                             ElanInstanceDpnsCache elanInstanceDpnsCache,
-                                             ElanRefUtil elanRefUtil) {
-        this.broker = broker;
+                                             ElanRefUtil elanRefUtil, ElanDmacUtils elanDmacUtils,
+                                             ElanItmUtils elanItmUtils) {
         this.entityOwnershipUtils = entityOwnershipUtils;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
-        this.elanClusterUtils = elanClusterUtils;
-        this.jobCoordinator = jobCoordinator;
-        this.elanInstanceCache = elanInstanceCache;
-        this.elanInstanceDpnsCache = elanInstanceDpnsCache;
         this.elanRefUtil = elanRefUtil;
+        this.elanDmacUtils = elanDmacUtils;
+        this.elanItmUtils = elanItmUtils;
     }
 
     @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.OPERATIONAL, this.broker);
+        registerListener(LogicalDatastoreType.OPERATIONAL, this.elanRefUtil.getDataBroker());
     }
 
     @Override
@@ -88,7 +79,7 @@ public class ElanDpnInterfaceClusteredListener
                     dpnInterfaces.getDpId());
             return;
         }
-        elanClusterUtils.runOnlyInOwnerNode(elanName, "updating mcast mac upon tunnel event",
+        elanRefUtil.getElanClusterUtils().runOnlyInOwnerNode(elanName, "updating mcast mac upon tunnel event",
             () -> {
                 elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName);
                 return emptyList();
@@ -102,23 +93,25 @@ public class ElanDpnInterfaceClusteredListener
         //Cache need to be updated in all cluster nodes and not only by leader node .
         //Hence moved out from DJC job
 
-        jobCoordinator.enqueueJob(elanName + ":l2gw", () -> {
+        elanRefUtil.getJobCoordinator().enqueueJob(elanName + ":l2gw", () -> {
             try {
                 if (entityOwnershipUtils.isEntityOwner(HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
                         HwvtepSouthboundConstants.ELAN_ENTITY_NAME)) {
                     // deleting Elan L2Gw Devices UcastLocalMacs From Dpn
-                    elanL2GatewayUtils.deleteElanL2GwDevicesUcastLocalMacsFromDpn(elanName,
-                            dpnInterfaces.getDpId());
+                    DpnDmacJob.uninstallDmacFromL2gws(elanName, dpnInterfaces, elanL2GatewayUtils, elanRefUtil,
+                            elanDmacUtils);
 
                     //Removing this dpn from cache to avoid race between this and local ucast mac listener
-                    elanInstanceDpnsCache.remove(getElanName(identifier), dpnInterfaces);
+                    elanRefUtil.getElanInstanceDpnsCache().remove(getElanName(identifier), dpnInterfaces);
 
                     // updating remote mcast mac on l2gw devices
-                    elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName);
-                    BcGroupUpdateJob.updateAllBcGroups(elanName, elanRefUtil, elanL2GatewayMulticastUtils, broker);
+                    McastUpdateJob.updateAllMcastsForDpnDelete(elanName, elanL2GatewayMulticastUtils,
+                            elanRefUtil.getElanClusterUtils(), dpnInterfaces.getDpId(), elanItmUtils);
+                    BcGroupUpdateJob.updateAllBcGroups(elanName, elanRefUtil, elanL2GatewayMulticastUtils,
+                            elanRefUtil.getDataBroker());
                 }
             } finally {
-                elanInstanceDpnsCache.remove(getElanName(identifier), dpnInterfaces);
+                elanRefUtil.getElanInstanceDpnsCache().remove(getElanName(identifier), dpnInterfaces);
             }
 
             return null;
@@ -131,8 +124,8 @@ public class ElanDpnInterfaceClusteredListener
         List<String> interfaces = dpnInterfaces.getInterfaces();
         if (interfaces != null && !interfaces.isEmpty()) {
             LOG.debug("dpninterfaces update fired new size {}", interfaces.size());
-            elanInstanceDpnsCache.remove(getElanName(identifier), original);
-            elanInstanceDpnsCache.add(getElanName(identifier), dpnInterfaces);
+            elanRefUtil.getElanInstanceDpnsCache().remove(getElanName(identifier), original);
+            elanRefUtil.getElanInstanceDpnsCache().add(getElanName(identifier), dpnInterfaces);
             LOG.debug("dpninterfaces last dpn interface on this elan {} ", dpnInterfaces.key());
             // this is the last dpn interface on this elan
             handleUpdate(identifier, dpnInterfaces);
@@ -142,18 +135,19 @@ public class ElanDpnInterfaceClusteredListener
     @Override
     protected void add(InstanceIdentifier<DpnInterfaces> identifier, final DpnInterfaces dpnInterfaces) {
         final String elanName = getElanName(identifier);
-        jobCoordinator.enqueueJob(elanName + ":l2gw", () -> {
-            elanInstanceDpnsCache.add(getElanName(identifier), dpnInterfaces);
+        elanRefUtil.getJobCoordinator().enqueueJob(elanName + ":l2gw", () -> {
+            elanRefUtil.getElanInstanceDpnsCache().add(getElanName(identifier), dpnInterfaces);
             if (entityOwnershipUtils.isEntityOwner(HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
                     HwvtepSouthboundConstants.ELAN_ENTITY_NAME)) {
-                ElanInstance elanInstance = elanInstanceCache.get(elanName).orNull();
+                ElanInstance elanInstance = elanRefUtil.getElanInstanceCache().get(elanName).orNull();
                 if (elanInstance != null) {
-                    BcGroupUpdateJob.updateAllBcGroups(elanName, elanRefUtil, elanL2GatewayMulticastUtils, broker);
-                    elanL2GatewayUtils.installElanL2gwDevicesLocalMacsInDpn(
-                            dpnInterfaces.getDpId(), elanInstance, dpnInterfaces.getInterfaces().get(0));
-
+                    BcGroupUpdateJob.updateAllBcGroups(elanName, elanRefUtil, elanL2GatewayMulticastUtils,
+                            elanRefUtil.getDataBroker());
                     // updating remote mcast mac on l2gw devices
-                    elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName);
+                    McastUpdateJob.updateAllMcastsForDpnAdd(elanName, elanL2GatewayMulticastUtils,
+                            elanRefUtil.getElanClusterUtils());
+                    DpnDmacJob.installDmacFromL2gws(elanName, dpnInterfaces, elanL2GatewayUtils, elanRefUtil,
+                            elanDmacUtils);
                 }
             }
             return emptyList();
