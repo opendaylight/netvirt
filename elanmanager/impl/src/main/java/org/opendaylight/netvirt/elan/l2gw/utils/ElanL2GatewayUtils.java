@@ -310,20 +310,21 @@ public class ElanL2GatewayUtils {
      * @param interfaceName
      *            the interface name
      */
-    public void installDmacFlowsOnDpn(BigInteger dpnId, L2GatewayDevice l2gwDevice, ElanInstance elan,
-            String interfaceName) {
+    public List<ListenableFuture<Void>> installDmacFlowsOnDpn(BigInteger dpnId, L2GatewayDevice l2gwDevice,
+                                                              ElanInstance elan, String interfaceName) {
         String elanName = elan.getElanInstanceName();
-
+        List<ListenableFuture<Void>> fts = new ArrayList<>();
         Collection<LocalUcastMacs> l2gwDeviceLocalMacs = l2gwDevice.getUcastLocalMacs();
         if (!l2gwDeviceLocalMacs.isEmpty()) {
             for (LocalUcastMacs localUcastMac : l2gwDeviceLocalMacs) {
-                elanDmacUtils.installDmacFlowsToExternalRemoteMacInBatch(dpnId, l2gwDevice.getHwvtepNodeId(),
+                fts.addAll(elanDmacUtils.installDmacFlowsToExternalRemoteMacInBatch(dpnId, l2gwDevice.getHwvtepNodeId(),
                         elan.getElanTag(), ElanUtils.getVxlanSegmentationId(elan),
-                        localUcastMac.getMacEntryKey().getValue(), elanName, interfaceName);
+                        localUcastMac.getMacEntryKey().getValue(), elanName, interfaceName));
             }
             LOG.debug("Installing L2gw device [{}] local macs [size: {}] in dpn [{}] for elan [{}]",
                     l2gwDevice.getHwvtepNodeId(), l2gwDeviceLocalMacs.size(), dpnId, elanName);
         }
+        return fts;
     }
 
     /**
@@ -1094,7 +1095,7 @@ public class ElanL2GatewayUtils {
      *            the l2gw device
      * @return the l2 gw device local macs
      */
-    public Collection<MacAddress> getL2GwDeviceLocalMacs(String elanName, L2GatewayDevice l2gwDevice) {
+    public List<MacAddress> getL2GwDeviceLocalMacs(String elanName, L2GatewayDevice l2gwDevice) {
         if (l2gwDevice == null) {
             return Collections.emptyList();
         }
@@ -1116,6 +1117,6 @@ public class ElanL2GatewayUtils {
                         .collect(Collectors.toSet()));
             }
         }
-        return macs;
+        return new ArrayList<>(macs);
     }
 }

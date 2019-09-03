@@ -22,10 +22,13 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceDpnsCache;
 import org.opendaylight.netvirt.elan.l2gw.jobs.BcGroupUpdateJob;
+import org.opendaylight.netvirt.elan.l2gw.jobs.DpnDmacJob;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanRefUtil;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
+import org.opendaylight.netvirt.elan.utils.ElanDmacUtils;
+import org.opendaylight.netvirt.elan.utils.Scheduler;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
@@ -50,6 +53,8 @@ public class ElanDpnInterfaceClusteredListener
     private final ElanInstanceCache elanInstanceCache;
     private final ElanInstanceDpnsCache elanInstanceDpnsCache;
     private final ElanRefUtil elanRefUtil;
+    private final ElanDmacUtils elanDmacUtils;
+    private final Scheduler scheduler;
 
     @Inject
     public ElanDpnInterfaceClusteredListener(DataBroker broker, EntityOwnershipUtils entityOwnershipUtils,
@@ -58,7 +63,8 @@ public class ElanDpnInterfaceClusteredListener
                                              ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
                                              ElanInstanceCache elanInstanceCache,
                                              ElanInstanceDpnsCache elanInstanceDpnsCache,
-                                             ElanRefUtil elanRefUtil) {
+                                             ElanRefUtil elanRefUtil, ElanDmacUtils elanDmacUtils,
+                                             Scheduler scheduler) {
         this.broker = broker;
         this.entityOwnershipUtils = entityOwnershipUtils;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
@@ -68,6 +74,8 @@ public class ElanDpnInterfaceClusteredListener
         this.elanInstanceCache = elanInstanceCache;
         this.elanInstanceDpnsCache = elanInstanceDpnsCache;
         this.elanRefUtil = elanRefUtil;
+        this.elanDmacUtils = elanDmacUtils;
+        this.scheduler = scheduler;
     }
 
     @PostConstruct
@@ -109,8 +117,8 @@ public class ElanDpnInterfaceClusteredListener
                     BcGroupUpdateJob.updateAllBcGroups(elanName, elanRefUtil, elanL2GatewayMulticastUtils, broker);
 
                     // deleting Elan L2Gw Devices UcastLocalMacs From Dpn
-                    elanL2GatewayUtils.deleteElanL2GwDevicesUcastLocalMacsFromDpn(elanName,
-                            dpnInterfaces.getDpId());
+                    DpnDmacJob.uninstallDmacFromL2gws(elanName, dpnInterfaces, elanL2GatewayUtils, elanClusterUtils,
+                            elanInstanceCache, elanDmacUtils, scheduler, jobCoordinator);
 
                     //Removing this dpn from cache to avoid race between this and local ucast mac listener
                     elanInstanceDpnsCache.remove(getElanName(identifier), dpnInterfaces);
@@ -150,8 +158,8 @@ public class ElanDpnInterfaceClusteredListener
                 ElanInstance elanInstance = elanInstanceCache.get(elanName).orNull();
                 if (elanInstance != null) {
                     BcGroupUpdateJob.updateAllBcGroups(elanName, elanRefUtil, elanL2GatewayMulticastUtils, broker);
-                    elanL2GatewayUtils.installElanL2gwDevicesLocalMacsInDpn(
-                            dpnInterfaces.getDpId(), elanInstance, dpnInterfaces.getInterfaces().get(0));
+                    DpnDmacJob.installDmacFromL2gws(elanName, dpnInterfaces, elanL2GatewayUtils, elanClusterUtils,
+                            elanInstanceCache, elanDmacUtils, scheduler, jobCoordinator);
 
                     // updating remote mcast mac on l2gw devices
                     elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName);
