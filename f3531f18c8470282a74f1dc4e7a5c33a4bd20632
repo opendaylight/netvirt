@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e8258f96_3474303e",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/commands/MergeCommand.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-04T07:08:30Z",
+      "side": 1,
+      "message": "why is this needed here. You can remove this.",
+      "range": {
+        "startLine": 122,
+        "startChar": 0,
+        "endLine": 122,
+        "endChar": 19
+      },
+      "revId": "f3531f18c8470282a74f1dc4e7a5c33a4bd20632",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95863e0d_7138d143",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/commands/TerminationPointCmd.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-04T07:08:30Z",
+      "side": 1,
+      "message": "Why this validation here ?",
+      "range": {
+        "startLine": 77,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 105
+      },
+      "revId": "f3531f18c8470282a74f1dc4e7a5c33a4bd20632",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
