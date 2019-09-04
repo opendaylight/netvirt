@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bc58941f_de715593",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1161,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2019-09-04T05:49:36Z",
+      "side": 1,
+      "message": "elanInstanceAdded has all the info, why do we have to set name, description etc again?",
+      "revId": "0edfcec135543b71c7ca3b6c6847dbc66ef642a0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
