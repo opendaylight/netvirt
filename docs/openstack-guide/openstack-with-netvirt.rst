@@ -193,7 +193,7 @@ Open vSwitch config and set OpenDaylight to manage the switch:
           Manager "tcp:172.16.21.56:6640"
               is_connected: true
           Bridge br-int
-              Controller "tcp:172.16.21.56:6633"
+              Controller "tcp:172.16.21.56:6653"
                   is_connected: true
               fail_mode: secure
               Port br-int
@@ -232,19 +232,14 @@ now ensure that OpenStack Neutron is using OpenDaylight.
 This requires the neutron networking-odl module to be installed.
 | ``pip install networking-odl``
 
-First, ensure that port 8080 (which will be used by OpenDaylight to listen
-for REST calls) is available. By default, swift-proxy-service listens on the
-same port, and you may need to move it (to another port or another host), or
-disable that service. It can be moved to a different port (e.g. 8081) by editing
-``/etc/swift/proxy-server.conf`` and ``/etc/cinder/cinder.conf``,
-modifying iptables appropriately, and restarting swift-proxy-service.
-Alternatively, OpenDaylight can be configured to listen on a different port,
+First, ensure that port 8181 (which will be used by OpenDaylight to listen
+for REST calls) is available. OpenDaylight can be configured to listen on a different port,
 by modifying the ``jetty.port`` property value in ``etc/jetty.conf``.
 
 .. code-block:: bash
 
    <Set name="port">
-       <Property name="jetty.port" default="8080" />
+       <Property name="jetty.port" default="8181" />
    </Set>
 
 * Configure Neutron to use OpenDaylight's ML2 driver:
@@ -256,7 +251,7 @@ by modifying the ``jetty.port`` property value in ``etc/jetty.conf``.
 
      cat <<EOT>> /etc/neutron/plugins/ml2/ml2_conf.ini
      [ml2_odl]
-     url = http://{CONTROL_HOST}:8080/controller/nb/v2/neutron
+     url = http://{CONTROL_HOST}:8181/controller/nb/v2/neutron
      password = admin
      username = admin
      EOT
@@ -301,7 +296,7 @@ Verifying it works
 
   .. code-block:: bash
 
-     curl -u admin:admin http://{CONTROL_HOST}:8080/controller/nb/v2/neutron/networks
+     curl -u admin:admin http://{CONTROL_HOST}:8181/controller/nb/v2/neutron/networks
 
      {
         "networks" : [ ]
