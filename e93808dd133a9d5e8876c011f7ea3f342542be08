@@ -22,6 +22,30 @@
       "revId": "e93808dd133a9d5e8876c011f7ea3f342542be08",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67c51267_77f2c702",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/jobs/AssociateHwvtepToElanJob.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 8158
+      },
+      "writtenOn": "2019-09-05T05:50:51Z",
+      "side": 1,
+      "message": "Will address this is the next patch",
+      "parentUuid": "875a5f3c_99f75b7a",
+      "range": {
+        "startLine": 83,
+        "startChar": 0,
+        "endLine": 83,
+        "endChar": 8
+      },
+      "revId": "e93808dd133a9d5e8876c011f7ea3f342542be08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
