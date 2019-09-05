@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7909790b_cc6c349d",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/commands/MergeCommand.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 8158
+      },
+      "writtenOn": "2019-09-05T05:22:39Z",
+      "side": 1,
+      "message": "Yes, this is no longer required. I will remove it",
+      "parentUuid": "e8258f96_3474303e",
+      "range": {
+        "startLine": 122,
+        "startChar": 0,
+        "endLine": 122,
+        "endChar": 19
+      },
+      "revId": "f3531f18c8470282a74f1dc4e7a5c33a4bd20632",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "95863e0d_7138d143",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/commands/TerminationPointCmd.java",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2019-09-04T07:08:30Z",
       "side": 1,
       "message": "Why this validation here ?",
+      "range": {
+        "startLine": 77,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 105
+      },
+      "revId": "f3531f18c8470282a74f1dc4e7a5c33a4bd20632",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5dd7ed8f_6243e5ad",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/commands/TerminationPointCmd.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 8158
+      },
+      "writtenOn": "2019-09-05T05:22:39Z",
+      "side": 1,
+      "message": "It is not really required. Have removed it in the latest patch",
+      "parentUuid": "95863e0d_7138d143",
       "range": {
         "startLine": 77,
         "startChar": 0,
