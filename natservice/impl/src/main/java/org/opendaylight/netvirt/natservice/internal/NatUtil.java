@@ -51,6 +51,7 @@ import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
+import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.FlowEntityBuilder;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
@@ -81,6 +82,7 @@ import org.opendaylight.netvirt.natservice.ha.NatDataUtil;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.serviceutils.upgrade.UpgradeState;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
@@ -991,7 +993,7 @@ public final class NatUtil {
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     public static void removePrefixFromBGP(IBgpManager bgpManager, IFibManager fibManager,
-                                           String rd, String prefix, String vpnName, Logger log) {
+                                           String rd, String prefix, String vpnName) {
         try {
             LOG.debug("removePrefixFromBGP: Removing Fib entry rd {} prefix {}", rd, prefix);
             fibManager.removeFibEntry(rd, prefix, null);
@@ -1000,7 +1002,7 @@ public final class NatUtil {
             }
             LOG.info("removePrefixFromBGP: Removed Fib entry rd {} prefix {}", rd, prefix);
         } catch (Exception e) {
-            log.error("removePrefixFromBGP : Delete prefix for rd {} prefix {} vpnName {} failed",
+            LOG.error("removePrefixFromBGP : Delete prefix for rd {} prefix {} vpnName {} failed",
                     rd, prefix, vpnName, e);
         }
     }
@@ -2199,9 +2201,102 @@ public final class NatUtil {
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
+    public static void handleSNATForDPN(DataBroker dataBroker, IMdsalApiManager mdsalManager,
+        IdManagerService idManager, NaptSwitchHA naptSwitchHA,
+        BigInteger dpnId, Routers extRouters, long routerId, Long routerVpnId,
+        TypedReadWriteTransaction<Configuration> confTx,
+        ProviderTypes extNwProvType, UpgradeState upgradeState) {
+        //Check if primary and secondary switch are selected, If not select the role
+        //Install select group to NAPT switch
+        //Install default miss entry to NAPT switch
+        BigInteger naptSwitch;
+        String routerName = extRouters.getRouterName();
+        Boolean upgradeInProgress = false;
+        if (upgradeState != null) {
+            upgradeInProgress = upgradeState.isUpgradeInProgress();
+        }
+        BigInteger naptId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
+        if (naptId == null || naptId.equals(BigInteger.ZERO)
+            || (!NatUtil.getSwitchStatus(dataBroker, naptId) && (upgradeInProgress == false))) {
+            LOG.debug("handleSNATForDPN : NaptSwitch is down or not selected for router {},naptId {}",
+                routerName, naptId);
+            naptSwitch = dpnId;
+            boolean naptstatus = naptSwitchHA.updateNaptSwitch(routerName, naptSwitch);
+            if (!naptstatus) {
+                LOG.error("handleSNATForDPN : Failed to update newNaptSwitch {} for routername {}",
+                    naptSwitch, routerName);
+                return;
+            }
+            LOG.debug("handleSNATForDPN : Switch {} is elected as NaptSwitch for router {}", dpnId, routerName);
+
+            String externalVpnName = null;
+            NatUtil.createRouterIdsConfigDS(dataBroker, routerId, routerName);
+            naptSwitchHA.subnetRegisterMapping(extRouters, routerId);
+            Uuid extNwUuid = extRouters.getNetworkId();
+            externalVpnName = NatUtil.getAssociatedVPN(dataBroker, extNwUuid);
+            if (externalVpnName != null) {
+                naptSwitchHA.installSnatFlows(routerName, routerId, naptSwitch, routerVpnId, extNwUuid,
+                    externalVpnName, confTx);
+            }
+            // Install miss entry (table 26) pointing to table 46
+            FlowEntity flowEntity = naptSwitchHA.buildSnatFlowEntityForNaptSwitch(dpnId, routerName,
+                routerVpnId, NatConstants.ADD_FLOW);
+            if (flowEntity == null) {
+                LOG.error("handleSNATForDPN : Failed to populate flowentity for router {} with dpnId {}",
+                    routerName, dpnId);
+                return;
+            }
+            LOG.debug("handleSNATForDPN : Successfully installed flow for dpnId {} router {}", dpnId, routerName);
+            mdsalManager.addFlow(confTx, flowEntity);
+            //Removing primary flows from old napt switch
+            if (naptId != null && !naptId.equals(BigInteger.ZERO)) {
+                LOG.debug("handleSNATForDPN : Removing primary flows from old napt switch {} for router {}",
+                    naptId, routerName);
+                try {
+                    naptSwitchHA.removeSnatFlowsInOldNaptSwitch(routerName, routerId, naptId, null,
+                        externalVpnName, confTx);
+                } catch (Exception e) {
+                    LOG.error("Exception while removing SnatFlows form OldNaptSwitch {}", naptId, e);
+                }
+            }
+            naptSwitchHA.updateNaptSwitchBucketStatus(routerName, routerId, naptSwitch);
+        } else if (naptId.equals(dpnId)) {
+            LOG.error("handleSNATForDPN : NaptSwitch {} gone down during cluster reboot came alive", naptId);
+        } else {
+            naptSwitch = naptId;
+            LOG.debug("handleSNATForDPN : Napt switch with Id {} is already elected for router {}",
+                naptId, routerName);
+
+            //installing group
+            List<BucketInfo> bucketInfo = naptSwitchHA.handleGroupInNeighborSwitches(dpnId,
+                routerName, routerId, naptSwitch);
+            naptSwitchHA.installSnatGroupEntry(dpnId, bucketInfo, routerName);
+
+            // Install miss entry (table 26) pointing to group
+            long groupId = NatUtil.getUniqueId(idManager, NatConstants.SNAT_IDPOOL_NAME,
+                NatUtil.getGroupIdKey(routerName));
+            if (groupId != NatConstants.INVALID_ID) {
+                FlowEntity flowEntity =
+                    naptSwitchHA.buildSnatFlowEntity(dpnId, routerName, groupId,
+                        routerVpnId, NatConstants.ADD_FLOW);
+                if (flowEntity == null) {
+                    LOG.error("handleSNATForDPN : Failed to populate flowentity for router {} with dpnId {}"
+                        + " groupId {}", routerName, dpnId, groupId);
+                    return;
+                }
+                LOG.debug("handleSNATForDPN : Successfully installed flow for dpnId {} router {} group {}",
+                    dpnId, routerName, groupId);
+                mdsalManager.addFlow(confTx, flowEntity);
+            } else {
+                LOG.error("handleSNATForDPN: Unable to get groupId for router:{}", routerName);
+            }
+        }
+    }
+
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public static void removeSNATFromDPN(DataBroker dataBroker, IMdsalApiManager mdsalManager,
             IdManagerService idManager, NaptSwitchHA naptSwitchHA, BigInteger dpnId,
-            String routerName, long routerId, long routerVpnId,
+            String routerName, long routerId, long routerVpnId, Uuid extNetworkId,
             ProviderTypes extNwProvType, TypedReadWriteTransaction<Configuration> confTx)
                     throws ExecutionException, InterruptedException {
         //irrespective of naptswitch or non-naptswitch, SNAT default miss entry need to be removed
@@ -2274,8 +2369,9 @@ public final class NatUtil {
             LOG.debug("removeSNATFromDPN : Removed default SNAT miss entry flow for dpnID {} with routerName {}",
                 dpnId, routerName);
         } else {
+            String externalVpnName = NatUtil.getAssociatedVPN(dataBroker, extNetworkId);
             naptSwitchHA.removeSnatFlowsInOldNaptSwitch(routerName, routerId, naptSwitch,
-                    externalIpLabel, confTx);
+                    externalIpLabel, externalVpnName, confTx);
             //remove table 26 flow ppointing to table46
             FlowEntity flowEntity = null;
             try {
