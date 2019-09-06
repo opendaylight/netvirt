@@ -206,7 +206,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     private final IVpnManager vpnManager;
     private final ConcurrentHashMap<Uuid, Uuid> unprocessedPortsMap = new ConcurrentHashMap<>();
     private final NeutronvpnAlarms neutronvpnAlarm = new NeutronvpnAlarms();
-    private final NamedLocks<Uuid> vpnLock = new NamedLocks<>();
+    private final NamedLocks<String> vpnLock = new NamedLocks<>();
     private final NamedLocks<String> interfaceLock = new NamedLocks<>();
 
     @Inject
@@ -258,6 +258,14 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         } catch (OptimisticLockFailedException e) {
             LOG.debug("Optimistic lock failed exception while configuring feature {}", bgpvpnVniFeature, e);
         }
+    }
+
+    public NamedLocks<String> getVpnLock() {
+        return vpnLock;
+    }
+
+    public long getLockWaitTime() {
+        return LOCK_WAIT_TIME;
     }
 
     public String getOpenDaylightVniRangesConfig() {
@@ -534,10 +542,16 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
     }
 
-    public void updateVpnInstanceWithRDs(String vpnInstanceId, final List<String> rds) {
+    public void updateVpnInstanceWithRDs(Uuid vpnId, final List<String> rds) {
+        String vpnInstanceId = vpnId.getValue();
         InstanceIdentifier<VpnInstance> vpnIdentifier = InstanceIdentifier.builder(VpnInstances.class)
             .child(VpnInstance.class, new VpnInstanceKey(vpnInstanceId)).build();
-        try {
+        try (AcquireResult lock = tryVpnLock(vpnId)) {
+            if (!lock.wasAcquired()) {
+                LOG.error("UpdateVPNInstancewithRD: update failed for vpn : {} due to failure in acquiring lock",
+                        vpnInstanceId);
+                return;
+            }
             Optional<VpnInstance> vpnInstanceConfig =
                     SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
                             vpnIdentifier);
@@ -571,106 +585,93 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         InstanceIdentifier<VpnInstance> vpnIdentifier = InstanceIdentifier.builder(VpnInstances.class)
             .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
         Optional<VpnInstance> optionalVpn;
-        try {
+        try (AcquireResult lock = tryVpnLock(vpnId)) {
+            if (!lock.wasAcquired()) {
+                LOG.error("UpdateVPNInstanceNode: failed for vpn {} rd {} as lock was not acquired", vpnName, rd);
+                return;
+            }
             optionalVpn = SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                vpnIdentifier);
-        } catch (ReadFailedException e) {
-            LOG.error("Update VPN Instance node failed for node: {} {} {} {}", vpnName, rd, irt, ert);
-            return;
-        }
+                    vpnIdentifier);
 
-        LOG.debug("Creating/Updating a new vpn-instance node: {} ", vpnName);
-        if (optionalVpn.isPresent()) {
-            builder = new VpnInstanceBuilder(optionalVpn.get());
-            LOG.debug("updating existing vpninstance node");
-        } else {
-            builder = new VpnInstanceBuilder().withKey(new VpnInstanceKey(vpnName)).setVpnInstanceName(vpnName)
-                    .setType(type).setL3vni(l3vni);
-        }
-        if (irt != null && !irt.isEmpty()) {
-            if (ert != null && !ert.isEmpty()) {
-                List<String> commonRT = new ArrayList<>(irt);
-                commonRT.retainAll(ert);
+            LOG.debug("Creating/Updating a new vpn-instance node: {} ", vpnName);
+            if (optionalVpn.isPresent()) {
+                builder = new VpnInstanceBuilder(optionalVpn.get());
+                LOG.debug("updating existing vpninstance node");
+            } else {
+                builder = new VpnInstanceBuilder().withKey(new VpnInstanceKey(vpnName)).setVpnInstanceName(vpnName)
+                        .setType(type).setL3vni(l3vni);
+            }
+            if (irt != null && !irt.isEmpty()) {
+                if (ert != null && !ert.isEmpty()) {
+                    List<String> commonRT = new ArrayList<>(irt);
+                    commonRT.retainAll(ert);
 
-                for (String common : commonRT) {
-                    irt.remove(common);
-                    ert.remove(common);
+                    for (String common : commonRT) {
+                        irt.remove(common);
+                        ert.remove(common);
+                        VpnTarget vpnTarget =
+                                new VpnTargetBuilder().withKey(new VpnTargetKey(common)).setVrfRTValue(common)
+                                        .setVrfRTType(VpnTarget.VrfRTType.Both).build();
+                        vpnTargetList.add(vpnTarget);
+                    }
+                }
+                for (String importRT : irt) {
                     VpnTarget vpnTarget =
-                            new VpnTargetBuilder().withKey(new VpnTargetKey(common)).setVrfRTValue(common)
-                            .setVrfRTType(VpnTarget.VrfRTType.Both).build();
+                            new VpnTargetBuilder().withKey(new VpnTargetKey(importRT)).setVrfRTValue(importRT)
+                                    .setVrfRTType(VpnTarget.VrfRTType.ImportExtcommunity).build();
                     vpnTargetList.add(vpnTarget);
                 }
             }
-            for (String importRT : irt) {
-                VpnTarget vpnTarget =
-                        new VpnTargetBuilder().withKey(new VpnTargetKey(importRT)).setVrfRTValue(importRT)
-                        .setVrfRTType(VpnTarget.VrfRTType.ImportExtcommunity).build();
-                vpnTargetList.add(vpnTarget);
+
+            if (ert != null && !ert.isEmpty()) {
+                for (String exportRT : ert) {
+                    VpnTarget vpnTarget =
+                            new VpnTargetBuilder().withKey(new VpnTargetKey(exportRT)).setVrfRTValue(exportRT)
+                                    .setVrfRTType(VpnTarget.VrfRTType.ExportExtcommunity).build();
+                    vpnTargetList.add(vpnTarget);
+                }
             }
-        }
 
-        if (ert != null && !ert.isEmpty()) {
-            for (String exportRT : ert) {
-                VpnTarget vpnTarget =
-                        new VpnTargetBuilder().withKey(new VpnTargetKey(exportRT)).setVrfRTValue(exportRT)
-                        .setVrfRTType(VpnTarget.VrfRTType.ExportExtcommunity).build();
-                vpnTargetList.add(vpnTarget);
+            VpnTargets vpnTargets = new VpnTargetsBuilder().setVpnTarget(vpnTargetList).build();
+            Ipv4FamilyBuilder ipv4vpnBuilder = new Ipv4FamilyBuilder().setVpnTargets(vpnTargets);
+            Ipv6FamilyBuilder ipv6vpnBuilder = new Ipv6FamilyBuilder().setVpnTargets(vpnTargets);
+
+            if (rd != null && !rd.isEmpty()) {
+                ipv4vpnBuilder.setRouteDistinguisher(rd);
+                ipv6vpnBuilder.setRouteDistinguisher(rd);
             }
-        }
 
-        VpnTargets vpnTargets = new VpnTargetsBuilder().setVpnTarget(vpnTargetList).build();
-        Ipv4FamilyBuilder ipv4vpnBuilder = new Ipv4FamilyBuilder().setVpnTargets(vpnTargets);
-        Ipv6FamilyBuilder ipv6vpnBuilder = new Ipv6FamilyBuilder().setVpnTargets(vpnTargets);
-
-        if (rd != null && !rd.isEmpty()) {
-            ipv4vpnBuilder.setRouteDistinguisher(rd);
-            ipv6vpnBuilder.setRouteDistinguisher(rd);
-        }
-
-        if (ipVersion != null && ipVersion.isIpVersionChosen(IpVersionChoice.IPV4)) {
-            builder.setIpv4Family(ipv4vpnBuilder.build());
-        }
-        if (ipVersion != null && ipVersion.isIpVersionChosen(IpVersionChoice.IPV6)) {
-            builder.setIpv6Family(ipv6vpnBuilder.build());
-        }
-        if (ipVersion != null && ipVersion.isIpVersionChosen(IpVersionChoice.UNDEFINED)) {
-            builder.setIpv4Family(ipv4vpnBuilder.build());
-        }
-        VpnInstance newVpn = builder.build();
-
-        try (AcquireResult lock = tryVpnLock(vpnId)) {
-            if (!lock.wasAcquired()) {
-                // FIXME: why do we even bother with locking if we do not honor it?!
-                logTryLockFailure(vpnId);
+            if (ipVersion != null && ipVersion.isIpVersionChosen(IpVersionChoice.IPV4)) {
+                builder.setIpv4Family(ipv4vpnBuilder.build());
             }
+            if (ipVersion != null && ipVersion.isIpVersionChosen(IpVersionChoice.IPV6)) {
+                builder.setIpv6Family(ipv6vpnBuilder.build());
+            }
+            if (ipVersion != null && ipVersion.isIpVersionChosen(IpVersionChoice.UNDEFINED)) {
+                builder.setIpv4Family(ipv4vpnBuilder.build());
+            }
+            VpnInstance newVpn = builder.build();
 
             LOG.debug("Creating/Updating vpn-instance for {} ", vpnName);
-            try {
-                SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier,
+            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier,
                     newVpn);
-            } catch (TransactionCommitFailedException e) {
-                LOG.error("Update VPN Instance node failed for node: {} {} {} {}", vpnName, rd, irt, ert);
-            }
+        } catch (ReadFailedException | TransactionCommitFailedException e) {
+            LOG.error("Update VPN Instance node failed for node: {} {} {} {}", vpnName, rd, irt, ert);
         }
     }
 
     private void deleteVpnMapsNode(Uuid vpnId) {
-        InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class)
-                .child(VpnMap.class, new VpnMapKey(vpnId))
-                .build();
         LOG.debug("removing vpnMaps node: {} ", vpnId.getValue());
         try (AcquireResult lock = tryVpnLock(vpnId)) {
             if (!lock.wasAcquired()) {
-                // FIXME: why do we even bother with locking if we do not honor it?!
-                logTryLockFailure(vpnId);
+                LOG.error("deleteVpnMapsNode: failed for vpn : {} due failure in acquiring lock ", vpnId.getValue());
+                return;
             }
-
-            try {
-                SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                    vpnMapIdentifier);
-            } catch (TransactionCommitFailedException e) {
-                LOG.error("Delete vpnMaps node failed for vpn : {} ", vpnId.getValue());
-            }
+            InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class)
+                    .child(VpnMap.class, new VpnMapKey(vpnId)).build();
+            SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
+        } catch (TransactionCommitFailedException e) {
+            LOG.error("Delete vpnMaps node failed for vpn : {} ", vpnId.getValue());
         }
     }
 
@@ -678,9 +679,12 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             @Nullable List<Uuid> networks) {
         VpnMapBuilder builder;
         InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class)
-                .child(VpnMap.class, new VpnMapKey(vpnId))
-                .build();
-        try {
+                .child(VpnMap.class, new VpnMapKey(vpnId)).build();
+        try (AcquireResult lock = tryVpnLock(vpnId)) {
+            if (!lock.wasAcquired()) {
+                LOG.error("UpdateVpnMapsNode: failed for vpn : {} due failure in acquiring lock ", vpnId.getValue());
+                return;
+            }
             Optional<VpnMap> optionalVpnMap =
                     SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
                             vpnMapIdentifier);
@@ -714,18 +718,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 nwList.addAll(networks);
                 builder.setNetworkIds(nwList);
             }
+            LOG.debug("Creating/Updating vpnMaps node: {} ", vpnId.getValue());
+            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier,
+                    builder.build());
+            LOG.debug("VPNMaps DS updated for VPN {} ", vpnId.getValue());
 
-            try (AcquireResult lock = tryVpnLock(vpnId)) {
-                if (!lock.wasAcquired()) {
-                    // FIXME: why do we even bother with locking if we do not honor it?!
-                    logTryLockFailure(vpnId);
-                }
-
-                LOG.debug("Creating/Updating vpnMaps node: {} ", vpnId.getValue());
-                SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier,
-                        builder.build());
-                LOG.debug("VPNMaps DS updated for VPN {} ", vpnId.getValue());
-            }
         } catch (ReadFailedException | TransactionCommitFailedException e) {
             LOG.error("UpdateVpnMaps failed for node: {} ", vpnId.getValue());
         }
@@ -733,34 +730,28 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     private void clearFromVpnMaps(Uuid vpnId, @Nullable Uuid routerId, @Nullable List<Uuid> networkIds) {
         InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class)
-                .child(VpnMap.class, new VpnMapKey(vpnId))
-                .build();
+                .child(VpnMap.class, new VpnMapKey(vpnId)).build();
         Optional<VpnMap> optionalVpnMap;
-        try {
+        try (AcquireResult lock = tryVpnLock(vpnId)) {
+            if (!lock.wasAcquired()) {
+                LOG.error("clearFromVpnMaps: failed for vpn : {} due failure in acquiring lock ", vpnId.getValue());
+                return;
+            }
             optionalVpnMap =
                     SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
                             vpnMapIdentifier);
-        } catch (ReadFailedException e) {
-            LOG.error("Error reading the VPN map for {}", vpnMapIdentifier, e);
-            return;
-        }
-        if (optionalVpnMap.isPresent()) {
-            VpnMap vpnMap = optionalVpnMap.get();
-            VpnMapBuilder vpnMapBuilder = new VpnMapBuilder(vpnMap);
-            List<RouterIds> rtrIds = vpnMap.getRouterIds();
-            if (rtrIds == null) {
-                rtrIds = new ArrayList<>();
-            }
-            if (routerId != null) {
-                if (vpnMap.getNetworkIds() == null && routerId.equals(vpnMap.getVpnId())) {
-                    rtrIds.add(new RouterIdsBuilder().setRouterId(routerId).build());
-                    vpnMapBuilder.setRouterIds(rtrIds);
 
-                    try (AcquireResult lock = tryVpnLock(vpnId)) {
-                        if (!lock.wasAcquired()) {
-                            // FIXME: why do we even bother with locking if we do not honor it?!
-                            logTryLockFailure(vpnId);
-                        }
+            if (optionalVpnMap.isPresent()) {
+                VpnMap vpnMap = optionalVpnMap.get();
+                VpnMapBuilder vpnMapBuilder = new VpnMapBuilder(vpnMap);
+                List<RouterIds> rtrIds = vpnMap.getRouterIds();
+                if (rtrIds == null) {
+                    rtrIds = new ArrayList<>();
+                }
+                if (routerId != null) {
+                    if (vpnMap.getNetworkIds() == null && routerId.equals(vpnMap.getVpnId())) {
+                        rtrIds.add(new RouterIdsBuilder().setRouterId(routerId).build());
+                        vpnMapBuilder.setRouterIds(rtrIds);
 
                         LOG.debug("removing vpnMaps node: {} ", vpnId);
                         try {
@@ -769,55 +760,51 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         } catch (TransactionCommitFailedException e) {
                             LOG.error("Deletion of vpnMaps node failed for vpn {}", vpnId.getValue());
                         }
+                        return;
+                    } else if (vpnMap.getNetworkIds() == null && !routerId.equals(vpnMap.getVpnId())) {
+                        rtrIds.remove(new RouterIdsBuilder().setRouterId(routerId).build());
+                        vpnMapBuilder.setRouterIds(rtrIds);
+                        LOG.debug("Removing routerId {} in vpnMaps for the vpn {}", routerId, vpnId.getValue());
                     }
-                    return;
-                } else if (vpnMap.getNetworkIds() == null && !routerId.equals(vpnMap.getVpnId())) {
-                    rtrIds.remove(new RouterIdsBuilder().setRouterId(routerId).build());
-                    vpnMapBuilder.setRouterIds(rtrIds);
-                    LOG.debug("Removing routerId {} in vpnMaps for the vpn {}", routerId, vpnId.getValue());
                 }
-            }
-            if (networkIds != null) {
-                List<Uuid> vpnNw = vpnMap.getNetworkIds();
-                vpnNw.removeAll(networkIds);
-                if (vpnNw.isEmpty()) {
-                    LOG.debug("setting networks null in vpnMaps node: {} ", vpnId.getValue());
-                    vpnMapBuilder.setNetworkIds(null);
-                } else {
-                    vpnMapBuilder.setNetworkIds(vpnNw);
-                }
-            }
-
-            try (AcquireResult lock = tryVpnLock(vpnId)) {
-                if (!lock.wasAcquired()) {
-                    // FIXME: why do we even bother with locking if we do not honor it?!
-                    logTryLockFailure(vpnId);
+                if (networkIds != null) {
+                    List<Uuid> vpnNw = vpnMap.getNetworkIds();
+                    vpnNw.removeAll(networkIds);
+                    if (vpnNw.isEmpty()) {
+                        LOG.debug("setting networks null in vpnMaps node: {} ", vpnId.getValue());
+                        vpnMapBuilder.setNetworkIds(null);
+                    } else {
+                        vpnMapBuilder.setNetworkIds(vpnNw);
+                    }
                 }
 
                 LOG.debug("clearing from vpnMaps node: {} ", vpnId.getValue());
                 try {
                     SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                        vpnMapIdentifier, vpnMapBuilder.build());
+                            vpnMapIdentifier, vpnMapBuilder.build());
                 } catch (TransactionCommitFailedException e) {
                     LOG.error("Clearing from vpnMaps node failed for vpn {}", vpnId.getValue());
                 }
+
+            } else {
+                LOG.error("clearFromVpnMaps: VPN : {} not found", vpnId.getValue());
             }
-        } else {
-            LOG.error("VPN : {} not found", vpnId.getValue());
+        } catch (ReadFailedException e) {
+            LOG.error("clearFromVpnMaps: Error reading the VPN map for {}", vpnMapIdentifier, e);
+            return;
         }
         LOG.debug("Clear from VPNMaps DS successful for VPN {} ", vpnId.getValue());
     }
 
     private void deleteVpnInstance(Uuid vpnId) {
         InstanceIdentifier<VpnInstance> vpnIdentifier = InstanceIdentifier.builder(VpnInstances.class)
-                .child(VpnInstance.class,
-                        new VpnInstanceKey(vpnId.getValue()))
-                .build();
+                .child(VpnInstance.class, new VpnInstanceKey(vpnId.getValue())).build();
 
         try (AcquireResult lock = tryVpnLock(vpnId)) {
             if (!lock.wasAcquired()) {
-                // FIXME: why do we even bother with locking if we do not honor it?!
-                logTryLockFailure(vpnId);
+                LOG.error("deleteVpnInstance: Deletion failed for VPN {} due to failures in acquiring lock",
+                        vpnId.getValue());
+                return;
             }
 
             LOG.debug("Deleting vpnInstance {}", vpnId.getValue());
@@ -3421,7 +3408,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     @CheckReturnValue
     private AcquireResult tryVpnLock(final Uuid vpnId) {
-        return vpnLock.tryAcquire(vpnId, LOCK_WAIT_TIME, TimeUnit.SECONDS);
+        return vpnLock.tryAcquire(vpnId.getValue(), LOCK_WAIT_TIME, TimeUnit.SECONDS);
     }
 
     private static ReentrantLock lockForUuid(Uuid uuid) {

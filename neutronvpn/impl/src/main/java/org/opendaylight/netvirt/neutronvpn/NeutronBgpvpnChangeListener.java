@@ -187,7 +187,7 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
         Uuid vpnId = update.getUuid();
         if (isBgpvpnTypeL3(update.getType())) {
             try {
-                handleVpnInstanceUpdate(original.getUuid().getValue(), original.getRouteDistinguishers(),
+                handleVpnInstanceUpdate(original.getUuid(), original.getRouteDistinguishers(),
                         update.getRouteDistinguishers());
             } catch (UnsupportedOperationException e) {
                 LOG.error("Error while processing Update Bgpvpn.", e);
@@ -204,7 +204,7 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
         }
     }
 
-    protected void handleVpnInstanceUpdate(String vpnInstanceName,final List<String> originalRds,
+    protected void handleVpnInstanceUpdate(Uuid vpnId,final List<String> originalRds,
                                            List<String> updateRDs) throws UnsupportedOperationException {
         if (updateRDs == null || updateRDs.isEmpty()) {
             return;
@@ -219,11 +219,11 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
             }
         }
         if (updateRDs.size() == oldRdsCount) {
-            LOG.debug("There is no update in the List of Route Distinguisher for the VpnInstance:{}", vpnInstanceName);
+            LOG.debug("There is no update in the List of Route Distinguisher for the VpnInstance:{}", vpnId.getValue());
             return;
         }
-        LOG.debug("update the VpnInstance:{} with the List of RDs: {}", vpnInstanceName, updateRDs);
-        nvpnManager.updateVpnInstanceWithRDs(vpnInstanceName, updateRDs);
+        LOG.debug("update the VpnInstance:{} with the List of RDs: {}", vpnId.getValue(), updateRDs);
+        nvpnManager.updateVpnInstanceWithRDs(vpnId, updateRDs);
     }
 
     protected void handleNetworksUpdate(Uuid vpnId, List<Uuid> oldNetworks, List<Uuid> newNetworks) {
