@@ -196,7 +196,7 @@ public class UpgradeStateListener extends AbstractClusteredSyncDataTreeChangeLis
                 return;
             }
             NatUtil.removeSNATFromDPN(dataBroker, mdsalManager, idManager, naptSwitchHA, primaryNaptDpnId, routerName,
-                    routerId, routerVpnId, extNwProvType, confTx);
+                    routerId, routerVpnId, networkId, extNwProvType, confTx);
 
         } else {
             LOG.info("hndlTepDelForSnatInEachRtr : SNAT is not enabled for router {} to handle addDPN event {}",

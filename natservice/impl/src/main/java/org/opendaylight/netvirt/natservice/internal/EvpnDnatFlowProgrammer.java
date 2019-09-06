@@ -297,7 +297,7 @@ public class EvpnDnatFlowProgrammer {
         String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
 
         //Remove Prefix from BGP
-        NatUtil.removePrefixFromBGP(bgpManager, fibManager, rd, fibExternalIp, vpnName, LOG);
+        NatUtil.removePrefixFromBGP(bgpManager, fibManager, rd, fibExternalIp, vpnName);
 
         //Remove custom FIB routes flow for L3_FIB_TABLE (table=21)-> PDNAT_TABLE (table=25)
         RemoveFibEntryInput input = new RemoveFibEntryInputBuilder().setVpnName(vpnName)
