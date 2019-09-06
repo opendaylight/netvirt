@@ -339,7 +339,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         //Remove Prefix from BGP
         String rd = NatUtil.getVpnRd(confTx, vpnName);
         String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
-        NatUtil.removePrefixFromBGP(bgpManager, fibManager, rd, fibExternalIp, vpnName, LOG);
+        NatUtil.removePrefixFromBGP(bgpManager, fibManager, rd, fibExternalIp, vpnName);
 
         //Remove custom FIB routes
 
