@@ -350,7 +350,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     private BigInteger selectNewNAPTSwitch(String routerName) {
         // Allocated an id from VNI pool for the Router.
         natOverVxlanUtil.getRouterVni(routerName, NatConstants.INVALID_ID);
-        BigInteger primarySwitchId = naptSwitchSelector.selectNewNAPTSwitch(routerName);
+        BigInteger primarySwitchId = naptSwitchSelector.selectNewNAPTSwitch(routerName, null);
         LOG.debug("getPrimaryNaptSwitch : Primary NAPT switch DPN ID {}", primarySwitchId);
 
         return primarySwitchId;
@@ -2532,7 +2532,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         //Inform BGP about the route removal
         LOG.info("clearBgpRoutes : Informing BGP to remove route for externalIP {} of vpn {}", externalIp, vpnName);
         String rd = NatUtil.getVpnRd(dataBroker, vpnName);
-        NatUtil.removePrefixFromBGP(bgpManager, fibManager, rd, externalIp, vpnName, LOG);
+        NatUtil.removePrefixFromBGP(bgpManager, fibManager, rd, externalIp, vpnName);
     }
 
     private void removeTunnelTableEntry(BigInteger dpnId, long serviceId,
