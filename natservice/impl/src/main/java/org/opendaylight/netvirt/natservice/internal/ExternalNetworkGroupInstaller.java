@@ -34,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
@@ -86,13 +87,12 @@ public class ExternalNetworkGroupInstaller {
 
         Uuid networkId = subnetMap.getNetworkId();
         Uuid subnetId = subnetMap.getId();
-        if (networkId == null) {
-            LOG.error("installExtNetGroupEntries : No network associated subnet id {}", subnetId.getValue());
-            return;
+        NetworkAttributes.NetworkType extNetworkType = subnetMap.getNetworkType();
+        if (externalGroupInstallationRequiredForExtNetwork(networkId, subnetMap.isExternal(),
+            extNetworkType, subnetId)) {
+            String macAddress = NatUtil.getSubnetGwMac(broker, subnetId, networkId.getValue());
+            installExtNetGroupEntries(subnetMap, macAddress);
         }
-
-        String macAddress = NatUtil.getSubnetGwMac(broker, subnetId, networkId.getValue());
-        installExtNetGroupEntries(subnetMap, macAddress);
     }
 
     public void installExtNetGroupEntries(Uuid subnetId, String macAddress) {
@@ -107,13 +107,13 @@ public class ExternalNetworkGroupInstaller {
                     subnetMap.getId());
             return;
         }
-        installExtNetGroupEntries(subnetMap, macAddress);
+        if (externalGroupInstallationRequiredForExtNetwork(subnetMap.getNetworkId(), subnetMap.isExternal(),
+            subnetMap.getNetworkType(), subnetId)) {
+            installExtNetGroupEntries(subnetMap, macAddress);
+        }
     }
 
     public void installExtNetGroupEntries(Uuid networkId, Uint64 dpnId) {
-        if (networkId == null) {
-            return;
-        }
 
         List<Uuid> subnetIds = NatUtil.getSubnetIdsFromNetworkId(broker, networkId);
         if (subnetIds.isEmpty()) {
@@ -165,22 +165,32 @@ public class ExternalNetworkGroupInstaller {
     }
 
     public void installExtNetGroupEntry(Uuid networkId, Uuid subnetId, Uint64 dpnId, String macAddress) {
-        String subnetName = subnetId.getValue();
-        String extInterface = elanService.getExternalElanInterface(networkId.getValue(), dpnId);
-        if (extInterface == null) {
-            LOG.warn("installExtNetGroupEntry : No external ELAN interface attached to network {} subnet {} DPN id {}",
-                    networkId, subnetName, dpnId);
-            //return;
+        Subnetmap subnetMap = NatUtil.getSubnetMap(broker, subnetId);
+        if (subnetMap == null) {
+            LOG.error("installExtNetGroupEntries : Subnetmap is null");
+            return;
         }
-        Uint32 groupId = NatUtil.getUniqueId(idManager, NatConstants.SNAT_IDPOOL_NAME,
+        if (externalGroupInstallationRequiredForExtNetwork(networkId, subnetMap.isExternal(),
+            subnetMap.getNetworkType(), subnetId)) {
+            String subnetName = subnetId.getValue();
+            String extInterface = elanService.getExternalElanInterface(networkId.getValue(), dpnId);
+            if (extInterface == null) {
+                LOG.warn(
+                    "installExtNetGroupEntry : No external ELAN interface attached to network {} subnet {} DPN id {}",
+                    networkId, subnetName, dpnId);
+                //return;
+            }
+            Uint32 groupId = NatUtil.getUniqueId(idManager, NatConstants.SNAT_IDPOOL_NAME,
                 NatUtil.getGroupIdKey(subnetName));
-        if (groupId != NatConstants.INVALID_ID) {
-            LOG.info(
-                "installExtNetGroupEntry : Installing ext-net group {} entry for subnet {} with macAddress {} "
-                    + "(extInterface: {})", groupId, subnetName, macAddress, extInterface);
-            installExtNetGroupEntry(groupId, subnetName, extInterface, macAddress, dpnId);
-        } else {
-            LOG.error("installExtNetGroupEntry: Unable to get groupId for subnet:{}", subnetName);
+            if (groupId != NatConstants.INVALID_ID) {
+                LOG.info(
+                    "installExtNetGroupEntry : Installing ext-net group {} entry for subnet {} with macAddress {} "
+                        + "(extInterface: {})", groupId, subnetName, macAddress, extInterface);
+                installExtNetGroupEntry(groupId, subnetName, extInterface, macAddress, dpnId);
+            } else {
+                LOG.error("installExtNetGroupEntry: Unable to get groupId for subnet:{}",
+                    subnetName);
+            }
         }
     }
 
@@ -201,33 +211,35 @@ public class ExternalNetworkGroupInstaller {
 
         String subnetName = subnetMap.getId().getValue();
         Uuid networkId = subnetMap.getNetworkId();
-        if (networkId == null) {
-            LOG.error("removeExtNetGroupEntries : No external network associated subnet id {}", subnetName);
-            return;
-        }
-
-        Collection<String> extInterfaces = elanService.getExternalElanInterfaces(networkId.getValue());
-        if (extInterfaces == null || extInterfaces.isEmpty()) {
-            LOG.debug("removeExtNetGroupEntries : No external ELAN interfaces attached to network {} subnet {}",
+        NetworkAttributes.NetworkType extNetworkType = subnetMap.getNetworkType();
+        if (externalGroupInstallationRequiredForExtNetwork(networkId, subnetMap.isExternal(),
+            extNetworkType, subnetMap.getId())) {
+            Collection<String> extInterfaces = elanService.getExternalElanInterfaces(networkId.getValue());
+            if (extInterfaces == null || extInterfaces.isEmpty()) {
+                LOG.debug(
+                    "removeExtNetGroupEntries : No external ELAN interfaces attached to network {} subnet {}",
                     networkId, subnetName);
-            return;
-        }
-
-        Uint32 groupId = NatUtil.getUniqueId(idManager, NatConstants.SNAT_IDPOOL_NAME,
-                NatUtil.getGroupIdKey(subnetName));
-        if (groupId != NatConstants.INVALID_ID) {
-            for (String extInterface : extInterfaces) {
-                GroupEntity groupEntity = buildEmptyExtNetGroupEntity(subnetName, groupId,
-                    extInterface);
-                if (groupEntity != null) {
-                    LOG.info("removeExtNetGroupEntries : Remove ext-net Group: id {}, subnet id {}",
-                        groupId, subnetName);
-                    natServiceCounters.removeExternalNetworkGroup();
-                    mdsalManager.syncRemoveGroup(groupEntity);
-                }
+                return;
             }
-        } else {
-            LOG.error("removeExtNetGroupEntries: Unable to get groupId for subnet:{}", subnetName);
+
+            Uint32 groupId = NatUtil.getUniqueId(idManager, NatConstants.SNAT_IDPOOL_NAME,
+                NatUtil.getGroupIdKey(subnetName));
+            if (groupId != NatConstants.INVALID_ID) {
+                for (String extInterface : extInterfaces) {
+                    GroupEntity groupEntity = buildEmptyExtNetGroupEntity(subnetName, groupId,
+                        extInterface);
+                    if (groupEntity != null) {
+                        LOG.info(
+                            "removeExtNetGroupEntries : Remove ext-net Group: id {}, subnet id {}",
+                            groupId, subnetName);
+                        natServiceCounters.removeExternalNetworkGroup();
+                        mdsalManager.syncRemoveGroup(groupEntity);
+                    }
+                }
+            } else {
+                LOG.error("removeExtNetGroupEntries: Unable to get groupId for subnet:{}",
+                    subnetName);
+            }
         }
     }
 
@@ -275,5 +287,25 @@ public class ExternalNetworkGroupInstaller {
 
         return MDSALUtil.buildGroupEntity(dpId, groupId.longValue(), subnetName,
                 GroupTypes.GroupAll, new ArrayList<>());
+    }
+
+    private boolean externalGroupInstallationRequiredForExtNetwork(Uuid networkId, boolean isExternal,
+        NetworkAttributes.NetworkType extNetworkType,
+        Uuid subnetId) {
+        if (networkId == null || !isExternal) {
+            LOG.debug("externalGroupInstallationRequiredForExtNetwork : network is null or not External Network:{} for"
+                + " subnet id {}", isExternal, subnetId.getValue());
+            return false;
+        }
+        // Installation of External Network Group is only required for flat/vlan use-cases.
+        if (extNetworkType == null
+            || extNetworkType == NetworkAttributes.NetworkType.GRE
+            || extNetworkType == NetworkAttributes.NetworkType.VXLAN) {
+            LOG.debug("Provider Type is either null or of type {} for network {}, subnet {} for which "
+                    + "ExternalNetwork Group installation not required",
+                extNetworkType, networkId.getValue(), subnetId.getValue());
+            return false;
+        }
+        return true;
     }
 }
