@@ -163,6 +163,7 @@ module neutronvpn {
                 If segment-type is vxlan, this ID is a vni.
                 If segment-type is flat/gre, this ID is set to 0";
         }
+        leaf external { type boolean; default false;}
     }
 
     container vpnMaps {
