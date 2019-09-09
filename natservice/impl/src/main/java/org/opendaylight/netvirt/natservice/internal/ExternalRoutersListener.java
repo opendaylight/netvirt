@@ -344,9 +344,13 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 primarySwitchId, routerName);
             return primarySwitchId;
         }
+        return selectNewNAPTSwitch(routerName);
+    }
+
+    private BigInteger selectNewNAPTSwitch(String routerName) {
         // Allocated an id from VNI pool for the Router.
         natOverVxlanUtil.getRouterVni(routerName, NatConstants.INVALID_ID);
-        primarySwitchId = naptSwitchSelector.selectNewNAPTSwitch(routerName);
+        BigInteger primarySwitchId = naptSwitchSelector.selectNewNAPTSwitch(routerName);
         LOG.debug("getPrimaryNaptSwitch : Primary NAPT switch DPN ID {}", primarySwitchId);
 
         return primarySwitchId;
@@ -1222,36 +1226,42 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
     @Override
     protected void update(InstanceIdentifier<Routers> identifier, Routers original, Routers update) {
+        LOG.trace("update : origRouter: {} updatedRouter: {}", original, update);
         String routerName = original.getRouterName();
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
         if (routerId == NatConstants.INVALID_ID) {
             LOG.error("update : external router event - Invalid routerId for routerName {}", routerName);
             return;
         }
-        // Check if its update on SNAT flag
-        boolean originalSNATEnabled = original.isEnableSnat();
-        boolean updatedSNATEnabled = update.isEnableSnat();
-        LOG.debug("update :called with originalFlag and updatedFlag for SNAT enabled "
-            + "as {} and {}", originalSNATEnabled, updatedSNATEnabled);
-        /* Get Primary Napt Switch for existing router from "router-to-napt-switch" DS.
-         * if dpnId value is null or zero then go for electing new Napt switch for existing router.
-         */
-        long bgpVpnId = NatConstants.INVALID_ID;
-        Uuid bgpVpnUuid = NatUtil.getVpnForRouter(dataBroker, routerName);
-        if (bgpVpnUuid != null) {
-            bgpVpnId = NatUtil.getVpnId(dataBroker, bgpVpnUuid.getValue());
-        }
-        BigInteger dpnId = getPrimaryNaptSwitch(routerName);
-        final long finalBgpVpnId = bgpVpnId;
         coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + update.key(), () -> {
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, writeFlowInvTx -> {
                 futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, removeFlowInvTx -> {
+                    long bgpVpnId = NatConstants.INVALID_ID;
+                    Uuid bgpVpnUuid = NatUtil.getVpnForRouter(dataBroker, routerName);
+                    if (bgpVpnUuid != null) {
+                        bgpVpnId = NatUtil.getVpnId(dataBroker, bgpVpnUuid.getValue());
+                    }
+                    //BigInteger dpnId = getPrimaryNaptSwitch(routerName);
+                    /* Get Primary Napt Switch for existing router from "router-to-napt-switch" DS.
+                     * if dpnId value is null or zero then go for electing new Napt switch for existing router.
+                     */
+                    BigInteger dpnId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
+                    boolean isPrimaryNaptSwitchNotSelected = (dpnId == null || dpnId.equals(BigInteger.ZERO));
                     Uuid networkId = original.getNetworkId();
-                    if (originalSNATEnabled != updatedSNATEnabled) {
-                        if (originalSNATEnabled) {
-                            if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
-                                // Router has no interface attached
+                    // Check if its update on SNAT flag
+                    boolean originalSNATEnabled = original.isEnableSnat();
+                    boolean updatedSNATEnabled = update.isEnableSnat();
+                    LOG.debug("update :called with originalFlag and updatedFlag for SNAT enabled "
+                            + "as {} and {} with Elected Dpn {}(isPrimaryNaptSwitchNotSelected:{})",
+                        originalSNATEnabled, updatedSNATEnabled, dpnId, isPrimaryNaptSwitchNotSelected);
+                    // Cluster Reboot Case Handling
+                    // 1. DPN not elected during add event(due to none of the OVS connected)
+                    // 2. Update event called with changes of parameters(but enableSnat is not changed)
+                    // 3. First Elect dpnId and process other changes with valid dpnId
+                    if (originalSNATEnabled != updatedSNATEnabled || isPrimaryNaptSwitchNotSelected) {
+                        if (originalSNATEnabled && !updatedSNATEnabled) {
+                            if (isPrimaryNaptSwitchNotSelected) {
                                 return;
                             }
                             //SNAT disabled for the router
@@ -1260,12 +1270,23 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                             Collection<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
                             handleDisableSnat(original, networkUuid, externalIps, false, null, dpnId, routerId,
                                     removeFlowInvTx);
-                        } else {
-                            LOG.info("update : SNAT enabled for Router {}", original.getRouterName());
-                            addOrDelDefFibRouteToSNAT(routerName, routerId, finalBgpVpnId, bgpVpnUuid,
-                                    true, writeFlowInvTx);
-                            handleEnableSnat(update, routerId, dpnId, finalBgpVpnId, writeFlowInvTx);
+                        }  else if (updatedSNATEnabled) {
+                            LOG.info("update : SNAT enabled for Router {}", routerName);
+                            addOrDelDefFibRouteToSNAT(routerName, routerId, bgpVpnId, bgpVpnUuid,
+                                true, writeFlowInvTx);
+                            if (isPrimaryNaptSwitchNotSelected) {
+                                dpnId = selectNewNAPTSwitch(routerName);
+                                if (dpnId != null && !dpnId.equals(BigInteger.ZERO)) {
+                                    handleEnableSnat(update, routerId, dpnId, bgpVpnId, removeFlowInvTx);
+                                } else {
+                                    LOG.error("update : Failed to elect Napt Switch During update event"
+                                        + " of router {}", routerName);
+                                }
+                            }
                         }
+                        LOG.info("update : no need to process external/subnet changes as it's will taken care"
+                            + "in handleDisableSnat/handleEnableSnat");
+                        return;
                     }
                     if (!Objects.equals(original.getExtGwMacAddress(), update.getExtGwMacAddress())) {
                         NatUtil.installRouterGwFlows(txRunner, vpnManager, original, dpnId, NwConstants.DEL_FLOW);
@@ -1278,7 +1299,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         return;
                     }
                     //Check if the Update is on External IPs
-                    LOG.debug("update : Checking if this is update on External IPs");
+                    LOG.debug("update : Checking if this is update on External IPs for router {}", routerName);
                     List<String> originalExternalIps = NatUtil.getIpsListFromExternalIps(original.getExternalIps());
                     List<String> updatedExternalIps = NatUtil.getIpsListFromExternalIps(update.getExternalIps());
 
@@ -1286,8 +1307,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     Set<String> removedExternalIps = new HashSet<>(originalExternalIps);
                     removedExternalIps.removeAll(updatedExternalIps);
                     if (removedExternalIps.size() > 0) {
-                        LOG.debug("update : Start processing of the External IPs removal during the update "
-                                + "operation");
+                        LOG.debug("update : Start processing of the External IPs removal for router {}", routerName);
                         vpnManager.removeArpResponderFlowsToExternalNetworkIps(routerName,
                                 removedExternalIps, original.getExtGwMacAddress(),
                                 dpnId, networkId);
@@ -1463,15 +1483,15 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                             naptManager.removeNaptPortPool(externalIp);
                         }
                         LOG.debug(
-                                "update : End processing of the External IPs removal during the update operation");
+                                "update : End processing of the External IPs removal for router {}", routerName);
                     }
 
                     //Check if the External IPs are added during the update.
                     Set<String> addedExternalIps = new HashSet<>(updatedExternalIps);
                     addedExternalIps.removeAll(originalExternalIps);
                     if (addedExternalIps.size() != 0) {
-                        LOG.debug("update : Start processing of the External IPs addition during the update "
-                                + "operation");
+                        LOG.debug("update : Start processing of the External IPs addition for router {}",
+                            routerName);
                         vpnManager.addArpResponderFlowsToExternalNetworkIps(routerName, addedExternalIps,
                                 update.getExtGwMacAddress(), dpnId,
                                 update.getNetworkId());
@@ -1498,7 +1518,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     }
 
                     //Check if its Update on subnets
-                    LOG.debug("update : Checking if this is update on subnets");
+                    LOG.debug("update : Checking if this is update on subnets for router {}", routerName);
                     List<Uuid> originalSubnetIds = original.getSubnetIds();
                     List<Uuid> updatedSubnetIds = update.getSubnetIds();
                     Set<Uuid> addedSubnetIds =
@@ -1510,7 +1530,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     //Check if the Subnet IDs are added during the update.
                     if (addedSubnetIds.size() != 0) {
                         LOG.debug(
-                                "update : Start processing of the Subnet IDs addition during the update operation");
+                                "update : Start processing of the Subnet IDs addition for router {}", routerName);
                         for (Uuid addedSubnetId : addedSubnetIds) {
                 /*
                     1) Select the least loaded external IP for the subnet and store the mapping of the
@@ -1525,7 +1545,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                         writeFlowInvTx);
                             }
                         }
-                        LOG.debug("update : End processing of the Subnet IDs addition during the update operation");
+                        LOG.debug("update : End processing of the Subnet IDs addition for router {}", routerName);
                     }
 
                     //Check if the Subnet IDs are removed during the update.
@@ -1533,7 +1553,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     removedSubnetIds.removeAll(updatedSubnetIds);
                     if (removedSubnetIds.size() != 0) {
                         LOG.debug(
-                                "update : Start processing of the Subnet IDs removal during the update operation");
+                                "update : Start processing of the Subnet IDs removal for router {}", routerName);
                         for (Uuid removedSubnetId : removedSubnetIds) {
                             String[] subnetAddr = NatUtil.getSubnetIpAndPrefix(dataBroker, removedSubnetId);
                             if (subnetAddr != null) {
@@ -1571,7 +1591,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                 naptManager.removeIntExtIpMapDS(routerId, subnetAddr[0] + "/" + subnetAddr[1]);
                             }
                         }
-                        LOG.debug("update : End processing of the Subnet IDs removal during the update operation");
+                        LOG.debug("update : End processing of the Subnet IDs removal for router {}", routerName);
                     }
                 }));
             }));
