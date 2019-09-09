@@ -10,8 +10,11 @@ package org.opendaylight.netvirt.natservice.internal;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import com.google.common.base.Optional;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -28,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.vpnmap.RouterIds;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
@@ -56,9 +60,11 @@ public class NatVpnMapsChangeListener extends AsyncDataTreeChangeListenerBase<Vp
         this.externalRoutersListener = externalRoutersListener;
     }
 
+    @Override
+    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        registerListener(dataBroker);
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
@@ -66,34 +72,34 @@ public class NatVpnMapsChangeListener extends AsyncDataTreeChangeListenerBase<Vp
         return InstanceIdentifier.create(VpnMaps.class).child(VpnMap.class);
     }
 
-    private void registerListener(final DataBroker db) {
-        registerListener(LogicalDatastoreType.CONFIGURATION, db);
-    }
-
     @Override
     protected void add(InstanceIdentifier<VpnMap> identifier, VpnMap vpnMap) {
         Uuid vpnUuid = vpnMap.getVpnId();
         String vpnName = vpnUuid.getValue();
-        vpnMap.getRouterIds().stream()
+        if (vpnMap.getRouterIds() != null) {
+            vpnMap.getRouterIds().stream()
                 .filter(router -> !(Objects.equals(router.getRouterId(), vpnUuid)))
                 .forEach(router -> {
                     String routerName = router.getRouterId().getValue();
                     LOG.info("REMOVE: Router {} is disassociated from Vpn {}", routerName, vpnName);
                     onRouterAssociatedToVpn(vpnName, routerName);
                 });
+        }
     }
 
     @Override
     protected void remove(InstanceIdentifier<VpnMap> identifier, VpnMap vpnMap) {
         Uuid vpnUuid = vpnMap.getVpnId();
         String vpnName = vpnUuid.getValue();
-        vpnMap.getRouterIds().stream()
+        if (vpnMap.getRouterIds() != null) {
+            vpnMap.getRouterIds().stream()
                 .filter(router -> !(Objects.equals(router.getRouterId(), vpnUuid)))
                 .forEach(router -> {
                     String routerName = router.getRouterId().getValue();
                     LOG.info("REMOVE: Router {} is disassociated from Vpn {}", routerName, vpnName);
                     onRouterDisassociatedFromVpn(vpnName, routerName);
                 });
+        }
     }
 
     @Override
@@ -101,21 +107,44 @@ public class NatVpnMapsChangeListener extends AsyncDataTreeChangeListenerBase<Vp
         Uuid vpnUuid = updated.getVpnId();
         String vpnName = vpnUuid.getValue();
 
-        updated.getRouterIds().stream()
-                .filter(router -> ! original.getRouterIds().contains(router))
+        List<RouterIds> updatedRouterIdList = updated.getRouterIds();
+        List<RouterIds> originalRouterIdList = original.getRouterIds();
+        List<RouterIds> routersAddedList = null;
+        List<RouterIds> routersRemovedList = null;
+
+        if (originalRouterIdList == null && updatedRouterIdList != null) {
+            routersAddedList = updatedRouterIdList;
+        } else if (originalRouterIdList != null && updatedRouterIdList != null) {
+            routersAddedList = updatedRouterIdList.stream()
+                .filter(routerId -> (!originalRouterIdList.contains(routerId)))
+                .collect(Collectors.toList());
+        }
+
+        if (originalRouterIdList != null && updatedRouterIdList == null) {
+            routersRemovedList = originalRouterIdList;
+        } else if (originalRouterIdList != null && updatedRouterIdList != null) {
+            routersRemovedList = originalRouterIdList.stream()
+                .filter(routerId -> (!updatedRouterIdList.contains(routerId)))
+                .collect(Collectors.toList());
+        }
+
+        if (routersAddedList != null) {
+            routersAddedList.stream()
                 .filter(router -> !(Objects.equals(router.getRouterId(), updated.getVpnId())))
                 .forEach(router -> {
                     String routerName = router.getRouterId().getValue();
                     onRouterAssociatedToVpn(vpnName, routerName);
                 });
+        }
 
-        original.getRouterIds().stream()
-                .filter(router -> ! updated.getRouterIds().contains(router))
+        if (routersRemovedList != null) {
+            routersRemovedList.stream()
                 .filter(router -> !(Objects.equals(router.getRouterId(), original.getVpnId())))
                 .forEach(router -> {
                     String routerName = router.getRouterId().getValue();
                     onRouterDisassociatedFromVpn(vpnName, routerName);
                 });
+        }
     }
 
     @Override

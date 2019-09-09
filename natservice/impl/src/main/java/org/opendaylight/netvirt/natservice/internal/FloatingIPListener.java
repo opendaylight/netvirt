@@ -450,10 +450,14 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             String interfaceName) {
         //Get the DPN on which this interface resides
         if (dpnId == null) {
-            dpnId = NatUtil.getDpnForInterface(interfaceManager, interfaceName);
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
+                .state.Interface interfaceState = NatUtil.getInterfaceStateFromOperDS(dataBroker, interfaceName);
+            if (interfaceState != null) {
+                dpnId = NatUtil.getDpIdFromInterface(interfaceState);
+            }
         }
         Uint64 updatedDpnId = dpnId;
-        if (updatedDpnId.equals(Uint64.valueOf(BigInteger.ZERO))) {
+        if (updatedDpnId != null && updatedDpnId.equals(Uint64.ZERO)) {
             LOG.debug("getAssociatedDpnWithExternalInterface : The interface {} is not associated with any dpn",
                     interfaceName);
             return updatedDpnId;
