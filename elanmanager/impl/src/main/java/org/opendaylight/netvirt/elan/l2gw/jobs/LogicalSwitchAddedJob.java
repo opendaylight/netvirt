@@ -11,9 +11,12 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
+import org.opendaylight.netvirt.elan.l2gw.utils.ElanRefUtil;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
@@ -40,16 +43,21 @@ public class LogicalSwitchAddedJob implements Callable<List<ListenableFuture<Voi
 
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
+    private final ElanRefUtil elanRefUtil;
+    private final DataBroker dataBroker;
 
     public LogicalSwitchAddedJob(ElanL2GatewayUtils elanL2GatewayUtils,
                                  ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils, String logicalSwitchName,
-                                 Devices physicalDevice, L2GatewayDevice l2GatewayDevice, Integer defaultVlanId) {
+                                 Devices physicalDevice, L2GatewayDevice l2GatewayDevice, Integer defaultVlanId,
+                                 ElanRefUtil elanRefUtil, DataBroker dataBroker) {
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
         this.logicalSwitchName = logicalSwitchName;
         this.physicalDevice = physicalDevice;
         this.elanL2GwDevice = l2GatewayDevice;
         this.defaultVlanId = defaultVlanId;
+        this.elanRefUtil = elanRefUtil;
+        this.dataBroker = dataBroker;
         LOG.debug("created logical switch added job for {} {}", logicalSwitchName, elanL2GwDevice.getHwvtepNodeId());
     }
 
