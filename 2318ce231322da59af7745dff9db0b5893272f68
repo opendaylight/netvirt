@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bf126808_67a96ab6",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanRefUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-09T07:06:41Z",
+      "side": 1,
+      "message": "remove elanutils and elanitmutils as they may lead to circular dependencies\nremaining are fine",
+      "range": {
+        "startLine": 42,
+        "startChar": 48,
+        "endLine": 42,
+        "endChar": 49
+      },
+      "revId": "2318ce231322da59af7745dff9db0b5893272f68",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
