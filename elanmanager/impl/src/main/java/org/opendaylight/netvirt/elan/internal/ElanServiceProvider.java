@@ -796,6 +796,13 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     private void handleExternalElanNetwork(ElanInstance elanInstance, boolean update,
                                            BiFunction<ElanInstance, String, Void> function) {
         String elanInstanceName = elanInstance.getElanInstanceName();
+        boolean isFlatOrVlanNetwork = (ElanUtils.isFlat(elanInstance) || ElanUtils.isVlan(elanInstance));
+        if (!isFlatOrVlanNetwork) {
+            LOG.error("Network is not of type FLAT/VLAN."
+                    + "Ignoring Elan-interface creation for given ProviderInterface {}",
+                elanInstance.getPhysicalNetworkName());
+            return;
+        }
         if (elanInstance.getPhysicalNetworkName() == null) {
             LOG.trace("No physical network attached to {}", elanInstanceName);
             return;
