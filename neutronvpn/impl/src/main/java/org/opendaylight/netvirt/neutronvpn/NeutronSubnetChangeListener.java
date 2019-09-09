@@ -121,9 +121,10 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
         Uuid subnetId = subnet.getUuid();
         ProviderTypes providerType = NeutronvpnUtils.getProviderNetworkType(network);
         String segmentationId = NeutronvpnUtils.getSegmentationIdFromNeutronNetwork(network);
+        boolean isExternalNetwork = NeutronvpnUtils.getIsExternal(network);
         nvpnManager.createSubnetmapNode(subnetId, subnet.getCidr().stringValue(), subnet.getTenantId(), networkId,
                 providerType != null ? NetworkAttributes.NetworkType.valueOf(providerType.getName()) : null,
-                segmentationId != null ? Long.parseLong(segmentationId) : 0L);
+                segmentationId != null ? Long.parseLong(segmentationId) : 0L, isExternalNetwork);
         createSubnetToNetworkMapping(subnetId, networkId);
     }
 

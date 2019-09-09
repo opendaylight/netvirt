@@ -267,7 +267,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void createSubnetmapNode(Uuid subnetId, String subnetIp, Uuid tenantId, Uuid networkId,
-                                       NetworkAttributes.@Nullable NetworkType networkType, long segmentationId) {
+                                       NetworkAttributes.@Nullable NetworkType networkType, long segmentationId,
+                                        boolean isExternalNw) {
         try {
             InstanceIdentifier<Subnetmap> subnetMapIdentifier = NeutronvpnUtils.buildSubnetMapIdentifier(subnetId);
             final ReentrantLock lock = lockForUuid(subnetId);
@@ -283,7 +284,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
                 SubnetmapBuilder subnetmapBuilder = new SubnetmapBuilder().withKey(new SubnetmapKey(subnetId))
                         .setId(subnetId).setSubnetIp(subnetIp).setTenantId(tenantId).setNetworkId(networkId)
-                        .setNetworkType(networkType).setSegmentationId(segmentationId);
+                        .setNetworkType(networkType).setSegmentationId(segmentationId).setExternal(isExternalNw);
                 LOG.debug("createSubnetmapNode: Adding a new subnet node in Subnetmaps DS for subnet {}",
                     subnetId.getValue());
                 SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
