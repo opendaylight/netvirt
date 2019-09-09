@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "14122ade_8969baf9",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanExtnTepListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-09-09T09:38:17Z",
+      "side": 1,
+      "message": "This been changed to Clustered, but don\u0027t see any EoS checks to prevent performing required operation on all cic nodes.",
+      "range": {
+        "startLine": 31,
+        "startChar": 46,
+        "endLine": 31,
+        "endChar": 55
+      },
+      "revId": "3a27c0df0bbdf80cc093416f5b738e35bcb03078",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
