@@ -13,6 +13,7 @@ import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -55,18 +56,16 @@ public class NatVpnMapsChangeListener extends AsyncDataTreeChangeListenerBase<Vp
         this.externalRoutersListener = externalRoutersListener;
     }
 
+    @Override
+    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        registerListener(dataBroker);
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
     protected InstanceIdentifier<VpnMap> getWildCardPath() {
         return InstanceIdentifier.create(VpnMaps.class).child(VpnMap.class);
-    }
-
-    private void registerListener(final DataBroker db) {
-        registerListener(LogicalDatastoreType.CONFIGURATION, db);
     }
 
     @Override
