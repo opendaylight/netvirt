@@ -2333,6 +2333,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         }
         final Uint32 label = tempLabel;
         final String externalIp = NatUtil.validateAndAddNetworkMask(extIp);
+        RemoveFibEntryInput input = null;
         if (extNwProvType == ProviderTypes.FLAT || extNwProvType == ProviderTypes.VLAN) {
             LOG.debug("delFibTsAndReverseTraffic : Using extSubnetId as vpnName for FLAT/VLAN use-cases");
             Routers extRouter = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
@@ -2347,9 +2348,19 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             }
         }
         final String externalVpn = vpnName;
-        RemoveFibEntryInput input = new RemoveFibEntryInputBuilder().setVpnName(externalVpn)
+        if (label != null && label.toJava() <= 0) {
+            LOG.error("delFibTsAndReverseTraffic : Label not found for externalIp {} with router id {}",
+                extIp, routerId);
+            input = new RemoveFibEntryInputBuilder().setVpnName(vpnName)
+                .setSourceDpid(dpnId).setIpAddress(externalIp)
+                .setIpAddressSource(RemoveFibEntryInput.IpAddressSource.ExternalFixedIP).build();
+        } else {
+            input = new RemoveFibEntryInputBuilder().setVpnName(vpnName)
                 .setSourceDpid(dpnId).setIpAddress(externalIp).setServiceId(label)
                 .setIpAddressSource(RemoveFibEntryInput.IpAddressSource.ExternalFixedIP).build();
+            removeTunnelTableEntry(dpnId, label, removeFlowInvTx);
+            removeLFibTableEntry(dpnId, label, removeFlowInvTx);
+        }
         ListenableFuture<RpcResult<RemoveFibEntryOutput>> future = fibService.removeFibEntry(input);
 
         removeTunnelTableEntry(dpnId, label, removeFlowInvTx);
@@ -2362,7 +2373,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             ListenableFuture<RpcResult<RemoveVpnLabelOutput>> labelFuture =
                 Futures.transformAsync(future, result -> {
                     //Release label
-                    if (result.isSuccessful()) {
+                    if (result.isSuccessful() && label != null && label.toJava() > 0) {
                         NatUtil.removePreDnatToSnatTableEntry(removeFlowInvTx, mdsalManager, dpnId);
                         RemoveVpnLabelInput labelInput = new RemoveVpnLabelInputBuilder()
                             .setVpnName(externalVpn).setIpPrefix(externalIp).build();
@@ -2546,6 +2557,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         LOG.info("clearBgpRoutes : Informing BGP to remove route for externalIP {} of vpn {}", externalIp, vpnName);
         String rd = NatUtil.getVpnRd(dataBroker, vpnName);
         NatUtil.removePrefixFromBGP(bgpManager, fibManager, rd, externalIp, vpnName);
+        NatUtil.deletePrefixToInterface(dataBroker, NatUtil.getVpnId(dataBroker, vpnName), externalIp);
     }
 
     private void removeTunnelTableEntry(Uint64 dpnId, Uint32 serviceId,

@@ -892,7 +892,7 @@ public final class NatUtil {
                             .prefix.to._interface.VpnIdsKey(vpnId)).child(Prefixes.class, new PrefixesKey(ipPrefix))
                     .build());
         } catch (TransactionCommitFailedException e) {
-            LOG.error("addPrefixToInterface : Failed to write prefxi-to-interface for vpn-id {}",
+            LOG.error("deletePrefixToInterface : Failed to delete prefxi-to-interface for vpn-id {}",
                     vpnId, e);
         }
     }
