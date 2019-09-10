@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a5d7588_360ed88e",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanDpnInterfaceClusteredListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 8158
+      },
+      "writtenOn": "2019-09-10T07:23:03Z",
+      "side": 1,
+      "message": "ok, right, this will be done",
+      "parentUuid": "fb37dcad_acb729d0",
+      "revId": "3a27c0df0bbdf80cc093416f5b738e35bcb03078",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "14122ade_8969baf9",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanExtnTepListener.java",
         "patchSetId": 6
@@ -77,6 +95,24 @@
       "writtenOn": "2019-09-10T06:36:02Z",
       "side": 1,
       "message": "Remove the commmented code",
+      "revId": "3a27c0df0bbdf80cc093416f5b738e35bcb03078",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "890a77a6_f88af0e2",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 978,
+      "author": {
+        "id": 8158
+      },
+      "writtenOn": "2019-09-10T07:23:03Z",
+      "side": 1,
+      "message": "ok, it will be done",
+      "parentUuid": "c8997984_40f43428",
       "revId": "3a27c0df0bbdf80cc093416f5b738e35bcb03078",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
