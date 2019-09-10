@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fb37dcad_acb729d0",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanDpnInterfaceClusteredListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-10T06:36:02Z",
+      "side": 1,
+      "message": "Move it to the end of the function otherwise the bc group will be programed for the deleted dpn also",
+      "revId": "3a27c0df0bbdf80cc093416f5b738e35bcb03078",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "14122ade_8969baf9",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanExtnTepListener.java",
         "patchSetId": 6
@@ -46,6 +63,23 @@
       "revId": "3a27c0df0bbdf80cc093416f5b738e35bcb03078",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c8997984_40f43428",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 978,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-10T06:36:02Z",
+      "side": 1,
+      "message": "Remove the commmented code",
+      "revId": "3a27c0df0bbdf80cc093416f5b738e35bcb03078",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
