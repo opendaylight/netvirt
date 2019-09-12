@@ -76,8 +76,9 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
     private final ElanRefUtil elanRefUtil;
 
     @Inject
-    public L2GatewayConnectionUtils(DataBroker dataBroker, ElanClusterUtils elanClusterUtils,
-                                    ElanL2GatewayUtils elanL2GatewayUtils, JobCoordinator jobCoordinator,
+    public L2GatewayConnectionUtils(DataBroker dataBroker,
+                                    ElanClusterUtils elanClusterUtils, ElanL2GatewayUtils elanL2GatewayUtils,
+                                    JobCoordinator jobCoordinator,
                                     ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
                                     L2GatewayCache l2GatewayCache, HAOpClusteredListener haOpClusteredListener,
                                     ElanInstanceCache elanInstanceCache, HwvtepNodeHACache hwvtepNodeHACache,
