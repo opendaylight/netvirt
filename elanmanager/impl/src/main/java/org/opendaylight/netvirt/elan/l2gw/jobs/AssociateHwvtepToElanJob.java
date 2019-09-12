@@ -48,9 +48,10 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
     private final ElanRefUtil elanRefUtil;
 
     public AssociateHwvtepToElanJob(DataBroker broker, ElanL2GatewayUtils elanL2GatewayUtils,
-            ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils, ElanInstanceCache elanInstanceCache,
-            L2GatewayDevice l2GatewayDevice, ElanInstance elanInstance, Devices l2Device, Integer defaultVlan,
-            ElanRefUtil elanRefUtil) {
+                                    ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
+                                    ElanInstanceCache elanInstanceCache, L2GatewayDevice l2GatewayDevice,
+                                    ElanInstance elanInstance, Devices l2Device, Integer defaultVlan,
+                                    ElanRefUtil elanRefUtil) {
         this.broker = broker;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
@@ -85,7 +86,8 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
 
         LogicalSwitchAddedJob logicalSwitchAddedJob =
                 new LogicalSwitchAddedJob(elanL2GatewayUtils, elanL2GatewayMulticastUtils,
-                        logicalSwitchName, l2Device, l2GatewayDevice, defaultVlan, elanRefUtil, broker);
+                        logicalSwitchName, l2Device, l2GatewayDevice, defaultVlan, elanRefUtil,
+                        broker);
         return logicalSwitchAddedJob.call();
     }
 
@@ -98,7 +100,7 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
         LOG.trace("logical switch {} is created on {} with VNI {}", logicalSwitchName,
                 l2GatewayDevice.getHwvtepNodeId(), segmentationId);
         NodeId hwvtepNodeId = new NodeId(l2GatewayDevice.getHwvtepNodeId());
-        String dbVersion = HwvtepUtils.getDbVersion(broker,hwvtepNodeId);
+        String dbVersion = HwvtepUtils.getDbVersion(broker, hwvtepNodeId);
         if (SouthboundUtils.compareDbVersionToMinVersion(dbVersion, "1.6.0")) {
             replicationMode = "source_node";
         }
@@ -109,7 +111,8 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
         LogicalSwitches logicalSwitch = HwvtepSouthboundUtils.createLogicalSwitch(logicalSwitchName,
                 elanInstance.getDescription(), segmentationId, replicationMode);
 
-        ListenableFuture<Void> lsCreateFuture = HwvtepUtils.addLogicalSwitch(broker, hwvtepNodeId, logicalSwitch);
+        ListenableFuture<Void> lsCreateFuture = HwvtepUtils.addLogicalSwitch(broker,
+                hwvtepNodeId, logicalSwitch);
         Futures.addCallback(lsCreateFuture, new FutureCallback<Void>() {
             @Override
             public void onSuccess(Void noarg) {
