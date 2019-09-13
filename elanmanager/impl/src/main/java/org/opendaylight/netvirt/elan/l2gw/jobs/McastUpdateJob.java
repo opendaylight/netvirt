@@ -30,6 +30,8 @@ public class McastUpdateJob implements Callable<List<ListenableFuture<Void>>> {
     private ElanClusterUtils elanClusterUtils;
     boolean add;
     protected String jobKey;
+    private IpAddress removedDstTep;
+    private boolean dpnOrConnectionRemoved;
 
     public McastUpdateJob(String elanName,
                           String nodeId,
@@ -54,7 +56,8 @@ public class McastUpdateJob implements Callable<List<ListenableFuture<Void>>> {
         ListenableFuture<Void> ft = null;
         //TODO: make prepareRemoteMcastMacUpdateOnDevice return a ListenableFuture<Void>
         if (add) {
-            ft = mcastUtils.prepareRemoteMcastMacUpdateOnDevice(elanName, device);
+            ft = mcastUtils.prepareRemoteMcastMacUpdateOnDevice(elanName, device, !dpnOrConnectionRemoved ,
+                    removedDstTep);
         } else {
             ft =  mcastUtils.deleteRemoteMcastMac(new NodeId(nodeId), elanName);
         }
@@ -86,6 +89,16 @@ public class McastUpdateJob implements Callable<List<ListenableFuture<Void>>> {
                 elanClusterUtils).submit();
     }
 
+    private McastUpdateJob setRemovedDstTep(IpAddress removedDstTep) {
+        this.removedDstTep = removedDstTep;
+        return this;
+    }
+
+    private McastUpdateJob setDpnOrconnectionRemoved() {
+        this.dpnOrConnectionRemoved = true;
+        return this;
+    }
+
     public static void updateAllMcastsForConnectionAdd(String elanName,
                                                        ElanL2GatewayMulticastUtils mcastUtils,
                                                        ElanClusterUtils elanClusterUtils) {
@@ -101,6 +114,8 @@ public class McastUpdateJob implements Callable<List<ListenableFuture<Void>>> {
         ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName).forEach(device -> {
             IpAddress deletedTep = deletedDevice.getTunnelIp();
             new McastUpdateJob(elanName, device.getHwvtepNodeId(), true , mcastUtils, elanClusterUtils)
+                    .setDpnOrconnectionRemoved()
+                    .setRemovedDstTep(deletedTep)
                     .submit();
         });
     }
@@ -121,6 +136,8 @@ public class McastUpdateJob implements Callable<List<ListenableFuture<Void>>> {
         ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName).forEach(device -> {
             IpAddress deletedTep = elanItmUtils.getSourceDpnTepIp(srcDpnId, new NodeId(device.getHwvtepNodeId()));
             new McastUpdateJob(elanName, device.getHwvtepNodeId(), true , mcastUtils, elanClusterUtils)
+                    .setDpnOrconnectionRemoved()
+                    .setRemovedDstTep(deletedTep)
                     .submit();
         });
     }
