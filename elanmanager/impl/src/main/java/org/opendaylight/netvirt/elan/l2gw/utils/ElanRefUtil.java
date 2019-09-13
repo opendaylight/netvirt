@@ -12,6 +12,7 @@ import javax.inject.Singleton;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.elan.cache.ConfigMcastCache;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceDpnsCache;
 import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
@@ -28,6 +29,7 @@ public class ElanRefUtil {
     private final ElanInstanceCache elanInstanceCache;
     private final ElanInstanceDpnsCache elanInstanceDpnsCache;
     private final ElanInterfaceCache elanInterfaceCache;
+    private final ConfigMcastCache configMcastCache;
 
     @Inject
     public ElanRefUtil(DataBroker dataBroker,
@@ -35,6 +37,7 @@ public class ElanRefUtil {
                        ElanInstanceCache elanInstanceCache,
                        ElanInstanceDpnsCache elanInstanceDpnsCache,
                        ElanInterfaceCache elanInterfaceCache,
+                       ConfigMcastCache configMcastCache,
                        JobCoordinator jobCoordinator,
                        Scheduler scheduler) {
         this.dataBroker = dataBroker;
@@ -42,6 +45,7 @@ public class ElanRefUtil {
         this.elanInstanceCache = elanInstanceCache;
         this.elanInstanceDpnsCache = elanInstanceDpnsCache;
         this.elanInterfaceCache = elanInterfaceCache;
+        this.configMcastCache = configMcastCache;
         this.jobCoordinator = jobCoordinator;
         this.scheduler = scheduler;
     }
@@ -72,5 +76,9 @@ public class ElanRefUtil {
 
     public Scheduler getScheduler() {
         return scheduler;
+    }
+
+    public ConfigMcastCache getConfigMcastCache() {
+        return configMcastCache;
     }
 }
