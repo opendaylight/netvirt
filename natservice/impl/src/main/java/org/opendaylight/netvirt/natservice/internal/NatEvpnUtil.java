@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.natservice.internal;
 
 import java.math.BigInteger;
@@ -50,7 +49,9 @@ public final class NatEvpnUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(NatEvpnUtil.class);
 
-    private NatEvpnUtil() { }
+    private NatEvpnUtil() {
+
+    }
 
     public static void releaseLPortTagForRouter(DataBroker dataBroker, IdManagerService idManager, String routerName) {
 

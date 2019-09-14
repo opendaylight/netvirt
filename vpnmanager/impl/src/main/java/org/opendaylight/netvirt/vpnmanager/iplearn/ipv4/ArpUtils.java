@@ -31,7 +31,9 @@ public final class ArpUtils {
         (byte) 0xFF, (byte) 0xFF, (byte) 0xFF};
     private static final byte[] MAC_BROADCAST = new byte[] {(byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0};
 
-    private ArpUtils() { }
+    private ArpUtils() {
+
+    }
 
     public static TransmitPacketInput createArpRequestInput(BigInteger dpnId, long groupId, byte[] abySenderMAC,
         byte[] abySenderIpAddress, byte[] abyTargetIpAddress) {

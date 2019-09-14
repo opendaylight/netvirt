@@ -22,7 +22,9 @@ import org.slf4j.LoggerFactory;
 public final class L2GatewayUtils {
     private static final Logger LOG = LoggerFactory.getLogger(L2GatewayUtils.class);
 
-    private L2GatewayUtils() { }
+    private L2GatewayUtils() {
+
+    }
 
     public static void deleteItmTunnels(ItmRpcService itmRpcService, String hwvtepId, String psName,
                                         IpAddress tunnelIp) {
