@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.aclservice.utils;
 
 import static org.junit.Assert.assertTrue;
@@ -25,8 +24,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fiel
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.SourcePortRangeBuilder;
 
 public final class AclServiceTestUtils {
+    private AclServiceTestUtils() {
 
-    private AclServiceTestUtils() { }
+    }
 
     public static void verifyGeneralFlows(List<MatchInfoBase> srcFlowMatches, String protocol, String srcIpv4Net,
             String dstIpv4Net, String mask) {

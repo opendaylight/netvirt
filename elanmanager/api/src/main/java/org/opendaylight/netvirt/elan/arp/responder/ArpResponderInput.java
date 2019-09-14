@@ -24,8 +24,9 @@ public final class ArpResponderInput {
     private int lportTag;
     private List<Instruction> instructions;
 
+    private ArpResponderInput() {
 
-    private ArpResponderInput() {}
+    }
 
     public BigInteger getDpId() {
         return dpId;
