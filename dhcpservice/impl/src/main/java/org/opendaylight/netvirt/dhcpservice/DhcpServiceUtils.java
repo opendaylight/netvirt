@@ -115,11 +115,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class DhcpServiceUtils {
-
     private static final Logger LOG = LoggerFactory.getLogger(DhcpServiceUtils.class);
+
     private static List<BigInteger> connectedDpnIds = new CopyOnWriteArrayList<>();
 
-    private DhcpServiceUtils() { }
+    private DhcpServiceUtils() {
+
+    }
 
     public static void setupDhcpFlowEntry(@Nullable BigInteger dpId, short tableId, @Nullable String vmMacAddress,
                                           int addOrRemove,

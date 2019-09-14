@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.vpnmanager.api;
 
 import com.google.common.base.Optional;
@@ -43,9 +42,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-
 public final class VpnHelper {
-    private VpnHelper() { }
+    private VpnHelper() {
+
+    }
 
     //FIXME: Implement caches for DS reads
     @Nullable

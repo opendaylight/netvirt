@@ -33,7 +33,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public final class StateInterfaceBuilderHelper {
     // TODO make this like IdentifiedInterfaceWithAclBuilder
 
-    private StateInterfaceBuilderHelper() {}
+    private StateInterfaceBuilderHelper() {
+
+    }
 
     public static void putNewStateInterface(DataBroker dataBroker, String interfaceName, String mac)
             throws TransactionCommitFailedException {

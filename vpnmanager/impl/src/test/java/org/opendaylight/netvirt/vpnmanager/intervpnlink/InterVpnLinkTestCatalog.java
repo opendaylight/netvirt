@@ -35,8 +35,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.
  * Gathers several InterVpnLinks that can be used for testing.
  */
 public final class InterVpnLinkTestCatalog {
+    private InterVpnLinkTestCatalog() {
 
-    private InterVpnLinkTestCatalog() { }
+    }
 
     static InterVpnLinkDataComposite build(String ivpnLinkName, String vpn1Name, String vpn1IpAddr,
                                            String vpn2Name, String vpn2IpAddr, boolean bgpFlag, boolean staticFlag,

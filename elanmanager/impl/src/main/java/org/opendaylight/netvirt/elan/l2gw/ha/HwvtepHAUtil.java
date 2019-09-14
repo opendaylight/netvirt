@@ -82,7 +82,9 @@ public final class HwvtepHAUtil {
     public static final String MANAGER_KEY = "managerKey";
     public static final String L2GW_JOB_KEY = ":l2gw";
 
-    private HwvtepHAUtil() { }
+    private HwvtepHAUtil() {
+
+    }
 
     public static HwvtepPhysicalLocatorRef buildLocatorRef(InstanceIdentifier<Node> nodeIid, String tepIp) {
         InstanceIdentifier<TerminationPoint> tepId = buildTpId(nodeIid, tepIp);

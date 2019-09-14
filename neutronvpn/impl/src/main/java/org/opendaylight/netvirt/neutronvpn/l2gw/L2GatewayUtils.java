@@ -26,7 +26,9 @@ import org.slf4j.LoggerFactory;
 public final class L2GatewayUtils {
     private static final Logger LOG = LoggerFactory.getLogger(L2GatewayUtils.class);
 
-    private L2GatewayUtils() { }
+    private L2GatewayUtils() {
+
+    }
 
     protected static boolean isGatewayAssociatedToL2Device(L2GatewayDevice l2GwDevice) {
         return l2GwDevice.getL2GatewayIds().size() > 0;

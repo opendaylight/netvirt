@@ -29,7 +29,9 @@ public final class AclUtils {
         DirectionEgress.class, EGRESS
     );
 
-    private AclUtils() {}
+    private AclUtils() {
+
+    }
 
     @Nonnull
     public static InstanceIdentifier<Acl> getAclIid(@Nonnull String aclName) {

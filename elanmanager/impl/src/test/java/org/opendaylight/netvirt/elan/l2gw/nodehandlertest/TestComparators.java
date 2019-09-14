@@ -48,7 +48,9 @@ import org.slf4j.LoggerFactory;
 public final class TestComparators {
     static Logger LOG = LoggerFactory.getLogger(TestComparators.class);
 
-    private TestComparators() { }
+    private TestComparators() {
+
+    }
 
     public static void verifySwitches(Node globalOpNode, Node psOpNode) {
         for (Switches switches : globalOpNode.augmentation(HwvtepGlobalAugmentation.class).getSwitches()) {

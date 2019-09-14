@@ -48,7 +48,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttrBuilder;
 
 public final class AceNetworkPolicyUtils {
-    private AceNetworkPolicyUtils() {}
+    private AceNetworkPolicyUtils() {
+
+    }
 
     @Nonnull
     public static String getAclNameFromPolicy(@Nonnull NetworkPolicy policy) {

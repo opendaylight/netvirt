@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.neutronvpn.api.utils;
 
 import com.google.common.base.Preconditions;
@@ -48,7 +47,9 @@ public final class NeutronUtils {
     public static final String PORT_STATUS_NOTAPPLICABLE = "N/A";
     private static volatile Pattern uuidPattern;
 
-    private NeutronUtils() { }
+    private NeutronUtils() {
+
+    }
 
     /**
      * Create a Neutron Port status entry in the operational data store.

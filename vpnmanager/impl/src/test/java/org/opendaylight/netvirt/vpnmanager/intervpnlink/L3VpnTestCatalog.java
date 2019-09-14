@@ -40,7 +40,9 @@ public final class L3VpnTestCatalog {
         }
     }
 
-    private L3VpnTestCatalog() { }
+    private L3VpnTestCatalog() {
+
+    }
 
     static VpnTargets makeVpnTargets(List<String> irts, List<String> erts) {
         List<String> commonRT = new ArrayList<>(irts);

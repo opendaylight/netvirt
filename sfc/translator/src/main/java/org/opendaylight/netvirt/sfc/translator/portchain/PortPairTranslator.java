@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.sfc.translator.portchain;
 
 import com.google.common.base.Preconditions;
@@ -46,7 +45,9 @@ public final class PortPairTranslator {
             = new ImmutableBiMap.Builder<String, Class<? extends SlTransportType>>()
             .put("mac", Mac.class).build();
 
-    private PortPairTranslator() { }
+    private PortPairTranslator() {
+
+    }
 
     @Nonnull
     public static ServiceFunction buildServiceFunction(

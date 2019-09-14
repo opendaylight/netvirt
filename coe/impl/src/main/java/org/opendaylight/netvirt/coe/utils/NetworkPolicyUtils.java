@@ -56,7 +56,9 @@ public final class NetworkPolicyUtils {
         Protocol.SCTP, (short)132
     );
 
-    private NetworkPolicyUtils() {}
+    private NetworkPolicyUtils() {
+
+    }
 
     @Nonnull
     public static MatchLabels buildMatchLabels(@Nonnull String key, @Nonnull String value) {

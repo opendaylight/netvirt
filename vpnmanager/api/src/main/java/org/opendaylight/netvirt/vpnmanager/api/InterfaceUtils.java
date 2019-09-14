@@ -52,7 +52,9 @@ public final class InterfaceUtils {
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceUtils.class);
     private static String OF_URI_SEPARATOR = ":";
 
-    private InterfaceUtils() { }
+    private InterfaceUtils() {
+
+    }
 
     public static BigInteger getDpnForInterface(OdlInterfaceRpcService interfaceManagerRpcService, String ifName) {
         BigInteger nodeId = BigInteger.ZERO;
