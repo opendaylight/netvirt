@@ -29,7 +29,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  * Created by eaksahu on 8/9/2016.
  */
 public final class GlobalAugmentationHelper {
-    private GlobalAugmentationHelper() { }
+    private GlobalAugmentationHelper() {
+
+    }
 
     public static void addLogicalSwitches(HwvtepGlobalAugmentationBuilder augmentationBuilder,
                                           List<String> logicalSwitchData) {
