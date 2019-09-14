@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.natservice.internal;
 
 import static java.util.Collections.emptyList;
@@ -279,7 +278,9 @@ public final class NatUtil {
     private static final String OTHER_CONFIG_KEY_VALUE_DELIMITER = ":";
     private static final String PROVIDER_MAPPINGS = "provider_mappings";
 
-    private NatUtil() { }
+    private NatUtil() {
+
+    }
 
     /*
      getCookieSnatFlow() computes and returns a unique cookie value for the NAT flows using the router ID as the

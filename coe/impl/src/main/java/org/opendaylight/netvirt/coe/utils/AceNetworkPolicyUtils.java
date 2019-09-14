@@ -49,7 +49,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 import org.opendaylight.yangtools.yang.common.Empty;
 
 public final class AceNetworkPolicyUtils {
-    private AceNetworkPolicyUtils() {}
+    private AceNetworkPolicyUtils() {
+
+    }
 
     @NonNull
     public static String getAclNameFromPolicy(@NonNull NetworkPolicy policy) {

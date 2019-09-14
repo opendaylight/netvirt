@@ -26,15 +26,18 @@ public class VpnClusterOwnershipDriverBase implements IVpnClusterOwnershipDriver
     protected boolean amIOwner = false;
 
     @Inject
-    public VpnClusterOwnershipDriverBase() { }
+    public VpnClusterOwnershipDriverBase() {
+
+    }
 
     @Override
     @PreDestroy
-    public void close() {}
+    public void close() {
+
+    }
 
     @Override
     public boolean amIOwner() {
         return amIOwner;
     }
-
 }

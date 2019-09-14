@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.fibmanager.api;
 
 import static java.util.Comparator.comparing;
@@ -37,8 +36,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 
 public final class FibHelper {
+    private FibHelper() {
 
-    private FibHelper() { }
+    }
 
     public static RoutePaths buildRoutePath(String nextHop, Long label) {
         RoutePathsBuilder builder = new RoutePathsBuilder()

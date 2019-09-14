@@ -27,7 +27,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 public final class ChangeUtils {
-    private ChangeUtils() { }
+    private ChangeUtils() {
+
+    }
 
     private static <T extends DataObject> Predicate<DataObjectModification<T>> hasDataBefore() {
         return input -> input != null && input.getDataBefore() != null;

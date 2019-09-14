@@ -24,7 +24,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  */
 final class TestUtil {
 
-    private TestUtil() { }
+    private TestUtil() {
+
+    }
 
     static void verifyHAOpNode(Node d1GlobalOpNode, Node haGlobalOpNode, Node d1PsOpNode, Node haPsOpNode,
             InstanceIdentifier<Node> haId, InstanceIdentifier<Node> d1PsId, InstanceIdentifier<Node> haPsId,

@@ -44,7 +44,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public final class PhysicalSwitchHelper {
     static InstanceIdentifier<Node> dId;
 
-    private PhysicalSwitchHelper() { }
+    private PhysicalSwitchHelper() {
+
+    }
 
     public static InstanceIdentifier<Node> getPhysicalSwitchInstanceIdentifier(InstanceIdentifier<Node> iid,
                                                                                String switchName) {

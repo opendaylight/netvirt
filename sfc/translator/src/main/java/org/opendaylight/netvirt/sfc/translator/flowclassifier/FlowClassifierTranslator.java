@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.sfc.translator.flowclassifier;
 
 import java.util.ArrayList;
@@ -50,7 +49,9 @@ public final class FlowClassifierTranslator {
     private static final Short PROTO_UDP = 17;
     private static final String RULE = "_rule";
 
-    private FlowClassifierTranslator() { }
+    private FlowClassifierTranslator() {
+
+    }
 
     public static Acl buildAcl(SfcFlowClassifier flowClassifier) {
         return buildAcl(flowClassifier, null);

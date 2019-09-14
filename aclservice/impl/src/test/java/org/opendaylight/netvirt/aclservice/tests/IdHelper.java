@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.aclservice.tests;
 
 import java.util.HashMap;
@@ -19,7 +18,9 @@ import java.util.Map;
 public final class IdHelper {
     private static Map<String, Integer> idCacheMap = new HashMap<>();
 
-    private IdHelper() { }
+    private IdHelper() {
+
+    }
 
     static {
         idCacheMap.put("UDP_DESTINATION_1_0Ingress98785cc3048-abc3-43cc-89b3-377341426ac7", 1001);

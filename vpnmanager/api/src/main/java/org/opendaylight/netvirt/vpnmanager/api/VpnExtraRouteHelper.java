@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.vpnmanager.api;
 
 import static java.util.stream.Collectors.toList;
@@ -49,7 +48,9 @@ import org.slf4j.LoggerFactory;
 public final class VpnExtraRouteHelper {
     private static final Logger LOG = LoggerFactory.getLogger(VpnExtraRouteHelper.class);
 
-    private VpnExtraRouteHelper() { }
+    private VpnExtraRouteHelper() {
+
+    }
 
     public static Optional<Routes> getVpnExtraroutes(DataBroker broker, String vpnName,
                                                      String vpnRd, String destPrefix) {
