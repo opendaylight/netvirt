@@ -16,6 +16,24 @@
       "revId": "1ba3d6369bbe929f3ddc1c115589cb2da1a85d62",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2400c4ec_8b07a9b9",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1265,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-09-16T11:54:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "98123457_74669ca9",
+      "revId": "1ba3d6369bbe929f3ddc1c115589cb2da1a85d62",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
