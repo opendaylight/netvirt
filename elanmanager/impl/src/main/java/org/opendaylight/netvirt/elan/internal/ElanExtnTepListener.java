@@ -64,7 +64,7 @@ public class ElanExtnTepListener extends AsyncClusteredDataTreeChangeListenerBas
     @Override
     protected void add(InstanceIdentifier<ExternalTeps> instanceIdentifier, ExternalTeps tep) {
         LOG.trace("ExternalTeps add received {}", instanceIdentifier);
-        updateBcGroupOfElan(instanceIdentifier, tep);
+        updateBcGroupOfElan(instanceIdentifier, tep, true);
     }
 
     @Override
@@ -74,12 +74,13 @@ public class ElanExtnTepListener extends AsyncClusteredDataTreeChangeListenerBas
     @Override
     protected void remove(InstanceIdentifier<ExternalTeps> instanceIdentifier, ExternalTeps tep) {
         LOG.trace("ExternalTeps remove received {}", instanceIdentifier);
-        updateBcGroupOfElan(instanceIdentifier, tep);
+        updateBcGroupOfElan(instanceIdentifier, tep, false);
     }
 
-    protected void updateBcGroupOfElan(InstanceIdentifier<ExternalTeps> instanceIdentifier, ExternalTeps tep) {
+    protected void updateBcGroupOfElan(InstanceIdentifier<ExternalTeps> instanceIdentifier, ExternalTeps tep,
+                                       boolean add) {
         String elanName = instanceIdentifier.firstKeyOf(ElanInstance.class).getElanInstanceName();
-        BcGroupUpdateJob.updateAllBcGroups(elanName, elanRefUtil, elanL2GatewayMulticastUtils, broker);
+        BcGroupUpdateJob.updateAllBcGroups(elanName, elanRefUtil, elanL2GatewayMulticastUtils, broker, add);
     }
 
     @Override
