@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_415cb57e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/HwvtepTerminationPointListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Avoid sync read",
+      "range": {
+        "startLine": 202,
+        "startChar": 47,
+        "endLine": 202,
+        "endChar": 48
+      },
+      "revId": "57cf475864ea19576a2ef7ac6f1d599ad1b43c14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
