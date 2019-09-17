@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_a682d791",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/HwvtepTerminationPointListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "make async read of mdsal datastore",
+      "range": {
+        "startLine": 208,
+        "startChar": 43,
+        "endLine": 208,
+        "endChar": 47
+      },
+      "revId": "5a0a283b67a992d337e30b4e153b26f3317a2224",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
