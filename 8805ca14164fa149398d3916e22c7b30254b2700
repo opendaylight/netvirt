@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_0ff23a9a",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Can you pull route-paths into a seperate grouping and refer it, instead of putting drectly under this vrfEntries, that way it can be reused in other containers as well.",
+      "parentUuid": "1a622d24_361b5b74",
+      "revId": "8805ca14164fa149398d3916e22c7b30254b2700",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_22ecbdf2",
         "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
         "patchSetId": 5
