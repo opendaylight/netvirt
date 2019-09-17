@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3e9f3961",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_771f2d0a",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_17e22103",
         "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-23T07:17:26Z",
       "side": 1,
       "message": "I believe this spec refers to L2DCI, which is not available today. L2DCI will always use VxLAN tunnels. Existing L3VPN service over VxLAN (in place of MPLSoGRE) is described in another spec which uses EVPN RT5 routes.",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3ec4593f",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_17e22103",
       "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9eae2597",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f7b95ded",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_3f81094b",
         "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
         "patchSetId": 6
@@ -64,6 +118,24 @@
       "writtenOn": "2017-03-21T11:47:53Z",
       "side": 1,
       "message": "to enable",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1e9a356e",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_3f81094b",
       "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_7e88a122",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_37abe58a",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b79eb561",
         "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
         "patchSetId": 6
@@ -98,6 +188,24 @@
       "writtenOn": "2017-03-23T07:17:26Z",
       "side": 1,
       "message": "is this also in scope of this spec?",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5e8b1d1e",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_b79eb561",
       "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_be8209fe",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_979bb171",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f7879d10",
         "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
         "patchSetId": 6
@@ -132,6 +258,24 @@
       "writtenOn": "2017-03-23T07:17:26Z",
       "side": 1,
       "message": "mpls based EVPN",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_dec42d43",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f7879d10",
       "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_fec9315b",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_3782c500",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5778292b",
         "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
         "patchSetId": 6
@@ -166,6 +328,24 @@
       "writtenOn": "2017-03-23T07:17:26Z",
       "side": 1,
       "message": "EVPN",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9eb3c5e8",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_5778292b",
       "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -189,6 +369,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_beb049de",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_97729147",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_3799256f",
         "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
         "patchSetId": 6
@@ -200,6 +398,24 @@
       "writtenOn": "2017-03-23T07:17:26Z",
       "side": 1,
       "message": "RT2",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5eb95dca",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_3799256f",
       "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -223,6 +439,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_7eb6e1dd",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_77a28d9b",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9f3915db",
         "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
         "patchSetId": 6
@@ -234,6 +468,24 @@
       "writtenOn": "2017-03-21T11:47:53Z",
       "side": 1,
       "message": "tunnel2-lport-tag",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1ea87576",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_9f3915db",
       "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -257,6 +509,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_de9d4d59",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_5c121b63",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5f096d2b",
         "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
         "patchSetId": 6
@@ -268,6 +538,24 @@
       "writtenOn": "2017-03-21T11:47:53Z",
       "side": 1,
       "message": "the table number is 23.  Table 0 -\u003e 17 -\u003e 23 -\u003e 19 -\u003e 21 --\u003e NextHopGroup -\u003e Table 220 -\u003e VM.",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fea2d198",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_5f096d2b",
       "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -291,6 +579,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9e9c655f",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_bf19797b",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_bf3059e9",
         "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
         "patchSetId": 6
@@ -302,6 +608,24 @@
       "writtenOn": "2017-03-21T11:47:53Z",
       "side": 1,
       "message": "traffic goes to tunnel port directly from 21.  \n\nam not sure why we have put nextHopGroups here for tunnel ports.. Is that to work in tandem with multiple vxlan tunnel spec from Tali?",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_df6b9d83",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "This is to support ecmp. If the same route is received from multiple dc gateways.",
+      "parentUuid": "fafc7978_bf3059e9",
       "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -325,6 +649,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_be996970",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_7fab91d6",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_57fe6939",
         "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
         "patchSetId": 6
@@ -336,6 +678,24 @@
       "writtenOn": "2017-03-23T07:17:26Z",
       "side": 1,
       "message": "Is RD same as vrf-id? container name is using -rd-to- whereas list key is vrf-id.",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5e92fd4b",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_57fe6939",
       "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -359,6 +719,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_7e8f0124",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_7701ed38",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f6cf2354",
         "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
         "patchSetId": 6
@@ -370,6 +748,24 @@
       "writtenOn": "2017-03-01T17:50:24Z",
       "side": 1,
       "message": "what about deleteEvpn RPC?\n\nSimilarly we need to support association of network to an EVPN.  Does that have a new RPC (or) it uses the existing associateNetworksToVpn RPC?",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1e719544",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f6cf2354",
       "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -393,6 +789,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_de76ed3e",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 484,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_7f9271a0",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_379f6505",
         "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
         "patchSetId": 6
@@ -404,6 +818,24 @@
       "writtenOn": "2017-03-23T07:17:26Z",
       "side": 1,
       "message": "why l3vpn?",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fe7bf126",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_379f6505",
       "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
