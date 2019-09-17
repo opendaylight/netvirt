@@ -160,6 +160,41 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_1de6e616",
+        "filename": "docs/specs/listener-dependency-helper.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Please remove so many arguments and use a builder to build the event.",
+      "parentUuid": "fafc7978_48c0b8e0",
+      "revId": "7ca605f9765159b83381ca7cc8843c12d9721809",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c83ae833",
+        "filename": "docs/specs/listener-dependency-helper.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Please mention the api\u0027s of the two approaches",
+      "revId": "7ca605f9765159b83381ca7cc8843c12d9721809",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c8ab081d",
         "filename": "docs/specs/listener-dependency-helper.rst",
         "patchSetId": 5
@@ -172,6 +207,23 @@
       "side": 1,
       "message": "Yes, there is expiry time which gets calculated based on number of retries and interval between retries.",
       "parentUuid": "fafc7978_e8240c10",
+      "revId": "7ca605f9765159b83381ca7cc8843c12d9721809",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e8240c10",
+        "filename": "docs/specs/listener-dependency-helper.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "How long does the dependent event waits in the queue ? Is there any expiry planned for this ?",
       "revId": "7ca605f9765159b83381ca7cc8843c12d9721809",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -196,6 +248,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_68781cf9",
+        "filename": "docs/specs/listener-dependency-helper.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Does the listener registration stays on forever or we are closing if it is not needed and creating the listener upon need ?",
+      "revId": "7ca605f9765159b83381ca7cc8843c12d9721809",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_887100e3",
         "filename": "docs/specs/listener-dependency-helper.rst",
         "patchSetId": 5
@@ -208,6 +277,23 @@
       "side": 1,
       "message": "For initial phase, plan is to have pre-defined listeners for use-cases defined. will update the document with list of pre-defined listeners.",
       "parentUuid": "fafc7978_281f34b9",
+      "revId": "7ca605f9765159b83381ca7cc8843c12d9721809",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_281f34b9",
+        "filename": "docs/specs/listener-dependency-helper.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Are you allowing only white listed wild cards for registration ?",
       "revId": "7ca605f9765159b83381ca7cc8843c12d9721809",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
