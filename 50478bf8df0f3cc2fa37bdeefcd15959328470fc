@@ -26,6 +26,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_fee7633e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAListeners.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "2017",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "50478bf8df0f3cc2fa37bdeefcd15959328470fc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c168bebc",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAListeners.java",
         "patchSetId": 2
@@ -38,6 +61,29 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "fafc7978_dee25f2e",
+      "range": {
+        "startLine": 61,
+        "startChar": 45,
+        "endLine": 61,
+        "endChar": 48
+      },
+      "revId": "50478bf8df0f3cc2fa37bdeefcd15959328470fc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_dee25f2e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAListeners.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "fix log statement",
       "range": {
         "startLine": 61,
         "startChar": 45,
@@ -74,6 +120,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_de509fd6",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAListeners.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "rename it as registerListener",
+      "range": {
+        "startLine": 74,
+        "startChar": 61,
+        "endLine": 74,
+        "endChar": 72
+      },
+      "revId": "50478bf8df0f3cc2fa37bdeefcd15959328470fc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_419ccec0",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAListeners.java",
         "patchSetId": 2
@@ -86,6 +155,29 @@
       "side": 1,
       "message": "Haven\u0027t made it a constant as it is dependent on clazz passed",
       "parentUuid": "fafc7978_7e59b3fd",
+      "range": {
+        "startLine": 90,
+        "startChar": 0,
+        "endLine": 90,
+        "endChar": 12
+      },
+      "revId": "50478bf8df0f3cc2fa37bdeefcd15959328470fc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7e59b3fd",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAListeners.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "create a constant for this",
       "range": {
         "startLine": 90,
         "startChar": 0,
@@ -122,6 +214,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_1e6227ad",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAListeners.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Create a constant for this",
+      "range": {
+        "startLine": 105,
+        "startChar": 19,
+        "endLine": 105,
+        "endChar": 37
+      },
+      "revId": "50478bf8df0f3cc2fa37bdeefcd15959328470fc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_81a6b60e",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAListeners.java",
         "patchSetId": 2
@@ -134,6 +249,29 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "fafc7978_3e5f2be7",
+      "range": {
+        "startLine": 136,
+        "startChar": 87,
+        "endLine": 136,
+        "endChar": 95
+      },
+      "revId": "50478bf8df0f3cc2fa37bdeefcd15959328470fc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3e5f2be7",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAListeners.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "use from constants file",
       "range": {
         "startLine": 136,
         "startChar": 87,
@@ -170,6 +308,52 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_fe6c839e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAOpNodeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "2016, 2017",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "50478bf8df0f3cc2fa37bdeefcd15959328470fc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3e060bcf",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAOpNodeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "pull this into a constant",
+      "range": {
+        "startLine": 313,
+        "startChar": 0,
+        "endLine": 313,
+        "endChar": 12
+      },
+      "revId": "50478bf8df0f3cc2fa37bdeefcd15959328470fc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c1af1ee2",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAOpNodeListener.java",
         "patchSetId": 2
@@ -182,6 +366,29 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "fafc7978_9ef457d0",
+      "range": {
+        "startLine": 346,
+        "startChar": 24,
+        "endLine": 346,
+        "endChar": 39
+      },
+      "revId": "50478bf8df0f3cc2fa37bdeefcd15959328470fc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9ef457d0",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAOpNodeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "submit it to HAJobScheduler",
       "range": {
         "startLine": 346,
         "startChar": 24,
@@ -218,6 +425,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_7e109301",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAOpNodeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "put a comment on why the add is not handled",
+      "range": {
+        "startLine": 356,
+        "startChar": 0,
+        "endLine": 356,
+        "endChar": 8
+      },
+      "revId": "50478bf8df0f3cc2fa37bdeefcd15959328470fc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e1b4e236",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeDataListener.java",
         "patchSetId": 2
@@ -230,6 +460,29 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "fafc7978_5e5cafed",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "50478bf8df0f3cc2fa37bdeefcd15959328470fc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5e5cafed",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeDataListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "2017",
       "range": {
         "startLine": 2,
         "startChar": 17,
@@ -266,6 +519,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_be72fb79",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeDataListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "log the error if the tx fails",
+      "range": {
+        "startLine": 65,
+        "startChar": 25,
+        "endLine": 65,
+        "endChar": 28
+      },
+      "revId": "50478bf8df0f3cc2fa37bdeefcd15959328470fc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2186ea65",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeDataListener.java",
         "patchSetId": 2
@@ -278,6 +554,29 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "fafc7978_9e6d779c",
+      "range": {
+        "startLine": 94,
+        "startChar": 25,
+        "endLine": 94,
+        "endChar": 28
+      },
+      "revId": "50478bf8df0f3cc2fa37bdeefcd15959328470fc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9e6d779c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeDataListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "log the error if tx fails",
       "range": {
         "startLine": 94,
         "startChar": 25,
