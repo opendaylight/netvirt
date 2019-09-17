@@ -26,10 +26,16 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
@@ -78,6 +84,7 @@ import org.opendaylight.infrautils.utils.concurrent.NamedLocks;
 import org.opendaylight.infrautils.utils.concurrent.NamedSimpleReentrantLock.Acquired;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
+import org.opendaylight.netvirt.elan.internal.ElanGroupCache;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
@@ -129,7 +136,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.I
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.RemoveTerminatingServiceActionsInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.RemoveTerminatingServiceActionsInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.RemoveTerminatingServiceActionsOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.BucketId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group.Buckets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group.buckets.Bucket;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group.buckets.BucketBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.Group;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.GroupKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
@@ -234,6 +246,16 @@ public class ElanUtils {
     private final ElanEtreeUtils elanEtreeUtils;
     private final ElanInterfaceCache elanInterfaceCache;
     private final IITMProvider iitmProvider;
+    private final ElanGroupCache elanGroupCache;
+
+    private static final Function<Bucket, Bucket> TO_BUCKET_WITHOUT_ID = (bucket) -> new BucketBuilder(bucket)
+            .setBucketId(new BucketId(0L))
+            .build();
+
+    private static final BiFunction<Bucket, AtomicLong, Bucket> TO_BUCKET_WITH_ID = (bucket, id)
+        -> new BucketBuilder(bucket)
+            .setBucketId(new BucketId(id.incrementAndGet()))
+            .build();
 
     public static final FutureCallback<Void> DEFAULT_CALLBACK = new FutureCallback<Void>() {
         @Override
@@ -251,7 +273,7 @@ public class ElanUtils {
     public ElanUtils(DataBroker dataBroker, IMdsalApiManager mdsalManager,
             OdlInterfaceRpcService interfaceManagerRpcService, ItmRpcService itmRpcService, ElanConfig elanConfig,
             IInterfaceManager interfaceManager, ElanEtreeUtils elanEtreeUtils, ElanItmUtils elanItmUtils,
-            ElanInterfaceCache elanInterfaceCache, IITMProvider iitmProvider) {
+            ElanInterfaceCache elanInterfaceCache, IITMProvider iitmProvider, ElanGroupCache elanGroupCache) {
         this.broker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.mdsalManager = mdsalManager;
@@ -263,6 +285,7 @@ public class ElanUtils {
         this.elanItmUtils = elanItmUtils;
         this.elanInterfaceCache = elanInterfaceCache;
         this.iitmProvider = iitmProvider;
+        this.elanGroupCache = elanGroupCache;
     }
 
     public final Boolean isOpenstackVniSemanticsEnforced() {
@@ -1636,6 +1659,71 @@ public class ElanUtils {
             }
         }
         return null;
+    }
+
+    protected  Node buildDpnNode(BigInteger dpnId) {
+        org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId nodeId =
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819
+                        .NodeId("openflow:" + dpnId);
+        Node nodeDpn = new NodeBuilder().setId(nodeId).withKey(new NodeKey(nodeId)).build();
+        return nodeDpn;
+    }
+
+    public void syncUpdateGroup(BigInteger dpnId, Group newGroup, long delayTime,
+                                TypedWriteTransaction<Datastore.Configuration> confTx) {
+        Node nodeDpn = buildDpnNode(dpnId);
+        long groupIdInfo = newGroup.getGroupId().getValue();
+        GroupKey groupKey = new GroupKey(new GroupId(groupIdInfo));
+        InstanceIdentifier<Group> groupInstanceId = InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, nodeDpn.key()).augmentation(FlowCapableNode.class)
+                .child(Group.class, groupKey).build();
+        LOG.trace("Performing merge operation for remote BC group for node {} with group {}", nodeDpn, newGroup);
+        Optional<Group> existingGroupOpt = ElanUtils.read(broker, LogicalDatastoreType.CONFIGURATION, groupInstanceId);
+        if (!existingGroupOpt.isPresent()) {
+            LOG.debug("Group {} doesn't exist. Performing syncInstall", groupIdInfo);
+            mdsalManager.addGroup(confTx, dpnId, newGroup);
+            return;
+        }
+        Buckets existingGroup = existingGroupOpt.get().getBuckets();
+        if (existingGroup == null) {
+            LOG.debug("Bucket doesn't exist for group {}. Performing syncInstall", groupIdInfo);
+            mdsalManager.addGroup(confTx, dpnId, newGroup);
+            return;
+        }
+        if (newGroup.getBuckets() == null) {
+            LOG.debug("Buckets are not sent for group {}. Skipping merge operation", groupIdInfo);
+            return;
+        }
+        List<Bucket> newBuckets = newGroup.getBuckets().getBucket();
+        List<Bucket> existingBuckets = existingGroup.getBucket();
+        Set<Bucket> toMergeBucketsWithoutId = new LinkedHashSet<>();
+
+        existingBuckets.stream()
+                .map(TO_BUCKET_WITHOUT_ID)
+                .forEach(bucketWithoutId -> toMergeBucketsWithoutId.add(bucketWithoutId));
+
+        newBuckets.stream()
+                .map(TO_BUCKET_WITHOUT_ID)
+                .forEach(bucketWithoutId -> toMergeBucketsWithoutId.add(bucketWithoutId));
+
+        if (toMergeBucketsWithoutId.size() == existingBuckets.size()) {
+            //no new buckets got added
+            //size matched and no extra buckets in existing buckets , rewrite the group
+            LOG.debug("Buckets did not change group {}. Skipping merge operation", groupIdInfo);
+            return;
+        }
+        LOG.debug("Old group buckets size {} New group buckets size {} Dpn id {} Group id {} ",
+                existingBuckets.size(), toMergeBucketsWithoutId.size(), dpnId, groupIdInfo);
+        AtomicLong bucketIdValue = new AtomicLong(-1);
+        //Change the bucket id of existing buckets
+        List<Bucket> bucketsToBeAdded = toMergeBucketsWithoutId.stream()
+                .map(bucketWithoutId -> TO_BUCKET_WITH_ID.apply(bucketWithoutId, bucketIdValue))
+                .collect(Collectors.toList());
+
+        Group group = MDSALUtil.buildGroup(newGroup.getGroupId().getValue(), newGroup.getGroupName(),
+                GroupTypes.GroupAll, MDSALUtil.buildBucketLists(bucketsToBeAdded));
+        mdsalManager.addGroup(confTx, dpnId, group);
+        LOG.trace("Installed remote BC group for node {} with group {}", nodeDpn, group);
     }
 
     static InstanceIdentifier<Subnetmaps> buildSubnetMapsWildCardPath() {

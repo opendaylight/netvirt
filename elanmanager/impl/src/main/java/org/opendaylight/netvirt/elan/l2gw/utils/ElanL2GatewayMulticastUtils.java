@@ -237,11 +237,11 @@ public class ElanL2GatewayMulticastUtils {
         }
     }
 
-    public void updateRemoteBroadcastGroupForAllElanDpns(ElanInstance elanInfo,
+    public void updateRemoteBroadcastGroupForAllElanDpns(ElanInstance elanInfo, boolean createCase,
             TypedWriteTransaction<Datastore.Configuration> confTx) {
         List<DpnInterfaces> dpns = elanUtils.getInvolvedDpnsInElan(elanInfo.getElanInstanceName());
         for (DpnInterfaces dpn : dpns) {
-            setupElanBroadcastGroups(elanInfo, dpn.getDpId(), confTx);
+            setupStandardElanBroadcastGroups(elanInfo, null, dpn.getDpId(), createCase, confTx);
         }
     }
 
@@ -251,13 +251,18 @@ public class ElanL2GatewayMulticastUtils {
     }
 
     public void setupElanBroadcastGroups(ElanInstance elanInfo, @Nullable DpnInterfaces dpnInterfaces, BigInteger dpnId,
-            TypedWriteTransaction<Datastore.Configuration> confTx) {
+                                         TypedWriteTransaction<Datastore.Configuration> confTx) {
         setupStandardElanBroadcastGroups(elanInfo, dpnInterfaces, dpnId, confTx);
         setupLeavesEtreeBroadcastGroups(elanInfo, dpnInterfaces, dpnId, confTx);
     }
 
+    public void setupStandardElanBroadcastGroups(ElanInstance elanInfo, DpnInterfaces dpnInterfaces, BigInteger dpnId,
+                                                 TypedWriteTransaction<Datastore.Configuration> confTx) {
+        setupStandardElanBroadcastGroups(elanInfo, dpnInterfaces, dpnId, true, confTx);
+    }
+
     public void setupStandardElanBroadcastGroups(ElanInstance elanInfo, @Nullable DpnInterfaces dpnInterfaces,
-            BigInteger dpnId, TypedWriteTransaction<Datastore.Configuration> confTx) {
+            BigInteger dpnId, boolean createCase, TypedWriteTransaction<Datastore.Configuration> confTx) {
         List<Bucket> listBucket = new ArrayList<>();
         int bucketId = 0;
         int actionKey = 0;
@@ -273,7 +278,11 @@ public class ElanL2GatewayMulticastUtils {
         Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
                 MDSALUtil.buildBucketLists(listBucket));
         LOG.trace("Installing the remote BroadCast Group:{}", group);
-        mdsalManager.addGroup(confTx, dpnId, group);
+        if (createCase) {
+            elanUtils.syncUpdateGroup(dpnId, group, ElanConstants.DELAY_TIME_IN_MILLISECOND, confTx);
+        } else {
+            mdsalManager.addGroup(confTx, dpnId, group);
+        }
     }
 
     public void setupLeavesEtreeBroadcastGroups(ElanInstance elanInfo, @Nullable DpnInterfaces dpnInterfaces,

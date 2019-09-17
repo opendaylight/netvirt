@@ -35,16 +35,18 @@ public class BcGroupUpdateJob implements Callable<List<ListenableFuture<Void>>> 
     private final ElanRefUtil elanRefUtil;
     private final ManagedNewTransactionRunner txRunner;
     protected String jobKey;
+    private final boolean add;
 
     public BcGroupUpdateJob(String elanName,
                             ElanRefUtil elanRefUtil,
                             ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
-                            DataBroker dataBroker) {
+                            DataBroker dataBroker, boolean add) {
         this.jobKey = ElanUtils.getBcGroupUpdateKey(elanName);
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.elanName = elanName;
         this.elanRefUtil = elanRefUtil;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
+        this.add = add;
     }
 
     public void submit() {
@@ -57,7 +59,7 @@ public class BcGroupUpdateJob implements Callable<List<ListenableFuture<Void>>> 
         if (elanInstanceOptional.isPresent()) {
             return Lists.newArrayList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                 confTx -> elanL2GatewayMulticastUtils.updateRemoteBroadcastGroupForAllElanDpns(
-                        elanInstanceOptional.get(), confTx)));
+                        elanInstanceOptional.get(), add, confTx)));
         }
         return null;
     }
@@ -65,7 +67,7 @@ public class BcGroupUpdateJob implements Callable<List<ListenableFuture<Void>>> 
     public static void updateAllBcGroups(String elanName,
                                          ElanRefUtil elanRefUtil,
                                          ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
-                                         DataBroker dataBroker) {
-        new BcGroupUpdateJob(elanName, elanRefUtil, elanL2GatewayMulticastUtils, dataBroker).submit();
+                                         DataBroker dataBroker, boolean add) {
+        new BcGroupUpdateJob(elanName, elanRefUtil, elanL2GatewayMulticastUtils, dataBroker, add).submit();
     }
 }
