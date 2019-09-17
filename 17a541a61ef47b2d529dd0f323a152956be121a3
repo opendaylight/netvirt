@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_a2b96a30",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/commands/TerminationPointCmd.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Handles them gacefully\nPasting the areSameSize snippet here for reference.\n        if (HwvtepHAUtil.isEmptyList(objA) \u0026\u0026 HwvtepHAUtil.isEmptyList(objB)) {\n            return true;\n        }\n        if (!HwvtepHAUtil.isEmptyList(objA) \u0026\u0026 !HwvtepHAUtil.isEmptyList(objB)) {\n            return objA.size() \u003d\u003d objB.size();\n        }\n        return false;",
+      "parentUuid": "fafc7978_b436cc01",
+      "revId": "17a541a61ef47b2d529dd0f323a152956be121a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f4405458",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAOpNodeListener.java",
         "patchSetId": 8
@@ -90,6 +108,78 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_6d259cc1",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAOpNodeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Agree, This one can be INFO i feel as we do not see a node becoming HA very often, it is an important info to be logged, it definitely does not spam the logs and kill the csit",
+      "parentUuid": "fafc7978_e2825251",
+      "range": {
+        "startLine": 169,
+        "startChar": 12,
+        "endLine": 169,
+        "endChar": 20
+      },
+      "revId": "17a541a61ef47b2d529dd0f323a152956be121a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e2825251",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAOpNodeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "general question .\nWhen can one use INFO ?\nCan INFO be used at all ?",
+      "parentUuid": "fafc7978_f4405458",
+      "range": {
+        "startLine": 169,
+        "startChar": 12,
+        "endLine": 169,
+        "endChar": 20
+      },
+      "revId": "17a541a61ef47b2d529dd0f323a152956be121a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5104abbf",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAOpNodeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_1f4a2fac",
+      "range": {
+        "startLine": 169,
+        "startChar": 12,
+        "endLine": 169,
+        "endChar": 20
+      },
+      "revId": "17a541a61ef47b2d529dd0f323a152956be121a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_143cf8e1",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
         "patchSetId": 8
@@ -113,6 +203,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_4d2258ba",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_143cf8e1",
+      "range": {
+        "startLine": 134,
+        "startChar": 24,
+        "endLine": 134,
+        "endChar": 29
+      },
+      "revId": "17a541a61ef47b2d529dd0f323a152956be121a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5425e0c0",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/ElanGroupListener.java",
         "patchSetId": 8
@@ -124,6 +238,24 @@
       "writtenOn": "2017-01-29T05:58:05Z",
       "side": 1,
       "message": "Cleanup required: All these should be DEBUG/TRACE.",
+      "revId": "17a541a61ef47b2d529dd0f323a152956be121a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ad2f84a0",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/ElanGroupListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_5425e0c0",
       "revId": "17a541a61ef47b2d529dd0f323a152956be121a3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
