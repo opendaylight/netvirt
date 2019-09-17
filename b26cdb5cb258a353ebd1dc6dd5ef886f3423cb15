@@ -49,6 +49,54 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e8af8592",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Yes Tali Our initial thought process was the same to model it in elan itself. Later we felt that , it makes sense to put all the fib info at one place. Even adding mac as additional key along with prefix to existing fib entries is considered , but that overloading brings in unnecessary complexities. The reason these mac vrf entries are retained under fib entries container is , so that it can reuse all the other properties of the ip vrf entries, so that there will be lesser duplication of code between processing of ip vrf entries and mac vrf entries. All the external routes received today are stored under config fib entries container, we do stale marking processing of these prefix vrf entries incase neighbor goes down. All such stale marking logic etc needs to be duplicated if it is moved out of fib entries.",
+      "parentUuid": "fafc7978_7deeb9b5",
+      "range": {
+        "startLine": 150,
+        "startChar": 4,
+        "endLine": 150,
+        "endChar": 19
+      },
+      "revId": "b26cdb5cb258a353ebd1dc6dd5ef886f3423cb15",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a66db79a",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Any RT2 route received is stored in macVrfEntries under fibEntries container. That will be installed in the DMAC table of relevant ovs nodes where elan foot print is present.",
+      "parentUuid": "fafc7978_35173653",
+      "range": {
+        "startLine": 150,
+        "startChar": 4,
+        "endLine": 150,
+        "endChar": 19
+      },
+      "revId": "b26cdb5cb258a353ebd1dc6dd5ef886f3423cb15",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_405cb625",
         "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.txt",
         "patchSetId": 1
@@ -88,6 +136,30 @@
         "startChar": 42,
         "endLine": 162,
         "endChar": 44
+      },
+      "revId": "b26cdb5cb258a353ebd1dc6dd5ef886f3423cb15",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2611c705",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Right so far RNH is just pointing towards tunnel ports, this change of making it a group with multiple buckets is to support ecmp scenario where the same route is received from multiple dc gateways.",
+      "parentUuid": "fafc7978_405cb625",
+      "range": {
+        "startLine": 162,
+        "startChar": 3,
+        "endLine": 162,
+        "endChar": 16
       },
       "revId": "b26cdb5cb258a353ebd1dc6dd5ef886f3423cb15",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
