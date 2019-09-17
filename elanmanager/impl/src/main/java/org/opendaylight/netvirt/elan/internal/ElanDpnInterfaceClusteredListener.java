@@ -126,7 +126,7 @@ public class ElanDpnInterfaceClusteredListener
                     McastUpdateJob.updateAllMcastsForDpnDelete(elanName, elanL2GatewayMulticastUtils,
                             elanClusterUtils, dpnInterfaces.getDpId(), elanItmUtils);
                     BcGroupUpdateJob.updateAllBcGroups(elanName, elanRefUtil, elanL2GatewayMulticastUtils,
-                            broker);
+                            broker, false);
                 }
             } finally {
                 elanInstanceDpnsCache.remove(getElanName(identifier), dpnInterfaces);
@@ -161,7 +161,7 @@ public class ElanDpnInterfaceClusteredListener
                 ElanInstance elanInstance = elanInstanceCache.get(elanName).orNull();
                 if (elanInstance != null) {
                     BcGroupUpdateJob.updateAllBcGroups(elanName, elanRefUtil, elanL2GatewayMulticastUtils,
-                            broker);
+                            broker, true);
                     // updating remote mcast mac on l2gw devices
                     McastUpdateJob.updateAllMcastsForDpnAdd(elanName, elanL2GatewayMulticastUtils,
                             elanClusterUtils);
