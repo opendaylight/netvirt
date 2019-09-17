@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_d5865cda",
+        "filename": "docs/specs/index.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_0f4736bd",
+      "range": {
+        "startLine": 23,
+        "startChar": 3,
+        "endLine": 23,
+        "endChar": 57
+      },
+      "revId": "32445f1775771e534b6d1691f1c31d572b43332f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ef43d2ac",
         "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.txt",
         "patchSetId": 2
@@ -36,6 +60,24 @@
       "writtenOn": "2017-02-28T17:38:43Z",
       "side": 1,
       "message": "file should be .rst, not .txt",
+      "revId": "32445f1775771e534b6d1691f1c31d572b43332f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_356fe82c",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_ef43d2ac",
       "revId": "32445f1775771e534b6d1691f1c31d572b43332f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -76,6 +118,24 @@
       "writtenOn": "2017-02-28T17:38:43Z",
       "side": 1,
       "message": "this should be a reference",
+      "revId": "32445f1775771e534b6d1691f1c31d572b43332f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_156c6434",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_2f195ad7",
       "revId": "32445f1775771e534b6d1691f1c31d572b43332f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
