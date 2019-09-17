@@ -20,6 +20,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_7e10d6a8",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/L2GatewayConnectionUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Write a comment on why we are doing this",
+      "revId": "d1abb2a4129026edcc7f42aacf58e6dccafa0c9d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9a801f48",
         "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/l2gw/utils/L2GatewayCacheUtils.java",
         "patchSetId": 1
@@ -32,6 +49,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "fafc7978_def62290",
+      "revId": "d1abb2a4129026edcc7f42aacf58e6dccafa0c9d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_def62290",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/l2gw/utils/L2GatewayCacheUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "rename it as updateCacheUponL2GatewayAdd",
       "revId": "d1abb2a4129026edcc7f42aacf58e6dccafa0c9d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -56,6 +90,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_1ef1ca95",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/l2gw/utils/L2GatewayCacheUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "rename the method as updateCacheUponSwitchConnect",
+      "revId": "d1abb2a4129026edcc7f42aacf58e6dccafa0c9d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_da91079c",
         "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/l2gw/utils/L2GatewayCacheUtils.java",
         "patchSetId": 1
@@ -74,6 +125,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3e2f6ef8",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/l2gw/utils/L2GatewayCacheUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Mark the params as final , fix the indentation",
+      "revId": "d1abb2a4129026edcc7f42aacf58e6dccafa0c9d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1a8c2f7f",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/l2gw/L2GatewayListener.java",
         "patchSetId": 1
@@ -86,6 +154,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "fafc7978_be3a3e32",
+      "revId": "d1abb2a4129026edcc7f42aacf58e6dccafa0c9d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_be3a3e32",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/l2gw/L2GatewayListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "L2GW provisioning skipped for device {}",
       "revId": "d1abb2a4129026edcc7f42aacf58e6dccafa0c9d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
