@@ -496,6 +496,11 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
     private void programAclForExistingTrafficTable(AclInterface port, Ace ace, int addOrRemove, String flowName,
             List<MatchInfoBase> matches, Integer priority) {
+        if (port == null || port.getElanId() == null) {
+            LOG.debug("Acl interface or elan id is null, No need to update traffic flow table.");
+            return;
+        }
+
         AceIp acl = (AceIp) ace.getMatches().getAceType();
         final String newFlowName = flowName + this.directionString + "_" + port.getDpId() + "_" + port.getLPortTag()
                 + "_" + (acl.getAceIpVersion() instanceof AceIpv4 ? "_IPv4" : "_IPv6") + "_FlowAfterRuleDeleted";
