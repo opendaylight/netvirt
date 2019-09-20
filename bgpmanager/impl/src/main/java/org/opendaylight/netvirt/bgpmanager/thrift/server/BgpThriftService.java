@@ -83,6 +83,9 @@ public class BgpThriftService {
                 args.processor(processor);
                 args.selectorThreads(1);
                 args.workerThreads(1);
+                ThreadFactory tf =  new ThreadFactoryBuilder().setNameFormat("bgp-receiver-%d").build();
+                ExecutorService service = Executors.newFixedThreadPool(1, tf);
+                args.executorService(service);
                 server = new TThreadedSelectorServer(args);
                 server.setServerEventHandler(new TServerEventHandler() {
                     @Override

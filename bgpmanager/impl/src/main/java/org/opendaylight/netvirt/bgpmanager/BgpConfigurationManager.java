@@ -163,6 +163,13 @@ public class BgpConfigurationManager {
     private static final String DEF_BGP_SDNC_MIP = "127.0.0.1";
     //vpnservice.bgp.thrift.bgp.mip is the MIP present with ODL. Here we open 6644 port
     private static final String BGP_SDNC_MIP = "vpnservice.bgp.thrift.bgp.mip";
+    private static final String BGP_GR_RESTART_TIMER_PROPERTY = "vpnservice.bgp.gr.timer";
+    private static final String BGP_KA_TIMER_PROPERTY = "vpnservice.bgp.ka.timer";
+    private static final String BGP_HOLD_TIMER_PROPERTY = "vpnservice.bgp.hold.timer";
+    private static final String BGP_EOR_DELAY_PROPERTY = "vpnservice.bgp.eordelay";
+    private static final int DEF_BGP_KA_TIME = 60;
+    private static final int DEF_BGP_HOLD_TIME = 180;
+    private static final int DEF_BGP_GR_TIME = 4000;
     private static final int RESTART_DEFAULT_GR = 90;
     private static final int DS_RETRY_COUNT = 100; //100 retries, each after WAIT_TIME_BETWEEN_EACH_TRY_MILLIS seconds
     private static final long WAIT_TIME_BETWEEN_EACH_TRY_MILLIS = 1000L; //one second sleep after every retry
@@ -175,6 +182,9 @@ public class BgpConfigurationManager {
     private static final String UPD_WARN = "Update operation not supported; Config store updated;"
             + " restore with another Update if needed.";
     private static long bgp_as_num = 0;
+    private int bgpKaTime = 0;
+    private int bgpHoldTime = 0;
+    private int bgpGrRestartTime = 0;
 
     private static final Class<?>[] REACTORS = {
         ConfigServerReactor.class, AsIdReactor.class,
@@ -260,6 +270,15 @@ public class BgpConfigurationManager {
         this.metricProvider = metricProvider;
         hostStartup = getProperty(CONFIG_HOST, DEF_CHOST);
         portStartup = getProperty(CONFIG_PORT, DEF_CPORT);
+        bgpKaTime =
+                Integer.parseInt(getProperty(BGP_KA_TIMER_PROPERTY,
+                        Integer.toString(DEF_BGP_KA_TIME)));
+        bgpHoldTime =
+                Integer.parseInt(getProperty(BGP_HOLD_TIMER_PROPERTY,
+                        Integer.toString(DEF_BGP_HOLD_TIME)));
+        bgpGrRestartTime =
+                Integer.parseInt(getProperty(BGP_GR_RESTART_TIMER_PROPERTY,
+                        Integer.toString(DEF_BGP_GR_TIME)));
         LOG.info("ConfigServer at {}:{}", hostStartup, portStartup);
         VtyshCli.setHostAddr(hostStartup);
         ClearBgpCli.setHostAddr(hostStartup);
@@ -1836,11 +1855,12 @@ public class BgpConfigurationManager {
                 setCfgReplayEndTime(System.currentTimeMillis());
                 LOG.info("took {} msecs for bgp replay ", getCfgReplayEndTime() - getCfgReplayStartTime());
                 if (replaySucceded) {
-                    LOG.info("starting the stale cleanup timer");
                     long routeSyncTime = getStalePathtime(BGP_RESTART_ROUTE_SYNC_SEC, config.getAsId());
                     setStaleCleanupTime(routeSyncTime);
+                    LOG.error("starting the stale cleanup timer: {} seconds", routeSyncTime);
                     routeCleanupFuture = executor.schedule(new RouteCleanup(), routeSyncTime, TimeUnit.SECONDS);
                 } else {
+                    LOG.error("skipping stale cleanup, may be due to exception while replay");
                     staledFibEntriesMap.clear();
                 }
             } catch (InterruptedException | TimeoutException | ExecutionException eCancel) {
@@ -1851,7 +1871,8 @@ public class BgpConfigurationManager {
     }
 
     private boolean previousReplayJobInProgress() {
-        return lastReplayJobFt != null && !lastReplayJobFt.isDone();
+        return ((lastReplayJobFt != null && !lastReplayJobFt.isDone())
+                || (routeCleanupFuture != null && !routeCleanupFuture.isDone()));
     }
 
     private void cancelPreviousReplayJob() {
@@ -2158,6 +2179,8 @@ public class BgpConfigurationManager {
                     if (tae.getType() == BgpRouterException.BGP_ERR_PEER_EXISTS) {
                         LOG.debug("Replaying addNbr Neighbor already present");
                         replayDone = true;
+                    } else {
+                        LOG.error("Replaying addNbr {}, exception: ", replayNbr.getNbr().getAddress().getValue(), tae);
                     }
                 } catch (TException | BgpRouterException eNbr) {
                     LOG.debug("Replaying addNbr {}, exception: ", replayNbr.getNbr().getAddress().getValue(), eNbr);
@@ -2212,6 +2235,10 @@ public class BgpConfigurationManager {
         boolean replaySuccess = true;
         for (ReplayNbr replayNbr : replayNbrList) {
             replaySuccess = replaySuccess && !replayNbr.isShouldRetry();
+            if (replaySuccess == false) {
+                LOG.error("replayNbrConfig: will be cancelling stale cleanup, cfg nbr: {} Failed:",
+                        replayNbr.getNbr().getAddress().getValue());
+            }
         }
         return replaySuccess;
     }
@@ -2280,7 +2307,7 @@ public class BgpConfigurationManager {
         long asNum = asId.getLocalAs();
         IpAddress routerId = asId.getRouterId();
         String rid = routerId == null ? "" : routerId.stringValue();
-        int stalepathTime = (int) getStalePathtime(RESTART_DEFAULT_GR, config.getAsId());
+        int stalepathTime = (int) getStalePathtime(bgpGrRestartTime, config.getAsId());
         boolean announceFbit = true;
         boolean replayDone = false;
         final int numberOfStartBgpRetries = 3;
@@ -2288,7 +2315,7 @@ public class BgpConfigurationManager {
         do {
             try {
                 LOG.debug("Replaying BGPConfig ");
-                br.startBgp(asNum, rid, stalepathTime, announceFbit);
+                br.startBgp(asNum, rid, bgpKaTime, bgpHoldTime, stalepathTime, announceFbit);
                 LOG.debug("Replay BGPConfig successful");
                 replayDone = true;
                 break;
@@ -2356,6 +2383,12 @@ public class BgpConfigurationManager {
                 try {
                     br.addBfd(bfdConfig.getDetectMult().intValue(), bfdConfig.getMinRx().intValue(),
                             bfdConfig.getMinTx().intValue(), bfdConfig.isMultihop());
+                } catch (TApplicationException tae) {
+                    if (tae.getType() == BgpRouterException.BGP_ERR_PEER_EXISTS) {
+                        LOG.debug("Replay:addBfd() received exception", tae);
+                    } else {
+                        LOG.error("Replay:addBfd() received exception", tae);
+                    }
                 } catch (TException | BgpRouterException e) {
                     LOG.error("Replay:addBfd() received exception", e);
                 }
@@ -2383,14 +2416,13 @@ public class BgpConfigurationManager {
         }
 
         GracefulRestart gracefulRestart = config.getGracefulRestart();
-        if (gracefulRestart != null) {
-            try {
-                br.addGracefulRestart(gracefulRestart.getStalepathTime().intValue());
-            } catch (TException | BgpRouterException e) {
-                LOG.error("Replay:addGr() received exception", e);
-            }
+        bgpGrRestartTime = ((gracefulRestart != null)
+                ? gracefulRestart.getStalepathTime().intValue() : bgpGrRestartTime);
+        try {
+            br.addGracefulRestart(bgpGrRestartTime);
+        } catch (Exception e) {
+            LOG.error("Replay:addGr() received exception: ", e);
         }
-
         List<Vrfs> vrfs = config.getVrfs();
         if (vrfs == null) {
             vrfs = new ArrayList<>();
