@@ -70,6 +70,8 @@ public final class BgpRouter {
         String macAddress;
         int l2label;
         int l3label;
+        int holdTime;
+        int kaTime;
         encap_type thriftEncapType;
         String routermac;
         public af_afi afi;
@@ -92,6 +94,8 @@ public final class BgpRouter {
             this.add = bgpOp.add;
             this.multiHop = bgpOp.multiHop;
             this.asNumber = bgpOp.asNumber;
+            this.holdTime = bgpOp.holdTime;
+            this.kaTime = bgpOp.kaTime;
             this.thriftProtocolType = bgpOp.thriftProtocolType;
             this.thriftLayerType = bgpOp.thriftLayerType;
             this.ethernetTag = bgpOp.ethernetTag;
@@ -117,6 +121,8 @@ public final class BgpRouter {
                     + ", irts=" + irts
                     + ", erts=" + erts
                     + ", asNumber=" + asNumber
+                    + ", Hold Time=" + holdTime
+                    + ", KA Time=" + kaTime
                     + ", thriftLayerType=" + thriftLayerType
                     + ", thriftProtocolType=" + thriftProtocolType
                     + ", ethernetTag=" + ethernetTag
@@ -330,7 +336,7 @@ public final class BgpRouter {
                 setStartTS(System.currentTimeMillis());
                 LOG.debug("startBgp thrift call for AsId {}", op.asNumber);
                 result = bgpClient.startBgp(op.asNumber, op.strs[0],
-                        BgpOp.IGNORE, BgpOp.IGNORE, BgpOp.IGNORE, op.ints[0], op.add);
+                        BgpOp.IGNORE, op.holdTime, op.kaTime, op.ints[0], op.add);
                 LOG.debug("Result of startBgp thrift call for AsId {} : {}", op.asNumber, result);
                 break;
             case STOP:
@@ -444,11 +450,14 @@ public final class BgpRouter {
         }
     }
 
-    public synchronized void startBgp(long asNum, String rtrId, int stalepathTime, boolean announceFbit)
+    public synchronized void startBgp(long asNum, String rtrId, int bgpKaTime, int bgpHoldTime,
+                                      int stalepathTime, boolean announceFbit)
             throws TException, BgpRouterException {
         bop.type = Optype.START;
         bop.add = announceFbit;
         bop.asNumber = asNum;
+        bop.kaTime = bgpKaTime;
+        bop.holdTime = bgpHoldTime;
         bop.ints[0] = stalepathTime;
         bop.strs[0] = rtrId;
         LOG.debug("Starting BGP with as number {} and router ID {} StalePathTime: {}", asNum, rtrId, stalepathTime);
