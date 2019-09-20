@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "edf447d1_59e4a9ba",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/jobs/DpnDmacJob.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-20T10:06:00Z",
+      "side": 1,
+      "message": "return future of this method is ignoded ?",
+      "range": {
+        "startLine": 68,
+        "startChar": 12,
+        "endLine": 68,
+        "endChar": 30
+      },
+      "revId": "6836324062a346c77b41964b1ac254d87fb47216",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c783bca6_c33e0e28",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/jobs/DpnDmacJob.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-20T10:06:00Z",
+      "side": 1,
+      "message": "same here ?",
+      "range": {
+        "startLine": 74,
+        "startChar": 20,
+        "endLine": 74,
+        "endChar": 33
+      },
+      "revId": "6836324062a346c77b41964b1ac254d87fb47216",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
