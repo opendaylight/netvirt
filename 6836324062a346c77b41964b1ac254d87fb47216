@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "cddb92e7_f9e9fe76",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/jobs/DpnDmacJob.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 8158
+      },
+      "writtenOn": "2019-09-23T05:31:04Z",
+      "side": 1,
+      "message": "Have addressed this concern in the latest patch",
+      "parentUuid": "edf447d1_59e4a9ba",
+      "range": {
+        "startLine": 68,
+        "startChar": 12,
+        "endLine": 68,
+        "endChar": 30
+      },
+      "revId": "6836324062a346c77b41964b1ac254d87fb47216",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c783bca6_c33e0e28",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/jobs/DpnDmacJob.java",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "6836324062a346c77b41964b1ac254d87fb47216",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f69e8e7_8b1f4d4b",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/jobs/DpnDmacJob.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 8158
+      },
+      "writtenOn": "2019-09-23T05:31:04Z",
+      "side": 1,
+      "message": "Have addressed this issue in the latest patch",
+      "parentUuid": "c783bca6_c33e0e28",
+      "range": {
+        "startLine": 74,
+        "startChar": 20,
+        "endLine": 74,
+        "endChar": 33
+      },
+      "revId": "6836324062a346c77b41964b1ac254d87fb47216",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
