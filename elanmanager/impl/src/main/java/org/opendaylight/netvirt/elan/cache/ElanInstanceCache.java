@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -19,6 +20,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.mdsalutil.cache.InstanceIdDataObjectCache;
 import org.opendaylight.infrautils.caches.CacheProvider;
+import org.opendaylight.netvirt.elan.utils.Scheduler;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -35,12 +37,25 @@ import org.slf4j.LoggerFactory;
 public class ElanInstanceCache extends InstanceIdDataObjectCache<ElanInstance> {
     private static final Logger LOG = LoggerFactory.getLogger(ElanInstanceCache.class);
 
+    //TODO: Make it configurable
+    private static final int ELAN_CLEANUP_DELAY_IN_MINS = 30;
+
     private final Map<InstanceIdentifier<ElanInstance>, Collection<Runnable>> waitingJobs = new HashMap<>();
 
+    private final Scheduler scheduler;
+
     @Inject
-    public ElanInstanceCache(DataBroker dataBroker, CacheProvider cacheProvider) {
+    public ElanInstanceCache(DataBroker dataBroker, CacheProvider cacheProvider, Scheduler scheduler) {
         super(ElanInstance.class, dataBroker, LogicalDatastoreType.CONFIGURATION,
                 InstanceIdentifier.create(ElanInstances.class).child(ElanInstance.class), cacheProvider);
+        this.scheduler = scheduler;
+    }
+
+    @Override
+    protected void removed(InstanceIdentifier<ElanInstance> path, ElanInstance dataObject) {
+        scheduler.getScheduledExecutorService().schedule(() -> {
+            super.removed(path, dataObject);
+        }, ELAN_CLEANUP_DELAY_IN_MINS, TimeUnit.MINUTES);
     }
 
     public Optional<ElanInstance> get(String elanInstanceName) {
