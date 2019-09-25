@@ -127,34 +127,38 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
             networks.add(elanName);
         }
 
-        for (Node node : nodes) {
-            if (node.getNodeId().getValue().contains("physicalswitch")) {
-                continue;
-            }
-            Node hwvtepConfigNode =
-                    HwvtepUtils.getHwVtepNode(dataBroker, LogicalDatastoreType.CONFIGURATION, node.getNodeId());
-            Node hwvtepOpPsNode = getPSnode(node, LogicalDatastoreType.OPERATIONAL);
-            Node hwvtepConfigPsNode = null;
-            if (hwvtepOpPsNode != null) {
-                hwvtepConfigPsNode = HwvtepUtils.getHwVtepNode(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                        hwvtepOpPsNode.getNodeId());
-                opPSNodes.put(node.getNodeId(), hwvtepOpPsNode);
-            }
-            opNodes.put(node.getNodeId(), node);
-            configNodes.put(node.getNodeId(), hwvtepConfigNode);
-
-            if (hwvtepConfigPsNode != null) {
-                configPSNodes.put(node.getNodeId(), hwvtepConfigPsNode);
-            }
-        }
-        for (String network : networks) {
-            session.getConsole().println("Network info for " + network);
+        if (nodes != null) {
             for (Node node : nodes) {
                 if (node.getNodeId().getValue().contains("physicalswitch")) {
                     continue;
                 }
-                session.getConsole().println("Printing for node " + node.getNodeId().getValue());
-                process(node.getNodeId(), network);
+                Node hwvtepConfigNode =
+                        HwvtepUtils.getHwVtepNode(dataBroker, LogicalDatastoreType.CONFIGURATION, node.getNodeId());
+                Node hwvtepOpPsNode = getPSnode(node, LogicalDatastoreType.OPERATIONAL);
+                Node hwvtepConfigPsNode = null;
+                if (hwvtepOpPsNode != null) {
+                    hwvtepConfigPsNode = HwvtepUtils.getHwVtepNode(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                            hwvtepOpPsNode.getNodeId());
+                    opPSNodes.put(node.getNodeId(), hwvtepOpPsNode);
+                }
+                opNodes.put(node.getNodeId(), node);
+                configNodes.put(node.getNodeId(), hwvtepConfigNode);
+
+                if (hwvtepConfigPsNode != null) {
+                    configPSNodes.put(node.getNodeId(), hwvtepConfigPsNode);
+                }
+            }
+        }
+        if (!networks.isEmpty()) {
+            for (String network : networks) {
+                session.getConsole().println("Network info for " + network);
+                for (Node node : nodes) {
+                    if (node.getNodeId().getValue().contains("physicalswitch")) {
+                        continue;
+                    }
+                    session.getConsole().println("Printing for node " + node.getNodeId().getValue());
+                    process(node.getNodeId(), network);
+                }
             }
         }
         return null;
