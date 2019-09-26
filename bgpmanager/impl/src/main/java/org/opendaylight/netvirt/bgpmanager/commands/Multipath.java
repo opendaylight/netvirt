@@ -67,6 +67,11 @@ public class Multipath extends OsgiCommandSupport {
                 session.getConsole().println("error: " + AF + " must be lu/evpn/vpnv4/vpnv6 ");
                 return null;
             }
+            if (multipathEnable != null
+                    && multipathEnable.equals("setmaxpath")) {
+                session.getConsole().println("error: " + AF + "can be configured with enable/disable only");
+                return null;
+            }
             if (addrFamily.equals("vpnv6")) {
                 afi = af_afi.findByValue(2);
                 safi = af_safi.findByValue(5);
@@ -86,6 +91,11 @@ public class Multipath extends OsgiCommandSupport {
             int imaxpath = Integer.parseInt(maxpath);
             if (imaxpath < MIN_MAXPATH || imaxpath > MAX_MAXPATH) {
                 session.getConsole().println("error: " + MAXPATH + " range[" + MIN_MAXPATH + " - " + MAX_MAXPATH + "]");
+                return null;
+            }
+            if (multipathEnable != null
+                    && (multipathEnable.equals("enable") || multipathEnable.equals("disable"))) {
+                session.getConsole().println("error: " + MAXPATH + "can be configured with setmaxpath only");
                 return null;
             }
         }

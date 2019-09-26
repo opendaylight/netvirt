@@ -47,7 +47,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
     String md5passwordOption = null;
 
     @Option(name = "--address-family", description = "address family of the bgp neighbor "
-            + "SAFI_IPV4_LABELED_UNICAST|SAFI_MPLS_VPN",
+            + "lu|evpn|vpnv4|vpnv6",
             required = false, multiValued = false)
     String addressFamily = null;
 
@@ -284,7 +284,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
                 return;
             }
         }
-        bgpConfigurationManager.startBgp(Integer.parseInt(asNumber), routerId,
+        bgpConfigurationManager.startBgp(Long.parseLong(asNumber), routerId,
                 stalePathTime == null ? 0 : Integer.parseInt(stalePathTime), false);
     }
 

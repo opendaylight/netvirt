@@ -291,12 +291,6 @@ public class BgpConfigurationManager {
         candidateRegistration = registerEntityCandidate(entityOwnershipService);
         entityListenerRegistration = registerEntityListener(entityOwnershipService);
 
-        /*register callbacks for reactors, shall be called after EoS registration.
-         * as listeners user EoS service to identify Owner node. Listener call-backs
-         * can get triggered immediately after registeration (before EoS register complete)
-        */
-        registerCallbacks();
-
         LOG.info("BGP Configuration manager initialized");
         initer.countDown();
 
@@ -329,8 +323,9 @@ public class BgpConfigurationManager {
             } else {
                 LOG.error("Failed to init UPDATE server invalid ip:port={}:{}", getBgpSdncMipIp(), updatePort);
             }
-            LOG.info("BgpConfigurationManager initialized. IBgpManager={}", bgpManager);
         });
+        registerCallbacks();
+        LOG.info("BgpConfigurationManager initialized. IBgpManager={}", bgpManager);
     }
 
     public String getBgpSdncMipIp() {
@@ -454,10 +449,10 @@ public class BgpConfigurationManager {
     private EntityOwnershipListenerRegistration registerEntityListener(
             final EntityOwnershipService entityOwnershipService) {
         return entityOwnershipService.registerListener(BGP_ENTITY_TYPE_FOR_OWNERSHIP, ownershipChange -> {
-            LOG.trace("entity owner change event fired: {}", ownershipChange);
+            LOG.info("entity owner change event fired: {}", ownershipChange);
 
             if (ownershipChange.getState() == EntityOwnershipChangeState.LOCAL_OWNERSHIP_GRANTED) {
-                LOG.trace("This PL is the Owner");
+                LOG.info("This PL is the Owner");
                 if (bgpThriftService != null) {
                     //opening UPDATE-SERVER port.
                     bgpThriftService.start();
@@ -466,12 +461,11 @@ public class BgpConfigurationManager {
                 }
                 bgpRestarted();
             } else {
-                LOG.debug("Not owner: hasOwner: {}, isOwner: {}", ownershipChange.getState().hasOwner(),
+                LOG.info("Not owner: hasOwner: {}, isOwner: {}", ownershipChange.getState().hasOwner(),
                         ownershipChange.getState().isOwner());
                 if (bgpThriftService != null && bgpThriftService.isBgpThriftServiceStarted()) {
                     //close the bgp Thrift Update-SERVER port opened on non-Entity Owner
                     bgpThriftService.stop();
-                    bgpThriftService = null;
                 }
                 if (isBgpConnected()) {
                     //disconnect the CONFIG SERVER port (which was )opened during I was Owner
@@ -1320,8 +1314,8 @@ public class BgpConfigurationManager {
                     List<AddressFamiliesVrf> vrfAddrFamilyList = vrfs.getAddressFamiliesVrf();
                     for (AddressFamiliesVrf vrfAddrFamily : vrfAddrFamilyList) {
                         /*add to br the new vrfs arguments*/
-                        br.addVrf(BgpUtil.getLayerType(vrfAddrFamily), rd, vrfs.getImportRts(), vrfs.getExportRts()
-                        );
+                        br.addVrf(BgpUtil.getLayerType(vrfAddrFamily), rd, vrfs.getImportRts(),
+                                vrfs.getExportRts(), vrfAddrFamily.getAfi(), vrfAddrFamily.getSafi());
                     }
                     /*add to br the vrfs contained in mapNewAdFamily*/
                     List<AddressFamiliesVrf> vrfAddrFamilyListFromMap = mapNewAdFamily.get(rd);
@@ -1334,8 +1328,8 @@ public class BgpConfigurationManager {
                             mapNewAdFamily.remove(rd);
                         } else  if (adf != null) {
 
-                            br.addVrf(BgpUtil.getLayerType(adf), rd, vrfs.getImportRts(), vrfs.getExportRts()
-                            );
+                            br.addVrf(BgpUtil.getLayerType(adf), rd, vrfs.getImportRts(),
+                                    vrfs.getExportRts(), adf.getAfi(), adf.getSafi());
                             // remove AddressFamiliesVrf which was already added to BGP
                             vrfAddrFamilyListFromMap.remove(adf);
                             if (vrfAddrFamilyListFromMap.isEmpty()) {
@@ -1442,7 +1436,7 @@ public class BgpConfigurationManager {
                     try {
                         LOG.debug("call addVRf rd {} afi {} safi {}", rd, adfvrf.getAfi(), adfvrf.getSafi());
                         br.addVrf(BgpUtil.getLayerType(adfvrf), rd, newval.getImportRts(),
-                                newval.getExportRts());
+                                newval.getExportRts(),adfvrf.getAfi(), adfvrf.getSafi());
                     } catch (TException | BgpRouterException e) {
                         LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
                     }
@@ -1929,7 +1923,7 @@ public class BgpConfigurationManager {
                     // use "rd" to query vrf table and obtain the protocol_type.
                     // Currently using PROTOCOL_EVPN as default.
                     onUpdatePushRoute(
-                           protocol_type.PROTOCOL_EVPN,
+                           protocol_type.PROTOCOL_L3VPN,
                            rd,
                            prefix,
                            plen,
@@ -2431,7 +2425,7 @@ public class BgpConfigurationManager {
             for (AddressFamiliesVrf adf : vrf.getAddressFamiliesVrf()) {
                 try {
                     br.addVrf(BgpUtil.getLayerType(adf), vrf.getRd(), vrf.getImportRts(),
-                            vrf.getExportRts());
+                            vrf.getExportRts(), adf.getAfi(), adf.getSafi());
                 } catch (TException | BgpRouterException e) {
                     LOG.error("Replay:addVrf() received exception", e);
                 }
