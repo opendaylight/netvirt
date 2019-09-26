@@ -31,6 +31,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.infrautils.metrics.Counter;
 import org.opendaylight.infrautils.metrics.Labeled;
@@ -105,6 +106,8 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataTreeChangeLis
     @PostConstruct
     public void init() {
         loadL2GwDeviceCache(1);
+        LOG.trace("Loading l2gw connection cache");
+        loadL2GwConnectionCache();
     }
 
     @Override
@@ -225,6 +228,21 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataTreeChangeLis
                 IpAddress tunnelIpAddr = tunnelIp.getTunnelIpsKey();
                 l2GwDevice.addTunnelIp(tunnelIpAddr);
             }
+        }
+    }
+
+    public void loadL2GwConnectionCache() {
+        InstanceIdentifier<L2gatewayConnections> parentIid = InstanceIdentifier
+                .create(Neutron.class)
+                .child(L2gatewayConnections.class);
+
+        Optional<L2gatewayConnections> optional = MDSALUtil.read(broker, CONFIGURATION, parentIid);
+        if (optional.isPresent() && optional.get().getL2gatewayConnection() != null) {
+            LOG.trace("Found some connections to fill in l2gw connection cache");
+            optional.get().getL2gatewayConnection()
+                    .forEach(connection -> {
+                        add(parentIid.child(L2gatewayConnection.class, connection.key()), connection);
+                    });
         }
     }
 }
