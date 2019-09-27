@@ -369,30 +369,25 @@ public class Verifications {
     }
 
     public void  verifyThatDmacOfOtherDpnCreated(BigInteger srcDpnId, BigInteger dpnId, List<String> dpnMacs)
-            throws ReadFailedException, InterruptedException {
+            throws ReadFailedException {
         for (String dpnMac : dpnMacs) {
             verifyDmacFlowOfOtherDPN(srcDpnId, dpnId, dpnMac, CHECK_FOR_EXISTS);
         }
     }
 
     public void  verifyThatDmacOfOtherDPNDeleted(BigInteger srcDpnId, BigInteger dpnId, List<String> dpnMacs)
-            throws ReadFailedException, InterruptedException {
+            throws ReadFailedException {
         for (String dpnMac : dpnMacs) {
             verifyDmacFlowOfOtherDPN(srcDpnId, dpnId, dpnMac, CHECK_FOR_DELETED);
         }
     }
 
     private void  verifyDmacFlowOfOtherDPN(BigInteger srcDpnId, BigInteger dpnId, String dpnMac, boolean createFlag)
-            throws ReadFailedException, InterruptedException {
+            throws ReadFailedException {
         InstanceIdentifier<ElanInstance> elanInstanceIid = InstanceIdentifier.builder(ElanInstances.class)
                 .child(ElanInstance.class, new ElanInstanceKey(ExpectedObjects.ELAN1)).build();
         ElanInstance actualElanInstances = singleTxdataBroker.syncRead(CONFIGURATION, elanInstanceIid);
-        FlowId flowId = new FlowId(
-                ElanUtils.getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE,
-                        srcDpnId,
-                        dpnId,
-                        dpnMac,
-                        actualElanInstances.getElanTag()));
+        FlowId flowId = new FlowId(ElanUtils.getKnownDynamicmacFlowRef(actualElanInstances.getElanTag(), dpnMac));
         InstanceIdentifier<Flow> flowInstanceIidDst = getFlowIid(NwConstants.ELAN_DMAC_TABLE, flowId, srcDpnId);
         if (createFlag) {
             awaitForData(LogicalDatastoreType.CONFIGURATION, flowInstanceIidDst);
