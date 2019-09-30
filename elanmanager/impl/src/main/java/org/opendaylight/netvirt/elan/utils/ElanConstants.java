@@ -23,6 +23,7 @@ public interface ElanConstants {
     long DELAY_TIME_IN_MILLISECOND = 5000;
     int ELAN_GID_MIN = 200000;
     int ELAN_SERVICE_PRIORITY = 5;
+    int ELAN_EOS_DELAY = 5;
     int STATIC_MAC_TIMEOUT = 0;
     int ELAN_TAG_LENGTH = 16;
     int INTERFACE_TAG_LENGTH = 20;

@@ -151,7 +151,7 @@ public class ElanDpnInterfaceClusteredListener
     }
 
     @Override
-    protected void add(InstanceIdentifier<DpnInterfaces> identifier, final DpnInterfaces dpnInterfaces) {
+    public void add(InstanceIdentifier<DpnInterfaces> identifier, final DpnInterfaces dpnInterfaces) {
         final String elanName = getElanName(identifier);
 
         jobCoordinator.enqueueJob(elanName + ":l2gw", () -> {
