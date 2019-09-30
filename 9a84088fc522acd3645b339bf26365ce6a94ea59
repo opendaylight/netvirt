@@ -22,6 +22,30 @@
       "revId": "9a84088fc522acd3645b339bf26365ce6a94ea59",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30c5f631_66df2756",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayMulticastUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 8158
+      },
+      "writtenOn": "2019-09-30T06:07:17Z",
+      "side": 0,
+      "message": "Ok.",
+      "parentUuid": "d2debcfe_a5a842b5",
+      "range": {
+        "startLine": 115,
+        "startChar": 13,
+        "endLine": 115,
+        "endChar": 28
+      },
+      "revId": "9a84088fc522acd3645b339bf26365ce6a94ea59",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }

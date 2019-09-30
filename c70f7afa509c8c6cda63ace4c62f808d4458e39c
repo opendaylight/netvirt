@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b1885a81_676128a9",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayMulticastUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 8158
+      },
+      "writtenOn": "2019-09-30T06:07:17Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "ce7573f5_bbed4b18",
+      "range": {
+        "startLine": 153,
+        "startChar": 73,
+        "endLine": 154,
+        "endChar": 4
+      },
+      "revId": "c70f7afa509c8c6cda63ace4c62f808d4458e39c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3482d1e2_e312fe04",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayMulticastUtils.java",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2019-09-30T05:43:58Z",
       "side": 1,
       "message": "not needed",
+      "range": {
+        "startLine": 376,
+        "startChar": 0,
+        "endLine": 376,
+        "endChar": 12
+      },
+      "revId": "c70f7afa509c8c6cda63ace4c62f808d4458e39c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "983643cc_0a3835a3",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayMulticastUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 8158
+      },
+      "writtenOn": "2019-09-30T06:07:17Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "3482d1e2_e312fe04",
       "range": {
         "startLine": 376,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "3a79b227_d874ce39",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayMulticastUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 550,
+      "author": {
+        "id": 8158
+      },
+      "writtenOn": "2019-09-30T06:07:17Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "e7f9014a_5a2ce0a2",
+      "range": {
+        "startLine": 550,
+        "startChar": 0,
+        "endLine": 550,
+        "endChar": 97
+      },
+      "revId": "c70f7afa509c8c6cda63ace4c62f808d4458e39c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "926619f0_df033a5f",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayMulticastUtils.java",
         "patchSetId": 3
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "f7d54220_49fcb4a7",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayMulticastUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 637,
+      "author": {
+        "id": 8158
+      },
+      "writtenOn": "2019-09-30T06:07:17Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "926619f0_df033a5f",
+      "range": {
+        "startLine": 636,
+        "startChar": 105,
+        "endLine": 637,
+        "endChar": 4
+      },
+      "revId": "c70f7afa509c8c6cda63ace4c62f808d4458e39c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "aead6ca4_dd93e790",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayMulticastUtils.java",
         "patchSetId": 3
@@ -105,6 +201,30 @@
       "writtenOn": "2019-09-30T05:43:58Z",
       "side": 1,
       "message": "no need to make this change",
+      "range": {
+        "startLine": 679,
+        "startChar": 30,
+        "endLine": 679,
+        "endChar": 41
+      },
+      "revId": "c70f7afa509c8c6cda63ace4c62f808d4458e39c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61f69cd2_6594a985",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayMulticastUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 679,
+      "author": {
+        "id": 8158
+      },
+      "writtenOn": "2019-09-30T06:07:17Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "aead6ca4_dd93e790",
       "range": {
         "startLine": 679,
         "startChar": 30,
