@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fdbe82ac_0e6f2552",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanDpnInterfaceClusteredListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 8158
+      },
+      "writtenOn": "2019-09-30T07:58:24Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "a08f7364_037a282e",
+      "range": {
+        "startLine": 129,
+        "startChar": 41,
+        "endLine": 129,
+        "endChar": 43
+      },
+      "revId": "7741a7489cb97df650ac095a7f3615484c27d98f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "21ddc8d6_738a1ec1",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanDpnInterfaceClusteredListener.java",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "af1826df_fe39f820",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanDpnInterfaceClusteredListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 8158
+      },
+      "writtenOn": "2019-09-30T07:58:24Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "21ddc8d6_738a1ec1",
+      "range": {
+        "startLine": 164,
+        "startChar": 36,
+        "endLine": 164,
+        "endChar": 40
+      },
+      "revId": "7741a7489cb97df650ac095a7f3615484c27d98f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5fb575ea_b37db810",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/jobs/BcGroupUpdateJob.java",
         "patchSetId": 2
@@ -59,6 +107,30 @@
       "writtenOn": "2019-09-30T06:39:52Z",
       "side": 1,
       "message": "rename it as createCase",
+      "range": {
+        "startLine": 43,
+        "startChar": 59,
+        "endLine": 43,
+        "endChar": 62
+      },
+      "revId": "7741a7489cb97df650ac095a7f3615484c27d98f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79bd0d18_51e1a303",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/jobs/BcGroupUpdateJob.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 8158
+      },
+      "writtenOn": "2019-09-30T07:58:24Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "5fb575ea_b37db810",
       "range": {
         "startLine": 43,
         "startChar": 59,
