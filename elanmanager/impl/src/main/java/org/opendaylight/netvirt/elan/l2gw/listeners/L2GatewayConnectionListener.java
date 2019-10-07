@@ -30,6 +30,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.infrautils.metrics.Counter;
@@ -37,10 +38,14 @@ import org.opendaylight.infrautils.metrics.Labeled;
 import org.opendaylight.infrautils.metrics.MetricDescriptor;
 import org.opendaylight.infrautils.metrics.MetricProvider;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
+import org.opendaylight.netvirt.elan.l2gw.recovery.impl.L2GatewayConnectionInstanceRecoveryHandler;
+import org.opendaylight.netvirt.elan.l2gw.recovery.impl.L2GatewayServiceRecoveryHandler;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.netvirt.elan.utils.Scheduler;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
+import org.opendaylight.serviceutils.srm.RecoverableListener;
+import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.L2gatewayConnections;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.l2gatewayconnections.L2gatewayConnection;
@@ -56,7 +61,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class L2GatewayConnectionListener extends AsyncClusteredDataTreeChangeListenerBase<L2gatewayConnection,
-        L2GatewayConnectionListener> {
+        L2GatewayConnectionListener> implements RecoverableListener {
     private static final Logger LOG = LoggerFactory.getLogger(L2GatewayConnectionListener.class);
     private static final int MAX_READ_TRIALS = 120;
 
@@ -92,7 +97,10 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataTreeChangeLis
     @Inject
     public L2GatewayConnectionListener(final DataBroker db, L2GatewayConnectionUtils l2GatewayConnectionUtils,
                                        Scheduler scheduler, L2GatewayCache l2GatewayCache,
-                                       MetricProvider metricProvider) {
+                                       MetricProvider metricProvider,
+                                       final L2GatewayServiceRecoveryHandler l2GatewayServiceRecoveryHandler,
+                                       final L2GatewayConnectionInstanceRecoveryHandler l2InstanceRecoveryHandler,
+                                       final ServiceRecoveryRegistry serviceRecoveryRegistry) {
         super(L2gatewayConnection.class, L2GatewayConnectionListener.class);
         this.broker = db;
         this.l2GatewayConnectionUtils = l2GatewayConnectionUtils;
@@ -100,11 +108,27 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataTreeChangeLis
         this.l2GatewayCache = l2GatewayCache;
         this.elanConnectionsCounter = metricProvider.newCounter(MetricDescriptor.builder()
                 .anchor(this).project("netvirt").module("l2gw").id("connections").build(), "modification", "elan");
+        serviceRecoveryRegistry.addRecoverableListener(l2GatewayServiceRecoveryHandler.buildServiceRegistryKey(),
+                this);
+        serviceRecoveryRegistry.addRecoverableListener(l2InstanceRecoveryHandler.buildServiceRegistryKey(),
+                this);
     }
 
     @PostConstruct
     public void init() {
         loadL2GwDeviceCache(1);
+        registerListener();
+    }
+
+    @Override
+    public void registerListener() {
+        LOG.info("Registering L2GatewayConnectionListener");
+        registerListener(LogicalDatastoreType.CONFIGURATION, broker);
+    }
+
+    public void deregisterListener() {
+        LOG.info("Deregistering L2GatewayConnectionListener");
+        super.deregisterListener();
     }
 
     @Override
