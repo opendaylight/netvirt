@@ -31,6 +31,9 @@ import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.infrautils.metrics.MetricProvider;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
+import org.opendaylight.netvirt.elan.l2gw.recovery.impl.L2GatewayServiceRecoveryHandler;
+import org.opendaylight.serviceutils.srm.RecoverableListener;
+import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -38,7 +41,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class HAOpClusteredListener extends HwvtepNodeBaseListener<Operational>
-        implements ClusteredDataTreeChangeListener<Node> {
+        implements ClusteredDataTreeChangeListener<Node>, RecoverableListener {
     private static final Logger LOG = LoggerFactory.getLogger(HAOpClusteredListener.class);
 
     private final Set<InstanceIdentifier<Node>> connectedNodes = ConcurrentHashMap.newKeySet();
@@ -46,9 +49,29 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener<Operational>
 
     @Inject
     public HAOpClusteredListener(DataBroker db, HwvtepNodeHACache hwvtepNodeHACache,
-                                 MetricProvider metricProvider) throws Exception {
+                                 MetricProvider metricProvider,
+                                 final L2GatewayServiceRecoveryHandler l2GatewayServiceRecoveryHandler,
+                                 final ServiceRecoveryRegistry serviceRecoveryRegistry) throws Exception {
         super(OPERATIONAL, db, hwvtepNodeHACache, metricProvider, false);
         LOG.info("Registering HAOpClusteredListener");
+        serviceRecoveryRegistry.addRecoverableListener(l2GatewayServiceRecoveryHandler.buildServiceRegistryKey(), this);
+    }
+
+    @Override
+    @SuppressWarnings("all")
+    public void registerListener() {
+        try {
+            LOG.info("Registering HAOpClusteredListener");
+            registerListener(OPERATIONAL, getDataBroker());
+        } catch (Exception e) {
+            LOG.error("HA OP Clustered register listener error.");
+        }
+
+    }
+
+    public void deregisterListener() {
+        LOG.info("Deregistering HAOpClusteredListener");
+        super.close();
     }
 
     public Set<InstanceIdentifier<Node>> getConnectedNodes() {

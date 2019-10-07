@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2016, 2018 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2019 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.netvirt.neutronvpn.l2gw;
+
+package org.opendaylight.netvirt.elan.l2gw.listeners;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
@@ -36,9 +37,13 @@ import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
+import org.opendaylight.netvirt.elan.l2gw.recovery.impl.L2GatewayInstanceRecoveryHandler;
+import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayUtils;
 import org.opendaylight.netvirt.elanmanager.api.IL2gwService;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
+import org.opendaylight.serviceutils.srm.RecoverableListener;
+import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
@@ -54,7 +59,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<L2gateway, L2GatewayListener> {
+public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<L2gateway, L2GatewayListener>
+        implements RecoverableListener {
     private static final Logger LOG = LoggerFactory.getLogger(L2GatewayListener.class);
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
@@ -67,7 +73,9 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
     @Inject
     public L2GatewayListener(final DataBroker dataBroker, final EntityOwnershipService entityOwnershipService,
                              final ItmRpcService itmRpcService, final IL2gwService l2gwService,
-                             final JobCoordinator jobCoordinator, final L2GatewayCache l2GatewayCache) {
+                             final JobCoordinator jobCoordinator, final L2GatewayCache l2GatewayCache,
+                             L2GatewayInstanceRecoveryHandler l2GatewayInstanceRecoveryHandler,
+                             ServiceRecoveryRegistry serviceRecoveryRegistry) {
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.entityOwnershipUtils = new EntityOwnershipUtils(entityOwnershipService);
@@ -75,12 +83,24 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
         this.l2gwService = l2gwService;
         this.jobCoordinator = jobCoordinator;
         this.l2GatewayCache = l2GatewayCache;
+        serviceRecoveryRegistry.addRecoverableListener(l2GatewayInstanceRecoveryHandler.buildServiceRegistryKey(),
+                this);
     }
 
     @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
+        registerListener();
+    }
+
+    public void registerListener() {
+        LOG.info("Registering L2Gateway Listener");
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
+    }
+
+    public void deregisterListener() {
+        LOG.info("Deregistering L2GatewayListener");
+        super.deregisterListener();
     }
 
     @Override
@@ -176,8 +196,8 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
                 @Override
                 public void onSuccess(Void success) {
                     LOG.debug("Successfully deleted vlan bindings for l2gw update {}", update);
-                        connections.forEach((l2GwConnection) ->
-                                l2gwService.addL2GatewayConnection(l2GwConnection, null, update));
+                    connections.forEach((l2GwConnection) ->
+                            l2gwService.addL2GatewayConnection(l2GwConnection, null, update));
                 }
 
                 @Override
@@ -201,6 +221,10 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
             l2gwService.provisionItmAndL2gwConnection(l2GwDevice, l2DeviceName, l2GwDevice.getHwvtepNodeId(),
                     l2GwDevice.getTunnelIp());
         }
+    }
+
+    protected static boolean isLastL2GatewayBeingDeleted(L2GatewayDevice l2GwDevice) {
+        return l2GwDevice.getL2GatewayIds().size() == 1;
     }
 
     @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",

@@ -56,7 +56,7 @@ public abstract class HwvtepNodeBaseListener<D extends Datastore>
     private static final int STARTUP_LOOP_TICK = 500;
     private static final int STARTUP_LOOP_MAX_RETRIES = 8;
 
-    private final ListenerRegistration<HwvtepNodeBaseListener> registration;
+    private ListenerRegistration<HwvtepNodeBaseListener> registration;
     private final DataBroker dataBroker;
     final ManagedNewTransactionRunner txRunner;
     private final HwvtepNodeHACache hwvtepNodeHACache;
@@ -90,11 +90,15 @@ public abstract class HwvtepNodeBaseListener<D extends Datastore>
         this.nodeModCounter = metricProvider.newMeter(
                 MetricDescriptor.builder().anchor(this).project("netvirt").module("l2gw").id("node").build(),
                 "datastore", "modification", "nodeid");
-        final DataTreeIdentifier<Node> treeId =
-            new DataTreeIdentifier<>(Datastore.toType(datastoreType), getWildcardPath());
+        registerListener(datastoreType, dataBroker);
+    }
+
+    protected void registerListener(Class<D> dsType, DataBroker broker) throws Exception {
+        final DataTreeIdentifier<Node> treeId = new DataTreeIdentifier<>(Datastore.toType(dsType),
+                getWildcardPath());
         TaskRetryLooper looper = new TaskRetryLooper(STARTUP_LOOP_TICK, STARTUP_LOOP_MAX_RETRIES);
         registration = looper.loopUntilNoException(() ->
-                dataBroker.registerDataTreeChangeListener(treeId, HwvtepNodeBaseListener.this));
+                broker.registerDataTreeChangeListener(treeId, HwvtepNodeBaseListener.this));
     }
 
     protected DataBroker getDataBroker() {
