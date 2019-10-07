@@ -21,8 +21,11 @@ import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListen
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
+import org.opendaylight.netvirt.elan.l2gw.recovery.impl.L2GatewayServiceRecoveryHandler;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
+import org.opendaylight.serviceutils.srm.RecoverableListener;
+import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.L2gatewayConnections;
@@ -33,7 +36,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class ElanInstanceListener extends AsyncClusteredDataTreeChangeListenerBase<ElanInstance, ElanInstanceListener> {
+public class ElanInstanceListener extends AsyncClusteredDataTreeChangeListenerBase<ElanInstance, ElanInstanceListener>
+        implements RecoverableListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanInstanceListener.class);
 
@@ -42,16 +46,30 @@ public class ElanInstanceListener extends AsyncClusteredDataTreeChangeListenerBa
     private final ElanClusterUtils elanClusterUtils;
 
     @Inject
-    public ElanInstanceListener(final DataBroker db, final ElanClusterUtils elanClusterUtils) {
+    public ElanInstanceListener(final DataBroker db, final ElanClusterUtils elanClusterUtils,
+                                final L2GatewayServiceRecoveryHandler l2GatewayServiceRecoveryHandler,
+                                final ServiceRecoveryRegistry serviceRecoveryRegistry) {
         super(ElanInstance.class, ElanInstanceListener.class);
         broker = db;
         this.txRunner = new ManagedNewTransactionRunnerImpl(db);
         this.elanClusterUtils = elanClusterUtils;
+        serviceRecoveryRegistry.addRecoverableListener(l2GatewayServiceRecoveryHandler.buildServiceRegistryKey(), this);
     }
 
     @PostConstruct
     public void init() {
+        registerListener();
+    }
+
+    @Override
+    public void registerListener() {
+        LOG.info("Registering ElanInstanceListener");
         registerListener(LogicalDatastoreType.CONFIGURATION, broker);
+    }
+
+    public void deregisterListener() {
+        LOG.info("Deregistering ElanInstanceListener");
+        super.deregisterListener();
     }
 
     @Override
