@@ -35,6 +35,7 @@ import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpClusteredListener;
+import org.opendaylight.netvirt.elan.l2gw.recovery.impl.L2GatewayServiceRecoveryHandler;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayUtils;
@@ -44,6 +45,8 @@ import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
+import org.opendaylight.serviceutils.srm.RecoverableListener;
+import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentation;
@@ -65,7 +68,7 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class HwvtepPhysicalSwitchListener
         extends HwvtepAbstractDataTreeChangeListener<PhysicalSwitchAugmentation, HwvtepPhysicalSwitchListener>
-        implements ClusteredDataTreeChangeListener<PhysicalSwitchAugmentation> {
+        implements ClusteredDataTreeChangeListener<PhysicalSwitchAugmentation>, RecoverableListener {
 
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepPhysicalSwitchListener.class);
@@ -114,11 +117,13 @@ public class HwvtepPhysicalSwitchListener
      * Instantiates a new hwvtep physical switch listener.
      */
     @Inject
-    public HwvtepPhysicalSwitchListener(final DataBroker dataBroker, ItmRpcService itmRpcService,
-            ElanClusterUtils elanClusterUtils, L2gwServiceProvider l2gwServiceProvider,
-            HAOpClusteredListener haListener, L2GatewayCache l2GatewayCache,
-            StaleVlanBindingsCleaner staleVlanBindingsCleaner,
-            HwvtepNodeHACache hwvtepNodeHACache) {
+    public HwvtepPhysicalSwitchListener(final L2GatewayServiceRecoveryHandler l2GatewayServiceRecoveryHandler,
+                                        final ServiceRecoveryRegistry serviceRecoveryRegistry,
+                                        final DataBroker dataBroker, ItmRpcService itmRpcService,
+                                        ElanClusterUtils elanClusterUtils, L2gwServiceProvider l2gwServiceProvider,
+                                        HAOpClusteredListener haListener, L2GatewayCache l2GatewayCache,
+                                        StaleVlanBindingsCleaner staleVlanBindingsCleaner,
+                                        HwvtepNodeHACache hwvtepNodeHACache) {
         super(PhysicalSwitchAugmentation.class, HwvtepPhysicalSwitchListener.class, hwvtepNodeHACache);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
@@ -148,12 +153,26 @@ public class HwvtepPhysicalSwitchListener
                     .getNodeId().getValue())
                     && Objects.equals(globalIid, hwvtepNodeHACache.getParent(existingIid));
         };
+
+        serviceRecoveryRegistry.addRecoverableListener(l2GatewayServiceRecoveryHandler.buildServiceRegistryKey(),
+                this);
     }
 
     @Override
     @PostConstruct
     public void init() {
+        registerListener();
+    }
+
+    @Override
+    public void registerListener() {
+        LOG.info("Registering HwvtepPhysicalSwitchListener");
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
+    }
+
+    public void deregisterListener() {
+        LOG.info("Deregistering HwvtepPhysicalSwitchListener");
+        super.deregisterListener();
     }
 
     @Override
