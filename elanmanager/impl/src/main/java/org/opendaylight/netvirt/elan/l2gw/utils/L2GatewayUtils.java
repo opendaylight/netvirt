@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.elan.l2gw.utils;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
+import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.DeleteL2GwDeviceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.DeleteL2GwDeviceOutput;
@@ -24,6 +25,10 @@ public final class L2GatewayUtils {
 
     private L2GatewayUtils() {
 
+    }
+
+    public static boolean isLastL2GatewayBeingDeleted(L2GatewayDevice l2GwDevice) {
+        return l2GwDevice.getL2GatewayIds().size() == 1;
     }
 
     public static void deleteItmTunnels(ItmRpcService itmRpcService, String hwvtepId, String psName,

@@ -57,7 +57,7 @@ public abstract class ChildListener<P extends DataObject, C extends DataObject, 
         registration = registerListener(LogicalDatastoreType.OPERATIONAL, getParentWildCardPath());
     }
 
-    private ListenerRegistration<?> registerListener(final LogicalDatastoreType dsType,
+    protected ListenerRegistration<?> registerListener(final LogicalDatastoreType dsType,
                                                  final InstanceIdentifier wildCard) throws Exception {
         DataTreeIdentifier<P> treeId = new DataTreeIdentifier<>(dsType, wildCard);
         TaskRetryLooper looper = new TaskRetryLooper(STARTUP_LOOP_TICK, STARTUP_LOOP_MAX_RETRIES);

@@ -38,10 +38,12 @@ import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpClusteredListener;
 import org.opendaylight.netvirt.elan.l2gw.jobs.AssociateHwvtepToElanJob;
 import org.opendaylight.netvirt.elan.l2gw.jobs.DisAssociateHwvtepFromElanJob;
 import org.opendaylight.netvirt.elan.l2gw.listeners.LocalUcastMacListener;
+import org.opendaylight.netvirt.elan.l2gw.recovery.impl.L2GatewayServiceRecoveryHandler;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
+import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
@@ -75,6 +77,8 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
     private final HwvtepNodeHACache hwvtepNodeHACache;
     private final HAOpClusteredListener haOpClusteredListener;
     private final ElanRefUtil elanRefUtil;
+    private final L2GatewayServiceRecoveryHandler l2GatewayServiceRecoveryHandler;
+    private final ServiceRecoveryRegistry serviceRecoveryRegistry;
 
     @Inject
     public L2GatewayConnectionUtils(DataBroker dataBroker, ElanClusterUtils elanClusterUtils,
@@ -82,7 +86,9 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
                                     ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
                                     L2GatewayCache l2GatewayCache, HAOpClusteredListener haOpClusteredListener,
                                     ElanInstanceCache elanInstanceCache, HwvtepNodeHACache hwvtepNodeHACache,
-                                    ElanRefUtil elanRefUtil) {
+                                    ElanRefUtil elanRefUtil,
+                                    L2GatewayServiceRecoveryHandler l2GatewayServiceRecoveryHandler,
+                                    ServiceRecoveryRegistry serviceRecoveryRegistry) {
         this.broker = dataBroker;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.elanClusterUtils = elanClusterUtils;
@@ -93,6 +99,8 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
         this.elanInstanceCache = elanInstanceCache;
         this.hwvtepNodeHACache = hwvtepNodeHACache;
         this.elanRefUtil = elanRefUtil;
+        this.l2GatewayServiceRecoveryHandler = l2GatewayServiceRecoveryHandler;
+        this.serviceRecoveryRegistry = serviceRecoveryRegistry;
     }
 
     @Override
@@ -371,7 +379,8 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
                         public void onSuccess(@NonNull Optional<Node> resultNode) {
                             LocalUcastMacListener localUcastMacListener =
                                     new LocalUcastMacListener(broker, haOpClusteredListener,
-                                            elanL2GatewayUtils, jobCoordinator, elanInstanceCache, hwvtepNodeHACache);
+                                            elanL2GatewayUtils, jobCoordinator, elanInstanceCache, hwvtepNodeHACache,
+                                            l2GatewayServiceRecoveryHandler, serviceRecoveryRegistry);
                             settableFuture.set(resultNode);
                             Optional<Node> nodeOptional = resultNode;
                             if (nodeOptional.isPresent()) {
