@@ -25,6 +25,7 @@ import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeLis
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
@@ -35,9 +36,12 @@ import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpClusteredListener;
+import org.opendaylight.netvirt.elan.l2gw.recovery.impl.L2GatewayServiceRecoveryHandler;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
+import org.opendaylight.serviceutils.srm.RecoverableListener;
+import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.IetfYangUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -51,7 +55,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, String>
-        implements ClusteredDataTreeChangeListener<Node> {
+        implements ClusteredDataTreeChangeListener<Node>, RecoverableListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(LocalUcastMacListener.class);
     public static final String NODE_CHECK = "physical";
@@ -72,7 +76,9 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
                                  final ElanL2GatewayUtils elanL2GatewayUtils,
                                  final JobCoordinator jobCoordinator,
                                  final ElanInstanceCache elanInstanceCache,
-                                 final HwvtepNodeHACache hwvtepNodeHACache) {
+                                 final HwvtepNodeHACache hwvtepNodeHACache,
+                                 final L2GatewayServiceRecoveryHandler l2GatewayServiceRecoveryHandler,
+                                 final ServiceRecoveryRegistry serviceRecoveryRegistry) {
         super(dataBroker, false);
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.elanL2GatewayUtils = elanL2GatewayUtils;
@@ -80,6 +86,7 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
         this.jobCoordinator = jobCoordinator;
         this.elanInstanceCache = elanInstanceCache;
         this.hwvtepNodeHACache = hwvtepNodeHACache;
+        serviceRecoveryRegistry.addRecoverableListener(l2GatewayServiceRecoveryHandler.buildServiceRegistryKey(), this);
     }
 
     @Override
@@ -87,6 +94,23 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
     public void init() throws Exception {
         ResourceBatchingManager.getInstance().registerDefaultBatchHandlers(this.dataBroker);
         super.init();
+        registerListener();
+    }
+
+    @Override
+    @SuppressWarnings("all")
+    public void registerListener() {
+        try {
+            LOG.info("Registering LocalUcastMacListener");
+            registerListener(LogicalDatastoreType.OPERATIONAL, getParentWildCardPath());
+        } catch (Exception e) {
+            LOG.error("Local Ucast Mac register listener error");
+        }
+    }
+
+    public void deregisterListener() {
+        LOG.info("Deregistering LocalUcastMacListener");
+        super.close();
     }
 
     @Override

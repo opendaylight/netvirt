@@ -22,6 +22,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
@@ -32,6 +33,9 @@ import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.handlers.HAEventHandler;
 import org.opendaylight.netvirt.elan.l2gw.ha.handlers.IHAEventHandler;
 import org.opendaylight.netvirt.elan.l2gw.ha.handlers.NodeCopier;
+import org.opendaylight.netvirt.elan.l2gw.recovery.impl.L2GatewayServiceRecoveryHandler;
+import org.opendaylight.serviceutils.srm.RecoverableListener;
+import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -39,7 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class HAOpNodeListener extends HwvtepNodeBaseListener<Operational> {
+public class HAOpNodeListener extends HwvtepNodeBaseListener<Operational> implements RecoverableListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(HAOpNodeListener.class);
 
@@ -57,11 +61,31 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener<Operational> {
     public HAOpNodeListener(DataBroker db, HAEventHandler haEventHandler,
                             HAOpClusteredListener haOpClusteredListener,
                             NodeCopier nodeCopier, HwvtepNodeHACache hwvtepNodeHACache,
-                            MetricProvider metricProvider) throws Exception {
+                            MetricProvider metricProvider,
+                            final L2GatewayServiceRecoveryHandler l2GatewayServiceRecoveryHandler,
+                            final ServiceRecoveryRegistry serviceRecoveryRegistry) throws Exception {
         super(OPERATIONAL, db, hwvtepNodeHACache, metricProvider, true);
         this.haEventHandler = haEventHandler;
         this.haOpClusteredListener = haOpClusteredListener;
         this.nodeCopier = nodeCopier;
+        serviceRecoveryRegistry.addRecoverableListener(l2GatewayServiceRecoveryHandler.buildServiceRegistryKey(),
+                this);
+    }
+
+    @Override
+    @SuppressWarnings("all")
+    public void registerListener() {
+        try {
+            LOG.info("Registering HAOpNodeListener");
+            registerListener(OPERATIONAL, getDataBroker());
+        } catch (Exception e) {
+            LOG.error("HA OP Node register listener error.");
+        }
+    }
+
+    public void deregisterListener() {
+        LOG.info("Deregistering HAOpNodeListener");
+        super.close();
     }
 
     String getNodeId(InstanceIdentifier<Node> iid) {

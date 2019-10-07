@@ -56,6 +56,7 @@ import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepPhysicalSwitchListener
 import org.opendaylight.netvirt.elan.l2gw.listeners.L2GatewayConnectionListener;
 import org.opendaylight.netvirt.elan.l2gw.listeners.LocalUcastMacListener;
 import org.opendaylight.netvirt.elan.l2gw.nodehandlertest.DataProvider;
+import org.opendaylight.netvirt.elan.l2gw.recovery.impl.L2GatewayInstanceRecoveryHandler;
 import org.opendaylight.netvirt.elan.l2gw.nodehandlertest.PhysicalSwitchHelper;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -66,6 +67,7 @@ import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
 import org.opendaylight.netvirt.neutronvpn.l2gw.L2GatewayListener;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Networks;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NetworksKey;
@@ -137,6 +139,8 @@ public class ElanServiceTest extends  ElanServiceTestBase {
     private @Inject ElanExtnTepConfigListener elanExtnTepConfigListener;
     private @Inject ElanExtnTepListener elanExtnTepListener;
     private @Inject CacheProvider cacheProvider;
+    private @Inject L2GatewayInstanceRecoveryHandler l2GatewayInstanceRecoveryHandler;
+    private @Inject ServiceRecoveryRegistry serviceRecoveryRegistry;
 
     private L2GatewayListener l2gwListener;
     private final MetricProvider metricProvider = new TestMetricProviderImpl();
@@ -174,7 +178,8 @@ public class ElanServiceTest extends  ElanServiceTestBase {
         JobCoordinator jobCoordinator = new JobCoordinatorImpl(metricProvider);
 
         l2gwListener = new L2GatewayListener(dataBroker, mockedEntityOwnershipService,
-                Mockito.mock(ItmRpcService.class), Mockito.mock(IL2gwService.class), jobCoordinator, l2GatewayCache);
+                Mockito.mock(ItmRpcService.class), Mockito.mock(IL2gwService.class), jobCoordinator, l2GatewayCache,
+                l2GatewayInstanceRecoveryHandler,serviceRecoveryRegistry);
         l2gwListener.init();
         setupItm();
         l2gwBuilders.buildTorNode(TOR2_NODE_ID, PS2, TOR2_TEPIP);
