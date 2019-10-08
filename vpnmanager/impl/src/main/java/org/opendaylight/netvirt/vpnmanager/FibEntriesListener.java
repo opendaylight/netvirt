@@ -29,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,11 +101,11 @@ public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry
     }
 
     private void addLabelToVpnInstance(String rd, List<RoutePaths> routePaths) {
-        List<Long> labels = routePaths.stream().map(RoutePaths::getLabel).distinct()
+        List<Uint32> labels = routePaths.stream().map(RoutePaths::getLabel).distinct()
                             .collect(Collectors.toList());
         VpnInstanceOpDataEntry vpnInstanceOpData = vpnInstanceListener.getVpnInstanceOpData(rd);
         if (vpnInstanceOpData != null) {
-            List<Long> routeIds = vpnInstanceOpData.getRouteEntryId() == null ? new ArrayList<>()
+            List<Uint32> routeIds = vpnInstanceOpData.getRouteEntryId() == null ? new ArrayList<>()
                     : vpnInstanceOpData.getRouteEntryId();
             labels.forEach(label -> {
                 LOG.debug("Adding label to vpn info - {}", label);
@@ -123,11 +124,11 @@ public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry
     }
 
     private void removeLabelFromVpnInstance(String rd, List<RoutePaths> routePaths) {
-        List<Long> labels = routePaths.stream().map(RoutePaths::getLabel).distinct()
+        List<Uint32> labels = routePaths.stream().map(RoutePaths::getLabel).distinct()
                 .collect(Collectors.toList());
         VpnInstanceOpDataEntry vpnInstanceOpData = vpnInstanceListener.getVpnInstanceOpData(rd);
         if (vpnInstanceOpData != null) {
-            List<Long> routeIds = vpnInstanceOpData.getRouteEntryId();
+            List<Uint32> routeIds = vpnInstanceOpData.getRouteEntryId();
             if (routeIds == null) {
                 LOG.debug("Fib Route entry is empty.");
             } else {

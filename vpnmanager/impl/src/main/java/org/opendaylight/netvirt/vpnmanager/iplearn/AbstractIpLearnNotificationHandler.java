@@ -54,7 +54,7 @@ public abstract class AbstractIpLearnNotificationHandler {
         this.vpnUtil = vpnUtil;
         this.neutronVpnManager = neutronVpnManager;
 
-        long duration = config.getIpLearnTimeout() * 10;
+        long duration = config.getIpLearnTimeout().toJava() * 10;
         long cacheSize = config.getMigrateIpCacheSize().longValue();
         migrateIpCache =
                 CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(duration,
@@ -148,7 +148,8 @@ public abstract class AbstractIpLearnNotificationHandler {
                 // within 300sec
                 // after reboot, it would be ignored.
                 if (vpnPortipToPort != null && vpnPortipToPort.isLearntIp()) {
-                    if (System.currentTimeMillis() < this.bootupTime + config.getBootDelayArpLearning() * 1000) {
+                    if (System.currentTimeMillis()
+                            < this.bootupTime + config.getBootDelayArpLearning().toJava() * 1000) {
                         LOG.trace("GARP/Arp Response not handled for IP {} vpnName {} for time {}s",
                                 vpnPortipToPort.getPortFixedip(), vpnName, config.getBootDelayArpLearning());
                         continue;
@@ -220,7 +221,7 @@ public abstract class AbstractIpLearnNotificationHandler {
                     ipToQuery, vpnName);
             return false;
         }
-        if (System.currentTimeMillis() > prevTimeStampCached.longValue() + config.getIpLearnTimeout()) {
+        if (System.currentTimeMillis() > prevTimeStampCached.longValue() + config.getIpLearnTimeout().toJava()) {
             LOG.debug("IP_MIGRATE_CACHE: older than timeout value - remove from dirty cache IP {} vpnName {}",
                     ipToQuery, vpnName);
             migrateIpCache.invalidate(keyPair);

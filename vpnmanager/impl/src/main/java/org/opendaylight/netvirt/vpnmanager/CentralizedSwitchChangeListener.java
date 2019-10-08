@@ -129,7 +129,7 @@ public class CentralizedSwitchChangeListener
             return;
         }
 
-        BigInteger primarySwitchId = routerToNaptSwitch.getPrimarySwitchId();
+        BigInteger primarySwitchId = routerToNaptSwitch.getPrimarySwitchId().toJava();
         Uuid extNetworkId = router.getNetworkId();
         String extGwMacAddress = router.getExtGwMacAddress();
         String routerName = router.getRouterName();

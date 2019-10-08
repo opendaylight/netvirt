@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.statemanager;
 
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -54,6 +55,8 @@ public class StateManager implements IStateManager {
         setReady(true);
     }
 
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private void initializeNetvirtTopology() {
         final TopologyId topologyId = new TopologyId("netvirt:1");
         InstanceIdentifier<Topology> path =

@@ -94,7 +94,7 @@ public final class NatEvpnUtil {
     static long getL3Vni(DataBroker broker, String rd) {
         VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpData(broker, rd);
         if (vpnInstanceOpDataEntry != null && vpnInstanceOpDataEntry.getL3vni() != null) {
-            return vpnInstanceOpDataEntry.getL3vni();
+            return vpnInstanceOpDataEntry.getL3vni().toJava();
         }
         return NatConstants.DEFAULT_L3VNI_VALUE;
     }

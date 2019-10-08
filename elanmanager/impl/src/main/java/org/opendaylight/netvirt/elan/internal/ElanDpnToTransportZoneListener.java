@@ -63,7 +63,7 @@ public class ElanDpnToTransportZoneListener
     @Override
     protected void remove(InstanceIdentifier<DpnInterfaces> key, DpnInterfaces dataObjectModification) {
         LOG.debug("Elan dpn {} delete detected, deleting transport zones", dataObjectModification.getDpId());
-        BigInteger dpId = dataObjectModification.getDpId();
+        BigInteger dpId = dataObjectModification.getDpId().toJava();
         String elanInstanceName = key.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
 
         if (!ElanUtils.isVxlanNetworkOrVxlanSegment(elanInstanceCache.get(elanInstanceName).orNull())) {
@@ -84,7 +84,7 @@ public class ElanDpnToTransportZoneListener
     protected void add(InstanceIdentifier<DpnInterfaces> key, DpnInterfaces dataObjectModification) {
         LOG.debug("Elan dpn {} add detected, updating transport zones", dataObjectModification.getDpId());
 
-        BigInteger dpId = dataObjectModification.getDpId();
+        BigInteger dpId = dataObjectModification.getDpId().toJava();
         String elanInstanceName = key.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
 
         if (!ElanUtils.isVxlanNetworkOrVxlanSegment(elanInstanceCache.get(elanInstanceName).orNull())) {

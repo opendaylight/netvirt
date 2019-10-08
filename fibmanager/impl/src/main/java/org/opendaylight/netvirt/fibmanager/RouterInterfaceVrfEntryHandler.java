@@ -84,7 +84,7 @@ public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler {
             } else {
                 vpnToDpnList = vpnInstance.getVpnToDpnList();
             }
-            final Long vpnId = vpnInstance.getVpnId();
+            final Long vpnId = vpnInstance.getVpnId().toJava();
 
             if (vpnToDpnList != null) {
                 String routerId = routerInterface.getUuid();
@@ -94,8 +94,8 @@ public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler {
                         routerId, ipValue, macAddress);
                 for (VpnToDpnList vpnDpn : vpnToDpnList) {
                     if (vpnDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
-                        installRouterFibEntry(vrfEntry, vpnDpn.getDpnId(), vpnId, ipValue, new MacAddress(macAddress),
-                                addOrRemove);
+                        installRouterFibEntry(vrfEntry, vpnDpn.getDpnId().toJava(), vpnId, ipValue,
+                                new MacAddress(macAddress), addOrRemove);
                     }
                 }
             }

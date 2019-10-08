@@ -423,7 +423,7 @@ public class Ipv6ForwardingService implements SnatServiceListener {
         try {
             Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
             RpcResult<AllocateIdOutput> rpcResult = result.get();
-            return rpcResult.getResult().getIdValue();
+            return rpcResult.getResult().getIdValue().toJava();
         } catch (NullPointerException | InterruptedException | ExecutionException e) {
             LOG.error("createGroupIdForIPv6Router: Exception while creating group with key : {}", groupIdKey, e);
         }
