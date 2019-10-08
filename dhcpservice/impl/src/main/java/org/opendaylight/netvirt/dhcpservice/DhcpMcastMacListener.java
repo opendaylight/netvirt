@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.dhcpservice;
 
 import com.google.common.util.concurrent.MoreExecutors;
-import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PreDestroy;
@@ -32,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,8 +76,8 @@ public class DhcpMcastMacListener
             LOG.error("Could not find tunnelIp for {}", identifier);
             return;
         }
-        List<BigInteger> dpns = DhcpServiceUtils.getListOfDpns(dataBroker);
-        BigInteger designatedDpnId = externalTunnelManager.designateDpnId(tunnelIp, elanInstanceName, dpns);
+        List<Uint64> dpns = DhcpServiceUtils.getListOfDpns(dataBroker);
+        Uint64 designatedDpnId = externalTunnelManager.designateDpnId(tunnelIp, elanInstanceName, dpns);
         if (designatedDpnId == null || designatedDpnId.equals(DhcpMConstants.INVALID_DPID)) {
             LOG.error("Unable to designate a DPN for {}", identifier);
         }
@@ -92,7 +92,7 @@ public class DhcpMcastMacListener
             LOG.error("Could not find tunnelIp for {}", identifier);
             return;
         }
-        BigInteger designatedDpnId = externalTunnelManager.readDesignatedSwitchesForExternalTunnel(
+        Uint64 designatedDpnId = externalTunnelManager.readDesignatedSwitchesForExternalTunnel(
                 tunnelIp, elanInstanceName);
         if (designatedDpnId == null) {
             LOG.error("Could not find designated DPN ID elanInstanceName {}, tunnelIp {}", elanInstanceName, tunnelIp);

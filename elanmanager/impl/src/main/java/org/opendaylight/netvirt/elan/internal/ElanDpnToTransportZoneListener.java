@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
-import java.math.BigInteger;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -22,6 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +63,7 @@ public class ElanDpnToTransportZoneListener
     @Override
     protected void remove(InstanceIdentifier<DpnInterfaces> key, DpnInterfaces dataObjectModification) {
         LOG.debug("Elan dpn {} delete detected, deleting transport zones", dataObjectModification.getDpId());
-        BigInteger dpId = dataObjectModification.getDpId();
+        Uint64 dpId = dataObjectModification.getDpId();
         String elanInstanceName = key.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
 
         if (!ElanUtils.isVxlanNetworkOrVxlanSegment(elanInstanceCache.get(elanInstanceName).orNull())) {
@@ -84,7 +84,7 @@ public class ElanDpnToTransportZoneListener
     protected void add(InstanceIdentifier<DpnInterfaces> key, DpnInterfaces dataObjectModification) {
         LOG.debug("Elan dpn {} add detected, updating transport zones", dataObjectModification.getDpId());
 
-        BigInteger dpId = dataObjectModification.getDpId();
+        Uint64 dpId = dataObjectModification.getDpId();
         String elanInstanceName = key.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
 
         if (!ElanUtils.isVxlanNetworkOrVxlanSegment(elanInstanceCache.get(elanInstanceName).orNull())) {

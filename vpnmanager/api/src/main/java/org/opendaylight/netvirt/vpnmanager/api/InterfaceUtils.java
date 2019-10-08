@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.vpnmanager.api;
 
 import com.google.common.base.Optional;
-import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -45,6 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeCon
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,8 +56,8 @@ public final class InterfaceUtils {
 
     }
 
-    public static BigInteger getDpnForInterface(OdlInterfaceRpcService interfaceManagerRpcService, String ifName) {
-        BigInteger nodeId = BigInteger.ZERO;
+    public static Uint64 getDpnForInterface(OdlInterfaceRpcService interfaceManagerRpcService, String ifName) {
+        Uint64 nodeId = Uint64.ZERO;
         try {
             GetDpidFromInterfaceInput
                 dpIdInput =
@@ -77,7 +77,7 @@ public final class InterfaceUtils {
         return nodeId;
     }
 
-    public static String getEndpointIpAddressForDPN(DataBroker broker, BigInteger dpnId) {
+    public static String getEndpointIpAddressForDPN(DataBroker broker, Uint64 dpnId) {
         String nextHopIp = null;
         InstanceIdentifier<DPNTEPsInfo> tunnelInfoId =
                 InstanceIdentifier.builder(DpnEndpoints.class).child(DPNTEPsInfo.class,
@@ -99,7 +99,7 @@ public final class InterfaceUtils {
     }
 
     public static BoundServices getBoundServices(String serviceName, short servicePriority, int flowPriority,
-        BigInteger cookie, List<Instruction> instructions) {
+        Uint64 cookie, List<Instruction> instructions) {
         StypeOpenflowBuilder augBuilder =
             new StypeOpenflowBuilder().setFlowCookie(cookie).setFlowPriority(flowPriority).setInstruction(instructions);
         return new BoundServicesBuilder().withKey(new BoundServicesKey(servicePriority))
@@ -197,12 +197,12 @@ public final class InterfaceUtils {
         return split[1];
     }
 
-    public static BigInteger getDpIdFromInterface(
+    public static Uint64 getDpIdFromInterface(
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface
             ifState) {
         String lowerLayerIf = ifState.getLowerLayerIf().get(0);
         NodeConnectorId nodeConnectorId = new NodeConnectorId(lowerLayerIf);
-        return new BigInteger(getDpnFromNodeConnectorId(nodeConnectorId));
+        return Uint64.valueOf(getDpnFromNodeConnectorId(nodeConnectorId)).intern();
     }
 
     private static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,

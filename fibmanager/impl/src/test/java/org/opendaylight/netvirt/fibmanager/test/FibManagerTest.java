@@ -28,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FibManagerTest {
@@ -53,7 +54,7 @@ public class FibManagerTest {
     private static final String TEST_RD = "100:1";
     private static final String PREFIX = "1.1.2.3";
     private static final String NEXTHOP = "1.1.1.1";
-    private static final int LABEL = 10;
+    private static final Uint32 LABEL = Uint32.valueOf(10);
     RouteOrigin origin = RouteOrigin.STATIC;
     BigInteger dpn;
     private static final long VPN_ID = 101L;

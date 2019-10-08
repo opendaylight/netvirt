@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.natservice.ha;
 
-import java.math.BigInteger;
 import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
@@ -23,6 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +48,7 @@ public class SnatNodeEventListener  extends AbstractClusteredAsyncDataTreeChange
     @Override
     public void remove(Node dataObjectModification) {
         NodeKey nodeKey = dataObjectModification.key();
-        BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
+        Uint64 dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
         LOG.info("Dpn removed {}", dpnId);
         centralizedSwitchCache.removeSwitch(dpnId);
     }
@@ -62,7 +62,7 @@ public class SnatNodeEventListener  extends AbstractClusteredAsyncDataTreeChange
     @Override
     public void add(Node dataObjectModification) {
         NodeKey nodeKey = dataObjectModification.key();
-        BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
+        Uint64 dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
         LOG.info("Dpn added {}", dpnId);
         centralizedSwitchCache.addSwitch(dpnId);
     }

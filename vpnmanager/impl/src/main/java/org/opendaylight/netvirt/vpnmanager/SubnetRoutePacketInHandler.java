@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
 import com.google.common.primitives.Ints;
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
@@ -63,6 +62,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Pa
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,7 +100,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     @Override
     public void onPacketReceived(PacketReceived notification) {
 
-        short tableId = notification.getTableId().getValue();
+        short tableId = notification.getTableId().getValue().toJava();
         LOG.trace("{} onPacketReceived: Packet punted from table {}", LOGGING_PREFIX, tableId);
         if (!vpnUtil.isArpLearningEnabled()) {
             LOG.trace("Not handling packet as ARP Based Learning is disabled");
@@ -111,7 +112,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                     LOGGING_PREFIX, tableId);
             return;
         }
-        BigInteger metadata = notification.getMatch().getMetadata().getMetadata();
+        Uint64 metadata = notification.getMatch().getMetadata().getMetadata();
         Ethernet res = new Ethernet();
 
         if (tableId == NwConstants.L3_SUBNET_ROUTE_TABLE) {
@@ -185,9 +186,9 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     }
 
     private void handleIpPackets(byte[] srcIp, byte[] dstIp, String srcIpStr, String dstIpStr, String srcMac,
-            BigInteger metadata)
+            Uint64 metadata)
             throws UnknownHostException, InterruptedException, ExecutionException, ReadFailedException {
-        long vpnId = MetaDataUtil.getVpnIdFromMetadata(metadata);
+        Uint32 vpnId = Uint32.valueOf(MetaDataUtil.getVpnIdFromMetadata(metadata));
 
         LOG.info("{} onPacketReceived: Processing IP Packet received with Source IP {} and Target IP {}"
                 + " and vpnId {}", LOGGING_PREFIX, srcIpStr, dstIpStr, vpnId);
@@ -257,7 +258,8 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                 getTargetSubnetForPacketOut(elanTag, dstIpStr);
         if (targetSubnetForPacketOut != null) {
             // Handle subnet routes ip requests
-            transmitArpOrNsPacket(targetSubnetForPacketOut.getNhDpnId(), srcIpStr, srcMac, dstIp, dstIpStr, elanTag);
+            transmitArpOrNsPacket(targetSubnetForPacketOut.getNhDpnId(),
+                                        srcIpStr, srcMac, dstIp, dstIpStr, elanTag);
         } else {
             Counter counter = packetInCounter.label(CounterUtility.subnet_route_packet_failed.toString())
                     .label(srcIpStr + "." + dstIpStr);
@@ -267,7 +269,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         }
     }
 
-    private void handleInternalVpnSubnetRoutePacket(BigInteger metadata, byte[] dstIp, String srcIpStr, String dstIpStr,
+    private void handleInternalVpnSubnetRoutePacket(Uint64 metadata, byte[] dstIp, String srcIpStr, String dstIpStr,
             String vpnIdVpnInstanceName, long elanTag)
             throws InterruptedException, ExecutionException, UnknownHostException {
         String vmVpnInterfaceName = vpnUtil.getVpnInterfaceName(metadata);
@@ -301,7 +303,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         }
     }
 
-    private void transmitArpOrNsPacket(BigInteger dpnId, String sourceIpAddress, String sourceMac, byte[] dstIpBytes,
+    private void transmitArpOrNsPacket(Uint64 dpnId, String sourceIpAddress, String sourceMac, byte[] dstIpBytes,
             String dstIpAddress, long elanTag) throws UnknownHostException {
         long groupid = VpnUtil.getRemoteBCGroup(elanTag);
         if (NWUtil.isIpv4Address(dstIpAddress)) {
@@ -372,7 +374,8 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                 return;
             }
 
-            transmitArpOrNsPacket(targetSubnetForPacketOut.getNhDpnId(), sourceIp, sourceMac, dstIp, dstIpStr, elanTag);
+            transmitArpOrNsPacket(targetSubnetForPacketOut.getNhDpnId(),
+                                        sourceIp, sourceMac, dstIp, dstIpStr, elanTag);
         } catch (ReadFailedException e) {
             LOG.error("handlePacketToInternalNetwork: Failed to read data store for destIp {} elanTag {}", dstIpStr,
                     elanTag);
@@ -422,8 +425,8 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             return;
         }
 
-        BigInteger dpnId = centralizedSwitchProvider.getPrimarySwitchForRouter(externalRouter.getRouterName());
-        if (BigInteger.ZERO.equals(dpnId)) {
+        Uint64 dpnId = centralizedSwitchProvider.getPrimarySwitchForRouter(externalRouter.getRouterName());
+        if (Uint64.ZERO.equals(dpnId)) {
             Counter counter = packetInCounter.label(CounterUtility.subnet_route_packet_failed.toString())
                     .label(externalIp.get().getIpAddress() + "." + dstIpStr);
             counter.increment();

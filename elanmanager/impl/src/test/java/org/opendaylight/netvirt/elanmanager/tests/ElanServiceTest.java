@@ -216,7 +216,8 @@ public class ElanServiceTest extends  ElanServiceTestBase {
         awaitForData(LogicalDatastoreType.CONFIGURATION, l2gwBuilders.buildConnectionIid(connectionName));
     }
 
-    @Test public void checkSMAC() throws Exception {
+    @Test
+    public void checkSMAC() throws Exception {
         // Create Elan instance
         createElanInstance(ExpectedObjects.ELAN1, ExpectedObjects.ELAN1_SEGMENT_ID);
         awaitForElanTag(ExpectedObjects.ELAN1);

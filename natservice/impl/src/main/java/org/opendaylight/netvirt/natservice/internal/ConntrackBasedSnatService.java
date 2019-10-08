@@ -53,6 +53,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.types.rev160517.IpPrefixOrAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.action.rev140421.NxActionNatFlags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.action.rev140421.NxActionNatRangePresent;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,11 +80,11 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
 
     @Override
     protected void addSnatSpecificEntriesForNaptSwitch(TypedReadWriteTransaction<Configuration> confTx,
-        Routers routers, BigInteger dpnId) {
+        Routers routers, Uint64 dpnId) {
         LOG.info("installSnatSpecificEntriesForNaptSwitch: called for router {}",
             routers.getRouterName());
         String routerName = routers.getRouterName();
-        Long routerId = NatUtil.getVpnId(confTx, routerName);
+        Uint32 routerId = NatUtil.getVpnId(confTx, routerName);
         int elanId = NatUtil.getElanInstanceByName(confTx, routers.getNetworkId().getValue())
             .getElanTag().intValue();
         if (routerId == NatConstants.INVALID_ID) {
@@ -101,7 +103,7 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
                 continue;
             }
             //The logic now handle only one external IP per router, others if present will be ignored.
-            long extSubnetId = NatUtil.getExternalSubnetVpnId(confTx, externalIp.getSubnetId());
+            Uint32 extSubnetId = NatUtil.getExternalSubnetVpnId(confTx, externalIp.getSubnetId());
             addOutboundTblEntry(confTx, dpnId, routerId, externalIp.getIpAddress(), elanId, extGwMacAddress);
             addNaptPfibFlow(confTx, routers, dpnId, routerId, extSubnetId);
 
@@ -114,9 +116,9 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
             if (externalSubnet.isPresent()) {
                 String externalVpn =  externalIp.getSubnetId().getValue();
                 String vpnRd = NatUtil.getVpnRd(confTx, externalVpn);
-                vpnFootprintService.updateVpnToDpnMapping(dpnId, externalVpn, vpnRd, null /* interfaceName*/,
-                    new ImmutablePair<>(IpAddresses.IpAddressSource.ExternalFixedIP, fibExternalIp),
-                    true);
+                vpnFootprintService.updateVpnToDpnMapping(dpnId, externalVpn, vpnRd,
+                        null /* interfaceName*/, new ImmutablePair<>(IpAddresses
+                                .IpAddressSource.ExternalFixedIP, fibExternalIp), true);
             }
             break;
         }
@@ -124,11 +126,11 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
 
     @Override
     protected void removeSnatSpecificEntriesForNaptSwitch(TypedReadWriteTransaction<Configuration> confTx,
-            Routers routers, BigInteger dpnId) throws ExecutionException, InterruptedException {
+            Routers routers, Uint64 dpnId) throws ExecutionException, InterruptedException {
         LOG.info("installSnatSpecificEntriesForNaptSwitch: called for router {}",
             routers.getRouterName());
         String routerName = routers.getRouterName();
-        Long routerId = NatUtil.getVpnId(confTx, routerName);
+        Uint32 routerId = NatUtil.getVpnId(confTx, routerName);
         if (routerId == NatConstants.INVALID_ID) {
             LOG.error("InvalidRouterId: unable to installSnatSpecificEntriesForNaptSwitch on dpn {}", dpnId);
             return;
@@ -174,12 +176,13 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
         // Nothing to to do here
     }
 
-    protected void addSnatMissEntryForPrimrySwch(TypedWriteTransaction<Configuration> confTx, BigInteger dpnId,
-        Long routerId, int elanId) {
+    protected void addSnatMissEntryForPrimrySwch(TypedWriteTransaction<Configuration> confTx, Uint64 dpnId,
+                                                 Uint32 routerId, int elanId) {
         LOG.info("installSnatSpecificEntriesForNaptSwitch : called for the primary NAPT switch dpnId {}", dpnId);
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
-        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID));
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId.longValue()),
+                MetaDataUtil.METADATA_MASK_VRFID));
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<NxCtAction> ctActionsList = new ArrayList<>();
@@ -197,21 +200,22 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
                 instructions);
     }
 
-    protected void removeSnatMissEntryForPrimrySwch(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
-            Long routerId) throws ExecutionException, InterruptedException {
+    protected void removeSnatMissEntryForPrimrySwch(TypedReadWriteTransaction<Configuration> confTx, Uint64 dpnId,
+                                                    Uint32 routerId) throws ExecutionException, InterruptedException {
         LOG.info("installSnatSpecificEntriesForNaptSwitch : called for the primary NAPT switch dpnId {}", dpnId);
 
         String flowRef = getFlowRef(dpnId, NwConstants.PSNAT_TABLE, routerId);
         NatUtil.removeFlow(confTx, mdsalManager, dpnId, NwConstants.PSNAT_TABLE, flowRef);
     }
 
-    protected void addOutboundTblTrackEntry(TypedWriteTransaction<Configuration> confTx, BigInteger dpnId,
-        Long routerId, String extGwMacAddress) {
+    protected void addOutboundTblTrackEntry(TypedWriteTransaction<Configuration> confTx, Uint64 dpnId,
+                                            Uint32 routerId, String extGwMacAddress) {
         LOG.info("createOutboundTblTrackEntry : called for switch {}, routerId {}", dpnId, routerId);
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
         matches.add(new NxMatchCtState(SNAT_CT_STATE, SNAT_CT_STATE_MASK));
-        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID));
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId.longValue()),
+                MetaDataUtil.METADATA_MASK_VRFID));
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
         listActionInfo.add(new ActionSetFieldEthernetSource(new MacAddress(extGwMacAddress)));
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();
@@ -224,21 +228,22 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
                 instructionInfo);
     }
 
-    protected void removeOutboundTblTrackEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
-            Long routerId) throws ExecutionException, InterruptedException {
+    protected void removeOutboundTblTrackEntry(TypedReadWriteTransaction<Configuration> confTx, Uint64 dpnId,
+                                               Uint32 routerId) throws ExecutionException, InterruptedException {
         LOG.info("createOutboundTblTrackEntry : called for switch {}, routerId {}", dpnId, routerId);
 
         String flowRef = getFlowRef(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId) + "trkest";
         NatUtil.removeFlow(confTx, mdsalManager, dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef);
     }
 
-    protected void addOutboundTblEntry(TypedWriteTransaction<Configuration> confTx, BigInteger dpnId, long routerId,
+    protected void addOutboundTblEntry(TypedWriteTransaction<Configuration> confTx, Uint64 dpnId, Uint32 routerId,
         String externalIp, int elanId, String extGwMacAddress) {
         LOG.info("createOutboundTblEntry : dpId {} and routerId {}", dpnId, routerId);
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
         matches.add(new NxMatchCtState(TRACKED_NEW_CT_STATE, TRACKED_NEW_CT_MASK));
-        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID));
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId.longValue()),
+                MetaDataUtil.METADATA_MASK_VRFID));
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionSetFieldEthernetSource(new MacAddress(extGwMacAddress)));
         List<NxCtAction> ctActionsListCommit = new ArrayList<>();
@@ -258,30 +263,31 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
                 NatConstants.SNAT_NEW_FLOW_PRIORITY, flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
     }
 
-    protected void removeOutboundTblEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
-            long routerId) throws ExecutionException, InterruptedException {
+    protected void removeOutboundTblEntry(TypedReadWriteTransaction<Configuration> confTx, Uint64 dpnId,
+                                          Uint32 routerId) throws ExecutionException, InterruptedException {
         LOG.info("createOutboundTblEntry : dpId {} and routerId {}", dpnId, routerId);
         String flowRef = getFlowRef(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId);
         NatUtil.removeFlow(confTx, mdsalManager, dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef);
     }
 
-    protected void addNaptPfibFlow(TypedReadWriteTransaction<Configuration> confTx, Routers routers, BigInteger dpnId,
-        long routerId, long extSubnetId) {
-        Long extNetId = NatUtil.getVpnId(confTx, routers.getNetworkId().getValue());
+    protected void addNaptPfibFlow(TypedReadWriteTransaction<Configuration> confTx, Routers routers, Uint64 dpnId,
+                                   Uint32 routerId, Uint32 extSubnetId) {
+        Uint32 extNetId = NatUtil.getVpnId(confTx, routers.getNetworkId().getValue());
         LOG.info("installNaptPfibFlow : dpId {}, extNetId {}", dpnId, extNetId);
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
         matches.add(new NxMatchCtState(SNAT_CT_STATE, SNAT_CT_STATE_MASK));
-        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID));
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId.longValue()),
+                MetaDataUtil.METADATA_MASK_VRFID));
         List<ActionInfo> listActionInfo = new ArrayList<>();
         if (extSubnetId == NatConstants.INVALID_ID) {
             LOG.error("installNaptPfibFlow : external subnet id is invalid.");
             return;
         }
         ActionNxLoadMetadata actionLoadMeta = new ActionNxLoadMetadata(MetaDataUtil
-            .getVpnIdMetadata(extSubnetId), LOAD_START, LOAD_END);
+            .getVpnIdMetadata(extSubnetId.longValue()), LOAD_START, LOAD_END);
         listActionInfo.add(actionLoadMeta);
-        listActionInfo.add(new ActionNxLoadInPort(BigInteger.ZERO));
+        listActionInfo.add(new ActionNxLoadInPort(Uint64.valueOf(BigInteger.ZERO)));
         listActionInfo.add(new ActionNxCtClear());
         listActionInfo.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
         ArrayList<InstructionInfo> instructions = new ArrayList<>();
@@ -293,15 +299,15 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
     }
 
     protected void removeNaptPfibFlow(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
-            BigInteger dpnId, long routerId) throws ExecutionException, InterruptedException {
-        Long extNetId = NatUtil.getVpnId(confTx, routers.getNetworkId().getValue());
+            Uint64 dpnId, Uint32 routerId) throws ExecutionException, InterruptedException {
+        Uint32 extNetId = NatUtil.getVpnId(confTx, routers.getNetworkId().getValue());
         LOG.info("installNaptPfibFlow : dpId {}, extNetId {}", dpnId, extNetId);
         String flowRef = getFlowRef(dpnId, NwConstants.NAPT_PFIB_TABLE, routerId) + "OUTBOUND";
         NatUtil.removeFlow(confTx, mdsalManager, dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef);
     }
 
-    protected void addInboundEntry(TypedWriteTransaction<Configuration> confTx, BigInteger dpnId, long routerId,
-        String externalIp, int elanId, long extSubnetId) {
+    protected void addInboundEntry(TypedWriteTransaction<Configuration> confTx, Uint64 dpnId, Uint32 routerId,
+        String externalIp, int elanId, Uint32 extSubnetId) {
         LOG.info("installInboundEntry : dpId {} and routerId {}", dpnId, routerId);
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
@@ -310,13 +316,13 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
             LOG.error("installInboundEntry : external subnet id is invalid.");
             return;
         }
-        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(extSubnetId),
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(extSubnetId.longValue()),
             MetaDataUtil.METADATA_MASK_VRFID));
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<NxCtAction> ctActionsList = new ArrayList<>();
         NxCtAction nxCtAction = new ActionNxConntrack.NxNat(0, 0, 0,null, null,0, 0);
         ActionNxLoadMetadata actionLoadMeta = new ActionNxLoadMetadata(MetaDataUtil
-            .getVpnIdMetadata(routerId), LOAD_START, LOAD_END);
+            .getVpnIdMetadata(routerId.longValue()), LOAD_START, LOAD_END);
         actionsInfos.add(actionLoadMeta);
         ctActionsList.add(nxCtAction);
         ActionNxConntrack actionNxConntrack = new ActionNxConntrack(0, 0, elanId, NwConstants
@@ -331,24 +337,25 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
                 NatConstants.DEFAULT_TS_FLOW_PRIORITY, flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
     }
 
-    protected void removeInboundEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
-            long routerId) throws ExecutionException, InterruptedException {
+    protected void removeInboundEntry(TypedReadWriteTransaction<Configuration> confTx, Uint64 dpnId,
+                                      Uint32 routerId) throws ExecutionException, InterruptedException {
         LOG.info("installInboundEntry : dpId {} and routerId {}", dpnId, routerId);
 
         String flowRef = getFlowRef(dpnId, NwConstants.INBOUND_NAPT_TABLE, routerId) + "OUTBOUND";
         NatUtil.removeFlow(confTx, mdsalManager, dpnId, NwConstants.INBOUND_NAPT_TABLE, flowRef);
     }
 
-    protected void addNaptPfibEntry(TypedWriteTransaction<Configuration> confTx, BigInteger dpnId, long routerId) {
+    protected void addNaptPfibEntry(TypedWriteTransaction<Configuration> confTx, Uint64 dpnId, Uint32 routerId) {
         LOG.info("installNaptPfibEntry : called for dpnId {} and routerId {} ", dpnId, routerId);
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
         matches.add(new NxMatchCtState(DNAT_CT_STATE, DNAT_CT_STATE_MASK));
-        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID));
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId.longValue()),
+                MetaDataUtil.METADATA_MASK_VRFID));
 
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();
-        listActionInfo.add(new ActionNxLoadInPort(BigInteger.ZERO));
+        listActionInfo.add(new ActionNxLoadInPort(Uint64.valueOf(BigInteger.ZERO)));
         listActionInfo.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
         instructionInfo.add(new InstructionApplyActions(listActionInfo));
 
@@ -358,8 +365,8 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
                 instructionInfo);
     }
 
-    protected void removeNaptPfibEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
-            long routerId) throws ExecutionException, InterruptedException {
+    protected void removeNaptPfibEntry(TypedReadWriteTransaction<Configuration> confTx, Uint64 dpnId,
+                                       Uint32 routerId) throws ExecutionException, InterruptedException {
         LOG.info("installNaptPfibEntry : called for dpnId {} and routerId {} ", dpnId, routerId);
         String flowRef = getFlowRef(dpnId, NwConstants.NAPT_PFIB_TABLE, routerId) + "INBOUND";
         NatUtil.removeFlow(confTx, mdsalManager, dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef);

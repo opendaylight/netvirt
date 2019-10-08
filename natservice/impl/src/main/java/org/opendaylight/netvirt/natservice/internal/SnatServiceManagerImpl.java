@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
-import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
@@ -18,6 +17,7 @@ import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.netvirt.natservice.api.SnatServiceListener;
 import org.opendaylight.netvirt.natservice.api.SnatServiceManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +47,7 @@ public class SnatServiceManagerImpl implements SnatServiceManager {
 
     @Override
     public void notify(TypedReadWriteTransaction<Datastore.Configuration> confTx,
-            Routers router,  Routers oldRouter, BigInteger primarySwitchId, BigInteger dpnId, Action action)
+                       Routers router, Routers oldRouter, Uint64 primarySwitchId, Uint64 dpnId, Action action)
             throws ExecutionException, InterruptedException {
         for (SnatServiceListener snatServiceListener : snatServiceListeners) {
             boolean result = false;

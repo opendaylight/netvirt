@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.elan.evpn.utils;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -42,6 +41,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Evp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.rd.to.networks.EvpnRdToNetwork;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.rd.to.networks.EvpnRdToNetworkKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +76,7 @@ public class EvpnMacVrfUtils {
     }
 
     @Nullable
-    private Long getElanTagByMacvrfiid(InstanceIdentifier<MacVrfEntry> macVrfEntryIid) {
+    private Uint32 getElanTagByMacvrfiid(InstanceIdentifier<MacVrfEntry> macVrfEntryIid) {
         String elanName = getElanNameByMacvrfiid(macVrfEntryIid);
         if (elanName == null) {
             LOG.error("getElanTag: elanName is NULL for iid = {}", macVrfEntryIid);
@@ -85,9 +86,9 @@ public class EvpnMacVrfUtils {
             return null;
         }
 
-        Long elanTag = elanInstance.getElanTag();
-        if (elanTag == null || elanTag == 0L) {
-            elanTag = ElanUtils.retrieveNewElanTag(idManager, elanName);
+        Uint32 elanTag = elanInstance.getElanTag();
+        if (elanTag == null || elanTag.longValue() == 0L) {
+            elanTag = Uint32.valueOf(ElanUtils.retrieveNewElanTag(idManager, elanName).longValue());
         }
         return elanTag;
     }
@@ -168,25 +169,24 @@ public class EvpnMacVrfUtils {
             //TODO(Riyaz) : Check if accessing first nexthop address is right solution
             String nexthopIP = macVrfEntry.getRoutePaths().get(0).getNexthopAddress();
             IpAddress ipAddress = new IpAddress(new Ipv4Address(nexthopIP));
-            Long elanTag = getElanTagByMacvrfiid(instanceIdentifier);
+            Uint32 elanTag = getElanTagByMacvrfiid(instanceIdentifier);
             if (elanTag == null) {
                 return;
             }
 
             String dstMacAddress = macVrfEntry.getMac();
-            long vni = macVrfEntry.getL2vni();
+            long vni = macVrfEntry.getL2vni().toJava();
             jobCoordinator.enqueueJob(dstMacAddress, () -> Collections.singletonList(
                 txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
                     tx -> dpnInterfaceLists.forEach(dpnInterfaces -> {
-                        BigInteger dpId = dpnInterfaces.getDpId();
+                        Uint64 dpId = dpnInterfaces.getDpId();
                         LOG.info("ADD: Build DMAC flow with dpId {}, nexthopIP {}, elanTag {},"
                                 + "vni {}, dstMacAddress {}, elanName {} ",
                             dpId, nexthopIP, elanTag, vni, dstMacAddress, elanName);
                         ElanEvpnFlowUtils.EvpnDmacFlowBuilder dmacFlowBuilder =
                             new ElanEvpnFlowUtils.EvpnDmacFlowBuilder();
-                        dmacFlowBuilder.setDpId(dpId).setNexthopIP(ipAddress.toString()).setElanTag(elanTag).setVni(
-                            vni)
-                            .setDstMacAddress(dstMacAddress).setElanName(elanName);
+                        dmacFlowBuilder.setDpId(dpId).setNexthopIP(ipAddress.toString()).setElanTag(elanTag.longValue())
+                            .setVni(vni).setDstMacAddress(dstMacAddress).setElanName(elanName);
                         Flow flow =
                             elanEvpnFlowUtils.evpnBuildDmacFlowForExternalRemoteMac(dmacFlowBuilder.build());
 
@@ -207,7 +207,7 @@ public class EvpnMacVrfUtils {
         //TODO(Riyaz) : Check if accessing first nexthop address is right
         String nexthopIP = macVrfEntry.getRoutePaths().get(0).getNexthopAddress();
         IpAddress ipAddress = new IpAddress(new Ipv4Address(nexthopIP));
-        Long elanTag = getElanTagByMacvrfiid(instanceIdentifier);
+        Uint32 elanTag = getElanTagByMacvrfiid(instanceIdentifier);
         if (elanTag == null) {
             return;
         }
@@ -216,9 +216,9 @@ public class EvpnMacVrfUtils {
         jobCoordinator.enqueueJob(macToRemove, () -> {
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             dpnInterfaceLists.forEach(dpnInterfaces -> {
-                BigInteger dpId = dpnInterfaces.getDpId();
+                Uint64 dpId = dpnInterfaces.getDpId();
                 ElanEvpnFlowUtils.EvpnDmacFlowBuilder dmacFlowBuilder = new ElanEvpnFlowUtils.EvpnDmacFlowBuilder();
-                dmacFlowBuilder.setDpId(dpId).setNexthopIP(ipAddress.toString()).setElanTag(elanTag)
+                dmacFlowBuilder.setDpId(dpId).setNexthopIP(ipAddress.toString()).setElanTag(elanTag.longValue())
                         .setDstMacAddress(macToRemove);
                 LOG.info("REMOVE: Deleting DMAC Flows for external MAC. elanTag {}, dpId {},"
                         + "nexthopIP {}, macToRemove {}", elanTag, dpId, nexthopIP, macToRemove);
@@ -246,20 +246,20 @@ public class EvpnMacVrfUtils {
                 return;
             }
             IpAddress ipAddress = new IpAddress(new Ipv4Address(nexthopIP));
-            Long elanTag = elanInstance.getElanTag();
+            Uint32 elanTag = elanInstance.getElanTag();
             String dstMacAddress = macVrfEntry.getMac();
-            long vni = macVrfEntry.getL2vni();
+            long vni = macVrfEntry.getL2vni().toJava();
             jobCoordinator.enqueueJob(dstMacAddress, () -> Collections.singletonList(
                 txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
                     tx -> dpnInterfaceLists.forEach(dpnInterfaces -> {
-                        BigInteger dpId = dpnInterfaces.getDpId();
+                        Uint64 dpId = dpnInterfaces.getDpId();
                         LOG.info("ADD: Build DMAC flow with dpId {}, nexthopIP {}, elanTag {},"
                                 + "vni {}, dstMacAddress {}, elanName {} ",
                             dpId, nexthopIP, elanTag, vni, dstMacAddress, elanName);
                         ElanEvpnFlowUtils.EvpnDmacFlowBuilder dmacFlowBuilder =
                             new ElanEvpnFlowUtils.EvpnDmacFlowBuilder();
-                        dmacFlowBuilder.setDpId(dpId).setNexthopIP(ipAddress.toString()).setElanTag(elanTag).setVni(vni)
-                            .setDstMacAddress(dstMacAddress).setElanName(elanName);
+                        dmacFlowBuilder.setDpId(dpId).setNexthopIP(ipAddress.toString()).setElanTag(elanTag.longValue())
+                            .setVni(vni).setDstMacAddress(dstMacAddress).setElanName(elanName);
                         Flow flow = elanEvpnFlowUtils.evpnBuildDmacFlowForExternalRemoteMac(dmacFlowBuilder.build());
                         mdsalManager.addFlow(tx, dpId, flow);
                     }))), ElanConstants.JOB_MAX_RETRIES);
@@ -291,14 +291,14 @@ public class EvpnMacVrfUtils {
             return;
         }
         IpAddress ipAddress = new IpAddress(new Ipv4Address(nexthopIP));
-        Long elanTag = elanInstance.getElanTag();
+        Uint32 elanTag = elanInstance.getElanTag();
         String macToRemove = macVrfEntry.getMac();
         jobCoordinator.enqueueJob(macToRemove, () -> {
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             dpnInterfaceLists.forEach(dpnInterfaces -> {
-                BigInteger dpId = dpnInterfaces.getDpId();
+                Uint64 dpId = dpnInterfaces.getDpId();
                 ElanEvpnFlowUtils.EvpnDmacFlowBuilder dmacFlowBuilder = new ElanEvpnFlowUtils.EvpnDmacFlowBuilder();
-                dmacFlowBuilder.setDpId(dpId).setNexthopIP(ipAddress.toString()).setElanTag(elanTag)
+                dmacFlowBuilder.setDpId(dpId).setNexthopIP(ipAddress.toString()).setElanTag(elanTag.longValue())
                         .setDstMacAddress(macToRemove);
                 LOG.info("REMOVE: Deleting DMAC Flows for external MAC. elanTag {}, dpId {},"
                         + "nexthopIP {}, macToRemove {}", elanTag, dpId, nexthopIP, macToRemove);

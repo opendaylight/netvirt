@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.natservice.internal;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import com.google.common.base.Optional;
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -39,6 +38,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,7 +137,7 @@ public class ExternalNetworksChangeListener
     private void removeSnatEntries(Networks original, Uuid networkUuid) {
         if (original.getRouterIds() != null) {
             for (Uuid routerUuid : original.getRouterIds()) {
-                long routerId = NatUtil.getVpnId(dataBroker, routerUuid.getValue());
+                Uint32 routerId = NatUtil.getVpnId(dataBroker, routerUuid.getValue());
                 if (routerId == NatConstants.INVALID_ID) {
                     LOG.error("removeSnatEntries : Invalid routerId returned for routerName {}", routerUuid.getValue());
                     return;
@@ -170,8 +171,8 @@ public class ExternalNetworksChangeListener
                 RouterPorts routerPorts = optRouterPorts.get();
                 for (Ports port : routerPorts.nonnullPorts()) {
                     String portName = port.getPortName();
-                    BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
-                    if (dpnId.equals(BigInteger.ZERO)) {
+                    Uint64 dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
+                    if (dpnId.equals(Uint64.ZERO)) {
                         LOG.debug("associateExternalNetworkWithVPN : DPN not found for {}, "
                             + "skip handling of ext nw {} association", portName, network.getId());
                         continue;
@@ -202,7 +203,7 @@ public class ExternalNetworksChangeListener
                     return;
                 }
 
-                BigInteger dpnId = new BigInteger("0");
+                Uint64 dpnId = Uint64.valueOf("0");
                 InstanceIdentifier<RouterToNaptSwitch> routerToNaptSwitch =
                     NatUtil.buildNaptSwitchRouterIdentifier(routerId.getValue());
                 Optional<RouterToNaptSwitch> rtrToNapt =
@@ -211,16 +212,16 @@ public class ExternalNetworksChangeListener
                     dpnId = rtrToNapt.get().getPrimarySwitchId();
                 }
                 LOG.debug("associateExternalNetworkWithVPN : got primarySwitch as dpnId{} ", dpnId);
-                if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
+                if (dpnId == null || dpnId.equals(Uint64.ZERO)) {
                     LOG.warn("associateExternalNetworkWithVPN : primary napt Switch not found for router {} on dpn: {}",
                         routerId, dpnId);
                     return;
                 }
-                final BigInteger finalDpnId = dpnId;
+                final Uint64 finalDpnId = dpnId;
                 coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + routerId.getValue(),
                     () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                         confTx -> {
-                            Long routerIdentifier = NatUtil.getVpnId(dataBroker, routerId.getValue());
+                            Uint32 routerIdentifier = NatUtil.getVpnId(dataBroker, routerId.getValue());
                             InstanceIdentifierBuilder<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice
                                 .rev160111.intext.ip.map.IpMapping> idBuilder =
                                 InstanceIdentifier.builder(IntextIpMap.class)
@@ -252,12 +253,12 @@ public class ExternalNetworksChangeListener
                                     routerId);
                             }
 
-                            long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
+                            Uint32 vpnId = NatUtil.getVpnId(dataBroker, vpnName);
                             // Install 47 entry to point to 21
                             if (natMode == NatMode.Controller) {
                                 externalRouterListener.installNaptPfibEntriesForExternalSubnets(routerId.getValue(),
                                     finalDpnId, confTx);
-                                if (vpnId != -1) {
+                                if (vpnId.longValue() != -1) {
                                     LOG.debug("associateExternalNetworkWithVPN : Calling externalRouterListener "
                                         + "installNaptPfibEntry for dpnId {} and vpnId {}", finalDpnId, vpnId);
                                     externalRouterListener.installNaptPfibEntry(finalDpnId, vpnId, confTx);
@@ -283,8 +284,8 @@ public class ExternalNetworksChangeListener
                 RouterPorts routerPorts = optRouterPorts.get();
                 for (Ports port : routerPorts.nonnullPorts()) {
                     String portName = port.getPortName();
-                    BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
-                    if (dpnId.equals(BigInteger.ZERO)) {
+                    Uint64 dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
+                    if (dpnId.equals(Uint64.ZERO)) {
                         LOG.debug("disassociateExternalNetworkFromVPN : DPN not found for {},"
                             + "skip handling of ext nw {} disassociation", portName, network.getId());
                         continue;

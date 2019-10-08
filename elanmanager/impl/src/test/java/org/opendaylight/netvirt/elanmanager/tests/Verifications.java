@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.elanmanager.tests;
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
 
 import com.google.common.collect.Sets;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -63,12 +62,14 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public class Verifications {
 
     private static final boolean CHECK_FOR_EXISTS = true;
     private static final boolean CHECK_FOR_DELETED = false;
-    private static final Function<BigInteger, NodeId> GET_OPENFLOW_NODE_ID = (dpnId) -> new NodeId("openflow:" + dpnId);
+    private static final Function<Uint64, NodeId> GET_OPENFLOW_NODE_ID = (dpnId) -> new NodeId("openflow:" + dpnId);
     private static final InstanceIdentifier<ElanInstance> ELAN_IID = InstanceIdentifier
             .builder(ElanInstances.class)
             .child(ElanInstance.class, new ElanInstanceKey(ExpectedObjects.ELAN1))
@@ -187,14 +188,14 @@ public class Verifications {
     }
 
     private List<Bucket> buildRemoteBcGroupBuckets(ElanInstance elanInfo,
-                                                  List<BigInteger> otherDpns,
+                                                  List<Uint64> otherDpns,
                                                   List<String> otherTors,
-                                                  BigInteger dpnId,
+                                                  Uint64 dpnId,
                                                   int bucketId)
             throws ExecutionException, InterruptedException {
         List<Bucket> listBucketInfo = new ArrayList<>();
         if (otherDpns != null) {
-            for (BigInteger otherDpn : otherDpns) {
+            for (Uint64 otherDpn : otherDpns) {
                 GetEgressActionsForInterfaceInput getEgressActInput = new GetEgressActionsForInterfaceInputBuilder()
                         .setIntfName(extnIntfs.get(dpnId + ":" + otherDpn).getInterfaceInfo().getInterfaceName())
                         .setTunnelKey(elanInfo.getElanTag()).build();
@@ -225,28 +226,28 @@ public class Verifications {
         return listBucketInfo;
     }
 
-    private Group buildStandardElanBroadcastGroups(ElanInstance elanInfo, BigInteger dpnId, List<BigInteger> otherdpns,
+    private Group buildStandardElanBroadcastGroups(ElanInstance elanInfo, Uint64 dpnId, List<Uint64> otherdpns,
                                                   List<String> tepIps)
             throws ExecutionException, InterruptedException {
         List<Bucket> listBucket = new ArrayList<>();
         int bucketId = 0;
         int actionKey = 0;
-        Long elanTag = elanInfo.getElanTag();
+        Uint32 elanTag = elanInfo.getElanTag();
         List<Action> listAction = new ArrayList<>();
-        listAction.add(new ActionGroup(ElanUtils.getElanLocalBCGId(elanTag)).buildAction(++actionKey));
+        listAction.add(new ActionGroup(ElanUtils.getElanLocalBCGId(elanTag.longValue())).buildAction(++actionKey));
         listBucket.add(MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT,
                 MDSALUtil.WATCH_GROUP));
         bucketId++;
         listBucket.addAll(buildRemoteBcGroupBuckets(elanInfo, otherdpns, tepIps, dpnId, bucketId));
-        long groupId = ElanUtils.getElanRemoteBCGId(elanTag);
+        long groupId = ElanUtils.getElanRemoteBCGId(elanTag.longValue());
         Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
                 MDSALUtil.buildBucketLists(listBucket));
         return group;
     }
 
     private boolean validateGroup(ElanInstance actualElanInstances,
-                                 BigInteger dpnId,
-                                 List<BigInteger> otherdpns,
+                                 Uint64 dpnId,
+                                 List<Uint64> otherdpns,
                                  List<String> torips)
             throws ExecutionException, InterruptedException, ReadFailedException, TransactionCommitFailedException {
         Group expected = buildStandardElanBroadcastGroups(actualElanInstances, dpnId, otherdpns, torips);
@@ -275,17 +276,17 @@ public class Verifications {
                 .collect(Collectors.toSet());
     }
 
-    public void verifyThatDpnGroupUpdated(BigInteger dpnId, List<BigInteger> otherdpns, List<String> othertors)
+    public void verifyThatDpnGroupUpdated(Uint64 dpnId, List<Uint64> otherdpns, List<String> othertors)
             throws ReadFailedException, TransactionCommitFailedException, ExecutionException, InterruptedException {
         verifyDPNGroup(dpnId, otherdpns, othertors, CHECK_FOR_EXISTS);
     }
 
-    public void verifyThatDpnGroupDeleted(BigInteger dpnId)
+    public void verifyThatDpnGroupDeleted(Uint64 dpnId)
             throws ReadFailedException, TransactionCommitFailedException, ExecutionException, InterruptedException {
         verifyDPNGroup(dpnId, Collections.emptyList(), Collections.emptyList(), CHECK_FOR_DELETED);
     }
 
-    public void verifyLocalBcGroup(BigInteger dpnId, int expectedNoBuckets)
+    public void verifyLocalBcGroup(Uint64 dpnId, int expectedNoBuckets)
             throws ReadFailedException, TransactionCommitFailedException, ExecutionException, InterruptedException {
         awaiter.until(() -> {
             ElanInstance actualElanInstances = singleTxdataBroker.syncRead(CONFIGURATION, ELAN_IID);
@@ -300,15 +301,15 @@ public class Verifications {
         });
     }
 
-    public void verifyThatLocalBcGroupDeleted(BigInteger dpnId)
+    public void verifyThatLocalBcGroupDeleted(Uint64 dpnId)
             throws ReadFailedException, TransactionCommitFailedException, ExecutionException, InterruptedException {
         ElanInstance actualElanInstances = singleTxdataBroker.syncRead(CONFIGURATION, ELAN_IID);
         InstanceIdentifier<Group> grpIid = buildLocalGroupIid(actualElanInstances, dpnId);
         awaitForDataDelete(CONFIGURATION, grpIid);
     }
 
-    public void verifyDPNGroup(BigInteger dpnId,
-                               List<BigInteger> otherdpns,
+    public void verifyDPNGroup(Uint64 dpnId,
+                               List<Uint64> otherdpns,
                                List<String> othertors,
                                boolean checkForExists)
             throws ReadFailedException, TransactionCommitFailedException, ExecutionException, InterruptedException {
@@ -324,27 +325,27 @@ public class Verifications {
         }
     }
 
-    public void verifyThatDmacFlowOfTORCreated(List<BigInteger> dpns,
+    public void verifyThatDmacFlowOfTORCreated(List<Uint64> dpns,
                                                InstanceIdentifier<Node> torNodeId,
                                                List<String> macs) throws ReadFailedException {
         for (String mac : macs) {
-            for (BigInteger srcDpnId : dpns) {
+            for (Uint64 srcDpnId : dpns) {
                 verifyDmacFlowOfTOR(srcDpnId, torNodeId, mac, CHECK_FOR_EXISTS);
             }
         }
     }
 
-    public void verifyThatDmacFlowOfTORDeleted(List<BigInteger> dpns,
+    public void verifyThatDmacFlowOfTORDeleted(List<Uint64> dpns,
                                                InstanceIdentifier<Node> torNodeId,
                                                List<String> macs) throws ReadFailedException {
         for (String mac : macs) {
-            for (BigInteger srcDpnId : dpns) {
+            for (Uint64 srcDpnId : dpns) {
                 verifyDmacFlowOfTOR(srcDpnId, torNodeId, mac, CHECK_FOR_DELETED);
             }
         }
     }
 
-    public void verifyDmacFlowOfTOR(BigInteger srcDpnId,
+    public void verifyDmacFlowOfTOR(Uint64 srcDpnId,
                                     InstanceIdentifier<Node> torNodeIid,
                                     String mac,
                                     boolean checkForExists) throws ReadFailedException {
@@ -356,7 +357,7 @@ public class Verifications {
                         srcDpnId,
                         torNodeId,
                         mac,
-                        actualElanInstances.getElanTag(),
+                        actualElanInstances.getElanTag().toJava(),
                         false));
 
         InstanceIdentifier<Flow> flowIid = getFlowIid(NwConstants.ELAN_DMAC_TABLE, flowId, srcDpnId);
@@ -368,21 +369,21 @@ public class Verifications {
         }
     }
 
-    public void  verifyThatDmacOfOtherDpnCreated(BigInteger srcDpnId, BigInteger dpnId, List<String> dpnMacs)
+    public void  verifyThatDmacOfOtherDpnCreated(Uint64 srcDpnId, Uint64 dpnId, List<String> dpnMacs)
             throws ReadFailedException, InterruptedException {
         for (String dpnMac : dpnMacs) {
             verifyDmacFlowOfOtherDPN(srcDpnId, dpnId, dpnMac, CHECK_FOR_EXISTS);
         }
     }
 
-    public void  verifyThatDmacOfOtherDPNDeleted(BigInteger srcDpnId, BigInteger dpnId, List<String> dpnMacs)
+    public void  verifyThatDmacOfOtherDPNDeleted(Uint64 srcDpnId, Uint64 dpnId, List<String> dpnMacs)
             throws ReadFailedException, InterruptedException {
         for (String dpnMac : dpnMacs) {
             verifyDmacFlowOfOtherDPN(srcDpnId, dpnId, dpnMac, CHECK_FOR_DELETED);
         }
     }
 
-    private void  verifyDmacFlowOfOtherDPN(BigInteger srcDpnId, BigInteger dpnId, String dpnMac, boolean createFlag)
+    private void  verifyDmacFlowOfOtherDPN(Uint64 srcDpnId, Uint64 dpnId, String dpnMac, boolean createFlag)
             throws ReadFailedException, InterruptedException {
         InstanceIdentifier<ElanInstance> elanInstanceIid = InstanceIdentifier.builder(ElanInstances.class)
                 .child(ElanInstance.class, new ElanInstanceKey(ExpectedObjects.ELAN1)).build();
@@ -401,7 +402,7 @@ public class Verifications {
         }
     }
 
-    private static InstanceIdentifier<Flow> getFlowIid(short tableId, FlowId flowid, BigInteger dpnId) {
+    private static InstanceIdentifier<Flow> getFlowIid(short tableId, FlowId flowid, Uint64 dpnId) {
 
         FlowKey flowKey = new FlowKey(new FlowId(flowid));
         NodeId nodeId = GET_OPENFLOW_NODE_ID.apply(dpnId);
@@ -413,13 +414,15 @@ public class Verifications {
                 .child(Table.class, new TableKey(tableId)).child(Flow.class, flowKey).build();
     }
 
-    private static InstanceIdentifier<Group> buildGroupIid(ElanInstance actualElanInstances, BigInteger dpnId) {
+    private static InstanceIdentifier<Group> buildGroupIid(ElanInstance actualElanInstances, Uint64 dpnId) {
         return DpnNodeBuilders.buildGroupInstanceIdentifier(
-                ElanUtils.getElanRemoteBCGId(actualElanInstances.getElanTag()), DpnNodeBuilders.buildDpnNode(dpnId));
+                ElanUtils.getElanRemoteBCGId(actualElanInstances.getElanTag().toJava()),
+                DpnNodeBuilders.buildDpnNode(dpnId));
     }
 
-    private static InstanceIdentifier<Group> buildLocalGroupIid(ElanInstance actualElanInstances, BigInteger dpnId) {
+    private static InstanceIdentifier<Group> buildLocalGroupIid(ElanInstance actualElanInstances, Uint64 dpnId) {
         return DpnNodeBuilders.buildGroupInstanceIdentifier(
-                ElanUtils.getElanLocalBCGId(actualElanInstances.getElanTag()), DpnNodeBuilders.buildDpnNode(dpnId));
+                ElanUtils.getElanLocalBCGId(actualElanInstances.getElanTag().toJava()),
+                DpnNodeBuilders.buildDpnNode(dpnId));
     }
 }

@@ -251,8 +251,8 @@ public class ConfigurationClassifierImpl implements ClassifierState {
             @NonNull RenderedServicePath rsp) {
 
         String rspName = rsp.getName().getValue();
-        Long nsp = rsp.getPathId();
-        Short nsi = rsp.getStartingIndex();
+        Long nsp = rsp.getPathId().longValue();
+        Short nsi = rsp.getStartingIndex().shortValue();
         Short nsl = rsp.getRenderedServicePathHop() == null ? null : (short) rsp.getRenderedServicePathHop().size();
 
         if (nsp == null || nsi == null || nsl == null) {

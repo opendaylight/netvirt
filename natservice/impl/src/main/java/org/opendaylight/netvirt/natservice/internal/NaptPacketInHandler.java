@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.primitives.Ints;
-import java.math.BigInteger;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
@@ -26,6 +25,8 @@ import org.opendaylight.genius.mdsalutil.packet.UDP;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
 import org.opendaylight.yangtools.util.concurrent.SpecialExecutors;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,11 +59,11 @@ public class NaptPacketInHandler implements PacketProcessingListener {
     public void onPacketReceived(PacketReceived packetReceived) {
         String internalIPAddress = "";
         int portNumber = 0;
-        long routerId = 0L;
+
         NAPTEntryEvent.Operation operation = NAPTEntryEvent.Operation.ADD;
         NAPTEntryEvent.Protocol protocol;
 
-        Short tableId = packetReceived.getTableId().getValue();
+        Short tableId = packetReceived.getTableId().getValue().toJava();
 
         LOG.trace("onPacketReceived : packet: {}, tableId {}", packetReceived, tableId);
 
@@ -111,9 +112,9 @@ public class NaptPacketInHandler implements PacketProcessingListener {
                 }
 
                 if (internalIPAddress != null) {
-                    BigInteger metadata = packetReceived.getMatch().getMetadata().getMetadata();
-                    routerId = MetaDataUtil.getNatRouterIdFromMetadata(metadata);
-                    if (routerId <= 0) {
+                    Uint64 metadata = packetReceived.getMatch().getMetadata().getMetadata();
+                    Uint32 routerId = Uint32.valueOf(MetaDataUtil.getNatRouterIdFromMetadata(metadata));
+                    if (routerId.longValue() <= 0) {
                         LOG.error("onPacketReceived : Router ID is invalid");
                         return;
                     }

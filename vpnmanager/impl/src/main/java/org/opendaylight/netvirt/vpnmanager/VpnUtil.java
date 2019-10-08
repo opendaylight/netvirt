@@ -246,6 +246,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.s
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.ModifiedNodeDoesNotExistException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -335,7 +337,7 @@ public final class VpnUtil {
     }
 
     static VpnInterfaceOpDataEntry getVpnInterfaceOpDataEntry(String intfName, String vpnName, AdjacenciesOp aug,
-                                                       BigInteger dpnId, long lportTag,
+                                                       Uint64 dpnId, long lportTag,
                                                        String gwMac) {
         return new VpnInterfaceOpDataEntryBuilder().withKey(new VpnInterfaceOpDataEntryKey(intfName, vpnName))
             .setDpnId(dpnId).addAugmentation(AdjacenciesOp.class, aug)
@@ -350,16 +352,16 @@ public final class VpnUtil {
         return vpnInterfaceOpDataEntry;
     }
 
-    static InstanceIdentifier<Prefixes> getPrefixToInterfaceIdentifier(long vpnId, String ipPrefix) {
+    static InstanceIdentifier<Prefixes> getPrefixToInterfaceIdentifier(Uint32 vpnId, String ipPrefix) {
         return InstanceIdentifier.builder(PrefixToInterface.class).child(VpnIds.class, new VpnIdsKey(vpnId))
                 .child(Prefixes.class, new PrefixesKey(ipPrefix)).build();
     }
 
-    static InstanceIdentifier<VpnIds> getPrefixToInterfaceIdentifier(long vpnId) {
+    static InstanceIdentifier<VpnIds> getPrefixToInterfaceIdentifier(Uint32 vpnId) {
         return InstanceIdentifier.builder(PrefixToInterface.class).child(VpnIds.class, new VpnIdsKey(vpnId)).build();
     }
 
-    static Prefixes getPrefixToInterface(BigInteger dpId, String vpnInterfaceName, String ipPrefix,
+    static Prefixes getPrefixToInterface(Uint64 dpId, String vpnInterfaceName, String ipPrefix,
             Uuid networkId, NetworkType networkType, Long segmentationId, Prefixes.PrefixCue prefixCue) {
         return new PrefixesBuilder().setDpnId(dpId).setVpnInterfaceName(
             vpnInterfaceName).setIpAddress(ipPrefix)//.setSubnetId(subnetId)
@@ -367,13 +369,13 @@ public final class VpnUtil {
                 .setPrefixCue(prefixCue).build();
     }
 
-    static Prefixes getPrefixToInterface(BigInteger dpId, String vpnInterfaceName, String ipPrefix,
+    static Prefixes getPrefixToInterface(Uint64 dpId, String vpnInterfaceName, String ipPrefix,
             Prefixes.PrefixCue prefixCue) {
         return new PrefixesBuilder().setDpnId(dpId).setVpnInterfaceName(vpnInterfaceName).setIpAddress(ipPrefix)
                 .setPrefixCue(prefixCue).build();
     }
 
-    Optional<Prefixes> getPrefixToInterface(long vpnId, String ipPrefix) {
+    Optional<Prefixes> getPrefixToInterface(Uint32 vpnId, String ipPrefix) {
         return read(LogicalDatastoreType.OPERATIONAL, getPrefixToInterfaceIdentifier(vpnId, getIpPrefix(ipPrefix)));
     }
 
@@ -447,7 +449,7 @@ public final class VpnUtil {
     @NonNull
     List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
             .vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces> getDpnVpnInterfaces(VpnInstance vpnInstance,
-                                                                                           BigInteger dpnId) {
+                                                                                           Uint64 dpnId) {
         String primaryRd = getPrimaryRd(vpnInstance);
         InstanceIdentifier<VpnToDpnList> dpnToVpnId = VpnHelper.getVpnToDpnListIdentifier(primaryRd, dpnId);
         Optional<VpnToDpnList> dpnInVpn = read(LogicalDatastoreType.OPERATIONAL, dpnToVpnId);
@@ -495,9 +497,9 @@ public final class VpnUtil {
     }
 
     @Nullable
-    String getVpnInterfaceName(BigInteger metadata) throws InterruptedException, ExecutionException {
+    String getVpnInterfaceName(Uint64 metadata) throws InterruptedException, ExecutionException {
         GetInterfaceFromIfIndexInputBuilder ifIndexInputBuilder = new GetInterfaceFromIfIndexInputBuilder();
-        BigInteger lportTag = MetaDataUtil.getLportFromMetadata(metadata);
+        Uint64 lportTag = MetaDataUtil.getLportFromMetadata(metadata);
         ifIndexInputBuilder.setIfIndex(lportTag.intValue());
         GetInterfaceFromIfIndexInput input = ifIndexInputBuilder.build();
         Future<RpcResult<GetInterfaceFromIfIndexOutput>> interfaceFromIfIndex =
@@ -528,17 +530,18 @@ public final class VpnUtil {
                 new InterfaceKey(interfaceName)).build();
     }
 
-    public static BigInteger getCookieL3(int vpnId) {
-        return VpnConstants.COOKIE_L3_BASE.add(new BigInteger("0610000", 16)).add(BigInteger.valueOf(vpnId));
+    public static Uint64 getCookieL3(int vpnId) {
+        return Uint64.valueOf(VpnConstants.COOKIE_L3_BASE.toJava().add(new BigInteger("0610000", 16))
+                .add(BigInteger.valueOf(vpnId)));
     }
 
-    public int getUniqueId(String poolName, String idKey) {
+    public Uint32 getUniqueId(String poolName, String idKey) {
         AllocateIdInput getIdInput = new AllocateIdInputBuilder().setPoolName(poolName).setIdKey(idKey).build();
         try {
             Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
             RpcResult<AllocateIdOutput> rpcResult = result.get();
             if (rpcResult.isSuccessful()) {
-                return rpcResult.getResult().getIdValue().intValue();
+                return rpcResult.getResult().getIdValue();
             } else {
                 LOG.error("getUniqueId: RPC Call to Get Unique Id from pool {} with key {} returned with Errors {}",
                         poolName, idKey, rpcResult.getErrors());
@@ -546,7 +549,7 @@ public final class VpnUtil {
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("getUniqueId: Exception when getting Unique Id from pool {} for key {}", poolName, idKey, e);
         }
-        return 0;
+        return Uint32.ZERO;
     }
 
     void releaseId(String poolName, String idKey) {
@@ -573,14 +576,15 @@ public final class VpnUtil {
      * @param vpnName Name of the VPN
      * @return the dataplane identifier of the VPN, the VrfTag.
      */
-    public long getVpnId(String vpnName) {
+    public Uint32 getVpnId(String vpnName) {
         if (vpnName == null) {
-            return VpnConstants.INVALID_ID;
+            return Uint32.valueOf(VpnConstants.INVALID_ID);
         }
 
         return read(LogicalDatastoreType.CONFIGURATION, VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnName))
                 .toJavaUtil().map(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911
-                        .vpn.instance.to.vpn.id.VpnInstance::getVpnId).orElse(VpnConstants.INVALID_ID);
+                        .vpn.instance.to.vpn.id.VpnInstance::getVpnId)
+                        .orElse(Uint32.valueOf(VpnConstants.INVALID_ID));
     }
 
     /**
@@ -714,13 +718,13 @@ public final class VpnUtil {
     }
 
     static org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance
-        getVpnInstanceToVpnId(String vpnName, long vpnId, String rd) {
+        getVpnInstanceToVpnId(String vpnName, Uint32 vpnId, String rd) {
         return new VpnInstanceBuilder().setVpnId(vpnId).setVpnInstanceName(vpnName).setVrfId(rd).build();
 
     }
 
     static org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds
-        getVpnIdToVpnInstance(long vpnId, String vpnName, String rd, boolean isExternalVpn) {
+        getVpnIdToVpnInstance(Uint32 vpnId, String vpnName, String rd, boolean isExternalVpn) {
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance
             .VpnIdsBuilder().setVpnId(vpnId).setVpnInstanceName(vpnName).setVrfId(rd).setExternalVpn(isExternalVpn)
                 .build();
@@ -728,7 +732,7 @@ public final class VpnUtil {
     }
 
     static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to
-        .vpn.instance.VpnIds> getVpnIdToVpnInstanceIdentifier(long vpnId) {
+        .vpn.instance.VpnIds> getVpnIdToVpnInstanceIdentifier(Uint32 vpnId) {
         return InstanceIdentifier.builder(VpnIdToVpnInstance.class).child(org.opendaylight.yang.gen.v1.urn
                 .opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds.class,
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance
@@ -742,7 +746,7 @@ public final class VpnUtil {
      * @return the Vpn instance name
      */
     @Nullable
-    String getVpnName(long vpnId) {
+    String getVpnName(Uint32 vpnId) {
 
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn
             .instance.VpnIds> id = getVpnIdToVpnInstanceIdentifier(vpnId);
@@ -884,7 +888,7 @@ public final class VpnUtil {
             new ElanTagNameKey(elanTag)).build();
     }
 
-    static void removePrefixToInterfaceForVpnId(long vpnId, @NonNull TypedWriteTransaction<Operational> operTx) {
+    static void removePrefixToInterfaceForVpnId(Uint32 vpnId, @NonNull TypedWriteTransaction<Operational> operTx) {
         // Clean up PrefixToInterface Operational DS
         operTx.delete(InstanceIdentifier.builder(
                     PrefixToInterface.class).child(VpnIds.class, new VpnIdsKey(vpnId)).build());
@@ -905,17 +909,17 @@ public final class VpnUtil {
         confTx.delete(VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnName));
     }
 
-    static void removeVpnIdToVpnInstance(long vpnId, @NonNull TypedWriteTransaction<Configuration> confTx) {
+    static void removeVpnIdToVpnInstance(Uint32 vpnId, @NonNull TypedWriteTransaction<Configuration> confTx) {
         confTx.delete(getVpnIdToVpnInstanceIdentifier(vpnId));
     }
 
-    static void removeL3nexthopForVpnId(long vpnId, @NonNull TypedWriteTransaction<Operational> operTx) {
+    static void removeL3nexthopForVpnId(Uint32 vpnId, @NonNull TypedWriteTransaction<Operational> operTx) {
         // Clean up L3NextHop Operational DS
         operTx.delete(InstanceIdentifier.builder(L3nexthop.class).child(
                                     VpnNexthops.class, new VpnNexthopsKey(vpnId)).build());
     }
 
-    void scheduleVpnInterfaceForRemoval(String interfaceName, BigInteger dpnId, String vpnInstanceName,
+    void scheduleVpnInterfaceForRemoval(String interfaceName, Uint64 dpnId, String vpnInstanceName,
                                         @Nullable TypedWriteTransaction<Operational> writeOperTxn) {
         InstanceIdentifier<VpnInterfaceOpDataEntry> interfaceId =
                 getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnInstanceName);
@@ -1125,8 +1129,8 @@ public final class VpnUtil {
     }
 
     @NonNull
-    List<BigInteger> getDpnsOnVpn(String vpnInstanceName) {
-        List<BigInteger> result = new ArrayList<>();
+    List<Uint64> getDpnsOnVpn(String vpnInstanceName) {
+        List<Uint64> result = new ArrayList<>();
         String rd = getVpnRd(vpnInstanceName);
         if (rd == null) {
             LOG.debug("getDpnsOnVpn: Could not find Route-Distinguisher for VpnName={}", vpnInstanceName);
@@ -1271,15 +1275,16 @@ public final class VpnUtil {
         return InstanceIdentifier.create(Subnetmaps.class);
     }
 
-    FlowEntity buildL3vpnGatewayFlow(BigInteger dpId, String gwMacAddress, long vpnId,
-                                                   long subnetVpnId) {
+    FlowEntity buildL3vpnGatewayFlow(Uint64 dpId, String gwMacAddress, Uint32 vpnId,
+                                               Uint32 subnetVpnId) {
         List<MatchInfo> mkMatches = new ArrayList<>();
         Subnetmap smap = null;
-        mkMatches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
+        mkMatches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId.longValue()),
+            MetaDataUtil.METADATA_MASK_VRFID));
         mkMatches.add(new MatchEthernetDestination(new MacAddress(gwMacAddress)));
         List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionGotoTable(NwConstants.L3_FIB_TABLE));
-        if (subnetVpnId != VpnConstants.INVALID_ID) {
+        if (subnetVpnId.longValue() != VpnConstants.INVALID_ID) {
             String vpnName = getVpnName(subnetVpnId);
             if (vpnName != null) {
                 smap = getSubnetmapFromItsUuid(Uuid.getDefaultInstance(vpnName));
@@ -1292,16 +1297,17 @@ public final class VpnUtil {
                     }
                 }
             }
-            BigInteger subnetIdMetaData = MetaDataUtil.getVpnIdMetadata(subnetVpnId);
+            Uint64 subnetIdMetaData = MetaDataUtil.getVpnIdMetadata(subnetVpnId.longValue());
             mkInstructions.add(new InstructionWriteMetadata(subnetIdMetaData, MetaDataUtil.METADATA_MASK_VRFID));
         }
         String flowId = getL3VpnGatewayFlowRef(NwConstants.L3_GW_MAC_TABLE, dpId, vpnId, gwMacAddress, subnetVpnId);
         return MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_GW_MAC_TABLE,
-                flowId, 20, flowId, 0, 0, NwConstants.COOKIE_L3_GW_MAC_TABLE, mkMatches, mkInstructions);
+                flowId, 20, flowId, 0, 0, NwConstants.COOKIE_L3_GW_MAC_TABLE,
+                mkMatches, mkInstructions);
     }
 
-    static String getL3VpnGatewayFlowRef(short l3GwMacTable, BigInteger dpId, long vpnId, String gwMacAddress,
-                                         long subnetVpnId) {
+    static String getL3VpnGatewayFlowRef(short l3GwMacTable, Uint64 dpId, Uint32 vpnId, String gwMacAddress,
+                                         Uint32 subnetVpnId) {
         return gwMacAddress + NwConstants.FLOWID_SEPARATOR + vpnId + NwConstants.FLOWID_SEPARATOR + dpId
             + NwConstants.FLOWID_SEPARATOR + l3GwMacTable + NwConstants.FLOWID_SEPARATOR + subnetVpnId;
     }
@@ -1370,7 +1376,7 @@ public final class VpnUtil {
 
     public Optional<String> getGWMacAddressFromInterface(MacEntry macEntry, IpAddress gatewayIp) {
         Optional<String> gatewayMac = Optional.absent();
-        long vpnId = getVpnId(macEntry.getVpnName());
+        Uint32 vpnId = getVpnId(macEntry.getVpnName());
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn
             .instance.VpnIds>
             vpnIdsInstanceIdentifier = VpnUtil.getVpnIdToVpnInstanceIdentifier(vpnId);
@@ -1394,7 +1400,7 @@ public final class VpnUtil {
         return gatewayMac;
     }
 
-    void setupGwMacIfExternalVpn(BigInteger dpnId, String interfaceName, long vpnId,
+    void setupGwMacIfExternalVpn(Uint64 dpnId, String interfaceName, Uint32 vpnId,
                                  TypedReadWriteTransaction<Configuration> writeInvTxn, int addOrRemove, String gwMac)
             throws ExecutionException, InterruptedException {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance
@@ -1407,7 +1413,8 @@ public final class VpnUtil {
                         interfaceName, dpnId.toString(), vpnIdsOptional.get().getVpnInstanceName());
                 return;
             }
-            FlowEntity flowEntity = buildL3vpnGatewayFlow(dpnId, gwMac, vpnId, VpnConstants.INVALID_ID);
+            FlowEntity flowEntity = buildL3vpnGatewayFlow(dpnId, gwMac, vpnId,
+                Uint32.valueOf(VpnConstants.INVALID_ID));
             if (addOrRemove == NwConstants.ADD_FLOW) {
                 mdsalManager.addFlow(writeInvTxn, flowEntity);
             } else if (addOrRemove == NwConstants.DEL_FLOW) {
@@ -1460,13 +1467,13 @@ public final class VpnUtil {
     }
 
     @Nullable
-    BigInteger getPrimarySwitchForRouter(String routerName) {
+    Uint64 getPrimarySwitchForRouter(String routerName) {
         RouterToNaptSwitch routerToNaptSwitch = getRouterToNaptSwitch(routerName);
         return routerToNaptSwitch != null ? routerToNaptSwitch.getPrimarySwitchId() : null;
     }
 
-    static boolean isL3VpnOverVxLan(Long l3Vni) {
-        return l3Vni != null && l3Vni != 0;
+    static boolean isL3VpnOverVxLan(Uint32 l3Vni) {
+        return l3Vni != null && l3Vni.longValue() != 0;
     }
 
     /**
@@ -1513,9 +1520,9 @@ public final class VpnUtil {
         return !vpnName.equals(primaryRd);
     }
 
-    java.util.Optional<String> allocateRdForExtraRouteAndUpdateUsedRdsMap(long vpnId, @Nullable Long parentVpnId,
+    java.util.Optional<String> allocateRdForExtraRouteAndUpdateUsedRdsMap(Uint32 vpnId, @Nullable Uint32 parentVpnId,
                                                                           String prefix, String vpnName,
-                                                                          String nextHop, BigInteger dpnId) {
+                                                                          String nextHop, Uint64 dpnId) {
         //Check if rd is already allocated for this extraroute behind the same VM. If yes, reuse it.
         //This is particularly useful during reboot scenarios.
         java.util.Optional<String> allocatedRd = VpnExtraRouteHelper
@@ -1609,12 +1616,13 @@ public final class VpnUtil {
     BoundServices getBoundServicesForVpnInterface(String vpnName, String interfaceName) {
         List<Instruction> instructions = new ArrayList<>();
         int instructionKey = 0;
-        final long vpnId = getVpnId(vpnName);
+        final Uint32 vpnId = getVpnId(vpnName);
         List<Action> actions = Collections.singletonList(
-                new ActionRegLoad(0, VpnConstants.VPN_REG_ID, 0, VpnConstants.VPN_ID_LENGTH, vpnId).buildAction());
+                new ActionRegLoad(0, VpnConstants.VPN_REG_ID, 0, VpnConstants.VPN_ID_LENGTH, vpnId.longValue())
+                .buildAction());
         instructions.add(MDSALUtil.buildApplyActionsInstruction(actions, ++instructionKey));
         instructions.add(
-                MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getVpnIdMetadata(vpnId),
+                MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getVpnIdMetadata(vpnId.longValue()),
                         MetaDataUtil.METADATA_MASK_VRFID, ++instructionKey));
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.L3_GW_MAC_TABLE,
                 ++instructionKey));
@@ -1650,7 +1658,7 @@ public final class VpnUtil {
         }
     }
 
-    static FlowEntity buildFlowEntity(BigInteger dpnId, short tableId, String flowId) {
+    static FlowEntity buildFlowEntity(Uint64 dpnId, short tableId, String flowId) {
         return new FlowEntityBuilder().setDpnId(dpnId).setTableId(tableId).setFlowId(flowId).build();
     }
 
@@ -1701,7 +1709,7 @@ public final class VpnUtil {
         return read(LogicalDatastoreType.CONFIGURATION, inst).orNull();
     }
 
-    public static boolean isEligibleForBgp(@Nullable String rd, @Nullable String vpnName, @Nullable BigInteger dpnId,
+    public static boolean isEligibleForBgp(@Nullable String rd, @Nullable String vpnName, @Nullable Uint64 dpnId,
             @Nullable String networkName) {
         if (rd != null) {
             if (rd.equals(vpnName)) {
@@ -1718,14 +1726,14 @@ public final class VpnUtil {
         return false;
     }
 
-    static String getFibFlowRef(BigInteger dpnId, short tableId, String vpnName, int priority) {
+    static String getFibFlowRef(Uint64 dpnId, short tableId, String vpnName, int priority) {
         return VpnConstants.FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId
                 + NwConstants.FLOWID_SEPARATOR + vpnName + NwConstants.FLOWID_SEPARATOR + priority;
     }
 
     void removeExternalTunnelDemuxFlows(String vpnName) {
         LOG.info("Removing external tunnel flows for vpn {}", vpnName);
-        for (BigInteger dpnId: NWUtil.getOperativeDPNs(dataBroker)) {
+        for (Uint64 dpnId: NWUtil.getOperativeDPNs(dataBroker)) {
             LOG.debug("Removing external tunnel flows for vpn {} from dpn {}", vpnName, dpnId);
             String flowRef = getFibFlowRef(dpnId, NwConstants.L3VNI_EXTERNAL_TUNNEL_DEMUX_TABLE,
                     vpnName, VpnConstants.DEFAULT_FLOW_PRIORITY);
@@ -1916,7 +1924,7 @@ public final class VpnUtil {
      * @param vpnName the vpnName
      * @param dpnId  the DPN id
      */
-    void addRouterPortToElanForVlanInDpn(String vpnName, BigInteger dpnId) {
+    void addRouterPortToElanForVlanInDpn(String vpnName, Uint64 dpnId) {
         Map<String,String> elanInstanceRouterPortMap = getElanInstanceRouterPortMap(vpnName);
         for (Entry<String, String> elanInstanceRouterEntry : elanInstanceRouterPortMap.entrySet()) {
             addRouterPortToElanDpn(elanInstanceRouterEntry.getKey(), elanInstanceRouterEntry.getValue(), dpnId);
@@ -1930,7 +1938,7 @@ public final class VpnUtil {
      * @param vpnName the vpn name
      * @param dpnId  the DPN id
      */
-    void removeRouterPortFromElanForVlanInDpn(String vpnName, BigInteger dpnId) {
+    void removeRouterPortFromElanForVlanInDpn(String vpnName, Uint64 dpnId) {
         Map<String,String> elanInstanceRouterPortMap = getElanInstanceRouterPortMap(vpnName);
         for (Entry<String, String> elanInstanceRouterEntry : elanInstanceRouterPortMap.entrySet()) {
             removeRouterPortFromElanDpn(elanInstanceRouterEntry.getKey(), elanInstanceRouterEntry.getValue(),
@@ -1946,8 +1954,8 @@ public final class VpnUtil {
      */
     void addRouterPortToElanDpnListForVlaninAllDpn(String vpnName) {
         Map<String,String> elanInstanceRouterPortMap = getElanInstanceRouterPortMap(vpnName);
-        Set<BigInteger> dpnList = getDpnInElan(elanInstanceRouterPortMap);
-        for (BigInteger dpnId : dpnList) {
+        Set<Uint64> dpnList = getDpnInElan(elanInstanceRouterPortMap);
+        for (Uint64 dpnId : dpnList) {
             for (Entry<String, String> elanInstanceRouterEntry : elanInstanceRouterPortMap.entrySet()) {
                 addRouterPortToElanDpn(elanInstanceRouterEntry.getKey(), elanInstanceRouterEntry.getValue(), dpnId);
             }
@@ -1965,8 +1973,8 @@ public final class VpnUtil {
             String routerInterfacePortId, String vpnName) {
         Map<String,String> elanInstanceRouterPortMap = getElanInstanceRouterPortMap(vpnName);
         elanInstanceRouterPortMap.put(elanInstanceName, routerInterfacePortId);
-        Set<BigInteger> dpnList = getDpnInElan(elanInstanceRouterPortMap);
-        for (BigInteger dpnId : dpnList) {
+        Set<Uint64> dpnList = getDpnInElan(elanInstanceRouterPortMap);
+        for (Uint64 dpnId : dpnList) {
             for (Entry<String, String> elanInstanceRouterEntry : elanInstanceRouterPortMap.entrySet()) {
                 removeRouterPortFromElanDpn(elanInstanceRouterEntry.getKey(), elanInstanceRouterEntry.getValue(),
                         vpnName, dpnId);
@@ -1975,8 +1983,8 @@ public final class VpnUtil {
 
     }
 
-    Set<BigInteger> getDpnInElan(Map<String,String> elanInstanceRouterPortMap) {
-        Set<BigInteger> dpnIdSet = new HashSet<>();
+    Set<Uint64> getDpnInElan(Map<String,String> elanInstanceRouterPortMap) {
+        Set<Uint64> dpnIdSet = new HashSet<>();
         for (String elanInstanceName : elanInstanceRouterPortMap.keySet()) {
             InstanceIdentifier<ElanDpnInterfacesList> elanDpnInterfaceId = getElanDpnOperationalDataPath(
                     elanInstanceName);
@@ -1992,7 +2000,7 @@ public final class VpnUtil {
         return dpnIdSet;
     }
 
-    void addRouterPortToElanDpn(String elanInstanceName, String routerInterfacePortId, BigInteger dpnId) {
+    void addRouterPortToElanDpn(String elanInstanceName, String routerInterfacePortId, Uint64 dpnId) {
         InstanceIdentifier<DpnInterfaces> elanDpnInterfaceId = getElanDpnInterfaceOperationalDataPath(
                 elanInstanceName,dpnId);
         final ReentrantLock lock = JvmGlobalLocks.getLockForString(elanInstanceName);
@@ -2019,7 +2027,7 @@ public final class VpnUtil {
     }
 
     void removeRouterPortFromElanDpn(String elanInstanceName, String routerInterfacePortId,
-            String vpnName, BigInteger dpnId) {
+            String vpnName, Uint64 dpnId) {
         InstanceIdentifier<DpnInterfaces> elanDpnInterfaceId = getElanDpnInterfaceOperationalDataPath(
                 elanInstanceName,dpnId);
         final ReentrantLock lock = JvmGlobalLocks.getLockForString(elanInstanceName);
@@ -2061,14 +2069,14 @@ public final class VpnUtil {
     }
 
     @Nullable
-    DpnInterfaces getElanInterfaceInfoByElanDpn(String elanInstanceName, BigInteger dpId) {
+    DpnInterfaces getElanInterfaceInfoByElanDpn(String elanInstanceName, Uint64 dpId) {
         InstanceIdentifier<DpnInterfaces> elanDpnInterfacesId = getElanDpnInterfaceOperationalDataPath(elanInstanceName,
                 dpId);
         return read(LogicalDatastoreType.OPERATIONAL, elanDpnInterfacesId).orNull();
     }
 
     @Nullable
-    String getExternalElanInterface(String elanInstanceName, BigInteger dpnId) {
+    String getExternalElanInterface(String elanInstanceName, Uint64 dpnId) {
         DpnInterfaces dpnInterfaces = getElanInterfaceInfoByElanDpn(elanInstanceName, dpnId);
         if (dpnInterfaces == null || dpnInterfaces.getInterfaces() == null) {
             LOG.info("Elan {} does not have interfaces in DPN {}", elanInstanceName, dpnId);
@@ -2086,7 +2094,7 @@ public final class VpnUtil {
     static boolean isVlan(ElanInstance elanInstance) {
         return elanInstance != null && elanInstance.getSegmentType() != null
                 && elanInstance.getSegmentType().isAssignableFrom(SegmentTypeVlan.class)
-                && elanInstance.getSegmentationId() != null && elanInstance.getSegmentationId() != 0;
+                && elanInstance.getSegmentationId() != null && elanInstance.getSegmentationId().toJava() != 0;
     }
 
     boolean isVlan(String interfaceName) {
@@ -2165,7 +2173,7 @@ public final class VpnUtil {
         return null;
     }
 
-    boolean shouldPopulateFibForVlan(String vpnName, @Nullable String elanInstanceName, BigInteger dpnId) {
+    boolean shouldPopulateFibForVlan(String vpnName, @Nullable String elanInstanceName, Uint64 dpnId) {
         Map<String,String> elanInstanceRouterPortMap = getElanInstanceRouterPortMap(vpnName);
         boolean shouldPopulateFibForVlan = false;
         if (!elanInstanceRouterPortMap.isEmpty()) {
@@ -2187,7 +2195,7 @@ public final class VpnUtil {
     }
 
     public static InstanceIdentifier<DpnInterfaces> getElanDpnInterfaceOperationalDataPath(String elanInstanceName,
-            BigInteger dpId) {
+            Uint64 dpId) {
         return InstanceIdentifier.builder(ElanDpnInterfaces.class)
                 .child(ElanDpnInterfacesList.class, new ElanDpnInterfacesListKey(elanInstanceName))
                 .child(DpnInterfaces.class, new DpnInterfacesKey(dpId)).build();
@@ -2212,7 +2220,7 @@ public final class VpnUtil {
     }
 
     public static void sendNeighborSolicationToOfGroup(Ipv6NdUtilService ipv6NdUtilService, Ipv6Address srcIpv6Address,
-            MacAddress srcMac, Ipv6Address dstIpv6Address, Long ofGroupId, BigInteger dpId) {
+            MacAddress srcMac, Ipv6Address dstIpv6Address, Long ofGroupId, Uint64 dpId) {
         SendNeighborSolicitationToOfGroupInput input = new SendNeighborSolicitationToOfGroupInputBuilder()
                 .setSourceIpv6(srcIpv6Address).setSourceLlAddress(srcMac).setTargetIpAddress(dstIpv6Address)
                 .setOfGroupId(ofGroupId).setDpId(dpId).build();

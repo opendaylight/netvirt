@@ -58,6 +58,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.I
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.add.group.input.buckets.bucket.action.action.NxActionResubmitRpcAddGroupCase;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +81,7 @@ public final class ArpResponderUtil {
      * @param dpnId
      *            DPN on which group flow to be installed
      */
-    public static FlowEntity getArpResponderTableMissFlow(BigInteger dpnId) {
+    public static FlowEntity getArpResponderTableMissFlow(Uint64 dpnId) {
         return MDSALUtil.buildFlowEntity(dpnId, NwConstants.ARP_RESPONDER_TABLE,
                 String.valueOf(NwConstants.ARP_RESPONDER_TABLE), NwConstants.TABLE_MISS_PRIORITY,
                 ArpResponderConstant.DROP_FLOW_NAME.value(), 0, 0, NwConstants.COOKIE_ARP_RESPONDER,
@@ -135,8 +136,8 @@ public final class ArpResponderUtil {
     public static List<MatchInfo> getMatchCriteria(int lportTag, ElanInstance elanInstance,
             String ipAddress) {
 
-        BigInteger metadata = ElanHelper.getElanMetadataLabel(elanInstance.getElanTag(), lportTag);
-        BigInteger metadataMask = ElanHelper.getElanMetadataMask();
+        Uint64 metadata = ElanHelper.getElanMetadataLabel(elanInstance.getElanTag().toJava(), lportTag);
+        Uint64 metadataMask = ElanHelper.getElanMetadataMask();
         return Arrays.asList(MatchEthernetType.ARP, MatchArpOp.REQUEST, new MatchArpTpa(ipAddress, "32"),
                 new MatchMetadata(metadata, metadataMask));
 
@@ -209,7 +210,7 @@ public final class ArpResponderUtil {
                 new ActionMoveSpaToTpa().buildAction(actionCounter.getAndIncrement()),
                 new ActionLoadMacToSha(new MacAddress(mac)).buildAction(actionCounter.getAndIncrement()),
                 new ActionLoadIpToSpa(ip).buildAction(actionCounter.getAndIncrement()),
-                new ActionNxLoadInPort(BigInteger.ZERO).buildAction(actionCounter.getAndIncrement()));
+                new ActionNxLoadInPort(Uint64.valueOf(BigInteger.ZERO)).buildAction(actionCounter.getAndIncrement()));
         return actions;
 
     };
@@ -245,7 +246,7 @@ public final class ArpResponderUtil {
             org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action actionClass = v
                     .getAction();
             if (actionClass instanceof NxActionResubmitRpcAddGroupCase) {
-                tableId.set(((NxActionResubmitRpcAddGroupCase) actionClass).getNxResubmit().getTable());
+                tableId.set(((NxActionResubmitRpcAddGroupCase) actionClass).getNxResubmit().getTable().toJava());
                 return true;
             } else {
                 return false;
@@ -298,16 +299,15 @@ public final class ArpResponderUtil {
      *            Gateway IP for which ARP Response flow to be installed
      * @return Cookie
      */
-    public static BigInteger generateCookie(int lportTag, String ipAddress) {
+    public static Uint64 generateCookie(int lportTag, String ipAddress) {
         LOG.trace("IPAddress in long {}", ipAddress);
-        BigInteger cookie = NwConstants.COOKIE_ARP_RESPONDER.add(BigInteger.valueOf(255))
-                .add(BigInteger.valueOf(ipTolong(ipAddress)));
-        return cookie.add(BigInteger.valueOf(lportTag));
+        return Uint64.fromLongBits(NwConstants.COOKIE_ARP_RESPONDER.longValue()
+                + 255 + ipTolong(ipAddress) + lportTag);
     }
 
-    private static BigInteger buildCookie(short tableId, int arpOpType) {
-        return NwConstants.COOKIE_ARP_RESPONDER.add(BigInteger.ONE).add(
-                BigInteger.valueOf(tableId).add(BigInteger.valueOf(arpOpType)));
+    private static Uint64 buildCookie(short tableId, int arpOpType) {
+        return Uint64.fromLongBits(NwConstants.COOKIE_ARP_RESPONDER.longValue()
+                + 1 + tableId + arpOpType);
     }
 
     private static String buildFlowRef(short tableId, int arpOpType) {
@@ -317,7 +317,7 @@ public final class ArpResponderUtil {
                 + (arpOpType == NwConstants.ARP_REQUEST ? "arp.request" : "arp.replay");
     }
 
-    public static FlowEntity createArpDefaultFlow(BigInteger dpId, short tableId, int arpOpType,
+    public static FlowEntity createArpDefaultFlow(Uint64 dpId, short tableId, int arpOpType,
             Supplier<List<MatchInfo>> matches, Supplier<List<ActionInfo>> actions) {
 
         List<InstructionInfo> instructions = Collections.singletonList(new InstructionApplyActions(actions.get()));
@@ -408,7 +408,7 @@ public final class ArpResponderUtil {
             RpcResult<AllocateIdOutput> rpcResult = result.get();
             if (rpcResult.isSuccessful()) {
                 LOG.trace("Retrieved Group Id is {}", rpcResult.getResult().getIdValue());
-                return rpcResult.getResult().getIdValue();
+                return rpcResult.getResult().getIdValue().toJava();
             } else {
                 LOG.warn("RPC Call to Allocate Id returned with Errors {}", rpcResult.getErrors());
             }

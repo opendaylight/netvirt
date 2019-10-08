@@ -51,6 +51,7 @@ import org.opendaylight.yangtools.yang.common.RpcError;
 import org.opendaylight.yangtools.yang.common.RpcError.ErrorType;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.FormattingTuple;
@@ -89,9 +90,9 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         String ipPrefix = input.getIpPrefix();
         SettableFuture<RpcResult<GenerateVpnLabelOutput>> futureResult = SettableFuture.create();
         String rd = vpnUtil.getVpnRd(vpnName);
-        long label = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME,
+        Uint32 label = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME,
             VpnUtil.getNextHopLabelKey(rd != null ? rd : vpnName, ipPrefix));
-        if (label == 0) {
+        if (label == null || label.longValue() == 0) {
             futureResult.set(RpcResultBuilder.<GenerateVpnLabelOutput>failed().withError(ErrorType.APPLICATION,
                     formatAndLog(LOG::error, "Could not retrieve the label for prefix {} in VPN {}", ipPrefix,
                             vpnName)).build());
@@ -144,7 +145,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         String destination = input.getDestination();
         String vpnInstanceName = input.getVpnInstanceName();
         String nexthop = input.getNexthop();
-        Long label = input.getLabel();
+        Uint32 label = input.getLabel();
         LOG.info("Adding static route for Vpn {} with destination {}, nexthop {} and label {}",
             vpnInstanceName, destination, nexthop, label);
 
@@ -154,10 +155,10 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             return result;
         }
 
-        if (label == null || label == 0) {
-            label = (long) vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME,
+        if (label == null || label.longValue() == 0) {
+            label = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME,
                 VpnUtil.getNextHopLabelKey(vpnInstanceName, destination));
-            if (label == 0) {
+            if (label.longValue() == 0) {
                 String message = "Unable to retrieve a new Label for the new Route";
                 result.set(RpcResultBuilder.<AddStaticRouteOutput>failed().withError(RpcError.ErrorType.APPLICATION,
                     message).build());
@@ -179,8 +180,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         Optional<InterVpnLinkDataComposite> optIVpnLink = interVpnLinkCache.getInterVpnLinkByEndpoint(nexthop);
         if (optIVpnLink.isPresent()) {
             try {
-                interVpnLinkUtil.handleStaticRoute(optIVpnLink.get(), vpnInstanceName, destination, nexthop,
-                                                   label.intValue());
+                interVpnLinkUtil.handleStaticRoute(optIVpnLink.get(), vpnInstanceName, destination, nexthop, label);
             } catch (Exception e) {
                 result.set(RpcResultBuilder.<AddStaticRouteOutput>failed().withError(ErrorType.APPLICATION,
                         formatAndLog(LOG::warn,
@@ -192,7 +192,8 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             try {
                 txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                     confTx -> vpnManager.addExtraRoute(vpnInstanceName, destination, nexthop, vpnRd,
-                            null /* routerId */, vpnOpEntry.getL3vni(), RouteOrigin.STATIC, null /* intfName */,
+                            null /* routerId */, vpnOpEntry.getL3vni(),
+                            RouteOrigin.STATIC, null /* intfName */,
                         null /*Adjacency*/, encapType, new HashSet<>() /*prefixListForRefreshFib*/,confTx)).get();
             } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Error adding static route {}", input, e);

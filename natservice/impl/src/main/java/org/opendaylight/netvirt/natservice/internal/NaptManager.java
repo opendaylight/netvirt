@@ -75,6 +75,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,7 +141,7 @@ public class NaptManager {
      * @param external  subnet prefix or ip address
      */
 
-    public void registerMapping(long segmentId, IPAddress internal, IPAddress external) {
+    public void registerMapping(Uint32 segmentId, IPAddress internal, IPAddress external) {
         LOG.debug("registerMapping : called with segmentid {}, internalIp {}, prefix {}, externalIp {} "
             + "and prefix {} ", segmentId, internal.getIpAddress(),
             internal.getPrefixLength(), external.getIpAddress(), external.getPrefixLength());
@@ -177,7 +179,7 @@ public class NaptManager {
             internalIp, externalIp);
     }
 
-    public void updateCounter(long segmentId, String externalIp, boolean isAdd) {
+    public void updateCounter(Uint32 segmentId, String externalIp, boolean isAdd) {
         short counter = 0;
         InstanceIdentifier<ExternalIpCounter> id = InstanceIdentifier.builder(ExternalIpsCounter.class)
             .child(ExternalCounters.class, new ExternalCountersKey(segmentId))
@@ -185,7 +187,7 @@ public class NaptManager {
         Optional<ExternalIpCounter> externalIpCounter =
             MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
         if (externalIpCounter.isPresent()) {
-            counter = externalIpCounter.get().getCounter();
+            counter = externalIpCounter.get().getCounter().toJava();
             if (isAdd) {
                 counter++;
                 LOG.debug("updateCounter : externalIp and counter after increment are {} and {}", externalIp, counter);
@@ -220,7 +222,7 @@ public class NaptManager {
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     @Nullable
-    public SessionAddress getExternalAddressMapping(long segmentId, SessionAddress sourceAddress,
+    public SessionAddress getExternalAddressMapping(Uint32 segmentId, SessionAddress sourceAddress,
                                                     NAPTEntryEvent.Protocol protocol) {
         LOG.debug("getExternalAddressMapping : called with segmentId {}, internalIp {} and port {}",
             segmentId, sourceAddress.getIpAddress(), sourceAddress.getPortNumber());
@@ -290,7 +292,7 @@ public class NaptManager {
                 createNaptPortPool(extIp);
                 LOG.debug("getExternalAddressMapping : Created Pool for next Ext IP {}", extIp);
             }
-            int extPort = NatUtil.getUniqueId(idManager, extIp, internalIpPort);
+            Uint32 extPort = NatUtil.getUniqueId(idManager, extIp, internalIpPort);
             if (extPort == NatConstants.INVALID_ID) {
                 LOG.error("getExternalAddressMapping : getExternalAddressMapping, idManager could not "
                     + "allocate id retry if subnet");
@@ -306,7 +308,7 @@ public class NaptManager {
             }
             // Write to ip-port-map before returning
             IpPortExternalBuilder ipExt = new IpPortExternalBuilder();
-            IpPortExternal ipPortExt = ipExt.setIpAddress(extIp).setPortNum(extPort).build();
+            IpPortExternal ipPortExt = ipExt.setIpAddress(extIp).setPortNum(extPort.intValue()).build();
             IpPortMap ipm = new IpPortMapBuilder().withKey(new IpPortMapKey(internalIpPort))
                     .setIpPortInternal(internalIpPort).setIpPortExternal(ipPortExt).build();
             LOG.debug("getExternalAddressMapping : writing into ip-port-map with "
@@ -327,10 +329,10 @@ public class NaptManager {
             final ReentrantLock lock = lockFor(segmentId, internalIpAddress, protocolType);
             lock.lock();
             try {
-                List<Integer> portList = new ArrayList<>(
+                List<Uint16> portList = new ArrayList<>(
                         NatUtil.getInternalIpPortListInfo(dataBroker, segmentId, internalIpAddress,
                             protocolType));
-                portList.add(ipPort);
+                portList.add(Uint16.valueOf(ipPort));
 
                 IntIpProtoTypeBuilder builder = new IntIpProtoTypeBuilder();
                 IntIpProtoType intIpProtocolType =
@@ -346,7 +348,7 @@ public class NaptManager {
             } finally {
                 lock.unlock();
             }
-            SessionAddress externalIpPort = new SessionAddress(extIp, extPort);
+            SessionAddress externalIpPort = new SessionAddress(extIp, extPort.intValue());
             LOG.debug("getExternalAddressMapping : successfully returning externalIP {} "
                     + "and port {}", externalIpPort.getIpAddress(), externalIpPort.getPortNumber());
             return externalIpPort;
@@ -359,7 +361,7 @@ public class NaptManager {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void releaseIpExtPortMapping(long segmentId, SessionAddress address, NAPTEntryEvent.Protocol protocol) {
+    protected void releaseIpExtPortMapping(Uint32 segmentId, SessionAddress address, NAPTEntryEvent.Protocol protocol) {
         String internalIpPort = address.getIpAddress() + ":" + address.getPortNumber();
         SessionAddress existingIpPort = checkIpPortMap(segmentId, internalIpPort, protocol);
         if (existingIpPort != null) {
@@ -367,7 +369,7 @@ public class NaptManager {
             try {
                 removeFromIpPortMapDS(segmentId, internalIpPort, protocol);
                 // Finally release port from idmanager
-                long releasedId = NatUtil.releaseId(idManager, existingIpPort.getIpAddress(), internalIpPort);
+                Uint32 releasedId = NatUtil.releaseId(idManager, existingIpPort.getIpAddress(), internalIpPort);
                 if (releasedId == NatConstants.INVALID_ID) {
                     LOG.error("releaseIpExtPortMapping : Unable to release ID for key {}",
                         existingIpPort.getIpAddress());
@@ -403,7 +405,7 @@ public class NaptManager {
      */
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public boolean removeMapping(long segmentId) {
+    public boolean removeMapping(Uint32 segmentId) {
         try {
             removeIpMappingForRouterID(segmentId);
             removeIpPortMappingForRouterID(segmentId);
@@ -417,32 +419,32 @@ public class NaptManager {
         return false;
     }
 
-    protected InstanceIdentifier<IpMap> getIpMapIdentifier(long segid, String internal) {
+    protected InstanceIdentifier<IpMap> getIpMapIdentifier(Uint32 segid, String internal) {
         return InstanceIdentifier.builder(IntextIpMap.class)
             .child(IpMapping.class, new IpMappingKey(segid))
             .child(IpMap.class, new IpMapKey(internal)).build();
     }
 
-    protected InstanceIdentifier<ExternalIpCounter> getExternalIpsIdentifier(long segmentId, String external) {
+    protected InstanceIdentifier<ExternalIpCounter> getExternalIpsIdentifier(Uint32 segmentId, String external) {
         return InstanceIdentifier.builder(ExternalIpsCounter.class)
             .child(ExternalCounters.class, new ExternalCountersKey(segmentId))
             .child(ExternalIpCounter.class, new ExternalIpCounterKey(external)).build();
     }
 
     @NonNull
-    public static List<IpMap> getIpMapList(DataBroker broker, Long routerId) {
+    public static List<IpMap> getIpMapList(DataBroker broker, Uint32 routerId) {
         InstanceIdentifier<IpMapping> id = getIpMapList(routerId);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
                 LogicalDatastoreType.OPERATIONAL, id).toJavaUtil().map(IpMapping::getIpMap).orElse(
                 Collections.emptyList());
     }
 
-    protected static InstanceIdentifier<IpMapping> getIpMapList(long routerId) {
+    protected static InstanceIdentifier<IpMapping> getIpMapList(Uint32 routerId) {
         return InstanceIdentifier.builder(
             IntextIpMap.class).child(IpMapping.class, new IpMappingKey(routerId)).build();
     }
 
-    protected InstanceIdentifier<IpPortMap> getIpPortMapIdentifier(long segid, String internal,
+    protected InstanceIdentifier<IpPortMap> getIpPortMapIdentifier(Uint32 segid, String internal,
                                                                    NAPTEntryEvent.Protocol protocol) {
         ProtocolTypes protocolType = NatUtil.getProtocolType(protocol);
         return InstanceIdentifier.builder(IntextIpPortMap.class)
@@ -452,7 +454,7 @@ public class NaptManager {
     }
 
     @Nullable
-    private SessionAddress checkIpPortMap(long segmentId, String internalIpPort,
+    private SessionAddress checkIpPortMap(Uint32 segmentId, String internalIpPort,
             NAPTEntryEvent.Protocol protocol) {
         LOG.debug("checkIpPortMap : called with segmentId {} and internalIpPort {}",
                 segmentId, internalIpPort);
@@ -469,7 +471,7 @@ public class NaptManager {
         if (ipPortMapType.isPresent()) {
             LOG.debug("checkIpPortMap : {}", ipPortMapType.get());
             SessionAddress externalIpPort = new SessionAddress(ipPortMapType.get().getIpPortExternal().getIpAddress(),
-                    ipPortMapType.get().getIpPortExternal().getPortNum());
+                    ipPortMapType.get().getIpPortExternal().getPortNum().toJava());
             LOG.debug("checkIpPortMap : returning successfully externalIP {} and port {}",
                     externalIpPort.getIpAddress(), externalIpPort.getPortNumber());
             return externalIpPort;
@@ -481,7 +483,7 @@ public class NaptManager {
     }
 
     @Nullable
-    protected String checkIpMap(long segmentId, String internalIp) {
+    protected String checkIpMap(Uint32 segmentId, String internalIp) {
         LOG.debug("checkIpMap : called with segmentId {} and internalIp {}", segmentId, internalIp);
         String externalIp;
         // check if ip-map node is there
@@ -517,12 +519,12 @@ public class NaptManager {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void removeSnatIntIpPortDS(long segmentId, SessionAddress address, ProtocolTypes protocolType) {
+    protected void removeSnatIntIpPortDS(Uint32 segmentId, SessionAddress address, ProtocolTypes protocolType) {
         LOG.trace("removeSnatIntIpPortDS : method called for IntIpport {} of router {} ",
             address, segmentId);
-        List<Integer> portList =
+        List<Uint16> portList =
             NatUtil.getInternalIpPortListInfo(dataBroker, segmentId, address.getIpAddress(), protocolType);
-        if (portList.isEmpty() || !portList.contains(address.getPortNumber())) {
+        if (portList.isEmpty() || !portList.contains(Uint16.valueOf(address.getPortNumber()))) {
             LOG.error("removeSnatIntIpPortDS : Internal IP {} for port {} entry not found in SnatIntIpPort DS",
                 address.getIpAddress(), address.getPortNumber());
             return;
@@ -530,7 +532,7 @@ public class NaptManager {
         LOG.trace("removeSnatIntIpPortDS : PortList {} retrieved for InternalIp {} of router {}",
             portList, address.getIpAddress(), segmentId);
         Integer port = address.getPortNumber();
-        portList.remove(port);
+        portList.remove(Uint16.valueOf(port));
 
         IntIpProtoTypeBuilder builder = new IntIpProtoTypeBuilder();
         IntIpProtoType intIpProtocolType =
@@ -546,7 +548,7 @@ public class NaptManager {
             address.getIpAddress(), address.getPortNumber(), segmentId);
     }
 
-    protected void removeFromSnatIpPortDS(long segmentId, String internalIp) {
+    protected void removeFromSnatIpPortDS(Uint32 segmentId, String internalIp) {
         InstanceIdentifier<IpPort> intIp = InstanceIdentifier.builder(SnatintIpPortMap.class)
             .child(IntipPortMap.class, new IntipPortMapKey(segmentId))
             .child(IpPort.class, new IpPortKey(internalIp)).build();
@@ -555,12 +557,12 @@ public class NaptManager {
         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, intIp);
     }
 
-    protected void removeFromIpPortMapDS(long segmentId, String internalIpPort, NAPTEntryEvent.Protocol protocol) {
+    protected void removeFromIpPortMapDS(Uint32 segmentId, String internalIpPort, NAPTEntryEvent.Protocol protocol) {
         ProtocolTypes protocolType = NatUtil.getProtocolType(protocol);
         removeFromIpPortMapDS(segmentId, internalIpPort, protocolType);
     }
 
-    protected void removeFromIpPortMapDS(long segmentId, String internalIpPort, ProtocolTypes protocolType) {
+    protected void removeFromIpPortMapDS(Uint32 segmentId, String internalIpPort, ProtocolTypes protocolType) {
         InstanceIdentifierBuilder<IpPortMap> idBuilder = InstanceIdentifier.builder(IntextIpPortMap.class)
             .child(IpPortMapping.class, new IpPortMappingKey(segmentId))
             .child(IntextIpProtocolType.class, new IntextIpProtocolTypeKey(protocolType))
@@ -571,7 +573,7 @@ public class NaptManager {
         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
     }
 
-    protected void removeFromIpMapDS(long segmentId, String internalIp) {
+    protected void removeFromIpMapDS(Uint32 segmentId, String internalIp) {
         InstanceIdentifierBuilder<IpMap> idBuilder = InstanceIdentifier.builder(IntextIpMap.class)
             .child(IpMapping.class, new IpMappingKey(segmentId))
             .child(IpMap.class, new IpMapKey(internalIp));
@@ -596,7 +598,7 @@ public class NaptManager {
         }
     }
 
-    protected void removeIntExtIpMapDS(long segmentId, String internalIp) {
+    protected void removeIntExtIpMapDS(Uint32 segmentId, String internalIp) {
         InstanceIdentifierBuilder<IpMap> idBuilder = InstanceIdentifier.builder(IntextIpMap.class)
             .child(IpMapping.class, new IpMappingKey(segmentId))
             .child(IpMap.class, new IpMapKey(internalIp));
@@ -607,7 +609,7 @@ public class NaptManager {
     }
 
     @Nullable
-    protected String getExternalIpAllocatedForSubnet(long segmentId, String internalIp) {
+    protected String getExternalIpAllocatedForSubnet(Uint32 segmentId, String internalIp) {
         InstanceIdentifierBuilder<IpMap> idBuilder = InstanceIdentifier.builder(IntextIpMap.class)
             .child(IpMapping.class, new IpMappingKey(segmentId))
             .child(IpMap.class, new IpMapKey(internalIp));
@@ -620,7 +622,7 @@ public class NaptManager {
         return null;
     }
 
-    private void removeIpMappingForRouterID(long segmentId) {
+    private void removeIpMappingForRouterID(Uint32 segmentId) {
         InstanceIdentifierBuilder<IpMapping> idBuilder = InstanceIdentifier.builder(IntextIpMap.class)
             .child(IpMapping.class, new IpMappingKey(segmentId));
         InstanceIdentifier<IpMapping> id = idBuilder.build();
@@ -640,7 +642,7 @@ public class NaptManager {
         }
     }
 
-    void removeIpPortMappingForRouterID(long segmentId) {
+    void removeIpPortMappingForRouterID(Uint32 segmentId) {
         InstanceIdentifier<IpPortMapping> idBuilder = InstanceIdentifier.builder(IntextIpPortMap.class)
             .child(IpPortMapping.class, new IpPortMappingKey(segmentId)).build();
         Optional<IpPortMapping> ipPortMapping = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
@@ -653,7 +655,7 @@ public class NaptManager {
         }
     }
 
-    void removeIntIpPortMappingForRouterID(long segmentId) {
+    void removeIntIpPortMappingForRouterID(Uint32 segmentId) {
         InstanceIdentifier<IntipPortMap> intIp = InstanceIdentifier.builder(SnatintIpPortMap.class)
             .child(IntipPortMap.class, new IntipPortMapKey(segmentId)).build();
         Optional<IntipPortMap> intIpPortMap = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, intIp);
@@ -670,7 +672,7 @@ public class NaptManager {
         }
     }
 
-    protected void initialiseExternalCounter(Routers routers, long routerId) {
+    protected void initialiseExternalCounter(Routers routers, Uint32 routerId) {
         LOG.debug("initialiseExternalCounter : Initialise External IPs counter");
 
         //update the new counter value for this externalIp
@@ -686,14 +688,14 @@ public class NaptManager {
         }
     }
 
-    protected void initialiseNewExternalIpCounter(long routerId, String externalIp) {
+    protected void initialiseNewExternalIpCounter(Uint32 routerId, String externalIp) {
         ExternalIpCounter externalIpCounterData = new ExternalIpCounterBuilder()
             .withKey(new ExternalIpCounterKey(externalIp)).setExternalIp(externalIp).setCounter((short) 0).build();
         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
             getExternalIpsIdentifier(routerId, externalIp), externalIpCounterData);
     }
 
-    protected void removeExternalCounter(long routerId) {
+    protected void removeExternalCounter(Uint32 routerId) {
         // Remove from external-counters model
         InstanceIdentifier<ExternalCounters> id = InstanceIdentifier.builder(ExternalIpsCounter.class)
             .child(ExternalCounters.class, new ExternalCountersKey(routerId)).build();
@@ -701,7 +703,7 @@ public class NaptManager {
         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
     }
 
-    protected void removeExternalIpCounter(long routerId, String externalIp) {
+    protected void removeExternalIpCounter(Uint32 routerId, String externalIp) {
         // Remove from external-counters model
         InstanceIdentifier<ExternalIpCounter> id = InstanceIdentifier.builder(ExternalIpsCounter.class)
             .child(ExternalCounters.class, new ExternalCountersKey(routerId))
@@ -710,7 +712,7 @@ public class NaptManager {
         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
     }
 
-    private static ReentrantLock lockFor(final long segmentId, String ipAddress, final ProtocolTypes protocolType) {
+    private static ReentrantLock lockFor(final Uint32 segmentId, String ipAddress, final ProtocolTypes protocolType) {
         // FIXME: use an Identifier class instead?
         String lockName = new StringBuilder()
             .append(segmentId)

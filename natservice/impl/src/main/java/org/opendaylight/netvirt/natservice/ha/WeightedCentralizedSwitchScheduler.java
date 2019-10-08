@@ -12,7 +12,6 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
 import com.google.common.base.Optional;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -53,6 +52,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +61,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
     private static final Logger LOG = LoggerFactory.getLogger(WeightedCentralizedSwitchScheduler.class);
     private static final Integer INITIAL_SWITCH_WEIGHT = Integer.valueOf(0);
 
-    private final Map<String, Map<BigInteger,Integer>> providerSwitchWeightsMap = new ConcurrentHashMap<>();
+    private final Map<String, Map<Uint64,Integer>> providerSwitchWeightsMap = new ConcurrentHashMap<>();
     private final Map<String,String> subnetIdToRouterPortMap = new ConcurrentHashMap<>();
     private final Map<String,String> subnetIdToElanInstanceMap = new ConcurrentHashMap<>();
     private final DataBroker dataBroker;
@@ -90,8 +90,8 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
     @Override
     public boolean scheduleCentralizedSwitch(Routers router) {
         String providerNet = NatUtil.getElanInstancePhysicalNetwok(router.getNetworkId().getValue(),dataBroker);
-        BigInteger nextSwitchId = getSwitchWithLowestWeight(providerNet);
-        if (BigInteger.ZERO.equals(nextSwitchId)) {
+        Uint64 nextSwitchId = getSwitchWithLowestWeight(providerNet);
+        if (Uint64.ZERO.equals(nextSwitchId)) {
             LOG.error("In scheduleCentralizedSwitch, unable to schedule the router {} as there is no available switch.",
                     router.getRouterName());
             return false;
@@ -107,7 +107,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
         try {
             SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                     getNaptSwitchesIdentifier(routerName), id);
-            Map<BigInteger,Integer> switchWeightMap = providerSwitchWeightsMap.get(providerNet);
+            Map<Uint64,Integer> switchWeightMap = providerSwitchWeightsMap.get(providerNet);
             switchWeightMap.put(nextSwitchId,switchWeightMap.get(nextSwitchId) + 1);
 
         } catch (TransactionCommitFailedException e) {
@@ -123,7 +123,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
         String routerName = newRouter.getRouterName();
         List<Uuid> addedSubnetIds = getUpdatedSubnetIds(newRouter.getSubnetIds(), oldRouter.getSubnetIds());
         List<Uuid> deletedSubnetIds = getUpdatedSubnetIds(oldRouter.getSubnetIds(), newRouter.getSubnetIds());
-        BigInteger primarySwitchId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, newRouter.getRouterName());
+        Uint64 primarySwitchId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, newRouter.getRouterName());
         addToDpnMaps(routerName, addedSubnetIds, primarySwitchId);
         deleteFromDpnMaps(routerName, deletedSubnetIds, primarySwitchId);
         try {
@@ -154,8 +154,8 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
     public boolean releaseCentralizedSwitch(Routers router) {
         String providerNet = NatUtil.getElanInstancePhysicalNetwok(router.getNetworkId().getValue(),dataBroker);
         String routerName = router.getRouterName();
-        BigInteger primarySwitchId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
-        if (primarySwitchId == null || BigInteger.ZERO.equals(primarySwitchId)) {
+        Uint64 primarySwitchId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
+        if (primarySwitchId == null || Uint64.ZERO.equals(primarySwitchId)) {
             LOG.info("releaseCentralizedSwitch: NAPT Switch is not allocated for router {}", router.getRouterName());
             return false;
         }
@@ -165,7 +165,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
         try {
             SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
                     getNaptSwitchesIdentifier(routerName));
-            Map<BigInteger,Integer> switchWeightMap = providerSwitchWeightsMap.get(providerNet);
+            Map<Uint64,Integer> switchWeightMap = providerSwitchWeightsMap.get(providerNet);
             switchWeightMap.put(primarySwitchId, switchWeightMap.get(primarySwitchId) - 1);
         } catch (TransactionCommitFailedException e) {
             return false;
@@ -173,7 +173,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
         return true;
     }
 
-    private void addToDpnMaps(String routerName, List<Uuid> addedSubnetIds, BigInteger primarySwitchId) {
+    private void addToDpnMaps(String routerName, List<Uuid> addedSubnetIds, Uint64 primarySwitchId) {
         if (addedSubnetIds == null || addedSubnetIds.isEmpty()) {
             LOG.debug("addToDpnMaps no subnets associated with {}", routerName);
             return;
@@ -209,7 +209,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
         }
     }
 
-    private void deleteFromDpnMaps(String routerName, List<Uuid> deletedSubnetIds, BigInteger primarySwitchId) {
+    private void deleteFromDpnMaps(String routerName, List<Uuid> deletedSubnetIds, Uint64 primarySwitchId) {
         if (deletedSubnetIds == null || deletedSubnetIds.isEmpty()) {
             LOG.debug("deleteFromDpnMaps no subnets associated with {}", routerName);
             return;
@@ -245,7 +245,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
     public void switchAddedToCache(SwitchInfo switchInfo) {
         boolean scheduleRouters = (providerSwitchWeightsMap.size() == 0) ? true : false;
         for (String providerNet : switchInfo.getProviderNets()) {
-            Map<BigInteger,Integer> switchWeightMap = providerSwitchWeightsMap.get(providerNet);
+            Map<Uint64,Integer> switchWeightMap = providerSwitchWeightsMap.get(providerNet);
             if (providerSwitchWeightsMap.get(providerNet) == null) {
                 switchWeightMap = new ConcurrentHashMap<>();
                 providerSwitchWeightsMap.put(providerNet, switchWeightMap);
@@ -286,8 +286,8 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
         try {
             RouterToNaptSwitch rtrToNapt = SingleTransactionDataBroker.syncRead(dataBroker,
                     LogicalDatastoreType.CONFIGURATION, routerToNaptSwitch);
-            BigInteger dpnId = rtrToNapt.getPrimarySwitchId();
-            if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
+            Uint64 dpnId = rtrToNapt.getPrimarySwitchId();
+            if (dpnId == null || dpnId.equals(Uint64.ZERO)) {
                 return false;
             }
         } catch (ReadFailedException e) {
@@ -299,10 +299,10 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
 
     @Override
     public void switchRemovedFromCache(SwitchInfo switchInfo) {
-        BigInteger dpnId = switchInfo.getDpnId();
+        Uint64 dpnId = switchInfo.getDpnId();
         LOG.info("removeSwitch: Removing {} dpnId to switchWeightsMap", dpnId);
-        for (Map.Entry<String,Map<BigInteger,Integer>> providerNet : providerSwitchWeightsMap.entrySet()) {
-            Map<BigInteger,Integer> switchWeightMap = providerNet.getValue();
+        for (Map.Entry<String,Map<Uint64,Integer>> providerNet : providerSwitchWeightsMap.entrySet()) {
+            Map<Uint64,Integer> switchWeightMap = providerNet.getValue();
             if (natMode == NatserviceConfig.NatMode.Conntrack
                     && !INITIAL_SWITCH_WEIGHT.equals(switchWeightMap.get(dpnId))) {
                 NaptSwitches naptSwitches = getNaptSwitches();
@@ -326,16 +326,16 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
                 LogicalDatastoreType.CONFIGURATION, id).orNull();
     }
 
-    private BigInteger getSwitchWithLowestWeight(String providerNet) {
+    private Uint64 getSwitchWithLowestWeight(String providerNet) {
         int lowestWeight = Integer.MAX_VALUE;
-        BigInteger nextSwitchId = BigInteger.valueOf(0);
-        Map<BigInteger,Integer> switchWeightMap = providerSwitchWeightsMap.get(providerNet);
+        Uint64 nextSwitchId = Uint64.valueOf(0);
+        Map<Uint64,Integer> switchWeightMap = providerSwitchWeightsMap.get(providerNet);
         if (null == switchWeightMap) {
             LOG.error("No switch have the provider mapping {}", providerNet);
             return nextSwitchId;
         }
-        for (Entry<BigInteger, Integer> entry : switchWeightMap.entrySet()) {
-            BigInteger dpnId = entry.getKey();
+        for (Entry<Uint64, Integer> entry : switchWeightMap.entrySet()) {
+            Uint64 dpnId = entry.getKey();
             Integer weight = entry.getValue();
             if (lowestWeight > weight) {
                 lowestWeight = weight;
@@ -358,7 +358,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
     }
 
     @Nullable
-    public BigInteger getCentralizedSwitch(String routerName) {
+    public Uint64 getCentralizedSwitch(String routerName) {
         try {
             Optional<RouterToNaptSwitch> naptSwitches = SingleTransactionDataBroker
                     .syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,

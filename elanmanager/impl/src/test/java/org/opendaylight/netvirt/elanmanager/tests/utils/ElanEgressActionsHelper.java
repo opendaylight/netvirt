@@ -46,7 +46,8 @@ public abstract class ElanEgressActionsHelper implements OdlInterfaceRpcService 
     public ListenableFuture<RpcResult<GetEgressActionsForInterfaceOutput>> getEgressActionsForInterface(
             GetEgressActionsForInterfaceInput input) {
         return FutureRpcResults.fromBuilder(LOG, input, () -> {
-            List<Action> actionsList = IfmUtil.getEgressActionsForInterface(input.getIntfName(), input.getTunnelKey(),
+            List<Action> actionsList = IfmUtil.getEgressActionsForInterface(input.getIntfName(),
+                    input.getTunnelKey() != null ? input.getTunnelKey().toJava() : null,
                     input.getActionKey(), interfaceManagerCommonUtils, false);
             return new GetEgressActionsForInterfaceOutputBuilder().setAction(actionsList);
         }).build();

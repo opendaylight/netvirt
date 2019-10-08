@@ -9,7 +9,6 @@
 package org.opendaylight.netvirt.ipv6service;
 
 import io.netty.util.Timeout;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +42,7 @@ public class VirtualPort implements IVirtualPort  {
     private final ConcurrentMap<Uuid, SubnetInfo> snetInfo = new ConcurrentHashMap<>();
 
     private volatile Long ofPort;
-    private volatile BigInteger dpId;
+    private volatile Uint64 dpId;
     private volatile boolean serviceBindingStatus;
     private volatile Ipv6PeriodicTimer periodicTimer;
     private volatile Timeout periodicTimeout;
@@ -160,12 +160,12 @@ public class VirtualPort implements IVirtualPort  {
         return deviceOwner;
     }
 
-    public void setDpId(BigInteger dpId) {
+    public void setDpId(Uint64 dpId) {
         this.dpId = dpId;
     }
 
     @Override
-    public BigInteger getDpId() {
+    public Uint64 getDpId() {
         return dpId;
     }
 
