@@ -93,8 +93,8 @@ public class ElanBridgeManager {
         this.interfaceManager = interfaceManager;
         this.southboundUtils = southboundUtils;
         this.random = new Random(System.currentTimeMillis());
-        this.maxBackoff = elanConfig.getControllerMaxBackoff();
-        this.inactivityProbe = elanConfig.getControllerInactivityProbe();
+        this.maxBackoff = elanConfig.getControllerMaxBackoff().toJava();
+        this.inactivityProbe = elanConfig.getControllerInactivityProbe().toJava();
     }
 
     /**

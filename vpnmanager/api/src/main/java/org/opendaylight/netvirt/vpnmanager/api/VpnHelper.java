@@ -94,7 +94,7 @@ public final class VpnHelper {
                 = read(broker, LogicalDatastoreType.CONFIGURATION, id);
         long vpnId = -1;
         if (vpnInstance.isPresent()) {
-            vpnId = vpnInstance.get().getVpnId();
+            vpnId = vpnInstance.get().getVpnId().toJava();
         }
         return vpnId;
     }

@@ -67,7 +67,7 @@ public final class InterfaceUtils {
                 interfaceManagerRpcService.getDpidFromInterface(dpIdInput);
             RpcResult<GetDpidFromInterfaceOutput> dpIdResult = dpIdOutput.get();
             if (dpIdResult.isSuccessful()) {
-                nodeId = dpIdResult.getResult().getDpid();
+                nodeId = dpIdResult.getResult().getDpid().toJava();
             } else {
                 LOG.info("getDpnForInterface: Could not retrieve DPN Id for interface {}", ifName);
             }

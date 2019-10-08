@@ -245,7 +245,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     public static boolean compareWithExistingElanInstance(ElanInstance existingElanInstance, long macTimeOut,
             String description) {
         boolean isEqual = false;
-        if (existingElanInstance.getMacTimeout() == macTimeOut
+        if (existingElanInstance.getMacTimeout().toJava() == macTimeOut
                 && Objects.equals(existingElanInstance.getDescription(), description)) {
             isEqual = true;
         }
@@ -695,7 +695,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             return;
         }
 
-        elanUtils.addDmacRedirectToDispatcherFlows(elanInstance.getElanTag(), elanInstanceName, macAddress,
+        elanUtils.addDmacRedirectToDispatcherFlows(elanInstance.getElanTag().toJava(), elanInstanceName, macAddress,
                 dpnsIdsForElanInstance);
     }
 
@@ -717,7 +717,8 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             return;
         }
 
-        elanUtils.removeDmacRedirectToDispatcherFlows(elanInstance.getElanTag(), macAddress, dpnsIdsForElanInstance);
+        elanUtils.removeDmacRedirectToDispatcherFlows(elanInstance.getElanTag().toJava(),
+            macAddress, dpnsIdsForElanInstance);
     }
 
     /**
@@ -750,7 +751,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             if (ElanUtils.isFlat(elanInstance)) {
                 interfaceName = trunkName;
             } else if (ElanUtils.isVlan(elanInstance)) {
-                Long segmentationId = elanInstance.getSegmentationId();
+                Long segmentationId = elanInstance.getSegmentationId().toJava();
                 interfaceName = parentRef + IfmConstants.OF_URI_SEPARATOR + segmentationId;
                 interfaceManager.createVLANInterface(interfaceName, trunkName, segmentationId.intValue(), null,
                         IfL2vlan.L2vlanMode.TrunkMember, true);

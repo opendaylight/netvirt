@@ -79,7 +79,7 @@ public class VpnServiceElanDpnInterfacesListener
     protected void update(InstanceIdentifier<DpnInterfaces> identifier, DpnInterfaces original,
             DpnInterfaces update) {
         LOG.info("received Dpninterfaces update event for dpn {}", update.getDpId());
-        BigInteger dpnId = update.getDpId();
+        BigInteger dpnId = update.getDpId().toJava();
         String elanInstanceName = identifier.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
         ElanInstance elanInstance = vpnUtil.getElanInstanceByName(elanInstanceName);
         String vpnName = vpnUtil.getVpnNameFromElanIntanceName(elanInstanceName);
@@ -123,7 +123,7 @@ public class VpnServiceElanDpnInterfacesListener
 
     @Override
     protected void add(InstanceIdentifier<DpnInterfaces> identifier, DpnInterfaces dpnInterfaces) {
-        BigInteger dpnId = dpnInterfaces.getDpId();
+        BigInteger dpnId = dpnInterfaces.getDpId().toJava();
         String elanInstanceName = identifier.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
         ElanInstance elanInstance = vpnUtil.getElanInstanceByName(elanInstanceName);
         if (!VpnUtil.isVlan(elanInstance)) {

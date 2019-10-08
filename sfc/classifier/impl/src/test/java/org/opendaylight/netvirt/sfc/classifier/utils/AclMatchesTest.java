@@ -168,8 +168,8 @@ public class AclMatchesTest {
 
 
             if (tcpSrc != null) {
-                srcTcpMatches.add(tcpSrc.getPort().getValue());
-                srcTcpMatches.add(tcpSrc.getMask());
+                srcTcpMatches.add(tcpSrc.getPort().getValue().toJava());
+                srcTcpMatches.add(tcpSrc.getMask().toJava());
             }
 
             // The layer3 match should be null
@@ -217,8 +217,8 @@ public class AclMatchesTest {
 
 
             if (tcpSrc != null) {
-                srcTcpMatches.add(tcpSrc.getPort().getValue());
-                srcTcpMatches.add(tcpSrc.getMask());
+                srcTcpMatches.add(tcpSrc.getPort().getValue().toJava());
+                srcTcpMatches.add(tcpSrc.getMask().toJava());
             }
 
             // The layer3 match should be null
@@ -266,8 +266,8 @@ public class AclMatchesTest {
                     .getExtension().augmentation(NxAugMatchNodesNodeTableFlow.class).getNxmOfTcpDst();
 
             if (tcpDst != null) {
-                dstTcpMatches.add(tcpDst.getPort().getValue());
-                dstTcpMatches.add(tcpDst.getMask());
+                dstTcpMatches.add(tcpDst.getPort().getValue().toJava());
+                dstTcpMatches.add(tcpDst.getMask().toJava());
             }
             // The layer3 match should be null
             assertNull(matchBuilder.getLayer3Match());
@@ -313,8 +313,8 @@ public class AclMatchesTest {
                     .getExtension().augmentation(NxAugMatchNodesNodeTableFlow.class).getNxmOfTcpDst();
 
             if (tcpDst != null) {
-                dstTcpMatches.add(tcpDst.getPort().getValue());
-                dstTcpMatches.add(tcpDst.getMask());
+                dstTcpMatches.add(tcpDst.getPort().getValue().toJava());
+                dstTcpMatches.add(tcpDst.getMask().toJava());
             }
             // The layer3 match should be null
             assertNull(matchBuilder.getLayer3Match());
@@ -371,13 +371,13 @@ public class AclMatchesTest {
                     .getExtension().augmentation(NxAugMatchNodesNodeTableFlow.class).getNxmOfTcpDst();
 
             if (tcpSrc != null) {
-                srcTcpMatches.add(tcpSrc.getPort().getValue());
-                srcTcpMatches.add(tcpSrc.getMask());
+                srcTcpMatches.add(tcpSrc.getPort().getValue().toJava());
+                srcTcpMatches.add(tcpSrc.getMask().toJava());
             }
 
             if (tcpDst != null) {
-                dstTcpMatches.add(tcpDst.getPort().getValue());
-                dstTcpMatches.add(tcpDst.getMask());
+                dstTcpMatches.add(tcpDst.getPort().getValue().toJava());
+                dstTcpMatches.add(tcpDst.getMask().toJava());
             }
             // The layer3 match should be null
             assertNull(matchBuilder.getLayer3Match());
@@ -431,8 +431,8 @@ public class AclMatchesTest {
                     .getExtension().augmentation(NxAugMatchNodesNodeTableFlow.class).getNxmOfUdpSrc();
 
             if (udpSrc != null) {
-                srcUdpMatches.add(udpSrc.getPort().getValue());
-                srcUdpMatches.add(udpSrc.getMask());
+                srcUdpMatches.add(udpSrc.getPort().getValue().toJava());
+                srcUdpMatches.add(udpSrc.getMask().toJava());
             }
 
             // The layer3 match should be null
@@ -480,8 +480,8 @@ public class AclMatchesTest {
                     .getExtension().augmentation(NxAugMatchNodesNodeTableFlow.class).getNxmOfUdpSrc();
 
             if (udpSrc != null) {
-                srcUdpMatches.add(udpSrc.getPort().getValue());
-                srcUdpMatches.add(udpSrc.getMask());
+                srcUdpMatches.add(udpSrc.getPort().getValue().toJava());
+                srcUdpMatches.add(udpSrc.getMask().toJava());
             }
 
             // The layer3 match should be null
@@ -529,8 +529,8 @@ public class AclMatchesTest {
                     .getExtension().augmentation(NxAugMatchNodesNodeTableFlow.class).getNxmOfUdpDst();
 
             if (udpDst != null) {
-                dstUdpMatches.add(udpDst.getPort().getValue());
-                dstUdpMatches.add(udpDst.getMask());
+                dstUdpMatches.add(udpDst.getPort().getValue().toJava());
+                dstUdpMatches.add(udpDst.getMask().toJava());
             }
 
             // The layer3 match should be null
@@ -578,8 +578,8 @@ public class AclMatchesTest {
                     .getExtension().augmentation(NxAugMatchNodesNodeTableFlow.class).getNxmOfUdpDst();
 
             if (udpDst != null) {
-                dstUdpMatches.add(udpDst.getPort().getValue());
-                dstUdpMatches.add(udpDst.getMask());
+                dstUdpMatches.add(udpDst.getPort().getValue().toJava());
+                dstUdpMatches.add(udpDst.getMask().toJava());
             }
 
             // The layer3 match should be null
@@ -639,13 +639,13 @@ public class AclMatchesTest {
                     .getExtension().augmentation(NxAugMatchNodesNodeTableFlow.class).getNxmOfUdpDst();
 
             if (udpSrc != null) {
-                srcUdpMatches.add(udpSrc.getPort().getValue());
-                srcUdpMatches.add(udpSrc.getMask());
+                srcUdpMatches.add(udpSrc.getPort().getValue().toJava());
+                srcUdpMatches.add(udpSrc.getMask().toJava());
             }
 
             if (udpDst != null) {
-                dstUdpMatches.add(udpDst.getPort().getValue());
-                dstUdpMatches.add(udpDst.getMask());
+                dstUdpMatches.add(udpDst.getPort().getValue().toJava());
+                dstUdpMatches.add(udpDst.getMask().toJava());
             }
 
             // The layer3 match should be null
