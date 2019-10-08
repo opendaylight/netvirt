@@ -24,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp_allocation_poo
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp_allocation_pool.rev161214.dhcp_allocation_pool.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp_allocation_pool.rev161214.dhcp_allocation_pool.network.AllocationPool;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,10 +53,10 @@ public class DhcpAllocationPoolListener
     protected void add(InstanceIdentifier<AllocationPool> key, AllocationPool dataObjectModification) {
         String networkId = key.firstKeyOf(Network.class).getNetworkId();
         dhcpAllocationPoolManager.createIdAllocationPool(networkId, dataObjectModification);
-        Map<BigInteger, List<String>> elanDpnInterfacesByName =
+        Map<Uint64, List<String>> elanDpnInterfacesByName =
             dhcpAllocationPoolManager.getElanDpnInterfacesByName(dataBroker, networkId);
-        for (Entry<BigInteger, List<String>> entry : elanDpnInterfacesByName.entrySet()) {
-            BigInteger dpnId = entry.getKey();
+        for (Entry<Uint64, List<String>> entry : elanDpnInterfacesByName.entrySet()) {
+            BigInteger dpnId = entry.getKey().toJava();
             for (String interfaceName : entry.getValue()) {
                 LOG.debug("Install Dhcp Entries for dpId: {} interface : {}", dpnId, interfaceName);
                 DhcpAllocationPoolAddJob job = new DhcpAllocationPoolAddJob(txRunner, interfaceName);
@@ -80,7 +81,7 @@ public class DhcpAllocationPoolListener
     protected void remove(InstanceIdentifier<AllocationPool> key, AllocationPool dataObjectModification) {
         String networkId = key.firstKeyOf(Network.class).getNetworkId();
         dhcpAllocationPoolManager.releaseIdAllocationPool(networkId, dataObjectModification);
-        Map<BigInteger, List<String>> elanDpnInterfacesByName =
+        Map<Uint64, List<String>> elanDpnInterfacesByName =
             dhcpAllocationPoolManager.getElanDpnInterfacesByName(dataBroker, networkId);
         elanDpnInterfacesByName.values().forEach(interfaceNames -> interfaceNames.forEach(interfaceName -> {
             DhcpAllocationPoolRemoveJob job = new DhcpAllocationPoolRemoveJob(txRunner, interfaceName);

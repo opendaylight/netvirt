@@ -160,6 +160,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1601,7 +1603,7 @@ public class NeutronvpnUtils {
             LOG.error("updateVpnInstanceWithFallback: vpnInstanceOpDataEntry not found for vpn {}", vpnName);
             return;
         }
-        Long internetBgpVpnId = vpnInstanceOpDataEntry.getVpnId();
+        Long internetBgpVpnId = vpnInstanceOpDataEntry.getVpnId().toJava();
         List<Uuid> routerIds = new ArrayList<>();
         //Handle router specific V6 internet fallback flow else handle all V6 external routers
         if (routerId != null) {
@@ -1618,12 +1620,12 @@ public class NeutronvpnUtils {
             if (rtrId == null) {
                 continue;
             }
-            List<BigInteger> dpnIds = getDpnsForRouter(rtrId.getValue());
+            List<Uint64> dpnIds = getDpnsForRouter(rtrId.getValue());
             if (dpnIds.isEmpty()) {
                 continue;
             }
             VpnInstanceOpDataEntry vpnOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(rtrId.getValue());
-            Long routerIdAsLong = vpnOpDataEntry.getVpnId();
+            Long routerIdAsLong = vpnOpDataEntry.getVpnId().toJava();
             long vpnId;
             Uuid rtrVpnId = getVpnForRouter(rtrId, true);
             if (rtrVpnId == null) {
@@ -1632,16 +1634,16 @@ public class NeutronvpnUtils {
             } else {
                 vpnId = getVpnId(rtrVpnId.getValue());
             }
-            for (BigInteger dpnId : dpnIds) {
+            for (Uint64 dpnId : dpnIds) {
                 if (add) {
                     LoggingFutures.addErrorLogging(
                         txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
-                            tx -> ipV6InternetDefRt.installDefaultRoute(tx, dpnId, rtrId.getValue(), internetBgpVpnId,
+                            tx -> ipV6InternetDefRt.installDefaultRoute(tx, dpnId.toJava(), rtrId.getValue(), internetBgpVpnId,
                                 vpnId)), LOG, "Error adding default route");
                 } else {
                     LoggingFutures.addErrorLogging(
                         txRunner.callWithNewReadWriteTransactionAndSubmit(Datastore.CONFIGURATION,
-                            tx -> ipV6InternetDefRt.removeDefaultRoute(tx, dpnId, rtrId.getValue(), internetBgpVpnId,
+                            tx -> ipV6InternetDefRt.removeDefaultRoute(tx, dpnId.toJava(), rtrId.getValue(), internetBgpVpnId,
                                 vpnId)), LOG,
                         "Error removing default route");
                 }
@@ -1694,13 +1696,13 @@ public class NeutronvpnUtils {
     }
 
     @NonNull
-    public List<BigInteger> getDpnsForRouter(String routerUuid) {
+    public List<Uint64> getDpnsForRouter(String routerUuid) {
         InstanceIdentifier id = InstanceIdentifier.builder(NeutronRouterDpns.class)
             .child(RouterDpnList.class, new RouterDpnListKey(routerUuid)).build();
         Optional<RouterDpnList> routerDpnListData =
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                         LogicalDatastoreType.OPERATIONAL, id);
-        List<BigInteger> dpns = new ArrayList<>();
+        List<Uint64> dpns = new ArrayList<>();
         if (routerDpnListData.isPresent()) {
             for (DpnVpninterfacesList dpnVpnInterface : routerDpnListData.get().nonnullDpnVpninterfacesList()) {
                 dpns.add(dpnVpnInterface.getDpnId());
@@ -1737,7 +1739,7 @@ public class NeutronvpnUtils {
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                 LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
                 org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
-                        .VpnInstance::getVpnId).orElse(null);
+                        .VpnInstance::getVpnId).orElse(null).toJava();
     }
 
     protected boolean isV6SubnetPartOfRouter(Uuid routerId) {

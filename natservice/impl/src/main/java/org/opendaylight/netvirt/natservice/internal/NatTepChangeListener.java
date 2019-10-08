@@ -142,7 +142,7 @@ public class NatTepChangeListener extends
          * DPN is elected as NAPT Switch.
          */
         BigInteger srcDpnId = key.firstIdentifierOf(DPNTEPsInfo.class)
-            .firstKeyOf(DPNTEPsInfo.class).getDPNID();
+            .firstKeyOf(DPNTEPsInfo.class).getDPNID().toJava();
         final String srcTepIp = tep.getIpAddress().stringValue();
         String tunnelType = tep.getTunnelType().getName();
         LOG.debug(

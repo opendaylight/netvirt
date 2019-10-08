@@ -617,7 +617,7 @@ public class QosNeutronUtils {
                     dpIdOutput = odlInterfaceRpcService.getDpidFromInterface(dpIdInput);
             RpcResult<GetDpidFromInterfaceOutput> dpIdResult = dpIdOutput.get();
             if (dpIdResult.isSuccessful()) {
-                nodeId = dpIdResult.getResult().getDpid();
+                nodeId = dpIdResult.getResult().getDpid().toJava();
             } else {
                 LOG.error("Could not retrieve DPN Id for interface {}", ifName);
             }

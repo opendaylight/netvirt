@@ -58,6 +58,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.router
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -142,7 +143,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
 
             List<String> ivlNexthops =
                 interVpnLink.getEndpointDpnsByVpnName(dstVpnName).stream()
-                            .map(dpnId -> InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, dpnId))
+                            .map(dpnId -> InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, dpnId.toJava()))
                             .collect(Collectors.toList());
             try {
                 bgpManager.advertisePrefix(dstVpnRd, null /*macAddress*/, prefix, ivlNexthops,
@@ -193,9 +194,9 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
         // Finally, route is advertised it to the DC-GW. But while in the FibEntries the nexthop is the other
         // endpoint's IP, in the DC-GW the nexthop for those prefixes are the IPs of those DPNs where the target
         // VPN has been instantiated
-        List<BigInteger> srcDpnList = interVpnLink.getEndpointDpnsByVpnName(srcVpnUuid);
+        List<Uint64> srcDpnList = interVpnLink.getEndpointDpnsByVpnName(srcVpnUuid);
         List<String> nexthops =
-            srcDpnList.stream().map(dpnId -> InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, dpnId))
+            srcDpnList.stream().map(dpnId -> InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, dpnId.toJava()))
                                .collect(Collectors.toList());
 
         LOG.debug("Advertising route in VPN={} [prefix={} label={}  nexthops={}] to DC-GW",

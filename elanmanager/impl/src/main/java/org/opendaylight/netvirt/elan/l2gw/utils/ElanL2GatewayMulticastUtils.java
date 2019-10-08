@@ -254,7 +254,7 @@ public class ElanL2GatewayMulticastUtils {
             TypedWriteTransaction<Datastore.Configuration> confTx) {
         List<DpnInterfaces> dpns = elanUtils.getInvolvedDpnsInElan(elanInfo.getElanInstanceName());
         for (DpnInterfaces dpn : dpns) {
-            setupStandardElanBroadcastGroups(elanInfo, null, dpn.getDpId(), createCase, confTx);
+            setupStandardElanBroadcastGroups(elanInfo, null, dpn.getDpId().toJava(), createCase, confTx);
         }
     }
 
@@ -279,7 +279,7 @@ public class ElanL2GatewayMulticastUtils {
         List<Bucket> listBucket = new ArrayList<>();
         int bucketId = 0;
         int actionKey = 0;
-        Long elanTag = elanInfo.getElanTag();
+        Long elanTag = elanInfo.getElanTag().toJava();
         List<Action> listAction = new ArrayList<>();
         listAction.add(new ActionGroup(ElanUtils.getElanLocalBCGId(elanTag)).buildAction(++actionKey));
         listBucket.add(MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT,
@@ -302,7 +302,7 @@ public class ElanL2GatewayMulticastUtils {
             BigInteger dpnId, TypedWriteTransaction<Datastore.Configuration> confTx) {
         EtreeInstance etreeInstance = elanInfo.augmentation(EtreeInstance.class);
         if (etreeInstance != null) {
-            long etreeLeafTag = etreeInstance.getEtreeLeafTagVal().getValue();
+            long etreeLeafTag = etreeInstance.getEtreeLeafTagVal().getValue().toJava();
             List<Bucket> listBucket = new ArrayList<>();
             int bucketId = 0;
             int actionKey = 0;
@@ -337,7 +337,7 @@ public class ElanL2GatewayMulticastUtils {
     private List<Bucket> getRemoteBCGroupExternalPortBuckets(ElanDpnInterfacesList elanDpns,
             DpnInterfaces dpnInterfaces, BigInteger dpnId, int bucketId) {
         DpnInterfaces currDpnInterfaces = dpnInterfaces != null ? dpnInterfaces : getDpnInterfaces(elanDpns, dpnId);
-        if (currDpnInterfaces == null || !elanUtils.isDpnPresent(currDpnInterfaces.getDpId())
+        if (currDpnInterfaces == null || !elanUtils.isDpnPresent(currDpnInterfaces.getDpId().toJava())
                 || currDpnInterfaces.getInterfaces() == null || currDpnInterfaces.getInterfaces().isEmpty()) {
             return emptyList();
         }
@@ -442,7 +442,7 @@ public class ElanL2GatewayMulticastUtils {
                         && !dpnInterface.getInterfaces().isEmpty()) {
                     try {
                         List<Action> listActionInfo = elanItmUtils.getInternalTunnelItmEgressAction(dpnId,
-                                dpnInterface.getDpId(), elanTagOrVni);
+                                dpnInterface.getDpId().toJava(), elanTagOrVni);
                         if (listActionInfo.isEmpty()) {
                             continue;
                         }
@@ -591,7 +591,7 @@ public class ElanL2GatewayMulticastUtils {
     private List<IpAddress> getAllTepIpsOfDpns(L2GatewayDevice l2GwDevice, Collection<DpnInterfaces> dpns) {
         List<IpAddress> tepIps = new ArrayList<>();
         for (DpnInterfaces dpn : dpns) {
-            IpAddress internalTunnelIp = elanItmUtils.getSourceDpnTepIp(dpn.getDpId(),
+            IpAddress internalTunnelIp = elanItmUtils.getSourceDpnTepIp(dpn.getDpId().toJava(),
                     new NodeId(l2GwDevice.getHwvtepNodeId()));
             if (internalTunnelIp != null) {
                 tepIps.add(internalTunnelIp);

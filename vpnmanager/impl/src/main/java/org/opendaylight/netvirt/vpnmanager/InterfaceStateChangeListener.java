@@ -238,7 +238,7 @@ public class InterfaceStateChangeListener
                                                 .getValue() : vpnInterface.getGatewayMacAddress();
                                             BigInteger dpnId = inputDpId;
                                             if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
-                                                dpnId = vpnInterface.getDpnId();
+                                                dpnId = vpnInterface.getDpnId().toJava();
                                             }
                                             final int ifIndex = intrf.getIfIndex();
                                             LOG.info("VPN Interface remove event - intfName {} onto vpnName {}"

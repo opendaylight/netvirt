@@ -76,6 +76,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLinkKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -227,9 +228,9 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                 }
             }
 
-            List<BigInteger> firstDpnList = ivpnLinkLocator.selectSuitableDpns(add);
+            List<Uint64> firstDpnList = ivpnLinkLocator.selectSuitableDpns(add);
             if (firstDpnList != null && !firstDpnList.isEmpty()) {
-                List<BigInteger> secondDpnList = firstDpnList;
+                List<Uint64> secondDpnList = firstDpnList;
 
                 Long firstVpnLportTag = allocateVpnLinkLportTag(key.getName() + vpn1Name);
                 Long secondVpnLportTag = allocateVpnLinkLportTag(key.getName() + vpn2Name);
@@ -321,7 +322,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             InterVpnLinkState interVpnLinkState = optIVpnLinkState.get();
             boolean isVpnFirstEndPoint = true;
             if (interVpnLinkState.getFirstEndpointState() != null) {
-                Long firstEndpointLportTag = interVpnLinkState.getFirstEndpointState().getLportTag();
+                Long firstEndpointLportTag = interVpnLinkState.getFirstEndpointState().getLportTag().toJava();
                 removeVpnLinkEndpointFlows(del, vpn2Uuid, rd1,
                     interVpnLinkState.getSecondEndpointState().getDpId(),
                     firstEndpointLportTag.intValue(),
@@ -332,7 +333,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             }
             isVpnFirstEndPoint = false;
             if (interVpnLinkState.getSecondEndpointState() != null) {
-                Long secondEndpointLportTag = interVpnLinkState.getSecondEndpointState().getLportTag();
+                Long secondEndpointLportTag = interVpnLinkState.getSecondEndpointState().getLportTag().toJava();
                 removeVpnLinkEndpointFlows(del, vpn1Uuid, rd2,
                                            interVpnLinkState.getFirstEndpointState().getDpId(),
                                            secondEndpointLportTag.intValue(),
@@ -371,7 +372,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
     // We're catching Exception here to continue deleting as much as possible
     // TODO Rework this so it's done in one transaction
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private void removeVpnLinkEndpointFlows(InterVpnLink del, String vpnUuid, String rd, List<BigInteger> dpns,
+    private void removeVpnLinkEndpointFlows(InterVpnLink del, String vpnUuid, String rd, List<Uint64> dpns,
                                             int otherEndpointLportTag, String otherEndpointIpAddr,
                                             List<VrfEntry> vrfEntries, final boolean isVpnFirstEndPoint) {
 
@@ -384,7 +385,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             return;
         }
 
-        for (BigInteger dpnId : dpns) {
+        for (Uint64 dpnId : dpns) {
             try {
                 // Removing flow from LportDispatcher table
                 String flowRef = InterVpnLinkUtil.getLportDispatcherFlowRef(interVpnLinkName, otherEndpointLportTag);
@@ -392,10 +393,10 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                 Flow flow = new FlowBuilder().withKey(flowKey).setId(new FlowId(flowRef))
                     .setTableId(NwConstants.LPORT_DISPATCHER_TABLE).setFlowName(flowRef)
                     .build();
-                mdsalManager.removeFlow(dpnId, flow);
+                mdsalManager.removeFlow(dpnId.toJava(), flow);
 
                 // Also remove the 'fake' iface from the VpnToDpn map
-                interVpnLinkUtil.removeIVpnLinkIfaceFromVpnFootprint(vpnUuid, rd, dpnId);
+                interVpnLinkUtil.removeIVpnLinkIfaceFromVpnFootprint(vpnUuid, rd, dpnId.toJava());
 
             } catch (Exception e) {
                 // Whatever happens it should not stop it from trying to remove as much as possible
@@ -445,7 +446,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
             RpcResult<AllocateIdOutput> rpcResult = result.get();
             if (rpcResult.isSuccessful()) {
-                return rpcResult.getResult().getIdValue();
+                return rpcResult.getResult().getIdValue().toJava();
             } else {
                 LOG.warn("RPC Call to Get Unique Id returned with Errors {}", rpcResult.getErrors());
             }

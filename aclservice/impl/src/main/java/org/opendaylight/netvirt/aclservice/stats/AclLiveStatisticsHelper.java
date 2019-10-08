@@ -166,7 +166,7 @@ public final class AclLiveStatisticsHelper {
         PacketsBuilder portIngressPacketsBuilder = new PacketsBuilder();
 
         for (FlowAndStatisticsMapList flowStats : flowAndStatisticsMapList) {
-            switch (flowStats.getTableId()) {
+            switch (flowStats.getTableId().toJava()) {
                 case NwConstants.INGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE:
                     if (AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY.equals(flowStats.getPriority())) {
                         portEgressBytesBuilder.setInvalidDropCount(flowStats.getByteCount().getValue());
@@ -176,13 +176,13 @@ public final class AclLiveStatisticsHelper {
                         BigInteger portEgressBytesBuilderDropCount = BigInteger.valueOf(0);
                         BigInteger portEgressPacketsBuilderDropCount = BigInteger.valueOf(0);
                         if (portEgressBytesBuilder.getDropCount() != null) {
-                            portEgressBytesBuilderDropCount = portEgressBytesBuilder.getDropCount()
-                                    .add(flowStats.getByteCount().getValue());
-                            portEgressPacketsBuilderDropCount = portEgressPacketsBuilder.getDropCount()
-                                    .add(flowStats.getPacketCount().getValue());
+                            portEgressBytesBuilderDropCount = portEgressBytesBuilder.getDropCount().toJava()
+                                    .add(flowStats.getByteCount().getValue().toJava());
+                            portEgressPacketsBuilderDropCount = portEgressPacketsBuilder.getDropCount().toJava()
+                                    .add(flowStats.getPacketCount().getValue().toJava());
                         } else {
-                            portEgressBytesBuilderDropCount = flowStats.getByteCount().getValue();
-                            portEgressPacketsBuilderDropCount = flowStats.getPacketCount().getValue();
+                            portEgressBytesBuilderDropCount = flowStats.getByteCount().getValue().toJava();
+                            portEgressPacketsBuilderDropCount = flowStats.getPacketCount().getValue().toJava();
                         }
                         portEgressBytesBuilder.setDropCount(portEgressBytesBuilderDropCount);
                         portEgressPacketsBuilder.setDropCount(portEgressPacketsBuilderDropCount);
@@ -199,13 +199,13 @@ public final class AclLiveStatisticsHelper {
                         BigInteger portIngressBytesBuilderDropCount = BigInteger.valueOf(0);
                         BigInteger portIngressPacketsBuilderDropCount = BigInteger.valueOf(0);
                         if (portIngressBytesBuilder.getDropCount() != null) {
-                            portIngressBytesBuilderDropCount = portIngressBytesBuilder.getDropCount()
-                                    .add(flowStats.getByteCount().getValue());
-                            portIngressPacketsBuilderDropCount = portIngressPacketsBuilder.getDropCount()
-                                    .add(flowStats.getPacketCount().getValue());
+                            portIngressBytesBuilderDropCount = portIngressBytesBuilder.getDropCount().toJava()
+                                    .add(flowStats.getByteCount().getValue().toJava());
+                            portIngressPacketsBuilderDropCount = portIngressPacketsBuilder.getDropCount().toJava()
+                                    .add(flowStats.getPacketCount().getValue().toJava());
                         } else {
-                            portIngressBytesBuilderDropCount = flowStats.getByteCount().getValue();
-                            portIngressPacketsBuilderDropCount = flowStats.getPacketCount().getValue();
+                            portIngressBytesBuilderDropCount = flowStats.getByteCount().getValue().toJava();
+                            portIngressPacketsBuilderDropCount = flowStats.getPacketCount().getValue().toJava();
                         }
                         portIngressBytesBuilder.setDropCount(portIngressBytesBuilderDropCount);
                         portIngressPacketsBuilder.setDropCount(portIngressPacketsBuilderDropCount);
@@ -257,22 +257,22 @@ public final class AclLiveStatisticsHelper {
         BigInteger antispoofDropCountPkt = BigInteger.ZERO;
 
         if (portBytesBuilder.getDropCount() != null) {
-            dropCountByt = portBytesBuilder.getDropCount();
+            dropCountByt = portBytesBuilder.getDropCount().toJava();
         }
         if (portPacketsBuilder.getDropCount() != null) {
-            dropCountPkt = portPacketsBuilder.getDropCount();
+            dropCountPkt = portPacketsBuilder.getDropCount().toJava();
         }
         if (portBytesBuilder.getDropCount() != null) {
-            invalidDropCountByt = portBytesBuilder.getInvalidDropCount();
+            invalidDropCountByt = portBytesBuilder.getInvalidDropCount().toJava();
         }
         if (portPacketsBuilder.getDropCount() != null) {
-            invalidDropCountPkt = portPacketsBuilder.getInvalidDropCount();
+            invalidDropCountPkt = portPacketsBuilder.getInvalidDropCount().toJava();
         }
         if (portBytesBuilder.getDropCount() != null) {
-            antispoofDropCountByt = portBytesBuilder.getAntiSpoofDropCount();
+            antispoofDropCountByt = portBytesBuilder.getAntiSpoofDropCount().toJava();
         }
         if (portPacketsBuilder.getDropCount() != null) {
-            antispoofDropCountPkt = portPacketsBuilder.getAntiSpoofDropCount();
+            antispoofDropCountPkt = portPacketsBuilder.getAntiSpoofDropCount().toJava();
         }
         portBytesBuilder.setTotalDropCount(antispoofDropCountByt.add(dropCountByt.add(invalidDropCountByt)));
         portPacketsBuilder.setTotalDropCount(antispoofDropCountPkt.add(dropCountPkt.add(invalidDropCountPkt)));

@@ -99,7 +99,7 @@ public class NatArpNotificationHandler implements OdlArputilListener {
         }
 
         VipState newVipState = this.vipStateTracker.buildVipState(srcIp.getIpv4Address().getValue(),
-            notification.getDpnId(), targetIfc.getName());
+            notification.getDpnId().toJava(), targetIfc.getName());
         VipState cachedState = null;
         try {
             cachedState = this.vipStateTracker.get(newVipState.getIp()).orNull();
@@ -109,12 +109,13 @@ public class NatArpNotificationHandler implements OdlArputilListener {
 
         if (null == cachedState) {
             this.southboundEventHandlers.handleAdd(
-                                    targetIfc.getName(), notification.getDpnId(), routerInterface, newVipState);
+                                    targetIfc.getName(), notification.getDpnId().toJava(),
+                                    routerInterface, newVipState);
         } else if (!cachedState.getDpnId().equals(newVipState.getDpnId())) {
             this.southboundEventHandlers.handleRemove(cachedState.getIfcName(),
-                    cachedState.getDpnId(), routerInterface);
+                    cachedState.getDpnId().toJava(), routerInterface);
             this.southboundEventHandlers.handleAdd(
-                    targetIfc.getName(), notification.getDpnId(), routerInterface, newVipState);
+                    targetIfc.getName(), notification.getDpnId().toJava(), routerInterface, newVipState);
         }
 
     }

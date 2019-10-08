@@ -247,6 +247,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.ModifiedNodeDoesNotExistException;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -578,9 +579,10 @@ public final class VpnUtil {
             return VpnConstants.INVALID_ID;
         }
 
-        return read(LogicalDatastoreType.CONFIGURATION, VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnName))
+        return (read(LogicalDatastoreType.CONFIGURATION, VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnName))
                 .toJavaUtil().map(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911
-                        .vpn.instance.to.vpn.id.VpnInstance::getVpnId).orElse(VpnConstants.INVALID_ID);
+                        .vpn.instance.to.vpn.id.VpnInstance::getVpnId)
+                        .orElse(Uint32.valueOf(VpnConstants.INVALID_ID))).toJava();
     }
 
     /**
@@ -1143,7 +1145,7 @@ public final class VpnUtil {
             return result;
         }
         for (VpnToDpnList vpnToDpn : vpnToDpnList) {
-            result.add(vpnToDpn.getDpnId());
+            result.add(vpnToDpn.getDpnId().toJava());
         }
         return result;
     }
@@ -1462,7 +1464,7 @@ public final class VpnUtil {
     @Nullable
     BigInteger getPrimarySwitchForRouter(String routerName) {
         RouterToNaptSwitch routerToNaptSwitch = getRouterToNaptSwitch(routerName);
-        return routerToNaptSwitch != null ? routerToNaptSwitch.getPrimarySwitchId() : null;
+        return routerToNaptSwitch != null ? routerToNaptSwitch.getPrimarySwitchId().toJava() : null;
     }
 
     static boolean isL3VpnOverVxLan(Long l3Vni) {
@@ -1985,7 +1987,7 @@ public final class VpnUtil {
             if (dpnInElanInterfaces.isPresent()) {
                 List<DpnInterfaces> dpnInterfaces = dpnInElanInterfaces.get().nonnullDpnInterfaces();
                 for (DpnInterfaces dpnInterface : dpnInterfaces) {
-                    dpnIdSet.add(dpnInterface.getDpId());
+                    dpnIdSet.add(dpnInterface.getDpId().toJava());
                 }
             }
         }
@@ -2086,7 +2088,7 @@ public final class VpnUtil {
     static boolean isVlan(ElanInstance elanInstance) {
         return elanInstance != null && elanInstance.getSegmentType() != null
                 && elanInstance.getSegmentType().isAssignableFrom(SegmentTypeVlan.class)
-                && elanInstance.getSegmentationId() != null && elanInstance.getSegmentationId() != 0;
+                && elanInstance.getSegmentationId() != null && elanInstance.getSegmentationId().toJava() != 0;
     }
 
     boolean isVlan(String interfaceName) {

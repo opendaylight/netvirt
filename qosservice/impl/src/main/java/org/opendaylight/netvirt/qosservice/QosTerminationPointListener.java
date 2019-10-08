@@ -90,15 +90,15 @@ public class QosTerminationPointListener extends
 
     private boolean isBandwidthRuleCleared(OvsdbTerminationPointAugmentation original,
                                          OvsdbTerminationPointAugmentation update) {
-        if ((update.getIngressPolicingRate() == 0 && update.getIngressPolicingBurst() == 0)
-                && (original.getIngressPolicingRate() != 0 || original.getIngressPolicingBurst() != 0)) {
+        if ((update.getIngressPolicingRate().toJava() == 0 && update.getIngressPolicingBurst().toJava() == 0)
+                && (original.getIngressPolicingRate().toJava() != 0 || original.getIngressPolicingBurst().toJava() != 0)) {
             return true;
         }
         return false;
     }
 
     private boolean isBandwidthRuleApplied(OvsdbTerminationPointAugmentation tp) {
-        if (tp.getIngressPolicingRate() != 0 || tp.getIngressPolicingBurst() != 0) {
+        if (tp.getIngressPolicingRate().toJava() != 0 || tp.getIngressPolicingBurst().toJava() != 0) {
             return true;
         }
         return false;
@@ -106,8 +106,8 @@ public class QosTerminationPointListener extends
 
     private boolean isBandwidthRuleApplied(OvsdbTerminationPointAugmentation original,
                                            OvsdbTerminationPointAugmentation update) {
-        if ((original.getIngressPolicingRate() == 0 && original.getIngressPolicingBurst() == 0)
-                && (update.getIngressPolicingRate() != 0 || update.getIngressPolicingBurst() != 0)) {
+        if ((original.getIngressPolicingRate().toJava() == 0 && original.getIngressPolicingBurst().toJava() == 0)
+                && (update.getIngressPolicingRate().toJava() != 0 || update.getIngressPolicingBurst().toJava() != 0)) {
             return true;
         }
         return false;

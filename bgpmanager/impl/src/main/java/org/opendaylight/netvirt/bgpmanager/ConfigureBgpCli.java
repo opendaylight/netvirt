@@ -204,7 +204,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
         }
         for (Neighbors nbr : nbrs) {
             if (nbrIp.equals(nbr.getAddress().getValue())) {
-                return nbr.getRemoteAs();
+                return nbr.getRemoteAs().toJava();
             }
         }
         return -1;

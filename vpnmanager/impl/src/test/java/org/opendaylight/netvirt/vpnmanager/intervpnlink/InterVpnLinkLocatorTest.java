@@ -50,6 +50,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinksBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,17 +139,17 @@ public class InterVpnLinkLocatorTest extends ConstantSchemaAbstractDataBrokerTes
         stubNwUtilsGetOperativeDpns(5); // 5 operative DPNs - 3 IvpnLinks
 
         System.setProperty(InterVpnLinkLocator.NBR_OF_DPNS_PROPERTY_NAME, "1");
-        List<BigInteger> vpnLink12Dpns = sut.selectSuitableDpns(I_VPN_LINK_12.getInterVpnLinkConfig());
+        List<Uint64> vpnLink12Dpns = sut.selectSuitableDpns(I_VPN_LINK_12.getInterVpnLinkConfig());
         InterVpnLinkTestCatalog.updateEndpointDpns(I_VPN_LINK_12, true, vpnLink12Dpns);
         InterVpnLinkTestCatalog.updateEndpointDpns(I_VPN_LINK_12, false, vpnLink12Dpns);
         interVpnLinkCache.addInterVpnLinkStateToCaches(I_VPN_LINK_12.getInterVpnLinkState());
 
-        List<BigInteger> vpnLink34Dpns = sut.selectSuitableDpns(I_VPN_LINK_34.getInterVpnLinkConfig());
+        List<Uint64> vpnLink34Dpns = sut.selectSuitableDpns(I_VPN_LINK_34.getInterVpnLinkConfig());
         InterVpnLinkTestCatalog.updateEndpointDpns(I_VPN_LINK_34, true, vpnLink34Dpns);
         InterVpnLinkTestCatalog.updateEndpointDpns(I_VPN_LINK_34, false, vpnLink34Dpns);
         interVpnLinkCache.addInterVpnLinkStateToCaches(I_VPN_LINK_34.getInterVpnLinkState());
 
-        List<BigInteger> vpnLink56Dpns = sut.selectSuitableDpns(I_VPN_LINK_56.getInterVpnLinkConfig());
+        List<Uint64> vpnLink56Dpns = sut.selectSuitableDpns(I_VPN_LINK_56.getInterVpnLinkConfig());
         InterVpnLinkTestCatalog.updateEndpointDpns(I_VPN_LINK_56, true, vpnLink56Dpns);
         InterVpnLinkTestCatalog.updateEndpointDpns(I_VPN_LINK_56, false, vpnLink56Dpns);
         interVpnLinkCache.addInterVpnLinkStateToCaches(I_VPN_LINK_56.getInterVpnLinkState());

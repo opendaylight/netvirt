@@ -78,11 +78,13 @@ public abstract class TestOdlDirectStatisticsService implements OpendaylightDire
                 buildFlowStats(NwConstants.INGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE,
                         AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY, 1, 20, 20);
 
-        if (input.getTableId() == null || input.getTableId() == NwConstants.EGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE) {
+        if (input.getTableId() == null ||
+                input.getTableId().toJava() == NwConstants.EGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE) {
             flowStatsList.add(portIngressFlowStats1);
             flowStatsList.add(portIngressFlowStats2);
         }
-        if (input.getTableId() == null || input.getTableId() == NwConstants.INGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE) {
+        if (input.getTableId() == null ||
+                input.getTableId().toJava() == NwConstants.INGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE) {
             flowStatsList.add(portEgressFlowStats1);
             flowStatsList.add(portEgressFlowStats2);
         }

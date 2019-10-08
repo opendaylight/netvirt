@@ -150,7 +150,7 @@ public class Cache extends OsgiCommandSupport {
         if (asId != null) {
             long asNum = asId.getLocalAs().longValue();
             IpAddress routerId = asId.getRouterId();
-            Long spt = asId.getStalepathTime();
+            Long spt = asId.getStalepathTime().toJava();
             Boolean afb = asId.isAnnounceFbit();
             String rid = routerId == null ? "<n/a>" : routerId.stringValue();
             //F-bit is always set to ON (hardcoded), in SDN even though the controller is down
@@ -159,7 +159,7 @@ public class Cache extends OsgiCommandSupport {
 
             GracefulRestart gracefulRestart = config.getGracefulRestart();
             if (gracefulRestart != null) {
-                spt = gracefulRestart.getStalepathTime();
+                spt = gracefulRestart.getStalepathTime().toJava();
             }
             ps.printf("%nBGP Router%n");
             ps.printf("\t%-15s  %d%n\t%-15s  %s%n\t%-15s  %s%n\t%-15s  %s%n",
@@ -268,7 +268,7 @@ public class Cache extends OsgiCommandSupport {
                         ps.printf("\t%-16s  %s%n", RDSTR, MPSTR);
                         for (VrfMaxpath vrfMaxpath : vrfm) {
                             String rd = vrfMaxpath.getRd();
-                            int maxpath = vrfMaxpath.getMaxpaths();
+                            int maxpath = vrfMaxpath.getMaxpaths().toJava();
                             ps.printf("\t%-16s  %d%n", rd, maxpath);
                         }
                     }

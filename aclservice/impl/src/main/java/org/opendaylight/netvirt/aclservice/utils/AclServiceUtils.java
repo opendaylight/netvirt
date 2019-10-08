@@ -703,7 +703,7 @@ public final class AclServiceUtils {
         ElanInterface elanInterface = getElanInterfaceByElanInterfaceName(elanInterfaceName, broker);
         if (null != elanInterface) {
             ElanInstance elanInfo = getElanInstanceByName(elanInterface.getElanInstanceName(), broker);
-            return elanInfo != null ? elanInfo.getElanTag() : null;
+            return elanInfo != null ? elanInfo.getElanTag().toJava() : null;
         }
         return null;
     }
@@ -1266,13 +1266,13 @@ public final class AclServiceUtils {
         int hardTimeout = AclConstants.SECURITY_GROUP_ICMP_IDLE_TIME_OUT;
         Matches matches = ace.getMatches();
         AceIp acl = (AceIp) matches.getAceType();
-        Short protocol = acl.getProtocol();
+        Short protocol = acl.getProtocol().toJava();
         if (protocol == null) {
             return hardTimeout;
         } else if (protocol == NwConstants.IP_PROT_TCP) {
-            hardTimeout = aclServiceUtils.getConfig().getSecurityGroupTcpIdleTimeout();
+            hardTimeout = aclServiceUtils.getConfig().getSecurityGroupTcpIdleTimeout().toJava();
         } else if (protocol == NwConstants.IP_PROT_UDP) {
-            hardTimeout = aclServiceUtils.getConfig().getSecurityGroupUdpIdleTimeout();
+            hardTimeout = aclServiceUtils.getConfig().getSecurityGroupUdpIdleTimeout().toJava();
         }
         return hardTimeout;
     }

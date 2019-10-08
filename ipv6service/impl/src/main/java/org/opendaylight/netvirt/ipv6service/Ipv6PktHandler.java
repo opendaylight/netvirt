@@ -148,14 +148,14 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             byte[] data = packet.getPayload();
             NeighborSolicitationPacket nsPdu = deserializeNSPacket(data);
             Ipv6Header ipv6Header = nsPdu;
-            if (Ipv6Util.validateChecksum(data, ipv6Header, nsPdu.getIcmp6Chksum()) == false) {
+            if (Ipv6Util.validateChecksum(data, ipv6Header, nsPdu.getIcmp6Chksum().toJava()) == false) {
                 pktProccessedCounter.incrementAndGet();
                 LOG.warn("Received Neighbor Solicitation with invalid checksum on {}. Ignoring the packet.",
                         packet.getIngress());
                 return;
             }
 
-            BigInteger metadata = packet.getMatch().getMetadata().getMetadata();
+            BigInteger metadata = packet.getMatch().getMetadata().getMetadata().toJava();
             long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
             String interfaceName = ifMgr.getInterfaceNameFromTag(portTag);
             VirtualPort port = ifMgr.obtainV6Interface(new Uuid(interfaceName));
@@ -298,11 +298,11 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
         }
 
         private byte[] fillNeighborAdvertisementPacket(NeighborAdvertisePacket pdu) {
-            ByteBuffer buf = ByteBuffer.allocate(Ipv6Constants.ICMPV6_OFFSET + pdu.getIpv6Length());
+            ByteBuffer buf = ByteBuffer.allocate(Ipv6Constants.ICMPV6_OFFSET + pdu.getIpv6Length().toJava());
 
             buf.put(Ipv6Util.convertEthernetHeaderToByte(pdu), 0, 14);
             buf.put(Ipv6Util.convertIpv6HeaderToByte(pdu), 0, 40);
-            buf.put(icmp6NAPayloadtoByte(pdu), 0, pdu.getIpv6Length());
+            buf.put(icmp6NAPayloadtoByte(pdu), 0, pdu.getIpv6Length().toJava());
             int checksum = Ipv6Util.calculateIcmpv6Checksum(buf.array(), pdu);
             buf.putShort(Ipv6Constants.ICMPV6_OFFSET + 2, (short)checksum);
             return buf.array();
@@ -312,14 +312,14 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             byte[] data = packet.getPayload();
             RouterSolicitationPacket rsPdu = deserializeRSPacket(data);
             Ipv6Header ipv6Header = rsPdu;
-            if (Ipv6Util.validateChecksum(data, ipv6Header, rsPdu.getIcmp6Chksum()) == false) {
+            if (Ipv6Util.validateChecksum(data, ipv6Header, rsPdu.getIcmp6Chksum().toJava()) == false) {
                 pktProccessedCounter.incrementAndGet();
                 LOG.warn("Received RS packet with invalid checksum on {}. Ignoring the packet.",
                         packet.getIngress());
                 return;
             }
 
-            BigInteger metadata = packet.getMatch().getMetadata().getMetadata();
+            BigInteger metadata = packet.getMatch().getMetadata().getMetadata().toJava();
             long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
             String interfaceName = ifMgr.getInterfaceNameFromTag(portTag);
             Uuid portId = new Uuid(interfaceName);
@@ -385,12 +385,12 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
                 rsPdu.setReserved(Long.valueOf(0));
                 bitOffset = bitOffset + 32;
 
-                if (rsPdu.getIpv6Length() > Ipv6Constants.ICMPV6_RA_LENGTH_WO_OPTIONS) {
+                if (rsPdu.getIpv6Length().toJava() > Ipv6Constants.ICMPV6_RA_LENGTH_WO_OPTIONS) {
                     rsPdu.setOptionType(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
                     bitOffset = bitOffset + 8;
                     rsPdu.setSourceAddrLength(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
                     bitOffset = bitOffset + 8;
-                    if (rsPdu.getOptionType() == Ipv6Constants.ICMP_V6_OPTION_SOURCE_LLA) {
+                    if (rsPdu.getOptionType().toJava() == Ipv6Constants.ICMP_V6_OPTION_SOURCE_LLA) {
                         rsPdu.setSourceLlAddress(new MacAddress(
                                 Ipv6Util.bytesToHexString(BitBufferHelper.getBits(data, bitOffset, 48))));
                     }
@@ -411,15 +411,15 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
                 return;
             }
             Ipv6Header ipv6Header = naPdu;
-            if (Ipv6Util.validateChecksum(data, ipv6Header, naPdu.getIcmp6Chksum()) == false) {
+            if (Ipv6Util.validateChecksum(data, ipv6Header, naPdu.getIcmp6Chksum().toJava()) == false) {
                 pktProccessedCounter.incrementAndGet();
                 LOG.warn("Received Neighbor Advertisement with invalid checksum on {}. Ignoring the packet.",
                         packet.getIngress());
                 return;
             }
 
-            short tableId = packet.getTableId().getValue();
-            BigInteger metadata = packet.getMatch().getMetadata().getMetadata();
+            short tableId = packet.getTableId().getValue().toJava();
+            BigInteger metadata = packet.getMatch().getMetadata().getMetadata().toJava();
             long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
             String interfaceName = ifMgr.getInterfaceNameFromTag(portTag);
 

@@ -144,7 +144,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         String destination = input.getDestination();
         String vpnInstanceName = input.getVpnInstanceName();
         String nexthop = input.getNexthop();
-        Long label = input.getLabel();
+        Long label = input.getLabel().toJava();
         LOG.info("Adding static route for Vpn {} with destination {}, nexthop {} and label {}",
             vpnInstanceName, destination, nexthop, label);
 
@@ -167,7 +167,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
 
         String vpnRd = vpnUtil.getVpnRd(input.getVpnInstanceName());
         VpnInstanceOpDataEntry vpnOpEntry = vpnUtil.getVpnInstanceOpData(vpnRd);
-        Boolean isVxlan = VpnUtil.isL3VpnOverVxLan(vpnOpEntry.getL3vni());
+        Boolean isVxlan = VpnUtil.isL3VpnOverVxLan(vpnOpEntry.getL3vni().toJava());
         VrfEntry.EncapType encapType = VpnUtil.getEncapType(isVxlan);
         if (vpnRd == null) {
             String message = "Could not find Route-Distinguisher for VpnName " + vpnInstanceName;
@@ -192,7 +192,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             try {
                 txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                     confTx -> vpnManager.addExtraRoute(vpnInstanceName, destination, nexthop, vpnRd,
-                            null /* routerId */, vpnOpEntry.getL3vni(), RouteOrigin.STATIC, null /* intfName */,
+                            null /* routerId */, vpnOpEntry.getL3vni().toJava(), RouteOrigin.STATIC, null /* intfName */,
                         null /*Adjacency*/, encapType, new HashSet<>() /*prefixListForRefreshFib*/,confTx)).get();
             } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Error adding static route {}", input, e);
