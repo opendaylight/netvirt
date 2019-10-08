@@ -69,15 +69,15 @@ public class DpnDmacJob implements Callable<List<ListenableFuture<Void>>> {
         List<ListenableFuture<Void>> result = new ArrayList<>();
         L2GatewayDevice device = ElanL2GwCacheUtils.getL2GatewayDeviceFromCache(elanName, nodeId);
         if (added) {
-            result.addAll(elanL2GatewayUtils.installDmacFlowsOnDpn(dpnInterfaces.getDpId(), device, elan,
+            result.addAll(elanL2GatewayUtils.installDmacFlowsOnDpn(dpnInterfaces.getDpId().toJava(), device, elan,
                     dpnInterfaces.getInterfaces().get(0)));
         } else {
             Collection<MacAddress> localMacs = elanL2GatewayUtils.getL2GwDeviceLocalMacs(
                     elan.getElanInstanceName(), device);
             if (localMacs != null && !localMacs.isEmpty()) {
                 for (MacAddress mac : localMacs) {
-                    result.addAll(elanDmacUtils.deleteDmacFlowsToExternalMac(elan.getElanTag(), dpnInterfaces.getDpId(),
-                            nodeId, mac.getValue().toLowerCase(Locale.getDefault())));
+                    result.addAll(elanDmacUtils.deleteDmacFlowsToExternalMac(elan.getElanTag().toJava(),
+                            dpnInterfaces.getDpId().toJava(), nodeId, mac.getValue().toLowerCase(Locale.getDefault())));
                 }
             }
         }

@@ -524,7 +524,7 @@ public class QosNeutronUtils {
             return;
         } else {
             Interface ifState = getInterfaceStateFromOperDS(ifName);
-            Short dscpValue = dscpMark.getDscpMark();
+            Short dscpValue = dscpMark.getDscpMark().toJava();
             int ipVersions = getIpVersions(port);
             //1. OF rules
             if (hasIpv4Addr(ipVersions)) {
@@ -617,7 +617,7 @@ public class QosNeutronUtils {
                     dpIdOutput = odlInterfaceRpcService.getDpidFromInterface(dpIdInput);
             RpcResult<GetDpidFromInterfaceOutput> dpIdResult = dpIdOutput.get();
             if (dpIdResult.isSuccessful()) {
-                nodeId = dpIdResult.getResult().getDpid();
+                nodeId = dpIdResult.getResult().getDpid().toJava();
             } else {
                 LOG.error("Could not retrieve DPN Id for interface {}", ifName);
             }

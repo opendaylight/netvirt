@@ -84,7 +84,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
     @Override
     public void onPacketReceived(PacketReceived notification) {
         Class<? extends PacketInReason> pktInReason = notification.getPacketInReason();
-        short tableId = notification.getTableId().getValue();
+        short tableId = notification.getTableId().getValue().toJava();
         if (pktInReason == NoMatch.class && tableId == NwConstants.ELAN_SMAC_TABLE) {
             elanManagerCounters.unknownSmacPktinRcv();
             try {
@@ -95,7 +95,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
 
                 byte[] srcMac = res.getSourceMACAddress();
                 final String macAddress = NWUtil.toStringMacAddress(srcMac);
-                final BigInteger metadata = notification.getMatch().getMetadata().getMetadata();
+                final BigInteger metadata = notification.getMatch().getMetadata().getMetadata().toJava();
                 final long elanTag = MetaDataUtil.getElanTagFromMetadata(metadata);
 
                 long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
@@ -218,7 +218,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
                 futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, operTx -> {
-                    elanUtils.setupMacFlows(elanInstance, interfaceInfo, elanInstance.getMacTimeout(),
+                    elanUtils.setupMacFlows(elanInstance, interfaceInfo, elanInstance.getMacTimeout().toJava(),
                         macAddress, !isVlanOrFlatProviderIface, tx);
                     InstanceIdentifier<MacEntry> macEntryId =
                         ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);

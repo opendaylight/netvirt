@@ -303,7 +303,7 @@ public class ElanServiceTest extends  ElanServiceTestBase {
                 DPN1_ID,
                 DPN2_ID,
                 interfaceInfo.getMacAddress().toString(),
-                actualElanInstances.getElanTag());
+                actualElanInstances.getElanTag().toJava());
 
         InstanceIdentifier<Flow> flowInstanceIidDst = getFlowIid(NwConstants.ELAN_DMAC_TABLE,
                 new FlowId(flowId), DPN1_ID);

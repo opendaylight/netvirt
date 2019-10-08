@@ -1049,7 +1049,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             if (result.isSuccessful()) {
                 LOG.debug("advToBgpAndInstallFibAndTsFlows : inside apply with result success");
                 GenerateVpnLabelOutput output = result.getResult();
-                final long label = output.getLabel();
+                final long label = output.getLabel().toJava();
 
                 int externalIpInDsFlag = 0;
                 //Get IPMaps from the DB for the router ID
@@ -1616,7 +1616,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             for (ExternalCounters ext : externalIpsCounters.nonnullExternalCounters()) {
                 for (ExternalIpCounter externalIpCount : ext.nonnullExternalIpCounter()) {
                     if (externalIpCount.getExternalIp().equals(externalIp)) {
-                        if (externalIpCount.getCounter() != 0) {
+                        if (externalIpCount.getCounter().toJava() != 0) {
                             return true;
                         }
                         break;
@@ -1701,7 +1701,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         for (IpMap ipMap : ipMaps) {
             if (ipMap.getExternalIp().equals(externalIp)) {
                 if (ipMap.getLabel() != null) {
-                    return ipMap.getLabel();
+                    return ipMap.getLabel().toJava();
                 }
             }
         }
@@ -1849,7 +1849,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 rtrToNapt = Optional.absent();
             }
             if (rtrToNapt.isPresent()) {
-                naptSwitchDpnId = rtrToNapt.get().getPrimarySwitchId();
+                naptSwitchDpnId = rtrToNapt.get().getPrimarySwitchId().toJava();
             }
             LOG.debug("handleDisableSnatInternetVpn : got primarySwitch as dpnId{} ", naptSwitchDpnId);
 
@@ -2425,7 +2425,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             LOG.debug("delFibTsAndReverseTraffic : Retrieved dbExternalIp {} for router id {}", dbExternalIp, routerId);
             //Select the IPMap, whose external IP is the IP for which FIB is installed
             if (extIp.equals(dbExternalIp)) {
-                tempLabel = dbIpMap.getLabel();
+                tempLabel = dbIpMap.getLabel().toJava();
                 LOG.debug("delFibTsAndReverseTraffic : Retrieved label {} for dbExternalIp {} with router id {}",
                     tempLabel, dbExternalIp, routerId);
                 break;

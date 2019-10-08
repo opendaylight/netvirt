@@ -1307,7 +1307,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             VpnInstance.Type vpnInstanceType = VpnInstance.Type.L3;
             long l3vni = 0;
             if (vpn.getL3vni() != null) {
-                l3vni = vpn.getL3vni();
+                l3vni = vpn.getL3vni().toJava();
             }
 
             List<String> existingRDs = neutronvpnUtils.getExistingRDs();

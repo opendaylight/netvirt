@@ -582,7 +582,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
                                     LOG.trace("Installing the SR-IOV DHCP Arp flow for DPN {} Port Ip {}, Lport {}.",
                                         dpnId, dhcpIpAddress, lportTag);
                                     installDhcpArpRequestFlows(tx, dpnId, vni, dhcpIpAddress, lportTag,
-                                        optElan.get().getElanTag());
+                                        optElan.get().getElanTag().toJava());
                                     installDhcpArpResponderFlows(dpnId, tunnelInterfaceName, lportTag, elanInstanceName,
                                         dhcpIpAddress, dhcpMacAddress);
                                 } else {

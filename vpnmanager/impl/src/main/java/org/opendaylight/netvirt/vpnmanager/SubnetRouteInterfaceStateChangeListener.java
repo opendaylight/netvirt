@@ -172,7 +172,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                                 if (optVpnInterface.isPresent()) {
                                     BigInteger dpnIdLocal = dpnId;
                                     if (BigInteger.ZERO.equals(dpnIdLocal)) {
-                                        dpnIdLocal = optVpnInterface.get().getDpnId();
+                                        dpnIdLocal = optVpnInterface.get().getDpnId().toJava();
                                     }
                                     if (!BigInteger.ZERO.equals(dpnIdLocal)) {
                                         interfaceDownEligible = true;
@@ -238,7 +238,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                                 if (optVpnInterface.isPresent()) {
                                     BigInteger dpnIdLocal = dpnId;
                                     if (BigInteger.ZERO.equals(dpnIdLocal)) {
-                                        dpnIdLocal = optVpnInterface.get().getDpnId();
+                                        dpnIdLocal = optVpnInterface.get().getDpnId().toJava();
                                     }
                                     if (!BigInteger.ZERO.equals(dpnIdLocal)) {
                                         interfaceChangeEligible = true;

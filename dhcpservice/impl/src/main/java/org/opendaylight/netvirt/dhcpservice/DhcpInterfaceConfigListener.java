@@ -73,7 +73,7 @@ public class DhcpInterfaceConfigListener
                                 tunnelIp, interfaceName);
                     }
                     return dhcpExternalTunnelManager.handleTunnelStateDown(tunnelIp,
-                            interfce.getDatapathNodeIdentifier());
+                            interfce.getDatapathNodeIdentifier().toJava());
                 }
             }
             if (vlanInterface != null) {

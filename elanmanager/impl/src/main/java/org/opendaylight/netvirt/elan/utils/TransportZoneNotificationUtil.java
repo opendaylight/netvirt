@@ -383,7 +383,7 @@ public class TransportZoneNotificationUtil {
      */
     private boolean addVtep(TransportZone zone, String subnetIp, BigInteger dpnId, @Nullable String localIp) {
         for (Vteps existingVtep : zone.nonnullVteps()) {
-            if (Objects.equals(existingVtep.getDpnId(), dpnId)) {
+            if (Objects.equals(existingVtep.getDpnId().toJava(), dpnId)) {
                 return false;
             }
         }
