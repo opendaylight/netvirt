@@ -55,6 +55,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -179,7 +180,7 @@ public class VpnSubnetRouteHandler {
             subOpBuilder.setSubnetToDpn(new ArrayList<>());
             subOpBuilder.setRouteAdvState(TaskState.Idle);
             subOpBuilder.setElanTag(elanTag);
-            Long l3Vni = vpnInstanceOpData.getL3vni();
+            Long l3Vni = vpnInstanceOpData.getL3vni().toJava();
             subOpBuilder.setL3vni(l3Vni);
             subOpEntry = subOpBuilder.build();
             SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier,
@@ -527,7 +528,7 @@ public class VpnSubnetRouteHandler {
             if (portOpEntry == null) {
                 return;
             }
-            BigInteger dpnId = portOpEntry.getDpnId();
+            BigInteger dpnId = portOpEntry.getDpnId().toJava();
             if (dpnId == null) {
                 LOG.error("{} onPortRemovedFromSubnet:  Port {} does not have a DPNId associated,"
                                 + " ignoring removal from subnet {}", LOGGING_PREFIX, portId.getValue(),
@@ -552,7 +553,7 @@ public class VpnSubnetRouteHandler {
                     optionalSubs.get().getRouteAdvState(), optionalSubs.get().getLastAdvState());
             SubnetOpDataEntry subnetOpDataEntry = optionalSubs.get();
             SubnetOpDataEntryBuilder subOpBuilder = new SubnetOpDataEntryBuilder(subnetOpDataEntry);
-            BigInteger nhDpnId = subOpBuilder.getNhDpnId();
+            BigInteger nhDpnId = subOpBuilder.getNhDpnId().toJava();
             if (nhDpnId != null && nhDpnId.equals(dpnId)) {
                 // select another NhDpnId
                 if (last) {
@@ -682,7 +683,7 @@ public class VpnSubnetRouteHandler {
                     subnetId.getValue(), subOpBuilder.getSubnetCidr(), subOpBuilder.getVpnName(),
                     subOpBuilder.getVrfId(), subOpBuilder.getRouteAdvState(), subOpBuilder.getLastAdvState(),
                     interfaceName);
-            BigInteger nhDpnId = subOpBuilder.getNhDpnId();
+            BigInteger nhDpnId = subOpBuilder.getNhDpnId().toJava();
             if (nhDpnId != null && nhDpnId.equals(dpnId)) {
                 // select another NhDpnId
                 if (last) {
@@ -796,7 +797,7 @@ public class VpnSubnetRouteHandler {
                     optionalSubs.get().getLastAdvState());
             SubnetOpDataEntry subOpEntry = null;
             SubnetOpDataEntryBuilder subOpBuilder = new SubnetOpDataEntryBuilder(optionalSubs.get());
-            BigInteger nhDpnId = subOpBuilder.getNhDpnId();
+            BigInteger nhDpnId = subOpBuilder.getNhDpnId().toJava();
             if (nhDpnId != null && nhDpnId.equals(dpnId)) {
                 electNewDpnForSubnetRoute(subOpBuilder, dpnId, subnetId, null /*networkId*/, true);
                 subOpEntry = subOpBuilder.build();
@@ -831,9 +832,9 @@ public class VpnSubnetRouteHandler {
 
             VrfEntry.EncapType encapType =  VpnUtil.getEncapType(VpnUtil.isL3VpnOverVxLan(l3vni));
             if (encapType.equals(VrfEntry.EncapType.Vxlan)) {
-                l3vni = subOpBuilder.getL3vni();
+                l3vni = subOpBuilder.getL3vni().toJava();
             } else {
-                label = subOpBuilder.getLabel();
+                label = subOpBuilder.getLabel().toJava();
             }
             bgpManager.advertisePrefix(subOpBuilder.getVrfId(), null /*macAddress*/, subOpBuilder.getSubnetCidr(),
                     Arrays.asList(nextHopIp), encapType,  label, l3vni,
@@ -848,7 +849,7 @@ public class VpnSubnetRouteHandler {
 
     private void getNexthopTepAndPublishRoute(SubnetOpDataEntryBuilder subOpBuilder, Uuid subnetId) {
         String nhTepIp = InterfaceUtils.getEndpointIpAddressForDPN(dataBroker,
-                subOpBuilder.getNhDpnId());
+                subOpBuilder.getNhDpnId().toJava());
         if (nhTepIp != null) {
             publishSubnetRouteToBgp(subOpBuilder, nhTepIp);
         } else {
@@ -951,7 +952,7 @@ public class VpnSubnetRouteHandler {
         String rd = subOpBuilder.getVrfId();
         String subnetIp = subOpBuilder.getSubnetCidr();
         String vpnName = subOpBuilder.getVpnName();
-        long elanTag = subOpBuilder.getElanTag();
+        long elanTag = subOpBuilder.getElanTag().toJava();
         boolean isAlternateDpnSelected = false;
         long l3vni = 0;
         long label = 0;
@@ -964,8 +965,8 @@ public class VpnSubnetRouteHandler {
             // Non-BGPVPN as it stands here represents use-case of External Subnets of VLAN-Provider-Network
             //  TODO(Tomer):  Pulling in both external and internal VLAN-Provider-Network need to be
             // blended more better into this design.
-            if (VpnUtil.isL3VpnOverVxLan(subOpBuilder.getL3vni())) {
-                l3vni = subOpBuilder.getL3vni();
+            if (VpnUtil.isL3VpnOverVxLan(subOpBuilder.getL3vni().toJava())) {
+                l3vni = subOpBuilder.getL3vni().toJava();
             } else {
                 label = getLabel(rd, subnetIp);
                 subOpBuilder.setLabel(label);
@@ -986,11 +987,11 @@ public class VpnSubnetRouteHandler {
         String nhTepIp = null;
         BigInteger nhDpnId = null;
         for (SubnetToDpn subnetToDpn : subDpnList) {
-            if (subnetToDpn.getDpnId().equals(oldDpnId)) {
+            if (subnetToDpn.getDpnId().equals(Uint64.valueOf(oldDpnId))) {
                 // Is this same is as input dpnId, then ignore it
                 continue;
             }
-            nhDpnId = subnetToDpn.getDpnId();
+            nhDpnId = subnetToDpn.getDpnId().toJava();
             if (vpnNodeListener.isConnectedNode(nhDpnId)) {
                 // selected dpnId is connected to ODL
                 // but does it have a TEP configured at all?
@@ -1014,7 +1015,7 @@ public class VpnSubnetRouteHandler {
                         rd);
                 // Withdraw route from BGP for this subnet
                 boolean routeWithdrawn = deleteSubnetRouteFromFib(rd, subnetIp, vpnName, isBgpVpn);
-                subOpBuilder.setNhDpnId(null);
+                //subOpBuilder.setNhDpnId(Uint64.valueOf(null));
                 subOpBuilder.setLastAdvState(subOpBuilder.getRouteAdvState());
                 if (routeWithdrawn) {
                     subOpBuilder.setRouteAdvState(TaskState.Withdrawn);
@@ -1028,8 +1029,8 @@ public class VpnSubnetRouteHandler {
         } else {
             //If alternate Dpn is selected as nextHopDpn, use that for subnetroute.
             subOpBuilder.setNhDpnId(nhDpnId);
-            if (VpnUtil.isL3VpnOverVxLan(subOpBuilder.getL3vni())) {
-                l3vni = subOpBuilder.getL3vni();
+            if (VpnUtil.isL3VpnOverVxLan(subOpBuilder.getL3vni().toJava())) {
+                l3vni = subOpBuilder.getL3vni().toJava();
             } else {
                 label = getLabel(rd, subnetIp);
                 subOpBuilder.setLabel(label);

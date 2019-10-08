@@ -75,6 +75,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -185,7 +186,7 @@ public class NaptManager {
         Optional<ExternalIpCounter> externalIpCounter =
             MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
         if (externalIpCounter.isPresent()) {
-            counter = externalIpCounter.get().getCounter();
+            counter = externalIpCounter.get().getCounter().toJava();
             if (isAdd) {
                 counter++;
                 LOG.debug("updateCounter : externalIp and counter after increment are {} and {}", externalIp, counter);
@@ -327,10 +328,10 @@ public class NaptManager {
             final ReentrantLock lock = lockFor(segmentId, internalIpAddress, protocolType);
             lock.lock();
             try {
-                List<Integer> portList = new ArrayList<>(
+                List<Uint16> portList = new ArrayList<>(
                         NatUtil.getInternalIpPortListInfo(dataBroker, segmentId, internalIpAddress,
                             protocolType));
-                portList.add(ipPort);
+                portList.add(Uint16.valueOf(ipPort));
 
                 IntIpProtoTypeBuilder builder = new IntIpProtoTypeBuilder();
                 IntIpProtoType intIpProtocolType =
@@ -469,7 +470,7 @@ public class NaptManager {
         if (ipPortMapType.isPresent()) {
             LOG.debug("checkIpPortMap : {}", ipPortMapType.get());
             SessionAddress externalIpPort = new SessionAddress(ipPortMapType.get().getIpPortExternal().getIpAddress(),
-                    ipPortMapType.get().getIpPortExternal().getPortNum());
+                    ipPortMapType.get().getIpPortExternal().getPortNum().toJava());
             LOG.debug("checkIpPortMap : returning successfully externalIP {} and port {}",
                     externalIpPort.getIpAddress(), externalIpPort.getPortNumber());
             return externalIpPort;
@@ -520,9 +521,9 @@ public class NaptManager {
     protected void removeSnatIntIpPortDS(long segmentId, SessionAddress address, ProtocolTypes protocolType) {
         LOG.trace("removeSnatIntIpPortDS : method called for IntIpport {} of router {} ",
             address, segmentId);
-        List<Integer> portList =
+        List<Uint16> portList =
             NatUtil.getInternalIpPortListInfo(dataBroker, segmentId, address.getIpAddress(), protocolType);
-        if (portList.isEmpty() || !portList.contains(address.getPortNumber())) {
+        if (portList.isEmpty() || !portList.contains(Uint16.valueOf(address.getPortNumber()))) {
             LOG.error("removeSnatIntIpPortDS : Internal IP {} for port {} entry not found in SnatIntIpPort DS",
                 address.getIpAddress(), address.getPortNumber());
             return;
@@ -530,7 +531,7 @@ public class NaptManager {
         LOG.trace("removeSnatIntIpPortDS : PortList {} retrieved for InternalIp {} of router {}",
             portList, address.getIpAddress(), segmentId);
         Integer port = address.getPortNumber();
-        portList.remove(port);
+        portList.remove(Uint16.valueOf(port));
 
         IntIpProtoTypeBuilder builder = new IntIpProtoTypeBuilder();
         IntIpProtoType intIpProtocolType =

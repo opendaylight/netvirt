@@ -92,6 +92,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.RoutesKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -371,12 +372,12 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         // routePath this result is built for. If this is not possible construct a map which does
         // the same.
         String nextHopIp = adjacencyResult.getNextHopIp();
-        java.util.Optional<Long> optionalLabel = FibUtil.getLabelForNextHop(vrfEntry, nextHopIp);
+        java.util.Optional<Uint32> optionalLabel = FibUtil.getLabelForNextHop(vrfEntry, nextHopIp);
         if (!optionalLabel.isPresent()) {
             LOG.warn("NextHopIp {} not found in vrfEntry {}", nextHopIp, vrfEntry);
             return;
         }
-        long label = optionalLabel.get();
+        long label = optionalLabel.get().toJava();
         BigInteger tunnelId = null;
         Prefixes prefixInfo = null;
         // FIXME vxlan vni bit set is not working properly with OVS.need to
@@ -391,16 +392,16 @@ public class BaseVrfEntryHandler implements AutoCloseable {
             } else {
                 //Imported Route. Get Prefix Info from parent RD
                 VpnInstanceOpDataEntry parentVpn =  fibUtil.getVpnInstance(vrfEntry.getParentVpnRd());
-                prefixInfo = fibUtil.getPrefixToInterface(parentVpn.getVpnId(), adjacencyResult.getPrefix());
+                prefixInfo = fibUtil.getPrefixToInterface(parentVpn.getVpnId().toJava(), adjacencyResult.getPrefix());
             }
             // Internet VPN VNI will be used as tun_id for NAT use-cases
             if (Prefixes.PrefixCue.Nat.equals(prefixInfo.getPrefixCue())) {
-                if (vrfEntry.getL3vni() != null && vrfEntry.getL3vni() != 0) {
-                    tunnelId = BigInteger.valueOf(vrfEntry.getL3vni());
+                if (vrfEntry.getL3vni() != null && vrfEntry.getL3vni().toJava() != 0) {
+                    tunnelId = BigInteger.valueOf(vrfEntry.getL3vni().toJava());
                 }
             } else {
                 if (FibUtil.isVxlanNetwork(prefixInfo.getNetworkType())) {
-                    tunnelId = BigInteger.valueOf(prefixInfo.getSegmentationId());
+                    tunnelId = BigInteger.valueOf(prefixInfo.getSegmentationId().toJava());
                 } else {
                     LOG.warn("Network is not of type VXLAN for prefix {}."
                             + "Going with default Lport Tag.", prefixInfo.toString());
@@ -487,7 +488,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                                           WriteTransaction tx, @Nullable List<SubTransaction> subTxns) {
         boolean isRemoteRoute = true;
         if (localNextHopInfo != null) {
-            isRemoteRoute = !remoteDpnId.equals(localNextHopInfo.getDpnId());
+            isRemoteRoute = !remoteDpnId.equals(localNextHopInfo.getDpnId().toJava());
         }
         if (isRemoteRoute) {
             makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, null, NwConstants.DEL_FLOW, tx, subTxns);

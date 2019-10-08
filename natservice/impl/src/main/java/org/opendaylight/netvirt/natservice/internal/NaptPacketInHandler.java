@@ -62,7 +62,7 @@ public class NaptPacketInHandler implements PacketProcessingListener {
         NAPTEntryEvent.Operation operation = NAPTEntryEvent.Operation.ADD;
         NAPTEntryEvent.Protocol protocol;
 
-        Short tableId = packetReceived.getTableId().getValue();
+        Short tableId = packetReceived.getTableId().getValue().toJava();
 
         LOG.trace("onPacketReceived : packet: {}, tableId {}", packetReceived, tableId);
 
@@ -111,7 +111,7 @@ public class NaptPacketInHandler implements PacketProcessingListener {
                 }
 
                 if (internalIPAddress != null) {
-                    BigInteger metadata = packetReceived.getMatch().getMetadata().getMetadata();
+                    BigInteger metadata = packetReceived.getMatch().getMetadata().getMetadata().toJava();
                     routerId = MetaDataUtil.getNatRouterIdFromMetadata(metadata);
                     if (routerId <= 0) {
                         LOG.error("onPacketReceived : Router ID is invalid");

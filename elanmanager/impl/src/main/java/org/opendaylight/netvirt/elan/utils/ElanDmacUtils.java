@@ -125,8 +125,9 @@ public class ElanDmacUtils {
         if (etreeLeafTag != null) {
             return Lists.newArrayList(
                     removeFlowThatSendsThePacketOnAnExternalTunnel(
-                            etreeLeafTag.getEtreeLeafTag().getValue(), dpId, extDeviceNodeId, macToRemove),
-                    removeTheDropFlow(etreeLeafTag.getEtreeLeafTag().getValue(), dpId, extDeviceNodeId, macToRemove));
+                            etreeLeafTag.getEtreeLeafTag().getValue().toJava(), dpId, extDeviceNodeId, macToRemove),
+                    removeTheDropFlow(etreeLeafTag.getEtreeLeafTag().getValue().toJava(), dpId,
+                            extDeviceNodeId, macToRemove));
         }
         return Collections.emptyList();
     }
@@ -193,7 +194,7 @@ public class ElanDmacUtils {
         }
         if (isRoot) {
             Flow flow = buildDmacFlowForExternalRemoteMac(dpnId, extDeviceNodeId,
-                    etreeLeafTag.getEtreeLeafTag().getValue(), vni, macAddress, displayName);
+                    etreeLeafTag.getEtreeLeafTag().getValue().toJava(), vni, macAddress, displayName);
             return ResourceBatchingManager.getInstance().put(
                     ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY, ElanUtils.getFlowIid(flow, dpnId), flow);
         }
@@ -204,7 +205,7 @@ public class ElanDmacUtils {
             BigInteger dpnId, String extDeviceNodeId, String macAddress, EtreeLeafTagName etreeLeafTag) {
         if (etreeLeafTag != null) {
             Flow dropFlow = buildDmacFlowDropIfPacketComingFromTunnel(dpnId, extDeviceNodeId,
-                    etreeLeafTag.getEtreeLeafTag().getValue(), macAddress);
+                    etreeLeafTag.getEtreeLeafTag().getValue().toJava(), macAddress);
             return ResourceBatchingManager.getInstance().put(ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY,
                     ElanUtils.getFlowIid(dropFlow, dpnId),dropFlow);
         }

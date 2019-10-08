@@ -67,7 +67,7 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener {
         7) Place the NaptEntry event to the queue.
 */
 
-        short tableId = flowRemoved.getTableId();
+        short tableId = flowRemoved.getTableId().toJava();
         RemovedFlowReason removedReasonFlag = flowRemoved.getReason();
         if (tableId == NwConstants.OUTBOUND_NAPT_TABLE
                 && RemovedFlowReason.OFPRRIDLETIMEOUT.equals(removedReasonFlag)) {
@@ -99,11 +99,11 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener {
             Layer4Match layer4Match = flowRemoved.getMatch().getLayer4Match();
             if (layer4Match instanceof TcpMatch) {
                 TcpMatchFields tcpMatchFields = (TcpMatchFields) layer4Match;
-                internalPortNumber = tcpMatchFields.getTcpSourcePort().getValue();
+                internalPortNumber = tcpMatchFields.getTcpSourcePort().getValue().toJava();
                 protocol = NAPTEntryEvent.Protocol.TCP;
             } else if (layer4Match instanceof UdpMatch) {
                 UdpMatchFields udpMatchFields = (UdpMatchFields) layer4Match;
-                internalPortNumber = udpMatchFields.getUdpSourcePort().getValue();
+                internalPortNumber = udpMatchFields.getUdpSourcePort().getValue().toJava();
                 protocol = NAPTEntryEvent.Protocol.UDP;
             }
             if (protocol == null) {
@@ -114,7 +114,7 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener {
 
             //Get the router ID from the metadata.
             Long routerId;
-            BigInteger metadata = flowRemoved.getMatch().getMetadata().getMetadata();
+            BigInteger metadata = flowRemoved.getMatch().getMetadata().getMetadata().toJava();
             if (MetaDataUtil.getNatRouterIdFromMetadata(metadata) != 0) {
                 routerId = MetaDataUtil.getNatRouterIdFromMetadata(metadata);
             } else {

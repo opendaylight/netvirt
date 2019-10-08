@@ -51,13 +51,13 @@ public class QosAlertPortData {
         } else {
             statsDataInit = true;
         }
-        rxPackets = statsData.getPackets().getReceived();
-        rxDroppedPackets = statsData.getReceiveDrops();
+        rxPackets = statsData.getPackets().getReceived().toJava();
+        rxDroppedPackets = statsData.getReceiveDrops().toJava();
     }
 
     private void calculateAlertCondition(NodeConnectorStatisticsAndPortNumberMap statsData)  {
-        BigInteger rxDiff = statsData.getPackets().getReceived().subtract(rxPackets);
-        BigInteger rxDroppedDiff = statsData.getReceiveDrops().subtract(rxDroppedPackets);
+        BigInteger rxDiff = statsData.getPackets().getReceived().toJava().subtract(rxPackets);
+        BigInteger rxDroppedDiff = statsData.getReceiveDrops().toJava().subtract(rxDroppedPackets);
 
         if ((rxDiff.signum() < 0) || (rxDroppedDiff.signum() < 0)) {
             LOG.debug("Port {} counters reset", port.getUuid().getValue());
@@ -79,8 +79,8 @@ public class QosAlertPortData {
                                                                                         statsData.getReceiveDrops());
 
             QosAlertGenerator.raiseAlert(qosPolicy.getName(), qosPolicy.getUuid().getValue(),
-                    port.getUuid().getValue(), port.getNetworkId().getValue(), statsData.getPackets().getReceived(),
-                                                                                          statsData.getReceiveDrops());
+                    port.getUuid().getValue(), port.getNetworkId().getValue(),
+                    statsData.getPackets().getReceived().toJava(), statsData.getReceiveDrops().toJava());
         }
 
     }

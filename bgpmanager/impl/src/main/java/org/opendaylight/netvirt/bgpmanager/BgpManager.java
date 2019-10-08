@@ -137,7 +137,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
         for (Neighbors nbr : nbrList) {
             try {
                 LOG.trace("nbr {} checking status, AS num: {}", nbr.getAddress().getValue(), nbr.getRemoteAs());
-                bcm.getPeerStatus(nbr.getAddress().getValue(), nbr.getRemoteAs());
+                bcm.getPeerStatus(nbr.getAddress().getValue(), nbr.getRemoteAs().toJava());
                 LOG.trace("nbr {} status is: PEER UP", nbr.getAddress().getValue());
             } catch (BgpRouterException bre) {
                 if (bre.getErrorCode() == BgpRouterException.BGP_PEER_DOWN) {
