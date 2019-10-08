@@ -16,6 +16,7 @@ import com.google.common.collect.Table;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -182,6 +183,8 @@ public class NatSouthboundEventHandlers {
                 operTx);
     }
 
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private IntfTransitionState getTransitionState(Interface.OperStatus original , Interface.OperStatus updated) {
         IntfTransitionState transitionState = stateTable.get(original, updated);
 
@@ -307,6 +310,8 @@ public class NatSouthboundEventHandlers {
         }
     }
 
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private void processInterfaceAdded(String portName, String routerId, BigInteger dpnId, VipState vipState) {
         LOG.trace("processInterfaceAdded : Processing Interface Add Event for interface {}", portName);
         List<InternalToExternalPortMap> intExtPortMapList = getIntExtPortMapListForPortName(portName, routerId);
@@ -342,6 +347,8 @@ public class NatSouthboundEventHandlers {
         return port.get().nonnullInternalToExternalPortMap();
     }
 
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private void processInterfaceRemoved(String portName, BigInteger dpnId, String routerId,
             List<ListenableFuture<Void>> futures) {
         LOG.trace("processInterfaceRemoved : Processing Interface Removed Event for interface {} on DPN ID {}",

@@ -233,7 +233,7 @@ public class EvpnUtils {
         String l3VpName = getL3vpnNameFromElan(elanInfo);
         if (l3VpName != null) {
             VpnInstance l3VpnInstance = vpnManager.getVpnInstance(broker, l3VpName);
-            l3vni = l3VpnInstance.getL3vni();
+            l3vni = l3VpnInstance.getL3vni().toJava();
             com.google.common.base.Optional<String> gatewayMac = getGatewayMacAddressForInterface(l3VpName,
                     interfaceName, prefix);
             gatewayMacAddr = gatewayMac.isPresent() ? gatewayMac.get() : null;
@@ -413,7 +413,7 @@ public class EvpnUtils {
     }
 
     private void programEvpnL2vniFlow(ElanInstance elanInfo, BiConsumer<BigInteger, FlowEntity> flowHandler) {
-        long elanTag = elanInfo.getElanTag();
+        long elanTag = elanInfo.getElanTag().toJava();
         List<MatchInfo> mkMatches = new ArrayList<>();
         mkMatches.add(new MatchTunnelId(BigInteger.valueOf(ElanUtils.getVxlanSegmentationId(elanInfo))));
         NWUtil.getOperativeDPNs(broker).forEach(dpnId -> {

@@ -325,7 +325,7 @@ public class NaptEventHandler {
 
     private void prepareAndSendPacketOut(NAPTEntryEvent naptEntryEvent, Long routerId, String sourceIPPortKey) {
         //Send Packetout - tcp or udp packets which got punted to controller.
-        BigInteger metadata = naptEntryEvent.getPacketReceived().getMatch().getMetadata().getMetadata();
+        BigInteger metadata = naptEntryEvent.getPacketReceived().getMatch().getMetadata().getMetadata().toJava();
         byte[] inPayload = naptEntryEvent.getPacketReceived().getPayload();
         Ethernet ethPkt = new Ethernet();
         if (inPayload != null) {
@@ -358,7 +358,7 @@ public class NaptEventHandler {
 
             IfL2vlan ifL2vlan = iface.augmentation(IfL2vlan.class);
             if (ifL2vlan != null && ifL2vlan.getVlanId() != null) {
-                vlanId = ifL2vlan.getVlanId().getValue() == null ? 0 : ifL2vlan.getVlanId().getValue();
+                vlanId = ifL2vlan.getVlanId().getValue() == null ? 0 : ifL2vlan.getVlanId().getValue().toJava();
             }
             InterfaceInfo infInfo = interfaceManager.getInterfaceInfoFromOperationalDataStore(interfaceName);
             if (infInfo == null) {

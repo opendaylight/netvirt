@@ -93,7 +93,7 @@ public class StaleVlanBindingsCleaner {
 
     private long getCleanupDelay() {
         return elanConfig.getL2gwStaleVlanCleanupDelaySecs() != null
-                ? elanConfig.getL2gwStaleVlanCleanupDelaySecs() : DEFAULT_STALE_CLEANUP_DELAY_SECS;
+                ? elanConfig.getL2gwStaleVlanCleanupDelaySecs().toJava() : DEFAULT_STALE_CLEANUP_DELAY_SECS;
     }
 
     public void scheduleStaleCleanup(final String deviceName,

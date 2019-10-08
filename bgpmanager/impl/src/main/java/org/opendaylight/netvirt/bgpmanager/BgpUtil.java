@@ -290,9 +290,9 @@ public class BgpUtil implements AutoCloseable {
      */
     public static LayerType getLayerType(AddressFamiliesVrf adf) {
         LayerType layerTypeValue = null;
-        if (adf.getSafi() == af_safi.SAFI_EVPN.getValue()) {
+        if (adf.getSafi().toJava() == af_safi.SAFI_EVPN.getValue()) {
             layerTypeValue = LayerType.LAYER2;
-        } else if (adf.getSafi() == af_safi.SAFI_MPLS_VPN.getValue()) {
+        } else if (adf.getSafi().toJava() == af_safi.SAFI_MPLS_VPN.getValue()) {
             layerTypeValue = LayerType.LAYER3;
         }
         return layerTypeValue;
@@ -382,7 +382,7 @@ public class BgpUtil implements AutoCloseable {
                 LOG.debug("Deleting groups in DPN {}", dpnInfo.getDPNID());
             }
             Class<? extends TunnelTypeBase> tunType = TunnelTypeMplsOverGre.class;
-            fibManager.programDcGwLoadBalancingGroup(dpnInfo.getDPNID(),
+            fibManager.programDcGwLoadBalancingGroup(dpnInfo.getDPNID().toJava(),
                     tepIp, addRemoveOrUpdate, false, tunType);
         });
     }

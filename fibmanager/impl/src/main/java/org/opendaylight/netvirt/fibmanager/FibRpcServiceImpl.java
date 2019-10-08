@@ -51,6 +51,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,7 +78,7 @@ public class FibRpcServiceImpl implements FibRpcService {
     @Override
     public ListenableFuture<RpcResult<CreateFibEntryOutput>> createFibEntry(CreateFibEntryInput input) {
 
-        BigInteger dpnId = input.getSourceDpid();
+        BigInteger dpnId = input.getSourceDpid().toJava();
         String vpnName = input.getVpnName();
         long vpnId = getVpnId(dataBroker, vpnName);
         String vpnRd = getVpnRd(dataBroker, vpnName);
@@ -99,7 +100,7 @@ public class FibRpcServiceImpl implements FibRpcService {
      */
     @Override
     public ListenableFuture<RpcResult<RemoveFibEntryOutput>> removeFibEntry(RemoveFibEntryInput input) {
-        BigInteger dpnId = input.getSourceDpid();
+        BigInteger dpnId = input.getSourceDpid().toJava();
         String vpnName = input.getVpnName();
         long vpnId = getVpnId(dataBroker, vpnName);
         String vpnRd = getVpnRd(dataBroker, vpnName);
@@ -120,13 +121,13 @@ public class FibRpcServiceImpl implements FibRpcService {
 
     @Override
     public ListenableFuture<RpcResult<PopulateFibOnDpnOutput>> populateFibOnDpn(PopulateFibOnDpnInput input) {
-        fibManager.populateFibOnNewDpn(input.getDpid(), input.getVpnId(), input.getRd(), null);
+        fibManager.populateFibOnNewDpn(input.getDpid().toJava(), input.getVpnId().toJava(), input.getRd(), null);
         return RpcResultBuilder.success(new PopulateFibOnDpnOutputBuilder().build()).buildFuture();
     }
 
     @Override
     public ListenableFuture<RpcResult<CleanupDpnForVpnOutput>> cleanupDpnForVpn(CleanupDpnForVpnInput input) {
-        fibManager.cleanUpDpnForVpn(input.getDpid(), input.getVpnId(), input.getRd(), null);
+        fibManager.cleanUpDpnForVpn(input.getDpid().toJava(), input.getVpnId().toJava(), input.getRd(), null);
         return RpcResultBuilder.success(new CleanupDpnForVpnOutputBuilder().build()).buildFuture();
     }
 
@@ -223,7 +224,7 @@ public class FibRpcServiceImpl implements FibRpcService {
 
     static long getVpnId(DataBroker broker, String vpnName) {
         InstanceIdentifier<VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
-                VpnInstance::getVpnId).orElse(-1L);
+        return (MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
+                VpnInstance::getVpnId).orElse(Uint32.valueOf(-1L))).toJava();
     }
 }

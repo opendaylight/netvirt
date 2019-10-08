@@ -102,7 +102,7 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
             return;
         }
         ElanInstance elanInstance = elanService.getElanInstance(subnetMap.getNetworkId().getValue());
-        vpnManager.onSubnetAddedToVpn(subnetMap, false, elanInstance.getElanTag());
+        vpnManager.onSubnetAddedToVpn(subnetMap, false, elanInstance.getElanTag().toJava());
 
     }
 
@@ -122,7 +122,7 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
         LOG.debug("addOrDelDefaultFibRouteToSNATFlow : VpnInstance {} for external subnet {}.",
                 vpnInstanceName, subnet);
         snatDefaultRouteProgrammer.addOrDelDefaultFibRouteToSNATForSubnet(subnet,
-                subnet.getExternalNetworkId().getValue(), flowAction, vpnInstance.getVpnId());
+                subnet.getExternalNetworkId().getValue(), flowAction, vpnInstance.getVpnId().toJava());
     }
 
     @Override

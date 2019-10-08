@@ -850,7 +850,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
         if (null != this.elanProvider) {
             ElanInstance elanInstance = this.elanProvider.getElanInstance(networkId.getValue());
             if (null != elanInstance) {
-                elanTag = elanInstance.getElanTag();
+                elanTag = elanInstance.getElanTag().toJava();
                 VirtualNetwork net = getNetwork(networkId);
                 if (null != net) {
                     net.setElanTag(elanTag);
