@@ -145,7 +145,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                         List<Prefixes> prefixToInterfaceLocal = new ArrayList<>();
                         Optional<Prefixes> prefix = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                                 LogicalDatastoreType.OPERATIONAL,
-                                VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
+                                VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId().toJava(),
                                         VpnUtil.getIpPrefix(adjacency.getIpAddress())));
                         if (prefix.isPresent()) {
                             prefixToInterfaceLocal.add(prefix.get());
@@ -154,7 +154,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                             for (String nh : adjacency.getNextHopIpList()) {
                                 prefix = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                                         LogicalDatastoreType.OPERATIONAL, VpnUtil.getPrefixToInterfaceIdentifier(
-                                                vpnInstOp.getVpnId(), VpnUtil.getIpPrefix(nh)));
+                                                vpnInstOp.getVpnId().toJava(), VpnUtil.getIpPrefix(nh)));
                                 if (prefix.isPresent()) {
                                     prefixToInterfaceLocal.add(prefix.get());
                                 }
@@ -179,12 +179,13 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                     for (Prefixes pref : prefixToInterface) {
                         if (VpnUtil.isMatchedPrefixToInterface(pref, del)) {
                             readWriteTxn.delete(LogicalDatastoreType.OPERATIONAL,
-                                    VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(), pref.getIpAddress()));
+                                    VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId().toJava(),
+                                                                                pref.getIpAddress()));
                         }
                     }
                 }
                 if (del.getDpnId() != null) {
-                    vpnFootprintService.updateVpnToDpnMapping(del.getDpnId(), del.getVpnInstanceName(), rd,
+                    vpnFootprintService.updateVpnToDpnMapping(del.getDpnId().toJava(), del.getVpnInstanceName(), rd,
                             interfaceName, null /*ipAddressSourceValuePair*/,
                             false /* do delete */);
                 }

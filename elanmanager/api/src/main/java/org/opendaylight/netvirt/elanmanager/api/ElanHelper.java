@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.elanmanager.api;
 
-import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,16 +40,18 @@ public final class ElanHelper {
                 .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
     }
 
-    public static BigInteger getElanMetadataLabel(long elanTag) {
+    public static Uint64 getElanMetadataLabel(long elanTag) {
         return MetaDataUtil.getElanTagMetadata(elanTag);
     }
 
-    public static BigInteger getElanMetadataLabel(long elanTag, int lportTag) {
-        return getElanMetadataLabel(elanTag).or(MetaDataUtil.getLportTagMetaData(lportTag));
+    public static Uint64 getElanMetadataLabel(long elanTag, int lportTag) {
+        return Uint64.fromLongBits(getElanMetadataLabel(elanTag).longValue()
+                   | MetaDataUtil.getLportTagMetaData(lportTag).longValue());
     }
 
-    public static BigInteger getElanMetadataMask() {
-        return MetaDataUtil.METADATA_MASK_SERVICE.or(MetaDataUtil.METADATA_MASK_LPORT_TAG);
+    public static Uint64 getElanMetadataMask() {
+        return Uint64.fromLongBits(MetaDataUtil.METADATA_MASK_SERVICE.longValue()
+                   | MetaDataUtil.METADATA_MASK_LPORT_TAG.longValue());
     }
 
     public static List<String> getDpnInterfacesInElanInstance(DataBroker broker, String elanInstanceName) {

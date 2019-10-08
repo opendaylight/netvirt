@@ -8,7 +8,7 @@
 
 package org.opendaylight.netvirt.dhcpservice.api;
 
-import java.math.BigInteger;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public interface DhcpMConstants {
 
@@ -20,9 +20,9 @@ public interface DhcpMConstants {
     int ARP_FLOW_PRIORITY = 50;
     short DEFAULT_FLOW_PRIORITY = 100;
 
-    BigInteger COOKIE_DHCP_BASE = new BigInteger("6800000", 16);
-    BigInteger METADATA_ALL_CLEAR_MASK = new BigInteger("0000000000000000", 16);
-    BigInteger METADATA_ALL_SET_MASK = new BigInteger("FFFFFFFFFFFFFFFF", 16);
+    Uint64 COOKIE_DHCP_BASE = Uint64.valueOf("6800000", 16).intern();
+    Uint64 METADATA_ALL_CLEAR_MASK = Uint64.valueOf("0000000000000000", 16).intern();
+    Uint64 METADATA_ALL_SET_MASK = Uint64.valueOf("FFFFFFFFFFFFFFFF", 16).intern();
 
     String FLOWID_PREFIX = "DHCP.";
     String VMFLOWID_PREFIX = "DHCP.INTERFACE.";
@@ -35,8 +35,8 @@ public interface DhcpMConstants {
     int DEFAULT_LEASE_TIME = 86400;
     String DEFAULT_DOMAIN_NAME = "openstacklocal";
 
-    BigInteger COOKIE_VM_INGRESS_TABLE = new BigInteger("6800001", 16);
-    BigInteger INVALID_DPID = new BigInteger("-1");
+    Uint64 COOKIE_VM_INGRESS_TABLE = Uint64.valueOf("6800001", 16).intern();
+    Uint64 INVALID_DPID = Uint64.valueOf("-1").intern();
     String DHCP_JOB_KEY_PREFIX = "DHCP_";
     int RETRY_COUNT = 6;
 }

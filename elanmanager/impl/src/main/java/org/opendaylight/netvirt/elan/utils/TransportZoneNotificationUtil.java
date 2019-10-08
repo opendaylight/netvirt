@@ -13,7 +13,6 @@ import com.google.common.base.Optional;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.MapDifference.ValueDifference;
 import com.google.common.collect.Maps;
-import java.math.BigInteger;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -66,6 +65,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -129,7 +129,7 @@ public class TransportZoneNotificationUtil {
         return tzb.build();
     }
 
-    private static void updateTransportZone(TransportZone zone, BigInteger dpnId,
+    private static void updateTransportZone(TransportZone zone, Uint64 dpnId,
             @NonNull TypedWriteTransaction<Configuration> tx) {
         InstanceIdentifier<TransportZone> path = InstanceIdentifier.builder(TransportZones.class)
                 .child(TransportZone.class, new TransportZoneKey(zone.getZoneName())).build();
@@ -138,7 +138,7 @@ public class TransportZoneNotificationUtil {
         LOG.info("Transport zone {} updated due to dpn {} handling.", zone.getZoneName(), dpnId);
     }
 
-    public void updateTransportZone(String zoneNamePrefix, BigInteger dpnId) {
+    public void updateTransportZone(String zoneNamePrefix, Uint64 dpnId) {
         LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
             Map<String, String> localIps = getDpnLocalIps(dpnId);
             if (!localIps.isEmpty()) {
@@ -157,7 +157,7 @@ public class TransportZoneNotificationUtil {
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private void updateTransportZone(String zoneName, BigInteger dpnId, @Nullable String localIp,
+    private void updateTransportZone(String zoneName, Uint64 dpnId, @Nullable String localIp,
             @NonNull TypedReadWriteTransaction<Configuration> tx)
             throws ExecutionException, InterruptedException {
         InstanceIdentifier<TransportZone> inst = InstanceIdentifier.create(TransportZones.class)
@@ -179,7 +179,7 @@ public class TransportZoneNotificationUtil {
         }
     }
 
-    private static void deleteTransportZone(TransportZone zone, BigInteger dpnId,
+    private static void deleteTransportZone(TransportZone zone, Uint64 dpnId,
             @NonNull TypedWriteTransaction<Configuration> tx) {
         InstanceIdentifier<TransportZone> path = InstanceIdentifier.builder(TransportZones.class)
                 .child(TransportZone.class, new TransportZoneKey(zone.getZoneName())).build();
@@ -187,7 +187,7 @@ public class TransportZoneNotificationUtil {
         LOG.info("Transport zone {} deleted due to dpn {} handling.", zone.getZoneName(), dpnId);
     }
 
-    public void deleteTransportZone(String zoneNamePrefix, BigInteger dpnId) {
+    public void deleteTransportZone(String zoneNamePrefix, Uint64 dpnId) {
         LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
             Map<String, String> localIps = getDpnLocalIps(dpnId);
             if (!localIps.isEmpty()) {
@@ -204,7 +204,7 @@ public class TransportZoneNotificationUtil {
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private static void deleteTransportZone(String zoneName, BigInteger dpnId,
+    private static void deleteTransportZone(String zoneName, Uint64 dpnId,
             @NonNull TypedReadWriteTransaction<Configuration> tx) throws ExecutionException, InterruptedException {
         InstanceIdentifier<TransportZone> inst = InstanceIdentifier.create(TransportZones.class)
                 .child(TransportZone.class, new TransportZoneKey(zoneName));
@@ -252,14 +252,14 @@ public class TransportZoneNotificationUtil {
             return;
         }
 
-        java.util.Optional<BigInteger> dpIdOpt = elanBridgeManager.getDpIdFromManagerNodeId(managerNodeId);
+        java.util.Optional<Uint64> dpIdOpt = elanBridgeManager.getDpIdFromManagerNodeId(managerNodeId);
         if (!dpIdOpt.isPresent()) {
             LOG.debug("No DPN id found for node {}", managerNodeId);
             return;
         }
 
         LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
-            BigInteger dpId = dpIdOpt.get();
+            Uint64 dpId = dpIdOpt.get();
             Optional<DPNTEPsInfo> dpnTepsInfoOpt = getDpnTepsInfo(dpId, tx);
             if (!dpnTepsInfoOpt.isPresent()) {
                 LOG.debug("No DPNTEPsInfo found for DPN id {}", dpId);
@@ -283,7 +283,7 @@ public class TransportZoneNotificationUtil {
         }), LOG, "Error handling OVSDB node update");
     }
 
-    private void handleAddedLocalIps(Map<String, String> addedEntries, BigInteger dpId, Set<String> zonePrefixes,
+    private void handleAddedLocalIps(Map<String, String> addedEntries, Uint64 dpId, Set<String> zonePrefixes,
             TypedReadWriteTransaction<Configuration> tx) throws ExecutionException, InterruptedException {
         if (addedEntries == null || addedEntries.isEmpty()) {
             LOG.trace("No added local_ips found for DPN {}", dpId);
@@ -301,7 +301,7 @@ public class TransportZoneNotificationUtil {
         }
     }
 
-    private void handleChangedLocalIps(Map<String, ValueDifference<String>> changedEntries, BigInteger dpId,
+    private void handleChangedLocalIps(Map<String, ValueDifference<String>> changedEntries, Uint64 dpId,
             Set<String> zonePrefixes, Map<String, List<String>> tepTzMap,
             @NonNull TypedReadWriteTransaction<Configuration> tx) throws ExecutionException, InterruptedException {
         if (changedEntries == null || changedEntries.isEmpty()) {
@@ -331,7 +331,7 @@ public class TransportZoneNotificationUtil {
         }
     }
 
-    private static void handleRemovedLocalIps(Map<String, String> removedEntries, BigInteger dpId,
+    private static void handleRemovedLocalIps(Map<String, String> removedEntries, Uint64 dpId,
             Set<String> zonePrefixes, Map<String, List<String>> tepTzMap,
             @NonNull TypedWriteTransaction<Configuration> tx) {
         if (removedEntries == null || removedEntries.isEmpty()) {
@@ -365,7 +365,7 @@ public class TransportZoneNotificationUtil {
                 .collect(Collectors.toList());
     }
 
-    private static Optional<DPNTEPsInfo> getDpnTepsInfo(BigInteger dpId, TypedReadTransaction<Configuration> tx) {
+    private static Optional<DPNTEPsInfo> getDpnTepsInfo(Uint64 dpId, TypedReadTransaction<Configuration> tx) {
         InstanceIdentifier<DPNTEPsInfo> identifier = InstanceIdentifier.builder(DpnEndpoints.class)
                 .child(DPNTEPsInfo.class, new DPNTEPsInfoKey(dpId)).build();
         try {
@@ -381,9 +381,9 @@ public class TransportZoneNotificationUtil {
      *
      * @return Whether a vtep was added or not.
      */
-    private boolean addVtep(TransportZone zone, String subnetIp, BigInteger dpnId, @Nullable String localIp) {
+    private boolean addVtep(TransportZone zone, String subnetIp, Uint64 dpnId, @Nullable String localIp) {
         for (Vteps existingVtep : zone.nonnullVteps()) {
-            if (Objects.equals(existingVtep.getDpnId(), dpnId)) {
+            if (Objects.equals(existingVtep.getDpnId().toJava(), dpnId)) {
                 return false;
             }
         }
@@ -399,7 +399,7 @@ public class TransportZoneNotificationUtil {
         return false;
     }
 
-    private static void removeVtep(String zoneName, BigInteger dpId, @NonNull TypedWriteTransaction<Configuration> tx) {
+    private static void removeVtep(String zoneName, Uint64 dpId, @NonNull TypedWriteTransaction<Configuration> tx) {
         InstanceIdentifier<Vteps> path = InstanceIdentifier.builder(TransportZones.class)
                 .child(TransportZone.class, new TransportZoneKey(zoneName))
                 .child(Vteps.class, new VtepsKey(dpId)).build();
@@ -407,7 +407,7 @@ public class TransportZoneNotificationUtil {
     }
 
     @Nullable
-    private String getDpnLocalIp(BigInteger dpId) throws ReadFailedException {
+    private String getDpnLocalIp(Uint64 dpId) throws ReadFailedException {
         Optional<Node> node = getPortsNode(dpId);
 
         if (node.isPresent()) {
@@ -424,7 +424,7 @@ public class TransportZoneNotificationUtil {
     }
 
     @NonNull
-    private Map<String, String> getDpnLocalIps(BigInteger dpId) throws ReadFailedException {
+    private Map<String, String> getDpnLocalIps(Uint64 dpId) throws ReadFailedException {
         // Example of local IPs from other_config:
         // local_ips="10.0.43.159:MPLS,11.11.11.11:DSL,ip:underlay-network"
         return getPortsNode(dpId).toJavaUtil().map(
@@ -432,7 +432,7 @@ public class TransportZoneNotificationUtil {
     }
 
     @SuppressWarnings("unchecked")
-    private Optional<Node> getPortsNode(BigInteger dpnId) throws ReadFailedException {
+    private Optional<Node> getPortsNode(Uint64 dpnId) throws ReadFailedException {
         InstanceIdentifier<BridgeRefEntry> bridgeRefInfoPath = InstanceIdentifier.create(BridgeRefInfo.class)
                 .child(BridgeRefEntry.class, new BridgeRefEntryKey(dpnId));
 

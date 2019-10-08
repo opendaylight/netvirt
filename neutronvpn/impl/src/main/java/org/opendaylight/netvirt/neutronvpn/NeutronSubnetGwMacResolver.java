@@ -49,6 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -243,7 +244,7 @@ public class NeutronSubnetGwMacResolver {
             return null;
         }
 
-        return elanService.getExternalElanInterface(extNetworkId.getValue(), primarySwitch);
+        return elanService.getExternalElanInterface(extNetworkId.getValue(), Uint64.valueOf(primarySwitch));
     }
 
     @Nullable

@@ -208,7 +208,7 @@ public class ExternalNetworksChangeListener
                 Optional<RouterToNaptSwitch> rtrToNapt =
                     MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerToNaptSwitch);
                 if (rtrToNapt.isPresent()) {
-                    dpnId = rtrToNapt.get().getPrimarySwitchId();
+                    dpnId = rtrToNapt.get().getPrimarySwitchId().toJava();
                 }
                 LOG.debug("associateExternalNetworkWithVPN : got primarySwitch as dpnId{} ", dpnId);
                 if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {

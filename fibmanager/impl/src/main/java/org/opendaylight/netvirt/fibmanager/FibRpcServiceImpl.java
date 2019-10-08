@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.fibmanager;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -51,6 +50,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,9 +78,9 @@ public class FibRpcServiceImpl implements FibRpcService {
     @Override
     public ListenableFuture<RpcResult<CreateFibEntryOutput>> createFibEntry(CreateFibEntryInput input) {
 
-        BigInteger dpnId = input.getSourceDpid();
+        Uint64 dpnId = input.getSourceDpid();
         String vpnName = input.getVpnName();
-        long vpnId = getVpnId(dataBroker, vpnName);
+        Uint32 vpnId = getVpnId(dataBroker, vpnName);
         String vpnRd = getVpnRd(dataBroker, vpnName);
         String ipAddress = input.getIpAddress();
         LOG.info("Create custom FIB entry - {} on dpn {} for VPN {} ", ipAddress, dpnId, vpnName);
@@ -99,9 +100,9 @@ public class FibRpcServiceImpl implements FibRpcService {
      */
     @Override
     public ListenableFuture<RpcResult<RemoveFibEntryOutput>> removeFibEntry(RemoveFibEntryInput input) {
-        BigInteger dpnId = input.getSourceDpid();
+        Uint64 dpnId = input.getSourceDpid();
         String vpnName = input.getVpnName();
-        long vpnId = getVpnId(dataBroker, vpnName);
+        Uint32 vpnId = getVpnId(dataBroker, vpnName);
         String vpnRd = getVpnRd(dataBroker, vpnName);
 
         String ipAddress = input.getIpAddress();
@@ -130,7 +131,7 @@ public class FibRpcServiceImpl implements FibRpcService {
         return RpcResultBuilder.success(new CleanupDpnForVpnOutputBuilder().build()).buildFuture();
     }
 
-    private void removeLocalFibEntry(BigInteger dpnId, long vpnId, String ipPrefix) {
+    private void removeLocalFibEntry(Uint64 dpnId, Uint32 vpnId, String ipPrefix) {
         String[] values = ipPrefix.split("/");
         String ipAddress = values[0];
         int prefixLength = values.length == 1 ? 0 : Integer.parseInt(values[1]);
@@ -145,7 +146,8 @@ public class FibRpcServiceImpl implements FibRpcService {
         }
         List<MatchInfo> matches = new ArrayList<>();
 
-        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId.longValue()),
+            MetaDataUtil.METADATA_MASK_VRFID));
 
         matches.add(MatchEthernetType.IPV4);
 
@@ -166,7 +168,7 @@ public class FibRpcServiceImpl implements FibRpcService {
         LOG.info("FIB entry for prefix {} on dpn {} vpn {} removed successfully", ipAddress, dpnId,  vpnId);
     }
 
-    private void makeLocalFibEntry(long vpnId, BigInteger dpnId, String ipPrefix,
+    private void makeLocalFibEntry(Uint32 vpnId, Uint64 dpnId, String ipPrefix,
                                    List<Instruction> customInstructions) {
         String[] values = ipPrefix.split("/");
         String ipAddress = values[0];
@@ -182,7 +184,8 @@ public class FibRpcServiceImpl implements FibRpcService {
         }
         List<MatchInfo> matches = new ArrayList<>();
 
-        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId.longValue()),
+            MetaDataUtil.METADATA_MASK_VRFID));
 
         matches.add(MatchEthernetType.IPV4);
 
@@ -202,7 +205,7 @@ public class FibRpcServiceImpl implements FibRpcService {
         LOG.debug("FIB entry for route {} on dpn {} installed successfully - flow {}", ipAddress, dpnId, flowEntity);
     }
 
-    private String getFlowRef(BigInteger dpnId, short tableId, long id, String ipAddress) {
+    private String getFlowRef(Uint64 dpnId, short tableId, Uint32 id, String ipAddress) {
         return FibConstants.FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId
                 + NwConstants.FLOWID_SEPARATOR + id + NwConstants.FLOWID_SEPARATOR + ipAddress;
     }
@@ -221,9 +224,9 @@ public class FibRpcServiceImpl implements FibRpcService {
     }
 
 
-    static long getVpnId(DataBroker broker, String vpnName) {
+    static Uint32 getVpnId(DataBroker broker, String vpnName) {
         InstanceIdentifier<VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
         return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
-                VpnInstance::getVpnId).orElse(-1L);
+                VpnInstance::getVpnId).orElse(Uint32.valueOf(-1L));
     }
 }

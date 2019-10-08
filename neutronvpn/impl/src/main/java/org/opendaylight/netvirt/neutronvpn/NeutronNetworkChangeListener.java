@@ -44,6 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.neutron.networks.network.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -242,7 +243,7 @@ public class NeutronNetworkChangeListener
         Class<? extends SegmentTypeBase> segmentType = NeutronvpnUtils.getSegmentTypeFromNeutronNetwork(input);
         String segmentationId = NeutronvpnUtils.getSegmentationIdFromNeutronNetwork(input);
         String physicalNetworkName = NeutronvpnUtils.getPhysicalNetworkName(input);
-        long elanTag = elanService.retrieveNewElanTag(elanInstanceName);
+        Uint32 elanTag = elanService.retrieveNewElanTag(elanInstanceName);
         ElanInstance elanInstance = createElanInstanceBuilder(elanInstanceName, segmentType, segmentationId,
                 physicalNetworkName, input).setElanTag(elanTag).build();
         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id, elanInstance);

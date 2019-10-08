@@ -50,7 +50,8 @@ public class DisplayNaptSwithcesCli extends OsgiCommandSupport {
         if (npatSwitches.isPresent()) {
             for (RouterToNaptSwitch routerToNaptSwitch : npatSwitches.get().nonnullRouterToNaptSwitch()) {
                 ps.printf(String.format(" %-36s  %-20s  %-20s %n", routerToNaptSwitch.getRouterName(),
-                     routerToNaptSwitch.getPrimarySwitchId(), getDpnLocalIp(routerToNaptSwitch.getPrimarySwitchId())));
+                     routerToNaptSwitch.getPrimarySwitchId(),
+                     getDpnLocalIp(routerToNaptSwitch.getPrimarySwitchId().toJava())));
             }
         }
         return null;

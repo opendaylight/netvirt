@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.fibmanager.api;
 
 import com.google.common.util.concurrent.FutureCallback;
 
-import java.math.BigInteger;
 import java.util.List;
 
 import org.eclipse.jdt.annotation.Nullable;
@@ -20,18 +19,20 @@ import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public interface IFibManager {
-    void populateFibOnNewDpn(BigInteger dpnId, long vpnId, String rd,
+    void populateFibOnNewDpn(Uint64 dpnId, Uint32 vpnId, String rd,
                              @Nullable FutureCallback<List<Void>> callback);
 
-    void cleanUpExternalRoutesOnDpn(BigInteger dpnId, long vpnId, String rd,
+    void cleanUpExternalRoutesOnDpn(Uint64 dpnId, Uint32 vpnId, String rd,
                                     String localNextHopIp, String remoteNextHopIp);
 
-    void populateExternalRoutesOnDpn(BigInteger localDpnId, long vpnId, String rd,
+    void populateExternalRoutesOnDpn(Uint64 localDpnId, Uint32 vpnId, String rd,
                                      String localNextHopIp, String remoteNextHopIp);
 
-    void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd,
+    void cleanUpDpnForVpn(Uint64 dpnId, Uint32 vpnId, String rd,
                           @Nullable FutureCallback<List<Void>> callback);
 
     void setConfTransType(String service, String transportType);
@@ -47,8 +48,8 @@ public interface IFibManager {
     String getTransportTypeStr(String tunType);
 
     void manageRemoteRouteOnDPN(boolean action,
-                                BigInteger localDpnId,
-                                long vpnId,
+                                Uint64 localDpnId,
+                                Uint32 vpnId,
                                 String rd,
                                 String destPrefix,
                                 String destTepIp,
@@ -79,7 +80,7 @@ public interface IFibManager {
                                       boolean isVpnFirstEndPoint,
                                       VrfEntry vrfEntry);
 
-    void programDcGwLoadBalancingGroup(BigInteger dpnId,
+    void programDcGwLoadBalancingGroup(Uint64 dpnId,
             String destinationIp, int addRemoveOrUpdate, boolean isTunnelUp,
                                        Class<? extends TunnelTypeBase> tunnelType);
 

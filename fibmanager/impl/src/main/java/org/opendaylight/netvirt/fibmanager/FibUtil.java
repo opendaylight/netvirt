@@ -15,7 +15,6 @@ import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CR
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -119,6 +118,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkAttributes.NetworkType;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -154,7 +155,7 @@ public class FibUtil {
             .AdjacenciesOp.class).build();
     }
 
-    static InstanceIdentifier<Prefixes> getPrefixToInterfaceIdentifier(long vpnId, String ipPrefix) {
+    static InstanceIdentifier<Prefixes> getPrefixToInterfaceIdentifier(Uint32 vpnId, String ipPrefix) {
         return InstanceIdentifier.builder(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn
             .rev130911.PrefixToInterface.class)
             .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface
@@ -205,14 +206,14 @@ public class FibUtil {
     }
 
     @Nullable
-    Prefixes getPrefixToInterface(Long vpnId, String ipPrefix) {
+    Prefixes getPrefixToInterface(Uint32 vpnId, String ipPrefix) {
         Optional<Prefixes> localNextHopInfoData = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
             getPrefixToInterfaceIdentifier(vpnId, ipPrefix));
         return localNextHopInfoData.isPresent() ? localNextHopInfoData.get() : null;
     }
 
     @Nullable
-    static Prefixes getPrefixToInterface(TypedReadTransaction<Operational> operTx, Long vpnId, String ipPrefix)
+    static Prefixes getPrefixToInterface(TypedReadTransaction<Operational> operTx, Uint32 vpnId, String ipPrefix)
             throws ExecutionException, InterruptedException {
         return operTx.read(getPrefixToInterfaceIdentifier(vpnId, ipPrefix)).get().orNull();
     }
@@ -245,11 +246,11 @@ public class FibUtil {
                     .VpnInstanceKey(vpnName)).build();
     }
 
-    public long getVpnId(String vpnName) {
+    public Uint32 getVpnId(String vpnName) {
 
         InstanceIdentifier<VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
         return MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
-                VpnInstance::getVpnId).orElse(-1L);
+                VpnInstance::getVpnId).orElse(Uint32.valueOf(-1L));
     }
 
     /**
@@ -264,13 +265,13 @@ public class FibUtil {
     }
 
     @Nullable
-    public String getVpnNameFromId(long vpnId) {
+    public String getVpnNameFromId(Uint32 vpnId) {
         InstanceIdentifier<VpnIds> id = getVpnIdToVpnInstanceIdentifier(vpnId);
         return MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
                 VpnIds::getVpnInstanceName).orElse(null);
     }
 
-    static InstanceIdentifier<VpnIds> getVpnIdToVpnInstanceIdentifier(long vpnId) {
+    static InstanceIdentifier<VpnIds> getVpnIdToVpnInstanceIdentifier(Uint32 vpnId) {
         return InstanceIdentifier.builder(VpnIdToVpnInstance.class)
             .child(VpnIds.class, new VpnIdsKey(vpnId)).build();
     }
@@ -523,7 +524,7 @@ public class FibUtil {
         }
     }
 
-    public static java.util.Optional<Long> getLabelFromRoutePaths(final VrfEntry vrfEntry) {
+    public static java.util.Optional<Uint32> getLabelFromRoutePaths(final VrfEntry vrfEntry) {
         List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
         if (routePaths == null || routePaths.isEmpty() || vrfEntry.getRoutePaths().get(0).getLabel() == null) {
             return java.util.Optional.empty();
@@ -539,7 +540,7 @@ public class FibUtil {
         return java.util.Optional.of(vrfEntry.getRoutePaths().get(0).getNexthopAddress());
     }
 
-    public static java.util.Optional<Long> getLabelForNextHop(final VrfEntry vrfEntry, String nextHopIp) {
+    public static java.util.Optional<Uint32> getLabelForNextHop(final VrfEntry vrfEntry, String nextHopIp) {
         List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
         if (routePaths == null || routePaths.isEmpty()) {
             return java.util.Optional.empty();
@@ -583,11 +584,11 @@ public class FibUtil {
         return null;
     }
 
-    public static String getCreateLocalNextHopJobKey(Long vpnId, BigInteger dpnId, String prefix) {
+    public static String getCreateLocalNextHopJobKey(Uint32 vpnId, Uint64 dpnId, String prefix) {
         return "FIB-" + vpnId.toString() + "-" + dpnId.toString() + "-" + prefix;
     }
 
-    public static String getCreateRemoteNextHopJobKey(Long vpnId, BigInteger dpnId, String prefix) {
+    public static String getCreateRemoteNextHopJobKey(Uint32 vpnId, Uint64 dpnId, String prefix) {
         return getCreateLocalNextHopJobKey(vpnId, dpnId, prefix);
     }
 
@@ -595,7 +596,7 @@ public class FibUtil {
         return "FIB-" + rd + "-" + prefix;
     }
 
-    public static String getJobKeyForVpnIdDpnId(Long vpnId, BigInteger dpnId) {
+    public static String getJobKeyForVpnIdDpnId(Uint32 vpnId, Uint64 dpnId) {
         return "FIB-" + vpnId.toString() + "-" + dpnId.toString() ;
     }
 
@@ -608,7 +609,7 @@ public class FibUtil {
         }
         VpnInstanceOpDataEntry vpnInstance = optVpnInstance.get();
         String vpnName = vpnInstance.getVpnInstanceName();
-        long vpnId = vpnInstance.getVpnId();
+        Uint32 vpnId = vpnInstance.getVpnId();
         List<String> usedRds = VpnExtraRouteHelper.getUsedRds(confTx, vpnId, prefix);
         // To identify the rd to be removed, iterate through the allocated rds for the prefix and check
         // which rd is allocated for the particular OVS.
@@ -634,7 +635,7 @@ public class FibUtil {
         }
     }
 
-    private String getEndpointIpAddressForDPN(BigInteger dpnId) {
+    private String getEndpointIpAddressForDPN(Uint64 dpnId) {
         //TODO: Move it to a common place for vpn and fib
         String nextHopIp = null;
         InstanceIdentifier<DPNTEPsInfo> tunnelInfoId =
@@ -681,7 +682,7 @@ public class FibUtil {
         return "gre-" + availableDcGws.stream().sorted().collect(joining(":"));
     }
 
-    public static void updateLbGroupInfo(BigInteger dpnId, String groupIdKey,
+    public static void updateLbGroupInfo(Uint64 dpnId, String groupIdKey,
             String groupId, TypedWriteTransaction<Operational> tx) {
         InstanceIdentifier<Nexthops> nextHopsId = getNextHopsIdentifier(groupIdKey);
         Nexthops nextHopsToGroupId = buildNextHops(dpnId, groupIdKey, groupId);
@@ -717,7 +718,7 @@ public class FibUtil {
                 .build();
     }
 
-    public static void removeOrUpdateNextHopInfo(BigInteger dpnId, String nextHopKey, String groupId,
+    public static void removeOrUpdateNextHopInfo(Uint64 dpnId, String nextHopKey, String groupId,
             Nexthops nexthops, TypedWriteTransaction<Operational> tx) {
         InstanceIdentifier<Nexthops> nextHopsId = getNextHopsIdentifier(nextHopKey);
         List<String> targetDeviceIds =
@@ -739,7 +740,7 @@ public class FibUtil {
                 .child(Nexthops.class, new NexthopsKey(groupIdKey)).build();
     }
 
-    private static Nexthops buildNextHops(BigInteger dpnId, String groupIdKey, String groupId) {
+    private static Nexthops buildNextHops(Uint64 dpnId, String groupIdKey, String groupId) {
         return new NexthopsBuilder().withKey(new NexthopsKey(groupIdKey))
                 .setNexthopKey(groupIdKey)
                 .setGroupId(groupId)
@@ -773,12 +774,12 @@ public class FibUtil {
         return vpnName != null && !vpnName.equals(rd);
     }
 
-    static NodeRef buildNodeRef(BigInteger dpId) {
+    static NodeRef buildNodeRef(Uint64 dpId) {
         return new NodeRef(InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class, new NodeKey(new NodeId("openflow:" + dpId))).build());
     }
 
-    static InstanceIdentifier<Group> buildGroupInstanceIdentifier(long groupId, BigInteger dpId) {
+    static InstanceIdentifier<Group> buildGroupInstanceIdentifier(long groupId, Uint64 dpId) {
         return InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId("openflow:" + dpId)))
                 .augmentation(FlowCapableNode.class).child(Group.class, new GroupKey(new GroupId(groupId))).build();
     }
@@ -804,22 +805,22 @@ public class FibUtil {
         return bucketsBuilder.build();
     }
 
-    static String getFlowRef(BigInteger dpnId, short tableId, long label, int priority) {
+    static String getFlowRef(Uint64 dpnId, short tableId, Uint32 label, int priority) {
         return FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId + NwConstants.FLOWID_SEPARATOR + label
                 + NwConstants.FLOWID_SEPARATOR + priority;
     }
 
-    static String getFlowRef(BigInteger dpnId, short tableId, String rd, int priority, InetAddress destPrefix) {
+    static String getFlowRef(Uint64 dpnId, short tableId, String rd, int priority, InetAddress destPrefix) {
         return FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId + NwConstants.FLOWID_SEPARATOR + rd
                 + NwConstants.FLOWID_SEPARATOR + priority + NwConstants.FLOWID_SEPARATOR + destPrefix.getHostAddress();
     }
 
-    static String getL3VpnGatewayFlowRef(short l3GwMacTable, BigInteger dpId, long vpnId, String gwMacAddress) {
+    static String getL3VpnGatewayFlowRef(short l3GwMacTable, Uint64 dpId, Uint32 vpnId, String gwMacAddress) {
         return gwMacAddress + NwConstants.FLOWID_SEPARATOR + vpnId + NwConstants.FLOWID_SEPARATOR + dpId
                 + NwConstants.FLOWID_SEPARATOR + l3GwMacTable;
     }
 
-    static Node buildDpnNode(BigInteger dpnId) {
+    static Node buildDpnNode(Uint64 dpnId) {
         return new NodeBuilder().setId(new NodeId("openflow:" + dpnId))
                 .withKey(new NodeKey(new NodeId("openflow:" + dpnId))).build();
     }
@@ -872,7 +873,7 @@ public class FibUtil {
         }
     }
 
-    public boolean isInterfacePresentInDpn(String vpnName, BigInteger dpnId) {
+    public boolean isInterfacePresentInDpn(String vpnName, Uint64 dpnId) {
         InstanceIdentifier<VpnToDpnList> vpnToDpnListId = InstanceIdentifier.builder(VpnInstanceOpData.class)
                 .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(vpnName))
                 .child(VpnToDpnList.class, new VpnToDpnListKey(dpnId)).build();

@@ -108,19 +108,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpserv
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.subnet.dhcp.port.data.SubnetToDhcpPortBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.subnet.dhcp.port.data.SubnetToDhcpPortKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class DhcpServiceUtils {
     private static final Logger LOG = LoggerFactory.getLogger(DhcpServiceUtils.class);
 
-    private static List<BigInteger> connectedDpnIds = new CopyOnWriteArrayList<>();
+    private static List<Uint64> connectedDpnIds = new CopyOnWriteArrayList<>();
 
     private DhcpServiceUtils() {
 
     }
 
-    public static void setupDhcpFlowEntry(@Nullable BigInteger dpId, short tableId, @Nullable String vmMacAddress,
+    public static void setupDhcpFlowEntry(@Nullable Uint64 dpId, short tableId, @Nullable String vmMacAddress,
                                           int addOrRemove,
                                           IMdsalApiManager mdsalUtil, DhcpServiceCounters dhcpServiceCounters,
                                           TypedReadWriteTransaction<Configuration> tx)
@@ -149,22 +150,22 @@ public final class DhcpServiceUtils {
         }
     }
 
-    private static String getDhcpFlowRef(BigInteger dpId, long tableId, String vmMacAddress) {
+    private static String getDhcpFlowRef(Uint64 dpId, long tableId, String vmMacAddress) {
         return new StringBuilder().append(DhcpMConstants.FLOWID_PREFIX)
-                .append(dpId).append(NwConstants.FLOWID_SEPARATOR)
+                .append(dpId.toString()).append(NwConstants.FLOWID_SEPARATOR)
                 .append(tableId).append(NwConstants.FLOWID_SEPARATOR)
                 .append(vmMacAddress).toString();
     }
 
-    private static String getDhcpArpFlowRef(BigInteger dpId, long tableId, long lportTag, String ipAddress) {
+    private static String getDhcpArpFlowRef(Uint64 dpId, long tableId, long lportTag, String ipAddress) {
         return new StringBuilder().append(DhcpMConstants.FLOWID_PREFIX)
-                .append(dpId).append(NwConstants.FLOWID_SEPARATOR)
+                .append(dpId.toString()).append(NwConstants.FLOWID_SEPARATOR)
                 .append(tableId).append(NwConstants.FLOWID_SEPARATOR)
                 .append(lportTag).append(NwConstants.FLOWID_SEPARATOR)
                 .append(ipAddress).toString();
     }
 
-    public static void setupDhcpDropAction(BigInteger dpId, short tableId, String vmMacAddress, int addOrRemove,
+    public static void setupDhcpDropAction(Uint64 dpId, short tableId, String vmMacAddress, int addOrRemove,
                                            IMdsalApiManager mdsalUtil, DhcpServiceCounters dhcpServiceCounters,
                                            TypedReadWriteTransaction<Configuration> tx)
             throws ExecutionException, InterruptedException {
@@ -192,7 +193,7 @@ public final class DhcpServiceUtils {
         }
     }
 
-    public static void setupDhcpArpRequest(BigInteger dpId, short tableId, BigInteger vni, String dhcpIpAddress,
+    public static void setupDhcpArpRequest(Uint64 dpId, short tableId, Uint64 vni, String dhcpIpAddress,
                                            int lportTag, @Nullable Long elanTag, boolean add,
                                            IMdsalApiManager mdsalUtil, TypedReadWriteTransaction<Configuration> tx)
             throws ExecutionException, InterruptedException {
@@ -228,7 +229,7 @@ public final class DhcpServiceUtils {
         return matches;
     }
 
-    private static List<MatchInfo> getDhcpArpMatch(BigInteger vni, String ipAddress) {
+    private static List<MatchInfo> getDhcpArpMatch(Uint64 vni, String ipAddress) {
         return Arrays.asList(MatchEthernetType.ARP, MatchArpOp.REQUEST, new MatchTunnelId(vni),
                 new MatchArpTpa(ipAddress, "32"));
     }
@@ -244,17 +245,17 @@ public final class DhcpServiceUtils {
         return mkInstructions;
     }
 
-    private static BigInteger generateDhcpArpCookie(int lportTag, String ipAddress) {
+    private static Uint64 generateDhcpArpCookie(int lportTag, String ipAddress) {
         try {
-            BigInteger cookie = NwConstants.TUNNEL_TABLE_COOKIE.add(BigInteger.valueOf(255))
-                    .add(BigInteger.valueOf(NWUtil.convertInetAddressToLong(InetAddress.getByName(ipAddress))));
-            return cookie.add(BigInteger.valueOf(lportTag));
+            return Uint64.valueOf(NwConstants.TUNNEL_TABLE_COOKIE.toJava().add(BigInteger.valueOf(255))
+                    .add(BigInteger.valueOf(NWUtil.convertInetAddressToLong(InetAddress.getByName(ipAddress))))
+                    .add(BigInteger.valueOf(lportTag)));
         } catch (UnknownHostException e) {
-            return NwConstants.TUNNEL_TABLE_COOKIE.add(BigInteger.valueOf(lportTag));
+            return Uint64.valueOf(NwConstants.TUNNEL_TABLE_COOKIE.toJava().add(BigInteger.valueOf(lportTag)));
         }
     }
 
-    public static List<BigInteger> getListOfDpns(DataBroker broker) {
+    public static List<Uint64> getListOfDpns(DataBroker broker) {
         if (!connectedDpnIds.isEmpty()) {
             return connectedDpnIds;
         }
@@ -263,7 +264,7 @@ public final class DhcpServiceUtils {
     }
 
     @NonNull
-    private static List<BigInteger> extractDpnsFromNodes(Optional<Nodes> optionalNodes) {
+    private static List<Uint64> extractDpnsFromNodes(Optional<Nodes> optionalNodes) {
         return optionalNodes.toJavaUtil().map(
             nodes -> nodes.nonnullNode().stream().map(Node::getId).filter(Objects::nonNull).map(
                     MDSALUtil::getDpnIdFromNodeName).collect(
@@ -271,8 +272,8 @@ public final class DhcpServiceUtils {
     }
 
     @NonNull
-    public static List<BigInteger> getDpnsForElan(String elanInstanceName, DataBroker broker) {
-        List<BigInteger> elanDpns = new LinkedList<>();
+    public static List<Uint64> getDpnsForElan(String elanInstanceName, DataBroker broker) {
+        List<Uint64> elanDpns = new LinkedList<>();
         InstanceIdentifier<ElanDpnInterfacesList> elanDpnInstanceIdentifier =
                 InstanceIdentifier.builder(ElanDpnInterfaces.class)
                         .child(ElanDpnInterfacesList.class, new ElanDpnInterfacesListKey(elanInstanceName)).build();
@@ -344,7 +345,7 @@ public final class DhcpServiceUtils {
     }
 
     public static BoundServices getBoundServices(String serviceName, short servicePriority, int flowPriority,
-                                          BigInteger cookie, List<Instruction> instructions) {
+                                          Uint64 cookie, List<Instruction> instructions) {
         StypeOpenflowBuilder augBuilder = new StypeOpenflowBuilder().setFlowCookie(cookie)
                 .setFlowPriority(flowPriority).setInstruction(instructions);
         return new BoundServicesBuilder().withKey(new BoundServicesKey(servicePriority))
@@ -517,13 +518,13 @@ public final class DhcpServiceUtils {
         return false;
     }
 
-    public static void addToDpnIdCache(BigInteger dpnId) {
+    public static void addToDpnIdCache(Uint64 dpnId) {
         if (!connectedDpnIds.contains(dpnId)) {
             connectedDpnIds.add(dpnId);
         }
     }
 
-    public static void removeFromDpnIdCache(BigInteger dpnId) {
+    public static void removeFromDpnIdCache(Uint64 dpnId) {
         connectedDpnIds.remove(dpnId);
     }
 

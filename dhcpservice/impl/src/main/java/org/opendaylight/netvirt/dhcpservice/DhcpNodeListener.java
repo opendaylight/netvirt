@@ -21,6 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +62,7 @@ public class DhcpNodeListener extends AsyncClusteredDataTreeChangeListenerBase<N
             return;
         }
         BigInteger dpId = new BigInteger(node[1]);
-        DhcpServiceUtils.removeFromDpnIdCache(dpId);
+        DhcpServiceUtils.removeFromDpnIdCache(Uint64.valueOf(dpId));
     }
 
     @Override
@@ -79,7 +80,7 @@ public class DhcpNodeListener extends AsyncClusteredDataTreeChangeListenerBase<N
             return;
         }
         BigInteger dpId = new BigInteger(node[1]);
-        DhcpServiceUtils.addToDpnIdCache(dpId);
+        DhcpServiceUtils.addToDpnIdCache(Uint64.valueOf(dpId));
     }
 
     @Override

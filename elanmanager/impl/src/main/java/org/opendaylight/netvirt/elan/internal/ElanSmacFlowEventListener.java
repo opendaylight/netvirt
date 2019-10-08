@@ -15,7 +15,6 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -45,6 +44,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.met
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,22 +80,23 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
 
     @Override
     public void onFlowRemoved(FlowRemoved flowRemoved) {
-        short tableId = flowRemoved.getTableId();
+        short tableId = flowRemoved.getTableId().toJava();
         if (tableId == NwConstants.ELAN_SMAC_TABLE) {
-            BigInteger metadata = flowRemoved.getMatch().getMetadata().getMetadata();
-            long elanTag = MetaDataUtil.getElanTagFromMetadata(metadata);
+            Uint64 metadata = flowRemoved.getMatch().getMetadata().getMetadata();
+            Uint32 elanTag = Uint32.valueOf(MetaDataUtil.getElanTagFromMetadata(metadata));
             ElanTagName elanTagInfo = elanUtils.getElanInfoByElanTag(elanTag);
             if (elanTagInfo == null) {
                 return;
             }
             final String srcMacAddress = flowRemoved.getMatch().getEthernetMatch()
                     .getEthernetSource().getAddress().getValue().toUpperCase(Locale.getDefault());
-            int portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
-            if (portTag == 0) {
+            Uint64 portTag = MetaDataUtil.getLportFromMetadata(metadata);
+            if (portTag.intValue() == 0) {
                 LOG.debug("Flow removed event on SMAC flow entry. But having port Tag as 0 ");
                 return;
             }
-            Optional<IfIndexInterface> existingInterfaceInfo = elanUtils.getInterfaceInfoByInterfaceTag(portTag);
+            Optional<IfIndexInterface> existingInterfaceInfo = elanUtils
+                    .getInterfaceInfoByInterfaceTag(Uint32.valueOf(portTag.longValue()));
             if (!existingInterfaceInfo.isPresent()) {
                 LOG.debug("Interface is not available for port Tag {}", portTag);
                 return;

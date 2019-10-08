@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.vpnmanager.api;
 
 import com.google.common.base.Optional;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -41,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public final class VpnHelper {
     private VpnHelper() {
@@ -94,7 +94,7 @@ public final class VpnHelper {
                 = read(broker, LogicalDatastoreType.CONFIGURATION, id);
         long vpnId = -1;
         if (vpnInstance.isPresent()) {
-            vpnId = vpnInstance.get().getVpnId();
+            vpnId = vpnInstance.get().getVpnId().toJava();
         }
         return vpnId;
     }
@@ -195,7 +195,7 @@ public final class VpnHelper {
         return sn;
     }
 
-    public static InstanceIdentifier<VpnToDpnList> getVpnToDpnListIdentifier(String rd, BigInteger dpnId) {
+    public static InstanceIdentifier<VpnToDpnList> getVpnToDpnListIdentifier(String rd, Uint64 dpnId) {
         return InstanceIdentifier.builder(VpnInstanceOpData.class)
                 .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd))
                 .child(VpnToDpnList.class, new VpnToDpnListKey(dpnId)).build();

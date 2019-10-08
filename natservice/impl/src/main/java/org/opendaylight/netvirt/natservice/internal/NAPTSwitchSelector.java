@@ -104,7 +104,7 @@ public class NAPTSwitchSelector {
             NaptSwitches naptSwitches = optNaptSwitches.get();
 
             for (RouterToNaptSwitch naptSwitch : naptSwitches.nonnullRouterToNaptSwitch()) {
-                BigInteger primarySwitch = naptSwitch.getPrimarySwitchId();
+                BigInteger primarySwitch = naptSwitch.getPrimarySwitchId().toJava();
                 //update weight
                 Integer weight = switchWeights.get(primarySwitch);
                 if (weight == null) {

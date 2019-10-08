@@ -11,7 +11,6 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
@@ -27,6 +26,8 @@ import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
@@ -71,13 +72,13 @@ public class FibManagerImpl implements IFibManager {
     }
 
     @Override
-    public void populateFibOnNewDpn(BigInteger dpnId, long vpnId, String rd,
+    public void populateFibOnNewDpn(Uint64 dpnId, Uint32 vpnId, String rd,
                                     FutureCallback<List<Void>> callback) {
         vrfEntryListener.populateFibOnNewDpn(dpnId, vpnId, rd, callback);
     }
 
     @Override
-    public void populateExternalRoutesOnDpn(BigInteger localDpnId, long vpnId,
+    public void populateExternalRoutesOnDpn(Uint64 localDpnId, Uint32 vpnId,
                                             String rd, String localNextHopIp,
                                             String remoteNextHopIp) {
         vrfEntryListener.populateExternalRoutesOnDpn(localDpnId, vpnId, rd,
@@ -85,7 +86,7 @@ public class FibManagerImpl implements IFibManager {
     }
 
     @Override
-    public void cleanUpExternalRoutesOnDpn(BigInteger dpnId, long vpnId,
+    public void cleanUpExternalRoutesOnDpn(Uint64 dpnId, Uint32 vpnId,
                                            String rd, String localNextHopIp,
                                            String remoteNextHopIp) {
         vrfEntryListener.cleanUpExternalRoutesOnDpn(dpnId, vpnId, rd,
@@ -93,7 +94,7 @@ public class FibManagerImpl implements IFibManager {
     }
 
     @Override
-    public void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd,
+    public void cleanUpDpnForVpn(Uint64 dpnId, Uint32 vpnId, String rd,
                                  FutureCallback<List<Void>> callback) {
         vrfEntryListener.cleanUpDpnForVpn(dpnId, vpnId, rd, callback);
     }
@@ -125,8 +126,8 @@ public class FibManagerImpl implements IFibManager {
 
     @Override
     public void manageRemoteRouteOnDPN(boolean action,
-                                       BigInteger dpnId,
-                                       long vpnId,
+                                       Uint64 dpnId,
+                                       Uint32 vpnId,
                                        String rd,
                                        String destPrefix,
                                        String destTepIp,
@@ -200,7 +201,7 @@ public class FibManagerImpl implements IFibManager {
     }
 
     @Override
-    public void programDcGwLoadBalancingGroup(BigInteger dpnId, String destinationIp,
+    public void programDcGwLoadBalancingGroup(Uint64 dpnId, String destinationIp,
                                               int addRemoveOrUpdate, boolean isTunnelUp,
                                               Class<? extends TunnelTypeBase> tunnelType) {
         nexthopManager.programDcGwLoadBalancingGroup(dpnId, destinationIp,
