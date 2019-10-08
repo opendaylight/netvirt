@@ -104,8 +104,8 @@ public class UpgradeStateListener extends AbstractClusteredSyncDataTreeChangeLis
                 Optional<NaptSwitches> npatSwitches = NatUtil.getAllPrimaryNaptSwitches(dataBroker);
                 if (npatSwitches.isPresent()) {
                     for (RouterToNaptSwitch routerToNaptSwitch : npatSwitches.get().nonnullRouterToNaptSwitch()) {
-                        BigInteger primaryNaptDpnId = routerToNaptSwitch.getPrimarySwitchId();
-                        if (!NatUtil.getSwitchStatus(dataBroker, routerToNaptSwitch.getPrimarySwitchId())) {
+                        BigInteger primaryNaptDpnId = routerToNaptSwitch.getPrimarySwitchId().toJava();
+                        if (!NatUtil.getSwitchStatus(dataBroker, routerToNaptSwitch.getPrimarySwitchId().toJava())) {
                             String routerUuid = routerToNaptSwitch.getRouterName();
                             coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + routerUuid,
                                 () -> Collections.singletonList(

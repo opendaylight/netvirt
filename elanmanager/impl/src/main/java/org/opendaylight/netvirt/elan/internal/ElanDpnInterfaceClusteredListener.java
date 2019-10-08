@@ -124,7 +124,7 @@ public class ElanDpnInterfaceClusteredListener
 
                     // updating remote mcast mac on l2gw devices
                     McastUpdateJob.updateAllMcastsForDpnDelete(elanName, elanL2GatewayMulticastUtils,
-                            elanClusterUtils, dpnInterfaces.getDpId(), elanItmUtils);
+                            elanClusterUtils, dpnInterfaces.getDpId().toJava(), elanItmUtils);
                     BcGroupUpdateJob.updateAllBcGroups(elanName, elanRefUtil, elanL2GatewayMulticastUtils,
                             broker, false);
                 }

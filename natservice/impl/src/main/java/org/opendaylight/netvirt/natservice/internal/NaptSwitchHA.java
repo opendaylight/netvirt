@@ -612,7 +612,7 @@ public class NaptSwitchHA {
                     continue;
                 }
                 String externalIpAddress = ipPortExternal.getIpAddress();
-                Integer extportNumber = ipPortExternal.getPortNum();
+                Integer extportNumber = ipPortExternal.getPortNum().toJava();
                 LOG.debug("handleNatFlowsInNewNaptSwitch : ExternalIPport {}:{} mapping for internal ipport {}:{}",
                         externalIpAddress, extportNumber, internalIpAddress, intportnum);
 

@@ -166,7 +166,7 @@ public class ElanL2GatewayUtils {
 
     public long getLogicalSwitchDeleteDelaySecs() {
         return elanConfig.getL2gwLogicalSwitchDelaySecs() != null
-                ? elanConfig.getL2gwLogicalSwitchDelaySecs() : DEFAULT_LOGICAL_SWITCH_DELETE_DELAY_SECS;
+                ? elanConfig.getL2gwLogicalSwitchDelaySecs().toJava() : DEFAULT_LOGICAL_SWITCH_DELETE_DELAY_SECS;
     }
 
     /**
@@ -318,7 +318,7 @@ public class ElanL2GatewayUtils {
         if (!l2gwDeviceLocalMacs.isEmpty()) {
             for (LocalUcastMacs localUcastMac : l2gwDeviceLocalMacs) {
                 fts.addAll(elanDmacUtils.installDmacFlowsToExternalRemoteMacInBatch(dpnId, l2gwDevice.getHwvtepNodeId(),
-                        elan.getElanTag(), ElanUtils.getVxlanSegmentationId(elan),
+                        elan.getElanTag().toJava(), ElanUtils.getVxlanSegmentationId(elan),
                         localUcastMac.getMacEntryKey().getValue(), elanName, interfaceName));
             }
             LOG.debug("Installing L2gw device [{}] local macs [size: {}] in dpn [{}] for elan [{}]",
@@ -363,8 +363,9 @@ public class ElanL2GatewayUtils {
                 if (doesLocalUcastMacExistsInCache(extL2GwDevice, localUcastMacs)) {
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
                     for (DpnInterfaces elanDpn : elanDpns) {
-                        futures.addAll(elanDmacUtils.installDmacFlowsToExternalRemoteMacInBatch(elanDpn.getDpId(),
-                                extDeviceNodeId, elan.getElanTag(), ElanUtils.getVxlanSegmentationId(elan),
+                        futures.addAll(elanDmacUtils.installDmacFlowsToExternalRemoteMacInBatch(
+                                elanDpn.getDpId().toJava(),
+                                extDeviceNodeId, elan.getElanTag().toJava(), ElanUtils.getVxlanSegmentationId(elan),
                                 macToBeAdded, elanInstanceName, interfaceName));
                     }
                     for (L2GatewayDevice otherDevice : elanL2GwDevices) {
@@ -448,8 +449,8 @@ public class ElanL2GatewayUtils {
             elanClusterUtils.runOnlyInOwnerNode(elan.getElanInstanceName() + ":" + mac.getValue(),
                     "delete remote ucast macs in elan DPNs", () -> {
                     for (DpnInterfaces elanDpn : elanDpns) {
-                        BigInteger dpnId = elanDpn.getDpId();
-                        result.addAll(elanDmacUtils.deleteDmacFlowsToExternalMac(elan.getElanTag(), dpnId,
+                        BigInteger dpnId = elanDpn.getDpId().toJava();
+                        result.addAll(elanDmacUtils.deleteDmacFlowsToExternalMac(elan.getElanTag().toJava(), dpnId,
                                 l2GwDevice.getHwvtepNodeId(),
                                 IetfYangUtil.INSTANCE.canonizeMacAddress(mac).getValue()));
                     }
@@ -479,7 +480,7 @@ public class ElanL2GatewayUtils {
         }
         LOG.info("Deleting Elan [{}] L2GatewayDevices UcastLocalMacs from Dpn [{}]", elanName, dpnId);
 
-        final Long elanTag = elan.getElanTag();
+        final Long elanTag = elan.getElanTag().toJava();
         for (final L2GatewayDevice l2GwDevice : elanL2GwDevices) {
             getL2GwDeviceLocalMacsAndRunCallback(elan.getElanInstanceName(), l2GwDevice, (localMacs) -> {
                 for (MacAddress mac : localMacs) {
@@ -757,7 +758,7 @@ public class ElanL2GatewayUtils {
         try {
             RpcResult<GetDpidFromInterfaceOutput> rpcResult = output.get();
             if (rpcResult != null && rpcResult.isSuccessful()) {
-                dpId = rpcResult.getResult().getDpid();
+                dpId = rpcResult.getResult().getDpid().toJava();
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed to get the DPN ID for interface {}", interfaceName, e);

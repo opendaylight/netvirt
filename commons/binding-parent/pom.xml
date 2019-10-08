@@ -11,7 +11,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <parent>
     <groupId>org.opendaylight.mdsal</groupId>
     <artifactId>binding-parent</artifactId>
-    <version>4.0.6</version>
+    <version>5.0.3</version>
     <relativePath/>
   </parent>
 
@@ -46,6 +46,13 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <groupId>org.opendaylight.serviceutils</groupId>
         <artifactId>serviceutils-artifacts</artifactId>
         <version>${serviceutils.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.opendaylight.openflowplugin</groupId>
+        <artifactId>openflowplugin-artifacts</artifactId>
+        <version>${openflowplugin.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
