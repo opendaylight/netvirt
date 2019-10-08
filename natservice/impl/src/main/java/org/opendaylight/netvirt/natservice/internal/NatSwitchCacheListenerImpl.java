@@ -19,6 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalSubnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 @Singleton
 public class NatSwitchCacheListenerImpl implements NatSwitchCacheListener {
@@ -45,7 +46,7 @@ public class NatSwitchCacheListenerImpl implements NatSwitchCacheListener {
                 String providerNet = NatUtil.getElanInstancePhysicalNetwok(externalNetworkUuid.getValue(),
                         dataBroker);
                 if (switchInfo.getProviderNets().contains(providerNet)) {
-                    long vpnid = NatUtil.getVpnId(dataBroker, externalNetworkUuid.getValue());
+                    Uint32 vpnid = NatUtil.getVpnId(dataBroker, externalNetworkUuid.getValue());
                     snatDefaultRouteProgrammer.addOrDelDefaultFibRouteToSNATForSubnetInDpn(externalSubnet,
                             externalNetworkUuid.getValue(), NwConstants.ADD_FLOW, vpnid, switchInfo.getDpnId());
                 }

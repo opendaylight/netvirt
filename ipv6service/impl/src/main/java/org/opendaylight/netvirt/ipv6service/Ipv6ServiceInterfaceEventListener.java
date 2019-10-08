@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.ipv6service;
 
-import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.PostConstruct;
@@ -28,6 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,7 +141,7 @@ public class Ipv6ServiceInterfaceEventListener
         if (null != iface) {
             LOG.debug("Port {} is a Neutron port", iface.getName());
             NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
-            BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
+            Uint64 dpId = Uint64.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
 
             if (!dpId.equals(Ipv6ServiceConstants.INVALID_DPID)) {
                 Uuid portId = new Uuid(iface.getName());

@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -51,6 +50,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLinkKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,7 +107,7 @@ public final class InterVpnLinkUtil {
             .build();
     }
 
-    public static String buildInterVpnLinkIfaceName(String vpnName, BigInteger dpnId) {
+    public static String buildInterVpnLinkIfaceName(String vpnName, Uint64 dpnId) {
         return String.format("InterVpnLink.%s.%s", vpnName, dpnId.toString());
     }
 
@@ -119,13 +120,13 @@ public final class InterVpnLinkUtil {
      * @param vpnName Name of the VPN to which the fake interfaces belong
      * @param dpnList List of DPNs where the fake InterVpnLink interface must be added
      */
-    void updateVpnFootprint(String vpnName, String primaryRd, List<BigInteger> dpnList) {
+    void updateVpnFootprint(String vpnName, String primaryRd, List<Uint64> dpnList) {
         LOG.debug("updateVpnFootprint (add):  vpn={}  dpnList={}", vpnName, dpnList);
         // Note: when a set of DPNs is calculated for Vpn1, these DPNs are added to the VpnToDpn map of Vpn2. Why?
         // because we do the handover from Vpn1 to Vpn2 in those DPNs, so in those DPNs we must know how to reach
         // to Vpn2 targets. If new Vpn2 targets are added later, the Fib will be maintained in these DPNs even if
         // Vpn2 is not physically present there.
-        for (BigInteger dpnId : dpnList) {
+        for (Uint64 dpnId : dpnList) {
             String ifaceName = buildInterVpnLinkIfaceName(vpnName, dpnId);
             vpnFootprintService.updateVpnToDpnMapping(dpnId, vpnName, primaryRd, ifaceName,
                     null/*ipAddressSourceValuePair*/, true /* addition */);
@@ -139,7 +140,7 @@ public final class InterVpnLinkUtil {
      * @param vpnName Name of the VPN to which the fake interfaces belong
      * @param dpnId DPN where the fake InterVpnLink interface must be removed from
      */
-    void removeIVpnLinkIfaceFromVpnFootprint(String vpnName, String rd, BigInteger dpnId) {
+    void removeIVpnLinkIfaceFromVpnFootprint(String vpnName, String rd, Uint64 dpnId) {
         String ifaceName = buildInterVpnLinkIfaceName(vpnName, dpnId);
         LOG.debug("updateVpnFootprint (remove):  vpn={}  dpn={}  ifaceName={}", vpnName, dpnId, ifaceName);
         vpnFootprintService.updateVpnToDpnMapping(dpnId, vpnName, rd, ifaceName,
@@ -148,7 +149,7 @@ public final class InterVpnLinkUtil {
 
 
     public static FirstEndpointState buildFirstEndpointState(FirstEndpointState original,
-                                                             Optional<List<BigInteger>> new1stEndpointDpns,
+                                                             Optional<List<Uint64>> new1stEndpointDpns,
                                                              Optional<Long> new1stEndpointLportTag) {
         FirstEndpointStateBuilder builder = new FirstEndpointStateBuilder(original);
         if (new1stEndpointDpns.isPresent()) {
@@ -161,7 +162,7 @@ public final class InterVpnLinkUtil {
     }
 
     public static SecondEndpointState buildSecondEndpointState(SecondEndpointState original,
-                                                               Optional<List<BigInteger>> new2ndEndpointDpns,
+                                                               Optional<List<Uint64>> new2ndEndpointDpns,
                                                                Optional<Long> new2ndEndpointLportTag) {
         SecondEndpointStateBuilder builder = new SecondEndpointStateBuilder(original);
         if (new2ndEndpointDpns.isPresent()) {
@@ -246,12 +247,12 @@ public final class InterVpnLinkUtil {
      * @param lportTagOfOtherEndpoint Dataplane identifier of the other endpoint of the InterVpnLink
      * @return the list of Futures for each and every flow that has been installed
      */
-    List<ListenableFuture<Void>> installLPortDispatcherTableFlow(String interVpnLinkName, List<BigInteger> dpnList,
+    List<ListenableFuture<Void>> installLPortDispatcherTableFlow(String interVpnLinkName, List<Uint64> dpnList,
                                                                  String vpnUuidOtherEndpoint,
                                                                  Long lportTagOfOtherEndpoint) {
         List<ListenableFuture<Void>> result = new ArrayList<>();
-        long vpnId = vpnUtil.getVpnId(vpnUuidOtherEndpoint);
-        for (BigInteger dpnId : dpnList) {
+        Uint32 vpnId = vpnUtil.getVpnId(vpnUuidOtherEndpoint);
+        for (Uint64 dpnId : dpnList) {
             // insert into LPortDispatcher table
             Flow lportDispatcherFlow = buildLPortDispatcherFlow(interVpnLinkName, vpnId,
                                                                 lportTagOfOtherEndpoint.intValue());
@@ -270,7 +271,7 @@ public final class InterVpnLinkUtil {
      * @param lportTag DataPlane identifier of the LogicalPort.
      * @return the Flow ready to be installed
      */
-    public static Flow buildLPortDispatcherFlow(String interVpnLinkName, long vpnId, int lportTag) {
+    public static Flow buildLPortDispatcherFlow(String interVpnLinkName, Uint32 vpnId, int lportTag) {
         LOG.info("Inter-vpn-link : buildLPortDispatcherFlow. vpnId {}   lportTag {} ", vpnId, lportTag);
         List<MatchInfo> matches = Collections.singletonList(new MatchMetadata(
                         MetaDataUtil.getMetaDataForLPortDispatcher(lportTag,
@@ -280,7 +281,7 @@ public final class InterVpnLinkUtil {
 
         return MDSALUtil.buildFlowNew(NwConstants.LPORT_DISPATCHER_TABLE, flowRef,
                                       VpnConstants.DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY, flowRef,
-                                      0, 0, VpnUtil.getCookieL3((int) vpnId), matches,
+                                      0, 0, VpnUtil.getCookieL3(vpnId.intValue()), matches,
                                       buildLportDispatcherTableInstructions(vpnId));
     }
 
@@ -301,10 +302,10 @@ public final class InterVpnLinkUtil {
     }
 
 
-    public static List<Instruction> buildLportDispatcherTableInstructions(long vpnId) {
+    public static List<Instruction> buildLportDispatcherTableInstructions(Uint32 vpnId) {
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<>();
-        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getVpnIdMetadata(vpnId),
+        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getVpnIdMetadata(vpnId.intValue()),
             MetaDataUtil.METADATA_MASK_VRFID,
             ++instructionKey));
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.L3_FIB_TABLE, ++instructionKey));
@@ -330,7 +331,7 @@ public final class InterVpnLinkUtil {
     }
 
     public void handleStaticRoute(InterVpnLinkDataComposite interVpnLink, String vpnName,
-        String destination, String nexthop, int label) throws Exception {
+        String destination, String nexthop, Uint32 label) throws Exception {
 
         LOG.debug("handleStaticRoute [vpnLink={} srcVpn={} destination={} nextHop={} label={}]",
             interVpnLink.getInterVpnLinkName(), vpnName, destination, nexthop, label);
@@ -344,19 +345,20 @@ public final class InterVpnLinkUtil {
             vpnRd, destination, label, nexthop);
         fibManager.addOrUpdateFibEntry(vpnRd, null /*macAddress*/, destination,
                 Collections.singletonList(nexthop), VrfEntry.EncapType.Mplsgre, label,
-                0 /*l3vni*/, null /*gatewayMacAddress*/, null /*parentVpnRd*/, RouteOrigin.STATIC, null /*writeTxn*/);
+                Uint32.ZERO/*l3vni*/, null /*gatewayMacAddress*/, null /*parentVpnRd*/,
+                RouteOrigin.STATIC, null /*writeTxn*/);
 
         // Now advertise to BGP. The nexthop that must be advertised to BGP are the IPs of the DPN where the
         // VPN's endpoint have been instantiated
         // List<String> nexthopList = new ArrayList<>(); // The nexthops to be advertised to BGP
-        List<BigInteger> endpointDpns = interVpnLink.getEndpointDpnsByVpnName(vpnName);
+        List<Uint64> endpointDpns = interVpnLink.getEndpointDpnsByVpnName(vpnName);
         List<String> nexthopList =
             endpointDpns.stream().map(dpnId -> InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, dpnId))
                         .collect(Collectors.toList());
         LOG.debug("advertising IVpnLink route to BGP:  vpnRd={}, prefix={}, label={}, nexthops={}",
             vpnRd, destination, label, nexthopList);
         bgpManager.advertisePrefix(vpnRd, null /*macAddress*/, destination, nexthopList,
-                VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, 0 /*l2vni*/,
+                VrfEntry.EncapType.Mplsgre, label, Uint32.ZERO/*l3vni*/, Uint32.ZERO /*l2vni*/,
                 null /*gatewayMacAddress*/);
     }
 }

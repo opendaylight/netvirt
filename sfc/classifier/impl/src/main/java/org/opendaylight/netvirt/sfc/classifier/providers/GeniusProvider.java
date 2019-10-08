@@ -63,6 +63,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.re
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.port._interface.attributes.Options;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -203,7 +204,7 @@ public class GeniusProvider {
                 return Optional.empty();
             }
 
-            BigInteger dpnId = output.getResult().getDpid();
+            BigInteger dpnId = output.getResult().getDpid().toJava();
             if (dpnId == null) {
                 return Optional.empty();
             }
@@ -251,7 +252,7 @@ public class GeniusProvider {
     }
 
     public Optional<Long> getEgressVxlanPortForNode(BigInteger dpnId) {
-        List<OvsdbTerminationPointAugmentation> tpList = interfaceMgr.getTunnelPortsOnBridge(dpnId);
+        List<OvsdbTerminationPointAugmentation> tpList = interfaceMgr.getTunnelPortsOnBridge(Uint64.valueOf(dpnId));
         if (tpList == null) {
             // Most likely the bridge doesnt exist for this dpnId
             LOG.warn("getEgressVxlanPortForNode Tunnel Port TerminationPoint list not available for dpnId [{}]",
@@ -276,7 +277,7 @@ public class GeniusProvider {
                     // From the VXLAN Tunnels, we want the one with the GPE option set
                     if (OPTION_KEY_REMOTE_IP.equals(tpOption.key().getOption())) {
                         if (OPTION_VALUE_FLOW.equals(tpOption.getValue()) && tp.getOfport() != null) {
-                            return Optional.ofNullable(tp.getOfport());
+                            return Optional.ofNullable(tp.getOfport().toJava());
                         }
                     }
                 }

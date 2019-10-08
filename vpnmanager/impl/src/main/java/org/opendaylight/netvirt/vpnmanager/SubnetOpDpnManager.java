@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
@@ -34,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.sub
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.subnet.to.dpn.VpnInterfacesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.subnet.to.dpn.VpnInterfacesKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +49,7 @@ public class SubnetOpDpnManager {
     }
 
     @Nullable
-    private SubnetToDpn addDpnToSubnet(Uuid subnetId, BigInteger dpnId) {
+    private SubnetToDpn addDpnToSubnet(Uuid subnetId, Uint64 dpnId) {
         try {
             InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
                 InstanceIdentifier.builder(SubnetOpData.class).child(SubnetOpDataEntry.class,
@@ -82,7 +82,7 @@ public class SubnetOpDpnManager {
         return null;
     }
 
-    private void removeDpnFromSubnet(Uuid subnetId, BigInteger dpnId) {
+    private void removeDpnFromSubnet(Uuid subnetId, Uint64 dpnId) {
         try {
             InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
                 InstanceIdentifier.builder(SubnetOpData.class).child(SubnetOpDataEntry.class,
@@ -108,7 +108,7 @@ public class SubnetOpDpnManager {
         }
     }
 
-    public SubnetToDpn addInterfaceToDpn(Uuid subnetId, BigInteger dpnId, String intfName) {
+    public SubnetToDpn addInterfaceToDpn(Uuid subnetId, Uint64 dpnId, String intfName) {
         SubnetToDpn subDpn = null;
         try {
             // Create and add SubnetOpDataEntry object for this subnet to the SubnetOpData container
@@ -147,7 +147,7 @@ public class SubnetOpDpnManager {
         return subDpn;
     }
 
-    public void addPortOpDataEntry(String intfName, Uuid subnetId, @Nullable BigInteger dpnId) {
+    public void addPortOpDataEntry(String intfName, Uuid subnetId, @Nullable Uint64 dpnId) {
         try {
             // Add to PortOpData as well.
             PortOpDataEntryBuilder portOpBuilder = null;
@@ -175,7 +175,7 @@ public class SubnetOpDpnManager {
                 }
                 portOpBuilder.setSubnetIds(listSubnet);
             }
-            if (dpnId != null && !dpnId.equals(BigInteger.ZERO)) {
+            if (dpnId != null && !dpnId.equals(Uint64.ZERO)) {
                 portOpBuilder.setDpnId(dpnId);
             }
             portOpEntry = portOpBuilder.build();
@@ -192,7 +192,7 @@ public class SubnetOpDpnManager {
         }
     }
 
-    public boolean removeInterfaceFromDpn(Uuid subnetId, BigInteger dpnId, String intfName) {
+    public boolean removeInterfaceFromDpn(Uuid subnetId, Uint64 dpnId, String intfName) {
         boolean dpnRemoved = false;
         try {
             InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =

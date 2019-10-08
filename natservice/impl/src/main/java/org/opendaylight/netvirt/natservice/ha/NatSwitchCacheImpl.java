@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.natservice.ha;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -22,6 +21,7 @@ import org.opendaylight.netvirt.natservice.api.NatSwitchCache;
 import org.opendaylight.netvirt.natservice.api.NatSwitchCacheListener;
 import org.opendaylight.netvirt.natservice.api.SwitchInfo;
 import org.opendaylight.netvirt.natservice.internal.NatUtil;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 public class NatSwitchCacheImpl implements NatSwitchCache {
 
     private static final Logger LOG = LoggerFactory.getLogger(NatSwitchCacheImpl.class);
-    ConcurrentMap<BigInteger,SwitchInfo> switchMap = new ConcurrentHashMap<>();
+    ConcurrentMap<Uint64,SwitchInfo> switchMap = new ConcurrentHashMap<>();
 
     private final  List<NatSwitchCacheListener> centralizedSwitchCacheListenerList =
             new ArrayList<NatSwitchCacheListener>();
@@ -41,7 +41,7 @@ public class NatSwitchCacheImpl implements NatSwitchCache {
     }
 
     @Override
-    public void addSwitch(BigInteger dpnId) {
+    public void addSwitch(Uint64 dpnId) {
         LOG.info("addSwitch: Retrieving the provider config for {}", dpnId);
         Map<String, String> providerMappingsMap = NatUtil.getOpenvswitchOtherConfigMap(dpnId, dataBroker);
         SwitchInfo switchInfo = new SwitchInfo();
@@ -54,7 +54,7 @@ public class NatSwitchCacheImpl implements NatSwitchCache {
     }
 
     @Override
-    public void removeSwitch(BigInteger dpnId) {
+    public void removeSwitch(Uint64 dpnId) {
         LOG.info("removeSwitch: Removing {} dpnId to switchWeightsMap", dpnId);
         SwitchInfo switchInfo = switchMap.get(dpnId);
         for (NatSwitchCacheListener centralizedSwitchCacheListener : centralizedSwitchCacheListenerList) {
@@ -63,7 +63,7 @@ public class NatSwitchCacheImpl implements NatSwitchCache {
     }
 
     @Override
-    public boolean isSwitchConnectedToExternal(BigInteger dpnId, String providerNet) {
+    public boolean isSwitchConnectedToExternal(Uint64 dpnId, String providerNet) {
         SwitchInfo switchInfo = switchMap.get(dpnId);
         if (switchInfo != null) {
             return switchInfo.getProviderNets().contains(providerNet);
@@ -72,9 +72,9 @@ public class NatSwitchCacheImpl implements NatSwitchCache {
     }
 
     @Override
-    public Set<BigInteger> getSwitchesConnectedToExternal(String providerNet) {
-        Set<BigInteger> switches = new HashSet<>();
-        for (Map.Entry<BigInteger,SwitchInfo> switchesEntrySet : switchMap.entrySet()) {
+    public Set<Uint64> getSwitchesConnectedToExternal(String providerNet) {
+        Set<Uint64> switches = new HashSet<>();
+        for (Map.Entry<Uint64,SwitchInfo> switchesEntrySet : switchMap.entrySet()) {
             Set<String> providerNetSet = switchesEntrySet.getValue().getProviderNets();
             if (providerNetSet != null && providerNetSet.contains(providerNet)) {
                 switches.add(switchesEntrySet.getKey());

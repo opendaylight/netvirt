@@ -16,7 +16,7 @@ import com.google.common.collect.Table;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-import java.math.BigInteger;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.neutron.vip.states.VipState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnService;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,11 +97,11 @@ public class NatSouthboundEventHandlers {
         initialize();
     }
 
-    public void handleAdd(String interfaceName, BigInteger intfDpnId, RouterInterface routerInterface) {
+    public void handleAdd(String interfaceName, Uint64 intfDpnId, RouterInterface routerInterface) {
         handleAdd(interfaceName, intfDpnId, routerInterface, null);
     }
 
-    public void handleAdd(String interfaceName, BigInteger intfDpnId,
+    public void handleAdd(String interfaceName, Uint64 intfDpnId,
                           RouterInterface routerInterface, @Nullable VipState vipState) {
         String routerName = routerInterface.getRouterName();
         if (NatUtil.validateIsIntefacePartofRouter(dataBroker, routerName, interfaceName)) {
@@ -126,7 +127,7 @@ public class NatSouthboundEventHandlers {
         }
     }
 
-    public void handleRemove(String interfaceName, BigInteger intfDpnId, RouterInterface routerInterface) {
+    public void handleRemove(String interfaceName, Uint64 intfDpnId, RouterInterface routerInterface) {
         String routerName = routerInterface.getRouterName();
         NatInterfaceStateRemoveWorker natIfaceStateRemoveWorker = new NatInterfaceStateRemoveWorker(interfaceName,
                 intfDpnId, routerName);
@@ -150,7 +151,7 @@ public class NatSouthboundEventHandlers {
     }
 
     public void handleUpdate(Interface original, Interface update,
-                             BigInteger intfDpnId, RouterInterface routerInterface) {
+                             Uint64 intfDpnId, RouterInterface routerInterface) {
         String routerName = routerInterface.getRouterName();
         if (NatUtil.validateIsIntefacePartofRouter(dataBroker, routerName, update.getName())) {
             NatInterfaceStateUpdateWorker natIfaceStateupdateWorker = new NatInterfaceStateUpdateWorker(
@@ -164,7 +165,7 @@ public class NatSouthboundEventHandlers {
         }
     }
 
-    void handleRouterInterfacesUpEvent(String routerName, String interfaceName, BigInteger dpId,
+    void handleRouterInterfacesUpEvent(String routerName, String interfaceName, Uint64 dpId,
             TypedReadWriteTransaction<Operational> operTx) throws ExecutionException, InterruptedException {
         LOG.debug("handleRouterInterfacesUpEvent : Handling UP event for router interface {} in Router {} on Dpn {}",
                 interfaceName, routerName, dpId);
@@ -172,7 +173,7 @@ public class NatSouthboundEventHandlers {
         NatUtil.addToDpnRoutersMap(routerName, interfaceName, dpId, operTx);
     }
 
-    void handleRouterInterfacesDownEvent(String routerName, String interfaceName, BigInteger dpnId,
+    void handleRouterInterfacesDownEvent(String routerName, String interfaceName, Uint64 dpnId,
                                          TypedReadWriteTransaction<Operational> operTx)
         throws ExecutionException, InterruptedException {
         LOG.debug("handleRouterInterfacesDownEvent : Handling DOWN event for router Interface {} in Router {}",
@@ -182,6 +183,8 @@ public class NatSouthboundEventHandlers {
                 operTx);
     }
 
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private IntfTransitionState getTransitionState(Interface.OperStatus original , Interface.OperStatus updated) {
         IntfTransitionState transitionState = stateTable.get(original, updated);
 
@@ -194,9 +197,9 @@ public class NatSouthboundEventHandlers {
     private class NatInterfaceStateAddWorker implements Callable<List<ListenableFuture<Void>>> {
         private final String interfaceName;
         private final String routerName;
-        private final BigInteger intfDpnId;
+        private final Uint64 intfDpnId;
 
-        NatInterfaceStateAddWorker(String interfaceName, BigInteger intfDpnId, String routerName) {
+        NatInterfaceStateAddWorker(String interfaceName, Uint64 intfDpnId, String routerName) {
             this.interfaceName = interfaceName;
             this.routerName = routerName;
             this.intfDpnId = intfDpnId;
@@ -225,9 +228,9 @@ public class NatSouthboundEventHandlers {
     private class NatInterfaceStateRemoveWorker implements Callable<List<ListenableFuture<Void>>> {
         private final String interfaceName;
         private final String routerName;
-        private final BigInteger intfDpnId;
+        private final Uint64 intfDpnId;
 
-        NatInterfaceStateRemoveWorker(String interfaceName, BigInteger intfDpnId, String routerName) {
+        NatInterfaceStateRemoveWorker(String interfaceName, Uint64 intfDpnId, String routerName) {
             this.interfaceName = interfaceName;
             this.routerName = routerName;
             this.intfDpnId = intfDpnId;
@@ -255,10 +258,10 @@ public class NatSouthboundEventHandlers {
     private class NatInterfaceStateUpdateWorker implements Callable<List<ListenableFuture<Void>>> {
         private final Interface original;
         private final Interface update;
-        private final BigInteger intfDpnId;
+        private final Uint64 intfDpnId;
         private final String routerName;
 
-        NatInterfaceStateUpdateWorker(Interface original, Interface update, BigInteger intfDpnId, String routerName) {
+        NatInterfaceStateUpdateWorker(Interface original, Interface update, Uint64 intfDpnId, String routerName) {
             this.original = original;
             this.update = update;
             this.intfDpnId = intfDpnId;
@@ -307,7 +310,9 @@ public class NatSouthboundEventHandlers {
         }
     }
 
-    private void processInterfaceAdded(String portName, String routerId, BigInteger dpnId, VipState vipState) {
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
+    private void processInterfaceAdded(String portName, String routerId, Uint64 dpnId, VipState vipState) {
         LOG.trace("processInterfaceAdded : Processing Interface Add Event for interface {}", portName);
         List<InternalToExternalPortMap> intExtPortMapList = getIntExtPortMapListForPortName(portName, routerId);
         if (intExtPortMapList.isEmpty()) {
@@ -342,7 +347,9 @@ public class NatSouthboundEventHandlers {
         return port.get().nonnullInternalToExternalPortMap();
     }
 
-    private void processInterfaceRemoved(String portName, BigInteger dpnId, String routerId,
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
+    private void processInterfaceRemoved(String portName, Uint64 dpnId, String routerId,
             List<ListenableFuture<Void>> futures) {
         LOG.trace("processInterfaceRemoved : Processing Interface Removed Event for interface {} on DPN ID {}",
                 portName, dpnId);
@@ -369,10 +376,10 @@ public class NatSouthboundEventHandlers {
     private class NatFlowAddWorker implements Callable<List<ListenableFuture<Void>>> {
         private final String interfaceName;
         private final String routerName;
-        private final BigInteger dpnId;
+        private final Uint64 dpnId;
         private final VipState vipState;
 
-        NatFlowAddWorker(String interfaceName,String routerName, BigInteger dpnId, VipState vipState) {
+        NatFlowAddWorker(String interfaceName,String routerName, Uint64 dpnId, VipState vipState) {
             this.interfaceName = interfaceName;
             this.routerName = routerName;
             this.dpnId = dpnId;
@@ -437,9 +444,9 @@ public class NatSouthboundEventHandlers {
     private class NatFlowRemoveWorker implements Callable<List<ListenableFuture<Void>>> {
         private final String interfaceName;
         private final String routerName;
-        private final BigInteger intfDpnId;
+        private final Uint64 intfDpnId;
 
-        NatFlowRemoveWorker(String interfaceName, BigInteger intfDpnId, String routerName) {
+        NatFlowRemoveWorker(String interfaceName, Uint64 intfDpnId, String routerName) {
             this.interfaceName = interfaceName;
             this.routerName = routerName;
             this.intfDpnId = intfDpnId;

@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.fibmanager;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
@@ -35,6 +34,8 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 @Singleton
 public class IPv6Handler {
@@ -45,12 +46,13 @@ public class IPv6Handler {
         this.mdsalManager = mdsalManager;
     }
 
-    public void installPing6ResponderFlowEntry(BigInteger dpnId, long vpnId, String routerInternalIp,
-            MacAddress routerMac, long label, int addOrRemove) {
+    public void installPing6ResponderFlowEntry(Uint64 dpnId, Uint32 vpnId, String routerInternalIp,
+            MacAddress routerMac, Uint32 label, int addOrRemove) {
 
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchIpProtocol.ICMPV6);
-        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId.longValue()),
+            MetaDataUtil.METADATA_MASK_VRFID));
         matches.add(new MatchIcmpv6((short) 128, (short) 0));
         matches.add(MatchEthernetType.IPV6);
         matches.add(new MatchIpv6Destination(routerInternalIp));
@@ -66,7 +68,7 @@ public class IPv6Handler {
 
         // Set the ICMPv6 type to 129 (echo reply)
         actionsInfos.add(new ActionSetIcmpv6Type((short) 129));
-        actionsInfos.add(new ActionNxLoadInPort(BigInteger.ZERO));
+        actionsInfos.add(new ActionNxLoadInPort(Uint64.ZERO));
         actionsInfos.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionApplyActions(actionsInfos));

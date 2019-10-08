@@ -12,7 +12,6 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +36,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,7 +83,7 @@ public class NatScalein {
         });
     }
 
-    protected void remove(BigInteger srcDpnId) {
+    protected void remove(Uint64 srcDpnId) {
         LOG.debug("Called Remove on addOnRecoveryCallback");
         InstanceIdentifier<DpnRoutersList> dpnRoutersListIdentifier = NatUtil
             .getDpnRoutersId(srcDpnId);
@@ -99,13 +100,13 @@ public class NatScalein {
                 if (extRouters != null && extRouters.isEnableSnat()) {
                     jobCoordinator.enqueueJob((NatConstants.NAT_DJC_PREFIX + routerName), () -> {
                         List<ListenableFuture<Void>> futures = new ArrayList<>();
-                        BigInteger naptId = NatUtil
+                        Uint64 naptId = NatUtil
                             .getPrimaryNaptfromRouterName(dataBroker, routerName);
-                        if (naptId == null || naptId.equals(BigInteger.ZERO)) {
-                            long routerId = NatUtil.getVpnId(dataBroker, routerName);
-                            long routerVpnId = getBgpVpnIdForRouter(routerId, routerName);
+                        if (naptId == null || naptId.equals(Uint64.ZERO)) {
+                            Uint32 routerId = NatUtil.getVpnId(dataBroker, routerName);
+                            Uint32 routerVpnId = getBgpVpnIdForRouter(routerId, routerName);
 
-                            if (routerVpnId != -1) {
+                            if (routerVpnId != NatConstants.INVALID_ID) {
                                 ProviderTypes extNwProvType = NatEvpnUtil
                                     .getExtNwProvTypeFromRouterName(dataBroker,
                                         routerName, extRouters.getNetworkId());
@@ -126,16 +127,16 @@ public class NatScalein {
         }
     }
 
-    private long getBgpVpnIdForRouter(long routerId, String routerName) {
+    private Uint32 getBgpVpnIdForRouter(Uint32 routerId, String routerName) {
 
         if (routerId == NatConstants.INVALID_ID) {
             LOG.error(
                 "NAT Service : SNAT -> Invalid ROUTER-ID {} returned for routerName {}",
                 routerId, routerName);
-            return -1;
+            return NatConstants.INVALID_ID;
         }
         Uuid bgpVpnUuid = NatUtil.getVpnForRouter(dataBroker, routerName);
-        long bgpVpnId;
+        Uint32 bgpVpnId;
         if (bgpVpnUuid == null) {
             LOG.debug(
                 "NAT Service : SNAT -> Internal VPN-ID {} associated to router {}",
@@ -147,7 +148,7 @@ public class NatScalein {
                 LOG.error(
                     "NAT Service : SNAT -> Invalid Private BGP VPN ID returned for routerName {}",
                     routerName);
-                return -1;
+                return NatConstants.INVALID_ID;
             }
         }
         return bgpVpnId;

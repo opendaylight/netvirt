@@ -16,7 +16,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-import java.math.BigInteger;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -70,6 +70,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTargetBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTargetKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -229,8 +231,8 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         VpnAfConfig config = value.getIpv4Family();
         String vpnInstanceName = value.getVpnInstanceName();
 
-        long vpnId = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME, vpnInstanceName);
-        if (vpnId == 0) {
+        Uint32 vpnId = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME, vpnInstanceName);
+        if (vpnId.longValue() == 0) {
             LOG.error("{} addVpnInstance: Unable to fetch label from Id Manager. Bailing out of adding operational"
                     + " data for Vpn Instance {}", LOGGING_PREFIX_ADD, value.getVpnInstanceName());
             return;
@@ -348,14 +350,14 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
 
                 // install flow
                 List<MatchInfo> mkMatches = new ArrayList<>();
-                mkMatches.add(new MatchTunnelId(BigInteger.valueOf(vpnInstance.getL3vni())));
+                mkMatches.add(new MatchTunnelId(Uint64.valueOf(vpnInstance.getL3vni())));
 
                 List<InstructionInfo> instructions =
                         Arrays.asList(new InstructionWriteMetadata(MetaDataUtil.getVpnIdMetadata(vpnInstanceOpDataEntry
-                                .getVpnId()), MetaDataUtil.METADATA_MASK_VRFID),
+                                .getVpnId().toJava()), MetaDataUtil.METADATA_MASK_VRFID),
                                 new InstructionGotoTable(NwConstants.L3_GW_MAC_TABLE));
 
-                for (BigInteger dpnId: NWUtil.getOperativeDPNs(dataBroker)) {
+                for (Uint64 dpnId: NWUtil.getOperativeDPNs(dataBroker)) {
                     String flowRef = getFibFlowRef(dpnId, NwConstants.L3VNI_EXTERNAL_TUNNEL_DEMUX_TABLE,
                             vpnName, VpnConstants.DEFAULT_FLOW_PRIORITY);
                     FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId,
@@ -424,6 +426,8 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         }
     }
 
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private List<String> getDcGatewayTunnelInterfaceNameList() {
         List<String> tunnelInterfaceNameList = new ArrayList<>();
         try {
@@ -474,7 +478,9 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         return tunnelInterfaceNameList;
     }
 
-    private String getFibFlowRef(BigInteger dpnId, short tableId, String vpnName, int priority) {
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
+    private String getFibFlowRef(Uint64 dpnId, short tableId, String vpnName, int priority) {
         return VpnConstants.FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId
                 + NwConstants.FLOWID_SEPARATOR + vpnName + NwConstants.FLOWID_SEPARATOR + priority;
     }

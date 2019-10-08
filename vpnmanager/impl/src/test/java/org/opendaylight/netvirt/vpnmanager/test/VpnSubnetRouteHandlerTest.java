@@ -15,7 +15,6 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -94,11 +93,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VpnSubnetRouteHandlerTest {
 
-    BigInteger dpId = BigInteger.valueOf(1);
+    Uint64 dpId = Uint64.valueOf(1);
     SubnetToDpn subnetToDpn = null;
     String subnetIp = "10.1.1.24";
     List<String> routeDistinguishers = Arrays.asList("100:1","100:2");
@@ -409,11 +409,11 @@ public class VpnSubnetRouteHandlerTest {
 
     }
 
-    public static NodeConnectorId buildNodeConnectorId(BigInteger dpn, long portNo) {
+    public static NodeConnectorId buildNodeConnectorId(Uint64 dpn, long portNo) {
         return new NodeConnectorId(buildNodeConnectorString(dpn, portNo));
     }
 
-    public static String buildNodeConnectorString(BigInteger dpn, long portNo) {
+    public static String buildNodeConnectorString(Uint64 dpn, long portNo) {
         return new StringBuilder().append(IfmConstants.OF_URI_PREFIX).append(dpn)
             .append(IfmConstants.OF_URI_SEPARATOR).append(portNo).toString();
     }

@@ -173,7 +173,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                     }
                     InternalToExternalPortMap intExtPortMap = new InternalToExternalPortMapBuilder().withKey(new
                             InternalToExternalPortMapKey(fixedIpAddress)).setInternalIp(fixedIpAddress)
-                            .setExternalIp(floatingIpAddress).setExternalId(floatingIpId).setLabel(null).build();
+                            .setExternalIp(floatingIpAddress).setExternalId(floatingIpId).setLabel(0L).build();
                     intExtPortMapList.add(intExtPortMap);
                     fixedNeutronPortBuilder.setInternalToExternalPortMap(intExtPortMapList);
                 }

@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -42,6 +41,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMapping;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +57,7 @@ public final class NatEvpnUtil {
     public static void releaseLPortTagForRouter(DataBroker dataBroker, IdManagerService idManager, String routerName) {
 
         String rd = NatUtil.getVpnRd(dataBroker, routerName);
-        long l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
+        Uint32 l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
         if (!NatEvpnUtil.isL3VpnOverVxLan(l3Vni)) {
             LOG.info("releaseLPortTagForRouter : Router:{} is not part of L3VPNOverVxlan", routerName);
             return;
@@ -66,8 +67,8 @@ public final class NatEvpnUtil {
         }
     }
 
-    public static long getTunnelIdForRouter(IdManagerService idManager, DataBroker dataBroker, String routerName,
-                                            long routerId) {
+    public static Uint64 getTunnelIdForRouter(IdManagerService idManager, DataBroker dataBroker, String routerName,
+                                            Uint32 routerId) {
         /* Only if the router is part of an L3VPN-Over-VXLAN, Router_lPort_Tag which will be carved out per router
          from 'interfaces' POOL and used as tunnel_id. Otherwise we will continue to use router-id as the tunnel-id
          in the following Flows.
@@ -75,23 +76,23 @@ public final class NatEvpnUtil {
          1) PSNAT_TABLE (on Non-NAPT) -> Send to Remote Group
          2) INTERNAL_TUNNEL_TABLE (on NAPT) -> Send to OUTBOUND_NAPT_TABLE */
         String rd = NatUtil.getVpnRd(dataBroker, routerName);
-        long l3Vni = getL3Vni(dataBroker, rd);
+        Uint32 l3Vni = getL3Vni(dataBroker, rd);
         if (isL3VpnOverVxLan(l3Vni)) {
-            int routerLportTag = NatUtil.getUniqueId(idManager, IfmConstants.IFM_IDPOOL_NAME, routerName);
+            Uint32 routerLportTag = NatUtil.getUniqueId(idManager, IfmConstants.IFM_IDPOOL_NAME, routerName);
             if (routerLportTag != NatConstants.INVALID_ID) {
                 LOG.trace("getTunnelIdForRouter : Successfully allocated Router_lPort_Tag = {} from ID Manager for "
                         + "Router ID = {}", routerLportTag, routerId);
-                return routerLportTag;
+                return Uint64.valueOf(routerLportTag.longValue());
             } else {
                 LOG.warn("getTunnelIdForRouter : Failed to allocate Router_lPort_Tag from ID Manager for Router ID:{} "
                         + "Continue to use router-id as tunnel-id", routerId);
-                return routerId;
+                return Uint64.valueOf(routerId.longValue());
             }
         }
-        return routerId;
+        return Uint64.valueOf(routerId.longValue());
     }
 
-    static long getL3Vni(DataBroker broker, String rd) {
+    static Uint32 getL3Vni(DataBroker broker, String rd) {
         VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpData(broker, rd);
         if (vpnInstanceOpDataEntry != null && vpnInstanceOpDataEntry.getL3vni() != null) {
             return vpnInstanceOpDataEntry.getL3vni();
@@ -105,8 +106,8 @@ public final class NatEvpnUtil {
                 LogicalDatastoreType.OPERATIONAL, id).orNull();
     }
 
-    private static boolean isL3VpnOverVxLan(Long l3Vni) {
-        return l3Vni != null && l3Vni != 0;
+    private static boolean isL3VpnOverVxLan(Uint32 l3Vni) {
+        return l3Vni != null && l3Vni.longValue() != 0;
     }
 
     static ProviderTypes getExtNwProvTypeFromRouterName(DataBroker dataBroker, String routerName,
@@ -134,11 +135,11 @@ public final class NatEvpnUtil {
                                                  String rd,
                                                  String prefix,
                                                  String nextHopIp,
-                                                 long l3Vni,
+                                                 Uint32 l3Vni,
                                                  @Nullable String interfaceName,
                                                  String gwMacAddress,
                                                  TypedWriteTransaction<Configuration> writeTx,
-                                                 RouteOrigin origin, BigInteger dpId,
+                                                 RouteOrigin origin, Uint64 dpId,
                                                  Uuid networkId) {
         try {
             LOG.info("addRoutesForVxLanProvType : Adding Fib entry rd {} prefix {} nextHop {} l3Vni {}",
@@ -157,7 +158,7 @@ public final class NatEvpnUtil {
             /* Publish to Bgp only if its an INTERNET VPN */
             if (rd != null && !rd.equalsIgnoreCase(vpnName)) {
                 bgpManager.advertisePrefix(rd, null /*macAddress*/, prefix, Collections.singletonList(nextHopIp),
-                        VrfEntry.EncapType.Vxlan, NatConstants.DEFAULT_LABEL_VALUE, l3Vni, 0 /*l2vni*/,
+                        VrfEntry.EncapType.Vxlan, NatConstants.DEFAULT_LABEL_VALUE, l3Vni, Uint32.ZERO /*l2vni*/,
                         gwMacAddress);
             }
             LOG.info("addRoutesForVxLanProvType : Added Fib entry rd {} prefix {} nextHop {} l3Vni {}", rd, prefix,
@@ -167,12 +168,13 @@ public final class NatEvpnUtil {
         }
     }
 
-    static void makeL3GwMacTableEntry(final BigInteger dpnId, final long vpnId, String macAddress,
+    static void makeL3GwMacTableEntry(final Uint64 dpnId, final Uint32 vpnId, String macAddress,
         List<Instruction> customInstructions, IMdsalApiManager mdsalManager,
         TypedWriteTransaction<Configuration> confTx) {
 
         List<MatchInfo> matchInfo = new ArrayList<>();
-        matchInfo.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
+        matchInfo.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId.longValue()),
+                MetaDataUtil.METADATA_MASK_VRFID));
         matchInfo.add(new MatchEthernetDestination(new MacAddress(macAddress)));
         LOG.debug("makeL3GwMacTableEntry : Create flow table {} -> table {} for External Vpn Id = {} "
                 + "and MacAddress = {} on DpnId = {}",
@@ -180,18 +182,20 @@ public final class NatEvpnUtil {
         // Install the flow entry in L3_GW_MAC_TABLE
         String flowRef = NatUtil.getFlowRef(dpnId, NwConstants.L3_GW_MAC_TABLE, vpnId, macAddress);
         Flow l3GwMacTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_GW_MAC_TABLE,
-                flowRef, 21, flowRef, 0, 0, NwConstants.COOKIE_L3_GW_MAC_TABLE, matchInfo, customInstructions);
+                flowRef, 21, flowRef, 0, 0,
+                NwConstants.COOKIE_L3_GW_MAC_TABLE, matchInfo, customInstructions);
 
         mdsalManager.addFlow(confTx, dpnId, l3GwMacTableFlowEntity);
         LOG.debug("makeL3GwMacTableEntry : Successfully created flow entity {} on DPN = {}",
                 l3GwMacTableFlowEntity, dpnId);
     }
 
-    static void removeL3GwMacTableEntry(final BigInteger dpnId, final long vpnId, final String macAddress,
+    static void removeL3GwMacTableEntry(final Uint64 dpnId, final Uint32 vpnId, final String macAddress,
             IMdsalApiManager mdsalManager, TypedReadWriteTransaction<Configuration> confTx)
             throws ExecutionException, InterruptedException {
         List<MatchInfo> matchInfo = new ArrayList<>();
-        matchInfo.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
+        matchInfo.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId.longValue()),
+                MetaDataUtil.METADATA_MASK_VRFID));
         matchInfo.add(new MatchEthernetSource(new MacAddress(macAddress)));
         LOG.debug("removeL3GwMacTableEntry : Remove flow table {} -> table {} for External Vpn Id = {} "
                 + "and MacAddress = {} on DpnId = {}",
@@ -206,7 +210,7 @@ public final class NatEvpnUtil {
                 l3GwMacTableFlowEntity, dpnId);
     }
 
-    public static String getFlowRef(BigInteger dpnId, short tableId, long l3Vni, String flowName) {
+    public static String getFlowRef(Uint64 dpnId, short tableId, Uint32 l3Vni, String flowName) {
         return flowName + NwConstants.FLOWID_SEPARATOR + dpnId + NwConstants.FLOWID_SEPARATOR + tableId + NwConstants
                 .FLOWID_SEPARATOR + l3Vni;
     }

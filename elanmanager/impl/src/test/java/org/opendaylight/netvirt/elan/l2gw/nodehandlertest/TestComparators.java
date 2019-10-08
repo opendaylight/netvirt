@@ -358,13 +358,13 @@ public final class TestComparators {
             List<String> logicalSwitchNameHa = new ArrayList<>();
             if (vlanBindingsesD.size() == vlanBindingsesHa.size()) {
                 for (int i = 0; i < vlanBindingsesD.size(); i++) {
-                    vlanKeysD.add(vlanBindingsesD.get(i).getVlanIdKey().getValue());
+                    vlanKeysD.add(vlanBindingsesD.get(i).getVlanIdKey().getValue().toJava());
                     logicalSwitchRefD = vlanBindingsesD.get(i).getLogicalSwitchRef().getValue()
                             .firstKeyOf(Node.class).getNodeId().getValue();
                     logicalSwitchNameD.add(vlanBindingsesD.get(i).getLogicalSwitchRef().getValue()
                             .firstKeyOf(LogicalSwitches.class).getHwvtepNodeName().getValue());
 
-                    vlanKeysHa.add(vlanBindingsesHa.get(i).getVlanIdKey().getValue());
+                    vlanKeysHa.add(vlanBindingsesHa.get(i).getVlanIdKey().getValue().toJava());
                     logicalSwitchRefHa = vlanBindingsesHa.get(i).getLogicalSwitchRef().getValue()
                             .firstKeyOf(Node.class).getNodeId().getValue();
                     logicalSwitchNameHa.add(vlanBindingsesHa.get(i).getLogicalSwitchRef().getValue()

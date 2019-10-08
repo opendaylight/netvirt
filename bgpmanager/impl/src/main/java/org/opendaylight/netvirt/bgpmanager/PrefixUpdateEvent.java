@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.bgpmanager;
 
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.protocol_type;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class PrefixUpdateEvent {
     private protocol_type protocolType;
@@ -17,13 +18,13 @@ public class PrefixUpdateEvent {
     private int plen;
     private String nexthop;
     private String macaddress;
-    private int l3label;
-    private int l2label;
+    private Uint32 l3label;
+    private Uint32 l2label;
     private String routermac;
     private af_afi afi;
 
     public PrefixUpdateEvent(protocol_type protocolType, String rd, String prefix, int plen,
-                             String nexthop, String macaddress, int l3label, int l2label,
+                             String nexthop, String macaddress, Uint32 l3label, Uint32 l2label,
                              String routermac, af_afi afi) {
         this.protocolType = protocolType;
         this.rd = rd;

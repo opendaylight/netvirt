@@ -11,7 +11,6 @@ package org.opendaylight.netvirt.vpnmanager.iplearn;
 import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -33,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.lea
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.config.rev161130.VpnConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +41,7 @@ public abstract class AbstractIpLearnNotificationHandler {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractIpLearnNotificationHandler.class);
 
     // temp where Key is VPNInstance+IP and value is timestamp
-    private final Cache<Pair<String, String>, BigInteger> migrateIpCache;
+    private final Cache<Pair<String, String>, Uint64> migrateIpCache;
 
     protected final VpnConfig config;
     protected final VpnUtil vpnUtil;
@@ -54,7 +54,7 @@ public abstract class AbstractIpLearnNotificationHandler {
         this.vpnUtil = vpnUtil;
         this.neutronVpnManager = neutronVpnManager;
 
-        long duration = config.getIpLearnTimeout() * 10;
+        long duration = config.getIpLearnTimeout().toJava() * 10;
         long cacheSize = config.getMigrateIpCacheSize().longValue();
         migrateIpCache =
                 CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(duration,
@@ -63,7 +63,7 @@ public abstract class AbstractIpLearnNotificationHandler {
     }
 
     protected void validateAndProcessIpLearning(String srcInterface, IpAddress srcIP, MacAddress srcMac,
-            IpAddress targetIP, BigInteger metadata) {
+            IpAddress targetIP, Uint64 metadata) {
         List<Adjacency> adjacencies = vpnUtil.getAdjacenciesForVpnInterfaceFromConfig(srcInterface);
         IpVersionChoice srcIpVersion = VpnUtil.getIpVersionFromString(srcIP.stringValue());
         boolean isSrcIpVersionPartOfVpn = false;
@@ -90,14 +90,14 @@ public abstract class AbstractIpLearnNotificationHandler {
         processIpLearning(srcInterface, srcIP, srcMac, metadata, targetIP);
     }
 
-    protected void processIpLearning(String srcInterface, IpAddress srcIP, MacAddress srcMac, BigInteger metadata,
+    protected void processIpLearning(String srcInterface, IpAddress srcIP, MacAddress srcMac, Uint64 metadata,
                                      IpAddress dstIP) {
 
         if (!VpnUtil.isArpLearningEnabled()) {
             LOG.trace("Not handling packet as ARP Based Learning is disabled");
             return;
         }
-        if (metadata == null || Objects.equals(metadata, BigInteger.ZERO)) {
+        if (metadata == null || Objects.equals(metadata, Uint64.ZERO)) {
             return;
         }
 
@@ -148,7 +148,8 @@ public abstract class AbstractIpLearnNotificationHandler {
                 // within 300sec
                 // after reboot, it would be ignored.
                 if (vpnPortipToPort != null && vpnPortipToPort.isLearntIp()) {
-                    if (System.currentTimeMillis() < this.bootupTime + config.getBootDelayArpLearning() * 1000) {
+                    if (System.currentTimeMillis()
+                            < this.bootupTime + config.getBootDelayArpLearning().toJava() * 1000) {
                         LOG.trace("GARP/Arp Response not handled for IP {} vpnName {} for time {}s",
                                 vpnPortipToPort.getPortFixedip(), vpnName, config.getBootDelayArpLearning());
                         continue;
@@ -206,7 +207,7 @@ public abstract class AbstractIpLearnNotificationHandler {
         }
         LOG.debug("IP_MIGRATE_CACHE: add to dirty cache IP {} vpnName {} with MAC {}", ipToQuery, vpnName, srcMac);
         migrateIpCache.put(new ImmutablePair<>(vpnName, ipToQuery),
-                new BigInteger(String.valueOf(System.currentTimeMillis())));
+                Uint64.valueOf(String.valueOf(System.currentTimeMillis())));
     }
 
     private boolean isIpInMigrateCache(String vpnName, String ipToQuery) {
@@ -214,13 +215,13 @@ public abstract class AbstractIpLearnNotificationHandler {
             return false;
         }
         Pair<String, String> keyPair = new ImmutablePair<>(vpnName, ipToQuery);
-        BigInteger prevTimeStampCached = migrateIpCache.getIfPresent(keyPair);
+        Uint64 prevTimeStampCached = migrateIpCache.getIfPresent(keyPair);
         if (prevTimeStampCached == null) {
             LOG.debug("IP_MIGRATE_CACHE: there is no IP {} vpnName {} in dirty cache, so learn it",
                     ipToQuery, vpnName);
             return false;
         }
-        if (System.currentTimeMillis() > prevTimeStampCached.longValue() + config.getIpLearnTimeout()) {
+        if (System.currentTimeMillis() > prevTimeStampCached.longValue() + config.getIpLearnTimeout().toJava()) {
             LOG.debug("IP_MIGRATE_CACHE: older than timeout value - remove from dirty cache IP {} vpnName {}",
                     ipToQuery, vpnName);
             migrateIpCache.invalidate(keyPair);

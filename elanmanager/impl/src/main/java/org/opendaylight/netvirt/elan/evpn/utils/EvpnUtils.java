@@ -13,7 +13,6 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -74,6 +73,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -145,7 +146,7 @@ public class EvpnUtils {
     }
 
     @Nullable
-    public String getEndpointIpAddressForDPN(BigInteger dpnId) {
+    public String getEndpointIpAddressForDPN(Uint64 dpnId) {
 
         Future<RpcResult<GetDpnEndpointIpsOutput>> result = itmRpcService.getDpnEndpointIps(
                 new GetDpnEndpointIpsInputBuilder()
@@ -209,14 +210,14 @@ public class EvpnUtils {
     }
 
     public void advertisePrefix(ElanInstance elanInfo, String macAddress, String prefix,
-                                 String interfaceName, BigInteger dpnId) {
+                                 String interfaceName, Uint64 dpnId) {
         String rd = getEvpnRd(elanInfo);
         advertisePrefix(elanInfo, rd, macAddress, prefix, interfaceName, dpnId);
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void advertisePrefix(ElanInstance elanInfo, String rd,
-                                 String macAddress, String prefix, String interfaceName, BigInteger dpnId) {
+                                 String macAddress, String prefix, String interfaceName, Uint64 dpnId) {
         if (rd == null) {
             LOG.debug("advertisePrefix : rd is NULL for elanInfo {}, macAddress {}", elanInfo, macAddress);
             return;
@@ -226,9 +227,9 @@ public class EvpnUtils {
             LOG.debug("Failed to get the dpn tep ip for dpn {}", dpnId);
             return;
         }
-        int vpnLabel = 0;
-        long l2vni = ElanUtils.getVxlanSegmentationId(elanInfo);
-        long l3vni = 0;
+        Uint32 vpnLabel = Uint32.ZERO;
+        Uint32 l2vni = ElanUtils.getVxlanSegmentationId(elanInfo);
+        Uint32 l3vni = Uint32.ZERO;
         String gatewayMacAddr = null;
         String l3VpName = getL3vpnNameFromElan(elanInfo);
         if (l3VpName != null) {
@@ -400,26 +401,26 @@ public class EvpnUtils {
         }), LOG, "Error binding an ELAN service to an external tunnel");
     }
 
-    private static List<InstructionInfo> getInstructionsForExtTunnelTable(Long elanTag) {
+    private static List<InstructionInfo> getInstructionsForExtTunnelTable(Uint32 elanTag) {
         List<InstructionInfo> mkInstructions = new ArrayList<>();
-        mkInstructions.add(new InstructionWriteMetadata(ElanUtils.getElanMetadataLabel(elanTag, false),
+        mkInstructions.add(new InstructionWriteMetadata(ElanUtils.getElanMetadataLabel(elanTag.longValue(), false),
                 ElanHelper.getElanMetadataMask()));
         mkInstructions.add(new InstructionGotoTable(NwConstants.ELAN_DMAC_TABLE));
         return mkInstructions;
     }
 
-    private static String getFlowRef(long tableId, long elanTag, BigInteger dpnId) {
-        return new StringBuilder().append(tableId).append(elanTag).append(dpnId).toString();
+    private static String getFlowRef(long tableId, long elanTag, Uint64 dpnId) {
+        return new StringBuilder().append(tableId).append(elanTag).append(dpnId.toString()).toString();
     }
 
-    private void programEvpnL2vniFlow(ElanInstance elanInfo, BiConsumer<BigInteger, FlowEntity> flowHandler) {
-        long elanTag = elanInfo.getElanTag();
+    private void programEvpnL2vniFlow(ElanInstance elanInfo, BiConsumer<Uint64, FlowEntity> flowHandler) {
+        Uint32 elanTag = elanInfo.getElanTag();
         List<MatchInfo> mkMatches = new ArrayList<>();
-        mkMatches.add(new MatchTunnelId(BigInteger.valueOf(ElanUtils.getVxlanSegmentationId(elanInfo))));
+        mkMatches.add(new MatchTunnelId(Uint64.valueOf(ElanUtils.getVxlanSegmentationId(elanInfo).longValue())));
         NWUtil.getOperativeDPNs(broker).forEach(dpnId -> {
             LOG.debug("Updating tunnel flow to dpnid {}", dpnId);
             List<InstructionInfo> instructions = getInstructionsForExtTunnelTable(elanTag);
-            String flowRef = getFlowRef(NwConstants.L2VNI_EXTERNAL_TUNNEL_DEMUX_TABLE, elanTag, dpnId);
+            String flowRef = getFlowRef(NwConstants.L2VNI_EXTERNAL_TUNNEL_DEMUX_TABLE, elanTag.longValue(), dpnId);
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(
                     dpnId,
                     NwConstants.L2VNI_EXTERNAL_TUNNEL_DEMUX_TABLE,
@@ -428,7 +429,7 @@ public class EvpnUtils {
                     elanInfo.getElanInstanceName(), // flowName
                     0, // idleTimeout
                     0, // hardTimeout
-                    ITMConstants.COOKIE_ITM_EXTERNAL.add(BigInteger.valueOf(elanTag)),
+                    Uint64.valueOf(ITMConstants.COOKIE_ITM_EXTERNAL.longValue() + elanTag.longValue()),
                     mkMatches,
                     instructions);
             flowHandler.accept(dpnId, flowEntity);
@@ -436,7 +437,7 @@ public class EvpnUtils {
     }
 
     public void programEvpnL2vniDemuxTable(String elanName, final BiConsumer<String, String> serviceHandler,
-                                           BiConsumer<BigInteger, FlowEntity> flowHandler) {
+                                           BiConsumer<Uint64, FlowEntity> flowHandler) {
         ElanInstance elanInfo = elanInstanceCache.get(elanName).orNull();
         List<String> tunnelInterfaceNameList = getDcGatewayTunnelInterfaceNameList();
         if (tunnelInterfaceNameList.isEmpty()) {

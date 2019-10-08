@@ -16,6 +16,7 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -413,6 +414,8 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
         return l2GwConnections;
     }
 
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private static boolean macBelongsToLogicalSwitch(LocalUcastMacs mac, String logicalSwitchName) {
         InstanceIdentifier<LogicalSwitches> iid = (InstanceIdentifier<LogicalSwitches>)
                 mac.getLogicalSwitchRef().getValue();

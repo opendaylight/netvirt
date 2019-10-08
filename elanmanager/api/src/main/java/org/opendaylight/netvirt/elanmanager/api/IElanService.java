@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.elanmanager.api;
 
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput;
@@ -18,6 +17,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public interface IElanService extends IEtreeService {
 
@@ -63,7 +64,7 @@ public interface IElanService extends IEtreeService {
 
     Collection<String> getExternalElanInterfaces(String elanInstanceName);
 
-    String getExternalElanInterface(String elanInstanceName, BigInteger dpnId);
+    String getExternalElanInterface(String elanInstanceName, Uint64 dpnId);
 
     boolean isExternalInterface(String interfaceName);
 
@@ -107,9 +108,9 @@ public interface IElanService extends IEtreeService {
      */
     void removeArpResponderFlow(ArpResponderInput arpResponderInput);
 
-    Long retrieveNewElanTag(String idKey);
+    Uint32 retrieveNewElanTag(String idKey);
 
-    InstanceIdentifier<DpnInterfaces> getElanDpnInterfaceOperationalDataPath(String elanInstanceName, BigInteger dpnId);
+    InstanceIdentifier<DpnInterfaces> getElanDpnInterfaceOperationalDataPath(String elanInstanceName, Uint64 dpnId);
 
-    DpnInterfaces getElanInterfaceInfoByElanDpn(String elanInstanceName, BigInteger dpId);
+    DpnInterfaces getElanInterfaceInfoByElanDpn(String elanInstanceName, Uint64 dpId);
 }

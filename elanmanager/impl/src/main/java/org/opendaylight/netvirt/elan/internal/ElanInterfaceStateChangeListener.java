@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import com.google.common.base.Optional;
-import java.math.BigInteger;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -29,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeCon
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +75,7 @@ public class ElanInterfaceStateChangeListener
             return;
         }
         NodeConnectorId nodeConnectorId = new NodeConnectorId(delIf.getLowerLayerIf().get(0));
-        BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
+        Uint64 dpId = Uint64.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
         InterfaceInfo interfaceInfo = new InterfaceInfo(dpId, nodeConnectorId.getValue());
         interfaceInfo.setInterfaceName(interfaceName);
         interfaceInfo.setInterfaceType(InterfaceInfo.InterfaceType.VLAN_INTERFACE);

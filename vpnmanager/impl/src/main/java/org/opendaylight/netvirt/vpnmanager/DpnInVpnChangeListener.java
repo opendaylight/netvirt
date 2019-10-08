@@ -62,7 +62,7 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
         RemoveEventData eventData = notification.getRemoveEventData();
         final String rd = eventData.getRd();
         final String vpnName = eventData.getVpnName();
-        BigInteger dpnId = eventData.getDpnId();
+        BigInteger dpnId = eventData.getDpnId().toJava();
 
         LOG.trace("Remove Dpn Event notification received for rd {} VpnName {} DpnId {}", rd, vpnName, dpnId);
         // FIXME: separate out to somehow?
@@ -101,7 +101,8 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
 
     protected void deleteDpn(Collection<VpnToDpnList> vpnToDpnList, String rd, TypedWriteTransaction<Operational> tx) {
         for (final VpnToDpnList curDpn : vpnToDpnList) {
-            InstanceIdentifier<VpnToDpnList> vpnToDpnId = VpnHelper.getVpnToDpnListIdentifier(rd, curDpn.getDpnId());
+            InstanceIdentifier<VpnToDpnList> vpnToDpnId = VpnHelper.getVpnToDpnListIdentifier(rd,
+                                                                        curDpn.getDpnId());
             tx.delete(vpnToDpnId);
         }
     }
