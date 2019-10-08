@@ -145,7 +145,7 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
                         if (optVpnToExtraroute.isPresent()) {
                             VpnUtil.removeVpnExtraRouteForVpn(vpnName, operTx);
                         }
-                        if (VpnUtil.isL3VpnOverVxLan(update.getL3vni())) {
+                        if (VpnUtil.isL3VpnOverVxLan(update.getL3vni().toJava())) {
                             vpnUtil.removeExternalTunnelDemuxFlows(vpnName);
                         }
                         // Clean up PrefixToInterface Operational DS

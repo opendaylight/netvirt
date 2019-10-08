@@ -123,7 +123,7 @@ public class NatInterfaceStateChangeListener
                       SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(
                             dataBroker, LogicalDatastoreType.OPERATIONAL, idOper);
                 if (optVpnInterface.isPresent()) {
-                    intfDpnId = optVpnInterface.get().getDpnId();
+                    intfDpnId = optVpnInterface.get().getDpnId().toJava();
                     break;
                 }
             }
@@ -171,7 +171,7 @@ public class NatInterfaceStateChangeListener
                       SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(
                             dataBroker, LogicalDatastoreType.OPERATIONAL, idOper);
                 if (optVpnInterface.isPresent()) {
-                    intfDpnId = optVpnInterface.get().getDpnId();
+                    intfDpnId = optVpnInterface.get().getDpnId().toJava();
                     break;
                 }
             }

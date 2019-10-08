@@ -89,7 +89,7 @@ public class TunnelEndPointChangeListener
 
     @Override
     protected void add(InstanceIdentifier<TunnelEndPoints> key, TunnelEndPoints tep) {
-        BigInteger dpnId = key.firstIdentifierOf(DPNTEPsInfo.class).firstKeyOf(DPNTEPsInfo.class).getDPNID();
+        BigInteger dpnId = key.firstIdentifierOf(DPNTEPsInfo.class).firstKeyOf(DPNTEPsInfo.class).getDPNID().toJava();
         if (BigInteger.ZERO.equals(dpnId)) {
             LOG.warn("add: Invalid DPN id for TEP {}", tep.getInterfaceName());
             return;

@@ -281,7 +281,7 @@ public final class DhcpServiceUtils {
         if (elanDpnOptional.isPresent()) {
             List<DpnInterfaces> dpns = elanDpnOptional.get().nonnullDpnInterfaces();
             for (DpnInterfaces dpnInterfaces : dpns) {
-                elanDpns.add(dpnInterfaces.getDpId());
+                elanDpns.add(dpnInterfaces.getDpId().toJava());
             }
         }
         return elanDpns;

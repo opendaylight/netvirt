@@ -164,7 +164,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
             return;
         }
         Class<? extends PacketInReason> pktInReason = packet.getPacketInReason();
-        short tableId = packet.getTableId().getValue();
+        short tableId = packet.getTableId().getValue().toJava();
         if ((tableId == NwConstants.DHCP_TABLE || tableId == NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL)
                 && isPktInReasonSendtoCtrl(pktInReason)) {
             byte[] inPayload = packet.getPayload();
@@ -183,12 +183,13 @@ public class DhcpPktHandler implements PacketProcessingListener {
             if (pktIn != null) {
                 LOG.trace("DHCPPkt received: {}", pktIn);
                 LOG.trace("Received Packet: {}", packet);
-                BigInteger metadata = packet.getMatch().getMetadata().getMetadata();
+                BigInteger metadata = packet.getMatch().getMetadata().getMetadata().toJava();
                 long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
                 String macAddress = DHCPUtils.byteArrayToString(ethPkt.getSourceMACAddress());
                 pktInCounter.label(macAddress).increment();
                 BigInteger tunnelId =
-                        packet.getMatch().getTunnel() == null ? null : packet.getMatch().getTunnel().getTunnelId();
+                        packet.getMatch().getTunnel() == null ? null
+                                                              : packet.getMatch().getTunnel().getTunnelId().toJava();
                 String interfaceName = getInterfaceNameFromTag(portTag);
                 if (interfaceName == null) {
                     pktDropCounter.label(macAddress).label(UNKNOWN_LABEL).label(

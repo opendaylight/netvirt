@@ -79,9 +79,9 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
 
     @Override
     public void onFlowRemoved(FlowRemoved flowRemoved) {
-        short tableId = flowRemoved.getTableId();
+        short tableId = flowRemoved.getTableId().toJava();
         if (tableId == NwConstants.ELAN_SMAC_TABLE) {
-            BigInteger metadata = flowRemoved.getMatch().getMetadata().getMetadata();
+            BigInteger metadata = flowRemoved.getMatch().getMetadata().getMetadata().toJava();
             long elanTag = MetaDataUtil.getElanTagFromMetadata(metadata);
             ElanTagName elanTagInfo = elanUtils.getElanInfoByElanTag(elanTag);
             if (elanTagInfo == null) {

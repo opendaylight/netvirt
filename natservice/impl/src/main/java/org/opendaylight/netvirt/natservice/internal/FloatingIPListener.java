@@ -70,6 +70,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMapBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMapKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -733,9 +734,9 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     protected long getOperationalIpMapping(String routerId, String interfaceName, String internalIp) {
         InstanceIdentifier<InternalToExternalPortMap> intExtPortMapIdentifier =
             NatUtil.getIntExtPortMapIdentifier(routerId, interfaceName, internalIp);
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+        return (SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                 LogicalDatastoreType.OPERATIONAL, intExtPortMapIdentifier).toJavaUtil().map(
-                InternalToExternalPortMap::getLabel).orElse(Long.valueOf(NatConstants.INVALID_ID));
+                InternalToExternalPortMap::getLabel).orElse(Uint32.valueOf(NatConstants.INVALID_ID))).toJava();
     }
 
     static void updateOperationalDS(DataBroker dataBroker, String routerId, String interfaceName, long label,
