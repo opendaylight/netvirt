@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.aclservice;
 import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -50,6 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.SubnetInfo;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -156,7 +156,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         LOG.info("{} programAntiSpoofingRules for port {}, AAPs={}, action={}, addOrRemove={}", this.directionString,
                 port.getInterfaceId(), allowedAddresses, action, addOrRemove);
 
-        BigInteger dpid = port.getDpId();
+        Uint64 dpid = Uint64.valueOf(port.getDpId());
         int lportTag = port.getLPortTag();
         if (action != Action.UPDATE) {
             programCommitterDropFlow(flowEntries, dpid, lportTag, addOrRemove);
@@ -171,25 +171,25 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         programArpRule(flowEntries, dpid, filteredAAPs, lportTag, addOrRemove);
     }
 
-    private void programCommitterDropFlow(List<FlowEntity> flowEntries, BigInteger dpId, int lportTag,
+    private void programCommitterDropFlow(List<FlowEntity> flowEntries, Uint64 dpId, int lportTag,
             int addOrRemove) {
         List<MatchInfoBase> matches = new ArrayList<>();
         List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
 
-        BigInteger metaData = MetaDataUtil.getLportTagMetaData(lportTag)
-                .or(MetaDataUtil.getAclDropMetaData(AclConstants.METADATA_DROP_FLAG));
-        BigInteger metaDataMask =
-                MetaDataUtil.METADATA_MASK_LPORT_TAG.or(MetaDataUtil.METADATA_MASK_ACL_DROP);
+        Uint64 metaData = Uint64.fromLongBits(MetaDataUtil.getLportTagMetaData(lportTag).longValue()
+                | MetaDataUtil.getAclDropMetaData(AclConstants.METADATA_DROP_FLAG).longValue());
+        Uint64 metaDataMask = Uint64.fromLongBits(MetaDataUtil.METADATA_MASK_LPORT_TAG.longValue()
+                | MetaDataUtil.METADATA_MASK_ACL_DROP.longValue());
         matches.add(new MatchMetadata(metaData, metaDataMask));
 
-        String flowName = "Egress_" + dpId + "_" + lportTag + "_Drop";
+        String flowName = "Egress_" + dpId.toString() + "_" + lportTag + "_Drop";
         addFlowEntryToList(flowEntries, dpId, getAclCommitterTable(), flowName,
                 AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY, 0, 0, AclServiceUtils.getDropFlowCookie(lportTag),
                 matches, instructions, addOrRemove);
     }
 
     @Override
-    protected void programRemoteAclTableFlow(List<FlowEntity> flowEntries, BigInteger dpId, Integer aclTag,
+    protected void programRemoteAclTableFlow(List<FlowEntity> flowEntries, Uint64 dpId, Integer aclTag,
             AllowedAddressPairs aap, int addOrRemove) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
         flowMatches.addAll(AclServiceUtils.buildIpAndDstServiceMatch(aclTag, aap));
@@ -197,12 +197,13 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getGotoInstructionInfo(getAclCommitterTable());
         String flowNameAdded = "Acl_Filter_Egress_" + aap.getIpAddress().stringValue() + "_" + aclTag;
 
-        addFlowEntryToList(flowEntries, dpId, getAclRemoteAclTable(), flowNameAdded, AclConstants.ACL_DEFAULT_PRIORITY,
-                0, 0, AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
+        addFlowEntryToList(flowEntries, dpId, getAclRemoteAclTable(), flowNameAdded,
+                AclConstants.ACL_DEFAULT_PRIORITY, 0, 0, AclConstants.COOKIE_ACL_BASE, flowMatches,
+                instructions, addOrRemove);
     }
 
     @Override
-    protected void programGotoClassifierTableRules(List<FlowEntity> flowEntries, BigInteger dpId,
+    protected void programGotoClassifierTableRules(List<FlowEntity> flowEntries, Uint64 dpId,
             List<AllowedAddressPairs> aaps, int lportTag, int addOrRemove) {
         List<AllowedAddressPairs> filteredAAPs = AclServiceUtils.excludeMulticastAAPs(aaps);
         for (AllowedAddressPairs aap : filteredAAPs) {
@@ -217,8 +218,8 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
             List<InstructionInfo> gotoInstructions = new ArrayList<>();
             gotoInstructions.add(new InstructionGotoTable(getAclConntrackClassifierTable()));
 
-            String flowName = "Egress_Fixed_Goto_Classifier_" + dpId + "_" + lportTag + "_" + mac.getValue() + "_"
-                    + attachIp.stringValue();
+            String flowName = "Egress_Fixed_Goto_Classifier_" + dpId.toString() + "_" + lportTag + "_"
+                    + mac.getValue() + "_" + attachIp.stringValue();
             addFlowEntryToList(flowEntries, dpId, getAclAntiSpoofingTable(), flowName,
                     AclConstants.PROTO_MATCH_PRIORITY, 0, 0, AclConstants.COOKIE_ACL_BASE, matches, gotoInstructions,
                     addOrRemove);
@@ -233,13 +234,13 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      * @param lportTag the lport tag
      * @param addOrRemove add/remove the flow.
      */
-    private void egressAclIcmpv6AllowedList(List<FlowEntity> flowEntries, BigInteger dpId, int lportTag,
+    private void egressAclIcmpv6AllowedList(List<FlowEntity> flowEntries, Uint64 dpId, int lportTag,
             int addOrRemove) {
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
 
         for (Integer icmpv6Type: AclConstants.allowedIcmpv6NdList()) {
             List<MatchInfoBase> matches = AclServiceUtils.buildIcmpV6Matches(icmpv6Type, 0, lportTag, serviceMode);
-            String flowName = "Egress_ICMPv6" + "_" + dpId + "_" + lportTag + "_" + icmpv6Type + "_Permit_";
+            String flowName = "Egress_ICMPv6" + "_" + dpId.toString() + "_" + lportTag + "_" + icmpv6Type + "_Permit_";
             addFlowEntryToList(flowEntries, dpId, getAclAntiSpoofingTable(), flowName,
                     AclConstants.PROTO_IPV6_ALLOWED_PRIORITY, 0, 0, AclConstants.COOKIE_ACL_BASE, matches,
                     instructions, addOrRemove);
@@ -257,7 +258,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      */
     private void egressAclDhcpAllowClientTraffic(List<FlowEntity> flowEntries, AclInterface port,
             List<AllowedAddressPairs> allowedAddresses, int lportTag, int addOrRemove) {
-        BigInteger dpId = port.getDpId();
+        Uint64 dpId = Uint64.valueOf(port.getDpId());
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
         for (AllowedAddressPairs aap : allowedAddresses) {
             if (!AclServiceUtils.isIPv4Address(aap)) {
@@ -287,7 +288,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      */
     private void egressAclDhcpv6AllowClientTraffic(List<FlowEntity> flowEntries, AclInterface port,
             List<AllowedAddressPairs> allowedAddresses, int lportTag, int addOrRemove) {
-        BigInteger dpId = port.getDpId();
+        Uint64 dpId = Uint64.valueOf(port.getDpId());
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
         for (AllowedAddressPairs aap : allowedAddresses) {
             if (AclServiceUtils.isIPv4Address(aap)) {
@@ -315,7 +316,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      * @param lportTag the lport tag
      * @param addOrRemove whether to add or remove the flow
      */
-    protected void programArpRule(List<FlowEntity> flowEntries, BigInteger dpId,
+    protected void programArpRule(List<FlowEntity> flowEntries, Uint64 dpId,
             List<AllowedAddressPairs> allowedAddresses, int lportTag, int addOrRemove) {
         for (AllowedAddressPairs allowedAddress : allowedAddresses) {
             if (!AclServiceUtils.isIPv4Address(allowedAddress)) {
@@ -389,7 +390,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      */
     private void programL2BroadcastAllowRule(List<FlowEntity> flowEntries, AclInterface port,
             List<AllowedAddressPairs> filteredAAPs, int addOrRemove) {
-        BigInteger dpId = port.getDpId();
+        Uint64 dpId = Uint64.valueOf(port.getDpId());
         int lportTag = port.getLPortTag();
         Set<MacAddress> macs = filteredAAPs.stream().map(AllowedAddressPairs::getMacAddress)
                 .collect(Collectors.toSet());

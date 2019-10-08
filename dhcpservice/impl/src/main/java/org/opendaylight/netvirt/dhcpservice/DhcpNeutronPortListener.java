@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.dhcpservice;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,6 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -151,7 +151,7 @@ public class DhcpNeutronPortListener
                     DhcpServiceUtils.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE, tx);
                 })), DhcpMConstants.RETRY_COUNT);
             jobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), () -> {
-                BigInteger dpnId = interfaceManager.getDpnForInterface(interfaceName);
+                Uint64 dpnId = interfaceManager.getDpnForInterface(interfaceName);
                 if (dpnId == null || dpnId.equals(DhcpMConstants.INVALID_DPID)) {
                     LOG.trace("Unable to install the DHCP flow since dpn is not available");
                     return Collections.emptyList();
@@ -183,8 +183,8 @@ public class DhcpNeutronPortListener
         if (macOriginal != null && !macOriginal.equalsIgnoreCase(macUpdated) && segmentationIdOriginal != null
                 && !segmentationIdOriginal.equalsIgnoreCase(segmentationIdUpdated)) {
             LOG.trace("Mac/segment id has changed");
-            dhcpExternalTunnelManager.removeVniMacToPortCache(new BigInteger(segmentationIdOriginal), macOriginal);
-            dhcpExternalTunnelManager.updateVniMacToPortCache(new BigInteger(segmentationIdUpdated),
+            dhcpExternalTunnelManager.removeVniMacToPortCache(Uint64.valueOf(segmentationIdOriginal), macOriginal);
+            dhcpExternalTunnelManager.updateVniMacToPortCache(Uint64.valueOf(segmentationIdUpdated),
                     macUpdated, update);
         }
     }
@@ -226,9 +226,9 @@ public class DhcpNeutronPortListener
         if (segmentationId == null) {
             return;
         }
-        List<BigInteger> listOfDpns = DhcpServiceUtils.getListOfDpns(broker);
+        List<Uint64> listOfDpns = DhcpServiceUtils.getListOfDpns(broker);
         dhcpExternalTunnelManager.unInstallDhcpFlowsForVms(networkId.getValue(), listOfDpns, macAddress);
-        dhcpExternalTunnelManager.removeVniMacToPortCache(new BigInteger(segmentationId), macAddress);
+        dhcpExternalTunnelManager.removeVniMacToPortCache(Uint64.valueOf(segmentationId), macAddress);
     }
 
     private void addPort(Port port) {
@@ -239,7 +239,7 @@ public class DhcpNeutronPortListener
             LOG.trace("segmentation id is null");
             return;
         }
-        dhcpExternalTunnelManager.updateVniMacToPortCache(new BigInteger(segmentationId), macAddress, port);
+        dhcpExternalTunnelManager.updateVniMacToPortCache(Uint64.valueOf(segmentationId), macAddress, port);
 
     }
 
@@ -285,7 +285,8 @@ public class DhcpNeutronPortListener
         ElanHelper.getDpnInterfacesInElanInstance(broker, port.getNetworkId().getValue()).stream()
                 .map(ifName -> DhcpServiceUtils.getInterfaceInfo(interfaceManager, ifName)).forEach(interfaceInfo -> {
                     ArpResponderInput arpResponderInput = new ArpResponderInput.ArpReponderInputBuilder()
-                            .setDpId(interfaceInfo.getDpId()).setInterfaceName(interfaceInfo.getInterfaceName())
+                            .setDpId(interfaceInfo.getDpId().toJava())
+                            .setInterfaceName(interfaceInfo.getInterfaceName())
                             .setLportTag(interfaceInfo.getInterfaceTag()).setSha(port.getMacAddress().getValue())
                             .setSpa(ip4Address.get()).build();
                     arpResponderAction.accept(arpResponderInput);

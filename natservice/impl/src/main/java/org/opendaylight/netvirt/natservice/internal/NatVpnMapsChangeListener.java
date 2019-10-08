@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.natservice.internal;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import com.google.common.base.Optional;
-import java.math.BigInteger;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
@@ -30,6 +29,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -142,7 +143,7 @@ public class NatVpnMapsChangeListener extends AsyncDataTreeChangeListenerBase<Vp
                     LOG.error("onRouterAssociatedToVpn : External Network Provider Type missing");
                     return;
                 }
-                long routerId = NatUtil.getVpnId(dataBroker, routerName);
+                Uint32 routerId = NatUtil.getVpnId(dataBroker, routerName);
                 txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                     tx -> externalRoutersListener.changeLocalVpnIdToBgpVpnId(routerName, routerId, vpnName, tx,
                                 extNwProvType)).get();
@@ -180,7 +181,7 @@ public class NatVpnMapsChangeListener extends AsyncDataTreeChangeListenerBase<Vp
                     LOG.error("onRouterDisassociatedFromVpn : External Network Provider Type missing");
                     return;
                 }
-                long routerId = NatUtil.getVpnId(dataBroker, routerName);
+                Uint32 routerId = NatUtil.getVpnId(dataBroker, routerName);
                 txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                     tx -> externalRoutersListener.changeBgpVpnIdToLocalVpnId(routerName, routerId, vpnName, tx,
                                 extNwProvType)).get();
@@ -206,8 +207,8 @@ public class NatVpnMapsChangeListener extends AsyncDataTreeChangeListenerBase<Vp
         Uuid networkId = Uuid.getDefaultInstance(externalNetwork);
         for (Ports port : optRouterPorts.get().nonnullPorts()) {
             String portName = port.getPortName();
-            BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
-            if (dpnId.equals(BigInteger.ZERO)) {
+            Uint64 dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
+            if (dpnId.equals(Uint64.ZERO)) {
                 LOG.warn("handleDNATConfigurationForRouterAssociation : DPN not found for {}, "
                         + "skip handling of router {} association with vpn {}", portName, routerName, vpnName);
                 continue;
@@ -238,8 +239,8 @@ public class NatVpnMapsChangeListener extends AsyncDataTreeChangeListenerBase<Vp
         Uuid networkId = Uuid.getDefaultInstance(externalNetwork);
         for (Ports port : optRouterPorts.get().nonnullPorts()) {
             String portName = port.getPortName();
-            BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
-            if (dpnId.equals(BigInteger.ZERO)) {
+            Uint64 dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
+            if (dpnId.equals(Uint64.ZERO)) {
                 LOG.debug("handleDNATConfigurationForRouterDisassociation : DPN not found for {}, "
                         + "skip handling of router {} association with vpn {}", portName, routerName, vpnName);
                 continue;

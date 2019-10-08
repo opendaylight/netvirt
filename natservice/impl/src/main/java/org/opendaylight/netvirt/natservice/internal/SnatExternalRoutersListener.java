@@ -30,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.r
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,7 +94,7 @@ public class SnatExternalRoutersListener extends AsyncDataTreeChangeListenerBase
         }
 
         LOG.info("add : external router event for {}", routerName);
-        long routerId = NatUtil.getVpnId(dataBroker, routerName);
+        Uint32 routerId = NatUtil.getVpnId(dataBroker, routerName);
         NatUtil.createRouterIdsConfigDS(dataBroker, routerId, routerName);
         Uuid bgpVpnUuid = NatUtil.getVpnForRouter(dataBroker, routerName);
         if (bgpVpnUuid != null) {
@@ -107,7 +108,7 @@ public class SnatExternalRoutersListener extends AsyncDataTreeChangeListenerBase
     @Override
     protected void update(InstanceIdentifier<Routers> identifier, Routers original, Routers update) {
         String routerName = original.getRouterName();
-        Long routerId = NatUtil.getVpnId(dataBroker, routerName);
+        Uint32 routerId = NatUtil.getVpnId(dataBroker, routerName);
         if (routerId == NatConstants.INVALID_ID) {
             LOG.error("update : external router event - Invalid routerId for routerName {}", routerName);
             return;

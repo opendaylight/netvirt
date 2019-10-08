@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.elan.internal;
 
 import static java.util.Collections.emptyList;
 
-import java.math.BigInteger;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -27,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,7 +72,7 @@ public class ElanDpnInterfacesListener
     protected void update(InstanceIdentifier<DpnInterfaces> identifier, DpnInterfaces original,
                           DpnInterfaces update) {
         LOG.debug("received Dpninterfaces update event for dpn {}", update.getDpId());
-        BigInteger dpnId = update.getDpId();
+        Uint64 dpnId = update.getDpId();
         String elanInstanceName = identifier.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
         ElanInstance elanInstance = elanInstanceCache.get(elanInstanceName).orNull();
 
@@ -93,7 +93,7 @@ public class ElanDpnInterfacesListener
     @Override
     protected void add(InstanceIdentifier<DpnInterfaces> identifier, DpnInterfaces dpnInterfaces) {
         LOG.debug("received Dpninterfaces add event for dpn {}", dpnInterfaces.getDpId());
-        BigInteger dpnId = dpnInterfaces.getDpId();
+        Uint64 dpnId = dpnInterfaces.getDpId();
         String elanInstanceName = identifier.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
         ElanInstance elanInstance = elanInstanceCache.get(elanInstanceName).orNull();
 

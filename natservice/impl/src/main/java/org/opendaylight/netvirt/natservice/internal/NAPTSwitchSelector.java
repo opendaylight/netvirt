@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
-import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +26,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,14 +43,14 @@ public class NAPTSwitchSelector {
         this.tombstonedNodeManager = tombstonedNodeManager;
     }
 
-    BigInteger selectNewNAPTSwitch(String routerName, List<BigInteger> excludeDpns) {
+    Uint64 selectNewNAPTSwitch(String routerName, List<Uint64> excludeDpns) {
         LOG.info("selectNewNAPTSwitch : Select a new NAPT switch for router {}", routerName);
-        Map<BigInteger, Integer> naptSwitchWeights = constructNAPTSwitches();
-        List<BigInteger> routerSwitches = getDpnsForVpn(routerName);
+        Map<Uint64, Integer> naptSwitchWeights = constructNAPTSwitches();
+        List<Uint64> routerSwitches = getDpnsForVpn(routerName);
         if (routerSwitches.isEmpty()) {
             LOG.warn("selectNewNAPTSwitch : Delaying NAPT switch selection due to no dpns scenario for router {}",
                     routerName);
-            return BigInteger.ZERO;
+            return Uint64.ZERO;
         }
         try {
             if (excludeDpns != null) {
@@ -62,7 +63,7 @@ public class NAPTSwitchSelector {
             LOG.error("selectNewNAPTSwitch : filterTombStoned Exception thrown", ex);
         }
         Set<SwitchWeight> switchWeights = new TreeSet<>();
-        for (BigInteger dpn : routerSwitches) {
+        for (Uint64 dpn : routerSwitches) {
             if (naptSwitchWeights.get(dpn) != null) {
                 switchWeights.add(new SwitchWeight(dpn, naptSwitchWeights.get(dpn)));
             } else {
@@ -70,7 +71,7 @@ public class NAPTSwitchSelector {
             }
         }
 
-        BigInteger primarySwitch;
+        Uint64 primarySwitch;
 
         if (!switchWeights.isEmpty()) {
 
@@ -88,23 +89,23 @@ public class NAPTSwitchSelector {
             LOG.debug("selectNewNAPTSwitch : successful addition of RouterToNaptSwitch to napt-switches container");
             return primarySwitch;
         } else {
-            primarySwitch = BigInteger.ZERO;
+            primarySwitch = Uint64.ZERO;
 
             LOG.debug("selectNewNAPTSwitch : switchWeights empty, primarySwitch: {} ", primarySwitch);
             return primarySwitch;
         }
     }
 
-    private Map<BigInteger, Integer> constructNAPTSwitches() {
+    private Map<Uint64, Integer> constructNAPTSwitches() {
         Optional<NaptSwitches> optNaptSwitches =
             MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, getNaptSwitchesIdentifier());
-        Map<BigInteger, Integer> switchWeights = new HashMap<>();
+        Map<Uint64, Integer> switchWeights = new HashMap<>();
 
         if (optNaptSwitches.isPresent()) {
             NaptSwitches naptSwitches = optNaptSwitches.get();
 
             for (RouterToNaptSwitch naptSwitch : naptSwitches.nonnullRouterToNaptSwitch()) {
-                BigInteger primarySwitch = naptSwitch.getPrimarySwitchId();
+                Uint64 primarySwitch = naptSwitch.getPrimarySwitchId();
                 //update weight
                 Integer weight = switchWeights.get(primarySwitch);
                 if (weight == null) {
@@ -127,9 +128,9 @@ public class NAPTSwitchSelector {
     }
 
     @NonNull
-    public List<BigInteger> getDpnsForVpn(String routerName) {
+    public List<Uint64> getDpnsForVpn(String routerName) {
         LOG.debug("getDpnsForVpn: called for RouterName {}", routerName);
-        long bgpVpnId = NatUtil.getBgpVpnId(dataBroker, routerName);
+        Uint32 bgpVpnId = NatUtil.getBgpVpnId(dataBroker, routerName);
         // TODO Why?
         if (bgpVpnId != NatConstants.INVALID_ID) {
             return NatUtil.getDpnsForRouter(dataBroker, routerName);
@@ -138,10 +139,10 @@ public class NAPTSwitchSelector {
     }
 
     private static class SwitchWeight implements Comparable<SwitchWeight> {
-        private final BigInteger swich;
+        private final Uint64 swich;
         private int weight;
 
-        SwitchWeight(BigInteger swich, int weight) {
+        SwitchWeight(Uint64 swich, int weight) {
             this.swich = swich;
             this.weight = weight;
         }
@@ -176,7 +177,7 @@ public class NAPTSwitchSelector {
             return true;
         }
 
-        public BigInteger getSwitch() {
+        public Uint64 getSwitch() {
             return swich;
         }
 

@@ -11,7 +11,6 @@ import static java.util.stream.Collectors.toList;
 import static org.opendaylight.genius.mdsalutil.NWUtil.isIpv4Address;
 
 import com.google.common.base.Optional;
-import java.math.BigInteger;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -92,6 +91,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.RoutesKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,7 +100,7 @@ import org.slf4j.LoggerFactory;
 public class BaseVrfEntryHandler implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(BaseVrfEntryHandler.class);
-    private static final BigInteger COOKIE_VM_FIB_TABLE =  new BigInteger("8000003", 16);
+    private static final Uint64 COOKIE_VM_FIB_TABLE =  Uint64.valueOf("8000003", 16).intern();
     private static final int DEFAULT_FIB_FLOW_PRIORITY = 10;
 
     private final DataBroker dataBroker;
@@ -145,7 +146,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         }
     }
 
-    protected void deleteLocalAdjacency(final BigInteger dpId, final long vpnId, final String ipAddress,
+    protected void deleteLocalAdjacency(final Uint64 dpId, final Uint32 vpnId, final String ipAddress,
                               final String ipPrefixAddress) {
         LOG.trace("deleteLocalAdjacency called with dpid {}, vpnId{}, primaryIpAddress {} currIpPrefix {}",
                 dpId, vpnId, ipAddress, ipPrefixAddress);
@@ -158,7 +159,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
     }
 
     @NonNull
-    protected List<AdjacencyResult> resolveAdjacency(final BigInteger remoteDpnId, final long vpnId,
+    protected List<AdjacencyResult> resolveAdjacency(final Uint64 remoteDpnId, final Uint32 vpnId,
                                                      final VrfEntry vrfEntry, String rd) {
         List<RoutePaths> routePaths = new ArrayList<>(vrfEntry.nonnullRoutePaths());
         FibHelper.sortIpAddress(routePaths);
@@ -235,7 +236,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         return adjacencyList;
     }
 
-    protected void makeConnectedRoute(BigInteger dpId, long vpnId, VrfEntry vrfEntry, String rd,
+    protected void makeConnectedRoute(Uint64 dpId, Uint32 vpnId, VrfEntry vrfEntry, String rd,
                                       @Nullable List<InstructionInfo> instructions, int addOrRemove,
                                       WriteTransaction tx, @Nullable List<SubTransaction> subTxns) {
         if (tx == null) {
@@ -265,7 +266,8 @@ public class BaseVrfEntryHandler implements AutoCloseable {
 
         List<MatchInfo> matches = new ArrayList<>();
 
-        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId.longValue()),
+            MetaDataUtil.METADATA_MASK_VRFID));
 
         if (destPrefix instanceof Inet4Address) {
             matches.add(MatchEthernetType.IPV4);
@@ -313,7 +315,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         }
     }
 
-    protected void addRewriteDstMacAction(long vpnId, VrfEntry vrfEntry, @Nullable Prefixes prefixInfo,
+    protected void addRewriteDstMacAction(Uint32 vpnId, VrfEntry vrfEntry, @Nullable Prefixes prefixInfo,
                                           List<ActionInfo> actionInfos) {
         if (vrfEntry.getMac() != null) {
             actionInfos.add(new ActionSetFieldEthernetDestination(actionInfos.size(),
@@ -359,7 +361,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         actionInfos.add(new ActionSetFieldEthernetDestination(actionInfos.size(), new MacAddress(macAddress)));
     }
 
-    protected void addTunnelInterfaceActions(AdjacencyResult adjacencyResult, long vpnId, VrfEntry vrfEntry,
+    protected void addTunnelInterfaceActions(AdjacencyResult adjacencyResult, Uint32 vpnId, VrfEntry vrfEntry,
                                            List<ActionInfo> actionInfos, String rd) {
         Class<? extends TunnelTypeBase> tunnelType =
                 VpnExtraRouteHelper.getTunnelType(nextHopManager.getItmManager(), adjacencyResult.getInterfaceName());
@@ -371,13 +373,13 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         // routePath this result is built for. If this is not possible construct a map which does
         // the same.
         String nextHopIp = adjacencyResult.getNextHopIp();
-        java.util.Optional<Long> optionalLabel = FibUtil.getLabelForNextHop(vrfEntry, nextHopIp);
+        java.util.Optional<Uint32> optionalLabel = FibUtil.getLabelForNextHop(vrfEntry, nextHopIp);
         if (!optionalLabel.isPresent()) {
             LOG.warn("NextHopIp {} not found in vrfEntry {}", nextHopIp, vrfEntry);
             return;
         }
-        long label = optionalLabel.get();
-        BigInteger tunnelId = null;
+        Uint32 label = optionalLabel.get();
+        Uint64 tunnelId = null;
         Prefixes prefixInfo = null;
         // FIXME vxlan vni bit set is not working properly with OVS.need to
         // revisit
@@ -395,20 +397,20 @@ public class BaseVrfEntryHandler implements AutoCloseable {
             }
             // Internet VPN VNI will be used as tun_id for NAT use-cases
             if (Prefixes.PrefixCue.Nat.equals(prefixInfo.getPrefixCue())) {
-                if (vrfEntry.getL3vni() != null && vrfEntry.getL3vni() != 0) {
-                    tunnelId = BigInteger.valueOf(vrfEntry.getL3vni());
+                if (vrfEntry.getL3vni() != null && vrfEntry.getL3vni().toJava() != 0) {
+                    tunnelId = Uint64.valueOf(vrfEntry.getL3vni().longValue());
                 }
             } else {
                 if (FibUtil.isVxlanNetwork(prefixInfo.getNetworkType())) {
-                    tunnelId = BigInteger.valueOf(prefixInfo.getSegmentationId());
+                    tunnelId = Uint64.valueOf(prefixInfo.getSegmentationId().longValue());
                 } else {
                     LOG.warn("Network is not of type VXLAN for prefix {}."
                             + "Going with default Lport Tag.", prefixInfo.toString());
-                    tunnelId = BigInteger.valueOf(label);
+                    tunnelId = Uint64.valueOf(label.longValue());
                 }
             }
         } else {
-            tunnelId = BigInteger.valueOf(label);
+            tunnelId = Uint64.valueOf(label.longValue());
         }
         LOG.debug("adding set tunnel id action for label {}", label);
         actionInfos.add(new ActionSetFieldTunnelId(tunnelId));
@@ -429,7 +431,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         return res;
     }
 
-    public void programRemoteFib(final BigInteger remoteDpnId, final long vpnId,
+    public void programRemoteFib(final Uint64 remoteDpnId, final Uint32 vpnId,
                                  final VrfEntry vrfEntry, WriteTransaction tx, String rd,
                                  List<AdjacencyResult> adjacencyResults,
                                  @Nullable List<SubTransaction> subTxns) {
@@ -482,7 +484,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW, tx, subTxns);
     }
 
-    public boolean checkDpnDeleteFibEntry(VpnNexthop localNextHopInfo, BigInteger remoteDpnId, long vpnId,
+    public boolean checkDpnDeleteFibEntry(VpnNexthop localNextHopInfo, Uint64 remoteDpnId, Uint32 vpnId,
                                           VrfEntry vrfEntry, String rd,
                                           WriteTransaction tx, @Nullable List<SubTransaction> subTxns) {
         boolean isRemoteRoute = true;
@@ -500,8 +502,8 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         }
     }
 
-    public void deleteRemoteRoute(@Nullable final BigInteger localDpnId, final BigInteger remoteDpnId,
-                                  final long vpnId, final VrfTablesKey vrfTableKey,
+    public void deleteRemoteRoute(@Nullable final Uint64 localDpnId, final Uint64 remoteDpnId,
+                                  final Uint32 vpnId, final VrfTablesKey vrfTableKey,
                                   final VrfEntry vrfEntry, Optional<Routes> extraRouteOptional,
                                   @Nullable WriteTransaction tx) {
         if (tx == null) {
@@ -515,7 +517,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                 vrfEntry.getDestPrefix(), vpnId, localDpnId, remoteDpnId);
         String rd = vrfTableKey.getRouteDistinguisher();
 
-        if (localDpnId != null && !BigInteger.ZERO.equals(localDpnId)) {
+        if (localDpnId != null && !Uint64.ZERO.equals(localDpnId)) {
             // localDpnId is not known when clean up happens for last vm for a vpn on a dpn
             if (extraRouteOptional.isPresent()) {
                 nextHopManager.deleteLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix());
@@ -542,7 +544,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
     }
 
     @Nullable
-    public Routes getVpnToExtraroute(Long vpnId, String vpnRd, String destPrefix) {
+    public Routes getVpnToExtraroute(Uint32 vpnId, String vpnRd, String destPrefix) {
         String optVpnName = fibUtil.getVpnNameFromId(vpnId);
         if (optVpnName != null) {
             InstanceIdentifier<Routes> vpnExtraRoutesId = getVpnToExtrarouteIdentifier(
@@ -552,9 +554,10 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         return null;
     }
 
-    public FlowEntity buildL3vpnGatewayFlow(BigInteger dpId, String gwMacAddress, long vpnId) {
+    public FlowEntity buildL3vpnGatewayFlow(Uint64 dpId, String gwMacAddress, Uint32 vpnId) {
         List<MatchInfo> mkMatches = new ArrayList<>();
-        mkMatches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
+        mkMatches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId.longValue()),
+            MetaDataUtil.METADATA_MASK_VRFID));
         mkMatches.add(new MatchEthernetDestination(new MacAddress(gwMacAddress)));
         List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionGotoTable(NwConstants.L3_FIB_TABLE));
@@ -563,12 +566,13 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                 flowId, 20, flowId, 0, 0, NwConstants.COOKIE_L3_GW_MAC_TABLE, mkMatches, mkInstructions);
     }
 
-    public void installPingResponderFlowEntry(BigInteger dpnId, long vpnId, String routerInternalIp,
-                                              MacAddress routerMac, long label, int addOrRemove) {
+    public void installPingResponderFlowEntry(Uint64 dpnId, Uint32 vpnId, String routerInternalIp,
+                                              MacAddress routerMac, Uint32 label, int addOrRemove) {
 
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchIpProtocol.ICMP);
-        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId.longValue()),
+            MetaDataUtil.METADATA_MASK_VRFID));
         matches.add(new MatchIcmpv4((short) 8, (short) 0));
         matches.add(MatchEthernetType.IPV4);
         matches.add(new MatchIpv4Destination(routerInternalIp, "32"));
@@ -586,7 +590,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         // Set the ICMP type to 0 (echo reply)
         actionsInfos.add(new ActionSetIcmpType((short) 0));
 
-        actionsInfos.add(new ActionNxLoadInPort(BigInteger.ZERO));
+        actionsInfos.add(new ActionNxLoadInPort(Uint64.ZERO));
 
         actionsInfos.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
 

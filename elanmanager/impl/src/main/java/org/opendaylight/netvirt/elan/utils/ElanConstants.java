@@ -7,11 +7,11 @@
  */
 package org.opendaylight.netvirt.elan.utils;
 
-import java.math.BigInteger;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg7;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public interface ElanConstants {
 
@@ -27,15 +27,15 @@ public interface ElanConstants {
     int STATIC_MAC_TIMEOUT = 0;
     int ELAN_TAG_LENGTH = 16;
     int INTERFACE_TAG_LENGTH = 20;
-    BigInteger INVALID_DPN = BigInteger.valueOf(-1);
-    BigInteger COOKIE_ELAN_BASE_SMAC = new BigInteger("8500000", 16);
-    BigInteger COOKIE_ELAN_LEARNED_SMAC = new BigInteger("8600000", 16);
-    BigInteger COOKIE_ELAN_UNKNOWN_DMAC = new BigInteger("8700000", 16);
-    BigInteger COOKIE_ELAN_KNOWN_SMAC = new BigInteger("8050000", 16);
-    BigInteger COOKIE_ELAN_KNOWN_DMAC = new BigInteger("8030000", 16);
+    Uint64 INVALID_DPN = Uint64.valueOf(-1L);
+    Uint64 COOKIE_ELAN_BASE_SMAC = Uint64.valueOf("8500000", 16).intern();
+    Uint64 COOKIE_ELAN_LEARNED_SMAC = Uint64.valueOf("8600000", 16).intern();
+    Uint64 COOKIE_ELAN_UNKNOWN_DMAC = Uint64.valueOf("8700000", 16).intern();
+    Uint64 COOKIE_ELAN_KNOWN_SMAC = Uint64.valueOf("8050000", 16).intern();
+    Uint64 COOKIE_ELAN_KNOWN_DMAC = Uint64.valueOf("8030000", 16).intern();
     long DEFAULT_MAC_TIME_OUT = 300;
-    BigInteger COOKIE_ELAN_FILTER_EQUALS = new BigInteger("8800000", 16);
-    BigInteger COOKIE_L2VNI_DEMUX = new BigInteger("1080000", 16);
+    Uint64 COOKIE_ELAN_FILTER_EQUALS = Uint64.valueOf("8800000", 16).intern();
+    Uint64 COOKIE_L2VNI_DEMUX =  Uint64.valueOf("1080000", 16).intern();
     String L2_CONTROL_PACKETS_DMAC = "01:80:C2:00:00:00";
     String L2_CONTROL_PACKETS_DMAC_MASK = "FF:FF:FF:FF:FF:F0";
     int LLDP_ETH_TYPE = 0x88CC;

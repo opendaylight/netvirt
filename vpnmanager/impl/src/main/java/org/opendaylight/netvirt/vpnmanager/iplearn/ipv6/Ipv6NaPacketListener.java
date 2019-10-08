@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.vpnmanager.iplearn.ipv6;
 
-import java.math.BigInteger;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.netvirt.ipv6service.api.IIpv6PacketListener;
@@ -20,6 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.packet.rev160620.NeighborAdvertisePacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.util.rev170210.PacketMetadata;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.config.rev161130.VpnConfig;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +43,7 @@ public class Ipv6NaPacketListener extends AbstractIpLearnNotificationHandler imp
         IpAddress srcIP = new IpAddress(naPacket.getSourceIpv6());
         MacAddress srcMac = naPacket.getSourceMac();
         IpAddress targetIP = new IpAddress(naPacket.getTargetAddress());
-        BigInteger metadata = pktMetadata.getMetadata();
+        Uint64 metadata = pktMetadata.getMetadata();
         LOG.debug("NA notification received from interface {} and IP {} having MAC {}, targetIP={}", srcInterface,
                 srcIP.stringValue(), srcMac.getValue(), targetIP.stringValue());
 

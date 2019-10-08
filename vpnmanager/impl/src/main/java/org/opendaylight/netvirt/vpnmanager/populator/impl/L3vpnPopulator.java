@@ -13,7 +13,6 @@ import static org.opendaylight.infrautils.utils.concurrent.ListenableFutures.add
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
@@ -50,6 +49,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,10 +82,10 @@ public abstract class L3vpnPopulator implements VpnPopulator {
         String vpnName = input.getVpnName();
         String prefix = input.getSubnetIp();
         String nextHop = input.getNextHopIp();
-        long label = input.getLabel();
-        long l3vni = input.getL3vni();
-        long elantag = input.getElanTag();
-        BigInteger dpnId = input.getDpnId();
+        Uint32 label = Uint32.valueOf(input.getLabel());
+        Uint32 l3vni = Uint32.valueOf(input.getL3vni());
+        Uint32 elantag = Uint32.valueOf(input.getElanTag());
+        Uint64 dpnId = input.getDpnId();
         String networkName = input.getNetworkName();
         String gwMacAddress = input.getGatewayMac();
         SubnetRoute route = new SubnetRouteBuilder().setElantag(elantag).build();
@@ -117,8 +118,9 @@ public abstract class L3vpnPopulator implements VpnPopulator {
 
         //Will be handled appropriately with the iRT patch for EVPN
         if (input.getEncapType().equals(VrfEntryBase.EncapType.Mplsgre)) {
-            long vpnId = vpnUtil.getVpnId(vpnName);
-            addToLabelMapper(label, dpnId, prefix, Collections.singletonList(nextHop), vpnId, null, elantag, true, rd);
+            Uint32 vpnId = vpnUtil.getVpnId(vpnName);
+            addToLabelMapper(label, dpnId, prefix, Collections.singletonList(nextHop), vpnId, null,
+                    elantag, true, rd);
             List<VpnInstanceOpDataEntry> vpnsToImportRoute = vpnUtil.getVpnsImportingMyRoute(vpnName);
             if (vpnsToImportRoute.size() > 0) {
                 VrfEntry importingVrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, nextHop,
@@ -142,8 +144,9 @@ public abstract class L3vpnPopulator implements VpnPopulator {
                 + "rd {} vpnName {}", prefix, nextHop, label, elantag, rd, vpnName);
     }
 
-    public void addToLabelMapper(Long label, BigInteger dpnId, String prefix, List<String> nextHopIpList, Long vpnId,
-            @Nullable String vpnInterfaceName, @Nullable Long elanTag, boolean isSubnetRoute, String rd) {
+    public void addToLabelMapper(Uint32 label, Uint64 dpnId, String prefix, List<String> nextHopIpList, Uint32 vpnId,
+                                 @Nullable String vpnInterfaceName, @Nullable Uint32 elanTag,
+                                 boolean isSubnetRoute, String rd) {
         final String labelStr = Preconditions.checkNotNull(label, "addToLabelMapper: label cannot be null or empty!")
                 .toString();
         Preconditions.checkNotNull(prefix, "addToLabelMapper: prefix cannot be null or empty!");
@@ -209,7 +212,7 @@ public abstract class L3vpnPopulator implements VpnPopulator {
 
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void addPrefixToBGP(String rd, String primaryRd, @Nullable String macAddress, String prefix,
-                                  String nextHopIp, VrfEntry.EncapType encapType, long label, long l3vni,
+                                  String nextHopIp, VrfEntry.EncapType encapType, Uint32 label, Uint32 l3vni,
                                   String gatewayMac, RouteOrigin origin,
                                   TypedWriteTransaction<Configuration> writeConfigTxn) {
         try {
@@ -217,13 +220,13 @@ public abstract class L3vpnPopulator implements VpnPopulator {
             LOG.info("ADD: addPrefixToBGP: Adding Fib entry rd {} prefix {} nextHop {} label {} gwMac {}", rd, prefix,
                     nextHopList, label, gatewayMac);
             fibManager.addOrUpdateFibEntry(primaryRd, macAddress, prefix, nextHopList,
-                    encapType, (int)label, l3vni, gatewayMac, null /*parentVpnRd*/, origin, writeConfigTxn);
+                    encapType, label, l3vni, gatewayMac, null /*parentVpnRd*/, origin, writeConfigTxn);
             LOG.info("ADD: addPrefixToBGP: Added Fib entry rd {} prefix {} nextHop {} label {} gwMac {}", rd, prefix,
                     nextHopList, label, gatewayMac);
             // Advertise the prefix to BGP only if nexthop ip is available
             if (!nextHopList.isEmpty()) {
-                bgpManager.advertisePrefix(rd, macAddress, prefix, nextHopList, encapType, (int)label,
-                        l3vni, 0 /*l2vni*/, gatewayMac);
+                bgpManager.advertisePrefix(rd, macAddress, prefix, nextHopList, encapType, label,
+                        l3vni, Uint32.ZERO /*l2vni*/, gatewayMac);
             } else {
                 LOG.error("addPrefixToBGP: NextHopList is null/empty. Hence rd {} prefix {} nextHop {} label {}"
                         + " gwMac {} is not advertised to BGP", rd, prefix, nextHopList, label, gatewayMac);

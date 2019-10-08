@@ -7,12 +7,11 @@
  */
 package org.opendaylight.netvirt.natservice.api;
 
-import java.math.BigInteger;
-
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public interface SnatServiceListener {
 
@@ -25,7 +24,7 @@ public interface SnatServiceListener {
      * @return returns success/failure.
      */
     boolean addSnatAllSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
-        BigInteger primarySwitchId);
+        Uint64 primarySwitchId);
 
     /**
      * Adds snat flows for the dpnId.
@@ -36,8 +35,8 @@ public interface SnatServiceListener {
      * @param dpnId the dpnId for which the flows needs to be added.
      * @return returns success/failure.
      */
-    boolean addSnat(TypedReadWriteTransaction<Configuration> confTx, Routers routers, BigInteger primarySwitchId,
-        BigInteger dpnId);
+    boolean addSnat(TypedReadWriteTransaction<Configuration> confTx, Routers routers, Uint64 primarySwitchId,
+        Uint64 dpnId);
 
     /**
      * Removes snat flows for all dpns having ports on the router subnet.
@@ -48,7 +47,7 @@ public interface SnatServiceListener {
      * @return returns success/failure.
      */
     boolean removeSnatAllSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
-        BigInteger primarySwitchId) throws ExecutionException, InterruptedException;
+        Uint64 primarySwitchId) throws ExecutionException, InterruptedException;
 
     /**
      * Removes snat flows for the dpnId.
@@ -59,8 +58,8 @@ public interface SnatServiceListener {
      * @param dpnId the dpnId for which the flows needs to be removed.
      * @return returns success/failure.
      */
-    boolean removeSnat(TypedReadWriteTransaction<Configuration> confTx, Routers routers, BigInteger primarySwitchId,
-        BigInteger dpnId) throws ExecutionException, InterruptedException;
+    boolean removeSnat(TypedReadWriteTransaction<Configuration> confTx, Routers routers, Uint64 primarySwitchId,
+        Uint64 dpnId) throws ExecutionException, InterruptedException;
 
     /**
      * Adds flows for centralized switch for all dpns having ports on the router subnet.
@@ -70,7 +69,7 @@ public interface SnatServiceListener {
      * @return returns success/failure.
      */
     boolean addCentralizedRouterAllSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
-            BigInteger primarySwitchId);
+            Uint64 primarySwitchId);
 
     /**
      * Adds flows for centralized switch for the dpnId.
@@ -81,7 +80,7 @@ public interface SnatServiceListener {
      * @return returns success/failure.
      */
     boolean addCentralizedRouter(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
-            BigInteger primarySwitchId, BigInteger dpnId);
+            Uint64 primarySwitchId, Uint64 dpnId);
 
     /**
      * Removes flows for centralized switch for all dpns having ports on the router subnet.
@@ -91,7 +90,7 @@ public interface SnatServiceListener {
      * @return returns success/failure.
      */
     boolean removeCentralizedRouterAllSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
-            BigInteger primarySwitchId)  throws ExecutionException, InterruptedException ;
+            Uint64 primarySwitchId)  throws ExecutionException, InterruptedException ;
 
     /**
      * Removes flows for centralized switch for the dpnId.
@@ -102,7 +101,7 @@ public interface SnatServiceListener {
      * @return returns success/failure.
      */
     boolean removeCentralizedRouter(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
-            BigInteger primarySwitchId, BigInteger dpnId) throws ExecutionException, InterruptedException;
+            Uint64 primarySwitchId, Uint64 dpnId) throws ExecutionException, InterruptedException;
 
     /**
      * Handles changes to external router.

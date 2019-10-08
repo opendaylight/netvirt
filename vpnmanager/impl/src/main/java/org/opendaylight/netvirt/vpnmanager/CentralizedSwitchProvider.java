@@ -8,11 +8,11 @@
 
 package org.opendaylight.netvirt.vpnmanager;
 
-import java.math.BigInteger;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.netvirt.vpnmanager.api.ICentralizedSwitchProvider;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 @Singleton
 public class CentralizedSwitchProvider implements ICentralizedSwitchProvider {
@@ -27,7 +27,7 @@ public class CentralizedSwitchProvider implements ICentralizedSwitchProvider {
 
     @Override
     @Nullable
-    public BigInteger getPrimarySwitchForRouter(String routerName) {
+    public Uint64 getPrimarySwitchForRouter(String routerName) {
         return vpnUtil.getPrimarySwitchForRouter(routerName);
     }
 
