@@ -7,8 +7,6 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
-import java.math.BigInteger;
-
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
@@ -24,6 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +44,7 @@ public class FlatVlanConntrackBasedSnatService extends ConntrackBasedSnatService
 
     @Override
     public boolean addSnatAllSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
-        BigInteger primarySwitchId) {
+        Uint64 primarySwitchId) {
         if (checkProviderType(confTx, routers)) {
             return false;
         }
@@ -54,19 +53,19 @@ public class FlatVlanConntrackBasedSnatService extends ConntrackBasedSnatService
 
     @Override
     public boolean removeSnatAllSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
-            BigInteger primarySwitchId) throws ExecutionException, InterruptedException {
+            Uint64 primarySwitchId) throws ExecutionException, InterruptedException {
         return !checkProviderType(confTx, routers) && super.removeSnatAllSwitch(confTx, routers, primarySwitchId);
     }
 
     @Override
     public boolean addSnat(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
-        BigInteger primarySwitchId, BigInteger dpnId) {
+        Uint64 primarySwitchId, Uint64 dpnId) {
         return !checkProviderType(confTx, routers) && super.addSnat(confTx, routers, primarySwitchId, dpnId);
     }
 
     @Override
     public boolean removeSnat(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
-            BigInteger primarySwitchId, BigInteger dpnId) throws ExecutionException, InterruptedException {
+            Uint64 primarySwitchId, Uint64 dpnId) throws ExecutionException, InterruptedException {
         return !checkProviderType(confTx, routers) && super.removeSnat(confTx, routers, primarySwitchId, dpnId);
     }
 

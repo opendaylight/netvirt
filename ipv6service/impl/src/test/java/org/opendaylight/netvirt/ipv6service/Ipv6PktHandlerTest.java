@@ -15,7 +15,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Before;
@@ -55,6 +54,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Tr
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.packet.received.MatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.table.types.rev131026.TableId;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public class Ipv6PktHandlerTest {
     private PacketProcessingService pktProcessService;
@@ -138,7 +138,7 @@ public class Ipv6PktHandlerTest {
     @Test
     public void testonPacketReceivedNeighborSolicitationWithInvalidPayload() throws Exception {
         //incorrect checksum
-        BigInteger mdata = new BigInteger(String.valueOf(0x1000000));
+        Uint64 mdata = Uint64.valueOf(0x1000000);
         Metadata metadata = new MetadataBuilder().setMetadata(mdata).build();
         MatchBuilder matchbuilder = new MatchBuilder().setMetadata(metadata);
         pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(ipv6TestUtils.buildPacket(
@@ -189,7 +189,7 @@ public class Ipv6PktHandlerTest {
     @Test
     public void testonPacketReceivedRouterSolicitationWithInvalidPayload() throws Exception {
         // incorrect checksum in Router Solicitation
-        BigInteger mdata = new BigInteger(String.valueOf(0x1000000));
+        Uint64 mdata = Uint64.valueOf(0x1000000);
         Metadata metadata = new MetadataBuilder().setMetadata(mdata).build();
         MatchBuilder matchbuilder = new MatchBuilder().setMetadata(metadata);
         pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(ipv6TestUtils.buildPacket(
@@ -256,7 +256,7 @@ public class Ipv6PktHandlerTest {
                 .child(Node.class, new NodeKey(new NodeId("openflow:1"))).build();
         NodeConnectorRef ncRef = new NodeConnectorRef(ncId);
 
-        BigInteger mdata = new BigInteger(String.valueOf(0x1000000));
+        Uint64 mdata = Uint64.valueOf(0x1000000);
         Metadata metadata = new MetadataBuilder().setMetadata(mdata).build();
         MatchBuilder matchbuilder = new MatchBuilder().setMetadata(metadata);
         pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(ipv6TestUtils.buildPacket(
@@ -308,7 +308,7 @@ public class Ipv6PktHandlerTest {
     @Test
     public void testonPacketReceivedRouterSolicitationWithSingleSubnet() throws Exception {
         VirtualPort intf = Mockito.mock(VirtualPort.class);
-        when(intf.getDpId()).thenReturn(new BigInteger(String.valueOf(1)));
+        when(intf.getDpId()).thenReturn(Uint64.valueOf(1));
         when(intf.getIntfUUID()).thenReturn(Uuid.getDefaultInstance("ddec9dba-d831-4ad7-84b9-00d7f65f052f"));
         when(intf.getMacAddress()).thenReturn("fa:16:3e:4e:18:0c");
         when(intf.getMtu()).thenReturn(1400);
@@ -335,9 +335,9 @@ public class Ipv6PktHandlerTest {
         subnetList.add(v6Subnet);
         when(intf.getSubnets()).thenReturn(subnetList);
 
-        BigInteger dpnId = new BigInteger("1");
+        Uint64 dpnId = Uint64.valueOf("1");
         NodeConnectorRef ncRef = MDSALUtil.getDefaultNodeConnRef(dpnId);
-        BigInteger mdata = new BigInteger(String.valueOf(0x1000000));
+        Uint64 mdata = Uint64.valueOf(0x1000000);
         Metadata metadata = new MetadataBuilder().setMetadata(mdata).build();
         MatchBuilder matchbuilder = new MatchBuilder().setMetadata(metadata);
         pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(ipv6TestUtils.buildPacket(
@@ -404,7 +404,7 @@ public class Ipv6PktHandlerTest {
     @Test
     public void testonPacketReceivedRouterSolicitationWithMultipleSubnets() throws Exception {
         VirtualPort intf = Mockito.mock(VirtualPort.class);
-        when(intf.getDpId()).thenReturn(new BigInteger(String.valueOf(1)));
+        when(intf.getDpId()).thenReturn(Uint64.valueOf(1));
         when(intf.getMacAddress()).thenReturn("50:7B:9D:78:54:F3");
         when(intf.getIntfUUID()).thenReturn(Uuid.getDefaultInstance("ddec9dba-d831-4ad7-84b9-00d7f65f052f"));
         when(ifMgrInstance.obtainV6Interface(any())).thenReturn(intf);
@@ -443,9 +443,9 @@ public class Ipv6PktHandlerTest {
         subnetList.add(v6Subnet3);
         when(intf.getSubnets()).thenReturn(subnetList);
 
-        BigInteger dpnId = new BigInteger("1");
+        Uint64 dpnId = Uint64.valueOf("1");
         NodeConnectorRef ncRef = MDSALUtil.getDefaultNodeConnRef(dpnId);
-        BigInteger mdata = new BigInteger(String.valueOf(0x1000000));
+        Uint64 mdata = Uint64.valueOf(0x1000000);
         Metadata metadata = new MetadataBuilder().setMetadata(mdata).build();
         MatchBuilder matchbuilder = new MatchBuilder().setMetadata(metadata);
         pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(ipv6TestUtils.buildPacket(
@@ -533,7 +533,7 @@ public class Ipv6PktHandlerTest {
                 .child(Node.class, new NodeKey(new NodeId("openflow:1"))).build();
         NodeConnectorRef ncRef = new NodeConnectorRef(ncId);
 
-        BigInteger mdata = new BigInteger(String.valueOf(0x1000000));
+        Uint64 mdata = Uint64.valueOf(0x1000000);
         Metadata metadata = new MetadataBuilder().setMetadata(mdata).build();
         MatchBuilder matchbuilder = new MatchBuilder().setMetadata(metadata);
         byte[] data = ipv6TestUtils.buildPacket(
@@ -581,7 +581,7 @@ public class Ipv6PktHandlerTest {
                 .child(Node.class, new NodeKey(new NodeId("openflow:1"))).build();
         NodeConnectorRef ncRef = new NodeConnectorRef(ncId);
 
-        BigInteger mdata = new BigInteger(String.valueOf(0x1000000));
+        Uint64 mdata = Uint64.valueOf(0x1000000);
         Metadata metadata = new MetadataBuilder().setMetadata(mdata).build();
         MatchBuilder matchbuilder = new MatchBuilder().setMetadata(metadata);
 

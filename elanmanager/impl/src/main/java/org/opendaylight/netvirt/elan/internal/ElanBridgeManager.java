@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.elan.internal;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -47,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,8 +93,8 @@ public class ElanBridgeManager {
         this.interfaceManager = interfaceManager;
         this.southboundUtils = southboundUtils;
         this.random = new Random(System.currentTimeMillis());
-        this.maxBackoff = elanConfig.getControllerMaxBackoff();
-        this.inactivityProbe = elanConfig.getControllerInactivityProbe();
+        this.maxBackoff = elanConfig.getControllerMaxBackoff().toJava();
+        this.inactivityProbe = elanConfig.getControllerInactivityProbe().toJava();
     }
 
     /**
@@ -513,7 +513,7 @@ public class ElanBridgeManager {
         return rv;
     }
 
-    public Optional<BigInteger> getDpIdFromManagerNodeId(String managerNodeId) {
+    public Optional<Uint64> getDpIdFromManagerNodeId(String managerNodeId) {
         InstanceIdentifier<Node> identifier = getIntegrationBridgeIdentifier(managerNodeId);
         OvsdbBridgeAugmentation integrationBridgeAugmentation = interfaceManager.getOvsdbBridgeForNodeIid(identifier);
         if (integrationBridgeAugmentation == null) {
@@ -573,7 +573,7 @@ public class ElanBridgeManager {
      * {@inheritDoc}.
      */
     @Nullable
-    private Node getBridgeNode(BigInteger dpId) {
+    private Node getBridgeNode(Uint64 dpId) {
         List<Node> ovsdbNodes = southboundUtils.getOvsdbNodes();
         if (null == ovsdbNodes) {
             LOG.debug("Could not find any (?) ovsdb nodes");
@@ -586,7 +586,7 @@ public class ElanBridgeManager {
             }
 
             long nodeDpid = southboundUtils.getDataPathId(node);
-            if (dpId.equals(BigInteger.valueOf(nodeDpid))) {
+            if (dpId.equals(Uint64.valueOf(nodeDpid))) {
                 return node;
             }
         }
@@ -595,7 +595,7 @@ public class ElanBridgeManager {
     }
 
     @Nullable
-    public String getProviderInterfaceName(BigInteger dpId, String physicalNetworkName) {
+    public String getProviderInterfaceName(Uint64 dpId, String physicalNetworkName) {
         Node brNode;
 
         brNode = getBridgeNode(dpId);
@@ -644,7 +644,7 @@ public class ElanBridgeManager {
         return INTEGRATION_BRIDGE;
     }
 
-    public BigInteger getDatapathId(Node node) {
-        return BigInteger.valueOf(southboundUtils.getDataPathId(node));
+    public Uint64 getDatapathId(Node node) {
+        return Uint64.valueOf(southboundUtils.getDataPathId(node));
     }
 }

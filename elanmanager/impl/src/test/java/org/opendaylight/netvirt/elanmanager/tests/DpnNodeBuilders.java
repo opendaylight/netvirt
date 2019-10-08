@@ -7,14 +7,14 @@
  */
 package org.opendaylight.netvirt.elanmanager.tests;
 
-import java.math.BigInteger;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.Group;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.GroupKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
+
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public final class DpnNodeBuilders {
 
@@ -22,7 +22,7 @@ public final class DpnNodeBuilders {
     }
 
     public static org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node
-        buildDpnNode(BigInteger dpnId) {
+        buildDpnNode(Uint64 dpnId) {
 
         org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId nodeId =
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId("openflow:" + dpnId);
@@ -33,7 +33,7 @@ public final class DpnNodeBuilders {
         return nodeDpn;
     }
 
-    public static InstanceIdentifier<Group> createGroupIid(Group group, BigInteger dpId) {
+    public static InstanceIdentifier<Group> createGroupIid(Group group, Uint64 dpId) {
         long groupId = group.getGroupId().getValue().longValue();
         return buildGroupInstanceIdentifier(groupId, buildDpnNode(dpId));
     }

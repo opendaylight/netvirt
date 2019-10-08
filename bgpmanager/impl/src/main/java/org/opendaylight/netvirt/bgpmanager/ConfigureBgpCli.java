@@ -20,6 +20,7 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.protocol_type;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.TcpMd5SignaturePasswordType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Neighbors;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 @Command(scope = "odl", name = "configure-bgp", description = "")
 public class ConfigureBgpCli extends OsgiCommandSupport {
@@ -81,11 +82,11 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
 
     @Option(name = "--l2vni", description = "l2vni of the route",
             required = false, multiValued = false)
-    int l2vni = 0;
+    Uint32 l2vni = Uint32.ZERO;
 
     @Option(name = "--l3vni", description = "l3vni",
             required = false, multiValued = false)
-    int l3vni = 0;
+    Uint32 l3vni = Uint32.ZERO;
 
     @Option(name = "--stalepath-time", description = "the time delay after bgp restart stalepaths are cleaned",
             required = false, multiValued = false)
@@ -204,7 +205,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
         }
         for (Neighbors nbr : nbrs) {
             if (nbrIp.equals(nbr.getAddress().getValue())) {
-                return nbr.getRemoteAs();
+                return nbr.getRemoteAs().toJava();
             }
         }
         return -1;

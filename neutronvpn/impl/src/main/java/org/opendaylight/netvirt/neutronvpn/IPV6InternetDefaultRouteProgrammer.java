@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.neutronvpn;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -29,6 +28,7 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +43,7 @@ public class IPV6InternetDefaultRouteProgrammer {
         this.mdsalManager = mdsalManager;
     }
 
-    private FlowEntity buildIPv6FallbacktoExternalVpn(BigInteger dpId, String routerId, long internetBgpVpnId,
+    private FlowEntity buildIPv6FallbacktoExternalVpn(Uint64 dpId, String routerId, long internetBgpVpnId,
                                                       long vpnId, boolean add) {
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV6);
@@ -80,21 +80,21 @@ public class IPV6InternetDefaultRouteProgrammer {
      * @param internetBgpVpnId internetVpn id as long
      * @param vpnId id of router associated to internet bgpvpn as long
      */
-    public void installDefaultRoute(TypedWriteTransaction<Configuration> tx, BigInteger dpnId, String routerId,
+    public void installDefaultRoute(TypedWriteTransaction<Configuration> tx, Uint64 dpnId, String routerId,
             long internetBgpVpnId, long vpnId) {
         FlowEntity flowEntity = buildIPv6FallbacktoExternalVpn(dpnId, routerId, internetBgpVpnId, vpnId, true);
         LOG.trace("installDefaultRoute: flowEntity: {} ", flowEntity);
         mdsalManager.addFlow(tx, flowEntity);
     }
 
-    public void removeDefaultRoute(TypedReadWriteTransaction<Configuration> tx, BigInteger dpnId, String routerId,
+    public void removeDefaultRoute(TypedReadWriteTransaction<Configuration> tx, Uint64 dpnId, String routerId,
             long internetBgpVpnId, long vpnId) throws ExecutionException, InterruptedException {
         FlowEntity flowEntity = buildIPv6FallbacktoExternalVpn(dpnId, routerId, internetBgpVpnId, vpnId, false);
         LOG.trace("removeDefaultRoute: flowEntity: {} ", flowEntity);
         mdsalManager.removeFlow(tx, flowEntity);
     }
 
-    public String getIPv6FlowRefL3(BigInteger dpnId, short tableId, String destPrefix, String routerId) {
+    public String getIPv6FlowRefL3(Uint64 dpnId, short tableId, String destPrefix, String routerId) {
         return "L3." + dpnId.toString() + NwConstants.FLOWID_SEPARATOR + tableId
                 + NwConstants.FLOWID_SEPARATOR + destPrefix + NwConstants.FLOWID_SEPARATOR + routerId;
     }

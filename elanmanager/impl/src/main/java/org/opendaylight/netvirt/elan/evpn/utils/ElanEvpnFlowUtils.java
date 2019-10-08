@@ -34,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.ta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeLeafTagName;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 
 @Singleton
@@ -63,8 +64,9 @@ public class ElanEvpnFlowUtils {
                 ElanUtils.getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, evpnDmacFlow.getDpId(),
                         evpnDmacFlow.getNexthopIP(), evpnDmacFlow.getDstMacAddress(), evpnDmacFlow.getElanTag(), false),
                 20, evpnDmacFlow.getElanName(), 0, 0,
-                ElanConstants.COOKIE_ELAN_KNOWN_DMAC.add(BigInteger.valueOf(evpnDmacFlow.getElanTag())), mkMatches,
-                mkInstructions);
+                Uint64.valueOf(ElanConstants.COOKIE_ELAN_KNOWN_DMAC.toJava()
+                    .add(BigInteger.valueOf(evpnDmacFlow.getElanTag()))),
+                mkMatches, mkInstructions);
 
         return flow;
     }
@@ -82,26 +84,28 @@ public class ElanEvpnFlowUtils {
         return futures;
     }
 
-    private List<ListenableFuture<Void>> evpnDeleteEtreeDmacFlowsToExternalMac(long elanTag, BigInteger dpId,
+    private List<ListenableFuture<Void>> evpnDeleteEtreeDmacFlowsToExternalMac(long elanTag, Uint64 dpId,
             String nexthopIp, String macToRemove) {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         EtreeLeafTagName etreeLeafTag = elanEtreeUtils.getEtreeLeafTagByElanTag(elanTag);
         if (etreeLeafTag != null) {
             futures.addAll(
-                    evpnRemoveFlowThatSendsThePacketOnAnExternalTunnel(etreeLeafTag.getEtreeLeafTag().getValue(), dpId,
+                    evpnRemoveFlowThatSendsThePacketOnAnExternalTunnel(
+                            etreeLeafTag.getEtreeLeafTag().getValue().toJava(), dpId,
                             nexthopIp, macToRemove));
             futures.addAll(
-                    evpnRemoveTheDropFlow(etreeLeafTag.getEtreeLeafTag().getValue(), dpId, nexthopIp, macToRemove));
+                    evpnRemoveTheDropFlow(etreeLeafTag.getEtreeLeafTag().getValue().toJava(),
+                            dpId, nexthopIp, macToRemove));
         }
         return futures;
     }
 
-    static String evpnGetKnownDynamicmacFlowRef(short elanDmacTable, BigInteger dpId, String nexthopIp,
+    static String evpnGetKnownDynamicmacFlowRef(short elanDmacTable, Uint64 dpId, String nexthopIp,
                                                 String dstMacAddress, long elanTag, boolean shFlag) {
         return String.valueOf(elanDmacTable) + elanTag + dpId + nexthopIp + dstMacAddress + shFlag;
     }
 
-    private List<ListenableFuture<Void>> evpnRemoveTheDropFlow(long elanTag, BigInteger dpId, String nexthopIp,
+    private List<ListenableFuture<Void>> evpnRemoveTheDropFlow(long elanTag, Uint64 dpId, String nexthopIp,
             String macToRemove) {
         String flowId = ElanEvpnFlowUtils.evpnGetKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, nexthopIp,
                 macToRemove, elanTag, true);
@@ -111,7 +115,7 @@ public class ElanEvpnFlowUtils {
     }
 
     private List<ListenableFuture<Void>> evpnRemoveFlowThatSendsThePacketOnAnExternalTunnel(long elanTag,
-            BigInteger dpId, String nexthopIp, String macToRemove) {
+            Uint64 dpId, String nexthopIp, String macToRemove) {
         String flowId = ElanEvpnFlowUtils.evpnGetKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, nexthopIp,
                 macToRemove, elanTag, false);
         Flow flowToRemove = new FlowBuilder().setId(new FlowId(flowId)).setTableId(NwConstants.ELAN_DMAC_TABLE).build();
@@ -120,7 +124,7 @@ public class ElanEvpnFlowUtils {
     }
 
     public static class EvpnDmacFlowBuilder {
-        private BigInteger dpId;
+        private Uint64 dpId;
         private String nexthopIP;
         private long elanTag;
         private Long vni;
@@ -130,7 +134,7 @@ public class ElanEvpnFlowUtils {
         public EvpnDmacFlowBuilder() {
         }
 
-        public EvpnDmacFlowBuilder setDpId(BigInteger dpId) {
+        public EvpnDmacFlowBuilder setDpId(Uint64 dpId) {
             this.dpId = dpId;
             return this;
         }
@@ -166,14 +170,14 @@ public class ElanEvpnFlowUtils {
     }
 
     static class EvpnDmacFlow {
-        private final BigInteger dpId;
+        private final Uint64 dpId;
         private final String nexthopIP;
         private final long elanTag;
         private final Long vni;
         private final String dstMacAddress;
         private final String elanName;
 
-        EvpnDmacFlow(BigInteger dpId, String nexthopIP, long elanTag, Long vni, String dstMacAddress,
+        EvpnDmacFlow(Uint64 dpId, String nexthopIP, long elanTag, Long vni, String dstMacAddress,
                             String elanName) {
             this.dpId = dpId;
             this.nexthopIP = nexthopIP;
@@ -183,7 +187,7 @@ public class ElanEvpnFlowUtils {
             this.elanName = elanName;
         }
 
-        public BigInteger getDpId() {
+        public Uint64 getDpId() {
             return dpId;
         }
 

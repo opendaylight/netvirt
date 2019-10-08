@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
-import java.math.BigInteger;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -24,6 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,14 +70,14 @@ public class NatInterfaceStateChangeListener
             return;
         }
         String interfaceName = intrf.getName();
-        BigInteger intfDpnId;
+        Uint64 intfDpnId;
         try {
             intfDpnId = NatUtil.getDpIdFromInterface(intrf);
         } catch (Exception e) {
             LOG.error("add : Exception occured while retriving dpnid for interface {}", intrf.getName(), e);
             return;
         }
-        if (BigInteger.ZERO.equals(intfDpnId)) {
+        if (Uint64.ZERO.equals(intfDpnId)) {
             LOG.warn("add : Could not retrieve dp id for interface {} ", interfaceName);
             return;
         }
@@ -102,7 +102,7 @@ public class NatInterfaceStateChangeListener
             return;
         }
         String interfaceName = intrf.getName();
-        BigInteger intfDpnId = BigInteger.ZERO;
+        Uint64 intfDpnId = Uint64.ZERO;
         try {
             intfDpnId = NatUtil.getDpIdFromInterface(intrf);
         } catch (Exception e) {
@@ -128,7 +128,7 @@ public class NatInterfaceStateChangeListener
                 }
             }
         }
-        if (BigInteger.ZERO.equals(intfDpnId)) {
+        if (Uint64.ZERO.equals(intfDpnId)) {
             LOG.warn("remove : Could not retrieve dpnid for interface {} ", interfaceName);
             return;
         }
@@ -149,7 +149,7 @@ public class NatInterfaceStateChangeListener
             LOG.debug("update : Interface {} is not Vlan Interface.Ignoring", update.getName());
             return;
         }
-        BigInteger intfDpnId = BigInteger.ZERO;
+        Uint64 intfDpnId = Uint64.ZERO;
         String interfaceName = update.getName();
         try {
             intfDpnId = NatUtil.getDpIdFromInterface(update);
@@ -176,7 +176,7 @@ public class NatInterfaceStateChangeListener
                 }
             }
         }
-        if (BigInteger.ZERO.equals(intfDpnId)) {
+        if (Uint64.ZERO.equals(intfDpnId)) {
             LOG.warn("remove : Could not retrieve dpnid for interface {} ", interfaceName);
             return;
         }

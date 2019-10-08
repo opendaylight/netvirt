@@ -10,6 +10,8 @@ package org.opendaylight.netvirt.vpnmanager.api.intervpnlink;
 import java.util.List;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 
+import org.opendaylight.yangtools.yang.common.Uint32;
+
 public interface IVpnLinkService {
 
     /**
@@ -24,7 +26,7 @@ public interface IVpnLinkService {
      * @param origin Origin of the route (BGP|STATIC|CONNECTED)
      * @param addOrRemove states if the routes must be leaked or withdrawn
      */
-    void leakRouteIfNeeded(String vpnName, String prefix, List<String> nextHopList, int label, RouteOrigin origin,
+    void leakRouteIfNeeded(String vpnName, String prefix, List<String> nextHopList, Uint32 label, RouteOrigin origin,
                            int addOrRemove);
 
     /**
@@ -39,7 +41,7 @@ public interface IVpnLinkService {
      *                         provide a different origin if desired.
      */
     void leakRoute(InterVpnLinkDataComposite interVpnLink, String srcVpnUuid, String dstVpnUuid,
-                   String prefix, Long label, RouteOrigin forcedOrigin);
+                   String prefix, Uint32 label, RouteOrigin forcedOrigin);
 
     /**
      * Similar to leakRouteIfNeeded but the only requisite to be met is that
@@ -51,7 +53,7 @@ public interface IVpnLinkService {
      * @param label Label of the route to be leaked
      * @param addOrRemove states if the routes must be leaked or withdrawn
      */
-    void leakRoute(String vpnName, String prefix, List<String> nextHopList, int label, int addOrRemove);
+    void leakRoute(String vpnName, String prefix, List<String> nextHopList, Uint32 label, int addOrRemove);
 
     /**
      * Checks both L3VPNs linked by the InterVpnLink and performs all the

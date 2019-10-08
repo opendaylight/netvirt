@@ -109,7 +109,8 @@ public class NatArpNotificationHandler implements OdlArputilListener {
 
         if (null == cachedState) {
             this.southboundEventHandlers.handleAdd(
-                                    targetIfc.getName(), notification.getDpnId(), routerInterface, newVipState);
+                                    targetIfc.getName(), notification.getDpnId(),
+                                    routerInterface, newVipState);
         } else if (!cachedState.getDpnId().equals(newVipState.getDpnId())) {
             this.southboundEventHandlers.handleRemove(cachedState.getIfcName(),
                     cachedState.getDpnId(), routerInterface);

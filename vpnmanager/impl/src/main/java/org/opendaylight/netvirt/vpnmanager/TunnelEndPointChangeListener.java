@@ -15,7 +15,6 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -39,6 +38,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.dpn.teps.info.TunnelEndPoints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,8 +90,8 @@ public class TunnelEndPointChangeListener
 
     @Override
     protected void add(InstanceIdentifier<TunnelEndPoints> key, TunnelEndPoints tep) {
-        BigInteger dpnId = key.firstIdentifierOf(DPNTEPsInfo.class).firstKeyOf(DPNTEPsInfo.class).getDPNID();
-        if (BigInteger.ZERO.equals(dpnId)) {
+        Uint64 dpnId = key.firstIdentifierOf(DPNTEPsInfo.class).firstKeyOf(DPNTEPsInfo.class).getDPNID();
+        if (Uint64.ZERO.equals(dpnId)) {
             LOG.warn("add: Invalid DPN id for TEP {}", tep.getInterfaceName());
             return;
         }
@@ -103,7 +104,7 @@ public class TunnelEndPointChangeListener
 
         for (VpnInstance vpnInstance : vpnInstances) {
             final String vpnName = vpnInstance.getVpnInstanceName();
-            final long vpnId = vpnUtil.getVpnId(vpnName);
+            final Uint32 vpnId = vpnUtil.getVpnId(vpnName);
             LOG.info("add: Handling TEP {} add for VPN instance {}", tep.getInterfaceName(), vpnName);
             final String primaryRd = vpnUtil.getPrimaryRd(vpnName);
             if (!vpnUtil.isVpnPendingDelete(primaryRd)) {

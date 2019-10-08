@@ -31,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev14
 
 import static extension org.opendaylight.mdsal.binding.testutils.XtendBuilderExtensions.operator_doubleGreaterThan
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination
+import org.opendaylight.yangtools.yang.common.Uint64
 
 class FlowEntryObjectsBase {
 
@@ -41,8 +42,8 @@ class FlowEntryObjectsBase {
     protected def fixedIngressFlowsPort1() {
         #[
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_DHCP_Server_v4123_987_Permit_"
                 flowName = "Ingress_DHCP_Server_v4123_987_Permit_"
                 instructionInfoList = #[
@@ -61,8 +62,8 @@ class FlowEntryObjectsBase {
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_DHCP_Server_v6_123_987_Permit_"
                 flowName = "Ingress_DHCP_Server_v6_123_987_Permit_"
                    instructionInfoList = #[
@@ -81,8 +82,8 @@ class FlowEntryObjectsBase {
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_ICMPv6_123_987_130_Permit_"
                 flowName = "Ingress_ICMPv6_123_987_130_Permit_"
                 instructionInfoList = #[
@@ -100,8 +101,8 @@ class FlowEntryObjectsBase {
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_ICMPv6_123_987_135_Permit_"
                 flowName = "Ingress_ICMPv6_123_987_135_Permit_"
                 instructionInfoList = #[
@@ -119,8 +120,8 @@ class FlowEntryObjectsBase {
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_ICMPv6_123_987_136_Permit_"
                 flowName = "Ingress_ICMPv6_123_987_136_Permit_"
                 instructionInfoList = #[
@@ -138,8 +139,8 @@ class FlowEntryObjectsBase {
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_ARP_123_987"
                 flowName = "Ingress_ARP_123_987"
                 instructionInfoList = #[
@@ -161,8 +162,8 @@ class FlowEntryObjectsBase {
      protected def fixedEgressL2BroadcastFlowsPort1() {
         #[
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_L2Broadcast_123_987_0D:AA:D8:42:30:F3"
                 flowName = "Egress_L2Broadcast_123_987_0D:AA:D8:42:30:F3"
                 instructionInfoList = #[
@@ -172,7 +173,7 @@ class FlowEntryObjectsBase {
                 ]
                 matchInfoList = #[
                     new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F3")),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 61005
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
@@ -183,8 +184,8 @@ class FlowEntryObjectsBase {
      protected def fixedIngressL3BroadcastFlows(String prefix) {
         #[
             new FlowEntityBuilder >> [
-                cookie = 110100480bi
-                dpnId = 123bi
+                cookie = Uint64.valueOf(110100480bi)
+                dpnId = Uint64.valueOf(123bi)
                 flowId = "Ingress_v4_Broadcast_123_987_10.0.0.255_Permit"
                 flowName = "Ingress_v4_Broadcast_123_987_10.0.0.255_Permit"
                 hardTimeOut = 0
@@ -210,8 +211,8 @@ class FlowEntryObjectsBase {
      protected def fixedEgressFlowsPort1(String ip1, String prefix) {
         #[
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_DHCP_Client_v4123_987_0D:AA:D8:42:30:F3_Permit_"
                 flowName = "Egress_DHCP_Client_v4123_987_0D:AA:D8:42:30:F3_Permit_"
                 instructionInfoList = #[
@@ -224,15 +225,15 @@ class FlowEntryObjectsBase {
                     new MatchIpProtocol(17 as short),
                     new MatchUdpDestinationPort(67),
                     new MatchUdpSourcePort(68),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F3"))
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_ICMPv6_123_987_133_Permit_"
                 flowName = "Egress_ICMPv6_123_987_133_Permit_"
                 instructionInfoList = #[
@@ -244,14 +245,14 @@ class FlowEntryObjectsBase {
                     new MatchEthernetType(34525L),
                     new MatchIpProtocol(58 as short),
                     new MatchIcmpv6(133 as short, 0 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_ICMPv6_123_987_135_Permit_"
                 flowName = "Egress_ICMPv6_123_987_135_Permit_"
                 instructionInfoList = #[
@@ -263,14 +264,14 @@ class FlowEntryObjectsBase {
                     new MatchEthernetType(34525L),
                     new MatchIpProtocol(58 as short),
                     new MatchIcmpv6(135 as short, 0 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_ICMPv6_123_987_136_Permit_"
                 flowName = "Egress_ICMPv6_123_987_136_Permit_"
                 instructionInfoList = #[
@@ -282,7 +283,7 @@ class FlowEntryObjectsBase {
                     new MatchEthernetType(34525L),
                     new MatchIpProtocol(58 as short),
                     new MatchIcmpv6(136 as short, 0 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
@@ -294,8 +295,8 @@ class FlowEntryObjectsBase {
      protected def fixedEgressArpFlowsPort1(String ip1, String prefix) {
         #[
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:F3" + ip1 + "/" + prefix
                 flowName = "Egress_ARP_123_987_0D:AA:D8:42:30:F3" + ip1 + "/" + prefix
                 instructionInfoList = #[
@@ -308,7 +309,7 @@ class FlowEntryObjectsBase {
                     new MatchArpSha(new MacAddress("0D:AA:D8:42:30:F3")),
                     new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F3")),
                     new MatchArpSpa(new Ipv4Prefix(ip1 + "/" + prefix)),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
@@ -319,8 +320,8 @@ class FlowEntryObjectsBase {
      protected def fixedIngressFlowsPort2() {
         #[
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_DHCP_Server_v4123_987_Permit_"
                 flowName = "Ingress_DHCP_Server_v4123_987_Permit_"
                 instructionInfoList = #[
@@ -339,8 +340,8 @@ class FlowEntryObjectsBase {
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_DHCP_Server_v6_123_987_Permit_"
                 flowName = "Ingress_DHCP_Server_v6_123_987_Permit_"
                 instructionInfoList = #[
@@ -359,8 +360,8 @@ class FlowEntryObjectsBase {
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_ICMPv6_123_987_130_Permit_"
                 flowName = "Ingress_ICMPv6_123_987_130_Permit_"
                 instructionInfoList = #[
@@ -378,8 +379,8 @@ class FlowEntryObjectsBase {
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_ICMPv6_123_987_135_Permit_"
                 flowName = "Ingress_ICMPv6_123_987_135_Permit_"
                 instructionInfoList = #[
@@ -397,8 +398,8 @@ class FlowEntryObjectsBase {
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_ICMPv6_123_987_136_Permit_"
                 flowName = "Ingress_ICMPv6_123_987_136_Permit_"
                 instructionInfoList = #[
@@ -416,8 +417,8 @@ class FlowEntryObjectsBase {
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_ARP_123_987"
                 flowName = "Ingress_ARP_123_987"
                 instructionInfoList = #[
@@ -438,8 +439,8 @@ class FlowEntryObjectsBase {
      protected def fixedEgressL2BroadcastFlowsPort2 () {
         #[
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_L2Broadcast_123_987_0D:AA:D8:42:30:F4"
                 flowName = "Egress_L2Broadcast_123_987_0D:AA:D8:42:30:F4"
                 instructionInfoList = #[
@@ -449,7 +450,7 @@ class FlowEntryObjectsBase {
                 ]
                 matchInfoList = #[
                     new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F4")),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 61005
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
@@ -460,8 +461,8 @@ class FlowEntryObjectsBase {
      protected def fixedEgressFlowsPort2 (String ip2, String prefix) {
         #[
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_DHCP_Client_v4123_987_0D:AA:D8:42:30:F4_Permit_"
                 flowName = "Egress_DHCP_Client_v4123_987_0D:AA:D8:42:30:F4_Permit_"
                 instructionInfoList = #[
@@ -474,15 +475,15 @@ class FlowEntryObjectsBase {
                     new MatchIpProtocol(17 as short),
                     new MatchUdpDestinationPort(67 as short),
                     new MatchUdpSourcePort(68 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F4"))
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_ICMPv6_123_987_133_Permit_"
                 flowName = "Egress_ICMPv6_123_987_133_Permit_"
                 instructionInfoList = #[
@@ -494,14 +495,14 @@ class FlowEntryObjectsBase {
                     new MatchEthernetType(34525L),
                     new MatchIpProtocol(58 as short),
                     new MatchIcmpv6(133 as short, 0 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_ICMPv6_123_987_135_Permit_"
                 flowName = "Egress_ICMPv6_123_987_135_Permit_"
                 instructionInfoList = #[
@@ -513,14 +514,14 @@ class FlowEntryObjectsBase {
                     new MatchEthernetType(34525L),
                     new MatchIpProtocol(58 as short),
                     new MatchIcmpv6(135 as short, 0 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_ICMPv6_123_987_136_Permit_"
                 flowName = "Egress_ICMPv6_123_987_136_Permit_"
                 instructionInfoList = #[
@@ -532,7 +533,7 @@ class FlowEntryObjectsBase {
                     new MatchEthernetType(34525L),
                     new MatchIpProtocol(58 as short),
                     new MatchIcmpv6(136 as short, 0 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
@@ -543,8 +544,8 @@ class FlowEntryObjectsBase {
     protected def fixedEgressArpFlowsPort2(String ip2, String prefix) {
         #[
            new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:F4" + ip2 + "/" + prefix
                 flowName = "Egress_ARP_123_987_0D:AA:D8:42:30:F4" + ip2 + "/" + prefix
                 instructionInfoList = #[
@@ -557,7 +558,7 @@ class FlowEntryObjectsBase {
                     new MatchArpSha(new MacAddress("0D:AA:D8:42:30:F4")),
                     new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F4")),
                     new MatchArpSpa(new Ipv4Prefix(ip2 + "/" + prefix)),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
@@ -568,8 +569,8 @@ class FlowEntryObjectsBase {
      protected def fixedIngressFlowsPort3() {
         #[
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_DHCP_Server_v4123_987_Permit_"
                 flowName = "Ingress_DHCP_Server_v4123_987_Permit_"
                 instructionInfoList = #[
@@ -588,8 +589,8 @@ class FlowEntryObjectsBase {
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_DHCP_Server_v6_123_987_Permit_"
                 flowName = "Ingress_DHCP_Server_v6_123_987_Permit_"
                 instructionInfoList = #[
@@ -608,8 +609,8 @@ class FlowEntryObjectsBase {
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_ICMPv6_123_987_130_Permit_"
                 flowName = "Ingress_ICMPv6_123_987_130_Permit_"
                 instructionInfoList = #[
@@ -627,8 +628,8 @@ class FlowEntryObjectsBase {
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_ICMPv6_123_987_135_Permit_"
                 flowName = "Ingress_ICMPv6_123_987_135_Permit_"
                 instructionInfoList = #[
@@ -646,8 +647,8 @@ class FlowEntryObjectsBase {
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_ICMPv6_123_987_136_Permit_"
                 flowName = "Ingress_ICMPv6_123_987_136_Permit_"
                 instructionInfoList = #[
@@ -665,8 +666,8 @@ class FlowEntryObjectsBase {
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_ARP_123_987"
                 flowName = "Ingress_ARP_123_987"
                 instructionInfoList = #[
@@ -687,8 +688,8 @@ class FlowEntryObjectsBase {
     protected def fixedEgressL2BroadcastFlowsPort3 () {
        #[
            new FlowEntityBuilder >> [
-               dpnId = 123bi
-               cookie = 110100480bi
+               dpnId = Uint64.valueOf(123bi)
+               cookie = Uint64.valueOf(110100480bi)
                flowId = "Egress_L2Broadcast_123_987_0D:AA:D8:42:30:F5"
                flowName = "Egress_L2Broadcast_123_987_0D:AA:D8:42:30:F5"
                instructionInfoList = #[
@@ -698,7 +699,7 @@ class FlowEntryObjectsBase {
                ]
                matchInfoList = #[
                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F5")),
-                   new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                   new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG)
                ]
                priority = 61005
                tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
@@ -709,8 +710,8 @@ class FlowEntryObjectsBase {
      protected def fixedEgressFlowsPort3 (String ip3, String prefix) {
         #[
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_DHCP_Client_v4123_987_0D:AA:D8:42:30:F5_Permit_"
                 flowName = "Egress_DHCP_Client_v4123_987_0D:AA:D8:42:30:F5_Permit_"
                 instructionInfoList = #[
@@ -723,15 +724,15 @@ class FlowEntryObjectsBase {
                     new MatchIpProtocol(17 as short),
                     new MatchUdpDestinationPort(67),
                     new MatchUdpSourcePort(68),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F5"))
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_ICMPv6_123_987_133_Permit_"
                 flowName = "Egress_ICMPv6_123_987_133_Permit_"
                 instructionInfoList = #[
@@ -743,14 +744,14 @@ class FlowEntryObjectsBase {
                     new MatchEthernetType(34525L),
                     new MatchIpProtocol(58 as short),
                     new MatchIcmpv6(133 as short, 0 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_ICMPv6_123_987_135_Permit_"
                 flowName = "Egress_ICMPv6_123_987_135_Permit_"
                 instructionInfoList = #[
@@ -762,14 +763,14 @@ class FlowEntryObjectsBase {
                     new MatchEthernetType(34525L),
                     new MatchIpProtocol(58 as short),
                     new MatchIcmpv6(135 as short, 0 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_ICMPv6_123_987_136_Permit_"
                 flowName = "Egress_ICMPv6_123_987_136_Permit_"
                 instructionInfoList = #[
@@ -781,14 +782,14 @@ class FlowEntryObjectsBase {
                     new MatchEthernetType(34525L),
                     new MatchIpProtocol(58 as short),
                     new MatchIcmpv6(136 as short, 0 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:F5" + ip3 + "/" + prefix
                 flowName = "Egress_ARP_123_987_0D:AA:D8:42:30:F5" + ip3 + "/" + prefix
                 instructionInfoList = #[
@@ -801,7 +802,7 @@ class FlowEntryObjectsBase {
                     new MatchArpSha(new MacAddress("0D:AA:D8:42:30:F5")),
                     new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F5")),
                     new MatchArpSpa(new Ipv4Prefix(ip3 + "/" + prefix)),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
@@ -812,8 +813,8 @@ class FlowEntryObjectsBase {
     static def fixedIngressFlowsPort4() {
         #[
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_DHCP_Server_v4123_987_Permit_"
                 flowName = "Ingress_DHCP_Server_v4123_987_Permit_"
                 instructionInfoList = #[
@@ -832,8 +833,8 @@ class FlowEntryObjectsBase {
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_DHCP_Server_v6_123_987_Permit_"
                 flowName = "Ingress_DHCP_Server_v6_123_987_Permit_"
                 instructionInfoList = #[
@@ -852,8 +853,8 @@ class FlowEntryObjectsBase {
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_ICMPv6_123_987_130_Permit_"
                 flowName = "Ingress_ICMPv6_123_987_130_Permit_"
                 instructionInfoList = #[
@@ -871,8 +872,8 @@ class FlowEntryObjectsBase {
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_ICMPv6_123_987_135_Permit_"
                 flowName = "Ingress_ICMPv6_123_987_135_Permit_"
                 instructionInfoList = #[
@@ -890,8 +891,8 @@ class FlowEntryObjectsBase {
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_ICMPv6_123_987_136_Permit_"
                 flowName = "Ingress_ICMPv6_123_987_136_Permit_"
                 instructionInfoList = #[
@@ -909,8 +910,8 @@ class FlowEntryObjectsBase {
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_ARP_123_987"
                 flowName = "Ingress_ARP_123_987"
                 instructionInfoList = #[
@@ -931,8 +932,8 @@ class FlowEntryObjectsBase {
     static def fixedEgressFlowsPort4 () {
         #[
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_DHCP_Client_v4123_987__Permit_"
                 flowName = "Egress_DHCP_Client_v4123_987__Permit_"
                 instructionInfoList = #[
@@ -945,14 +946,14 @@ class FlowEntryObjectsBase {
                     new MatchIpProtocol(17 as short),
                     new MatchUdpDestinationPort(67),
                     new MatchUdpSourcePort(68),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_DHCP_Client_v6_123_987__Permit_"
                 flowName = "Egress_DHCP_Client_v6_123_987__Permit_"
                 instructionInfoList = #[
@@ -965,14 +966,14 @@ class FlowEntryObjectsBase {
                     new MatchIpProtocol(17 as short),
                     new MatchUdpDestinationPort(547),
                     new MatchUdpSourcePort(546),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_ICMPv6_123_987_133_Permit_"
                 flowName = "Egress_ICMPv6_123_987_133_Permit_"
                 instructionInfoList = #[
@@ -984,14 +985,14 @@ class FlowEntryObjectsBase {
                     new MatchEthernetType(34525L),
                     new MatchIpProtocol(58 as short),
                     new MatchIcmpv6(133 as short, 0 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_ICMPv6_123_987_135_Permit_"
                 flowName = "Egress_ICMPv6_123_987_135_Permit_"
                 instructionInfoList = #[
@@ -1003,14 +1004,14 @@ class FlowEntryObjectsBase {
                     new MatchEthernetType(34525L),
                     new MatchIpProtocol(58 as short),
                     new MatchIcmpv6(135 as short, 0 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_ICMPv6_123_987_136_Permit_"
                 flowName = "Egress_ICMPv6_123_987_136_Permit_"
                 instructionInfoList = #[
@@ -1022,14 +1023,14 @@ class FlowEntryObjectsBase {
                     new MatchEthernetType(34525L),
                     new MatchIpProtocol(58 as short),
                     new MatchIcmpv6(136 as short, 0 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:F6"
                 flowName = "Egress_ARP_123_987_0D:AA:D8:42:30:F6"
                 instructionInfoList = #[
@@ -1041,14 +1042,14 @@ class FlowEntryObjectsBase {
                     new MatchEthernetType(2054L),
                     new MatchArpSha(new MacAddress("0D:AA:D8:42:30:F6")),
                     new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F6")),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:F6"
                 flowName = "Egress_ARP_123_987_0D:AA:D8:42:30:F6"
                 instructionInfoList = #[
@@ -1060,7 +1061,7 @@ class FlowEntryObjectsBase {
                     new MatchEthernetType(2054L),
                     new MatchArpSha(new MacAddress("0D:AA:D8:42:30:F6")),
                     new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F6")),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
@@ -1102,15 +1103,15 @@ class FlowEntryObjectsBase {
 
     protected def remoteIngressFlowsPort(String ip, String prefix) {
         new FlowEntityBuilder >> [
-            dpnId = 123bi
-            cookie = 110100480bi
+            dpnId = Uint64.valueOf(123bi)
+            cookie = Uint64.valueOf(110100480bi)
             flowId = "Acl_Filter_Egress_" + ip + "/" + prefix + "_2"
             flowName = "Acl_Filter_Egress_" + ip + "/" + prefix + "_2"
             instructionInfoList = #[
                new InstructionGotoTable(NwConstants.INGRESS_ACL_COMMITTER_TABLE)
             ]
             matchInfoList = #[
-                new MatchMetadata(32bi, 16777200bi),
+                new MatchMetadata(Uint64.valueOf(32bi), Uint64.valueOf(16777200bi)),
                 new MatchEthernetType(2048L),
                 new MatchIpv4Destination(ip, prefix)
             ]
@@ -1121,15 +1122,15 @@ class FlowEntryObjectsBase {
 
     protected def remoteEgressFlowsPort(String ip, String prefix) {
         new FlowEntityBuilder >> [
-            dpnId = 123bi
-            cookie = 110100480bi
+            dpnId = Uint64.valueOf(123bi)
+            cookie = Uint64.valueOf(110100480bi)
             flowId = "Acl_Filter_Ingress_" + ip + "/" + prefix + "_2"
             flowName = "Acl_Filter_Ingress_" + ip + "/" + prefix + "_2"
             instructionInfoList = #[
                 new InstructionGotoTable(NwConstants.EGRESS_ACL_COMMITTER_TABLE)
             ]
             matchInfoList = #[
-                new MatchMetadata(32bi, 16777200bi),
+                new MatchMetadata(Uint64.valueOf(32bi), Uint64.valueOf(16777200bi)),
                 new MatchEthernetType(2048L),
                 new MatchIpv4Source(ip, prefix)
             ]
@@ -1141,15 +1142,15 @@ class FlowEntryObjectsBase {
     protected def remoteIngressFlowsPort3(String ip2, String prefix) {
         #[
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Acl_Filter_Ingress_" + ip2 + "/" + prefix + "_4"
                 flowName = "Acl_Filter_Ingress_" + ip2 + "/" + prefix + "_4"
                 instructionInfoList = #[
                     new InstructionGotoTable(247 as short)
                 ]
                 matchInfoList = #[
-                    new MatchMetadata(64bi, 16777200bi),
+                    new MatchMetadata(Uint64.valueOf(64bi), Uint64.valueOf(16777200bi)),
                     new MatchEthernetType(2048L),
                     new MatchIpv4Source(ip2, prefix)
                 ]
@@ -1162,15 +1163,15 @@ class FlowEntryObjectsBase {
     protected def remoteEgressFlowsPort3(String ip2, String prefix) {
         #[
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Acl_Filter_Egress_" + ip2 + "/" + prefix + "_4"
                 flowName = "Acl_Filter_Egress_" + ip2 + "/" + prefix + "_4"
                 instructionInfoList = #[
                     new InstructionGotoTable(217 as short)
                 ]
                 matchInfoList = #[
-                    new MatchMetadata(64bi, 16777200bi),
+                    new MatchMetadata(Uint64.valueOf(64bi), Uint64.valueOf(16777200bi)),
                     new MatchEthernetType(2048L),
                     new MatchIpv4Destination(ip2, prefix)
                 ]
@@ -1184,8 +1185,8 @@ class FlowEntryObjectsBase {
         // Code auto. generated by https://github.com/vorburger/xtendbeans
         #[
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_DHCP_Server_v4123_987_Permit_"
                 flowName = "Ingress_DHCP_Server_v4123_987_Permit_"
                 instructionInfoList = #[
@@ -1204,8 +1205,8 @@ class FlowEntryObjectsBase {
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_DHCP_Server_v6_123_987_Permit_"
                 flowName = "Ingress_DHCP_Server_v6_123_987_Permit_"
                 instructionInfoList = #[
@@ -1224,8 +1225,8 @@ class FlowEntryObjectsBase {
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_ICMPv6_123_987_130_Permit_"
                 flowName = "Ingress_ICMPv6_123_987_130_Permit_"
                 instructionInfoList = #[
@@ -1243,8 +1244,8 @@ class FlowEntryObjectsBase {
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_ICMPv6_123_987_135_Permit_"
                 flowName = "Ingress_ICMPv6_123_987_135_Permit_"
                 instructionInfoList = #[
@@ -1262,8 +1263,8 @@ class FlowEntryObjectsBase {
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_ICMPv6_123_987_136_Permit_"
                 flowName = "Ingress_ICMPv6_123_987_136_Permit_"
                 instructionInfoList = #[
@@ -1281,8 +1282,8 @@ class FlowEntryObjectsBase {
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Ingress_ARP_123_987"
                 flowName = "Ingress_ARP_123_987"
                 instructionInfoList = #[
@@ -1298,8 +1299,8 @@ class FlowEntryObjectsBase {
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_DHCP_Client_v4123_987_" + mac + "_Permit_"
                 flowName = "Egress_DHCP_Client_v4123_987_" + mac + "_Permit_"
                 instructionInfoList = #[
@@ -1312,15 +1313,15 @@ class FlowEntryObjectsBase {
                     new MatchIpProtocol(17 as short),
                     new MatchUdpDestinationPort(67),
                     new MatchUdpSourcePort(68),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new MatchEthernetSource(new MacAddress(mac))
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_DHCP_Client_v6_123_987_" + mac + "_Permit_"
                 flowName = "Egress_DHCP_Client_v6_123_987_" + mac + "_Permit_"
                 instructionInfoList = #[
@@ -1333,15 +1334,15 @@ class FlowEntryObjectsBase {
                     new MatchIpProtocol(17 as short),
                     new MatchUdpDestinationPort(547),
                     new MatchUdpSourcePort(546),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new MatchEthernetSource(new MacAddress(mac))
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_ICMPv6_123_987_133_Permit_"
                 flowName = "Egress_ICMPv6_123_987_133_Permit_"
                 instructionInfoList = #[
@@ -1353,14 +1354,14 @@ class FlowEntryObjectsBase {
                     new MatchEthernetType(34525L),
                     new MatchIpProtocol(58 as short),
                     new MatchIcmpv6(133 as short, 0 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_ICMPv6_123_987_135_Permit_"
                 flowName = "Egress_ICMPv6_123_987_135_Permit_"
                 instructionInfoList = #[
@@ -1372,14 +1373,14 @@ class FlowEntryObjectsBase {
                     new MatchEthernetType(34525L),
                     new MatchIpProtocol(58 as short),
                     new MatchIcmpv6(135 as short, 0 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_ICMPv6_123_987_136_Permit_"
                 flowName = "Egress_ICMPv6_123_987_136_Permit_"
                 instructionInfoList = #[
@@ -1391,14 +1392,14 @@ class FlowEntryObjectsBase {
                     new MatchEthernetType(34525L),
                     new MatchIpProtocol(58 as short),
                     new MatchIcmpv6(136 as short, 0 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
+                dpnId = Uint64.valueOf(123bi)
+                cookie = Uint64.valueOf(110100480bi)
                 flowId = "Egress_ARP_123_987_" + mac
                 flowName = "Egress_ARP_123_987_" + mac
                 instructionInfoList = #[
@@ -1410,7 +1411,7 @@ class FlowEntryObjectsBase {
                     new MatchEthernetType(2054L),
                     new MatchArpSha(new MacAddress(mac)),
                     new MatchEthernetSource(new MacAddress(mac)),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchMetadata(Uint64.valueOf(1085217976614912bi), MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE

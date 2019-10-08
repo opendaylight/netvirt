@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.neutronvpn;
 
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -49,6 +48,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -237,8 +237,8 @@ public class NeutronSubnetGwMacResolver {
             return null;
         }
 
-        BigInteger primarySwitch = cswitchProvider.getPrimarySwitchForRouter(routerName);
-        if (primarySwitch == null || BigInteger.ZERO.equals(primarySwitch)) {
+        Uint64 primarySwitch = cswitchProvider.getPrimarySwitchForRouter(routerName);
+        if (primarySwitch == null || Uint64.ZERO.equals(primarySwitch)) {
             LOG.warn("Primary switch has not been allocated for router {}", routerName);
             return null;
         }

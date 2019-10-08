@@ -52,7 +52,7 @@ public class NeutronNetworkChangeListener extends AsyncClusteredDataTreeChangeLi
         int mtu = 0;
         LOG.debug("Add Network notification handler is invoked {} ", input);
         if (input.augmentation(NetworkMtuExtension.class) != null) {
-            mtu = input.augmentation(NetworkMtuExtension.class).getMtu();
+            mtu = input.augmentation(NetworkMtuExtension.class).getMtu().toJava();
         }
         ifMgr.addNetwork(input.getUuid(), mtu);
     }

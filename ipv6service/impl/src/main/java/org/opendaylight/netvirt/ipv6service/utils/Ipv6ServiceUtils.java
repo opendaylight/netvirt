@@ -9,7 +9,6 @@
 package org.opendaylight.netvirt.ipv6service.utils;
 
 import com.google.common.base.Optional;
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -75,6 +74,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeCon
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.config.rev181010.Ipv6serviceConfig;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -198,14 +198,14 @@ public class Ipv6ServiceUtils {
         return matches;
     }
 
-    private static String getIPv6FlowRef(BigInteger dpId, Long elanTag, String flowType) {
+    private static String getIPv6FlowRef(Uint64 dpId, Long elanTag, String flowType) {
         return new StringBuilder().append(Ipv6ServiceConstants.FLOWID_PREFIX)
                 .append(dpId).append(Ipv6ServiceConstants.FLOWID_SEPARATOR)
                 .append(elanTag).append(Ipv6ServiceConstants.FLOWID_SEPARATOR)
                 .append(flowType).toString();
     }
 
-    public void installIcmpv6NsPuntFlow(short tableId, BigInteger dpId, Long elanTag, Ipv6Address ipv6Address,
+    public void installIcmpv6NsPuntFlow(short tableId, Uint64 dpId, Long elanTag, Ipv6Address ipv6Address,
             int addOrRemove) {
         String flowId = getIPv6FlowRef(dpId, elanTag, Ipv6Util.getFormattedIpv6Address(ipv6Address));
 
@@ -219,7 +219,7 @@ public class Ipv6ServiceUtils {
             List<ActionInfo> actionsInfos = new ArrayList<>();
             actionsInfos.add(new ActionPuntToController());
 
-            int ndPuntTimeout = ipv6serviceConfig.getNeighborDiscoveryPuntTimeout();
+            int ndPuntTimeout = ipv6serviceConfig.getNeighborDiscoveryPuntTimeout().toJava();
             if (isNdPuntProtectionEnabled(ndPuntTimeout)) {
                 actionsInfos.add(getLearnActionForNsPuntProtection(ndPuntTimeout));
             }
@@ -247,7 +247,7 @@ public class Ipv6ServiceUtils {
                 NwConstants.COOKIE_IPV6_TABLE, 0, NwConstants.IPV6_TABLE, 0, 0, flowMods);
     }
 
-    public void installIcmpv6RsPuntFlow(short tableId, BigInteger dpId, Long elanTag, int addOrRemove) {
+    public void installIcmpv6RsPuntFlow(short tableId, Uint64 dpId, Long elanTag, int addOrRemove) {
         if (dpId == null || dpId.equals(Ipv6ServiceConstants.INVALID_DPID)) {
             return;
         }
@@ -263,7 +263,7 @@ public class Ipv6ServiceUtils {
             // Punt to controller
             actionsInfos.add(new ActionPuntToController());
 
-            int rdPuntTimeout = ipv6serviceConfig.getRouterDiscoveryPuntTimeout();
+            int rdPuntTimeout = ipv6serviceConfig.getRouterDiscoveryPuntTimeout().toJava();
             if (isRdPuntProtectionEnabled(rdPuntTimeout)) {
                 actionsInfos.add(getLearnActionForRsPuntProtection(rdPuntTimeout));
             }
@@ -312,7 +312,7 @@ public class Ipv6ServiceUtils {
         return ndPuntTimeout != 0;
     }
 
-    public void installIcmpv6NaForwardFlow(short tableId, IVirtualPort vmPort, BigInteger dpId, Long elanTag,
+    public void installIcmpv6NaForwardFlow(short tableId, IVirtualPort vmPort, Uint64 dpId, Long elanTag,
             int addOrRemove) {
         List<MatchInfo> matches = getIcmpv6NAMatch(elanTag);
         List<InstructionInfo> instructions = new ArrayList<>();
@@ -339,7 +339,7 @@ public class Ipv6ServiceUtils {
         }
     }
 
-    public void installIcmpv6NaPuntFlow(short tableId, Ipv6Prefix ipv6Prefix, BigInteger dpId, Long elanTag,
+    public void installIcmpv6NaPuntFlow(short tableId, Ipv6Prefix ipv6Prefix, Uint64 dpId, Long elanTag,
             int addOrRemove) {
         List<MatchInfo> naMatch = getIcmpv6NAMatch(elanTag);
         naMatch.add(new MatchIpv6Source(ipv6Prefix));
@@ -364,7 +364,7 @@ public class Ipv6ServiceUtils {
     }
 
     public BoundServices getBoundServices(String serviceName, short servicePriority, int flowPriority,
-                                          BigInteger cookie, List<Instruction> instructions) {
+                                          Uint64 cookie, List<Instruction> instructions) {
         StypeOpenflowBuilder augBuilder = new StypeOpenflowBuilder().setFlowCookie(cookie)
                 .setFlowPriority(flowPriority).setInstruction(instructions);
         return new BoundServicesBuilder().withKey(new BoundServicesKey(servicePriority))
@@ -403,13 +403,13 @@ public class Ipv6ServiceUtils {
     }
 
     @Nullable
-    public BigInteger getDpIdFromInterfaceState(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf
+    public Uint64 getDpIdFromInterfaceState(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf
             .interfaces.rev140508.interfaces.state.Interface interfaceState) {
-        BigInteger dpId = null;
+        Uint64 dpId = null;
         List<String> ofportIds = interfaceState.getLowerLayerIf();
         if (ofportIds != null && !ofportIds.isEmpty()) {
             NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
-            dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
+            dpId = Uint64.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
         }
         return dpId;
     }

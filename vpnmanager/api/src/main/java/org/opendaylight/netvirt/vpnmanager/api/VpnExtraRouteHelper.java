@@ -42,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.RoutesKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,32 +90,32 @@ public final class VpnExtraRouteHelper {
         return routes;
     }
 
-    public static  List<String> getUsedRds(DataBroker broker, long vpnId, String destPrefix) {
+    public static  List<String> getUsedRds(DataBroker broker, Uint32 vpnId, String destPrefix) {
         InstanceIdentifier<DestPrefixes> usedRdsId = getUsedRdsIdentifier(vpnId, destPrefix);
         Optional<DestPrefixes> usedRds = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, usedRdsId);
         return usedRds.isPresent() && usedRds.get().getAllocatedRds() != null ? usedRds.get().getAllocatedRds().stream()
                 .map(AllocatedRds::getRd).distinct().collect(toList()) : new ArrayList<>();
     }
 
-    public static  List<String> getUsedRds(TypedReadTransaction<Configuration> confTx, long vpnId, String destPrefix)
+    public static  List<String> getUsedRds(TypedReadTransaction<Configuration> confTx, Uint32 vpnId, String destPrefix)
             throws ExecutionException, InterruptedException {
         Optional<DestPrefixes> usedRds = confTx.read(getUsedRdsIdentifier(vpnId, destPrefix)).get();
         return usedRds.isPresent() && usedRds.get().getAllocatedRds() != null ? usedRds.get().getAllocatedRds().stream()
             .map(AllocatedRds::getRd).distinct().collect(toList()) : new ArrayList<>();
     }
 
-    public static  InstanceIdentifier<ExtrarouteRds> getUsedRdsIdentifier(long vpnId) {
+    public static  InstanceIdentifier<ExtrarouteRds> getUsedRdsIdentifier(Uint32 vpnId) {
         return InstanceIdentifier.builder(ExtrarouteRdsMap.class)
                 .child(ExtrarouteRds.class, new ExtrarouteRdsKey(vpnId)).build();
     }
 
-    public static  InstanceIdentifier<DestPrefixes> getUsedRdsIdentifier(long vpnId, String destPrefix) {
+    public static  InstanceIdentifier<DestPrefixes> getUsedRdsIdentifier(Uint32 vpnId, String destPrefix) {
         return InstanceIdentifier.builder(ExtrarouteRdsMap.class)
                 .child(ExtrarouteRds.class, new ExtrarouteRdsKey(vpnId))
                 .child(DestPrefixes.class, new DestPrefixesKey(destPrefix)).build();
     }
 
-    public static  InstanceIdentifier<AllocatedRds> getUsedRdsIdentifier(long vpnId, String destPrefix, String nh) {
+    public static  InstanceIdentifier<AllocatedRds> getUsedRdsIdentifier(Uint32 vpnId, String destPrefix, String nh) {
         return InstanceIdentifier.builder(ExtrarouteRdsMap.class)
                 .child(ExtrarouteRds.class, new ExtrarouteRdsKey(vpnId))
                 .child(DestPrefixes.class, new DestPrefixesKey(destPrefix))
@@ -139,13 +140,13 @@ public final class VpnExtraRouteHelper {
     }
 
     public static java.util.Optional<String> getRdAllocatedForExtraRoute(DataBroker broker,
-            long vpnId, String destPrefix, String nextHop) {
+            Uint32 vpnId, String destPrefix, String nextHop) {
         InstanceIdentifier<AllocatedRds> usedRdsId = getUsedRdsIdentifier(vpnId, destPrefix, nextHop);
         return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, usedRdsId)
                 .toJavaUtil().map(AllocatedRds::getRd);
     }
 
-    public static List<DestPrefixes> getExtraRouteDestPrefixes(DataBroker broker, Long vpnId) {
+    public static List<DestPrefixes> getExtraRouteDestPrefixes(DataBroker broker, Uint32 vpnId) {
         Optional<ExtrarouteRds> optionalExtraRoutes = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION,
                 getUsedRdsIdentifier(vpnId));
         List<DestPrefixes> prefixes =

@@ -16,6 +16,7 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -149,6 +150,8 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataTreeChangeLis
         return this;
     }
 
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private void loadL2GwDeviceCache(final int trialNo) {
         scheduler.getScheduledExecutorService().schedule(() -> {
             if (trialNo == MAX_READ_TRIALS) {
@@ -175,6 +178,8 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataTreeChangeLis
         }, 1, TimeUnit.SECONDS);
     }
 
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private void loadL2GwDeviceCache(List<Node> nodes) {
         if (nodes == null) {
             LOG.debug("No config topology nodes are present");

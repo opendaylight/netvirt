@@ -15,6 +15,7 @@ import java.util.concurrent.Callable;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.iplearn.model.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +37,7 @@ public class IpMonitorStopTask implements Callable<List<ListenableFuture<Void>>>
     @Override
     public List<ListenableFuture<Void>> call() {
         final List<ListenableFuture<Void>> futures = new ArrayList<>();
-        java.util.Optional<Long> monitorIdOptional = alivenessMonitorUtils.getMonitorIdFromInterface(macEntry);
+        java.util.Optional<Uint32> monitorIdOptional = alivenessMonitorUtils.getMonitorIdFromInterface(macEntry);
         if (monitorIdOptional.isPresent()) {
             alivenessMonitorUtils.stopIpMonitoring(monitorIdOptional.get());
         } else {

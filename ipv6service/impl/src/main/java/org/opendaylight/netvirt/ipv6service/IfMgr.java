@@ -13,7 +13,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
 import io.netty.util.Timeout;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -64,6 +63,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -455,7 +455,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
         }
     }
 
-    public void updateDpnInfo(Uuid portId, BigInteger dpId, Long ofPort) {
+    public void updateDpnInfo(Uuid portId, Uint64 dpId, Long ofPort) {
         LOG.info("In updateDpnInfo portId {}, dpId {}, ofPort {}",
                 portId, dpId, ofPort);
         VirtualPort intf = getPort(portId);
@@ -489,7 +489,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
 
         List<String> ofportIds = interfaceState.getLowerLayerIf();
         NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
-        BigInteger dpId = ipv6ServiceUtils.getDpIdFromInterfaceState(interfaceState);
+        Uint64 dpId = ipv6ServiceUtils.getDpIdFromInterfaceState(interfaceState);
         if (!dpId.equals(Ipv6ServiceConstants.INVALID_DPID)) {
             Long ofPort = MDSALUtil.getOfPortNumberFromPortName(nodeConnectorId);
             updateDpnInfo(portId, dpId, ofPort);
@@ -532,7 +532,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
                     // Remove the portId from the (network <--> List[dpnIds, List <ports>]) cache.
                     VirtualNetwork vnet = getNetwork(networkID);
                     if (null != vnet) {
-                        BigInteger dpId = intf.getDpId();
+                        Uint64 dpId = intf.getDpId();
                         vnet.updateDpnPortInfo(dpId, intf.getOfPort(), Ipv6ServiceConstants.DEL_ENTRY);
                     }
                     return Collections.emptyList();
@@ -634,8 +634,8 @@ public class IfMgr implements ElementCache, AutoCloseable {
         int flowStatus;
         VirtualNetwork vnet = getNetwork(networkId);
         if (vnet != null) {
-            List<BigInteger> dpnList = vnet.getDpnsHostingNetwork();
-            for (BigInteger dpId : dpnList) {
+            List<Uint64> dpnList = vnet.getDpnsHostingNetwork();
+            for (Uint64 dpId : dpnList) {
                 flowStatus = vnet.getRSPuntFlowStatusOnDpnId(dpId);
                 if (action == Ipv6ServiceConstants.ADD_FLOW
                         && flowStatus == Ipv6ServiceConstants.FLOWS_NOT_CONFIGURED) {
@@ -718,7 +718,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
         }
     }
 
-    public void handleInterfaceStateEvent(VirtualPort port, BigInteger dpId, VirtualPort routerPort, int addOrRemove) {
+    public void handleInterfaceStateEvent(VirtualPort port, Uint64 dpId, VirtualPort routerPort, int addOrRemove) {
         Long elanTag = getNetworkElanTag(port.getNetworkID());
         if (addOrRemove == Ipv6ServiceConstants.ADD_FLOW && routerPort != null) {
             // Check and program icmpv6 punt flows on the dpnID if its the first VM on the host.
@@ -731,7 +731,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
         }
     }
 
-    private void programIcmpv6PuntFlows(IVirtualPort vmPort, BigInteger dpId, Long elanTag, VirtualPort routerPort) {
+    private void programIcmpv6PuntFlows(IVirtualPort vmPort, Uint64 dpId, Long elanTag, VirtualPort routerPort) {
         Uuid networkId = vmPort.getNetworkID();
         VirtualNetwork vnet = getNetwork(networkId);
         if (null != vnet) {
@@ -810,11 +810,11 @@ public class IfMgr implements ElementCache, AutoCloseable {
      * @param elanTag the ELAN tag
      * @param addOrRemove the add or remove flag
      */
-    private void programIcmpv6NaForwardFlow(IVirtualPort vmPort, BigInteger dpId, Long elanTag, int addOrRemove) {
+    private void programIcmpv6NaForwardFlow(IVirtualPort vmPort, Uint64 dpId, Long elanTag, int addOrRemove) {
         ipv6ServiceUtils.installIcmpv6NaForwardFlow(NwConstants.IPV6_TABLE, vmPort, dpId, elanTag, addOrRemove);
     }
 
-    public List<VirtualPort> getVmPortsInSubnetByDpId(Uuid snetId, BigInteger dpId) {
+    public List<VirtualPort> getVmPortsInSubnetByDpId(Uuid snetId, Uint64 dpId) {
         List<VirtualPort> vmPorts = new ArrayList<>();
         for (VirtualPort port : vintfs.values()) {
             if (dpId.equals(port.getDpId()) && Ipv6ServiceUtils.isVmPort(port.getDeviceOwner())) {
@@ -850,7 +850,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
         if (null != this.elanProvider) {
             ElanInstance elanInstance = this.elanProvider.getElanInstance(networkId.getValue());
             if (null != elanInstance) {
-                elanTag = elanInstance.getElanTag();
+                elanTag = elanInstance.getElanTag().longValue();
                 VirtualNetwork net = getNetwork(networkId);
                 if (null != net) {
                     net.setElanTag(elanTag);

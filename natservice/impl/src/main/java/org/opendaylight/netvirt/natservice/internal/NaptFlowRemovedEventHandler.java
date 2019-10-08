@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
-import java.math.BigInteger;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
@@ -28,6 +27,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.layer._3.match.Ipv4Match;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.layer._4.match.TcpMatch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.layer._4.match.UdpMatch;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +68,7 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener {
         7) Place the NaptEntry event to the queue.
 */
 
-        short tableId = flowRemoved.getTableId();
+        short tableId = flowRemoved.getTableId().toJava();
         RemovedFlowReason removedReasonFlag = flowRemoved.getReason();
         if (tableId == NwConstants.OUTBOUND_NAPT_TABLE
                 && RemovedFlowReason.OFPRRIDLETIMEOUT.equals(removedReasonFlag)) {
@@ -99,11 +100,11 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener {
             Layer4Match layer4Match = flowRemoved.getMatch().getLayer4Match();
             if (layer4Match instanceof TcpMatch) {
                 TcpMatchFields tcpMatchFields = (TcpMatchFields) layer4Match;
-                internalPortNumber = tcpMatchFields.getTcpSourcePort().getValue();
+                internalPortNumber = tcpMatchFields.getTcpSourcePort().getValue().toJava();
                 protocol = NAPTEntryEvent.Protocol.TCP;
             } else if (layer4Match instanceof UdpMatch) {
                 UdpMatchFields udpMatchFields = (UdpMatchFields) layer4Match;
-                internalPortNumber = udpMatchFields.getUdpSourcePort().getValue();
+                internalPortNumber = udpMatchFields.getUdpSourcePort().getValue().toJava();
                 protocol = NAPTEntryEvent.Protocol.UDP;
             }
             if (protocol == null) {
@@ -113,10 +114,10 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener {
             }
 
             //Get the router ID from the metadata.
-            Long routerId;
-            BigInteger metadata = flowRemoved.getMatch().getMetadata().getMetadata();
+            Uint32 routerId;
+            Uint64 metadata = flowRemoved.getMatch().getMetadata().getMetadata();
             if (MetaDataUtil.getNatRouterIdFromMetadata(metadata) != 0) {
-                routerId = MetaDataUtil.getNatRouterIdFromMetadata(metadata);
+                routerId = Uint32.valueOf(MetaDataUtil.getNatRouterIdFromMetadata(metadata));
             } else {
                 LOG.error("onFlowRemoved : Null exception while retrieving routerId");
                 return;

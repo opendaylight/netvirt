@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -35,6 +34,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +80,7 @@ public class VpnServiceElanDpnInterfacesListener
     protected void update(InstanceIdentifier<DpnInterfaces> identifier, DpnInterfaces original,
             DpnInterfaces update) {
         LOG.info("received Dpninterfaces update event for dpn {}", update.getDpId());
-        BigInteger dpnId = update.getDpId();
+        Uint64 dpnId = update.getDpId();
         String elanInstanceName = identifier.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
         ElanInstance elanInstance = vpnUtil.getElanInstanceByName(elanInstanceName);
         String vpnName = vpnUtil.getVpnNameFromElanIntanceName(elanInstanceName);
@@ -103,7 +104,7 @@ public class VpnServiceElanDpnInterfacesListener
                         if (!vpnUtil.shouldPopulateFibForVlan(vpnName, elanInstanceName, dpnId)) {
                             return Collections.emptyList();
                         }
-                        long vpnId = vpnUtil.getVpnId(vpnName);
+                        Uint32 vpnId = vpnUtil.getVpnId(vpnName);
                         fibManager.populateFibOnNewDpn(dpnId, vpnId, primaryRd, null);
                         break;
                     }
@@ -123,7 +124,7 @@ public class VpnServiceElanDpnInterfacesListener
 
     @Override
     protected void add(InstanceIdentifier<DpnInterfaces> identifier, DpnInterfaces dpnInterfaces) {
-        BigInteger dpnId = dpnInterfaces.getDpId();
+        Uint64 dpnId = dpnInterfaces.getDpId();
         String elanInstanceName = identifier.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
         ElanInstance elanInstance = vpnUtil.getElanInstanceByName(elanInstanceName);
         if (!VpnUtil.isVlan(elanInstance)) {

@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.elan.l2gw.jobs;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -22,6 +21,7 @@ import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public class McastUpdateJob implements Callable<List<ListenableFuture<Void>>> {
     private String elanName;
@@ -131,7 +131,7 @@ public class McastUpdateJob implements Callable<List<ListenableFuture<Void>>> {
     public static void updateAllMcastsForDpnDelete(String elanName,
                                                    ElanL2GatewayMulticastUtils mcastUtils,
                                                    ElanClusterUtils elanClusterUtils,
-                                                   BigInteger srcDpnId,
+                                                   Uint64 srcDpnId,
                                                    ElanItmUtils elanItmUtils) {
         ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName).forEach(device -> {
             IpAddress deletedTep = elanItmUtils.getSourceDpnTepIp(srcDpnId, new NodeId(device.getHwvtepNodeId()));
