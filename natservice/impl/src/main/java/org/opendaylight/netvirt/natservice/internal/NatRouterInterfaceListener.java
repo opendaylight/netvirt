@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.natservice.internal;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
-import java.math.BigInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -32,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.RouterInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.router.interfaces.Interfaces;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,8 +99,8 @@ public class NatRouterInterfaceListener
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
             .state.Interface interfaceState = NatUtil.getInterfaceStateFromOperDS(dataBroker, interfaceName);
         if (interfaceState != null) {
-            BigInteger dpId = NatUtil.getDpIdFromInterface(interfaceState);
-            if (dpId.equals(BigInteger.ZERO)) {
+            Uint64 dpId = NatUtil.getDpIdFromInterface(interfaceState);
+            if (dpId.equals(Uint64.ZERO)) {
                 LOG.warn("ADD : Could not retrieve dp id for interface {} to handle router {} association model",
                         interfaceName, routerId);
                 return;
@@ -131,8 +131,8 @@ public class NatRouterInterfaceListener
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface
             interfaceState = NatUtil.getInterfaceStateFromOperDS(dataBroker, interfaceName);
         if (interfaceState != null) {
-            BigInteger dpId = NatUtil.getDpIdFromInterface(interfaceState);
-            if (dpId.equals(BigInteger.ZERO)) {
+            Uint64 dpId = NatUtil.getDpIdFromInterface(interfaceState);
+            if (dpId.equals(Uint64.ZERO)) {
                 LOG.warn(
                     "REMOVE : Could not retrieve DPN ID for interface {} to handle router {} dissociation model",
                     interfaceName, routerId);

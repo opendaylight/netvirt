@@ -14,6 +14,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -142,6 +143,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
@@ -241,10 +243,10 @@ public class BgpConfigurationManager {
     private final ConcurrentHashMap<String, List<AddressFamiliesVrf>> mapNewAdFamily = new ConcurrentHashMap<>();
 
     // map<rd, map<prefix/len:nexthop, label>>
-    private final Map<String, Map<String, Long>> staledFibEntriesMap = new ConcurrentHashMap<>();
+    private final Map<String, Map<String, Uint32>> staledFibEntriesMap = new ConcurrentHashMap<>();
 
     // map<rd, map<tep-ip, map<mac, l2vni>>>
-    private final Map<String, Map<String, Map<String, Long>>> rt2TepMap = new ConcurrentHashMap<>();
+    private final Map<String, Map<String, Map<String, Uint32>>> rt2TepMap = new ConcurrentHashMap<>();
 
     private final List<AutoCloseable> listeners = new ArrayList<>();
 
@@ -568,6 +570,8 @@ public class BgpConfigurationManager {
         }
     }
 
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private BgpRouter getClient(String yangObj) {
         if (bgpRouter == null || !bgpRouter.isBgpConnected()) {
             LOG.warn("{}: configuration received when BGP is inactive", yangObj);
@@ -625,7 +629,7 @@ public class BgpConfigurationManager {
                 return;
             }
             synchronized (BgpConfigurationManager.this) {
-                long asNum = val.getLocalAs();
+                long asNum = val.getLocalAs().toJava();
                 BgpRouter br = getClient(YANG_OBJ);
                 bgp_as_num = 0;
                 if (br == null) {
@@ -857,7 +861,7 @@ public class BgpConfigurationManager {
             LOG.debug("received add Neighbors config val {}", val.getAddress().getValue());
             synchronized (BgpConfigurationManager.this) {
                 String peerIp = val.getAddress().getValue();
-                long as = val.getRemoteAs();
+                long as = val.getRemoteAs().toJava();
                 final String md5Secret = extractMd5Secret(val);
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
@@ -1187,7 +1191,7 @@ public class BgpConfigurationManager {
                             nh, BgpRouterException.BGP_ERR_NOT_INITED, ADD_WARN);
                     return;
                 }
-                Long label = val.getLabel();
+                Long label = val.getLabel().toJava();
                 int lbl = label == null ? qbgpConstants.LBL_NO_LABEL
                         : label.intValue();
                 int l3vni = val.getL3vni() == null ? qbgpConstants.LBL_NO_LABEL
@@ -1231,7 +1235,7 @@ public class BgpConfigurationManager {
                             BgpRouterException.BGP_ERR_NOT_INITED, DEL_WARN);
                     return;
                 }
-                Long label = val.getLabel();
+                Long label = val.getLabel().toJava();
                 int lbl = label == null ? 0 : label.intValue();
                 if (rd == null && lbl > 0) {
                     //LU prefix is being deleted.
@@ -1315,7 +1319,7 @@ public class BgpConfigurationManager {
                     for (AddressFamiliesVrf vrfAddrFamily : vrfAddrFamilyList) {
                         /*add to br the new vrfs arguments*/
                         br.addVrf(BgpUtil.getLayerType(vrfAddrFamily), rd, vrfs.getImportRts(),
-                                vrfs.getExportRts(), vrfAddrFamily.getAfi(), vrfAddrFamily.getSafi());
+                                vrfs.getExportRts(), vrfAddrFamily.getAfi().toJava(), vrfAddrFamily.getSafi().toJava());
                     }
                     /*add to br the vrfs contained in mapNewAdFamily*/
                     List<AddressFamiliesVrf> vrfAddrFamilyListFromMap = mapNewAdFamily.get(rd);
@@ -1329,7 +1333,7 @@ public class BgpConfigurationManager {
                         } else  if (adf != null) {
 
                             br.addVrf(BgpUtil.getLayerType(adf), rd, vrfs.getImportRts(),
-                                    vrfs.getExportRts(), adf.getAfi(), adf.getSafi());
+                                    vrfs.getExportRts(), adf.getAfi().toJava(), adf.getSafi().toJava());
                             // remove AddressFamiliesVrf which was already added to BGP
                             vrfAddrFamilyListFromMap.remove(adf);
                             if (vrfAddrFamilyListFromMap.isEmpty()) {
@@ -1373,7 +1377,7 @@ public class BgpConfigurationManager {
                     List<AddressFamiliesVrf> adf = mapNewAdFamily.get(rd);
                     adf = adf != null ? adf : new ArrayList<>();
                     for (AddressFamiliesVrf s : val.getAddressFamiliesVrf()) {
-                        br.delVrf(rd, s.getAfi(), s.getSafi());
+                        br.delVrf(rd, s.getAfi().toJava(), s.getSafi().toJava());
                         adf.remove(s);// remove in the map the vrf in waiting for advertise quagga
                     }
                     if (adf.isEmpty()) {
@@ -1436,7 +1440,7 @@ public class BgpConfigurationManager {
                     try {
                         LOG.debug("call addVRf rd {} afi {} safi {}", rd, adfvrf.getAfi(), adfvrf.getSafi());
                         br.addVrf(BgpUtil.getLayerType(adfvrf), rd, newval.getImportRts(),
-                                newval.getExportRts(),adfvrf.getAfi(), adfvrf.getSafi());
+                                newval.getExportRts(),adfvrf.getAfi().toJava(), adfvrf.getSafi().toJava());
                     } catch (TException | BgpRouterException e) {
                         LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
                     }
@@ -1445,7 +1449,7 @@ public class BgpConfigurationManager {
                 for (AddressFamiliesVrf adfToDel : adFamilyVrfToDel) {
                     try {
                         LOG.debug("call delVRf rd {} afi {} safi {}", rd, adfToDel.getAfi(), adfToDel.getSafi());
-                        br.delVrf(rd, adfToDel.getAfi(), adfToDel.getSafi());
+                        br.delVrf(rd, adfToDel.getAfi().toJava(), adfToDel.getSafi().toJava());
                     } catch (TException | BgpRouterException e) {
                         LOG.error("{} delVrf received exception; {}", YANG_OBJ, ADD_WARN, e);
                     }
@@ -1628,7 +1632,7 @@ public class BgpConfigurationManager {
                         BgpRouter br = getClient(YANG_OBJ);
                         if (br != null) {
                             try {
-                                br.multipaths(vrfMaxpathVal.getRd(), vrfMaxpathVal.getMaxpaths());
+                                br.multipaths(vrfMaxpathVal.getRd(), vrfMaxpathVal.getMaxpaths().toJava());
                                 LOG.debug("Maxpath for vrf {} is {}", vrfMaxpathVal.getRd(),
                                         vrfMaxpathVal.getMaxpaths());
                             } catch (TException | BgpRouterException e) {
@@ -1794,10 +1798,10 @@ public class BgpConfigurationManager {
     public long getStalePathtime(int defValue, AsId asId) {
         long spt = 0;
         try {
-            spt = getConfig().getGracefulRestart().getStalepathTime();
+            spt = getConfig().getGracefulRestart().getStalepathTime().toJava();
         } catch (NullPointerException e) {
             try {
-                spt = asId.getStalepathTime();
+                spt = asId.getStalepathTime().toJava();
                 LOG.trace("BGP config/Stale-path time is not set using graceful");
             } catch (NullPointerException ignore) {
                 LOG.trace("BGP AS id is not set using graceful");
@@ -1929,8 +1933,8 @@ public class BgpConfigurationManager {
                            plen,
                            nexthop,
                            update.getMacaddress(),
-                           label,
-                           l2label,
+                           Uint32.valueOf(label),
+                           Uint32.valueOf(l2label),
                            update.getRoutermac(),
                            afi);
                 }
@@ -1944,7 +1948,7 @@ public class BgpConfigurationManager {
         }
     }
 
-    public void addTepToElanDS(String rd, String tepIp, String mac, Long l2vni) {
+    public void addTepToElanDS(String rd, String tepIp, String mac, Uint32 l2vni) {
         boolean needUpdate = addToRt2TepMap(rd, tepIp, mac, l2vni);
         if (needUpdate) {
             LOG.info("Adding tepIp {} with RD {} to ELan DS", tepIp, rd);
@@ -1975,13 +1979,13 @@ public class BgpConfigurationManager {
      */
 
     public void onUpdatePushRoute(protocol_type protocolType, String rd, String prefix, int plen, String nextHop,
-                                  String macaddress, int label, int l2label, String routermac, af_afi afi) {
+                                  String macaddress, Uint32 label, Uint32 l2label, String routermac, af_afi afi) {
         PrefixUpdateEvent prefixUpdateEvent = new PrefixUpdateEvent(protocolType,rd,prefix,plen,nextHop,
                 macaddress,label,l2label,routermac,afi);
         bgpUpdatesHistory.addToHistory(TransactionType.ADD, prefixUpdateEvent);
         boolean addroute = false;
         boolean macupdate = false;
-        long l3vni = 0L;
+        Uint32 l3vni = Uint32.ZERO;
         VrfEntry.EncapType encapType = VrfEntry.EncapType.Mplsgre;
         if (protocolType.equals(protocol_type.PROTOCOL_EVPN)) {
             encapType = VrfEntry.EncapType.Vxlan;
@@ -1990,7 +1994,7 @@ public class BgpConfigurationManager {
                 if (vpnInstanceOpDataEntry.getType() == VpnInstanceOpDataEntry.Type.L2) {
                     LOG.info("Got RT2 route for RD {} l3label {} l2label {} from tep {} with mac {} remote RD {}",
                             vpnInstanceOpDataEntry.getVpnInstanceName(), label, l2label, nextHop, macaddress, rd);
-                    addTepToElanDS(rd, nextHop, macaddress, (long)l2label);
+                    addTepToElanDS(rd, nextHop, macaddress, l2label);
                     macupdate = true;
                 } else {
                     l3vni = vpnInstanceOpDataEntry.getL3vni();
@@ -2003,10 +2007,10 @@ public class BgpConfigurationManager {
 
         if (!staledFibEntriesMap.isEmpty()) {
             // restart Scenario, as MAP is not empty.
-            Map<String, Long> map = staledFibEntriesMap.get(rd);
+            Map<String, Uint32> map = staledFibEntriesMap.get(rd);
             if (map != null) {
                 String prefixNextHop = appendNextHopToPrefix(prefix + "/" + plen, nextHop);
-                Long labelInStaleMap = map.get(prefixNextHop);
+                Uint32 labelInStaleMap = map.get(prefixNextHop);
                 if (null == labelInStaleMap) {
                     // New Entry, which happened to be added during restart.
                     addroute = true;
@@ -2052,7 +2056,7 @@ public class BgpConfigurationManager {
         PrefixWithdrawEvent prefixWithdrawEvent = new PrefixWithdrawEvent(protocolType,rd,prefix,plen,
                 nextHop,macaddress);
         bgpUpdatesHistory.addToHistory(TransactionType.ADD, prefixWithdrawEvent);
-        long vni = 0L;
+        Uint32 vni = Uint32.ZERO;
         boolean macupdate = false;
         if (protocolType.equals(protocol_type.PROTOCOL_EVPN)) {
             VpnInstanceOpDataEntry vpnInstanceOpDataEntry = bgpUtil.getVpnInstanceOpData(rd);
@@ -2087,7 +2091,7 @@ public class BgpConfigurationManager {
         fibDSWriter.removeOrUpdateFibEntryFromDS(rd, prefix + "/" + plen, nexthop);
         String vpnName = bgpUtil.getVpnNameFromRd(rd);
         if (vpnName != null) {
-            vpnLinkService.leakRouteIfNeeded(vpnName, prefix, null /*nextHopList*/, 0 /*INVALID_LABEL*/,
+            vpnLinkService.leakRouteIfNeeded(vpnName, prefix, null /*nextHopList*/, Uint32.ZERO /*INVALID_LABEL*/,
                                              RouteOrigin.BGP, NwConstants.DEL_FLOW);
         }
     }
@@ -2114,8 +2118,8 @@ public class BgpConfigurationManager {
         });
     }
 
-    private static boolean isRouteModified(int label, Long labelInStaleMap) {
-        return labelInStaleMap != null && !labelInStaleMap.equals(Long.valueOf(label));
+    private static boolean isRouteModified(Uint32 label, Uint32 labelInStaleMap) {
+        return labelInStaleMap != null && !labelInStaleMap.equals(label);
     }
 
     static class ReplayNbr {
@@ -2298,7 +2302,7 @@ public class BgpConfigurationManager {
             LOG.error("bgp as-id is null");
             return replaySucceded;
         }
-        long asNum = asId.getLocalAs();
+        long asNum = asId.getLocalAs().toJava();
         IpAddress routerId = asId.getRouterId();
         String rid = routerId == null ? "" : routerId.stringValue();
         int stalepathTime = (int) getStalePathtime(bgpGrRestartTime, config.getAsId());
@@ -2425,7 +2429,7 @@ public class BgpConfigurationManager {
             for (AddressFamiliesVrf adf : vrf.getAddressFamiliesVrf()) {
                 try {
                     br.addVrf(BgpUtil.getLayerType(adf), vrf.getRd(), vrf.getImportRts(),
-                            vrf.getExportRts(), adf.getAfi(), adf.getSafi());
+                            vrf.getExportRts(), adf.getAfi().toJava(), adf.getSafi().toJava());
                 } catch (TException | BgpRouterException e) {
                     LOG.error("Replay:addVrf() received exception", e);
                 }
@@ -2438,7 +2442,7 @@ public class BgpConfigurationManager {
                 String rd = net.getRd();
                 String pfxlen = net.getPrefixLen();
                 String nh = net.getNexthop().getValue();
-                Long label = net.getLabel();
+                Long label = net.getLabel().toJava();
                 int lbl = label == null ? 0 : label.intValue();
                 int l3vni = net.getL3vni() == null ? 0 : net.getL3vni().intValue();
                 int l2vni = net.getL2vni() == null ? 0 : net.getL2vni().intValue();
@@ -2489,7 +2493,7 @@ public class BgpConfigurationManager {
         if (vrfMaxpaths != null) {
             for (VrfMaxpath vrfMaxpath : vrfMaxpaths) {
                 try {
-                    br.multipaths(vrfMaxpath.getRd(), vrfMaxpath.getMaxpaths());
+                    br.multipaths(vrfMaxpath.getRd(), vrfMaxpath.getMaxpaths().toJava());
                 } catch (TException | BgpRouterException e) {
                     LOG.info("Replay:vrfMaxPath() received exception", e);
                 }
@@ -2650,10 +2654,10 @@ public class BgpConfigurationManager {
     }
 
     public void addPrefix(String rd, String macAddress, String pfx, List<String> nhList,
-              VrfEntry.EncapType encapType, long lbl, long l3vni, long l2vni, String gatewayMac) {
+              VrfEntry.EncapType encapType, Uint32 lbl, Uint32 l3vni, Uint32 l2vni, String gatewayMac) {
         for (String nh : nhList) {
             Ipv4Address nexthop = nh != null ? new Ipv4Address(nh) : null;
-            Long label = lbl;
+            Uint32 label = lbl;
             InstanceIdentifier<Networks> iid = InstanceIdentifier.builder(Bgp.class)
                     .child(Networks.class, new NetworksKey(pfx, rd)).build();
             NetworksBuilder networksBuilder = new NetworksBuilder().setRd(rd).setPrefixLen(pfx).setNexthop(nexthop)
@@ -2663,8 +2667,8 @@ public class BgpConfigurationManager {
         }
     }
 
-    private static void buildVpnEncapSpecificInfo(NetworksBuilder builder, VrfEntry.EncapType encapType, long label,
-                                                  long l3vni, long l2vni, String macAddress, String gatewayMac) {
+    private static void buildVpnEncapSpecificInfo(NetworksBuilder builder, VrfEntry.EncapType encapType, Uint32 label,
+                                                  Uint32 l3vni, Uint32 l2vni, String macAddress, String gatewayMac) {
         if (encapType.equals(VrfEntry.EncapType.Mplsgre)) {
             builder.setLabel(label).setBgpControlPlaneType(BgpControlPlaneType.PROTOCOLL3VPN)
                     .setEncapType(EncapType.GRE);
@@ -2954,7 +2958,7 @@ public class BgpConfigurationManager {
                         if (Thread.interrupted()) {
                             return 0;
                         }
-                        Map<String, Long> map = staledFibEntriesMap.get(rd);
+                        Map<String, Uint32> map = staledFibEntriesMap.get(rd);
                         if (map != null) {
                             for (String key : map.keySet()) {
                                 if (Thread.interrupted()) {
@@ -2993,7 +2997,7 @@ public class BgpConfigurationManager {
             if (fibEntries.isPresent()) {
                 List<VrfTables> staleVrfTables = fibEntries.get().getVrfTables();
                 for (VrfTables vrfTable : staleVrfTables) {
-                    Map<String, Long> staleFibEntMap = new HashMap<>();
+                    Map<String, Uint32> staleFibEntMap = new HashMap<>();
                     for (VrfEntry vrfEntry : vrfTable.getVrfEntry()) {
                         if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
                             //Stale marking and cleanup is only meant for the routes learned through BGP.
@@ -3070,7 +3074,7 @@ public class BgpConfigurationManager {
         LOG.debug("deleted {} fib entries {} mac entries", totalExternalRoutes, totalExternalMacRoutes);
     }
 
-    public boolean addToRt2TepMap(String rd, String tepIp, String mac, Long l2vni) {
+    public boolean addToRt2TepMap(String rd, String tepIp, String mac, Uint32 l2vni) {
         boolean isFirstMacUpdateFromTep = false;
         if (rt2TepMap.containsKey(rd)) {
             if (rt2TepMap.get(rd).containsKey(tepIp)) {
@@ -3081,7 +3085,7 @@ public class BgpConfigurationManager {
                 LOG.debug("RT2 with mac {} l2vni {} from existing rd {} and new tep-ip {}",
                         mac, l2vni, rd, tepIp);
                 isFirstMacUpdateFromTep = true;
-                Map<String, Long> macList = new HashMap<>();
+                Map<String, Uint32> macList = new HashMap<>();
                 macList.put(mac, l2vni);
                 rt2TepMap.get(rd).put(tepIp, macList);
             }
@@ -3089,9 +3093,9 @@ public class BgpConfigurationManager {
             LOG.debug("RT2 with mac {} l2vni {} from new rd {} and tep ip {}",
                     mac, l2vni, rd, tepIp);
             isFirstMacUpdateFromTep = true;
-            Map<String, Long> macList = new HashMap<>();
+            Map<String, Uint32> macList = new HashMap<>();
             macList.put(mac, l2vni);
-            Map<String, Map<String, Long>> tepIpMacMap = new HashMap<>();
+            Map<String, Map<String, Uint32>> tepIpMacMap = new HashMap<>();
             tepIpMacMap.put(tepIp, macList);
             rt2TepMap.put(rd, tepIpMacMap);
         }
@@ -3122,7 +3126,7 @@ public class BgpConfigurationManager {
     }
 
     public Collection<String> getTepIPs(String rd) {
-        final Map<String, Map<String, Long>> tepIpMap = rt2TepMap.get(rd);
+        final Map<String, Map<String, Uint32>> tepIpMap = rt2TepMap.get(rd);
         return tepIpMap != null ? tepIpMap.keySet() : Collections.emptyList();
     }
 
@@ -3169,6 +3173,8 @@ public class BgpConfigurationManager {
         }
     }
 
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private void stopBgpCountersTask() {
         final BgpCounters bgpCounters = bgpCountersReference.getAndSet(null);
         if (bgpCounters != null) {
@@ -3187,6 +3193,8 @@ public class BgpConfigurationManager {
         }
     }
 
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private void stopBgpAlarmsTask() {
         final BgpAlarms bgpAlarms = bgpAlarmsReference.getAndSet(null);
         if (bgpAlarms != null) {
@@ -3208,10 +3216,14 @@ public class BgpConfigurationManager {
         return prefix + ":" + nextHop;
     }
 
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private static String extractPrefix(String prefixNextHop) {
         return prefixNextHop.split(":")[0];
     }
 
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private static String extractNextHop(String prefixNextHop) {
         return prefixNextHop.split(":")[1];
     }

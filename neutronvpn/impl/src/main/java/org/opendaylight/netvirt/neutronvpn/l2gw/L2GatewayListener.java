@@ -14,6 +14,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -202,6 +203,8 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
         }
     }
 
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private void removeL2Device(Devices l2Device, L2gateway input) {
         final String l2DeviceName = l2Device.getDeviceName();
         L2GatewayDevice l2GwDevice = l2GatewayCache.get(l2DeviceName);

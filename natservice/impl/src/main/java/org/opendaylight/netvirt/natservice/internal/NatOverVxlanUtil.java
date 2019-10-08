@@ -7,11 +7,12 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
-import java.math.BigInteger;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.genius.networkutils.VniUtils;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,23 +28,23 @@ public class NatOverVxlanUtil {
         this.vniUtils = vniUtils;
     }
 
-    public BigInteger getInternetVpnVni(String vpnUuid, long vpnid) {
-        BigInteger internetVpnVni = getVNI(vpnUuid);
+    public Uint32 getInternetVpnVni(String vpnUuid, Uint32 vpnid) {
+        Uint32 internetVpnVni = Uint32.valueOf(getVNI(vpnUuid).longValue());
         if (internetVpnVni.longValue() == -1) {
             LOG.warn("getInternetVpnVni : Unable to obtain Internet Vpn VNI from VNI POOL for Vpn {}."
                     + "Will use tunnel_id {} as Internet VNI", vpnUuid, vpnid);
-            return BigInteger.valueOf(vpnid);
+            return vpnid;
         }
 
         return internetVpnVni;
     }
 
-    public BigInteger getRouterVni(String routerName, long routerId) {
-        BigInteger routerVni = getVNI(routerName);
+    public Uint64 getRouterVni(String routerName, Uint32 routerId) {
+        Uint64 routerVni = getVNI(routerName);
         if (routerVni.longValue() == -1) {
             LOG.warn("getRouterVni : Unable to obtain Router VNI from VNI POOL for router {}."
                     + "Router ID will be used as tun_id", routerName);
-            return BigInteger.valueOf(routerId);
+            return Uint64.valueOf(routerId);
         }
         return routerVni;
     }
@@ -56,12 +57,12 @@ public class NatOverVxlanUtil {
         }
     }
 
-    private BigInteger getVNI(String vniKey) {
+    private Uint64 getVNI(String vniKey) {
         try {
             return vniUtils.getVNI(vniKey);
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("getVNI : Exception in get VNI for key {}", vniKey, e);
         }
-        return BigInteger.valueOf(-1);
+        return Uint64.valueOf(-1);
     }
 }

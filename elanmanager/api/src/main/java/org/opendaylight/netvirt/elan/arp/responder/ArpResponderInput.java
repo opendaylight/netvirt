@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.elan.arp.responder;
 
 import com.google.common.base.Strings;
-
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
@@ -70,7 +69,8 @@ public final class ArpResponderInput {
         public ArpResponderInput buildForInstallFlow() {
 
             if (input.dpId == null || Strings.isNullOrEmpty(input.interfaceName) || Strings.isNullOrEmpty(input.spa)
-                    || Strings.isNullOrEmpty(input.sha) || input.lportTag == 0 || input.instructions.isEmpty()) {
+                    || Strings.isNullOrEmpty(input.sha) || input.lportTag == 0
+                    || input.instructions == null || input.instructions.isEmpty()) {
                 throw new AssertionError("Missing mandatory fields for ARP Responder Install Flow");
             }
 

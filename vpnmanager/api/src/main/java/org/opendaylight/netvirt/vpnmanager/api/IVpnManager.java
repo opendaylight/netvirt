@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.vpnmanager.api;
 
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -30,20 +29,22 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 
 public interface IVpnManager {
     void addExtraRoute(String vpnName, String destination, String nextHop, String rd, @Nullable String routerID,
-        Long l3vni, RouteOrigin origin, @Nullable String intfName, @Nullable Adjacency operationalAdj,
-        VrfEntry.EncapType encapType, Set<String> prefixListForRefreshFib,
-        @NonNull TypedWriteTransaction<Configuration> confTx);
+                       Uint32 l3vni, RouteOrigin origin, @Nullable String intfName, @Nullable Adjacency operationalAdj,
+                       VrfEntry.EncapType encapType, Set<String> prefixListForRefreshFib,
+                       @NonNull TypedWriteTransaction<Configuration> confTx);
 
     void delExtraRoute(String vpnName, String destination, String nextHop, String rd, @Nullable String routerID,
         @Nullable String intfName, @NonNull TypedWriteTransaction<Configuration> confTx,
         @NonNull TypedWriteTransaction<Operational> operTx);
 
     void removePrefixFromBGP(String vpnName, String primaryRd, String extraRouteRd, String vpnInterfaceName,
-                                    String prefix, String nextHop, String nextHopTunnelIp, BigInteger dpnId,
+                                    String prefix, String nextHop, String nextHopTunnelIp, Uint64 dpnId,
                                     TypedWriteTransaction<Configuration> confTx,
                                     TypedWriteTransaction<Operational> operTx);
 
@@ -52,31 +53,31 @@ public interface IVpnManager {
     String getPrimaryRdFromVpnInstance(VpnInstance vpnInstance);
 
     void addSubnetMacIntoVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
-        BigInteger dpnId, TypedWriteTransaction<Configuration> confTx) throws ExecutionException, InterruptedException;
+        Uint64 dpnId, TypedWriteTransaction<Configuration> confTx) throws ExecutionException, InterruptedException;
 
     void removeSubnetMacFromVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
-        BigInteger dpnId, TypedReadWriteTransaction<Configuration> confTx)
+        Uint64 dpnId, TypedReadWriteTransaction<Configuration> confTx)
         throws ExecutionException, InterruptedException;
 
-    void addRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
+    void addRouterGwMacFlow(String routerName, String routerGwMac, Uint64 dpnId, Uuid extNetworkId,
         String subnetVpnName, TypedWriteTransaction<Configuration> confTx)
         throws ExecutionException, InterruptedException;
 
-    void removeRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
+    void removeRouterGwMacFlow(String routerName, String routerGwMac, Uint64 dpnId, Uuid extNetworkId,
         String subnetVpnName, TypedReadWriteTransaction<Configuration> confTx)
         throws ExecutionException, InterruptedException;
 
     void addArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
-        BigInteger dpnId, Uuid extNetworkId);
+        Uint64 dpnId, Uuid extNetworkId);
 
     void addArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String routerGwMac,
-            BigInteger dpnId, String extInterfaceName, int lportTag);
+            Uint64 dpnId, String extInterfaceName, int lportTag);
 
     void removeArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
-            BigInteger dpnId, Uuid extNetworkId);
+            Uint64 dpnId, Uuid extNetworkId);
 
     void removeArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps,
-            BigInteger dpnId, String extInterfaceName, int lportTag);
+            Uint64 dpnId, String extInterfaceName, int lportTag);
 
     void onSubnetAddedToVpn(Subnetmap subnetmap, boolean isBgpVpn, Long elanTag);
 

@@ -102,7 +102,7 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
             return;
         }
         ElanInstance elanInstance = elanService.getElanInstance(subnetMap.getNetworkId().getValue());
-        vpnManager.onSubnetAddedToVpn(subnetMap, false, elanInstance.getElanTag());
+        vpnManager.onSubnetAddedToVpn(subnetMap, false, elanInstance.getElanTag().toJava());
 
     }
 

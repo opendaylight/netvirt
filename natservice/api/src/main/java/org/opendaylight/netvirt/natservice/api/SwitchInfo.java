@@ -8,20 +8,21 @@
 
 package org.opendaylight.netvirt.natservice.api;
 
-import java.math.BigInteger;
 import java.util.Set;
+
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public final class SwitchInfo {
 
-    BigInteger dpnId;
+    Uint64 dpnId;
 
     Set<String> providerNets;
 
-    public BigInteger getDpnId() {
+    public Uint64 getDpnId() {
         return dpnId;
     }
 
-    public void setDpnId(BigInteger dpnId) {
+    public void setDpnId(Uint64 dpnId) {
         this.dpnId = dpnId;
     }
 

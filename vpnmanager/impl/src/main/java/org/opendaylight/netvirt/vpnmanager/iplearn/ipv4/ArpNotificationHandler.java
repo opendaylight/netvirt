@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.vpnmanager.iplearn.ipv4;
 
-import java.math.BigInteger;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
@@ -20,6 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.Ar
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.MacChanged;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.config.rev161130.VpnConfig;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +44,7 @@ public class ArpNotificationHandler extends AbstractIpLearnNotificationHandler i
         IpAddress srcIP = notification.getSrcIpaddress();
         MacAddress srcMac = MacAddress.getDefaultInstance(notification.getSrcMac().getValue());
         IpAddress targetIP = notification.getDstIpaddress();
-        BigInteger metadata = notification.getMetadata();
+        Uint64 metadata = notification.getMetadata();
         boolean isGarp = srcIP.equals(targetIP);
         if (!isGarp) {
             LOG.info(
@@ -66,7 +66,7 @@ public class ArpNotificationHandler extends AbstractIpLearnNotificationHandler i
         String srcInterface = notification.getInterface();
         IpAddress srcIP = notification.getSrcIpaddress();
         MacAddress srcMac = MacAddress.getDefaultInstance(notification.getSrcMac().getValue());
-        BigInteger metadata = notification.getMetadata();
+        Uint64 metadata = notification.getMetadata();
         IpAddress targetIP = notification.getDstIpaddress();
         LOG.info("ArpNotification Response Received from interface {} and IP {} having MAC {}, learning MAC",
                 srcInterface, srcIP.stringValue(), srcMac.getValue());

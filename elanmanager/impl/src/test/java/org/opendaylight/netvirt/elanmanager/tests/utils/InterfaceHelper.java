@@ -7,9 +7,8 @@
  */
 package org.opendaylight.netvirt.elanmanager.tests.utils;
 
-import java.math.BigInteger;
-
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public final class InterfaceHelper {
 
@@ -18,7 +17,7 @@ public final class InterfaceHelper {
     }
 
     public static InterfaceInfo buildVlanInterfaceInfo(final String interfaceName,
-                                                       final BigInteger dpId,
+                                                       final Uint64 dpId,
                                                        final int portNo,
                                                        final int lportTag,
                                                        final String mac) {
@@ -27,7 +26,7 @@ public final class InterfaceHelper {
     }
 
     public static InterfaceInfo buildVxlanInterfaceInfo(final String interfaceName,
-                                                        final BigInteger dpId,
+                                                        final Uint64 dpId,
                                                         final int portNo,
                                                         final int lportTag,
                                                         final String mac) {
@@ -36,7 +35,7 @@ public final class InterfaceHelper {
     }
 
     public static InterfaceInfo buildInterfaceInfo(final String interfaceName,
-                                                   final BigInteger dpId,
+                                                   final Uint64 dpId,
                                                    final int portNo,
                                                    final int lportTag,
                                                    final String mac,

@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.qosservice;
 
-import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Objects;
 import javax.annotation.PostConstruct;
@@ -28,6 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.Q
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.policies.QosPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,10 +131,10 @@ public class QosNeutronPortChangeListener extends AsyncClusteredDataTreeChangeLi
             return;
         }
         jobCoordinator.enqueueJob("QosPort-" + update.getUuid().getValue(), () -> {
-            short dscpVal = qosPolicy.getDscpmarkingRules().get(0).getDscpMark();
+            short dscpVal = qosPolicy.getDscpmarkingRules().get(0).getDscpMark().toJava();
             String ifName = update.getUuid().getValue();
-            BigInteger dpnId = qosNeutronUtils.getDpnForInterface(ifName);
-            if (dpnId.equals(BigInteger.ZERO)) {
+            Uint64 dpnId = qosNeutronUtils.getDpnForInterface(ifName);
+            if (dpnId.equals(Uint64.ZERO)) {
                 LOG.warn("dpnId not found for intf {}", ifName);
                 return Collections.emptyList();
             }

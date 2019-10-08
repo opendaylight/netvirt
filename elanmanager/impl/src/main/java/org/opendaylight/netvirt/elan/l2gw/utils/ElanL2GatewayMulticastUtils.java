@@ -14,7 +14,6 @@ import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlanNetworkOrVxla
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -84,6 +83,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPointBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -258,28 +258,28 @@ public class ElanL2GatewayMulticastUtils {
         }
     }
 
-    public void setupElanBroadcastGroups(ElanInstance elanInfo, BigInteger dpnId,
+    public void setupElanBroadcastGroups(ElanInstance elanInfo, Uint64 dpnId,
             TypedWriteTransaction<Datastore.Configuration> confTx) {
         setupElanBroadcastGroups(elanInfo, null, dpnId, confTx);
     }
 
-    public void setupElanBroadcastGroups(ElanInstance elanInfo, @Nullable DpnInterfaces dpnInterfaces, BigInteger dpnId,
+    public void setupElanBroadcastGroups(ElanInstance elanInfo, @Nullable DpnInterfaces dpnInterfaces, Uint64 dpnId,
                                          TypedWriteTransaction<Datastore.Configuration> confTx) {
         setupStandardElanBroadcastGroups(elanInfo, dpnInterfaces, dpnId, confTx);
         setupLeavesEtreeBroadcastGroups(elanInfo, dpnInterfaces, dpnId, confTx);
     }
 
-    public void setupStandardElanBroadcastGroups(ElanInstance elanInfo, DpnInterfaces dpnInterfaces, BigInteger dpnId,
+    public void setupStandardElanBroadcastGroups(ElanInstance elanInfo, DpnInterfaces dpnInterfaces, Uint64 dpnId,
                                                  TypedWriteTransaction<Datastore.Configuration> confTx) {
         setupStandardElanBroadcastGroups(elanInfo, dpnInterfaces, dpnId, true, confTx);
     }
 
     public void setupStandardElanBroadcastGroups(ElanInstance elanInfo, @Nullable DpnInterfaces dpnInterfaces,
-            BigInteger dpnId, boolean createCase, TypedWriteTransaction<Datastore.Configuration> confTx) {
+            Uint64 dpnId, boolean createCase, TypedWriteTransaction<Datastore.Configuration> confTx) {
         List<Bucket> listBucket = new ArrayList<>();
         int bucketId = 0;
         int actionKey = 0;
-        Long elanTag = elanInfo.getElanTag();
+        Long elanTag = elanInfo.getElanTag().toJava();
         List<Action> listAction = new ArrayList<>();
         listAction.add(new ActionGroup(ElanUtils.getElanLocalBCGId(elanTag)).buildAction(++actionKey));
         listBucket.add(MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT,
@@ -299,10 +299,10 @@ public class ElanL2GatewayMulticastUtils {
     }
 
     public void setupLeavesEtreeBroadcastGroups(ElanInstance elanInfo, @Nullable DpnInterfaces dpnInterfaces,
-            BigInteger dpnId, TypedWriteTransaction<Datastore.Configuration> confTx) {
+            Uint64 dpnId, TypedWriteTransaction<Datastore.Configuration> confTx) {
         EtreeInstance etreeInstance = elanInfo.augmentation(EtreeInstance.class);
         if (etreeInstance != null) {
-            long etreeLeafTag = etreeInstance.getEtreeLeafTagVal().getValue();
+            long etreeLeafTag = etreeInstance.getEtreeLeafTagVal().getValue().toJava();
             List<Bucket> listBucket = new ArrayList<>();
             int bucketId = 0;
             int actionKey = 0;
@@ -323,10 +323,10 @@ public class ElanL2GatewayMulticastUtils {
     }
 
     @Nullable
-    private static DpnInterfaces getDpnInterfaces(ElanDpnInterfacesList elanDpns, BigInteger dpnId) {
+    private static DpnInterfaces getDpnInterfaces(ElanDpnInterfacesList elanDpns, Uint64 dpnId) {
         if (elanDpns != null) {
             for (DpnInterfaces dpnInterface : elanDpns.nonnullDpnInterfaces()) {
-                if (Objects.equals(dpnInterface.getDpId(), dpnId)) {
+                if (Objects.equals(dpnInterface.getDpId().toJava(), dpnId)) {
                     return dpnInterface;
                 }
             }
@@ -335,7 +335,7 @@ public class ElanL2GatewayMulticastUtils {
     }
 
     private List<Bucket> getRemoteBCGroupExternalPortBuckets(ElanDpnInterfacesList elanDpns,
-            DpnInterfaces dpnInterfaces, BigInteger dpnId, int bucketId) {
+            DpnInterfaces dpnInterfaces, Uint64 dpnId, int bucketId) {
         DpnInterfaces currDpnInterfaces = dpnInterfaces != null ? dpnInterfaces : getDpnInterfaces(elanDpns, dpnId);
         if (currDpnInterfaces == null || !elanUtils.isDpnPresent(currDpnInterfaces.getDpId())
                 || currDpnInterfaces.getInterfaces() == null || currDpnInterfaces.getInterfaces().isEmpty()) {
@@ -357,7 +357,7 @@ public class ElanL2GatewayMulticastUtils {
 
     @NonNull
     public List<Bucket> getRemoteBCGroupBuckets(ElanInstance elanInfo, @Nullable DpnInterfaces dpnInterfaces,
-                                                BigInteger dpnId, int bucketId, long elanTag) {
+                                                Uint64 dpnId, int bucketId, long elanTag) {
         List<Bucket> listBucketInfo = new ArrayList<>();
         ElanDpnInterfacesList elanDpns = elanUtils.getElanDpnInterfacesList(elanInfo.getElanInstanceName());
 
@@ -373,7 +373,7 @@ public class ElanL2GatewayMulticastUtils {
         return listBucketInfo;
     }
 
-    public List<Bucket> getRemoteBCGroupBucketsOfElanL2GwDevices(ElanInstance elanInfo, BigInteger dpnId,
+    public List<Bucket> getRemoteBCGroupBucketsOfElanL2GwDevices(ElanInstance elanInfo, Uint64 dpnId,
             int bucketId) {
         List<Bucket> listBucketInfo = new ArrayList<>();
         for (L2GatewayDevice device : ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanInfo.getElanInstanceName())) {
@@ -391,7 +391,7 @@ public class ElanL2GatewayMulticastUtils {
         return listBucketInfo;
     }
 
-    public List<Bucket> getRemoteBCGroupBucketsOfElanExternalTeps(ElanInstance elanInfo, BigInteger dpnId,
+    public List<Bucket> getRemoteBCGroupBucketsOfElanExternalTeps(ElanInstance elanInfo, Uint64 dpnId,
             int bucketId) {
         ElanInstance operElanInstance = null;
         try {
@@ -433,12 +433,12 @@ public class ElanL2GatewayMulticastUtils {
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private List<Bucket> getRemoteBCGroupTunnelBuckets(ElanDpnInterfacesList elanDpns, BigInteger dpnId, int bucketId,
+    private List<Bucket> getRemoteBCGroupTunnelBuckets(ElanDpnInterfacesList elanDpns, Uint64 dpnId, int bucketId,
             long elanTagOrVni) {
         List<Bucket> listBucketInfo = new ArrayList<>();
         if (elanDpns != null) {
             for (DpnInterfaces dpnInterface : elanDpns.nonnullDpnInterfaces())  {
-                if (!Objects.equals(dpnInterface.getDpId(), dpnId) && dpnInterface.getInterfaces() != null
+                if (!Objects.equals(dpnInterface.getDpId().toJava(), dpnId) && dpnInterface.getInterfaces() != null
                         && !dpnInterface.getInterfaces().isEmpty()) {
                     try {
                         List<Action> listActionInfo = elanItmUtils.getInternalTunnelItmEgressAction(dpnId,
@@ -677,7 +677,7 @@ public class ElanL2GatewayMulticastUtils {
         DesignatedSwitchForTunnel desgSwitch = getDesignatedSwitchForExternalTunnel(l2GwDevice.getTunnelIp(),
                 elanInstanceName);
         if (desgSwitch != null) {
-            tepIp = elanItmUtils.getSourceDpnTepIp(BigInteger.valueOf(desgSwitch.getDpId()),
+            tepIp = elanItmUtils.getSourceDpnTepIp(Uint64.valueOf(desgSwitch.getDpId()),
                     new NodeId(l2GwDevice.getHwvtepNodeId()));
         }
         return tepIp;

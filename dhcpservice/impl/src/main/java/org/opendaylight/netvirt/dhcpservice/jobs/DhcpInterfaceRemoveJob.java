@@ -11,7 +11,6 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,6 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpserv
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710._interface.name.mac.addresses.InterfaceNameMacAddressKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.subnet.dhcp.port.data.SubnetToDhcpPort;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,14 +50,14 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
     private final Interface interfaceDel;
-    private final BigInteger dpnId;
+    private final Uint64 dpnId;
     private final IInterfaceManager interfaceManager;
     private final IElanService elanService;
     private final Port port;
 
     public DhcpInterfaceRemoveJob(DhcpManager dhcpManager, DhcpExternalTunnelManager dhcpExternalTunnelManager,
                                   DataBroker dataBroker,
-                                  Interface interfaceDel, BigInteger dpnId, IInterfaceManager interfaceManager,
+                                  Interface interfaceDel, Uint64 dpnId, IInterfaceManager interfaceManager,
                                   IElanService elanService, Port port) {
         this.dhcpManager = dhcpManager;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
@@ -79,7 +79,7 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
             IfTunnel tunnelInterface = iface.augmentation(IfTunnel.class);
             if (tunnelInterface != null && !tunnelInterface.isInternal()) {
                 IpAddress tunnelIp = tunnelInterface.getTunnelDestination();
-                List<BigInteger> dpns = DhcpServiceUtils.getListOfDpns(dataBroker);
+                List<Uint64> dpns = DhcpServiceUtils.getListOfDpns(dataBroker);
                 if (dpns.contains(dpnId)) {
                     return dhcpExternalTunnelManager.handleTunnelStateDown(tunnelIp, dpnId);
                 }
@@ -96,7 +96,7 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
                     subnetId.get());
             if (subnetToDhcp.isPresent()) {
                 LOG.trace("Removing ArpResponder flow for last interface {} on DPN {}", interfaceName, dpnId);
-                ArpResponderInput arpInput = new ArpResponderInput.ArpReponderInputBuilder().setDpId(dpnId)
+                ArpResponderInput arpInput = new ArpResponderInput.ArpReponderInputBuilder().setDpId(dpnId.toJava())
                         .setInterfaceName(interfaceName).setSpa(subnetToDhcp.get().getPortFixedip())
                         .setLportTag(interfaceDel.getIfIndex()).buildForRemoveFlow();
                 elanService.removeArpResponderFlow(arpInput);
@@ -106,7 +106,7 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
         return futures;
     }
 
-    private List<ListenableFuture<Void>> unInstallDhcpEntries(String interfaceName, BigInteger dpId)
+    private List<ListenableFuture<Void>> unInstallDhcpEntries(String interfaceName, Uint64 dpId)
         throws ExecutionException, InterruptedException {
         String vmMacAddress = txRunner.applyWithNewReadWriteTransactionAndSubmit(OPERATIONAL,
             tx -> getAndRemoveVmMacAddress(tx, interfaceName)).get();

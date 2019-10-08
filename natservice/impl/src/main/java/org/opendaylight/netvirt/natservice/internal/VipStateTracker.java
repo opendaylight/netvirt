@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.natservice.internal;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
 import com.google.common.util.concurrent.FluentFuture;
-import java.math.BigInteger;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -24,6 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.neutron.vip.states.VipStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.neutron.vip.states.VipStateKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 @Singleton
 public class VipStateTracker extends DataObjectCache<String, VipState> {
@@ -43,7 +43,7 @@ public class VipStateTracker extends DataObjectCache<String, VipState> {
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
     }
 
-    public VipState buildVipState(String ip, BigInteger dpnId, String ifcName) {
+    public VipState buildVipState(String ip, Uint64 dpnId, String ifcName) {
         return new VipStateBuilder().setIp(ip).setDpnId(dpnId).setIfcName(ifcName).build();
     }
 

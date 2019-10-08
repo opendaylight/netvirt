@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.fibmanager;
 import static java.util.stream.Collectors.toList;
 
 import com.google.common.base.Optional;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -59,6 +58,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.Routes;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -192,8 +193,8 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
                 LOG.trace("Dpnstate is {} for dpn {} in vpn {}", vpnDpn.getDpnState(), vpnDpn.getDpnId(),
                     vpnInstance.getVpnId());
                 if (vpnDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
-                    createRemoteFibEntry(vpnDpn.getDpnId(), vpnInstance.getVpnId(), vrfTableKey.getRouteDistinguisher(),
-                            vrfEntry, writeTx, subTxns);
+                    createRemoteFibEntry(vpnDpn.getDpnId(), vpnInstance.getVpnId(),
+                            vrfTableKey.getRouteDistinguisher(), vrfEntry, writeTx, subTxns);
                 }
             }
         }
@@ -236,15 +237,15 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
             }
             for (VpnToDpnList curDpn : vpnToDpnList) {
                 if (curDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
-                    deleteRemoteRoute(BigInteger.ZERO, curDpn.getDpnId(), vpnInstance.getVpnId(),
+                    deleteRemoteRoute(Uint64.ZERO, curDpn.getDpnId(), vpnInstance.getVpnId(),
                             vrfTableKey, vrfEntry, extraRouteOptional, writeTx, subTxns);
                 }
             }
         }
     }
 
-    public void programRemoteFibForBgpRoutes(final BigInteger remoteDpnId,
-                                             final long vpnId,
+    public void programRemoteFibForBgpRoutes(final Uint64 remoteDpnId,
+                                             final Uint32 vpnId,
                                              final VrfEntry vrfEntry,
                                              WriteTransaction tx,
                                              String rd,
@@ -271,12 +272,12 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
         List<ActionInfo> actionInfos = new ArrayList<>();
         for (NexthopManager.AdjacencyResult adjResult : adjacencyResults) {
             String nextHopIp = adjResult.getNextHopIp();
-            java.util.Optional<Long> optionalLabel = FibUtil.getLabelForNextHop(vrfEntry, nextHopIp);
+            java.util.Optional<Uint32> optionalLabel = FibUtil.getLabelForNextHop(vrfEntry, nextHopIp);
             if (!optionalLabel.isPresent()) {
                 LOG.warn("NextHopIp {} not found in vrfEntry {}", nextHopIp, vrfEntry);
                 continue;
             }
-            long label = optionalLabel.get();
+            long label = optionalLabel.get().toJava();
 
             actionInfos.add(new ActionRegLoad(index, FibConstants.NXM_REG_MAPPING.get(index++), 0,
                     31, label));
@@ -289,8 +290,8 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
                 vrfEntry.getDestPrefix(), vpnId, remoteDpnId);
     }
 
-    public void createRemoteFibEntry(final BigInteger remoteDpnId,
-                                     final long vpnId,
+    public void createRemoteFibEntry(final Uint64 remoteDpnId,
+                                     final Uint32 vpnId,
                                      final String rd,
                                      final VrfEntry vrfEntry,
                                      WriteTransaction tx,
@@ -318,7 +319,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
         LOG.debug("Successfully added FIB entry for prefix {} in vpnId {}", vrfEntry.getDestPrefix(), vpnId);
     }
 
-    private void deleteFibEntryForBgpRoutes(BigInteger remoteDpnId, long vpnId, VrfEntry vrfEntry,
+    private void deleteFibEntryForBgpRoutes(Uint64 remoteDpnId, Uint32 vpnId, VrfEntry vrfEntry,
                                              String rd, WriteTransaction tx, List<SubTransaction> subTxns) {
         // When the tunnel is removed the fib entries should be reprogrammed/deleted depending on
         // the adjacencyResults.
@@ -328,8 +329,8 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
         }
     }
 
-    public void deleteRemoteRoute(@Nullable final BigInteger localDpnId, final BigInteger remoteDpnId,
-                                  final long vpnId, final VrfTablesKey vrfTableKey,
+    public void deleteRemoteRoute(@Nullable final Uint64 localDpnId, final Uint64 remoteDpnId,
+                                  final Uint32 vpnId, final VrfTablesKey vrfTableKey,
                                   final VrfEntry vrfEntry, Optional<Routes> extraRouteOptional,
                                   @Nullable WriteTransaction tx, List<SubTransaction> subTxns) {
         if (tx == null) {
@@ -343,7 +344,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
                 vrfEntry.getDestPrefix(), vpnId, localDpnId, remoteDpnId);
         String rd = vrfTableKey.getRouteDistinguisher();
 
-        if (localDpnId != null && !BigInteger.ZERO.equals(localDpnId)) {
+        if (localDpnId != null && !Uint64.ZERO.equals(localDpnId)) {
             // localDpnId is not known when clean up happens for last vm for a vpn on a dpn
             if (extraRouteOptional.isPresent()) {
                 nexthopManager.deleteLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix());
@@ -362,7 +363,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
     }
 
     public Consumer<? super VrfEntry> getConsumerForCreatingRemoteFib(
-            final BigInteger dpnId, final long vpnId, final String rd,
+            final Uint64 dpnId, final Uint32 vpnId, final String rd,
             final String remoteNextHopIp, final Optional<VrfTables> vrfTable,
             WriteTransaction writeCfgTxn, List<SubTransaction> subTxns) {
         return vrfEntry -> vrfEntry.nonnullRoutePaths().stream()
@@ -378,7 +379,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
     }
 
     public Consumer<? super VrfEntry> getConsumerForDeletingRemoteFib(
-            final BigInteger dpnId, final long vpnId,
+            final Uint64 dpnId, final Uint32 vpnId,
             final String remoteNextHopIp, final Optional<VrfTables> vrfTable,
             WriteTransaction writeCfgTxn, List<SubTransaction> subTxns) {
         return vrfEntry -> vrfEntry.nonnullRoutePaths().stream()
@@ -393,7 +394,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
     }
 
     @Override
-    protected void addTunnelInterfaceActions(NexthopManager.AdjacencyResult adjacencyResult, long vpnId,
+    protected void addTunnelInterfaceActions(NexthopManager.AdjacencyResult adjacencyResult, Uint32 vpnId,
             VrfEntry vrfEntry, List<ActionInfo> actionInfos, String rd) {
         Class<? extends TunnelTypeBase> tunnelType = VpnExtraRouteHelper
                 .getTunnelType(getNextHopManager().getItmManager(), adjacencyResult.getInterfaceName());
@@ -403,19 +404,19 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
         }
         String nextHopIp = adjacencyResult.getNextHopIp();
         if (tunnelType.equals(TunnelTypeMplsOverGre.class)) {
-            java.util.Optional<Long> optionalLabel = FibUtil.getLabelForNextHop(vrfEntry, nextHopIp);
+            java.util.Optional<Uint32> optionalLabel = FibUtil.getLabelForNextHop(vrfEntry, nextHopIp);
             if (!optionalLabel.isPresent()) {
                 LOG.warn("NextHopIp {} not found in vrfEntry {}", nextHopIp, vrfEntry);
                 return;
             }
-            long label = optionalLabel.get();
+            long label = optionalLabel.get().toJava();
             LOG.debug("addTunnelInterfaceActions: Push label action for prefix {} rd {} l3vni {} nextHop {}",
                     vrfEntry.getDestPrefix(), rd, vrfEntry.getL3vni(), nextHopIp);
             actionInfos.add(new ActionPushMpls());
             actionInfos.add(new ActionSetFieldMplsLabel(label));
-            actionInfos.add(new ActionNxLoadInPort(BigInteger.ZERO));
+            actionInfos.add(new ActionNxLoadInPort(Uint64.ZERO));
         } else if (tunnelType.equals(TunnelTypeVxlan.class)) {
-            actionInfos.add(new ActionSetFieldTunnelId(BigInteger.valueOf(vrfEntry.getL3vni())));
+            actionInfos.add(new ActionSetFieldTunnelId(Uint64.valueOf(vrfEntry.getL3vni().longValue())));
             LOG.debug("addTunnelInterfaceActions: adding set tunnel id action for prefix {} rd {} l3vni {}"
                     + " nextHop {} ", vrfEntry.getDestPrefix(), rd, vrfEntry.getL3vni(), nextHopIp);
             addRewriteDstMacAction(vpnId, vrfEntry, null /*prefixInfo*/, actionInfos);
@@ -423,7 +424,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
     }
 
     @Override
-    protected void addRewriteDstMacAction(long vpnId, VrfEntry vrfEntry, @Nullable Prefixes prefixInfo,
+    protected void addRewriteDstMacAction(Uint32 vpnId, VrfEntry vrfEntry, @Nullable Prefixes prefixInfo,
                                           List<ActionInfo> actionInfos) {
         if (vrfEntry.getGatewayMacAddress() != null) {
             actionInfos.add(new ActionSetFieldEthernetDestination(actionInfos.size(),

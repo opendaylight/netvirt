@@ -142,6 +142,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -356,7 +357,7 @@ public final class AclServiceUtils {
      * @return the bound services
      */
     public static BoundServices getBoundServices(String serviceName, short servicePriority, int flowPriority,
-            BigInteger cookie, List<Instruction> instructions) {
+            Uint64 cookie, List<Instruction> instructions) {
         StypeOpenflowBuilder augBuilder = new StypeOpenflowBuilder().setFlowCookie(cookie).setFlowPriority(flowPriority)
                 .setInstruction(instructions);
         return new BoundServicesBuilder().withKey(new BoundServicesKey(servicePriority)).setServiceName(serviceName)
@@ -515,12 +516,13 @@ public final class AclServiceUtils {
                 MetaDataUtil.METADATA_MASK_REMOTE_ACL_TAG);
     }
 
-    public static BigInteger getRemoteAclTagMetadata(BigInteger remoteAclTag) {
-        return remoteAclTag.shiftLeft(4);
+    public static Uint64 getRemoteAclTagMetadata(BigInteger remoteAclTag) {
+        return Uint64.valueOf(remoteAclTag.shiftLeft(4));
     }
 
-    public static BigInteger getDropFlowCookie(int lport) {
-        return MetaDataUtil.getLportTagMetaData(lport).or(AclConstants.COOKIE_ACL_DROP_FLOW);
+    public static Uint64 getDropFlowCookie(int lport) {
+        return Uint64.fromLongBits(MetaDataUtil.getLportTagMetaData(lport).longValue()
+                   | AclConstants.COOKIE_ACL_DROP_FLOW.longValue());
     }
 
     /**
@@ -604,10 +606,10 @@ public final class AclServiceUtils {
             // In case of ingress service mode, only metadata is used for
             // matching both lportTag and aclTag. Hence performing "or"
             // operation on both lportTag and aclTag metadata.
-            BigInteger metaData = MetaDataUtil.getLportTagMetaData(lportTag)
-                    .or(getRemoteAclTagMetadata(BigInteger.valueOf(remoteAclTag)));
-            BigInteger metaDataMask =
-                    MetaDataUtil.METADATA_MASK_LPORT_TAG.or(MetaDataUtil.METADATA_MASK_REMOTE_ACL_TAG);
+            Uint64 metaData = Uint64.fromLongBits(MetaDataUtil.getLportTagMetaData(lportTag).longValue()
+                    | (getRemoteAclTagMetadata(BigInteger.valueOf(remoteAclTag)).longValue()));
+            Uint64 metaDataMask = Uint64.fromLongBits(MetaDataUtil.METADATA_MASK_LPORT_TAG.longValue()
+                    | MetaDataUtil.METADATA_MASK_REMOTE_ACL_TAG.longValue());
             matches.add(new MatchMetadata(metaData, metaDataMask));
         }
         return matches;
@@ -623,10 +625,11 @@ public final class AclServiceUtils {
             // In case of ingress service mode, only metadata is used for
             // matching both lportTag and conntrackClassifierType. Hence performing "or"
             // operation on both lportTag and conntrackClassifierType metadata.
-            BigInteger metaData = MetaDataUtil.getLportTagMetaData(lportTag)
-                    .or(MetaDataUtil.getAclConntrackClassifierTypeFromMetaData(conntrackClassifierType.getValue()));
-            BigInteger metaDataMask =
-                    MetaDataUtil.METADATA_MASK_LPORT_TAG.or(MetaDataUtil.METADATA_MASK_ACL_CONNTRACK_CLASSIFIER_TYPE);
+            Uint64 metaData = Uint64.fromLongBits(MetaDataUtil.getLportTagMetaData(lportTag).longValue()
+                    | (MetaDataUtil.getAclConntrackClassifierTypeFromMetaData(
+                       Uint64.valueOf(conntrackClassifierType.getValue()))).longValue());
+            Uint64 metaDataMask = Uint64.fromLongBits(MetaDataUtil.METADATA_MASK_LPORT_TAG.longValue()
+                   | MetaDataUtil.METADATA_MASK_ACL_CONNTRACK_CLASSIFIER_TYPE.longValue());
             matches.add(new MatchMetadata(metaData, metaDataMask));
         }
         return matches;
@@ -634,8 +637,8 @@ public final class AclServiceUtils {
 
     public static InstructionWriteMetadata getWriteMetadataForAclClassifierType(
             AclConntrackClassifierType conntrackClassifierType) {
-        return new InstructionWriteMetadata(
-                MetaDataUtil.getAclConntrackClassifierTypeFromMetaData(conntrackClassifierType.getValue()),
+        return new InstructionWriteMetadata(MetaDataUtil.getAclConntrackClassifierTypeFromMetaData(
+                Uint64.valueOf(conntrackClassifierType.getValue())),
                 MetaDataUtil.METADATA_MASK_ACL_CONNTRACK_CLASSIFIER_TYPE);
     }
 
@@ -652,8 +655,9 @@ public final class AclServiceUtils {
     public static MatchInfoBase buildAclConntrackClassifierTypeMatch(
             AclConntrackClassifierType conntrackSupportedType) {
         return new MatchMetadata(
-                MetaDataUtil.getAclConntrackClassifierTypeFromMetaData(conntrackSupportedType.getValue()),
-                MetaDataUtil.METADATA_MASK_ACL_CONNTRACK_CLASSIFIER_TYPE);
+                MetaDataUtil.getAclConntrackClassifierTypeFromMetaData(
+                    Uint64.valueOf(conntrackSupportedType.getValue())),
+                    MetaDataUtil.METADATA_MASK_ACL_CONNTRACK_CLASSIFIER_TYPE);
     }
 
     public AclserviceConfig getConfig() {
@@ -703,7 +707,7 @@ public final class AclServiceUtils {
         ElanInterface elanInterface = getElanInterfaceByElanInterfaceName(elanInterfaceName, broker);
         if (null != elanInterface) {
             ElanInstance elanInfo = getElanInstanceByName(elanInterface.getElanInstanceName(), broker);
-            return elanInfo != null ? elanInfo.getElanTag() : null;
+            return elanInfo != null ? elanInfo.getElanTag().toJava() : null;
         }
         return null;
     }
@@ -1266,13 +1270,13 @@ public final class AclServiceUtils {
         int hardTimeout = AclConstants.SECURITY_GROUP_ICMP_IDLE_TIME_OUT;
         Matches matches = ace.getMatches();
         AceIp acl = (AceIp) matches.getAceType();
-        Short protocol = acl.getProtocol();
+        Short protocol = acl.getProtocol().toJava();
         if (protocol == null) {
             return hardTimeout;
         } else if (protocol == NwConstants.IP_PROT_TCP) {
-            hardTimeout = aclServiceUtils.getConfig().getSecurityGroupTcpIdleTimeout();
+            hardTimeout = aclServiceUtils.getConfig().getSecurityGroupTcpIdleTimeout().toJava();
         } else if (protocol == NwConstants.IP_PROT_UDP) {
-            hardTimeout = aclServiceUtils.getConfig().getSecurityGroupUdpIdleTimeout();
+            hardTimeout = aclServiceUtils.getConfig().getSecurityGroupUdpIdleTimeout().toJava();
         }
         return hardTimeout;
     }

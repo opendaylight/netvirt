@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.dhcpservice.jobs;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -19,6 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.re
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnel;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,12 +28,12 @@ public class DhcpInterfaceUpdateJob implements Callable<List<ListenableFuture<Vo
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private final DataBroker dataBroker;
     private final String interfaceName;
-    private final BigInteger dpnId;
+    private final Uint64 dpnId;
     private final OperStatus operStatus;
     private final IInterfaceManager interfaceManager;
 
     public DhcpInterfaceUpdateJob(DhcpExternalTunnelManager dhcpExternalTunnelManager,
-                                  DataBroker dataBroker, String interfaceName, BigInteger dpnId,
+                                  DataBroker dataBroker, String interfaceName, Uint64 dpnId,
                                   OperStatus operStatus, IInterfaceManager interfaceManager) {
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.dataBroker = dataBroker;

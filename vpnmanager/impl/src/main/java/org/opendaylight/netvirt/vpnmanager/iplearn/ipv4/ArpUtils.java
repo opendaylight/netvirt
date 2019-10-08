@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.vpnmanager.iplearn.ipv4;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.jdt.annotation.Nullable;
@@ -21,6 +20,7 @@ import org.opendaylight.openflowplugin.libraries.liblldp.EtherTypes;
 import org.opendaylight.openflowplugin.libraries.liblldp.PacketException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,18 +35,18 @@ public final class ArpUtils {
 
     }
 
-    public static TransmitPacketInput createArpRequestInput(BigInteger dpnId, long groupId, byte[] abySenderMAC,
-        byte[] abySenderIpAddress, byte[] abyTargetIpAddress) {
+    public static TransmitPacketInput createArpRequestInput(Uint64 dpnId, long groupId, byte[] abySenderMAC,
+                                                            byte[] abySenderIpAddress, byte[] abyTargetIpAddress) {
         return createArpRequestInput(dpnId, groupId, abySenderMAC, abySenderIpAddress, abyTargetIpAddress, null);
     }
 
-    public static TransmitPacketInput createArpRequestInput(BigInteger dpnId, byte[] abySenderMAC,
+    public static TransmitPacketInput createArpRequestInput(Uint64 dpnId, byte[] abySenderMAC,
         byte[] abySenderIpAddress, byte[] abyTargetIpAddress, NodeConnectorRef ingress) {
         return createArpRequestInput(dpnId, null, abySenderMAC, (byte[]) null, abySenderIpAddress, abyTargetIpAddress,
             ingress, new ArrayList<>());
     }
 
-    public static TransmitPacketInput createArpRequestInput(BigInteger dpnId, Long groupId, byte[] abySenderMAC,
+    public static TransmitPacketInput createArpRequestInput(Uint64 dpnId, Long groupId, byte[] abySenderMAC,
         byte[] abySenderIpAddress, byte[] abyTargetIpAddress, NodeConnectorRef ingress) {
         List<ActionInfo> lstActionInfo = new ArrayList<>();
         return createArpRequestInput(dpnId, groupId, abySenderMAC, null, abySenderIpAddress, abyTargetIpAddress,
@@ -54,7 +54,7 @@ public final class ArpUtils {
     }
 
     @Nullable
-    public static TransmitPacketInput createArpRequestInput(BigInteger dpnId, Long groupId, byte[] abySenderMAC,
+    public static TransmitPacketInput createArpRequestInput(Uint64 dpnId, Long groupId, byte[] abySenderMAC,
             byte[] abyTargetMAC, byte[] abySenderIpAddress, byte[] abyTargetIpAddress, NodeConnectorRef ingress,
             List<ActionInfo> lstActionInfo) {
 

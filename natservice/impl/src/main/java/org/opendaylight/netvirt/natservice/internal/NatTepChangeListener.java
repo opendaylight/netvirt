@@ -15,7 +15,6 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -58,6 +57,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMap;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,7 +142,7 @@ public class NatTepChangeListener extends
          * DPN and perform re-election of NAPT Switch for a VRF to which the current
          * DPN is elected as NAPT Switch.
          */
-        BigInteger srcDpnId = key.firstIdentifierOf(DPNTEPsInfo.class)
+        Uint64 srcDpnId = key.firstIdentifierOf(DPNTEPsInfo.class)
             .firstKeyOf(DPNTEPsInfo.class).getDPNID();
         final String srcTepIp = tep.getIpAddress().stringValue();
         String tunnelType = tep.getTunnelType().getName();
@@ -165,7 +166,7 @@ public class NatTepChangeListener extends
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private void handleTepDelForAllRtrs(BigInteger srcDpnId, String srcTepIp) {
+    private void handleTepDelForAllRtrs(Uint64 srcDpnId, String srcTepIp) {
         LOG.trace("handleTepDelForAllRtrs : TEP DEL ----- on DPN-ID {} having SRC IP : {}",
             srcDpnId,
             srcTepIp);
@@ -196,7 +197,7 @@ public class NatTepChangeListener extends
             LOG.debug(
                 "handleTepDelForAllRtrs :  TEP DEL : DNAT -> Withdrawing routes for router {} ",
                 routerName);
-            long routerId = NatUtil.getVpnId(dataBroker, routerName);
+            Uint32 routerId = NatUtil.getVpnId(dataBroker, routerName);
             if (routerId == NatConstants.INVALID_ID) {
                 LOG.error("handleTepDelForAllRtrs :Invalid ROUTER-ID {} returned for routerName {}",
                     routerId, routerName);
@@ -226,8 +227,8 @@ public class NatTepChangeListener extends
         return;
     }
 
-    private boolean hndlTepDelForDnatInEachRtr(RoutersList router, long routerId,
-        BigInteger tepDeletedDpnId,
+    private boolean hndlTepDelForDnatInEachRtr(RoutersList router, Uint32 routerId,
+        Uint64 tepDeletedDpnId,
         ProviderTypes extNwProvType) {
         //DNAT : Withdraw the routes from the BGP
         String routerName = router.getRouter();
@@ -258,7 +259,7 @@ public class NatTepChangeListener extends
         if (extNwProvType == null) {
             return isFipExists;
         }
-        long l3Vni = 0;
+        Uint32 l3Vni = Uint32.ZERO;
         if (extNwProvType == ProviderTypes.VXLAN) {
             //get l3Vni value for external VPN
             l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
@@ -267,15 +268,15 @@ public class NatTepChangeListener extends
                     "hndlTepDelForDnatInEachRtr : L3VNI value is not configured in Internet VPN {} and RD {} "
                         + "Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue to installing "
                         + "NAT flows", vpnName, rd);
-                l3Vni = natOverVxlanUtil.getInternetVpnVni(vpnName, routerId).longValue();
+                l3Vni = natOverVxlanUtil.getInternetVpnVni(vpnName, routerId);
             }
         }
         List<Ports> interfaces = routerPorts.getPorts();
         for (Ports port : interfaces) {
             //Get the DPN on which this interface resides
             String interfaceName = port.getPortName();
-            BigInteger fipCfgdDpnId = NatUtil.getDpnForInterface(interfaceService, interfaceName);
-            if (fipCfgdDpnId.equals(BigInteger.ZERO)) {
+            Uint64 fipCfgdDpnId = NatUtil.getDpnForInterface(interfaceService, interfaceName);
+            if (fipCfgdDpnId.equals(Uint64.ZERO)) {
                 LOG.info(
                     "hndlTepDelForDnatInEachRtr : DNAT -> Abort processing Floating ip configuration. "
                         + "No DPN for port : {}", interfaceName);
@@ -299,11 +300,11 @@ public class NatTepChangeListener extends
                         + "configured for the port: {}",
                     externalIp, interfaceName);
                 NatUtil.removePrefixFromBGP(bgpManager, fibManager, rd, externalIp, vpnName);
-                long serviceId = 0;
+                Uint32 serviceId = Uint32.ZERO;
                 if (extNwProvType == ProviderTypes.VXLAN) {
                     serviceId = l3Vni;
                 } else {
-                    long label = floatingIPListener
+                    Uint32 label = floatingIPListener
                         .getOperationalIpMapping(routerName, interfaceName, internalIp);
                     if (label == NatConstants.INVALID_ID) {
                         LOG.error(
@@ -348,7 +349,7 @@ public class NatTepChangeListener extends
         return isFipExists;
     }
 
-    private void hndlTepDelForSnatInEachRtr(RoutersList router, long routerId, BigInteger dpnId,
+    private void hndlTepDelForSnatInEachRtr(RoutersList router, Uint32 routerId, Uint64 dpnId,
         String srcTepIp, Boolean isFipExists, ProviderTypes extNwProvType,
         TypedReadWriteTransaction<Configuration> confTx)
         throws ExecutionException, InterruptedException {
@@ -380,8 +381,8 @@ public class NatTepChangeListener extends
         }
 
         //Check if the DPN having the router is the NAPT switch
-        BigInteger naptId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
-        if (naptId == null || naptId.equals(BigInteger.ZERO) || !naptId.equals(dpnId)) {
+        Uint64 naptId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
+        if (naptId == null || naptId.equals(Uint64.ZERO) || !naptId.equals(dpnId)) {
             LOG.error(
                 "hndlTepDelForSnatInEachRtr : SNAT -> Ignoring TEP delete for the DPN {} since"
                     + "srcTepIp : {} is NOT a NAPT switch", dpnId, srcTepIp);
@@ -408,7 +409,7 @@ public class NatTepChangeListener extends
             LOG.debug("hndlTepDelForSnatInEachRtr : SNAT->Router {} is associated with ext nw {}",
                 routerId, networkId);
             Uuid bgpVpnUuid = NatUtil.getVpnForRouter(dataBroker, routerName);
-            Long bgpVpnId;
+            Uint32 bgpVpnId;
             if (bgpVpnUuid == null) {
                 LOG.debug(
                     "hndlTepDelForSnatInEachRtr : SNAT->Internal VPN-ID {} associated to router {}",
@@ -435,7 +436,7 @@ public class NatTepChangeListener extends
             if (routerData.get().isEnableSnat()) {
                 LOG.info("hndlTepDelForSnatInEachRtr : SNAT enabled for router {}", routerId);
 
-                long routerVpnId = routerId;
+                Uint32 routerVpnId = routerId;
                 if (bgpVpnId != NatConstants.INVALID_ID) {
                     LOG.debug(
                         "hndlTepDelForSnatInEachRtr : SNAT -> Private BGP VPN ID (Internal BGP VPN ID) {} "

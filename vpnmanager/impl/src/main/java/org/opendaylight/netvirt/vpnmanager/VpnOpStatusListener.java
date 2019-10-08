@@ -47,6 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTarget;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.Vpn;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,7 +113,7 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
             final String vpnName = update.getVpnInstanceName();
             final List<String> rds = update.getRd();
             String primaryRd = update.getVrfId();
-            final long vpnId = vpnUtil.getVpnId(vpnName);
+            final Uint32 vpnId = vpnUtil.getVpnId(vpnName);
             jobCoordinator.enqueueJob("VPN-" + update.getVpnInstanceName(), () -> {
                 // Two transactions are used, one for operational, one for config; we only submit the config
                 // transaction if the operational transaction succeeds

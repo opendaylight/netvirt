@@ -179,7 +179,8 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                     for (Prefixes pref : prefixToInterface) {
                         if (VpnUtil.isMatchedPrefixToInterface(pref, del)) {
                             readWriteTxn.delete(LogicalDatastoreType.OPERATIONAL,
-                                    VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(), pref.getIpAddress()));
+                                    VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
+                                                                                pref.getIpAddress()));
                         }
                     }
                 }

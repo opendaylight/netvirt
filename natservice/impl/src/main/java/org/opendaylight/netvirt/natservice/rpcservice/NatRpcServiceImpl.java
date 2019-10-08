@@ -46,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.s
 import org.opendaylight.yangtools.yang.common.RpcError;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,7 +78,7 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
         }
         List<RouterNat> natRouterList = new ArrayList<>();
         for (Uuid routerUuid : routerUuidList) {
-            long routerId = NatUtil.getVpnId(dataBroker, routerUuid.getValue());
+            Uint32 routerId = NatUtil.getVpnId(dataBroker, routerUuid.getValue());
             if (routerId == NatConstants.INVALID_ID) {
                 LOG.warn("getNatTranslationsOnVpn : Invalid RouterID found {}", routerId);
                 continue;
@@ -95,7 +96,7 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
     public ListenableFuture<RpcResult<GetNatTranslationsOnRouterOutput>> getNatTranslationsOnRouter(
             GetNatTranslationsOnRouterInput input) {
         RpcResultBuilder<GetNatTranslationsOnRouterOutput> rpcResultBuilder = null;
-        long routerId = NatUtil.getVpnId(dataBroker, input.getRouterUuid().getValue());
+        Uint32 routerId = NatUtil.getVpnId(dataBroker, input.getRouterUuid().getValue());
         if (routerId == NatConstants.INVALID_ID) {
             String errMsg = String.format("404 Not Found - No Router found with UUID {%s}",
                     input.getRouterUuid().getValue());
@@ -155,7 +156,7 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
         }
 
         Subnetmap subnetMap = NatUtil.getSubnetMap(dataBroker, subNet.getUuid());
-        long routerId = NatUtil.getVpnId(dataBroker, subnetMap.getRouterId().getValue());
+        Uint32 routerId = NatUtil.getVpnId(dataBroker, subnetMap.getRouterId().getValue());
 
         List<Ports> fipPorts = NatUtil.getFloatingIpPortsForRouter(dataBroker, subnetMap.getRouterId());
         if (fipPorts.isEmpty()) {
@@ -205,7 +206,7 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
         return rpcResultBuilder.buildFuture();
     }
 
-    private List<RouterNat> constructNatInformation(Uuid routerUuid, long routerId) {
+    private List<RouterNat> constructNatInformation(Uuid routerUuid, Uint32 routerId) {
 
         String neutronRouterName = NatUtil.getNeutronRouterNamebyUuid(dataBroker, routerUuid);
 

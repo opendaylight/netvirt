@@ -76,8 +76,8 @@ public class DpnDmacJob implements Callable<List<ListenableFuture<Void>>> {
                     elan.getElanInstanceName(), device);
             if (localMacs != null && !localMacs.isEmpty()) {
                 for (MacAddress mac : localMacs) {
-                    result.addAll(elanDmacUtils.deleteDmacFlowsToExternalMac(elan.getElanTag(), dpnInterfaces.getDpId(),
-                            nodeId, mac.getValue().toLowerCase(Locale.getDefault())));
+                    result.addAll(elanDmacUtils.deleteDmacFlowsToExternalMac(elan.getElanTag().toJava(),
+                            dpnInterfaces.getDpId(), nodeId, mac.getValue().toLowerCase(Locale.getDefault())));
                 }
             }
         }

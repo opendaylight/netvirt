@@ -11,11 +11,12 @@ package org.opendaylight.netvirt.natservice.internal;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.netvirt.natservice.internal.NaptPacketInHandler.NatPacketProcessingState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class NAPTEntryEvent {
     private final String ipAddress;
     private final int portNumber;
-    private final Long routerId;
+    private final Uint32 routerId;
     private String flowDpn;
     private final Operation op;
     private final Protocol protocol;
@@ -24,7 +25,7 @@ public class NAPTEntryEvent {
     private final long objectCreationTime;
     private final NatPacketProcessingState state;
 
-    NAPTEntryEvent(String ipAddress, int portNumber, Long routerId, Operation op, Protocol protocol,
+    NAPTEntryEvent(String ipAddress, int portNumber, Uint32 routerId, Operation op, Protocol protocol,
             @Nullable PacketReceived packetReceived, boolean pktProcessed, @Nullable NatPacketProcessingState state) {
         this.ipAddress = ipAddress;
         this.portNumber = portNumber;
@@ -37,7 +38,7 @@ public class NAPTEntryEvent {
         this.objectCreationTime = System.currentTimeMillis();
     }
 
-    NAPTEntryEvent(String ipAddress, int portNumber, String flowDpn, Long routerId, Operation op, Protocol protocol) {
+    NAPTEntryEvent(String ipAddress, int portNumber, String flowDpn, Uint32 routerId, Operation op, Protocol protocol) {
         this.op = op;
         this.ipAddress = ipAddress;
         this.portNumber = portNumber;
@@ -66,7 +67,7 @@ public class NAPTEntryEvent {
         return portNumber;
     }
 
-    public Long getRouterId() {
+    public Uint32 getRouterId() {
         return routerId;
     }
 

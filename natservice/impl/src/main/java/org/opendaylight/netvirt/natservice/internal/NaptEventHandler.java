@@ -14,7 +14,6 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.MoreExecutors;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -104,6 +103,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Tr
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -166,7 +167,7 @@ public class NaptEventHandler {
             5) Write the flow to the INBOUND NAPT Table and forward to FIB table for routing the traffic.
     */
         try {
-            Long routerId = naptEntryEvent.getRouterId();
+            Uint32 routerId = naptEntryEvent.getRouterId();
             String internalIpAddress = naptEntryEvent.getIpAddress();
             int internalPort = naptEntryEvent.getPortNumber();
             NAPTEntryEvent.Protocol protocol = naptEntryEvent.getProtocol();
@@ -178,8 +179,8 @@ public class NaptEventHandler {
                               (System.currentTimeMillis() - naptEntryEvent.getObjectCreationTime()), routerId,
                               naptEntryEvent.isPktProcessed());
             //Get the DPN ID
-            BigInteger dpnId = NatUtil.getPrimaryNaptfromRouterId(dataBroker, routerId);
-            long bgpVpnId = NatConstants.INVALID_ID;
+            Uint64 dpnId = NatUtil.getPrimaryNaptfromRouterId(dataBroker, routerId);
+            Uint32 bgpVpnId = NatConstants.INVALID_ID;
             if (dpnId == null) {
                 LOG.warn("handleEvent : dpnId is null. Assuming the router ID {} as the BGP VPN ID and "
                     + "proceeding....", routerId);
@@ -238,7 +239,7 @@ public class NaptEventHandler {
                                  sourceIPPortKey);
                         return;
                     }
-                    Long vpnId = NatUtil.getVpnId(dataBroker, vpnUuid.getValue());
+                    Uint32 vpnId = NatUtil.getVpnId(dataBroker, vpnUuid.getValue());
 
                     SessionAddress internalAddress = new SessionAddress(internalIpAddress, internalPort);
 
@@ -253,7 +254,7 @@ public class NaptEventHandler {
                         return;
                     }
 
-                    Long vpnIdFromExternalSubnet = getVpnIdFromExternalSubnet(routerId,
+                    Uint32 vpnIdFromExternalSubnet = getVpnIdFromExternalSubnet(routerId,
                             externalAddress.getIpAddress());
                     if (vpnIdFromExternalSubnet != NatConstants.INVALID_ID) {
                         vpnId = vpnIdFromExternalSubnet;
@@ -263,10 +264,10 @@ public class NaptEventHandler {
                     Future<RpcResult<AddFlowOutput>> addFlowResult =
                             buildAndInstallNatFlowsOptionalRpc(dpnId, NwConstants.INBOUND_NAPT_TABLE, vpnId, routerId,
                                     bgpVpnId, externalAddress, internalAddress, protocol, extGwMacAddress, true);
-                    final BigInteger finalDpnId = dpnId;
-                    final Long finalVpnId = vpnId;
-                    final Long finalRouterId = routerId;
-                    final long finalBgpVpnId = bgpVpnId;
+                    final Uint64 finalDpnId = dpnId;
+                    final Uint32 finalVpnId = vpnId;
+                    final Uint32 finalRouterId = routerId;
+                    final Uint32 finalBgpVpnId = bgpVpnId;
                     Futures.addCallback(JdkFutureAdapters.listenInPoolThread(addFlowResult),
                                         new FutureCallback<RpcResult<AddFlowOutput>>() {
 
@@ -323,9 +324,9 @@ public class NaptEventHandler {
         }
     }
 
-    private void prepareAndSendPacketOut(NAPTEntryEvent naptEntryEvent, Long routerId, String sourceIPPortKey) {
+    private void prepareAndSendPacketOut(NAPTEntryEvent naptEntryEvent, Uint32 routerId, String sourceIPPortKey) {
         //Send Packetout - tcp or udp packets which got punted to controller.
-        BigInteger metadata = naptEntryEvent.getPacketReceived().getMatch().getMetadata().getMetadata();
+        Uint64 metadata = naptEntryEvent.getPacketReceived().getMatch().getMetadata().getMetadata();
         byte[] inPayload = naptEntryEvent.getPacketReceived().getPayload();
         Ethernet ethPkt = new Ethernet();
         if (inPayload != null) {
@@ -342,7 +343,7 @@ public class NaptEventHandler {
         LOG.debug("prepareAndSendPacketOut : portTag from incoming packet is {}", portTag);
         List<ActionInfo> actionInfos = new ArrayList<>();
         String interfaceName = getInterfaceNameFromTag(portTag);
-        BigInteger dpnID = null;
+        Uint64 dpnID = null;
         int portNum = -1;
         if (interfaceName != null) {
             LOG.debug("prepareAndSendPacketOut : interfaceName fetched from portTag is {}", interfaceName);
@@ -358,7 +359,7 @@ public class NaptEventHandler {
 
             IfL2vlan ifL2vlan = iface.augmentation(IfL2vlan.class);
             if (ifL2vlan != null && ifL2vlan.getVlanId() != null) {
-                vlanId = ifL2vlan.getVlanId().getValue() == null ? 0 : ifL2vlan.getVlanId().getValue();
+                vlanId = ifL2vlan.getVlanId().getValue() == null ? 0 : ifL2vlan.getVlanId().getValue().toJava();
             }
             InterfaceInfo infInfo = interfaceManager.getInterfaceInfoFromOperationalDataStore(interfaceName);
             if (infInfo == null) {
@@ -398,14 +399,14 @@ public class NaptEventHandler {
             LOG.info("prepareAndSendPacketOut : NodeConnectorKey key : {}", key.getId().getValue());
             String dpnKey = key.getId().getValue();
             if (dpnKey.contains(NatConstants.COLON_SEPARATOR)) {
-                dpnID = new BigInteger(dpnKey.split(NatConstants.COLON_SEPARATOR)[1]);
+                dpnID = Uint64.valueOf(dpnKey.split(NatConstants.COLON_SEPARATOR)[1]).intern();
             }
         }
         byte[] pktOut = buildNaptPacketOut(ethPkt);
 
         if (pktOut != null) {
             String routerName = NatUtil.getRouterName(dataBroker, routerId);
-            long tunId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, natOverVxlanUtil, elanManager,
+            Uint64 tunId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, natOverVxlanUtil, elanManager,
                     idManager, routerId, routerName);
             LOG.info("sendNaptPacketOut for ({}:{}) on dpnId {} portNum {} tunId {}",
                 naptEntryEvent.getIpAddress(), naptEntryEvent.getPortNumber(), dpnID, portNum, tunId);
@@ -415,16 +416,16 @@ public class NaptEventHandler {
         }
     }
 
-    public void buildAndInstallNatFlows(BigInteger dpnId, short tableId, long vpnId, long routerId,
-                                               long bgpVpnId, SessionAddress actualSourceAddress,
-                                               SessionAddress translatedSourceAddress,
-                                               NAPTEntryEvent.Protocol protocol, String extGwMacAddress) {
+    public void buildAndInstallNatFlows(Uint64 dpnId, short tableId, Uint32 vpnId, Uint32 routerId,
+                                        Uint32 bgpVpnId, SessionAddress actualSourceAddress,
+                                        SessionAddress translatedSourceAddress,
+                                        NAPTEntryEvent.Protocol protocol, String extGwMacAddress) {
         buildAndInstallNatFlowsOptionalRpc(dpnId, tableId, vpnId, routerId, bgpVpnId, actualSourceAddress,
                 translatedSourceAddress, protocol, extGwMacAddress, false);
     }
 
     private Future<RpcResult<AddFlowOutput>> buildAndInstallNatFlowsOptionalRpc(
-            BigInteger dpnId, short tableId, long vpnId, long routerId, long bgpVpnId,
+            Uint64 dpnId, short tableId, Uint32 vpnId, Uint32 routerId, Uint32 bgpVpnId,
             SessionAddress actualSourceAddress, SessionAddress translatedSourceAddress,
             NAPTEntryEvent.Protocol protocol, String extGwMacAddress,
             boolean sendRpc) {
@@ -435,7 +436,7 @@ public class NaptEventHandler {
         if (tableId == NwConstants.OUTBOUND_NAPT_TABLE) {
             idleTimeout = NatConstants.DEFAULT_NAPT_IDLE_TIMEOUT;
         }
-        long intranetVpnId;
+        Uint32 intranetVpnId;
         if (bgpVpnId != NatConstants.INVALID_ID) {
             intranetVpnId = bgpVpnId;
         } else {
@@ -500,19 +501,19 @@ public class NaptEventHandler {
         return addFlowResult;
     }
 
-    private static Node buildInventoryDpnNode(BigInteger dpnId) {
+    private static Node buildInventoryDpnNode(Uint64 dpnId) {
         NodeId nodeId = new NodeId("openflow:" + dpnId);
         Node nodeDpn = new NodeBuilder().setId(nodeId).withKey(new NodeKey(nodeId)).build();
         return nodeDpn;
     }
 
-    private static NodeRef getNodeRef(BigInteger dpnId) {
+    private static NodeRef getNodeRef(Uint64 dpnId) {
         NodeId nodeId = new NodeId("openflow:" + dpnId);
         return new NodeRef(InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class, new NodeKey(nodeId)).build());
     }
 
-    public static FlowRef getFlowRef(BigInteger dpId, Flow flow) {
+    public static FlowRef getFlowRef(Uint64 dpId, Flow flow) {
         FlowKey flowKey = new FlowKey(new FlowId(flow.getId()));
         Node nodeDpn = buildInventoryDpnNode(dpId);
         InstanceIdentifier<Flow> flowInstanceId =
@@ -526,7 +527,7 @@ public class NaptEventHandler {
 
     @Nullable
     private static List<MatchInfo> buildAndGetMatchInfo(String ip, int port, short tableId,
-                                                        NAPTEntryEvent.Protocol protocol, long segmentId) {
+                                                        NAPTEntryEvent.Protocol protocol, Uint32 segmentId) {
         MatchInfo ipMatchInfo = null;
         MatchInfo portMatchInfo = null;
         MatchInfo protocolMatchInfo = null;
@@ -553,7 +554,8 @@ public class NaptEventHandler {
                 portMatchInfo = new MatchUdpSourcePort(port);
             }
             metaDataMatchInfo =
-                    new MatchMetadata(MetaDataUtil.getVpnIdMetadata(segmentId), MetaDataUtil.METADATA_MASK_VRFID);
+                    new MatchMetadata(MetaDataUtil.getVpnIdMetadata(segmentId.longValue()),
+                            MetaDataUtil.METADATA_MASK_VRFID);
         } else {
             ipMatchInfo = new MatchIpv4Destination(ipAddressAsString, "32");
             if (protocol == NAPTEntryEvent.Protocol.TCP) {
@@ -578,7 +580,7 @@ public class NaptEventHandler {
 
     @NonNull
     private static List<InstructionInfo> buildAndGetSetActionInstructionInfo(String ipAddress, int port,
-                                                                             long segmentId, long vpnId,
+                                                                             Uint32 segmentId, Uint32 vpnId,
                                                                              short tableId,
                                                                              NAPTEntryEvent.Protocol protocol,
                                                                              String extGwMacAddress) {
@@ -598,8 +600,9 @@ public class NaptEventHandler {
                     portActionInfo = new ActionSetUdpSourcePort(port);
                 }
                 // reset the split-horizon bit to allow traffic from tunnel to be sent back to the provider port
-                instructionInfo.add(new InstructionWriteMetadata(MetaDataUtil.getVpnIdMetadata(vpnId),
-                    MetaDataUtil.METADATA_MASK_VRFID.or(MetaDataUtil.METADATA_MASK_SH_FLAG)));
+                instructionInfo.add(new InstructionWriteMetadata(MetaDataUtil.getVpnIdMetadata(vpnId.longValue()),
+                    Uint64.fromLongBits(MetaDataUtil.METADATA_MASK_VRFID.longValue()
+                            | (MetaDataUtil.METADATA_MASK_SH_FLAG.longValue()))));
                 break;
 
             case NwConstants.INBOUND_NAPT_TABLE:
@@ -610,7 +613,7 @@ public class NaptEventHandler {
                     portActionInfo = new ActionSetUdpDestinationPort(port);
                 }
                 instructionInfo.add(new InstructionWriteMetadata(
-                        MetaDataUtil.getVpnIdMetadata(segmentId), MetaDataUtil.METADATA_MASK_VRFID));
+                        MetaDataUtil.getVpnIdMetadata(segmentId.longValue()), MetaDataUtil.METADATA_MASK_VRFID));
                 break;
 
             default:
@@ -631,8 +634,8 @@ public class NaptEventHandler {
         return instructionInfo;
     }
 
-    void removeNatFlows(BigInteger dpnId, short tableId ,long segmentId, String ip, int port, String protocol) {
-        if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
+    void removeNatFlows(Uint64 dpnId, short tableId ,Uint32 segmentId, String ip, int port, String protocol) {
+        if (dpnId == null || dpnId.equals(Uint64.ZERO)) {
             LOG.error("removeNatFlows : DPN ID {} is invalid" , dpnId);
             return;
         }
@@ -674,11 +677,11 @@ public class NaptEventHandler {
         return null;
     }
 
-    private void sendNaptPacketOut(byte[] pktOut, BigInteger dpnID, int portNum,
-            List<ActionInfo> actionInfos, Long tunId) {
+    private void sendNaptPacketOut(byte[] pktOut, Uint64 dpnID, int portNum,
+            List<ActionInfo> actionInfos, Uint64 tunId) {
         LOG.trace("sendNaptPacketOut: Sending packet out DpId {}, interface {}", dpnID, portNum);
         // set inPort, and action as OFPP_TABLE so that it starts from table 0 (lowest table as per spec)
-        actionInfos.add(new ActionSetFieldTunnelId(2, BigInteger.valueOf(tunId)));
+        actionInfos.add(new ActionSetFieldTunnelId(2, tunId));
         actionInfos.add(new ActionOutput(3, new Uri("0xfffffff9")));
         NodeConnectorRef inPort = MDSALUtil.getNodeConnRef(dpnID, String.valueOf(portNum));
         LOG.debug("sendNaptPacketOut : inPort for packetout is being set to {}", portNum);
@@ -708,7 +711,7 @@ public class NaptEventHandler {
         return interfaceName;
     }
 
-    private long getVpnIdFromExternalSubnet(Long routerId, String externalIpAddress) {
+    private Uint32 getVpnIdFromExternalSubnet(Uint32 routerId, String externalIpAddress) {
         String routerName = NatUtil.getRouterName(dataBroker, routerId);
         if (routerName != null) {
             Routers extRouter = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
@@ -720,8 +723,8 @@ public class NaptEventHandler {
         return NatConstants.INVALID_ID;
     }
 
-    public void handleFlowRemoved(NAPTEntryEvent naptEntryEvent, Long routerId, String sourceIPPortKey,
-                                  BigInteger dpnId) {
+    public void handleFlowRemoved(NAPTEntryEvent naptEntryEvent, Uint32 routerId, String sourceIPPortKey,
+                                  Uint64 dpnId) {
         String internalIpv4HostAddress = naptEntryEvent.getIpAddress();
         Integer internalPortNumber = naptEntryEvent.getPortNumber();
         NAPTEntryEvent.Protocol protocol = naptEntryEvent.getProtocol();
