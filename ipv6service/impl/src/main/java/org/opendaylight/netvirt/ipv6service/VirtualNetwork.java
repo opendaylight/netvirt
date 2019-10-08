@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.ipv6service;
 
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -21,10 +20,11 @@ import org.opendaylight.netvirt.ipv6service.api.IVirtualNetwork;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public class VirtualNetwork implements IVirtualNetwork {
     private final Uuid networkUUID;
-    private final ConcurrentMap<BigInteger, DpnInterfaceInfo> dpnIfaceList = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Uint64, DpnInterfaceInfo> dpnIfaceList = new ConcurrentHashMap<>();
     private volatile Long elanTag;
     private volatile int mtu = 0;
 
@@ -37,7 +37,7 @@ public class VirtualNetwork implements IVirtualNetwork {
         return networkUUID;
     }
 
-    public void updateDpnPortInfo(BigInteger dpnId, Long ofPort, int addOrRemove) {
+    public void updateDpnPortInfo(Uint64 dpnId, Long ofPort, int addOrRemove) {
         if (dpnId == null) {
             return;
         }
@@ -61,7 +61,7 @@ public class VirtualNetwork implements IVirtualNetwork {
     }
 
     @Override
-    public List<BigInteger> getDpnsHostingNetwork() {
+    public List<Uint64> getDpnsHostingNetwork() {
         return dpnIfaceList.values().stream().flatMap(dpnInterfaceInfo -> Stream.of(dpnInterfaceInfo.getDpId()))
                 .collect(Collectors.toList());
     }
@@ -71,18 +71,18 @@ public class VirtualNetwork implements IVirtualNetwork {
     }
 
     @Nullable
-    public DpnInterfaceInfo getDpnIfaceInfo(BigInteger dpId) {
+    public DpnInterfaceInfo getDpnIfaceInfo(Uint64 dpId) {
         return dpId != null ? dpnIfaceList.get(dpId) : null;
     }
 
-    public void setRSPuntFlowStatusOnDpnId(BigInteger dpnId, int action) {
+    public void setRSPuntFlowStatusOnDpnId(Uint64 dpnId, int action) {
         DpnInterfaceInfo dpnInterface = getDpnIfaceInfo(dpnId);
         if (null != dpnInterface) {
             dpnInterface.setRsFlowConfiguredStatus(action);
         }
     }
 
-    public int getRSPuntFlowStatusOnDpnId(BigInteger dpnId) {
+    public int getRSPuntFlowStatusOnDpnId(Uint64 dpnId) {
         DpnInterfaceInfo dpnInterface = getDpnIfaceInfo(dpnId);
         if (null != dpnInterface) {
             return dpnInterface.getRsFlowConfiguredStatus();
@@ -121,22 +121,22 @@ public class VirtualNetwork implements IVirtualNetwork {
     }
 
     public static class DpnInterfaceInfo {
-        BigInteger dpId;
+        Uint64 dpId;
         int rsPuntFlowConfigured;
         final Set<Uuid> subnetCidrPuntFlowList = ConcurrentHashMap.newKeySet();
         final Set<Long> ofPortList = ConcurrentHashMap.newKeySet();
         final Set<Ipv6Address> ndTargetFlowsPunted = ConcurrentHashMap.newKeySet();
 
-        DpnInterfaceInfo(BigInteger dpnId) {
+        DpnInterfaceInfo(Uint64 dpnId) {
             dpId = dpnId;
             rsPuntFlowConfigured = Ipv6ServiceConstants.FLOWS_NOT_CONFIGURED;
         }
 
-        public void setDpId(BigInteger dpId) {
+        public void setDpId(Uint64 dpId) {
             this.dpId = dpId;
         }
 
-        public BigInteger getDpId() {
+        public Uint64 getDpId() {
             return dpId;
         }
 

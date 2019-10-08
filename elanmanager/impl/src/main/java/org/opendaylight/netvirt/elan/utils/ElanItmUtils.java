@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.elan.utils;
 
-import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -41,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.G
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +76,7 @@ public class ElanItmUtils {
      *            Vni to be stamped on the VxLAN Header.
      * @return the external itm egress action
      */
-    public List<Action> getExternalTunnelItmEgressAction(BigInteger srcDpnId, NodeId torNode, long vni) {
+    public List<Action> getExternalTunnelItmEgressAction(Uint64 srcDpnId, NodeId torNode, long vni) {
         List<Action> result = Collections.emptyList();
 
         GetExternalTunnelInterfaceNameInput input = new GetExternalTunnelInterfaceNameInputBuilder()
@@ -100,7 +100,7 @@ public class ElanItmUtils {
         return result;
     }
 
-    public List<Action> getExternalTunnelItmEgressAction(BigInteger srcDpnId, String nexthopIP, long vni) {
+    public List<Action> getExternalTunnelItmEgressAction(Uint64 srcDpnId, String nexthopIP, long vni) {
         List<Action> result = Collections.emptyList();
 
         GetExternalTunnelInterfaceNameInput input = new GetExternalTunnelInterfaceNameInputBuilder()
@@ -138,7 +138,7 @@ public class ElanItmUtils {
      *            Tunnel key to be sent on the VxLAN header.
      * @return the internal itm egress action
      */
-    public List<Action> getInternalTunnelItmEgressAction(BigInteger sourceDpnId, BigInteger destinationDpnId, long
+    public List<Action> getInternalTunnelItmEgressAction(Uint64 sourceDpnId, Uint64 destinationDpnId, long
             tunnelKey) {
         List<Action> result = Collections.emptyList();
         LOG.trace("In getInternalItmEgressAction Action source {}, destination {}, serviceTag/Vni {}", sourceDpnId,
@@ -239,10 +239,10 @@ public class ElanItmUtils {
      *            the dst hw vtep node id
      * @return the dpn tep ip
      */
-    public IpAddress getSourceDpnTepIp(BigInteger srcDpnId,
+    public IpAddress getSourceDpnTepIp(Uint64 srcDpnId,
             org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId dstHwVtepNodeId) {
         IpAddress dpnTepIp = null;
-        String tunnelInterfaceName = getExternalTunnelInterfaceName(String.valueOf(srcDpnId),
+        String tunnelInterfaceName = getExternalTunnelInterfaceName(srcDpnId.toString(),
                 dstHwVtepNodeId.getValue());
         if (tunnelInterfaceName != null) {
             Interface tunnelInterface =

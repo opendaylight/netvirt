@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.aclservice.listeners;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import java.math.BigInteger;
 import java.util.Collections;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -36,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig.SecurityGroupMode;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,7 +122,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
     @Override
     protected void add(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModification) {
         NodeKey nodeKey = key.firstKeyOf(Node.class);
-        BigInteger dpId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
+        Uint64 dpId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
         LOG.info("Received ACL node [{}] add event", dpId);
 
         if (securityGroupMode != null && securityGroupMode != SecurityGroupMode.Stateful) {
@@ -130,7 +130,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
                     dpId);
             return;
         }
-        jobCoordinator.enqueueJob(String.valueOf(dpId),
+        jobCoordinator.enqueueJob(dpId.toString(),
             () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
                 new AclNodeDefaultFlowsTxBuilder(dpId, mdsalManager, config, tx).build();
 

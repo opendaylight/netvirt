@@ -35,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,8 +52,8 @@ public class FibDSWriter {
     }
 
     public synchronized void addFibEntryToDS(String rd, String prefix, List<String> nextHopList,
-            VrfEntry.EncapType encapType, int label, long l3vni,
-            String gatewayMacAddress, RouteOrigin origin) {
+                                             VrfEntry.EncapType encapType, Uint32 label, Uint32 l3vni,
+                                             String gatewayMacAddress, RouteOrigin origin) {
         if (rd == null || rd.isEmpty()) {
             LOG.error("Prefix {} not associated with vpn", prefix);
             return;
@@ -81,7 +82,7 @@ public class FibDSWriter {
 
     public void addMacEntryToDS(String rd, String macAddress, String prefix,
                                 List<String> nextHopList, VrfEntry.EncapType encapType,
-                                long l2vni, String gatewayMacAddress, RouteOrigin origin) {
+                                Uint32 l2vni, String gatewayMacAddress, RouteOrigin origin) {
         if (StringUtils.isEmpty(rd)) {
             LOG.error("Mac {} not associated with vpn", macAddress);
             return;
@@ -108,14 +109,14 @@ public class FibDSWriter {
     }
 
     private static void buildVpnEncapSpecificInfo(VrfEntryBuilder builder,
-            VrfEntry.EncapType encapType, long label, long l3vni,
+            VrfEntry.EncapType encapType, Uint32 label, Uint32 l3vni,
             String gatewayMac, List<String> nextHopList) {
         if (!encapType.equals(VrfEntry.EncapType.Mplsgre)) {
             builder.setL3vni(l3vni);
         }
         builder.setEncapType(encapType);
         builder.setGatewayMacAddress(gatewayMac);
-        Long lbl = encapType.equals(VrfEntry.EncapType.Mplsgre) ? label : null;
+        Uint32 lbl = encapType.equals(VrfEntry.EncapType.Mplsgre) ? label : null;
         List<RoutePaths> routePaths = nextHopList.stream()
                         .filter(StringUtils::isNotEmpty)
                         .map(nextHop -> FibHelper.buildRoutePath(nextHop, lbl)).collect(Collectors.toList());
@@ -123,7 +124,7 @@ public class FibDSWriter {
     }
 
     private static void buildVpnEncapSpecificInfo(MacVrfEntryBuilder builder,
-                                                  VrfEntry.EncapType encapType, long l2vni,
+                                                  VrfEntry.EncapType encapType, Uint32 l2vni,
                                                   String gatewayMac, List<String> nextHopList) {
         builder.setEncapType(encapType);
         builder.setGatewayMacAddress(gatewayMac);

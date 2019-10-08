@@ -8,9 +8,9 @@
 
 package org.opendaylight.netvirt.vpnmanager;
 
-import java.math.BigInteger;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg3;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public interface VpnConstants {
     String VPN_IDPOOL_NAME = "vpnservices";
@@ -21,7 +21,7 @@ public interface VpnConstants {
     int VPN_ID_LENGTH = 24;
     long INVALID_ID = -1;
     String SEPARATOR = ".";
-    BigInteger COOKIE_L3_BASE = new BigInteger("8000000", 16);
+    Uint64 COOKIE_L3_BASE = Uint64.valueOf("8000000", 16).intern();
     String FLOWID_PREFIX = "L3.";
     long MIN_WAIT_TIME_IN_MILLISECONDS = 10000;
     long MAX_WAIT_TIME_IN_MILLISECONDS = 180000;

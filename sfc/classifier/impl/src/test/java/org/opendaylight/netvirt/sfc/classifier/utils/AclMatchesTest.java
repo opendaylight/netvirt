@@ -51,6 +51,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.ni
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.nxm.of.tcp.src.grouping.NxmOfTcpSrc;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.nxm.of.udp.dst.grouping.NxmOfUdpDst;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.nxm.of.udp.src.grouping.NxmOfUdpSrc;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class AclMatchesTest {
 
@@ -124,7 +126,7 @@ public class AclMatchesTest {
             // There should be an IPv4 etherType set
             EthernetMatch ethMatch = matchBuilder.getEthernetMatch();
             assertNotNull(ethMatch);
-            assertEquals(ethMatch.getEthernetType().getType().getValue(), Long.valueOf(NwConstants.ETHTYPE_IPV4));
+            assertEquals(ethMatch.getEthernetType().getType().getValue(), Uint32.valueOf(NwConstants.ETHTYPE_IPV4));
 
             // The rest should be null
             assertNull(matchBuilder.getIpMatch());
@@ -155,12 +157,12 @@ public class AclMatchesTest {
             // There should be an IPv4 etherType set
             EthernetMatch ethMatch = matchBuilder.getEthernetMatch();
             assertNotNull(ethMatch);
-            assertEquals(ethMatch.getEthernetType().getType().getValue(), Long.valueOf(NwConstants.ETHTYPE_IPV4));
+            assertEquals(ethMatch.getEthernetType().getType().getValue(), Uint32.valueOf(NwConstants.ETHTYPE_IPV4));
 
             // Make sure its TCP
             IpMatch ipMatch = matchBuilder.getIpMatch();
             assertNotNull(ipMatch);
-            assertEquals(ipMatch.getIpProtocol(), Short.valueOf(IPProtocols.TCP.shortValue()));
+            assertEquals(ipMatch.getIpProtocol(), Uint8.valueOf(IPProtocols.TCP.shortValue()));
 
             NxmOfTcpSrc tcpSrc = matchBuilder
                     .augmentation(GeneralAugMatchNodesNodeTableFlow.class).getExtensionList().get(0)
@@ -168,8 +170,8 @@ public class AclMatchesTest {
 
 
             if (tcpSrc != null) {
-                srcTcpMatches.add(tcpSrc.getPort().getValue());
-                srcTcpMatches.add(tcpSrc.getMask());
+                srcTcpMatches.add(tcpSrc.getPort().getValue().toJava());
+                srcTcpMatches.add(tcpSrc.getMask().toJava());
             }
 
             // The layer3 match should be null
@@ -204,12 +206,12 @@ public class AclMatchesTest {
             // There should be an IPv4 etherType set
             EthernetMatch ethMatch = matchBuilder.getEthernetMatch();
             assertNotNull(ethMatch);
-            assertEquals(ethMatch.getEthernetType().getType().getValue(), Long.valueOf(NwConstants.ETHTYPE_IPV4));
+            assertEquals(ethMatch.getEthernetType().getType().getValue(), Uint32.valueOf(NwConstants.ETHTYPE_IPV4));
 
             // Make sure its TCP
             IpMatch ipMatch = matchBuilder.getIpMatch();
             assertNotNull(ipMatch);
-            assertEquals(ipMatch.getIpProtocol(), Short.valueOf(IPProtocols.TCP.shortValue()));
+            assertEquals(ipMatch.getIpProtocol(), Uint8.valueOf(IPProtocols.TCP.shortValue()));
 
             NxmOfTcpSrc tcpSrc = matchBuilder
                     .augmentation(GeneralAugMatchNodesNodeTableFlow.class).getExtensionList().get(0)
@@ -217,8 +219,8 @@ public class AclMatchesTest {
 
 
             if (tcpSrc != null) {
-                srcTcpMatches.add(tcpSrc.getPort().getValue());
-                srcTcpMatches.add(tcpSrc.getMask());
+                srcTcpMatches.add(tcpSrc.getPort().getValue().toJava());
+                srcTcpMatches.add(tcpSrc.getMask().toJava());
             }
 
             // The layer3 match should be null
@@ -254,20 +256,20 @@ public class AclMatchesTest {
             // There should be an IPv4 etherType set
             EthernetMatch ethMatch = matchBuilder.getEthernetMatch();
             assertNotNull(ethMatch);
-            assertEquals(ethMatch.getEthernetType().getType().getValue(), Long.valueOf(NwConstants.ETHTYPE_IPV4));
+            assertEquals(ethMatch.getEthernetType().getType().getValue(), Uint32.valueOf(NwConstants.ETHTYPE_IPV4));
 
             // Make sure its TCP
             IpMatch ipMatch = matchBuilder.getIpMatch();
             assertNotNull(ipMatch);
-            assertEquals(ipMatch.getIpProtocol(), Short.valueOf(IPProtocols.TCP.shortValue()));
+            assertEquals(ipMatch.getIpProtocol(), Uint8.valueOf(IPProtocols.TCP.shortValue()));
 
             NxmOfTcpDst tcpDst = matchBuilder
                     .augmentation(GeneralAugMatchNodesNodeTableFlow.class).getExtensionList().get(0)
                     .getExtension().augmentation(NxAugMatchNodesNodeTableFlow.class).getNxmOfTcpDst();
 
             if (tcpDst != null) {
-                dstTcpMatches.add(tcpDst.getPort().getValue());
-                dstTcpMatches.add(tcpDst.getMask());
+                dstTcpMatches.add(tcpDst.getPort().getValue().toJava());
+                dstTcpMatches.add(tcpDst.getMask().toJava());
             }
             // The layer3 match should be null
             assertNull(matchBuilder.getLayer3Match());
@@ -301,20 +303,20 @@ public class AclMatchesTest {
             // There should be an IPv4 etherType set
             EthernetMatch ethMatch = matchBuilder.getEthernetMatch();
             assertNotNull(ethMatch);
-            assertEquals(ethMatch.getEthernetType().getType().getValue(), Long.valueOf(NwConstants.ETHTYPE_IPV4));
+            assertEquals(ethMatch.getEthernetType().getType().getValue(), Uint32.valueOf(NwConstants.ETHTYPE_IPV4));
 
             // Make sure its TCP
             IpMatch ipMatch = matchBuilder.getIpMatch();
             assertNotNull(ipMatch);
-            assertEquals(ipMatch.getIpProtocol(), Short.valueOf(IPProtocols.TCP.shortValue()));
+            assertEquals(ipMatch.getIpProtocol(), Uint8.valueOf(IPProtocols.TCP.shortValue()));
 
             NxmOfTcpDst tcpDst = matchBuilder
                     .augmentation(GeneralAugMatchNodesNodeTableFlow.class).getExtensionList().get(0)
                     .getExtension().augmentation(NxAugMatchNodesNodeTableFlow.class).getNxmOfTcpDst();
 
             if (tcpDst != null) {
-                dstTcpMatches.add(tcpDst.getPort().getValue());
-                dstTcpMatches.add(tcpDst.getMask());
+                dstTcpMatches.add(tcpDst.getPort().getValue().toJava());
+                dstTcpMatches.add(tcpDst.getMask().toJava());
             }
             // The layer3 match should be null
             assertNull(matchBuilder.getLayer3Match());
@@ -355,12 +357,12 @@ public class AclMatchesTest {
             // There should be an IPv4 etherType set
             EthernetMatch ethMatch = matchBuilder.getEthernetMatch();
             assertNotNull(ethMatch);
-            assertEquals(ethMatch.getEthernetType().getType().getValue(), Long.valueOf(NwConstants.ETHTYPE_IPV4));
+            assertEquals(ethMatch.getEthernetType().getType().getValue(), Uint32.valueOf(NwConstants.ETHTYPE_IPV4));
 
             // Make sure its TCP
             IpMatch ipMatch = matchBuilder.getIpMatch();
             assertNotNull(ipMatch);
-            assertEquals(ipMatch.getIpProtocol(), Short.valueOf(IPProtocols.TCP.shortValue()));
+            assertEquals(ipMatch.getIpProtocol(), Uint8.valueOf(IPProtocols.TCP.shortValue()));
 
             NxmOfTcpSrc tcpSrc = matchBuilder
                     .augmentation(GeneralAugMatchNodesNodeTableFlow.class).getExtensionList().get(0)
@@ -371,13 +373,13 @@ public class AclMatchesTest {
                     .getExtension().augmentation(NxAugMatchNodesNodeTableFlow.class).getNxmOfTcpDst();
 
             if (tcpSrc != null) {
-                srcTcpMatches.add(tcpSrc.getPort().getValue());
-                srcTcpMatches.add(tcpSrc.getMask());
+                srcTcpMatches.add(tcpSrc.getPort().getValue().toJava());
+                srcTcpMatches.add(tcpSrc.getMask().toJava());
             }
 
             if (tcpDst != null) {
-                dstTcpMatches.add(tcpDst.getPort().getValue());
-                dstTcpMatches.add(tcpDst.getMask());
+                dstTcpMatches.add(tcpDst.getPort().getValue().toJava());
+                dstTcpMatches.add(tcpDst.getMask().toJava());
             }
             // The layer3 match should be null
             assertNull(matchBuilder.getLayer3Match());
@@ -419,20 +421,20 @@ public class AclMatchesTest {
             // There should be an IPv4 etherType set
             EthernetMatch ethMatch = matchBuilder.getEthernetMatch();
             assertNotNull(ethMatch);
-            assertEquals(ethMatch.getEthernetType().getType().getValue(), Long.valueOf(NwConstants.ETHTYPE_IPV4));
+            assertEquals(ethMatch.getEthernetType().getType().getValue(), Uint32.valueOf(NwConstants.ETHTYPE_IPV4));
 
             // Make sure its UDP
             IpMatch ipMatch = matchBuilder.getIpMatch();
             assertNotNull(ipMatch);
-            assertEquals(ipMatch.getIpProtocol(), Short.valueOf(IPProtocols.UDP.shortValue()));
+            assertEquals(ipMatch.getIpProtocol(), Uint8.valueOf(IPProtocols.UDP.shortValue()));
 
             NxmOfUdpSrc udpSrc = matchBuilder
                     .augmentation(GeneralAugMatchNodesNodeTableFlow.class).getExtensionList().get(0)
                     .getExtension().augmentation(NxAugMatchNodesNodeTableFlow.class).getNxmOfUdpSrc();
 
             if (udpSrc != null) {
-                srcUdpMatches.add(udpSrc.getPort().getValue());
-                srcUdpMatches.add(udpSrc.getMask());
+                srcUdpMatches.add(udpSrc.getPort().getValue().toJava());
+                srcUdpMatches.add(udpSrc.getMask().toJava());
             }
 
             // The layer3 match should be null
@@ -468,20 +470,20 @@ public class AclMatchesTest {
             // There should be an IPv4 etherType set
             EthernetMatch ethMatch = matchBuilder.getEthernetMatch();
             assertNotNull(ethMatch);
-            assertEquals(ethMatch.getEthernetType().getType().getValue(), Long.valueOf(NwConstants.ETHTYPE_IPV4));
+            assertEquals(ethMatch.getEthernetType().getType().getValue(), Uint32.valueOf(NwConstants.ETHTYPE_IPV4));
 
             // Make sure its UDP
             IpMatch ipMatch = matchBuilder.getIpMatch();
             assertNotNull(ipMatch);
-            assertEquals(ipMatch.getIpProtocol(), Short.valueOf(IPProtocols.UDP.shortValue()));
+            assertEquals(ipMatch.getIpProtocol(), Uint8.valueOf(IPProtocols.UDP.shortValue()));
 
             NxmOfUdpSrc udpSrc = matchBuilder
                     .augmentation(GeneralAugMatchNodesNodeTableFlow.class).getExtensionList().get(0)
                     .getExtension().augmentation(NxAugMatchNodesNodeTableFlow.class).getNxmOfUdpSrc();
 
             if (udpSrc != null) {
-                srcUdpMatches.add(udpSrc.getPort().getValue());
-                srcUdpMatches.add(udpSrc.getMask());
+                srcUdpMatches.add(udpSrc.getPort().getValue().toJava());
+                srcUdpMatches.add(udpSrc.getMask().toJava());
             }
 
             // The layer3 match should be null
@@ -517,20 +519,20 @@ public class AclMatchesTest {
             // There should be an IPv4 etherType set
             EthernetMatch ethMatch = matchBuilder.getEthernetMatch();
             assertNotNull(ethMatch);
-            assertEquals(ethMatch.getEthernetType().getType().getValue(), Long.valueOf(NwConstants.ETHTYPE_IPV4));
+            assertEquals(ethMatch.getEthernetType().getType().getValue(), Uint32.valueOf(NwConstants.ETHTYPE_IPV4));
 
             // Make sure its UDP
             IpMatch ipMatch = matchBuilder.getIpMatch();
             assertNotNull(ipMatch);
-            assertEquals(ipMatch.getIpProtocol(), Short.valueOf(IPProtocols.UDP.shortValue()));
+            assertEquals(ipMatch.getIpProtocol(), Uint8.valueOf(IPProtocols.UDP.shortValue()));
 
             NxmOfUdpDst udpDst = matchBuilder
                     .augmentation(GeneralAugMatchNodesNodeTableFlow.class).getExtensionList().get(0)
                     .getExtension().augmentation(NxAugMatchNodesNodeTableFlow.class).getNxmOfUdpDst();
 
             if (udpDst != null) {
-                dstUdpMatches.add(udpDst.getPort().getValue());
-                dstUdpMatches.add(udpDst.getMask());
+                dstUdpMatches.add(udpDst.getPort().getValue().toJava());
+                dstUdpMatches.add(udpDst.getMask().toJava());
             }
 
             // The layer3 match should be null
@@ -566,20 +568,20 @@ public class AclMatchesTest {
             // There should be an IPv4 etherType set
             EthernetMatch ethMatch = matchBuilder.getEthernetMatch();
             assertNotNull(ethMatch);
-            assertEquals(ethMatch.getEthernetType().getType().getValue(), Long.valueOf(NwConstants.ETHTYPE_IPV4));
+            assertEquals(ethMatch.getEthernetType().getType().getValue(), Uint32.valueOf(NwConstants.ETHTYPE_IPV4));
 
             // Make sure its UDP
             IpMatch ipMatch = matchBuilder.getIpMatch();
             assertNotNull(ipMatch);
-            assertEquals(ipMatch.getIpProtocol(), Short.valueOf(IPProtocols.UDP.shortValue()));
+            assertEquals(ipMatch.getIpProtocol(), Uint8.valueOf(IPProtocols.UDP.shortValue()));
 
             NxmOfUdpDst udpDst = matchBuilder
                     .augmentation(GeneralAugMatchNodesNodeTableFlow.class).getExtensionList().get(0)
                     .getExtension().augmentation(NxAugMatchNodesNodeTableFlow.class).getNxmOfUdpDst();
 
             if (udpDst != null) {
-                dstUdpMatches.add(udpDst.getPort().getValue());
-                dstUdpMatches.add(udpDst.getMask());
+                dstUdpMatches.add(udpDst.getPort().getValue().toJava());
+                dstUdpMatches.add(udpDst.getMask().toJava());
             }
 
             // The layer3 match should be null
@@ -623,12 +625,12 @@ public class AclMatchesTest {
             // There should be an IPv4 etherType set
             EthernetMatch ethMatch = matchBuilder.getEthernetMatch();
             assertNotNull(ethMatch);
-            assertEquals(ethMatch.getEthernetType().getType().getValue(), Long.valueOf(NwConstants.ETHTYPE_IPV4));
+            assertEquals(ethMatch.getEthernetType().getType().getValue(), Uint32.valueOf(NwConstants.ETHTYPE_IPV4));
 
             // Make sure its UDP
             IpMatch ipMatch = matchBuilder.getIpMatch();
             assertNotNull(ipMatch);
-            assertEquals(ipMatch.getIpProtocol(), Short.valueOf(IPProtocols.UDP.shortValue()));
+            assertEquals(ipMatch.getIpProtocol(), Uint8.valueOf(IPProtocols.UDP.shortValue()));
 
             NxmOfUdpSrc udpSrc = matchBuilder
                     .augmentation(GeneralAugMatchNodesNodeTableFlow.class).getExtensionList().get(0)
@@ -639,13 +641,13 @@ public class AclMatchesTest {
                     .getExtension().augmentation(NxAugMatchNodesNodeTableFlow.class).getNxmOfUdpDst();
 
             if (udpSrc != null) {
-                srcUdpMatches.add(udpSrc.getPort().getValue());
-                srcUdpMatches.add(udpSrc.getMask());
+                srcUdpMatches.add(udpSrc.getPort().getValue().toJava());
+                srcUdpMatches.add(udpSrc.getMask().toJava());
             }
 
             if (udpDst != null) {
-                dstUdpMatches.add(udpDst.getPort().getValue());
-                dstUdpMatches.add(udpDst.getMask());
+                dstUdpMatches.add(udpDst.getPort().getValue().toJava());
+                dstUdpMatches.add(udpDst.getMask().toJava());
             }
 
             // The layer3 match should be null
@@ -682,12 +684,12 @@ public class AclMatchesTest {
             // There should be an IPv4 etherType set
             EthernetMatch ethMatch = matchBuilder.getEthernetMatch();
             assertNotNull(ethMatch);
-            assertEquals(ethMatch.getEthernetType().getType().getValue(), Long.valueOf(NwConstants.ETHTYPE_IPV4));
+            assertEquals(ethMatch.getEthernetType().getType().getValue(), Uint32.valueOf(NwConstants.ETHTYPE_IPV4));
 
             // Check the DSCP value
             IpMatch ipMatch = matchBuilder.getIpMatch();
             assertNotNull(ipMatch);
-            assertEquals(ipMatch.getIpDscp().getValue(), Short.valueOf(DSCP_VALUE));
+            assertEquals(ipMatch.getIpDscp().getValue(), Uint8.valueOf(DSCP_VALUE));
 
             // The rest should be null
             assertNull(matchBuilder.getLayer3Match());
@@ -721,7 +723,7 @@ public class AclMatchesTest {
             // There should be an IPv6 etherType set
             EthernetMatch ethMatch = matchBuilder.getEthernetMatch();
             assertNotNull(ethMatch);
-            assertEquals(ethMatch.getEthernetType().getType().getValue(), Long.valueOf(NwConstants.ETHTYPE_IPV6));
+            assertEquals(ethMatch.getEthernetType().getType().getValue(), Uint32.valueOf(NwConstants.ETHTYPE_IPV6));
 
             // The rest should be null
             assertNull(matchBuilder.getIpMatch());

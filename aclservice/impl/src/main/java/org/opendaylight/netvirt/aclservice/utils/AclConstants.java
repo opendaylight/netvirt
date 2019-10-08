@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 /**
  * The class to have ACL related constants.
@@ -58,9 +59,9 @@ public interface AclConstants {
     short DHCP_CLIENT_PORT_IPV6 = 546;
     short DHCP_SERVER_PORT_IPV6 = 547;
 
-    BigInteger COOKIE_ACL_BASE = new BigInteger("6900000", 16);
-    BigInteger COOKIE_ACL_DROP_FLOW = new BigInteger("6900001", 16);
-    BigInteger METADATA_DROP_FLAG = BigInteger.ONE;
+    Uint64 COOKIE_ACL_BASE = Uint64.valueOf("6900000", 16).intern();
+    Uint64 COOKIE_ACL_DROP_FLOW = Uint64.valueOf("6900001", 16).intern();
+    Uint64 METADATA_DROP_FLAG = Uint64.valueOf(BigInteger.ONE).intern();
 
     int TRACKED_EST_CT_STATE = 0x22;
     int TRACKED_REL_CT_STATE = 0x24;

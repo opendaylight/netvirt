@@ -33,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.state.Elan;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,10 +102,10 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
 
     @Override
     protected void update(InstanceIdentifier<ElanInstance> identifier, ElanInstance original, ElanInstance update) {
-        Long existingElanTag = original.getElanTag();
+        Uint32 existingElanTag = original.getElanTag();
         String elanName = update.getElanInstanceName();
         if (existingElanTag == null || !existingElanTag.equals(update.getElanTag())) {
-            if (update.getElanTag() == null  || update.getElanTag() == 0L) {
+            if (update.getElanTag() == null  || update.getElanTag().longValue() == 0L) {
                 // update the elan-Instance with new properties
                 LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL,
                     operTx -> LoggingFutures.addErrorLogging(

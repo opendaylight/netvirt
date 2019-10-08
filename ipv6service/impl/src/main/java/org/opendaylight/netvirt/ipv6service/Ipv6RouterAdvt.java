@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.ipv6service;
 
 import static java.util.Objects.requireNonNull;
 
-import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.packet.rev16
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.packet.rev160620.router.advertisement.packet.PrefixListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +57,7 @@ public class Ipv6RouterAdvt {
 
     public boolean transmitRtrAdvertisement(Ipv6RouterAdvertisementType raType, VirtualPort routerPort,
                                             long elanTag, @Nullable RouterSolicitationPacket rsPdu,
-                                            BigInteger dpnId, Uuid port) {
+                                            Uint64 dpnId, Uuid port) {
         RouterAdvertisementPacketBuilder raPacket = new RouterAdvertisementPacketBuilder();
         updateRAResponse(raType, rsPdu, raPacket, routerPort);
         // Serialize the response packet
@@ -205,18 +205,18 @@ public class Ipv6RouterAdvt {
     }
 
     private byte[] fillRouterAdvertisementPacket(RouterAdvertisementPacket pdu) {
-        ByteBuffer buf = ByteBuffer.allocate(Ipv6Constants.ICMPV6_OFFSET + pdu.getIpv6Length());
+        ByteBuffer buf = ByteBuffer.allocate(Ipv6Constants.ICMPV6_OFFSET + pdu.getIpv6Length().toJava());
 
         buf.put(Ipv6Util.convertEthernetHeaderToByte(pdu), 0, 14);
         buf.put(Ipv6Util.convertIpv6HeaderToByte(pdu), 0, 40);
-        buf.put(icmp6RAPayloadtoByte(pdu), 0, pdu.getIpv6Length());
+        buf.put(icmp6RAPayloadtoByte(pdu), 0, pdu.getIpv6Length().toJava());
         int checksum = Ipv6Util.calculateIcmpv6Checksum(buf.array(), pdu);
         buf.putShort(Ipv6Constants.ICMPV6_OFFSET + 2, (short)checksum);
         return buf.array();
     }
 
     private static byte[] icmp6RAPayloadtoByte(RouterAdvertisementPacket pdu) {
-        byte[] data = new byte[pdu.getIpv6Length()];
+        byte[] data = new byte[pdu.getIpv6Length().toJava()];
         Arrays.fill(data, (byte)0);
 
         ByteBuffer buf = ByteBuffer.wrap(data);

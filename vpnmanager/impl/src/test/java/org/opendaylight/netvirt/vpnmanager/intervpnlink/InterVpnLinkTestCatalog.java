@@ -30,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.inter.vpn.link.FirstEndpointBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.inter.vpn.link.SecondEndpoint;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.inter.vpn.link.SecondEndpointBuilder;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 /**
  * Gathers several InterVpnLinks that can be used for testing.
@@ -41,8 +42,8 @@ public final class InterVpnLinkTestCatalog {
 
     static InterVpnLinkDataComposite build(String ivpnLinkName, String vpn1Name, String vpn1IpAddr,
                                            String vpn2Name, String vpn2IpAddr, boolean bgpFlag, boolean staticFlag,
-                                           boolean connectedFlag, List<BigInteger> vpn1Dpns, long vpn1LportTag,
-                                           List<BigInteger> vpn2Dpns, long vpn2LportTag, InterVpnLinkState.State state,
+                                           boolean connectedFlag, List<Uint64> vpn1Dpns, long vpn1LportTag,
+                                           List<Uint64> vpn2Dpns, long vpn2LportTag, InterVpnLinkState.State state,
                                            Optional<String> errMsg) {
 
         FirstEndpoint firstEndpoint =
@@ -70,7 +71,7 @@ public final class InterVpnLinkTestCatalog {
         return new InterVpnLinkDataComposite(ivpnLinkCfg, ivpnLinkState);
     }
 
-    static void updateEndpointDpns(InterVpnLinkDataComposite ivl, boolean is1stEndpoint, List<BigInteger> newDpns) {
+    static void updateEndpointDpns(InterVpnLinkDataComposite ivl, boolean is1stEndpoint, List<Uint64> newDpns) {
         Optional<FirstEndpointState> new1stEpState = (is1stEndpoint)
             ? Optional.of(InterVpnLinkUtil.buildFirstEndpointState(ivl.getInterVpnLinkState().getFirstEndpointState(),
                                                                    Optional.of(newDpns), Optional.absent()))
@@ -90,21 +91,23 @@ public final class InterVpnLinkTestCatalog {
     static InterVpnLinkDataComposite I_VPN_LINK_12 =
         build("InterVpnLink VPN1-VPN2", L3VpnTestCatalog.VPN_1.vpnCfgData.getVpnInstanceName(), "1.1.1.1",
               L3VpnTestCatalog.VPN_2.vpnCfgData.getVpnInstanceName(), "2.2.2.2", false, false, false,
-              Arrays.asList(BigInteger.ONE), 100001, Arrays.asList(BigInteger.ONE), 100002,
+              Arrays.asList(Uint64.valueOf(BigInteger.ONE)), 100001,
+              Arrays.asList(Uint64.valueOf(BigInteger.ONE)), 100002,
               InterVpnLinkState.State.Active, Optional.absent());
 
     // InterVpnLink linking VPN_1 and VPN_2. Erroneous.
     static InterVpnLinkDataComposite I_VPN_LINK_12_ERR =
         build("InterVpnLink VPN1-VPN2", L3VpnTestCatalog.VPN_1.vpnCfgData.getVpnInstanceName(), "1.1.1.1",
               L3VpnTestCatalog.VPN_2.vpnCfgData.getVpnInstanceName(), "2.2.2.2", false, false, false,
-              Arrays.asList(BigInteger.ONE), 100001, Arrays.asList(BigInteger.ONE), 100002,
+              Arrays.asList(Uint64.valueOf(BigInteger.ONE)), 100001,
+              Arrays.asList(Uint64.valueOf(BigInteger.ONE)), 100002,
               InterVpnLinkState.State.Error, Optional.absent());
 
     // InterVpnLink linking VPN_3 and VPN_4. Active. No automatic route leaking at all. Installed on DPN BigInteger.ONE
     static InterVpnLinkDataComposite I_VPN_LINK_34 =
         build("InterVpnLink VPN3-VPN4", L3VpnTestCatalog.VPN_3.vpnCfgData.getVpnInstanceName(), "3.3.3.3",
               L3VpnTestCatalog.VPN_4.vpnCfgData.getVpnInstanceName(), "4.4.4.4", false, false, false,
-              Arrays.asList(BigInteger.valueOf(2L)), 100003, Arrays.asList(BigInteger.valueOf(2L)), 100004,
+              Arrays.asList(Uint64.valueOf(2L)), 100003, Arrays.asList(Uint64.valueOf(2L)), 100004,
               InterVpnLinkState.State.Active, Optional.absent());
 
     // InterVpnLink linking VPN_5 and VPN_6. Active. No automatic route leaking at all. Installed on DPN 2
@@ -113,7 +116,7 @@ public final class InterVpnLinkTestCatalog {
     static InterVpnLinkDataComposite I_VPN_LINK_56 =
         build("InterVpnLink VPN5-VPN6", L3VpnTestCatalog.VPN_5.vpnCfgData.getVpnInstanceName(), "5.5.5.5",
               L3VpnTestCatalog.VPN_6.vpnCfgData.getVpnInstanceName(), "6.6.6.6", false, false, false,
-              Arrays.asList(BigInteger.valueOf(2L)), 100005, Arrays.asList(BigInteger.valueOf(2L)), 100006,
+              Arrays.asList(Uint64.valueOf(2L)), 100005, Arrays.asList(Uint64.valueOf(2L)), 100006,
               InterVpnLinkState.State.Active, Optional.absent());
 
     static List<InterVpnLinkDataComposite> ALL_IVPN_LINKS =

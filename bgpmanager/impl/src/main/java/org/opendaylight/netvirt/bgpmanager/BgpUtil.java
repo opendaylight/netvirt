@@ -290,9 +290,9 @@ public class BgpUtil implements AutoCloseable {
      */
     public static LayerType getLayerType(AddressFamiliesVrf adf) {
         LayerType layerTypeValue = null;
-        if (adf.getSafi() == af_safi.SAFI_EVPN.getValue()) {
+        if (adf.getSafi().intValue() == af_safi.SAFI_EVPN.getValue()) {
             layerTypeValue = LayerType.LAYER2;
-        } else if (adf.getSafi() == af_safi.SAFI_MPLS_VPN.getValue()) {
+        } else if (adf.getSafi().intValue() == af_safi.SAFI_MPLS_VPN.getValue()) {
             layerTypeValue = LayerType.LAYER3;
         }
         return layerTypeValue;

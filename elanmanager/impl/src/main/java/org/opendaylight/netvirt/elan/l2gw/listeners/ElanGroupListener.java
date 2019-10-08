@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.elan.l2gw.listeners;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import java.math.BigInteger;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -34,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,9 +76,9 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
     ElanInstance getElanInstanceFromGroupId(Group update) {
         for (ElanInstance elanInstance : elanInstanceCache.getAllPresent()) {
             if (elanInstance.getElanTag() != null) {
-                long elanTag = elanInstance.getElanTag();
+                long elanTag = elanInstance.getElanTag().longValue();
                 long elanBCGroupId = ElanUtils.getElanRemoteBroadCastGroupID(elanTag);
-                if (elanBCGroupId == update.getGroupId().getValue()) {
+                if (elanBCGroupId == update.getGroupId().getValue().toJava()) {
                     return elanInstance;
                 }
             }
@@ -87,11 +87,11 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
     }
 
     @Nullable
-    private static BigInteger getDpnId(String node) {
+    private static Uint64 getDpnId(String node) {
         //openflow:1]
         String[] temp = node.split(":");
         if (temp.length == 2) {
-            return new BigInteger(temp[1]);
+            return Uint64.valueOf(temp[1]);
         }
         return null;
     }
@@ -99,7 +99,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
     @Override
     protected void update(InstanceIdentifier<Group> identifier, @Nullable Group original, Group update) {
         LOG.trace("received group updated {}", update.key().getGroupId());
-        final BigInteger dpnId = getDpnId(identifier.firstKeyOf(Node.class).getId().getValue());
+        final Uint64 dpnId = getDpnId(identifier.firstKeyOf(Node.class).getId().getValue());
         if (dpnId == null) {
             return;
         }
@@ -140,7 +140,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
         }
         if (updateGroup) {
             List<Bucket> bucketList = elanL2GatewayMulticastUtils.getRemoteBCGroupBuckets(elanInstance, null, dpnId, 0,
-                    elanInstance.getElanTag());
+                    elanInstance.getElanTag().toJava());
             expectedElanFootprint--;//remove local bcgroup bucket
             if (bucketList.size() != expectedElanFootprint) {
                 //no point in retrying if not able to meet expected foot print

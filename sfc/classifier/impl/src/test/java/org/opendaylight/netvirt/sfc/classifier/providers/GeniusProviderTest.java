@@ -143,7 +143,7 @@ public class GeniusProviderTest extends ConstantSchemaAbstractDataBrokerTest {
         dpnId = this.geniusProvider.getDpnIdFromInterfaceName(
                 GeniusProviderTestParams.INTERFACE_NAME);
         assertTrue(dpnId.isPresent());
-        assertEquals(dpnId.get().getValue(), GeniusProviderTestParams.DPN_ID);
+        assertEquals(dpnId.get().getValue().toJava(), GeniusProviderTestParams.DPN_ID);
     }
 
     @Test

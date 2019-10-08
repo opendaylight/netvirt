@@ -93,7 +93,7 @@ public class OpenFlow13ProviderTest {
         assertEquals(flow.getPriority().intValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_NSH_TUN_PRIORITY);
         assertEquals(flow.getId().getValue(),
                 OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_NSH_TUN_FLOW_NAME + nodeId.getValue());
-        assertEquals(flow.getCookie().getValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_COOKIE);
+        assertEquals(flow.getCookie().getValue().toJava(), OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_COOKIE);
 
         checkMatchPacketType(flow.getMatch(), OpenFlow13Utils.PACKET_TYPE_NSH);
 
@@ -110,7 +110,7 @@ public class OpenFlow13ProviderTest {
         assertEquals(flow.getPriority().intValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_NSH_PRIORITY);
         assertEquals(flow.getId().getValue(),
                 OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_ETH_NSH_FLOW_NAME + nodeId.getValue());
-        assertEquals(flow.getCookie().getValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_COOKIE);
+        assertEquals(flow.getCookie().getValue().toJava(), OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_COOKIE);
 
         checkMatchEthNsh(flow.getMatch());
         checkMatchTunDstIp(flow.getMatch(), OpenFlow13Provider.NULL_IP);
@@ -128,7 +128,7 @@ public class OpenFlow13ProviderTest {
         assertEquals(flow.getPriority().intValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_NSH_PRIORITY);
         assertEquals(flow.getId().getValue(),
                 OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_NSH_FLOW_NAME + nodeId.getValue());
-        assertEquals(flow.getCookie().getValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_COOKIE);
+        assertEquals(flow.getCookie().getValue().toJava(), OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_COOKIE);
 
         checkMatchPacketType(flow.getMatch(), OpenFlow13Utils.PACKET_TYPE_NSH);
         checkMatchTunDstIp(flow.getMatch(), OpenFlow13Provider.NULL_IP);
@@ -147,7 +147,7 @@ public class OpenFlow13ProviderTest {
         assertEquals(flow.getId().getValue(),
                 OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_NSH_CHAIN_EGRESS_FLOW_NAME
                         + nodeId.getValue() + "_" + NSP);
-        assertEquals(flow.getCookie().getValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_COOKIE);
+        assertEquals(flow.getCookie().getValue().toJava(), OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_COOKIE);
 
         checkMatchPacketType(flow.getMatch(), OpenFlow13Utils.PACKET_TYPE_NSH);
         checkMatchNsp(flow.getMatch(), NSP);
@@ -170,7 +170,7 @@ public class OpenFlow13ProviderTest {
         assertEquals(flow.getPriority().intValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_NONSH_PRIORITY);
         assertEquals(flow.getId().getValue(),
                 OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_NONSH_FLOW_NAME + nodeId.getValue());
-        assertEquals(flow.getCookie().getValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_COOKIE);
+        assertEquals(flow.getCookie().getValue().toJava(), OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_COOKIE);
 
         checkMatchEmpty(flow.getMatch());
 
@@ -197,7 +197,7 @@ public class OpenFlow13ProviderTest {
             assertEquals(flow.getId().getValue(),
                     OpenFlow13Provider.INGRESS_CLASSIFIER_ACL_FLOW_NAME + "_" + nodeId.getValue()
                     + matchBuilder.build().toString());
-            assertEquals(flow.getCookie().getValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_ACL_COOKIE);
+            assertEquals(flow.getCookie().getValue().toJava(), OpenFlow13Provider.INGRESS_CLASSIFIER_ACL_COOKIE);
 
             // Only checking the inport match, since the rest is tested in AclMatchesTest
             checkMatchInport(flow.getMatch(), nodeId.getValue() + ":" + IN_PORT);
@@ -220,7 +220,7 @@ public class OpenFlow13ProviderTest {
         assertEquals(flow.getPriority().intValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_ACL_NOMATCH_PRIORITY);
         assertEquals(flow.getId().getValue(),
                 OpenFlow13Provider.INGRESS_CLASSIFIER_ACL_FLOW_NAME + "_" + nodeId.getValue());
-        assertEquals(flow.getCookie().getValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_ACL_COOKIE);
+        assertEquals(flow.getCookie().getValue().toJava(), OpenFlow13Provider.INGRESS_CLASSIFIER_ACL_COOKIE);
 
         checkMatchEmpty(flow.getMatch());
 
@@ -237,7 +237,7 @@ public class OpenFlow13ProviderTest {
         assertEquals(flow.getPriority().intValue(), OpenFlow13Provider.EGRESS_CLASSIFIER_FILTER_NSH_PRIORITY);
         assertEquals(flow.getId().getValue(),
                 OpenFlow13Provider.EGRESS_CLASSIFIER_FILTER_NSH_FLOW_NAME + nodeId.getValue());
-        assertEquals(flow.getCookie().getValue(), OpenFlow13Provider.EGRESS_CLASSIFIER_FILTER_COOKIE);
+        assertEquals(flow.getCookie().getValue().toJava(), OpenFlow13Provider.EGRESS_CLASSIFIER_FILTER_COOKIE);
 
         checkMatchEmpty(flow.getMatch());
 
@@ -254,7 +254,7 @@ public class OpenFlow13ProviderTest {
         assertEquals(flow.getPriority().intValue(), OpenFlow13Provider.EGRESS_CLASSIFIER_FILTER_NONSH_PRIORITY);
         assertEquals(flow.getId().getValue(),
                 OpenFlow13Provider.EGRESS_CLASSIFIER_FILTER_NONSH_FLOW_NAME + nodeId.getValue());
-        assertEquals(flow.getCookie().getValue(), OpenFlow13Provider.EGRESS_CLASSIFIER_FILTER_COOKIE);
+        assertEquals(flow.getCookie().getValue().toJava(), OpenFlow13Provider.EGRESS_CLASSIFIER_FILTER_COOKIE);
 
         checkMatchReg(flow.getMatch(), NxmNxReg2.class, 0);
 
@@ -271,7 +271,7 @@ public class OpenFlow13ProviderTest {
         assertEquals(flow.getPriority().intValue(), OpenFlow13Provider.EGRESS_CLASSIFIER_NEXTHOP_PRIORITY);
         assertEquals(flow.getId().getValue(),
                 OpenFlow13Provider.EGRESS_CLASSIFIER_NEXTHOP_FLOW_NAME + nodeId.getValue());
-        assertEquals(flow.getCookie().getValue(), OpenFlow13Provider.EGRESS_CLASSIFIER_NEXTHOP_COOKIE);
+        assertEquals(flow.getCookie().getValue().toJava(), OpenFlow13Provider.EGRESS_CLASSIFIER_NEXTHOP_COOKIE);
 
         checkMatchEmpty(flow.getMatch());
 
@@ -305,7 +305,7 @@ public class OpenFlow13ProviderTest {
         assertEquals(flow.getPriority().intValue(), OpenFlow13Provider.EGRESS_CLASSIFIER_EGRESS_PRIORITY);
         assertEquals(flow.getId().getValue(),
                 OpenFlow13Provider.EGRESS_CLASSIFIER_TPORTEGRESS_FLOW_NAME + nodeId.getValue() + "_" + NSP);
-        assertEquals(flow.getCookie().getValue(), OpenFlow13Provider.EGRESS_CLASSIFIER_TPORTEGRESS_COOKIE);
+        assertEquals(flow.getCookie().getValue().toJava(), OpenFlow13Provider.EGRESS_CLASSIFIER_TPORTEGRESS_COOKIE);
 
         checkMatchPacketType(flow.getMatch(), OpenFlow13Utils.PACKET_TYPE_NSH);
         checkMatchNsp(flow.getMatch(), NSP);
@@ -324,7 +324,7 @@ public class OpenFlow13ProviderTest {
         assertEquals(flow.getPriority().intValue(), OpenFlow13Provider.EGRESS_CLASSIFIER_EGRESS_PRIORITY);
         assertEquals(flow.getId().getValue(),
                 OpenFlow13Provider.EGRESS_CLASSIFIER_TPORTEGRESS_FLOW_NAME + nodeId.getValue() + "_" + NSP);
-        assertEquals(flow.getCookie().getValue(), OpenFlow13Provider.EGRESS_CLASSIFIER_TPORTEGRESS_COOKIE);
+        assertEquals(flow.getCookie().getValue().toJava(), OpenFlow13Provider.EGRESS_CLASSIFIER_TPORTEGRESS_COOKIE);
 
         checkMatchPacketType(flow.getMatch(), OpenFlow13Utils.PACKET_TYPE_NSH);
         checkMatchNsp(flow.getMatch(), NSP);
@@ -346,7 +346,7 @@ public class OpenFlow13ProviderTest {
         assertEquals(flow.getPriority().intValue(), OpenFlow13Provider.EGRESS_CLASSIFIER_EGRESS_PRIORITY);
         assertEquals(flow.getId().getValue(),
                 OpenFlow13Provider.EGRESS_CLASSIFIER_TPORTEGRESS_FLOW_NAME + nodeId.getValue() + "_" + NSP);
-        assertEquals(flow.getCookie().getValue(), OpenFlow13Provider.EGRESS_CLASSIFIER_TPORTEGRESS_COOKIE);
+        assertEquals(flow.getCookie().getValue().toJava(), OpenFlow13Provider.EGRESS_CLASSIFIER_TPORTEGRESS_COOKIE);
 
         checkMatchPacketType(flow.getMatch(), OpenFlow13Utils.PACKET_TYPE_NSH);
         checkMatchNsp(flow.getMatch(), NSP);
@@ -369,7 +369,7 @@ public class OpenFlow13ProviderTest {
                 OpenFlow13Provider.INGRESS_CLASSIFIER_CAPTURE_SFC_TUNNEL_TRAFFIC_PRIORITY);
         assertEquals(flow.getId().getValue(),
                 OpenFlow13Provider.INGRESS_CLASSIFIER_CAPTURE_SFC_TUNNEL_ETH_NSH_TRAFFIC_FLOW_NAME + nodeId.getValue());
-        assertEquals(flow.getCookie().getValue(),
+        assertEquals(flow.getCookie().getValue().toJava(),
                 OpenFlow13Provider.INGRESS_CLASSIFIER_CAPTURE_SFC_TUNNEL_TRAFFIC_COOKIE);
 
         checkMatchEthNsh(flow.getMatch());
@@ -392,7 +392,7 @@ public class OpenFlow13ProviderTest {
                 OpenFlow13Provider.INGRESS_CLASSIFIER_CAPTURE_SFC_TUNNEL_TRAFFIC_PRIORITY);
         assertEquals(flow.getId().getValue(),
                 OpenFlow13Provider.INGRESS_CLASSIFIER_CAPTURE_SFC_TUNNEL_NSH_TRAFFIC_FLOW_NAME + nodeId.getValue());
-        assertEquals(flow.getCookie().getValue(),
+        assertEquals(flow.getCookie().getValue().toJava(),
                 OpenFlow13Provider.INGRESS_CLASSIFIER_CAPTURE_SFC_TUNNEL_TRAFFIC_COOKIE);
 
         checkMatchPacketType(flow.getMatch(), OpenFlow13Utils.PACKET_TYPE_NSH);

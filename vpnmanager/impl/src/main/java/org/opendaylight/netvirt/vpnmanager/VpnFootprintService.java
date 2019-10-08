@@ -13,7 +13,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-import java.math.BigInteger;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -60,6 +60,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,15 +92,16 @@ public class VpnFootprintService implements IVpnFootprintService {
     }
 
     @Override
-    public void updateVpnToDpnMapping(BigInteger dpId, String vpnName, String primaryRd, @Nullable String interfaceName,
-            @Nullable ImmutablePair<IpAddresses.IpAddressSource, String> ipAddressSourceValuePair, boolean add) {
-        long vpnId = vpnUtil.getVpnId(vpnName);
-        if (!dpId.equals(BigInteger.ZERO)) {
+    public void updateVpnToDpnMapping(Uint64 dpId, String vpnName, String primaryRd, @Nullable String interfaceName,
+                                      @Nullable ImmutablePair<IpAddresses.IpAddressSource,
+                                              String> ipAddressSourceValuePair, boolean add) {
+        Uint32 vpnId = vpnUtil.getVpnId(vpnName);
+        if (!dpId.equals(Uint64.ZERO)) {
             if (add) {
                 // Considering the possibility of VpnInstanceOpData not being ready yet cause
                 // the VPN is
                 // still in its creation process
-                if (vpnId == VpnConstants.INVALID_ID) {
+                if (vpnId.longValue() == VpnConstants.INVALID_ID) {
                     LOG.error("updateVpnToDpnMapping: Operational data  for vpn not ready. Waiting to update vpn"
                             + " footprint for vpn {} on dpn {} interface {}", vpnName, dpId, interfaceName);
                     vpnOpDataSyncer.waitForVpnDataReady(VpnOpDataSyncer.VpnOpDataType.vpnInstanceToId, vpnName,
@@ -122,7 +125,7 @@ public class VpnFootprintService implements IVpnFootprintService {
         }
     }
 
-    private void createOrUpdateVpnToDpnListForInterfaceName(long vpnId, String primaryRd, BigInteger dpnId,
+    private void createOrUpdateVpnToDpnListForInterfaceName(Uint32 vpnId, String primaryRd, Uint64 dpnId,
             String intfName, String vpnName) {
         AtomicBoolean newDpnOnVpn = new AtomicBoolean(false);
         /* Starts synchronized block. This ensures only one reader/writer get access to vpn-dpn-list
@@ -196,7 +199,7 @@ public class VpnFootprintService implements IVpnFootprintService {
         }
     }
 
-    private void createOrUpdateVpnToDpnListForIPAddress(long vpnId, String primaryRd, BigInteger dpnId,
+    private void createOrUpdateVpnToDpnListForIPAddress(Uint32 vpnId, String primaryRd, Uint64 dpnId,
             ImmutablePair<IpAddresses.IpAddressSource, String> ipAddressSourceValuePair, String vpnName) {
         AtomicBoolean newDpnOnVpn = new AtomicBoolean(false);
         /* Starts synchronized block. This ensures only one reader/writer get access to vpn-dpn-list
@@ -259,7 +262,7 @@ public class VpnFootprintService implements IVpnFootprintService {
         }
     }
 
-    private void removeOrUpdateVpnToDpnListForInterfaceName(long vpnId, String rd, BigInteger dpnId, String intfName,
+    private void removeOrUpdateVpnToDpnListForInterfaceName(Uint32 vpnId, String rd, Uint64 dpnId, String intfName,
             String vpnName) {
         AtomicBoolean lastDpnOnVpn = new AtomicBoolean(false);
         /* Starts synchronized block. This ensures only one reader/writer get access to vpn-dpn-list
@@ -334,7 +337,7 @@ public class VpnFootprintService implements IVpnFootprintService {
         }
     }
 
-    private void removeOrUpdateVpnToDpnListForIpAddress(long vpnId, String rd, BigInteger dpnId,
+    private void removeOrUpdateVpnToDpnListForIpAddress(Uint32 vpnId, String rd, Uint64 dpnId,
             ImmutablePair<IpAddresses.IpAddressSource, String> ipAddressSourceValuePair, String vpnName) {
         AtomicBoolean lastDpnOnVpn = new AtomicBoolean(false);
         /* Starts synchronized block. This ensures only one reader/writer get access to vpn-dpn-list
@@ -402,7 +405,9 @@ public class VpnFootprintService implements IVpnFootprintService {
         }
     }
 
-    private void publishAddNotification(final BigInteger dpnId, final String vpnName, final String rd) {
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
+    private void publishAddNotification(final Uint64 dpnId, final String vpnName, final String rd) {
         LOG.debug("publishAddNotification: Sending notification for add dpn {} in vpn {} rd {} event ", dpnId, vpnName,
                 rd);
         AddEventData data = new AddEventDataBuilder().setVpnName(vpnName).setRd(rd).setDpnId(dpnId).build();
@@ -423,7 +428,9 @@ public class VpnFootprintService implements IVpnFootprintService {
         }, MoreExecutors.directExecutor());
     }
 
-    private void publishRemoveNotification(final BigInteger dpnId, final String vpnName, final String rd) {
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+               justification = "https://github.com/spotbugs/spotbugs/issues/811")
+    private void publishRemoveNotification(final Uint64 dpnId, final String vpnName, final String rd) {
         LOG.debug("publishRemoveNotification: Sending notification for remove dpn {} in vpn {} rd {} event ", dpnId,
                 vpnName, rd);
         RemoveEventData data = new RemoveEventDataBuilder().setVpnName(vpnName).setRd(rd).setDpnId(dpnId).build();
@@ -444,8 +451,8 @@ public class VpnFootprintService implements IVpnFootprintService {
         }, MoreExecutors.directExecutor());
     }
 
-    private void publishInterfaceAddedToVpnNotification(String interfaceName, BigInteger dpnId, String vpnName,
-            Long vpnId) {
+    private void publishInterfaceAddedToVpnNotification(String interfaceName, Uint64 dpnId, String vpnName,
+            Uint32 vpnId) {
         LOG.debug("publishInterfaceAddedToVpnNotification: Sending notification for addition of interface {} on dpn {}"
                 + " for vpn {}", interfaceName, dpnId, vpnName);
         AddInterfaceEventData data = new AddInterfaceEventDataBuilder().setInterfaceName(interfaceName).setVpnId(vpnId)
@@ -468,8 +475,8 @@ public class VpnFootprintService implements IVpnFootprintService {
         }, MoreExecutors.directExecutor());
     }
 
-    private void publishInterfaceRemovedFromVpnNotification(String interfaceName, BigInteger dpnId, String vpnName,
-            Long vpnId) {
+    private void publishInterfaceRemovedFromVpnNotification(String interfaceName, Uint64 dpnId, String vpnName,
+            Uint32 vpnId) {
         LOG.debug("publishInterfaceAddedToVpnNotification: Sending notification for removal of interface {}"
                 + " from dpn {} for vpn {}", interfaceName, dpnId, vpnName);
         RemoveInterfaceEventData data = new RemoveInterfaceEventDataBuilder().setInterfaceName(interfaceName)
@@ -500,12 +507,12 @@ public class VpnFootprintService implements IVpnFootprintService {
      */
     private class DpnEnterExitVpnWorker implements FutureCallback<List<Void>> {
         private final Logger log = LoggerFactory.getLogger(DpnEnterExitVpnWorker.class);
-        BigInteger dpnId;
+        Uint64 dpnId;
         String vpnName;
         String rd;
         boolean entered;
 
-        DpnEnterExitVpnWorker(BigInteger dpnId, String vpnName, String rd, boolean entered) {
+        DpnEnterExitVpnWorker(Uint64 dpnId, String vpnName, String rd, boolean entered) {
             this.entered = entered;
             this.dpnId = dpnId;
             this.vpnName = vpnName;

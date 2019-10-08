@@ -12,7 +12,6 @@ import static java.util.Collections.emptyList;
 
 import com.google.common.base.Optional;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -87,6 +86,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forw
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -245,7 +246,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     public static boolean compareWithExistingElanInstance(ElanInstance existingElanInstance, long macTimeOut,
             String description) {
         boolean isEqual = false;
-        if (existingElanInstance.getMacTimeout() == macTimeOut
+        if (existingElanInstance.getMacTimeout().longValue() == macTimeOut
                 && Objects.equals(existingElanInstance.getDescription(), description)) {
             isEqual = true;
         }
@@ -470,7 +471,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         });
     }
 
-    protected void createExternalElanNetwork(ElanInstance elanInstance, BigInteger dpId) {
+    protected void createExternalElanNetwork(ElanInstance elanInstance, Uint64 dpId) {
         String providerIntfName = bridgeMgr.getProviderInterfaceName(dpId, elanInstance.getPhysicalNetworkName());
         String intfName = providerIntfName + IfmConstants.OF_URI_SEPARATOR + elanInstance.getSegmentationId();
         Interface memberIntf = interfaceManager.getInterfaceInfoFromConfigDataStore(intfName);
@@ -515,7 +516,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         });
     }
 
-    protected void deleteExternalElanNetwork(ElanInstance elanInstance, BigInteger dpnId) {
+    protected void deleteExternalElanNetwork(ElanInstance elanInstance, Uint64 dpnId) {
         String providerIntfName = bridgeMgr.getProviderInterfaceName(dpnId, elanInstance.getPhysicalNetworkName());
         String intfName = providerIntfName + IfmConstants.OF_URI_SEPARATOR + elanInstance.getSegmentationId();
         Interface memberIntf = interfaceManager.getInterfaceInfoFromConfigDataStore(intfName);
@@ -583,7 +584,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
 
         boolean hasDatapathIdOnOrigNode = bridgeMgr.hasDatapathID(origNode);
         boolean hasDatapathIdOnUpdatedNode = bridgeMgr.hasDatapathID(updatedNode);
-        BigInteger origDpnID = bridgeMgr.getDatapathId(origNode);
+        Uint64 origDpnID = bridgeMgr.getDatapathId(origNode);
 
         for (ElanInstance elanInstance : elanInstances) {
             String physicalNetworkName = elanInstance.getPhysicalNetworkName();
@@ -653,7 +654,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     }
 
     @Override
-    public String getExternalElanInterface(String elanInstanceName, BigInteger dpnId) {
+    public String getExternalElanInterface(String elanInstanceName, Uint64 dpnId) {
         return elanUtils.getExternalElanInterface(elanInstanceName, dpnId);
     }
 
@@ -689,7 +690,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             return;
         }
 
-        List<BigInteger> dpnsIdsForElanInstance = elanUtils.getParticipatingDpnsInElanInstance(elanInstanceName);
+        List<Uint64> dpnsIdsForElanInstance = elanUtils.getParticipatingDpnsInElanInstance(elanInstanceName);
         if (dpnsIdsForElanInstance.isEmpty()) {
             LOG.warn("No DPNs for elan instance {}", elanInstance);
             return;
@@ -711,13 +712,14 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             return;
         }
 
-        List<BigInteger> dpnsIdsForElanInstance = elanUtils.getParticipatingDpnsInElanInstance(elanInstanceName);
+        List<Uint64> dpnsIdsForElanInstance = elanUtils.getParticipatingDpnsInElanInstance(elanInstanceName);
         if (dpnsIdsForElanInstance.isEmpty()) {
             LOG.warn("No DPNs for elan instance {}", elanInstance);
             return;
         }
 
-        elanUtils.removeDmacRedirectToDispatcherFlows(elanInstance.getElanTag(), macAddress, dpnsIdsForElanInstance);
+        elanUtils.removeDmacRedirectToDispatcherFlows(elanInstance.getElanTag(),
+            macAddress, dpnsIdsForElanInstance);
     }
 
     /**
@@ -750,7 +752,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             if (ElanUtils.isFlat(elanInstance)) {
                 interfaceName = trunkName;
             } else if (ElanUtils.isVlan(elanInstance)) {
-                Long segmentationId = elanInstance.getSegmentationId();
+                Long segmentationId = elanInstance.getSegmentationId().toJava();
                 interfaceName = parentRef + IfmConstants.OF_URI_SEPARATOR + segmentationId;
                 interfaceManager.createVLANInterface(interfaceName, trunkName, segmentationId.intValue(), null,
                         IfL2vlan.L2vlanMode.TrunkMember, true);
@@ -854,7 +856,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         String macAddress = arpResponderInput.getSha();
         String ipAddress = arpResponderInput.getSpa();
         int lportTag = arpResponderInput.getLportTag();
-        BigInteger dpnId = arpResponderInput.getDpId();
+        Uint64 dpnId = Uint64.valueOf(arpResponderInput.getDpId());
 
         LOG.info("Installing the ARP responder flow on DPN {} for Interface {} with MAC {} & IP {}", dpnId,
                 ingressInterfaceName, macAddress, ipAddress);
@@ -880,7 +882,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
 
     @Override
     public void addExternalTunnelArpResponderFlow(ArpResponderInput arpResponderInput, String elanInstanceName) {
-        BigInteger dpnId = arpResponderInput.getDpId();
+        Uint64 dpnId = Uint64.valueOf(arpResponderInput.getDpId());
         String ipAddress = arpResponderInput.getSpa();
         String macAddress = arpResponderInput.getSha();
 
@@ -908,7 +910,8 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
 
     @Override
     public void removeArpResponderFlow(ArpResponderInput arpResponderInput) {
-        elanUtils.removeArpResponderFlow(arpResponderInput.getDpId(), arpResponderInput.getInterfaceName(),
+        elanUtils.removeArpResponderFlow(Uint64.valueOf(arpResponderInput.getDpId()),
+                arpResponderInput.getInterfaceName(),
                 arpResponderInput.getSpa(), arpResponderInput.getLportTag());
     }
 
@@ -920,18 +923,18 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
      * @return the integer
      */
     @Override
-    public Long retrieveNewElanTag(String idKey) {
+    public Uint32 retrieveNewElanTag(String idKey) {
         return ElanUtils.retrieveNewElanTag(idManager, idKey);
     }
 
     @Override
     public InstanceIdentifier<DpnInterfaces> getElanDpnInterfaceOperationalDataPath(
-                                                                String elanInstanceName, BigInteger dpnId) {
+                                                                String elanInstanceName, Uint64 dpnId) {
         return ElanUtils.getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpnId);
     }
 
     @Override
-    public DpnInterfaces getElanInterfaceInfoByElanDpn(String elanInstanceName, BigInteger dpId) {
+    public DpnInterfaces getElanInterfaceInfoByElanDpn(String elanInstanceName, Uint64 dpId) {
         return elanUtils.getElanInterfaceInfoByElanDpn(elanInstanceName, dpId);
     }
 

@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.fibmanager;
 import static org.opendaylight.genius.mdsalutil.NWUtil.isIpv4Address;
 
 import com.google.common.base.Preconditions;
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.inject.Inject;
@@ -29,6 +28,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +85,7 @@ public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler {
             } else {
                 vpnToDpnList = vpnInstance.getVpnToDpnList();
             }
-            final Long vpnId = vpnInstance.getVpnId();
+            final Uint32 vpnId = vpnInstance.getVpnId();
 
             if (vpnToDpnList != null) {
                 String routerId = routerInterface.getUuid();
@@ -94,8 +95,8 @@ public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler {
                         routerId, ipValue, macAddress);
                 for (VpnToDpnList vpnDpn : vpnToDpnList) {
                     if (vpnDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
-                        installRouterFibEntry(vrfEntry, vpnDpn.getDpnId(), vpnId, ipValue, new MacAddress(macAddress),
-                                addOrRemove);
+                        installRouterFibEntry(vrfEntry, vpnDpn.getDpnId(), vpnId, ipValue,
+                                new MacAddress(macAddress), addOrRemove);
                     }
                 }
             }
@@ -105,7 +106,7 @@ public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler {
         return true;
     }
 
-    public void installRouterFibEntry(final VrfEntry vrfEntry, BigInteger dpnId, long vpnId, String routerInternalIp,
+    public void installRouterFibEntry(final VrfEntry vrfEntry, Uint64 dpnId, Uint32 vpnId, String routerInternalIp,
             MacAddress routerMac, int addOrRemove) {
 
         // First install L3_GW_MAC_TABLE flows as it's common for both IPv4 and IPv6
@@ -117,7 +118,7 @@ public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler {
             mdsalManager.syncRemoveFlow(l3GwMacFlowEntity, 1);
         }
 
-        java.util.Optional<Long> optionalLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);
+        java.util.Optional<Uint32> optionalLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);
         if (!optionalLabel.isPresent()) {
             LOG.warn("Routes paths not present. Exiting installRouterFibEntry");
             return;

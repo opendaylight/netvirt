@@ -169,22 +169,22 @@ public class AclMatches {
 
         Integer srcPort = null;
         if (aceIp.getSourcePortRange() != null && aceIp.getSourcePortRange().getLowerPort() != null) {
-            srcPort = aceIp.getSourcePortRange().getLowerPort().getValue();
+            srcPort = aceIp.getSourcePortRange().getLowerPort().getValue().toJava();
         }
 
         Integer srcPortMax = srcPort;
         if (aceIp.getSourcePortRange() != null && aceIp.getSourcePortRange().getUpperPort() != null) {
-            srcPortMax = aceIp.getSourcePortRange().getUpperPort().getValue();
+            srcPortMax = aceIp.getSourcePortRange().getUpperPort().getValue().toJava();
         }
 
         Integer dstPort = null;
         if (aceIp.getDestinationPortRange() != null && aceIp.getDestinationPortRange().getLowerPort() != null) {
-            dstPort = aceIp.getDestinationPortRange().getLowerPort().getValue();
+            dstPort = aceIp.getDestinationPortRange().getLowerPort().getValue().toJava();
         }
 
         Integer dstPortMax = dstPort;
         if (aceIp.getDestinationPortRange() != null && aceIp.getDestinationPortRange().getUpperPort() != null) {
-            dstPortMax = aceIp.getDestinationPortRange().getUpperPort().getValue();
+            dstPortMax = aceIp.getDestinationPortRange().getUpperPort().getValue().toJava();
         }
 
         // Match on a TCP/UDP src/dst port
@@ -195,10 +195,10 @@ public class AclMatches {
                 getLayer4MaskForRange(dstPort, dstPortMax);
             Set<List<Map.Entry<Integer,Integer>>> srcDstMatches = Sets
                 .cartesianProduct(srcPortMaskMap.entrySet(), dstPortMaskMap.entrySet());
-            if (aceIp.getProtocol() == IPProtocols.TCP.shortValue()) {
+            if (aceIp.getProtocol().shortValue() == IPProtocols.TCP.shortValue()) {
                 portMatches = srcDstMatches.stream().map(srcDstPairList -> buildTcpMatch(srcDstPairList
                     .get(0), srcDstPairList.get(1))).collect(Collectors.toList());
-            } else if (aceIp.getProtocol() == IPProtocols.UDP.shortValue()) {
+            } else if (aceIp.getProtocol().shortValue() == IPProtocols.UDP.shortValue()) {
                 portMatches = srcDstMatches.stream().map(srcDstPairList -> buildUdpMatch(srcDstPairList
                     .get(0), srcDstPairList.get(1))).collect(Collectors.toList());
             }

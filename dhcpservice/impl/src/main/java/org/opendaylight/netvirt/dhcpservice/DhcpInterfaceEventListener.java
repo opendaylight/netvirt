@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
-import java.math.BigInteger;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -30,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.I
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,7 +85,7 @@ public class DhcpInterfaceEventListener
             return;
         }
         NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
-        BigInteger dpnId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
+        Uint64 dpnId = Uint64.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
         DhcpInterfaceRemoveJob job = new DhcpInterfaceRemoveJob(dhcpManager, dhcpExternalTunnelManager,
                 dataBroker, del, dpnId, interfaceManager, elanService, port);
         jobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), job, DhcpMConstants.RETRY_COUNT);
@@ -108,7 +108,7 @@ public class DhcpInterfaceEventListener
             return;
         }
         NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
-        BigInteger dpnId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
+        Uint64 dpnId = Uint64.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
         String interfaceName = update.getName();
         OperStatus updatedOperStatus = update.getOperStatus();
         if (original.getOperStatus().equals(OperStatus.Up) && updatedOperStatus.equals(OperStatus.Unknown)) {
@@ -139,7 +139,7 @@ public class DhcpInterfaceEventListener
             dhcpPortCache.put(interfaceName, port);
         }
         NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
-        BigInteger dpnId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
+        Uint64 dpnId = Uint64.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
         DhcpInterfaceAddJob job = new DhcpInterfaceAddJob(dhcpManager, dhcpExternalTunnelManager, dataBroker,
                 add, dpnId, interfaceManager, elanService, itmRpcService);
         jobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), job, DhcpMConstants.RETRY_COUNT);

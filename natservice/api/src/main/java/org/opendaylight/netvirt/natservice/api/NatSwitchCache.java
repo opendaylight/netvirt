@@ -7,8 +7,9 @@
  */
 package org.opendaylight.netvirt.natservice.api;
 
-import java.math.BigInteger;
 import java.util.Set;
+
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public interface NatSwitchCache {
 
@@ -16,13 +17,13 @@ public interface NatSwitchCache {
      * Adds a switch to the scheduler pool.
      * @param dpnId the switch id.
      */
-    void addSwitch(BigInteger dpnId);
+    void addSwitch(Uint64 dpnId);
 
     /**
      * Removes a switch from the scheduler pool.
      * @param dpnId the switch id.
      */
-    void removeSwitch(BigInteger dpnId);
+    void removeSwitch(Uint64 dpnId);
 
     /**
      * Check whether the switch has external bridge mappings.
@@ -30,14 +31,14 @@ public interface NatSwitchCache {
      * @param providerNet the provider network.
      * @return whether connected to provider network or not.
      */
-    boolean isSwitchConnectedToExternal(BigInteger dpnId, String providerNet);
+    boolean isSwitchConnectedToExternal(Uint64 dpnId, String providerNet);
 
     /**
      * Return the switches which has external bridge mappings.
      * @param providerNet the provider network.
      * @return the set of switches which has the mapping
      */
-    Set<BigInteger> getSwitchesConnectedToExternal(String providerNet);
+    Set<Uint64> getSwitchesConnectedToExternal(String providerNet);
 
     /**
      * Register for switch added notification.

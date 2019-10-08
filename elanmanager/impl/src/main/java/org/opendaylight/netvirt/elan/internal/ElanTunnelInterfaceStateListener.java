@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
-import java.math.BigInteger;
 import java.util.Collections;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -23,6 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.Tun
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TunnelsState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelList;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,8 +83,8 @@ public class ElanTunnelInterfaceStateListener extends AsyncDataTreeChangeListene
             return;
         }
         try {
-            BigInteger srcDpId = new BigInteger(add.getSrcInfo().getTepDeviceId());
-            BigInteger dstDpId = new BigInteger(add.getDstInfo().getTepDeviceId());
+            Uint64 srcDpId = Uint64.valueOf(add.getSrcInfo().getTepDeviceId());
+            Uint64 dstDpId = Uint64.valueOf(add.getDstInfo().getTepDeviceId());
             jobCoordinator.enqueueJob(add.getTunnelInterfaceName(), () -> {
                 LOG.info("Handling tunnel state event for srcDpId {} and dstDpId {} ",
                         srcDpId, dstDpId);

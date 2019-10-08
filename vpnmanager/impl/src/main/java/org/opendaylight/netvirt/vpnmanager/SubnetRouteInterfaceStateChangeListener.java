@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.PostConstruct;
@@ -36,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,7 +94,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                     jobCoordinator.enqueueJob("SUBNETROUTE-" + subnetId,
                         () -> {
                             String interfaceName = intrf.getName();
-                            BigInteger dpnId = BigInteger.ZERO;
+                            Uint64 dpnId = Uint64.ZERO;
                             LOG.info("{} add: Received port UP event for interface {} subnetId {}",
                                     LOGGING_PREFIX, interfaceName, subnetId);
                             try {
@@ -144,7 +144,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                         List<ListenableFuture<Void>> futures = new ArrayList<>();
                         try {
                             String interfaceName = intrf.getName();
-                            BigInteger dpnId = BigInteger.ZERO;
+                            Uint64 dpnId = Uint64.ZERO;
                             LOG.info("{} remove: Received port DOWN event for interface {} in subnet {} ",
                                     LOGGING_PREFIX, interfaceName, subnetId);
                             try {
@@ -170,11 +170,11 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                                 Optional<VpnInterfaceOpDataEntry> optVpnInterface = SingleTransactionDataBroker
                                         .syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL, idOper);
                                 if (optVpnInterface.isPresent()) {
-                                    BigInteger dpnIdLocal = dpnId;
-                                    if (BigInteger.ZERO.equals(dpnIdLocal)) {
+                                    Uint64 dpnIdLocal = dpnId;
+                                    if (Uint64.ZERO.equals(dpnIdLocal)) {
                                         dpnIdLocal = optVpnInterface.get().getDpnId();
                                     }
-                                    if (!BigInteger.ZERO.equals(dpnIdLocal)) {
+                                    if (!Uint64.ZERO.equals(dpnIdLocal)) {
                                         interfaceDownEligible = true;
                                         break;
                                     }
@@ -210,7 +210,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
             for (Uuid subnetId : subnetIdList) {
                 jobCoordinator.enqueueJob("SUBNETROUTE-" + subnetId,
                     () -> {
-                        BigInteger dpnId = BigInteger.ZERO;
+                        Uint64 dpnId = Uint64.ZERO;
                         try {
                             dpnId = InterfaceUtils.getDpIdFromInterface(update);
                         } catch (NullPointerException e) {
@@ -236,11 +236,11 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                                 Optional<VpnInterfaceOpDataEntry> optVpnInterface = SingleTransactionDataBroker
                                         .syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL, idOper);
                                 if (optVpnInterface.isPresent()) {
-                                    BigInteger dpnIdLocal = dpnId;
-                                    if (BigInteger.ZERO.equals(dpnIdLocal)) {
+                                    Uint64 dpnIdLocal = dpnId;
+                                    if (Uint64.ZERO.equals(dpnIdLocal)) {
                                         dpnIdLocal = optVpnInterface.get().getDpnId();
                                     }
-                                    if (!BigInteger.ZERO.equals(dpnIdLocal)) {
+                                    if (!Uint64.ZERO.equals(dpnIdLocal)) {
                                         interfaceChangeEligible = true;
                                         break;
                                     }

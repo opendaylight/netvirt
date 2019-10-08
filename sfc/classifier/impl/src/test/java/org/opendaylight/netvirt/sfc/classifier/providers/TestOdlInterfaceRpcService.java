@@ -39,11 +39,11 @@ public abstract class TestOdlInterfaceRpcService implements OdlInterfaceRpcServi
 
     @Override
     public ListenableFuture<RpcResult<GetEndpointIpForDpnOutput>> getEndpointIpForDpn(GetEndpointIpForDpnInput input) {
-        BigInteger dpnId = input.getDpid();
+        BigInteger dpnId = input.getDpid().toJava();
 
         // if the dpnId is DPN_ID_NO_EXIST, then an empty response will be returned
         GetEndpointIpForDpnOutputBuilder builder = new GetEndpointIpForDpnOutputBuilder();
-        if (dpnId == GeniusProviderTestParams.DPN_ID) {
+        if (GeniusProviderTestParams.DPN_ID.equals(dpnId)) {
             List<IpAddress> localIpList = new ArrayList<>();
             localIpList.add(new IpAddress(new Ipv4Address(GeniusProviderTestParams.IPV4_ADDRESS_STR)));
             builder.setLocalIps(localIpList);

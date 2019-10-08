@@ -65,16 +65,16 @@ public final class AclServiceOFFlowBuilder {
     public static Map<String, List<MatchInfoBase>> programIpFlow(Matches matches) {
         if (matches != null) {
             AceIp acl = (AceIp) matches.getAceType();
-            Short protocol = acl.getProtocol();
+            Short protocol = acl.getProtocol() != null ? acl.getProtocol().toJava() : null;
             if (protocol == null) {
                 return programEtherFlow(acl);
-            } else if (acl.getProtocol() == NwConstants.IP_PROT_TCP) {
+            } else if (acl.getProtocol().intValue() == NwConstants.IP_PROT_TCP) {
                 return programTcpFlow(acl);
-            } else if (acl.getProtocol() == NwConstants.IP_PROT_UDP) {
+            } else if (acl.getProtocol().intValue() == NwConstants.IP_PROT_UDP) {
                 return programUdpFlow(acl);
-            } else if (acl.getProtocol() == NwConstants.IP_PROT_ICMP) {
+            } else if (acl.getProtocol().intValue() == NwConstants.IP_PROT_ICMP) {
                 return programIcmpFlow(acl);
-            } else if (acl.getProtocol() != -1) {
+            } else if (acl.getProtocol().intValue() != -1) {
                 return programOtherProtocolFlow(acl);
             }
         }
@@ -109,7 +109,7 @@ public final class AclServiceOFFlowBuilder {
         } else if (acl.getAceIpVersion() instanceof AceIpv6) {
             flowMatches.add(MatchEthernetType.IPV6);
         }
-        flowMatches.add(new MatchIpProtocol(acl.getProtocol()));
+        flowMatches.add(new MatchIpProtocol(acl.getProtocol().toJava()));
         String flowId = "OTHER_PROTO" + acl.getProtocol();
         Map<String,List<MatchInfoBase>> flowMatchesMap = new HashMap<>();
         flowMatchesMap.put(flowId,flowMatches);
@@ -155,12 +155,12 @@ public final class AclServiceOFFlowBuilder {
             }
         }
 
-        if (acl.getAceIpVersion() instanceof AceIpv6 && acl.getProtocol() == NwConstants.IP_PROT_ICMP) {
+        if (acl.getAceIpVersion() instanceof AceIpv6 && acl.getProtocol().toJava() == NwConstants.IP_PROT_ICMP) {
             // We are aligning our implementation similar to Neutron Firewall driver where a Security
             // Group rule with "Ethertype as IPv6 and Protocol as icmp" is treated as ICMPV6 SG Rule.
             flowMatches.add(new MatchIpProtocol(AclConstants.IP_PROT_ICMPV6));
         } else {
-            flowMatches.add(new MatchIpProtocol(acl.getProtocol()));
+            flowMatches.add(new MatchIpProtocol(acl.getProtocol().toJava()));
         }
         Map<String,List<MatchInfoBase>> flowMatchesMap = new HashMap<>();
         flowMatchesMap.put(flowId,flowMatches);
@@ -179,19 +179,21 @@ public final class AclServiceOFFlowBuilder {
             List<MatchInfoBase> flowMatches = new ArrayList<>();
             flowMatches.addAll(addSrcIpMatches(acl));
             flowMatches.addAll(addDstIpMatches(acl));
-            flowMatches.add(new MatchIpProtocol(acl.getProtocol()));
+            flowMatches.add(new MatchIpProtocol(acl.getProtocol().toJava()));
             String flowId = "TCP_SOURCE_ALL_";
             flowMatchesMap.put(flowId,flowMatches);
             return flowMatchesMap;
         }
         if (sourcePortRange != null) {
-            Map<Integer, Integer> portMaskMap = getLayer4MaskForRange(sourcePortRange.getLowerPort().getValue(),
-                sourcePortRange.getUpperPort().getValue());
+            Map<Integer, Integer> portMaskMap = getLayer4MaskForRange(
+                sourcePortRange.getLowerPort().getValue().toJava(),
+                sourcePortRange.getUpperPort().getValue().toJava());
             updateFlowMatches(acl, portMaskMap, flowMatchesMap, NxMatchTcpSourcePort::new, "TCP_SOURCE_");
         }
         if (destinationPortRange != null) {
-            Map<Integer, Integer> portMaskMap = getLayer4MaskForRange(destinationPortRange.getLowerPort().getValue(),
-                destinationPortRange.getUpperPort().getValue());
+            Map<Integer, Integer> portMaskMap = getLayer4MaskForRange(
+                destinationPortRange.getLowerPort().getValue().toJava(),
+                destinationPortRange.getUpperPort().getValue().toJava());
             updateFlowMatches(acl, portMaskMap, flowMatchesMap, NxMatchTcpDestinationPort::new, "TCP_DESTINATION_");
         }
         return flowMatchesMap;
@@ -209,19 +211,21 @@ public final class AclServiceOFFlowBuilder {
             List<MatchInfoBase> flowMatches = new ArrayList<>();
             flowMatches.addAll(addSrcIpMatches(acl));
             flowMatches.addAll(addDstIpMatches(acl));
-            flowMatches.add(new MatchIpProtocol(acl.getProtocol()));
+            flowMatches.add(new MatchIpProtocol(acl.getProtocol().toJava()));
             String flowId = "UDP_SOURCE_ALL_";
             flowMatchesMap.put(flowId,flowMatches);
             return flowMatchesMap;
         }
         if (sourcePortRange != null) {
-            Map<Integer, Integer> portMaskMap = getLayer4MaskForRange(sourcePortRange.getLowerPort().getValue(),
-                sourcePortRange.getUpperPort().getValue());
+            Map<Integer, Integer> portMaskMap = getLayer4MaskForRange(
+                sourcePortRange.getLowerPort().getValue().toJava(),
+                sourcePortRange.getUpperPort().getValue().toJava());
             updateFlowMatches(acl, portMaskMap, flowMatchesMap, NxMatchUdpSourcePort::new, "UDP_SOURCE_");
         }
         if (destinationPortRange != null) {
-            Map<Integer, Integer> portMaskMap = getLayer4MaskForRange(destinationPortRange.getLowerPort().getValue(),
-                destinationPortRange.getUpperPort().getValue());
+            Map<Integer, Integer> portMaskMap = getLayer4MaskForRange(
+                destinationPortRange.getLowerPort().getValue().toJava(),
+                destinationPortRange.getUpperPort().getValue().toJava());
             updateFlowMatches(acl, portMaskMap, flowMatchesMap, NxMatchUdpDestinationPort::new, "UDP_DESTINATION_");
         }
 
@@ -240,7 +244,7 @@ public final class AclServiceOFFlowBuilder {
             if (mask != AclConstants.ALL_LAYER4_PORT_MASK) {
                 flowMatches.add(constructor.apply(port, mask));
             }
-            flowMatches.add(new MatchIpProtocol(acl.getProtocol()));
+            flowMatches.add(new MatchIpProtocol(acl.getProtocol().toJava()));
             String flowId = key + port + "_" + mask;
             flowMatchesMap.put(flowId, flowMatches);
         }

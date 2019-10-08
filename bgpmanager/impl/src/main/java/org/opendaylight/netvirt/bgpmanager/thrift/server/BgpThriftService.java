@@ -30,6 +30,7 @@ import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.BgpUpdater;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.protocol_type;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -155,8 +156,8 @@ public class BgpThriftService {
                     plen,
                     nexthop,
                     macaddress,
-                    l3label,
-                    l2label,
+                    Uint32.valueOf(l3label),
+                    Uint32.valueOf(l2label),
                     routermac,
                     afi);
         }
