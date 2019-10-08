@@ -11,7 +11,6 @@ package org.opendaylight.netvirt.qosservice;
 import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import java.math.BigInteger;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -45,6 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.port.statistics.rev131214.node.connector.statistics.and.port.number.map.NodeConnectorStatisticsAndPortNumberMap;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +65,7 @@ public final class QosAlertManager implements Runnable {
     private final QosEosHandler qosEosHandler;
     private final IInterfaceManager interfaceManager;
     private final Set unprocessedInterfaceIds = ConcurrentHashMap.newKeySet();
-    private final ConcurrentMap<BigInteger, ConcurrentMap<String, QosAlertPortData>> qosAlertDpnPortNumberMap =
+    private final ConcurrentMap<Uint64, ConcurrentMap<String, QosAlertPortData>> qosAlertDpnPortNumberMap =
             new ConcurrentHashMap<>();
     private final AlertThresholdSupplier alertThresholdSupplier = new AlertThresholdSupplier();
 
@@ -143,9 +143,9 @@ public final class QosAlertManager implements Runnable {
 
     private void getDefaultConfig() {
         alertEnabled = defaultConfig.isQosAlertEnabled();
-        pollInterval = defaultConfig.getQosAlertPollInterval();
+        pollInterval = defaultConfig.getQosAlertPollInterval().toJava();
 
-        alertThresholdSupplier.set(defaultConfig.getQosDropPacketThreshold());
+        alertThresholdSupplier.set(defaultConfig.getQosDropPacketThreshold().toJava());
     }
 
     public void setQosalertConfig(QosalertConfig config) {
@@ -155,7 +155,7 @@ public final class QosAlertManager implements Runnable {
                 config.getQosAlertPollInterval());
 
         alertEnabled = config.isQosAlertEnabled().booleanValue();
-        pollInterval = config.getQosAlertPollInterval();
+        pollInterval = config.getQosAlertPollInterval().toJava();
 
         alertThresholdSupplier.set(config.getQosDropPacketThreshold().shortValue());
 
@@ -212,8 +212,8 @@ public final class QosAlertManager implements Runnable {
     }
 
     private void addToQosAlertCache(InterfaceInfo interfaceInfo) {
-        BigInteger dpnId = interfaceInfo.getDpId();
-        if (dpnId.equals(IfmConstants.INVALID_DPID)) {
+        Uint64 dpnId = interfaceInfo.getDpId();
+        if (dpnId.equals(Uint64.valueOf(-1L))) {
             LOG.warn("Interface {} could not be added to Qos Alert Cache because Dpn Id is not found",
                     interfaceInfo.getInterfaceName());
             return;
@@ -242,14 +242,14 @@ public final class QosAlertManager implements Runnable {
         if (interfaceInfo == null) {
             return;
         }
-        BigInteger dpnId = interfaceInfo.getDpId();
+        Uint64 dpnId = interfaceInfo.getDpId();
         String portNumber = String.valueOf(interfaceInfo.getPortNo());
         removeFromQosAlertCache(dpnId, portNumber);
     }
 
     public void removeLowerLayerIfFromQosAlertCache(String lowerLayerIf) {
         LOG.trace("If present, remove lowerLayerIf {} from cache", lowerLayerIf);
-        BigInteger dpnId = qosNeutronUtils.getDpnIdFromLowerLayerIf(lowerLayerIf);
+        Uint64 dpnId = qosNeutronUtils.getDpnIdFromLowerLayerIf(lowerLayerIf);
         String portNumber = qosNeutronUtils.getPortNumberFromLowerLayerIf(lowerLayerIf);
         if (dpnId == null || portNumber == null) {
             LOG.warn("Interface {} not in openflow:dpnid:portnum format, could not remove from cache", lowerLayerIf);
@@ -258,7 +258,7 @@ public final class QosAlertManager implements Runnable {
         removeFromQosAlertCache(dpnId, portNumber);
     }
 
-    private void removeFromQosAlertCache(BigInteger dpnId, String portNumber) {
+    private void removeFromQosAlertCache(Uint64 dpnId, String portNumber) {
         if (qosAlertDpnPortNumberMap.containsKey(dpnId)
                 && qosAlertDpnPortNumberMap.get(dpnId).containsKey(portNumber)) {
             qosAlertDpnPortNumberMap.get(dpnId).remove(portNumber);
@@ -288,8 +288,8 @@ public final class QosAlertManager implements Runnable {
     private void pollDirectStatisticsForAllNodes() {
         LOG.trace("Polling direct statistics from nodes");
 
-        for (Entry<BigInteger, ConcurrentMap<String, QosAlertPortData>> entry : qosAlertDpnPortNumberMap.entrySet()) {
-            BigInteger dpn = entry.getKey();
+        for (Entry<Uint64, ConcurrentMap<String, QosAlertPortData>> entry : qosAlertDpnPortNumberMap.entrySet()) {
+            Uint64 dpn = entry.getKey();
             LOG.trace("Polling DPN ID {}", dpn);
             GetNodeConnectorStatisticsInputBuilder input = new GetNodeConnectorStatisticsInputBuilder()
                     .setNode(new NodeRef(InstanceIdentifier.builder(Nodes.class)
@@ -334,15 +334,15 @@ public final class QosAlertManager implements Runnable {
                 .forEach(QosAlertPortData::initPortData));
     }
 
-    private static class AlertThresholdSupplier implements Supplier<BigInteger> {
-        private volatile BigInteger alertThreshold = BigInteger.valueOf(0);
+    private static class AlertThresholdSupplier implements Supplier<Uint64> {
+        private volatile Uint64 alertThreshold = Uint64.valueOf(0);
 
         void set(short threshold) {
-            alertThreshold = BigInteger.valueOf(threshold);
+            alertThreshold = Uint64.valueOf(threshold);
         }
 
         @Override
-        public BigInteger get() {
+        public Uint64 get() {
             return alertThreshold;
         }
     }

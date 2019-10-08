@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.natservice.ha;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import java.math.BigInteger;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -35,6 +34,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,7 +94,7 @@ public class SnatCentralizedSwitchChangeListener
                     routerToNaptSwitch.getRouterName(), routerToNaptSwitch.getPrimarySwitchId());
             return;
         }
-        BigInteger primarySwitchId = routerToNaptSwitch.getPrimarySwitchId();
+        Uint64 primarySwitchId = routerToNaptSwitch.getPrimarySwitchId();
         Routers router = natDataUtil.getRouter(routerToNaptSwitch.getRouterName());
         if (router != null) {
             ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
@@ -114,8 +115,8 @@ public class SnatCentralizedSwitchChangeListener
                     updatedRouterToNaptSwitch.getRouterName(), updatedRouterToNaptSwitch.getPrimarySwitchId());
             return;
         }
-        BigInteger origPrimarySwitchId = origRouterToNaptSwitch.getPrimarySwitchId();
-        BigInteger updatedPrimarySwitchId = updatedRouterToNaptSwitch.getPrimarySwitchId();
+        Uint64 origPrimarySwitchId = origRouterToNaptSwitch.getPrimarySwitchId();
+        Uint64 updatedPrimarySwitchId = updatedRouterToNaptSwitch.getPrimarySwitchId();
         ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, confTx -> {
             Routers origRouter = NatUtil.getRoutersFromConfigDS(confTx, origRouterToNaptSwitch.getRouterName());
             Routers updatedRouter = NatUtil.getRoutersFromConfigDS(confTx, updatedRouterToNaptSwitch.getRouterName());
@@ -169,7 +170,7 @@ public class SnatCentralizedSwitchChangeListener
                     routerToNaptSwitch.getRouterName(), routerToNaptSwitch.getPrimarySwitchId());
             return;
         }
-        BigInteger primarySwitchId = routerToNaptSwitch.getPrimarySwitchId();
+        Uint64 primarySwitchId = routerToNaptSwitch.getPrimarySwitchId();
         String routerName = routerToNaptSwitch.getRouterName();
         Routers router = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
         final boolean isEnableSnat;
@@ -178,7 +179,7 @@ public class SnatCentralizedSwitchChangeListener
         } else {
             isEnableSnat = false;
         }
-        long vpnId = NatUtil.getVpnId(dataBroker, routerName);
+        Uint32 vpnId = NatUtil.getVpnId(dataBroker, routerName);
         if (vpnId == NatConstants.INVALID_ID) {
             LOG.warn("VpnId not unavailable for router {} yet", routerName);
             eventCallbacks.onAddOrUpdate(LogicalDatastoreType.CONFIGURATION,
@@ -199,7 +200,7 @@ public class SnatCentralizedSwitchChangeListener
     }
 
     private void handleAdd(TypedReadWriteTransaction<Datastore.Configuration> confTx,
-            String routerName, Routers router, BigInteger primarySwitchId, boolean isSnatEnabled)
+            String routerName, Routers router, Uint64 primarySwitchId, boolean isSnatEnabled)
             throws ExecutionException, InterruptedException {
         if (router != null) {
             natDataUtil.addtoRouterMap(router);

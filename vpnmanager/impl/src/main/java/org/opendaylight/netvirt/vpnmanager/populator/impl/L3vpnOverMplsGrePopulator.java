@@ -33,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +68,7 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
             return;
         }
         Adjacency nextHop = input.getNextHop();
-        long label = nextHop.getLabel();
+        Uint32 label = nextHop.getLabel();
         String vpnName = input.getVpnName();
         String primaryRd = input.getPrimaryRd();
         String rd = input.getRd();
@@ -75,7 +76,7 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
         VrfEntry.EncapType encapType = input.getEncapType();
         LOG.info("populateFib : Found Interface Adjacency with prefix {} rd {}", nextHop.getIpAddress(), primaryRd);
         List<VpnInstanceOpDataEntry> vpnsToImportRoute = vpnUtil.getVpnsImportingMyRoute(vpnName);
-        long vpnId = vpnUtil.getVpnId(vpnName);
+        Uint32 vpnId = vpnUtil.getVpnId(vpnName);
         String nextHopIpAddress = nextHop.getIpAddress(); // it is a valid case for nextHopIpAddress to be null
         // Not advertising the prefix to BGP for InternalVpn (where rd is vpnName),
         // transparentInternetVpn (where rd is Network name)
@@ -87,14 +88,15 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
                     primaryRd);
             Objects.requireNonNull(input.getRouteOrigin(), "RouteOrigin is mandatory");
             addPrefixToBGP(rd, primaryRd, null /*macAddress*/, nextHopIpAddress, nextHopIp, encapType,
-                    label, 0 /*l3vni*/, input.getGatewayMac(), input.getRouteOrigin(), writeConfigTxn);
+                    label, Uint32.ZERO /*l3vni*/, input.getGatewayMac(), input.getRouteOrigin(),
+                    writeConfigTxn);
             //TODO: ERT - check for VPNs importing my route
             for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
                 String vpnRd = vpn.getVrfId();
                 if (vpnRd != null) {
                     fibManager.addOrUpdateFibEntry(vpnRd, null /*macAddress*/,
-                            nextHopIpAddress, Arrays.asList(nextHopIp), encapType, (int) label,
-                            0 /*l3vni*/, input.getGatewayMac(), primaryRd, RouteOrigin.SELF_IMPORTED,
+                            nextHopIpAddress, Arrays.asList(nextHopIp), encapType, label,
+                            Uint32.ZERO /*l3vni*/, input.getGatewayMac(), primaryRd, RouteOrigin.SELF_IMPORTED,
                             writeConfigTxn);
                     LOG.info("populateFib: Exported route with rd {} prefix {} nexthop {} label {}"
                             + " to VPN {} for interface {} on dpn {}", vpnRd, nextHop.getIpAddress(), nextHopIp, label,
@@ -104,8 +106,9 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
         } else {
             // ### add FIB route directly
             fibManager.addOrUpdateFibEntry(vpnName, null /*macAddress*/,
-                    nextHopIpAddress, Arrays.asList(nextHopIp), encapType, (int) label,
-                    0 /*l3vni*/, input.getGatewayMac(), null /*parentVpnRd*/, input.getRouteOrigin(), writeConfigTxn);
+                    nextHopIpAddress, Arrays.asList(nextHopIp), encapType, label,
+                    Uint32.ZERO /*l3vni*/, input.getGatewayMac(), null /*parentVpnRd*/,
+                    input.getRouteOrigin(), writeConfigTxn);
             LOG.info("populateFib: Added internal FIB entry for prefix {} nexthop {} label {}"
                     + " to VPN {} for interface {} on dpn {}", nextHop.getIpAddress(), nextHopIp, label, vpnName,
                     input.getInterfaceName(), input.getDpnId());
@@ -121,8 +124,8 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
         String rd = input.getRd();
         String primaryRd = input.getPrimaryRd();
         String vpnName = input.getVpnName();
-        long label = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME, VpnUtil.getNextHopLabelKey(primaryRd, prefix));
-        if (label == VpnConstants.INVALID_LABEL) {
+        Uint32 label = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME, VpnUtil.getNextHopLabelKey(primaryRd, prefix));
+        if (label.longValue() == VpnConstants.INVALID_LABEL) {
             String error = "Unable to fetch label from Id Manager. Bailing out of creation of operational "
                     + "vpn interface adjacency " + prefix + "for vpn " + vpnName;
             throw new NullPointerException(error);

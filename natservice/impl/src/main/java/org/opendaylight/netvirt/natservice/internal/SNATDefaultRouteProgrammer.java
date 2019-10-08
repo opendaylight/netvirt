@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -37,6 +36,8 @@ import org.opendaylight.netvirt.natservice.api.NatSwitchCache;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +68,7 @@ public class SNATDefaultRouteProgrammer {
     }
 
     @Nullable
-    private FlowEntity buildDefNATFlowEntity(BigInteger dpId, long vpnId) {
+    private FlowEntity buildDefNATFlowEntity(Uint64 dpId, Uint32 vpnId) {
         InetAddress defaultIP = null;
         try {
             defaultIP = InetAddress.getByName("0.0.0.0");
@@ -85,7 +86,8 @@ public class SNATDefaultRouteProgrammer {
 //                NatUtil.getIpAddress(defaultIP.getAddress()), 0 }));
 
         //add match for vrfid
-        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId.longValue()),
+                MetaDataUtil.METADATA_MASK_VRFID));
 
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionGotoTable(NwConstants.PSNAT_TABLE));
@@ -100,7 +102,7 @@ public class SNATDefaultRouteProgrammer {
     }
 
     @Nullable
-    private FlowEntity buildDefNATFlowEntity(BigInteger dpId, long bgpVpnId, long routerId) {
+    private FlowEntity buildDefNATFlowEntity(Uint64 dpId, Uint32 bgpVpnId, Uint32 routerId) {
         InetAddress defaultIP = null;
         try {
             defaultIP = InetAddress.getByName("0.0.0.0");
@@ -118,7 +120,8 @@ public class SNATDefaultRouteProgrammer {
 //                NatUtil.getIpAddress(defaultIP.getAddress()), 0 }));
 
         //add match for vrfid
-        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(bgpVpnId), MetaDataUtil.METADATA_MASK_VRFID));
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(bgpVpnId.longValue()),
+                MetaDataUtil.METADATA_MASK_VRFID));
 
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionGotoTable(NwConstants.PSNAT_TABLE));
@@ -134,7 +137,7 @@ public class SNATDefaultRouteProgrammer {
 
     }
 
-    public void installDefNATRouteInDPN(BigInteger dpnId, long vpnId, TypedWriteTransaction<Configuration> confTx) {
+    public void installDefNATRouteInDPN(Uint64 dpnId, Uint32 vpnId, TypedWriteTransaction<Configuration> confTx) {
         FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, vpnId);
         if (flowEntity == null) {
             LOG.error("installDefNATRouteInDPN : Flow entity received is NULL."
@@ -145,8 +148,8 @@ public class SNATDefaultRouteProgrammer {
         mdsalManager.addFlow(confTx, flowEntity);
     }
 
-    public void installDefNATRouteInDPN(BigInteger dpnId, long bgpVpnId, long routerId,
-        TypedWriteTransaction<Configuration> confTx) {
+    public void installDefNATRouteInDPN(Uint64 dpnId, Uint32 bgpVpnId, Uint32 routerId,
+                                        TypedWriteTransaction<Configuration> confTx) {
         FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, bgpVpnId, routerId);
         if (flowEntity == null) {
             LOG.error("installDefNATRouteInDPN : Flow entity received is NULL."
@@ -157,7 +160,7 @@ public class SNATDefaultRouteProgrammer {
         mdsalManager.addFlow(confTx, flowEntity);
     }
 
-    public void installDefNATRouteInDPN(BigInteger dpnId, long vpnId, String subnetId) {
+    public void installDefNATRouteInDPN(Uint64 dpnId, Uint32 vpnId, String subnetId) {
         FlowEntity flowEntity = NatUtil.buildDefaultNATFlowEntityForExternalSubnet(dpnId, vpnId, subnetId, idManager);
         if (flowEntity == null) {
             LOG.error("installDefNATRouteInDPN : Flow entity received is NULL."
@@ -168,7 +171,7 @@ public class SNATDefaultRouteProgrammer {
         mdsalManager.installFlow(flowEntity);
     }
 
-    public void removeDefNATRouteInDPN(BigInteger dpnId, long vpnId, TypedReadWriteTransaction<Configuration> confTx)
+    public void removeDefNATRouteInDPN(Uint64 dpnId, Uint32 vpnId, TypedReadWriteTransaction<Configuration> confTx)
             throws ExecutionException, InterruptedException {
         FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, vpnId);
         if (flowEntity == null) {
@@ -180,7 +183,7 @@ public class SNATDefaultRouteProgrammer {
         mdsalManager.removeFlow(confTx, flowEntity);
     }
 
-    public void removeDefNATRouteInDPN(BigInteger dpnId, long bgpVpnId, long routerId,
+    public void removeDefNATRouteInDPN(Uint64 dpnId, Uint32 bgpVpnId, Uint32 routerId,
             TypedReadWriteTransaction<Configuration> confTx) throws ExecutionException, InterruptedException {
         FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, bgpVpnId, routerId);
         if (flowEntity == null) {
@@ -192,17 +195,17 @@ public class SNATDefaultRouteProgrammer {
         mdsalManager.removeFlow(confTx, flowEntity);
     }
 
-    public void addOrDelDefaultFibRouteToSNATForSubnet(Subnets subnet, String networkId, int flowAction, long vpnId) {
+    public void addOrDelDefaultFibRouteToSNATForSubnet(Subnets subnet, String networkId, int flowAction, Uint32 vpnId) {
         String providerNet = NatUtil.getElanInstancePhysicalNetwok(networkId, dataBroker);
-        Set<BigInteger> dpnList = natSwitchCache.getSwitchesConnectedToExternal(providerNet);
+        Set<Uint64> dpnList = natSwitchCache.getSwitchesConnectedToExternal(providerNet);
 
-        for (BigInteger dpn : dpnList) {
+        for (Uint64 dpn : dpnList) {
             addOrDelDefaultFibRouteToSNATForSubnetInDpn(subnet, networkId, flowAction, vpnId, dpn);
         }
     }
 
     public void addOrDelDefaultFibRouteToSNATForSubnetInDpn(Subnets subnet, String networkId, int flowAction,
-            long vpnId, BigInteger dpn) {
+                                                            Uint32 vpnId, Uint64 dpn) {
         String subnetId = subnet.getId().getValue();
         String macAddress = NatUtil.getSubnetGwMac(dataBroker, subnet.getId(), networkId);
         extNetGroupInstaller.installExtNetGroupEntry(new Uuid(networkId), subnet.getId(),

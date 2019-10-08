@@ -50,6 +50,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Pa
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +86,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
     @Override
     public void onPacketReceived(PacketReceived notification) {
         Class<? extends PacketInReason> pktInReason = notification.getPacketInReason();
-        short tableId = notification.getTableId().getValue();
+        short tableId = notification.getTableId().getValue().toJava();
         if (pktInReason == NoMatch.class && tableId == NwConstants.ELAN_SMAC_TABLE) {
             elanManagerCounters.unknownSmacPktinRcv();
             try {
@@ -95,10 +97,10 @@ public class ElanPacketInHandler implements PacketProcessingListener {
 
                 byte[] srcMac = res.getSourceMACAddress();
                 final String macAddress = NWUtil.toStringMacAddress(srcMac);
-                final BigInteger metadata = notification.getMatch().getMetadata().getMetadata();
-                final long elanTag = MetaDataUtil.getElanTagFromMetadata(metadata);
+                final Uint64 metadata = notification.getMatch().getMetadata().getMetadata();
+                final Uint32 elanTag = Uint32.valueOf(MetaDataUtil.getElanTagFromMetadata(metadata));
 
-                long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
+                Uint32 portTag = Uint32.valueOf(MetaDataUtil.getLportFromMetadata(metadata).longValue());
 
                 Optional<IfIndexInterface> interfaceInfoOp = elanUtils.getInterfaceInfoByInterfaceTag(portTag);
                 if (!interfaceInfoOp.isPresent()) {
@@ -162,7 +164,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
         }
     }
 
-    private void enqueueJobForMacSpecificTasks(final String macAddress, final long elanTag, String interfaceName,
+    private void enqueueJobForMacSpecificTasks(final String macAddress, final Uint32 elanTag, String interfaceName,
                                                String elanName, PhysAddress physAddress,
                                                MacEntry oldMacEntry, MacEntry newMacEntry,
                                                final boolean isVlanOrFlatProviderIface) {
@@ -197,28 +199,28 @@ public class ElanPacketInHandler implements PacketProcessingListener {
             })));
     }
 
-    private static String getElanMacKey(long elanTag, String macAddress) {
-        return "MAC-" + macAddress + " ELAN_TAG-" + elanTag;
+    private static String getElanMacKey(Uint32 elanTag, String macAddress) {
+        return "MAC-" + macAddress + " ELAN_TAG-" + elanTag.toString();
     }
 
-    private static String getElanMacDPNKey(long elanTag, String macAddress, BigInteger dpnId) {
-        return "MAC-" + macAddress + " ELAN_TAG-" + elanTag + "DPN_ID-" + dpnId;
+    private static String getElanMacDPNKey(Uint32 elanTag, String macAddress, Uint64 dpnId) {
+        return "MAC-" + macAddress + " ELAN_TAG-" + elanTag.toString() + "DPN_ID-" + dpnId.toString();
     }
 
-    private void enqueueJobForDPNSpecificTasks(final String macAddress, final long elanTag, String interfaceName,
+    private void enqueueJobForDPNSpecificTasks(final String macAddress, final Uint32 elanTag, String interfaceName,
                                                PhysAddress physAddress, ElanInstance elanInstance,
                                                InterfaceInfo interfaceInfo, MacEntry oldMacEntry,
                                                MacEntry newMacEntry, boolean isVlanOrFlatProviderIface) {
         jobCoordinator.enqueueJob(getElanMacDPNKey(elanTag, macAddress, interfaceInfo.getDpId()), () -> {
             macMigrationFlowsCleanup(interfaceName, elanInstance, oldMacEntry, isVlanOrFlatProviderIface);
-            BigInteger dpId = interfaceManager.getDpnForInterface(interfaceName);
+            Uint64 dpId = interfaceManager.getDpnForInterface(interfaceName);
             elanL2GatewayUtils.scheduleAddDpnMacInExtDevices(elanInstance.getElanInstanceName(), dpId,
                     Collections.singletonList(physAddress));
             elanManagerCounters.unknownSmacPktinLearned();
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
                 futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, operTx -> {
-                    elanUtils.setupMacFlows(elanInstance, interfaceInfo, elanInstance.getMacTimeout(),
+                    elanUtils.setupMacFlows(elanInstance, interfaceInfo, elanInstance.getMacTimeout().toJava(),
                         macAddress, !isVlanOrFlatProviderIface, tx);
                     InstanceIdentifier<MacEntry> macEntryId =
                         ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);

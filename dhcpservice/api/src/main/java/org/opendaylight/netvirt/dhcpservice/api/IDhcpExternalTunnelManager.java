@@ -7,21 +7,21 @@
  */
 package org.opendaylight.netvirt.dhcpservice.api;
 
-import java.math.BigInteger;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public interface IDhcpExternalTunnelManager {
 
-    ConcurrentMap<BigInteger, Set<Pair<IpAddress, String>>> getDesignatedDpnsToTunnelIpElanNameCache();
+    ConcurrentMap<Uint64, Set<Pair<IpAddress, String>>> getDesignatedDpnsToTunnelIpElanNameCache();
 
     ConcurrentMap<Pair<IpAddress, String>, Set<String>> getTunnelIpElanNameToVmMacCache();
 
     ConcurrentMap<Pair<IpAddress, String>, Set<String>> getAvailableVMCache();
 
-    ConcurrentMap<Pair<BigInteger, String>, Port> getVniMacAddressToPortCache();
+    ConcurrentMap<Pair<Uint64, String>, Port> getVniMacAddressToPortCache();
 }

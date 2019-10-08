@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.qosservice;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -47,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.a
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.rule.types.RuleTypesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -214,7 +214,7 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
         Uuid qosUuid = identifier.firstKeyOf(QosPolicy.class).getUuid();
         BandwidthLimitRulesBuilder bwLimitBuilder = new BandwidthLimitRulesBuilder();
         BandwidthLimitRules zeroBwLimitRule =
-                bwLimitBuilder.setMaxBurstKbps(BigInteger.ZERO).setMaxKbps(BigInteger.ZERO).build();
+                bwLimitBuilder.setMaxBurstKbps(Uint64.ZERO).setMaxKbps(Uint64.ZERO).build();
 
         for (Network network : qosNeutronUtils.getQosNetworks(qosUuid)) {
             qosNeutronUtils.handleNeutronNetworkQosBwRuleRemove(network, zeroBwLimitRule);

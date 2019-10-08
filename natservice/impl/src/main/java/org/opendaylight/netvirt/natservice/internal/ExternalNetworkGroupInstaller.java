@@ -9,7 +9,6 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Strings;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -36,6 +35,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,7 +110,7 @@ public class ExternalNetworkGroupInstaller {
         installExtNetGroupEntries(subnetMap, macAddress);
     }
 
-    public void installExtNetGroupEntries(Uuid networkId, BigInteger dpnId) {
+    public void installExtNetGroupEntries(Uuid networkId, Uint64 dpnId) {
         if (networkId == null) {
             return;
         }
@@ -142,15 +143,15 @@ public class ExternalNetworkGroupInstaller {
             return;
         }
 
-        long groupId = NatUtil.getUniqueId(idManager, NatConstants.SNAT_IDPOOL_NAME,
+        Uint32 groupId = NatUtil.getUniqueId(idManager, NatConstants.SNAT_IDPOOL_NAME,
             NatUtil.getGroupIdKey(subnetName));
         if (groupId != NatConstants.INVALID_ID) {
             LOG.info("installExtNetGroupEntries : Installing ext-net group {} entry for subnet {} with macAddress {} "
                     + "(extInterfaces: {})", groupId, subnetName, macAddress,
                     Arrays.toString(extInterfaces.toArray()));
             for (String extInterface : extInterfaces) {
-                BigInteger dpId = NatUtil.getDpnForInterface(odlInterfaceRpcService, extInterface);
-                if (BigInteger.ZERO.equals(dpId)) {
+                Uint64 dpId = NatUtil.getDpnForInterface(odlInterfaceRpcService, extInterface);
+                if (Uint64.ZERO.equals(dpId)) {
                     LOG.info(
                         "installExtNetGroupEntries: No DPN for interface {}. NAT ext-net flow will not be installed "
                             + "for subnet {}", extInterface, subnetName);
@@ -163,7 +164,7 @@ public class ExternalNetworkGroupInstaller {
         }
     }
 
-    public void installExtNetGroupEntry(Uuid networkId, Uuid subnetId, BigInteger dpnId, String macAddress) {
+    public void installExtNetGroupEntry(Uuid networkId, Uuid subnetId, Uint64 dpnId, String macAddress) {
         String subnetName = subnetId.getValue();
         String extInterface = elanService.getExternalElanInterface(networkId.getValue(), dpnId);
         if (extInterface == null) {
@@ -171,7 +172,8 @@ public class ExternalNetworkGroupInstaller {
                     networkId, subnetName, dpnId);
             //return;
         }
-        long groupId = NatUtil.getUniqueId(idManager, NatConstants.SNAT_IDPOOL_NAME, NatUtil.getGroupIdKey(subnetName));
+        Uint32 groupId = NatUtil.getUniqueId(idManager, NatConstants.SNAT_IDPOOL_NAME,
+                NatUtil.getGroupIdKey(subnetName));
         if (groupId != NatConstants.INVALID_ID) {
             LOG.info(
                 "installExtNetGroupEntry : Installing ext-net group {} entry for subnet {} with macAddress {} "
@@ -182,8 +184,8 @@ public class ExternalNetworkGroupInstaller {
         }
     }
 
-    private void installExtNetGroupEntry(long groupId, String subnetName, String extInterface,
-            String macAddress, BigInteger dpnId) {
+    private void installExtNetGroupEntry(Uint32 groupId, String subnetName, String extInterface,
+            String macAddress, Uint64 dpnId) {
 
         coordinator.enqueueJob(NatUtil.getDefaultFibRouteToSNATForSubnetJobKey(subnetName, dpnId), () -> {
             GroupEntity groupEntity = buildExtNetGroupEntity(macAddress, subnetName, groupId, extInterface, dpnId);
@@ -211,7 +213,8 @@ public class ExternalNetworkGroupInstaller {
             return;
         }
 
-        long groupId = NatUtil.getUniqueId(idManager, NatConstants.SNAT_IDPOOL_NAME, NatUtil.getGroupIdKey(subnetName));
+        Uint32 groupId = NatUtil.getUniqueId(idManager, NatConstants.SNAT_IDPOOL_NAME,
+                NatUtil.getGroupIdKey(subnetName));
         if (groupId != NatConstants.INVALID_ID) {
             for (String extInterface : extInterfaces) {
                 GroupEntity groupEntity = buildEmptyExtNetGroupEntity(subnetName, groupId,
@@ -229,7 +232,7 @@ public class ExternalNetworkGroupInstaller {
     }
 
     private GroupEntity buildExtNetGroupEntity(String macAddress, String subnetName,
-                                               long groupId, String extInterface, BigInteger dpnId) {
+                                               Uint32 groupId, String extInterface, Uint64 dpnId) {
 
         List<ActionInfo> actionList = new ArrayList<>();
         final int setFieldEthDestActionPos = 0;
@@ -258,18 +261,19 @@ public class ExternalNetworkGroupInstaller {
 
         List<BucketInfo> listBucketInfo = new ArrayList<>();
         listBucketInfo.add(new BucketInfo(actionList));
-        return MDSALUtil.buildGroupEntity(dpnId, groupId, subnetName, GroupTypes.GroupAll, listBucketInfo);
+        return MDSALUtil.buildGroupEntity(dpnId, groupId.longValue(), subnetName, GroupTypes.GroupAll, listBucketInfo);
     }
 
     @Nullable
-    private GroupEntity buildEmptyExtNetGroupEntity(String subnetName, long groupId, String extInterface) {
-        BigInteger dpId = NatUtil.getDpnForInterface(odlInterfaceRpcService, extInterface);
-        if (BigInteger.ZERO.equals(dpId)) {
+    private GroupEntity buildEmptyExtNetGroupEntity(String subnetName, Uint32 groupId, String extInterface) {
+        Uint64 dpId = NatUtil.getDpnForInterface(odlInterfaceRpcService, extInterface);
+        if (Uint64.ZERO.equals(dpId)) {
             LOG.error("buildEmptyExtNetGroupEntity: No DPN for interface {}. NAT ext-net flow will not be installed "
                     + "for subnet {}", extInterface, subnetName);
             return null;
         }
 
-        return MDSALUtil.buildGroupEntity(dpId, groupId, subnetName, GroupTypes.GroupAll, new ArrayList<>());
+        return MDSALUtil.buildGroupEntity(dpId, groupId.longValue(), subnetName,
+                GroupTypes.GroupAll, new ArrayList<>());
     }
 }

@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.dhcpservice;
 
 import com.google.common.base.Optional;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -50,6 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.s
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.SubnetKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -191,26 +191,26 @@ public class DhcpManager {
         return prt;
     }
 
-    public void installDhcpEntries(@Nullable BigInteger dpnId, @Nullable String vmMacAddress,
+    public void installDhcpEntries(@Nullable Uint64 dpnId, @Nullable String vmMacAddress,
             TypedReadWriteTransaction<Configuration> tx) throws ExecutionException, InterruptedException {
         DhcpServiceUtils.setupDhcpFlowEntry(dpnId, NwConstants.DHCP_TABLE, vmMacAddress, NwConstants.ADD_FLOW,
                 mdsalUtil, dhcpServiceCounters, tx);
     }
 
-    public void unInstallDhcpEntries(@Nullable BigInteger dpId, @Nullable String vmMacAddress,
+    public void unInstallDhcpEntries(@Nullable Uint64 dpId, @Nullable String vmMacAddress,
             TypedReadWriteTransaction<Configuration> tx) throws ExecutionException, InterruptedException {
         DhcpServiceUtils.setupDhcpFlowEntry(dpId, NwConstants.DHCP_TABLE, vmMacAddress, NwConstants.DEL_FLOW,
                 mdsalUtil, dhcpServiceCounters, tx);
     }
 
-    public void setupDefaultDhcpFlows(TypedWriteTransaction<Configuration> tx, BigInteger dpId) {
+    public void setupDefaultDhcpFlows(TypedWriteTransaction<Configuration> tx, Uint64 dpId) {
         setupTableMissForDhcpTable(tx, dpId);
         if (config.isDhcpDynamicAllocationPoolEnabled()) {
             setupDhcpAllocationPoolFlow(tx, dpId);
         }
     }
 
-    private void setupTableMissForDhcpTable(TypedWriteTransaction<Configuration> tx, BigInteger dpId) {
+    private void setupTableMissForDhcpTable(TypedWriteTransaction<Configuration> tx, Uint64 dpId) {
         List<MatchInfo> matches = new ArrayList<>();
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
@@ -224,7 +224,7 @@ public class DhcpManager {
         setupTableMissForHandlingExternalTunnel(tx, dpId);
     }
 
-    private void setupDhcpAllocationPoolFlow(TypedWriteTransaction<Configuration> tx, BigInteger dpId) {
+    private void setupDhcpAllocationPoolFlow(TypedWriteTransaction<Configuration> tx, Uint64 dpId) {
         List<MatchInfo> matches = DhcpServiceUtils.getDhcpMatch();
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
@@ -238,7 +238,7 @@ public class DhcpManager {
         mdsalUtil.addFlow(tx, flowEntity);
     }
 
-    private void setupTableMissForHandlingExternalTunnel(TypedWriteTransaction<Configuration> tx, BigInteger dpId) {
+    private void setupTableMissForHandlingExternalTunnel(TypedWriteTransaction<Configuration> tx, Uint64 dpId) {
         List<MatchInfo> matches = new ArrayList<>();
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionGotoTable(NwConstants.EXTERNAL_TUNNEL_TABLE));

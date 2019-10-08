@@ -16,6 +16,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeLeafTagName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagName;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 @Singleton
 public class ElanEtreeUtils {
@@ -28,7 +29,8 @@ public class ElanEtreeUtils {
 
     @Nullable
     public EtreeLeafTagName getEtreeLeafTagByElanTag(long elanTag) {
-        InstanceIdentifier<ElanTagName> elanId = ElanUtils.getElanInfoEntriesOperationalDataPath(elanTag);
+        InstanceIdentifier<ElanTagName> elanId = ElanUtils
+                                                     .getElanInfoEntriesOperationalDataPath(Uint32.valueOf(elanTag));
         Optional<ElanTagName> existingElanInfo = ElanUtils.read(broker,
                 LogicalDatastoreType.OPERATIONAL, elanId);
         if (existingElanInfo.isPresent()) {

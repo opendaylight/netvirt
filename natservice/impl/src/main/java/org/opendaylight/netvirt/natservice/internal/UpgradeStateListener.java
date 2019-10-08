@@ -11,7 +11,6 @@ package org.opendaylight.netvirt.natservice.internal;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import com.google.common.base.Optional;
-import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -42,6 +41,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.serviceutils.upgrade.rev180702.UpgradeConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,7 +105,7 @@ public class UpgradeStateListener extends AbstractClusteredSyncDataTreeChangeLis
                 Optional<NaptSwitches> npatSwitches = NatUtil.getAllPrimaryNaptSwitches(dataBroker);
                 if (npatSwitches.isPresent()) {
                     for (RouterToNaptSwitch routerToNaptSwitch : npatSwitches.get().nonnullRouterToNaptSwitch()) {
-                        BigInteger primaryNaptDpnId = routerToNaptSwitch.getPrimarySwitchId();
+                        Uint64 primaryNaptDpnId = routerToNaptSwitch.getPrimarySwitchId();
                         if (!NatUtil.getSwitchStatus(dataBroker, routerToNaptSwitch.getPrimarySwitchId())) {
                             String routerUuid = routerToNaptSwitch.getRouterName();
                             coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + routerUuid,
@@ -142,7 +143,7 @@ public class UpgradeStateListener extends AbstractClusteredSyncDataTreeChangeLis
         }
     }
 
-    private void reElectNewNaptSwitch(String routerName, BigInteger primaryNaptDpnId,
+    private void reElectNewNaptSwitch(String routerName, Uint64 primaryNaptDpnId,
             TypedReadWriteTransaction<Configuration> confTx) throws ExecutionException, InterruptedException {
         // Check if this is externalRouter else ignore
         InstanceIdentifier<Routers> extRoutersId = NatUtil.buildRouterIdentifier(routerName);
@@ -160,10 +161,10 @@ public class UpgradeStateListener extends AbstractClusteredSyncDataTreeChangeLis
                     + "as external network configuraton is missing", primaryNaptDpnId, routerName);
             return;
         }
-        long routerId = NatUtil.getVpnId(dataBroker, routerName);
+        Uint32 routerId = NatUtil.getVpnId(dataBroker, routerName);
         LOG.debug("hndlTepDelForSnatInEachRtr : SNAT->Router {} is associated with ext nw {}", routerId, networkId);
         Uuid bgpVpnUuid = NatUtil.getVpnForRouter(dataBroker, routerName);
-        Long bgpVpnId;
+        Uint32 bgpVpnId;
         if (bgpVpnUuid == null) {
             LOG.debug("hndlTepDelForSnatInEachRtr : SNAT->Internal VPN-ID {} associated to router {}",
                     routerId, routerName);
@@ -180,7 +181,7 @@ public class UpgradeStateListener extends AbstractClusteredSyncDataTreeChangeLis
         if (routerData.get().isEnableSnat()) {
             LOG.info("hndlTepDelForSnatInEachRtr : SNAT enabled for router {}", routerId);
 
-            long routerVpnId = routerId;
+            Uint32 routerVpnId = routerId;
             if (bgpVpnId != NatConstants.INVALID_ID) {
                 LOG.debug("hndlTepDelForSnatInEachRtr : SNAT -> Private BGP VPN ID (Internal BGP VPN ID) {} "
                         + "associated to the router {}", bgpVpnId, routerName);

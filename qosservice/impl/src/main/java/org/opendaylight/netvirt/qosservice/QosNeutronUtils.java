@@ -11,7 +11,6 @@ import static java.util.Collections.emptyList;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import com.google.common.base.Optional;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -102,6 +101,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPointKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -257,8 +257,8 @@ public class QosNeutronUtils {
                             && !qosPolicyOld.getBandwidthLimitRules().isEmpty()) {
                         BandwidthLimitRulesBuilder bwLimitBuilder = new BandwidthLimitRulesBuilder();
                         setPortBandwidthLimits(port, bwLimitBuilder
-                                .setMaxBurstKbps(BigInteger.ZERO)
-                                .setMaxKbps(BigInteger.ZERO).build(), tx);
+                                .setMaxBurstKbps(Uint64.ZERO)
+                                .setMaxKbps(Uint64.ZERO).build(), tx);
                     }
                 }
                 //handle DSCP Mark Rules update
@@ -294,8 +294,8 @@ public class QosNeutronUtils {
                             && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
                         BandwidthLimitRulesBuilder bwLimitBuilder = new BandwidthLimitRulesBuilder();
                         setPortBandwidthLimits(port, bwLimitBuilder
-                                .setMaxBurstKbps(BigInteger.ZERO)
-                                .setMaxKbps(BigInteger.ZERO).build(), tx);
+                                .setMaxBurstKbps(Uint64.ZERO)
+                                .setMaxKbps(Uint64.ZERO).build(), tx);
                     }
                     // handle DSCP MArk Rules removal
                     if (qosPolicy != null && qosPolicy.getDscpmarkingRules() != null
@@ -388,8 +388,8 @@ public class QosNeutronUtils {
                                         && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
                                     BandwidthLimitRulesBuilder bwLimitBuilder = new BandwidthLimitRulesBuilder();
                                     setPortBandwidthLimits(port, bwLimitBuilder
-                                            .setMaxBurstKbps(BigInteger.ZERO)
-                                            .setMaxKbps(BigInteger.ZERO).build(), tx);
+                                            .setMaxBurstKbps(Uint64.ZERO)
+                                            .setMaxKbps(Uint64.ZERO).build(), tx);
                                 }
                                 if (qosPolicy != null && qosPolicy.getDscpmarkingRules() != null
                                         && !qosPolicy.getDscpmarkingRules().isEmpty()) {
@@ -448,8 +448,8 @@ public class QosNeutronUtils {
             LOG.debug("Not Qos Cluster Owner. Ignoring setting bandwidth limits");
             return;
         }
-        BigInteger dpId = getDpnForInterface(port.getUuid().getValue());
-        if (dpId.equals(BigInteger.ZERO)) {
+        Uint64 dpId = getDpnForInterface(port.getUuid().getValue());
+        if (dpId.equals(Uint64.ZERO)) {
             LOG.info("DPN ID for interface {} not found", port.getUuid().getValue());
             return;
         }
@@ -509,10 +509,10 @@ public class QosNeutronUtils {
 
     public void setPortDscpMarking(Port port, DscpmarkingRules dscpMark) {
 
-        BigInteger dpnId = getDpnForInterface(port.getUuid().getValue());
+        Uint64 dpnId = getDpnForInterface(port.getUuid().getValue());
         String ifName = port.getUuid().getValue();
 
-        if (dpnId.equals(BigInteger.ZERO)) {
+        if (dpnId.equals(Uint64.ZERO)) {
             LOG.info("DPN ID for interface {} not found. Cannot set dscp value {} on port {}",
                     port.getUuid().getValue(), dscpMark, port.getUuid().getValue());
             return;
@@ -524,7 +524,7 @@ public class QosNeutronUtils {
             return;
         } else {
             Interface ifState = getInterfaceStateFromOperDS(ifName);
-            Short dscpValue = dscpMark.getDscpMark();
+            Short dscpValue = dscpMark.getDscpMark().toJava();
             int ipVersions = getIpVersions(port);
             //1. OF rules
             if (hasIpv4Addr(ipVersions)) {
@@ -546,10 +546,10 @@ public class QosNeutronUtils {
 
     public void unsetPortDscpMark(Port port) {
 
-        BigInteger dpnId = getDpnForInterface(port.getUuid().getValue());
+        Uint64 dpnId = getDpnForInterface(port.getUuid().getValue());
         String ifName = port.getUuid().getValue();
 
-        if (dpnId.equals(BigInteger.ZERO)) {
+        if (dpnId.equals(Uint64.ZERO)) {
             LOG.debug("DPN ID for port {} not found. Cannot unset dscp value", port.getUuid().getValue());
             return;
         }
@@ -577,10 +577,10 @@ public class QosNeutronUtils {
 
     public void unsetPortDscpMark(Port port, Interface intrf) {
 
-        BigInteger dpnId = getDpIdFromInterface(intrf);
+        Uint64 dpnId = getDpIdFromInterface(intrf);
         String ifName = port.getUuid().getValue();
 
-        if (dpnId.equals(BigInteger.ZERO)) {
+        if (dpnId.equals(Uint64.ZERO)) {
             LOG.error("Unable to retrieve DPN Id for interface {}. Cannot unset dscp value on port", ifName);
             return;
         }
@@ -601,15 +601,15 @@ public class QosNeutronUtils {
         }
     }
 
-    private static BigInteger getDpIdFromInterface(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf
+    private static Uint64 getDpIdFromInterface(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf
                                                            .interfaces.rev140508.interfaces.state.Interface ifState) {
         String lowerLayerIf = ifState.getLowerLayerIf().get(0);
         NodeConnectorId nodeConnectorId = new NodeConnectorId(lowerLayerIf);
-        return BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
+        return Uint64.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
     }
 
-    public BigInteger getDpnForInterface(String ifName) {
-        BigInteger nodeId = BigInteger.ZERO;
+    public Uint64 getDpnForInterface(String ifName) {
+        Uint64 nodeId = Uint64.ZERO;
         try {
             GetDpidFromInterfaceInput
                     dpIdInput = new GetDpidFromInterfaceInputBuilder().setIntfName(ifName).build();
@@ -632,7 +632,7 @@ public class QosNeutronUtils {
     }
 
     @Nullable
-    private BridgeEntry getBridgeEntryFromConfigDS(BigInteger dpnId) {
+    private BridgeEntry getBridgeEntryFromConfigDS(Uint64 dpnId) {
         BridgeEntryKey bridgeEntryKey = new BridgeEntryKey(dpnId);
         InstanceIdentifier<BridgeEntry> bridgeEntryInstanceIdentifier = getBridgeEntryIdentifier(bridgeEntryKey);
         LOG.debug("Trying to retrieve bridge entry from config for Id: {}", bridgeEntryInstanceIdentifier);
@@ -650,7 +650,7 @@ public class QosNeutronUtils {
     }
 
     @Nullable
-    private OvsdbBridgeRef getBridgeRefEntryFromOperDS(BigInteger dpId) {
+    private OvsdbBridgeRef getBridgeRefEntryFromOperDS(Uint64 dpId) {
         BridgeRefEntryKey bridgeRefEntryKey = new BridgeRefEntryKey(dpId);
         InstanceIdentifier<BridgeRefEntry> bridgeRefEntryIid = getBridgeRefEntryIdentifier(bridgeRefEntryKey);
         BridgeRefEntry bridgeRefEntry = getBridgeRefEntryFromOperDS(bridgeRefEntryIid);
@@ -679,7 +679,7 @@ public class QosNeutronUtils {
     public void removeStaleFlowEntry(Interface intrf, int ethType) {
         List<MatchInfo> matches = new ArrayList<>();
 
-        BigInteger dpnId = getDpIdFromInterface(intrf);
+        Uint64 dpnId = getDpIdFromInterface(intrf);
 
         Integer ifIndex = intrf.getIfIndex();
         matches.add(new MatchMetadata(MetaDataUtil.getLportTagMetaData(ifIndex), MetaDataUtil.METADATA_MASK_LPORT_TAG));
@@ -690,7 +690,7 @@ public class QosNeutronUtils {
         mdsalUtils.removeFlow(flowEntity);
     }
 
-    public void addFlow(BigInteger dpnId, Short dscpValue, String ifName, int ethType, Interface ifState) {
+    public void addFlow(Uint64 dpnId, Short dscpValue, String ifName, int ethType, Interface ifState) {
         if (ifState == null) {
             LOG.debug("Could not find the ifState for interface {}", ifName);
             return;
@@ -713,7 +713,7 @@ public class QosNeutronUtils {
         mdsalUtils.installFlow(flowEntity);
     }
 
-    public void removeFlow(BigInteger dpnId, String ifName, int ethType, Interface ifState) {
+    public void removeFlow(Uint64 dpnId, String ifName, int ethType, Interface ifState) {
         if (ifState == null) {
             LOG.debug("Could not find the ifState for interface {}", ifName);
             return;
@@ -771,7 +771,7 @@ public class QosNeutronUtils {
     }
 
     private static BoundServices getBoundServices(String serviceName, short qosServiceIndex, int priority,
-                                                  BigInteger cookieQosTable, List<Instruction> instructions) {
+                                                  Uint64 cookieQosTable, List<Instruction> instructions) {
         StypeOpenflowBuilder augBuilder = new StypeOpenflowBuilder().setFlowCookie(cookieQosTable)
                 .setFlowPriority(priority).setInstruction(instructions);
         return new BoundServicesBuilder().withKey(new BoundServicesKey(qosServiceIndex)).setServiceName(serviceName)
@@ -780,7 +780,7 @@ public class QosNeutronUtils {
     }
 
     @NonNull
-    public static String getQosFlowId(short tableId, BigInteger dpId, int lportTag, int ethType) {
+    public static String getQosFlowId(short tableId, Uint64 dpId, int lportTag, int ethType) {
         return new StringBuilder().append(tableId).append(NwConstants.FLOWID_SEPARATOR).append(dpId)
                 .append(NwConstants.FLOWID_SEPARATOR).append(lportTag)
                 .append(NwConstants.FLOWID_SEPARATOR).append(ethType).toString();
@@ -854,9 +854,9 @@ public class QosNeutronUtils {
     }
 
     @Nullable
-    public static BigInteger getDpnIdFromLowerLayerIf(String lowerLayerIf) {
+    public static Uint64 getDpnIdFromLowerLayerIf(String lowerLayerIf) {
         try {
-            return new BigInteger(lowerLayerIf.substring(lowerLayerIf.indexOf(":") + 1, lowerLayerIf.lastIndexOf(":")));
+            return Uint64.valueOf(lowerLayerIf.substring(lowerLayerIf.indexOf(":") + 1, lowerLayerIf.lastIndexOf(":")));
         } catch (NullPointerException e) {
             return null;
         }

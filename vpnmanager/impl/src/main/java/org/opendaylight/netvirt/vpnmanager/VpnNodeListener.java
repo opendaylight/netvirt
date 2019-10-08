@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,6 +48,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.config.rev161130.VpnConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +62,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
     private final ManagedNewTransactionRunner txRunner;
     private final IMdsalApiManager mdsalManager;
     private final JobCoordinator jobCoordinator;
-    private final List<BigInteger> connectedDpnIds;
+    private final List<Uint64> connectedDpnIds;
     private final VpnConfig vpnConfig;
 
     @Inject
@@ -94,7 +94,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
 
     @Override
     protected void add(InstanceIdentifier<Node> identifier, Node add) {
-        BigInteger dpId = MDSALUtil.getDpnIdFromNodeName(add.getId());
+        Uint64 dpId = MDSALUtil.getDpnIdFromNodeName(add.getId());
         if (!connectedDpnIds.contains(dpId)) {
             connectedDpnIds.add(dpId);
         }
@@ -103,7 +103,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
 
     @Override
     protected void remove(InstanceIdentifier<Node> identifier, Node del) {
-        BigInteger dpId = MDSALUtil.getDpnIdFromNodeName(del.getId());
+        Uint64 dpId = MDSALUtil.getDpnIdFromNodeName(del.getId());
         connectedDpnIds.remove(dpId);
     }
 
@@ -111,11 +111,11 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
     protected void update(InstanceIdentifier<Node> identifier, Node original, Node update) {
     }
 
-    public boolean isConnectedNode(BigInteger nodeId) {
+    public boolean isConnectedNode(Uint64 nodeId) {
         return nodeId != null && connectedDpnIds.contains(nodeId);
     }
 
-    private void processNodeAdd(BigInteger dpId) {
+    private void processNodeAdd(Uint64 dpId) {
         jobCoordinator.enqueueJob("VPNNODE-" + dpId.toString(),
             () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
                 LOG.debug("Received notification to install TableMiss entries for dpn {} ", dpId);
@@ -129,9 +129,9 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
             })), 3);
     }
 
-    private void makeTableMissFlow(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId, int addOrRemove)
+    private void makeTableMissFlow(TypedReadWriteTransaction<Configuration> confTx, Uint64 dpnId, int addOrRemove)
             throws ExecutionException, InterruptedException {
-        final BigInteger cookieTableMiss = new BigInteger("1030000", 16);
+        final Uint64 cookieTableMiss = Uint64.valueOf("1030000", 16).intern();
         // Instruction to goto L3 InterfaceTable
         List<InstructionInfo> instructions =
                 Collections.singletonList(new InstructionGotoTable(NwConstants.L3_INTERFACE_TABLE));
@@ -148,11 +148,11 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
         }
     }
 
-    private void makeL3IntfTblMissFlow(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
+    private void makeL3IntfTblMissFlow(TypedReadWriteTransaction<Configuration> confTx, Uint64 dpnId,
             int addOrRemove) throws ExecutionException, InterruptedException {
         List<InstructionInfo> instructions = new ArrayList<>();
         List<MatchInfo> matches = new ArrayList<>();
-        final BigInteger cookieTableMiss = new BigInteger("1030000", 16);
+        final Uint64 cookieTableMiss = Uint64.valueOf("1030000", 16).intern();
         // Instruction to goto L3 InterfaceTable
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
@@ -172,7 +172,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
         }
     }
 
-    private void makeSubnetRouteTableMissFlow(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
+    private void makeSubnetRouteTableMissFlow(TypedReadWriteTransaction<Configuration> confTx, Uint64 dpnId,
             int addOrRemove) throws ExecutionException, InterruptedException {
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<InstructionInfo> instructions = new ArrayList<>();
@@ -211,7 +211,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
         }
     }
 
-    private void makeIpv6SubnetRouteTableMissFlow(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
+    private void makeIpv6SubnetRouteTableMissFlow(TypedReadWriteTransaction<Configuration> confTx, Uint64 dpnId,
             int addOrRemove) throws ExecutionException, InterruptedException {
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<InstructionInfo> instructions = new ArrayList<>();
@@ -252,7 +252,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
         }
     }
 
-    private void programTableMissForVpnVniDemuxTable(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
+    private void programTableMissForVpnVniDemuxTable(TypedReadWriteTransaction<Configuration> confTx, Uint64 dpnId,
             int addOrRemove) throws ExecutionException, InterruptedException {
         List<ActionInfo> actionsInfos = Collections.singletonList(new ActionNxResubmit(NwConstants
                 .LPORT_DISPATCHER_TABLE));
@@ -262,7 +262,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
                 NwConstants.TABLE_MISS_FLOW);
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3VNI_EXTERNAL_TUNNEL_DEMUX_TABLE,
                 flowRef, NwConstants.TABLE_MISS_PRIORITY, "VPN-VNI Demux Table Miss", 0, 0,
-                new BigInteger("1080000", 16), matches, instructions);
+                Uint64.valueOf("1080000", 16).intern(), matches, instructions);
 
         if (addOrRemove == NwConstants.ADD_FLOW) {
             mdsalManager.addFlow(confTx, flowEntity);
@@ -271,20 +271,21 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
         }
     }
 
-    private void createTableMissForVpnGwFlow(TypedWriteTransaction<Configuration> confTx, BigInteger dpId) {
+    private void createTableMissForVpnGwFlow(TypedWriteTransaction<Configuration> confTx, Uint64 dpId) {
         List<MatchInfo> matches = new ArrayList<>();
         List<ActionInfo> actionsInfos =
                 Collections.singletonList(new ActionNxResubmit(NwConstants.LPORT_DISPATCHER_TABLE));
         List<InstructionInfo> instructions = Collections.singletonList(new InstructionApplyActions(actionsInfos));
         FlowEntity flowEntityMissforGw = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_GW_MAC_TABLE,
             getTableMissFlowRef(dpId, NwConstants.L3_GW_MAC_TABLE, NwConstants.TABLE_MISS_FLOW),
-            NwConstants.TABLE_MISS_PRIORITY, "L3 Gw Mac Table Miss", 0, 0, new BigInteger("1080000", 16), matches,
+            NwConstants.TABLE_MISS_PRIORITY, "L3 Gw Mac Table Miss", 0, 0,
+                Uint64.valueOf("1080000", 16).intern(), matches,
             instructions);
         LOG.trace("Invoking MDSAL to install L3 Gw Mac Table Miss Entry");
         mdsalManager.addFlow(confTx, flowEntityMissforGw);
     }
 
-    private void createL3GwMacArpFlows(TypedWriteTransaction<Configuration> confTx, BigInteger dpId) {
+    private void createL3GwMacArpFlows(TypedWriteTransaction<Configuration> confTx, Uint64 dpId) {
         FlowEntity arpReqGwMacTbl = ArpResponderUtil.createArpDefaultFlow(dpId, NwConstants.L3_GW_MAC_TABLE,
                 NwConstants.ARP_REQUEST, () -> Arrays.asList(MatchEthernetType.ARP, MatchArpOp.REQUEST),
             () -> Collections.singletonList(new ActionNxResubmit(NwConstants.LPORT_DISPATCHER_TABLE)));
@@ -297,12 +298,12 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
         mdsalManager.addFlow(confTx, arpRepGwMacTbl);
     }
 
-    private String getTableMissFlowRef(BigInteger dpnId, short tableId, int tableMiss) {
+    private String getTableMissFlowRef(Uint64 dpnId, short tableId, int tableMiss) {
         return FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId + NwConstants.FLOWID_SEPARATOR + tableMiss
                 + FLOWID_PREFIX;
     }
 
-    private String getSubnetRouteTableMissFlowRef(BigInteger dpnId, short tableId, int etherType, int tableMiss) {
+    private String getSubnetRouteTableMissFlowRef(Uint64 dpnId, short tableId, int etherType, int tableMiss) {
         return FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId + NwConstants.FLOWID_SEPARATOR + etherType
                 + NwConstants.FLOWID_SEPARATOR + tableMiss + FLOWID_PREFIX;
     }

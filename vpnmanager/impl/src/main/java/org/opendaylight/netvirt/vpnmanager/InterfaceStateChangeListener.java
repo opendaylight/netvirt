@@ -17,7 +17,6 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -148,7 +148,7 @@ public class InterfaceStateChangeListener
                                                             + " vpnInstance {} with primaryRd {} is already marked for"
                                                             + " deletion", interfaceName, vpnName, primaryRd);
                                                 } else {
-                                                    BigInteger intfDpnId = BigInteger.ZERO;
+                                                    Uint64 intfDpnId = Uint64.ZERO;
                                                     try {
                                                         intfDpnId = InterfaceUtils.getDpIdFromInterface(intrf);
                                                     } catch (Exception e) {
@@ -160,7 +160,7 @@ public class InterfaceStateChangeListener
                                                     LOG.error("InterfaceStateChangeListener- Processing ifState"
                                                                     + " {} add event with dpnId {}",
                                                             intrf.getName(), intfDpnId);
-                                                    final BigInteger dpnId = intfDpnId;
+                                                    final Uint64 dpnId = intfDpnId;
                                                     final int ifIndex = intrf.getIfIndex();
                                                     LOG.info("VPN Interface add event - intfName {} onto vpnName {}"
                                                             + " running oper-driven", vpnIf.getName(), vpnName);
@@ -198,7 +198,7 @@ public class InterfaceStateChangeListener
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
         final String ifName = intrf.getName();
-        BigInteger dpId = BigInteger.ZERO;
+        Uint64 dpId = Uint64.ZERO;
         try {
             if (L2vlan.class.equals(intrf.getType())) {
                 LOG.info("VPN Interface remove event - intfName {} from InterfaceStateChangeListener",
@@ -209,7 +209,7 @@ public class InterfaceStateChangeListener
                     LOG.error("Unable to retrieve dpnId from interface operational data store for interface"
                             + " {}. Fetching from vpn interface op data store. ", ifName, e);
                 }
-                final BigInteger inputDpId = dpId;
+                final Uint64 inputDpId = dpId;
                 jobCoordinator.enqueueJob("VPNINTERFACE-" + ifName, () -> {
                     List<ListenableFuture<Void>> futures = new ArrayList<>(3);
                     ListenableFuture<Void> configFuture =
@@ -236,8 +236,8 @@ public class InterfaceStateChangeListener
                                             final VpnInterfaceOpDataEntry vpnInterface = optVpnInterface.get();
                                             String gwMac = intrf.getPhysAddress() != null ? intrf.getPhysAddress()
                                                 .getValue() : vpnInterface.getGatewayMacAddress();
-                                            BigInteger dpnId = inputDpId;
-                                            if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
+                                            Uint64 dpnId = inputDpId;
+                                            if (dpnId == null || dpnId.equals(Uint64.ZERO)) {
                                                 dpnId = vpnInterface.getDpnId();
                                             }
                                             final int ifIndex = intrf.getIfIndex();
@@ -285,7 +285,7 @@ public class InterfaceStateChangeListener
                                             final VpnInterface vpnIf = vpnUtil.getConfiguredVpnInterface(ifName);
                                             if (vpnIf != null) {
                                                 final int ifIndex = update.getIfIndex();
-                                                BigInteger dpnId;
+                                                Uint64 dpnId;
                                                 try {
                                                     dpnId = InterfaceUtils.getDpIdFromInterface(update);
                                                 } catch (Exception e) {

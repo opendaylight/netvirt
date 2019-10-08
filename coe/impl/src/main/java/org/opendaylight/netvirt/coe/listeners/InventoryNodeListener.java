@@ -34,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,7 +83,7 @@ public class InventoryNodeListener extends AbstractSyncDataTreeChangeListener<No
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionNxResubmit(NwConstants.LPORT_DISPATCHER_TABLE));
         instructions.add(new InstructionApplyActions(actionsInfos));
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.COE_KUBE_PROXY_TABLE,
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(Uint64.valueOf(dpId), NwConstants.COE_KUBE_PROXY_TABLE,
                 "COEKubeProxyTableMissFlow",0,
                 "COEKubeProxy Table Miss Flow", 0, 0,
                 NwConstants.COOKIE_COE_KUBE_PROXY_TABLE, matches, instructions);

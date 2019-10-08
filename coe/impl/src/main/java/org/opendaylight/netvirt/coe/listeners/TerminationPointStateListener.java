@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.coe.listeners;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -48,6 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -151,7 +151,7 @@ public class TerminationPointStateListener extends
     }
 
     private static BoundServices getBoundServices(String serviceName, short servicePriority, int flowPriority,
-                                                 BigInteger cookie, List<Instruction> instructions) {
+                                                 Uint64 cookie, List<Instruction> instructions) {
         StypeOpenflowBuilder augBuilder = new StypeOpenflowBuilder().setFlowCookie(cookie).setFlowPriority(flowPriority)
                 .setInstruction(instructions);
         return new BoundServicesBuilder().withKey(new BoundServicesKey(servicePriority)).setServiceName(serviceName)
