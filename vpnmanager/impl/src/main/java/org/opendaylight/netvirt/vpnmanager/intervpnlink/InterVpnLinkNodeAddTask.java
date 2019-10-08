@@ -31,6 +31,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.inter.vpn.link.state.FirstEndpointStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.inter.vpn.link.state.SecondEndpointState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.inter.vpn.link.state.SecondEndpointStateBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,8 +74,8 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
         // check if there is any inter-vpn-link in with erroneous state
         int numberOfDpns = Integer.getInteger(NBR_OF_DPNS_PROPERTY_NAME, 1);
 
-        List<BigInteger> firstDpnList = Collections.singletonList(this.dpnId);
-        List<BigInteger> secondDpnList = firstDpnList;
+        List<Uint64> firstDpnList = Collections.singletonList(Uint64.valueOf(this.dpnId));
+        List<Uint64> secondDpnList = firstDpnList;
         interVpnLinkCache.getAllInterVpnLinks().stream()
             .filter(i -> i.isComplete() && !i.isActive()
                         && shouldConfigureLinkIntoDpn(i.getInterVpnLinkState(), numberOfDpns))
@@ -102,8 +104,8 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
     }
 
     private ListenableFuture<Void>
-        updateInterVpnLinkState(InterVpnLinkState interVpnLinkState, List<BigInteger> firstDpnList,
-                                List<BigInteger> secondDpnList) {
+        updateInterVpnLinkState(InterVpnLinkState interVpnLinkState, List<Uint64> firstDpnList,
+                                List<Uint64> secondDpnList) {
 
         FirstEndpointState firstEndPointState =
             new FirstEndpointStateBuilder(interVpnLinkState.getFirstEndpointState()).setDpId(firstDpnList).build();
@@ -118,8 +120,8 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
                     newInterVpnLinkState, CREATE_MISSING_PARENTS));
     }
 
-    private void installLPortDispatcherTable(InterVpnLinkState interVpnLinkState, List<BigInteger> firstDpnList,
-                                             List<BigInteger> secondDpnList) {
+    private void installLPortDispatcherTable(InterVpnLinkState interVpnLinkState, List<Uint64> firstDpnList,
+                                             List<Uint64> secondDpnList) {
         String ivpnLinkName = interVpnLinkState.key().getInterVpnLinkName();
         Optional<InterVpnLinkDataComposite> optVpnLink = interVpnLinkCache.getInterVpnLinkByName(ivpnLinkName);
         if (!optVpnLink.isPresent()) {
@@ -128,14 +130,14 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
         }
 
         InterVpnLinkDataComposite vpnLink = optVpnLink.get();
-        Optional<Long> opt1stEndpointLportTag = vpnLink.getFirstEndpointLportTag();
+        Optional<Uint32> opt1stEndpointLportTag = vpnLink.getFirstEndpointLportTag();
         if (!opt1stEndpointLportTag.isPresent()) {
             LOG.warn("installLPortDispatcherTable: Could not find LPortTag for 1stEnpoint in InterVpnLink {}",
                      ivpnLinkName);
             return;
         }
 
-        Optional<Long> opt2ndEndpointLportTag = vpnLink.getSecondEndpointLportTag();
+        Optional<Uint32> opt2ndEndpointLportTag = vpnLink.getSecondEndpointLportTag();
         if (!opt2ndEndpointLportTag.isPresent()) {
             LOG.warn("installLPortDispatcherTable: Could not find LPortTag for 2ndEnpoint in InterVpnLink {}",
                      ivpnLinkName);
@@ -150,9 +152,9 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
         if (!vpnUtil.isVpnPendingDelete(vpn1PrimaryRd)
                 && !vpnUtil.isVpnPendingDelete(vpn2PrimaryRd)) {
             interVpnLinkUtil.installLPortDispatcherTableFlow(ivpnLinkName, firstDpnList, secondEndpointVpnUuid,
-                    opt2ndEndpointLportTag.get());
+                    opt2ndEndpointLportTag.get().toJava());
             interVpnLinkUtil.installLPortDispatcherTableFlow(ivpnLinkName, secondDpnList, firstEndpointVpnUuid,
-                    opt1stEndpointLportTag.get());
+                    opt1stEndpointLportTag.get().toJava());
             // Update the VPN -> DPNs Map.
             // Note: when a set of DPNs is calculated for Vpn1, these DPNs are added to the VpnToDpn map of Vpn2. Why?
             // because we do the handover from Vpn1 to Vpn2 in those DPNs, so in those DPNs we must know how to reach

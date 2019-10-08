@@ -88,10 +88,12 @@ public class ElanEvpnFlowUtils {
         EtreeLeafTagName etreeLeafTag = elanEtreeUtils.getEtreeLeafTagByElanTag(elanTag);
         if (etreeLeafTag != null) {
             futures.addAll(
-                    evpnRemoveFlowThatSendsThePacketOnAnExternalTunnel(etreeLeafTag.getEtreeLeafTag().getValue(), dpId,
+                    evpnRemoveFlowThatSendsThePacketOnAnExternalTunnel(
+                            etreeLeafTag.getEtreeLeafTag().getValue().toJava(), dpId,
                             nexthopIp, macToRemove));
             futures.addAll(
-                    evpnRemoveTheDropFlow(etreeLeafTag.getEtreeLeafTag().getValue(), dpId, nexthopIp, macToRemove));
+                    evpnRemoveTheDropFlow(etreeLeafTag.getEtreeLeafTag().getValue().toJava(),
+                            dpId, nexthopIp, macToRemove));
         }
         return futures;
     }

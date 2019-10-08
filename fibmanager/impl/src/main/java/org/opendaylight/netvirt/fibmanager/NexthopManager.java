@@ -242,7 +242,7 @@ public class NexthopManager implements AutoCloseable {
         try {
             Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
             RpcResult<AllocateIdOutput> rpcResult = result.get();
-            return rpcResult.getResult().getIdValue();
+            return rpcResult.getResult().getIdValue().toJava();
         } catch (NullPointerException | InterruptedException | ExecutionException e) {
             // FIXME: NPEs should not be caught but rather their root cause should be eliminated
             LOG.trace("Failed to allocate {}", getIdInput, e);
@@ -306,17 +306,17 @@ public class NexthopManager implements AutoCloseable {
                 } else if (actionClass instanceof SetFieldCase) {
                     if (((SetFieldCase) actionClass).getSetField().getVlanMatch() != null) {
                         int vlanVid = ((SetFieldCase) actionClass).getSetField().getVlanMatch()
-                            .getVlanId().getVlanId().getValue();
+                            .getVlanId().getVlanId().getValue().toJava();
                         listActionInfo.add(new ActionSetFieldVlanVid(actionKey, vlanVid));
                     }
                 } else if (actionClass instanceof NxActionResubmitRpcAddGroupCase) {
-                    Short tableId = ((NxActionResubmitRpcAddGroupCase) actionClass).getNxResubmit().getTable();
+                    Short tableId = ((NxActionResubmitRpcAddGroupCase) actionClass).getNxResubmit().getTable().toJava();
                     listActionInfo.add(new ActionNxResubmit(actionKey, tableId));
                 } else if (actionClass instanceof NxActionRegLoadNodesNodeTableFlowApplyActionsCase) {
                     NxRegLoad nxRegLoad =
                         ((NxActionRegLoadNodesNodeTableFlowApplyActionsCase) actionClass).getNxRegLoad();
                     listActionInfo.add(new ActionRegLoad(actionKey, NxmNxReg6.class,
-                        nxRegLoad.getDst().getStart(), nxRegLoad.getDst().getEnd(),
+                        nxRegLoad.getDst().getStart().toJava(), nxRegLoad.getDst().getEnd().toJava(),
                         nxRegLoad.getValue().longValue()));
                 }
             }
@@ -613,7 +613,7 @@ public class NexthopManager implements AutoCloseable {
                     IpAdjacencies prefix = new IpAdjacenciesBuilder().setIpAdjacency(currDestIpPrefix).build();
                     prefixesList.remove(prefix);
                     if (prefixesList.isEmpty()) { //remove the group only if there are no more flows using this group
-                        GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpnId, nh.getEgressPointer(),
+                        GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpnId, nh.getEgressPointer().toJava(),
                                 primaryIpAddress, GroupTypes.GroupAll, Collections.emptyList());
                         // remove Group ...
                         mdsalApiManager.removeGroup(groupEntity);
@@ -1022,7 +1022,7 @@ public class NexthopManager implements AutoCloseable {
                 }
                 BigInteger tunnelId;
                 if (FibUtil.isVxlanNetwork(prefixInfo.getNetworkType())) {
-                    tunnelId = BigInteger.valueOf(prefixInfo.getSegmentationId());
+                    tunnelId = BigInteger.valueOf(prefixInfo.getSegmentationId().toJava());
                 } else {
                     LOG.warn("Network is not of type VXLAN for prefix {}."
                         + "Going with default Lport Tag.", prefixInfo.toString());

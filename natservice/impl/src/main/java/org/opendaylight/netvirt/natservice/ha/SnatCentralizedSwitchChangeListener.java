@@ -93,7 +93,7 @@ public class SnatCentralizedSwitchChangeListener
                     routerToNaptSwitch.getRouterName(), routerToNaptSwitch.getPrimarySwitchId());
             return;
         }
-        BigInteger primarySwitchId = routerToNaptSwitch.getPrimarySwitchId();
+        BigInteger primarySwitchId = routerToNaptSwitch.getPrimarySwitchId().toJava();
         Routers router = natDataUtil.getRouter(routerToNaptSwitch.getRouterName());
         if (router != null) {
             ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
@@ -114,8 +114,8 @@ public class SnatCentralizedSwitchChangeListener
                     updatedRouterToNaptSwitch.getRouterName(), updatedRouterToNaptSwitch.getPrimarySwitchId());
             return;
         }
-        BigInteger origPrimarySwitchId = origRouterToNaptSwitch.getPrimarySwitchId();
-        BigInteger updatedPrimarySwitchId = updatedRouterToNaptSwitch.getPrimarySwitchId();
+        BigInteger origPrimarySwitchId = origRouterToNaptSwitch.getPrimarySwitchId().toJava();
+        BigInteger updatedPrimarySwitchId = updatedRouterToNaptSwitch.getPrimarySwitchId().toJava();
         ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, confTx -> {
             Routers origRouter = NatUtil.getRoutersFromConfigDS(confTx, origRouterToNaptSwitch.getRouterName());
             Routers updatedRouter = NatUtil.getRoutersFromConfigDS(confTx, updatedRouterToNaptSwitch.getRouterName());
@@ -169,7 +169,7 @@ public class SnatCentralizedSwitchChangeListener
                     routerToNaptSwitch.getRouterName(), routerToNaptSwitch.getPrimarySwitchId());
             return;
         }
-        BigInteger primarySwitchId = routerToNaptSwitch.getPrimarySwitchId();
+        BigInteger primarySwitchId = routerToNaptSwitch.getPrimarySwitchId().toJava();
         String routerName = routerToNaptSwitch.getRouterName();
         Routers router = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
         final boolean isEnableSnat;

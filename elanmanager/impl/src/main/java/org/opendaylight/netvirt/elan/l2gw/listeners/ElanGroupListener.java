@@ -76,9 +76,9 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
     ElanInstance getElanInstanceFromGroupId(Group update) {
         for (ElanInstance elanInstance : elanInstanceCache.getAllPresent()) {
             if (elanInstance.getElanTag() != null) {
-                long elanTag = elanInstance.getElanTag();
+                long elanTag = elanInstance.getElanTag().toJava();
                 long elanBCGroupId = ElanUtils.getElanRemoteBroadCastGroupID(elanTag);
-                if (elanBCGroupId == update.getGroupId().getValue()) {
+                if (elanBCGroupId == update.getGroupId().getValue().toJava()) {
                     return elanInstance;
                 }
             }
@@ -140,7 +140,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
         }
         if (updateGroup) {
             List<Bucket> bucketList = elanL2GatewayMulticastUtils.getRemoteBCGroupBuckets(elanInstance, null, dpnId, 0,
-                    elanInstance.getElanTag());
+                    elanInstance.getElanTag().toJava());
             expectedElanFootprint--;//remove local bcgroup bucket
             if (bucketList.size() != expectedElanFootprint) {
                 //no point in retrying if not able to meet expected foot print

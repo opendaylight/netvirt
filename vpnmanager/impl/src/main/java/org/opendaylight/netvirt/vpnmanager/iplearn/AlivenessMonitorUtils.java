@@ -53,6 +53,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.config.rev161130.VpnConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,12 +103,12 @@ public final class AlivenessMonitorUtils {
 
         final IpAddress targetIp = IetfInetUtil.INSTANCE.ipAddressFor(macEntry.getIpAddress());
         if (ipMonitorProfileId == null || ipMonitorProfileId.equals(0L)) {
-            Optional<Long> profileIdOptional = allocateIpMonitorProfile(targetIp);
+            Optional<Uint32> profileIdOptional = allocateIpMonitorProfile(targetIp);
             if (!profileIdOptional.isPresent()) {
                 LOG.error("startIpMonitoring: Error while allocating Profile Id for IP={}", targetIp);
                 return;
             }
-            ipMonitorProfileId = profileIdOptional.get();
+            ipMonitorProfileId = profileIdOptional.get().toJava();
         }
 
         final PhysAddress gatewayMac = new PhysAddress(gatewayMacOptional.get());
@@ -122,7 +123,7 @@ public final class AlivenessMonitorUtils {
             RpcResult<MonitorStartOutput> rpcResult = result.get();
             long monitorId;
             if (rpcResult.isSuccessful()) {
-                monitorId = rpcResult.getResult().getMonitorId();
+                monitorId = rpcResult.getResult().getMonitorId().toJava();
                 createOrUpdateInterfaceMonitorIdMap(monitorId, macEntry);
                 LOG.trace("Started IP monitoring with id {}", monitorId);
             } else {
@@ -133,7 +134,7 @@ public final class AlivenessMonitorUtils {
         }
     }
 
-    void stopIpMonitoring(Long monitorId) {
+    void stopIpMonitoring(Uint32 monitorId) {
         MonitorStopInput input = new MonitorStopInputBuilder().setMonitorId(monitorId).build();
 
         JdkFutures.addErrorLogging(alivenessManager.monitorStop(input), LOG, "Stop monitoring");
@@ -154,8 +155,8 @@ public final class AlivenessMonitorUtils {
             .build();
     }
 
-    private Optional<Long> allocateIpMonitorProfile(IpAddress targetIp) {
-        Optional<Long> profileIdOptional = Optional.absent();
+    private Optional<Uint32> allocateIpMonitorProfile(IpAddress targetIp) {
+        Optional<Uint32> profileIdOptional = Optional.absent();
         if (targetIp.getIpv4Address() != null) {
             profileIdOptional = allocateArpMonitorProfile();
         } else if (targetIp.getIpv6Address() != null) {
@@ -164,18 +165,18 @@ public final class AlivenessMonitorUtils {
         return profileIdOptional;
     }
 
-    public Optional<Long> allocateArpMonitorProfile() {
+    public Optional<Uint32> allocateArpMonitorProfile() {
         return allocateProfile(ArpConstants.FAILURE_THRESHOLD, ArpConstants.ARP_CACHE_TIMEOUT_MILLIS,
                 ArpConstants.MONITORING_WINDOW, MonitorProtocolType.Arp);
     }
 
-    public Optional<Long> allocateIpv6NaMonitorProfile() {
-        Long monitorInterval = vpnConfig.getIpv6NdMonitorInterval() * 1000; // converting to milliseconds
-        return allocateProfile(vpnConfig.getIpv6NdMonitorFailureThreshold(), monitorInterval,
-                vpnConfig.getIpv6NdMonitorWindow(), MonitorProtocolType.Ipv6Nd);
+    public Optional<Uint32> allocateIpv6NaMonitorProfile() {
+        Long monitorInterval = vpnConfig.getIpv6NdMonitorInterval().toJava() * 1000; // converting to milliseconds
+        return allocateProfile(vpnConfig.getIpv6NdMonitorFailureThreshold().toJava(), monitorInterval,
+                vpnConfig.getIpv6NdMonitorWindow().toJava(), MonitorProtocolType.Ipv6Nd);
     }
 
-    public Optional<Long> allocateProfile(long failureThreshold, long monitoringInterval, long monitoringWindow,
+    public Optional<Uint32> allocateProfile(long failureThreshold, long monitoringInterval, long monitoringWindow,
             MonitorProtocolType protocolType) {
         MonitorProfileCreateInput input = new MonitorProfileCreateInputBuilder()
             .setProfile(new ProfileBuilder().setFailureThreshold(failureThreshold)
@@ -186,7 +187,7 @@ public final class AlivenessMonitorUtils {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public Optional<Long> createMonitorProfile(MonitorProfileCreateInput monitorProfileCreateInput) {
+    public Optional<Uint32> createMonitorProfile(MonitorProfileCreateInput monitorProfileCreateInput) {
         try {
             Future<RpcResult<MonitorProfileCreateOutput>> result =
                 alivenessManager.monitorProfileCreate(monitorProfileCreateInput);
@@ -199,8 +200,9 @@ public final class AlivenessMonitorUtils {
                 try {
                     Profile createProfile = monitorProfileCreateInput.getProfile();
                     Future<RpcResult<MonitorProfileGetOutput>> existingProfile =
-                        alivenessManager.monitorProfileGet(buildMonitorGetProfile(createProfile.getMonitorInterval(),
-                            createProfile.getMonitorWindow(), createProfile.getFailureThreshold(),
+                        alivenessManager.monitorProfileGet(buildMonitorGetProfile(
+                            createProfile.getMonitorInterval().toJava(),
+                            createProfile.getMonitorWindow().toJava(), createProfile.getFailureThreshold().toJava(),
                             createProfile.getProtocolType()));
                     RpcResult<MonitorProfileGetOutput> rpcGetResult = existingProfile.get();
                     if (rpcGetResult.isSuccessful()) {
@@ -245,9 +247,9 @@ public final class AlivenessMonitorUtils {
             .endpoint.endpoint.type.IpAddressBuilder().setIpAddress(ip).build();
     }
 
-    public java.util.Optional<Long> getMonitorIdFromInterface(MacEntry macEntry) {
+    public java.util.Optional<Uint32> getMonitorIdFromInterface(MacEntry macEntry) {
         String interfaceName = macEntry.getInterfaceName();
-        java.util.Optional<Long> monitorId = java.util.Optional.empty();
+        java.util.Optional<Uint32> monitorId = java.util.Optional.empty();
         Optional<InterfaceMonitorEntry> interfaceMonitorEntryOptional = MDSALUtil.read(dataBroker,
                 LogicalDatastoreType.OPERATIONAL, getInterfaceMonitorMapId(interfaceName));
         if (interfaceMonitorEntryOptional.isPresent()) {

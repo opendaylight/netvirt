@@ -286,7 +286,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
         try {
             RouterToNaptSwitch rtrToNapt = SingleTransactionDataBroker.syncRead(dataBroker,
                     LogicalDatastoreType.CONFIGURATION, routerToNaptSwitch);
-            BigInteger dpnId = rtrToNapt.getPrimarySwitchId();
+            BigInteger dpnId = rtrToNapt.getPrimarySwitchId().toJava();
             if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
                 return false;
             }
@@ -367,7 +367,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
                 LOG.info("No Napt switch is scheduled for {}", routerName);
                 return null;
             }
-            return naptSwitches.get().getPrimarySwitchId();
+            return naptSwitches.get().getPrimarySwitchId().toJava();
         } catch (ReadFailedException e) {
             LOG.error("Error reading RouterToNaptSwitch model", e);
             return null;

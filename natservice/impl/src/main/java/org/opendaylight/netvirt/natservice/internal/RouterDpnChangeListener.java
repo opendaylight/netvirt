@@ -108,7 +108,7 @@ public class RouterDpnChangeListener
     protected void add(final InstanceIdentifier<DpnVpninterfacesList> identifier, final DpnVpninterfacesList dpnInfo) {
         LOG.trace("add : key: {}, value: {}", dpnInfo.key(), dpnInfo);
         final String routerUuid = identifier.firstKeyOf(RouterDpnList.class).getRouterId();
-        BigInteger dpnId = dpnInfo.getDpnId();
+        BigInteger dpnId = dpnInfo.getDpnId().toJava();
         //check router is associated to external network
         InstanceIdentifier<Routers> id = NatUtil.buildRouterIdentifier(routerUuid);
         Optional<Routers> routerData =
@@ -221,7 +221,7 @@ public class RouterDpnChangeListener
             LOG.error("REMOVE: Invalid routId returned for routerName {}",routerUuid);
             return;
         }
-        BigInteger dpnId = dpnInfo.getDpnId();
+        BigInteger dpnId = dpnInfo.getDpnId().toJava();
         //check router is associated to external network
         InstanceIdentifier<Routers> id = NatUtil.buildRouterIdentifier(routerUuid);
         Optional<Routers> routerData =

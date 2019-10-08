@@ -191,7 +191,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                             vpnToDpn -> Objects.equals(vpnToDpn.getDpnId(), srcDpnId)))
                 .forEach(opData -> {
                     List<DestPrefixes> prefixes = VpnExtraRouteHelper.getExtraRouteDestPrefixes(dataBroker,
-                            opData.getVpnId());
+                            opData.getVpnId().toJava());
                     prefixes.forEach(destPrefix -> {
                         VrfEntry vrfEntry = vpnUtil.getVrfEntry(opData.getVrfId(),
                                 destPrefix.getDestPrefix());
@@ -491,7 +491,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                                     destTepIp);
                             for (Adjacency adj : adjList) {
                                 prefix = adj.getIpAddress();
-                                long label = adj.getLabel();
+                                long label = adj.getLabel().toJava();
                                 if (tunnelAction == TunnelAction.TUNNEL_EP_ADD
                                         && tunTypeVal == VpnConstants.ITMTunnelLocType.Internal.getValue()) {
                                     fibManager.manageRemoteRouteOnDPN(true, srcDpnId, vpnId, rd, prefix, destTepIp,

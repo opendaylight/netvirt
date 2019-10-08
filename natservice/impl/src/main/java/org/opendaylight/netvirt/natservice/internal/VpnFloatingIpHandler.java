@@ -199,7 +199,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         ListenableFuture<RpcResult<CreateFibEntryOutput>> future = Futures.transformAsync(labelFuture, result -> {
             if (result.isSuccessful()) {
                 GenerateVpnLabelOutput output = result.getResult();
-                long label = output.getLabel();
+                long label = output.getLabel().toJava();
                 LOG.debug("onAddFloatingIp : Generated label {} for prefix {}", label, externalIp);
                 FloatingIPListener.updateOperationalDS(dataBroker, routerUuid, interfaceName, label,
                         internalIp, externalIp);
