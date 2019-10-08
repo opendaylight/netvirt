@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -340,7 +341,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
 
             // bind service on each tunnel interface
             //TODO (KIRAN): Add a new listener to handle creation of new DC-GW binding and deletion of existing DC-GW.
-            if (VpnUtil.isL3VpnOverVxLan(vpnInstance.getL3vni())) { //Handled for L3VPN Over VxLAN
+            if (VpnUtil.isL3VpnOverVxLan(vpnInstance.getL3vni().toJava())) { //Handled for L3VPN Over VxLAN
                 for (String tunnelInterfaceName: getDcGatewayTunnelInterfaceNameList()) {
                     vpnUtil.bindService(vpnInstance.getVpnInstanceName(), tunnelInterfaceName,
                             true/*isTunnelInterface*/);
@@ -348,11 +349,11 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
 
                 // install flow
                 List<MatchInfo> mkMatches = new ArrayList<>();
-                mkMatches.add(new MatchTunnelId(BigInteger.valueOf(vpnInstance.getL3vni())));
+                mkMatches.add(new MatchTunnelId(BigInteger.valueOf(vpnInstance.getL3vni().toJava())));
 
                 List<InstructionInfo> instructions =
                         Arrays.asList(new InstructionWriteMetadata(MetaDataUtil.getVpnIdMetadata(vpnInstanceOpDataEntry
-                                .getVpnId()), MetaDataUtil.METADATA_MASK_VRFID),
+                                .getVpnId().toJava()), MetaDataUtil.METADATA_MASK_VRFID),
                                 new InstructionGotoTable(NwConstants.L3_GW_MAC_TABLE));
 
                 for (BigInteger dpnId: NWUtil.getOperativeDPNs(dataBroker)) {
@@ -424,6 +425,8 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         }
     }
 
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private List<String> getDcGatewayTunnelInterfaceNameList() {
         List<String> tunnelInterfaceNameList = new ArrayList<>();
         try {
@@ -474,6 +477,8 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         return tunnelInterfaceNameList;
     }
 
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private String getFibFlowRef(BigInteger dpnId, short tableId, String vpnName, int priority) {
         return VpnConstants.FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId
                 + NwConstants.FLOWID_SEPARATOR + vpnName + NwConstants.FLOWID_SEPARATOR + priority;

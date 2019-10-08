@@ -119,6 +119,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkAttributes.NetworkType;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -248,8 +249,8 @@ public class FibUtil {
     public long getVpnId(String vpnName) {
 
         InstanceIdentifier<VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
-        return MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
-                VpnInstance::getVpnId).orElse(-1L);
+        return (MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
+                VpnInstance::getVpnId).orElse(Uint32.valueOf(-1L))).toJava();
     }
 
     /**
@@ -528,7 +529,7 @@ public class FibUtil {
         if (routePaths == null || routePaths.isEmpty() || vrfEntry.getRoutePaths().get(0).getLabel() == null) {
             return java.util.Optional.empty();
         }
-        return java.util.Optional.of(vrfEntry.getRoutePaths().get(0).getLabel());
+        return java.util.Optional.of(vrfEntry.getRoutePaths().get(0).getLabel().toJava());
     }
 
     public static java.util.Optional<String> getFirstNextHopAddress(final VrfEntry vrfEntry) {
@@ -539,7 +540,7 @@ public class FibUtil {
         return java.util.Optional.of(vrfEntry.getRoutePaths().get(0).getNexthopAddress());
     }
 
-    public static java.util.Optional<Long> getLabelForNextHop(final VrfEntry vrfEntry, String nextHopIp) {
+    public static java.util.Optional<Uint32> getLabelForNextHop(final VrfEntry vrfEntry, String nextHopIp) {
         List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
         if (routePaths == null || routePaths.isEmpty()) {
             return java.util.Optional.empty();
@@ -608,7 +609,7 @@ public class FibUtil {
         }
         VpnInstanceOpDataEntry vpnInstance = optVpnInstance.get();
         String vpnName = vpnInstance.getVpnInstanceName();
-        long vpnId = vpnInstance.getVpnId();
+        long vpnId = vpnInstance.getVpnId().toJava();
         List<String> usedRds = VpnExtraRouteHelper.getUsedRds(confTx, vpnId, prefix);
         // To identify the rd to be removed, iterate through the allocated rds for the prefix and check
         // which rd is allocated for the particular OVS.
@@ -620,7 +621,7 @@ public class FibUtil {
                 String nextHopRemoved = vpnExtraRoutes.get().getNexthopIpList().get(0);
                 Prefixes prefixToInterface = getPrefixToInterface(operTx, vpnId, getIpPrefix(nextHopRemoved));
                 if (prefixToInterface != null && tunnelIpRemoved
-                        .equals(getEndpointIpAddressForDPN(prefixToInterface.getDpnId()))) {
+                        .equals(getEndpointIpAddressForDPN(prefixToInterface.getDpnId().toJava()))) {
                     LOG.info("updating data-stores for prefix {} with primaryRd {} for interface {} on vpn {} ",
                             prefix, primaryRd, prefixToInterface.getVpnInterfaceName(), vpnName);
                     operTx.delete(FibUtil.getAdjacencyIdentifierOp(prefixToInterface.getVpnInterfaceName(),

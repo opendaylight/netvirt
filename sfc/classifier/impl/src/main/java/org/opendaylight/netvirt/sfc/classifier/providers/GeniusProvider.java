@@ -203,7 +203,7 @@ public class GeniusProvider {
                 return Optional.empty();
             }
 
-            BigInteger dpnId = output.getResult().getDpid();
+            BigInteger dpnId = output.getResult().getDpid().toJava();
             if (dpnId == null) {
                 return Optional.empty();
             }
@@ -276,7 +276,7 @@ public class GeniusProvider {
                     // From the VXLAN Tunnels, we want the one with the GPE option set
                     if (OPTION_KEY_REMOTE_IP.equals(tpOption.key().getOption())) {
                         if (OPTION_VALUE_FLOW.equals(tpOption.getValue()) && tp.getOfport() != null) {
-                            return Optional.ofNullable(tp.getOfport());
+                            return Optional.ofNullable(tp.getOfport().toJava());
                         }
                     }
                 }

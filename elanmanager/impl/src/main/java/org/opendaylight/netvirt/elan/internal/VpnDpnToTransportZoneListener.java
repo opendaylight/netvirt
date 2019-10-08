@@ -79,7 +79,7 @@ public class VpnDpnToTransportZoneListener
 
         if (shouldCreateVtep) {
             String vrfId = identifier.firstKeyOf(VpnInstanceOpDataEntry.class).getVrfId();
-            transportZoneNotificationUtil.updateTransportZone(vrfId, update.getDpnId());
+            transportZoneNotificationUtil.updateTransportZone(vrfId, update.getDpnId().toJava());
         }
     }
 
@@ -90,7 +90,7 @@ public class VpnDpnToTransportZoneListener
         boolean shouldCreateVtep = transportZoneNotificationUtil.shouldCreateVtep(add.getVpnInterfaces());
         if (shouldCreateVtep) {
             String vrfId = identifier.firstKeyOf(VpnInstanceOpDataEntry.class).getVrfId();
-            transportZoneNotificationUtil.updateTransportZone(vrfId, add.getDpnId());
+            transportZoneNotificationUtil.updateTransportZone(vrfId, add.getDpnId().toJava());
         }
     }
 

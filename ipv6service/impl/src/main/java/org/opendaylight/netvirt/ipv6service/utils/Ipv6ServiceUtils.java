@@ -219,7 +219,7 @@ public class Ipv6ServiceUtils {
             List<ActionInfo> actionsInfos = new ArrayList<>();
             actionsInfos.add(new ActionPuntToController());
 
-            int ndPuntTimeout = ipv6serviceConfig.getNeighborDiscoveryPuntTimeout();
+            int ndPuntTimeout = ipv6serviceConfig.getNeighborDiscoveryPuntTimeout().toJava();
             if (isNdPuntProtectionEnabled(ndPuntTimeout)) {
                 actionsInfos.add(getLearnActionForNsPuntProtection(ndPuntTimeout));
             }
@@ -263,7 +263,7 @@ public class Ipv6ServiceUtils {
             // Punt to controller
             actionsInfos.add(new ActionPuntToController());
 
-            int rdPuntTimeout = ipv6serviceConfig.getRouterDiscoveryPuntTimeout();
+            int rdPuntTimeout = ipv6serviceConfig.getRouterDiscoveryPuntTimeout().toJava();
             if (isRdPuntProtectionEnabled(rdPuntTimeout)) {
                 actionsInfos.add(getLearnActionForRsPuntProtection(rdPuntTimeout));
             }

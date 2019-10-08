@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -28,6 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnTargets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTarget;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,9 +62,11 @@ public class InterVpnLinkLocator {
      * @param interVpnLink InterVpnLink to find suitable DPNs for.
      * @return the list of the selected DPN Ids
      */
-    public List<BigInteger> selectSuitableDpns(InterVpnLink interVpnLink) {
+    public List<Uint64> selectSuitableDpns(InterVpnLink interVpnLink) {
         int numberOfDpns = Integer.getInteger(NBR_OF_DPNS_PROPERTY_NAME, 1);
-        List<BigInteger> dpnIdPool = NWUtil.getOperativeDPNs(dataBroker);
+        List<Uint64> dpnIdPool = NWUtil.getOperativeDPNs(dataBroker).stream()
+                                                                        .map(dpn -> Uint64.valueOf(dpn))
+                                                                        .collect(Collectors.toList());
         LOG.trace("selectSuitableDpns for {} with numberOfDpns={} and availableDpns={}",
                   interVpnLink.getName(), numberOfDpns, dpnIdPool);
         int poolSize = dpnIdPool.size();
@@ -76,17 +78,17 @@ public class InterVpnLinkLocator {
         List<InterVpnLinkDataComposite> allInterVpnLinks = interVpnLinkCache.getAllInterVpnLinks();
 
         // 1st criteria is to select those DPNs where there is no InterVpnLink at all
-        List<BigInteger> dpnsWithNoIVL = findDPNsWithNoInterVpnLink(dpnIdPool, allInterVpnLinks);
+        List<Uint64> dpnsWithNoIVL = findDPNsWithNoInterVpnLink(dpnIdPool, allInterVpnLinks);
         if (dpnsWithNoIVL.size() >= numberOfDpns) {
             return dpnsWithNoIVL.subList(0, numberOfDpns); // Best case scenario
         }
 
         // Not enough. 2nd criteria is to avoid DPNs where there are InterVpnLinks of the same group
-        List<BigInteger> result = new ArrayList<>(dpnsWithNoIVL);
+        List<Uint64> result = new ArrayList<>(dpnsWithNoIVL);
         dpnIdPool.removeAll(result);
         int pendingDPNs = numberOfDpns - result.size();
 
-        List<BigInteger> dpnsToAvoid = findDpnsWithSimilarIVpnLinks(interVpnLink, allInterVpnLinks);
+        List<Uint64> dpnsToAvoid = findDpnsWithSimilarIVpnLinks(interVpnLink, allInterVpnLinks);
         result.addAll(dpnIdPool.stream().filter(dpId -> !dpnsToAvoid.contains(dpId))
                                .limit(pendingDPNs).collect(Collectors.toList()));
 
@@ -110,9 +112,9 @@ public class InterVpnLinkLocator {
      *
      * @return the list of available DPNs among the specified ones
      */
-    private List<BigInteger> findDPNsWithNoInterVpnLink(List<BigInteger> dpnList,
+    private List<Uint64> findDPNsWithNoInterVpnLink(List<Uint64> dpnList,
                                                         List<InterVpnLinkDataComposite> interVpnLinks) {
-        List<BigInteger> occupiedDpns = new ArrayList<>();
+        List<Uint64> occupiedDpns = new ArrayList<>();
         for (InterVpnLinkDataComposite ivl : interVpnLinks) {
             if (ivl.isActive()) {
                 occupiedDpns.addAll(ivl.getFirstEndpointDpns());
@@ -120,7 +122,7 @@ public class InterVpnLinkLocator {
             }
         }
 
-        List<BigInteger> result = new ArrayList<>(dpnList);
+        List<Uint64> result = new ArrayList<>(dpnList);
         result.removeAll(occupiedDpns);
         return result;
     }
@@ -136,11 +138,11 @@ public class InterVpnLinkLocator {
      *     be installed
      */
     @NonNull
-    private List<BigInteger> findDpnsWithSimilarIVpnLinks(InterVpnLink interVpnLink,
+    private List<Uint64> findDpnsWithSimilarIVpnLinks(InterVpnLink interVpnLink,
                                                           List<InterVpnLinkDataComposite> allInterVpnLinks) {
         List<InterVpnLinkDataComposite> sameGroupInterVpnLinks = findInterVpnLinksSameGroup(interVpnLink,
                                                                                             allInterVpnLinks);
-        Set<BigInteger> resultDpns = new HashSet<>();
+        Set<Uint64> resultDpns = new HashSet<>();
         for (InterVpnLinkDataComposite ivl : sameGroupInterVpnLinks) {
             resultDpns.addAll(ivl.getFirstEndpointDpns());
             resultDpns.addAll(ivl.getSecondEndpointDpns());

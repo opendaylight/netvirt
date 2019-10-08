@@ -253,7 +253,7 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
                     LogicalDatastoreType.CONFIGURATION, elanIdentifierId);
             if (elanInstance.isPresent()) {
                 if (elanInstance.get().getElanTag() != null) {
-                    elanTag = elanInstance.get().getElanTag();
+                    elanTag = elanInstance.get().getElanTag().toJava();
                 } else {
                     LOG.error("Notification failed because of failure in fetching elanTag for ElanInstance {}",
                             elanInstanceName);

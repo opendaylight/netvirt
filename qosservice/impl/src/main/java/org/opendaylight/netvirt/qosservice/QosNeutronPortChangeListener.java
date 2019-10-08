@@ -131,7 +131,7 @@ public class QosNeutronPortChangeListener extends AsyncClusteredDataTreeChangeLi
             return;
         }
         jobCoordinator.enqueueJob("QosPort-" + update.getUuid().getValue(), () -> {
-            short dscpVal = qosPolicy.getDscpmarkingRules().get(0).getDscpMark();
+            short dscpVal = qosPolicy.getDscpmarkingRules().get(0).getDscpMark().toJava();
             String ifName = update.getUuid().getValue();
             BigInteger dpnId = qosNeutronUtils.getDpnForInterface(ifName);
             if (dpnId.equals(BigInteger.ZERO)) {

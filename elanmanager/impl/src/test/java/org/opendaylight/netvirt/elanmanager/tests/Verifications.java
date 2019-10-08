@@ -231,7 +231,7 @@ public class Verifications {
         List<Bucket> listBucket = new ArrayList<>();
         int bucketId = 0;
         int actionKey = 0;
-        Long elanTag = elanInfo.getElanTag();
+        Long elanTag = elanInfo.getElanTag().toJava();
         List<Action> listAction = new ArrayList<>();
         listAction.add(new ActionGroup(ElanUtils.getElanLocalBCGId(elanTag)).buildAction(++actionKey));
         listBucket.add(MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT,
@@ -356,7 +356,7 @@ public class Verifications {
                         srcDpnId,
                         torNodeId,
                         mac,
-                        actualElanInstances.getElanTag(),
+                        actualElanInstances.getElanTag().toJava(),
                         false));
 
         InstanceIdentifier<Flow> flowIid = getFlowIid(NwConstants.ELAN_DMAC_TABLE, flowId, srcDpnId);
@@ -392,7 +392,7 @@ public class Verifications {
                         srcDpnId,
                         dpnId,
                         dpnMac,
-                        actualElanInstances.getElanTag()));
+                        actualElanInstances.getElanTag().toJava()));
         InstanceIdentifier<Flow> flowInstanceIidDst = getFlowIid(NwConstants.ELAN_DMAC_TABLE, flowId, srcDpnId);
         if (createFlag) {
             awaitForData(LogicalDatastoreType.CONFIGURATION, flowInstanceIidDst);
@@ -415,11 +415,13 @@ public class Verifications {
 
     private static InstanceIdentifier<Group> buildGroupIid(ElanInstance actualElanInstances, BigInteger dpnId) {
         return DpnNodeBuilders.buildGroupInstanceIdentifier(
-                ElanUtils.getElanRemoteBCGId(actualElanInstances.getElanTag()), DpnNodeBuilders.buildDpnNode(dpnId));
+                ElanUtils.getElanRemoteBCGId(actualElanInstances.getElanTag().toJava()),
+                DpnNodeBuilders.buildDpnNode(dpnId));
     }
 
     private static InstanceIdentifier<Group> buildLocalGroupIid(ElanInstance actualElanInstances, BigInteger dpnId) {
         return DpnNodeBuilders.buildGroupInstanceIdentifier(
-                ElanUtils.getElanLocalBCGId(actualElanInstances.getElanTag()), DpnNodeBuilders.buildDpnNode(dpnId));
+                ElanUtils.getElanLocalBCGId(actualElanInstances.getElanTag().toJava()),
+                DpnNodeBuilders.buildDpnNode(dpnId));
     }
 }

@@ -34,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,8 +51,8 @@ public class IpMonitoringHandler
     private final JobCoordinator jobCoordinator;
     private final VpnUtil vpnUtil;
 
-    private Optional<Long> arpMonitorProfileId = Optional.absent();
-    private Optional<Long> ipv6NdMonitorProfileId = Optional.absent();
+    private Optional<Uint32> arpMonitorProfileId = Optional.absent();
+    private Optional<Uint32> ipv6NdMonitorProfileId = Optional.absent();
     private EntityOwnershipCandidateRegistration candidateRegistration;
 
     @Inject
@@ -143,10 +144,10 @@ public class IpMonitoringHandler
                 MacEntry macEntry = new MacEntry(vpnName, srcMacAddress, srcInetAddr, value.getPortName(),
                         value.getCreationTime());
 
-                Optional<Long> monitorProfileId = getMonitorProfileId(value.getPortFixedip());
+                Optional<Uint32> monitorProfileId = getMonitorProfileId(value.getPortFixedip());
                 if (monitorProfileId.isPresent()) {
                     jobCoordinator.enqueueJob(VpnUtil.buildIpMonitorJobKey(srcInetAddr.toString(), vpnName),
-                            new IpMonitorStartTask(macEntry, monitorProfileId.get(), alivenessMonitorUtils));
+                            new IpMonitorStartTask(macEntry, monitorProfileId.get().toJava(), alivenessMonitorUtils));
                 }
             } catch (UnknownHostException e) {
                 LOG.error("Error in deserializing packet {} with exception", value, e);
@@ -182,7 +183,7 @@ public class IpMonitoringHandler
                 jobCoordinator, jobDesc, job);
     }
 
-    private Optional<Long> getMonitorProfileId(String ipAddress) {
+    private Optional<Uint32> getMonitorProfileId(String ipAddress) {
         if (NWUtil.isIpv4Address(ipAddress)) {
             return this.arpMonitorProfileId;
         } else {
