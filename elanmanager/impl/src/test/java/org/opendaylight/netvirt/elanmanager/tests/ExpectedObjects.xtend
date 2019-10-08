@@ -59,6 +59,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.^extension.n
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.^extension.nicira.action.rev140714.nx.action.resubmit.grouping.NxResubmitBuilder
 
 import static extension org.opendaylight.mdsal.binding.testutils.XtendBuilderExtensions.operator_doubleGreaterThan
+import org.opendaylight.yangtools.yang.common.Uint32
 
 /**
  * Definitions of complex objects expected in tests.
@@ -68,7 +69,7 @@ import static extension org.opendaylight.mdsal.binding.testutils.XtendBuilderExt
 class ExpectedObjects {
 
     public static String ELAN1 = "34701c04-1118-4c65-9425-78a80d49a211"
-    public static Long ELAN1_SEGMENT_ID = 100L
+    public static Uint32 ELAN1_SEGMENT_ID = Uint32.valueOf(100L)
 
 
     static def newInterfaceConfig(String interfaceName, String parentName) {
@@ -91,31 +92,31 @@ class ExpectedObjects {
                 new ElanInstanceBuilder >> [
                     description = "TestElan description"
                     elanInstanceName = "TestElanName"
-                    elanTag = 5000L
-                    macTimeout = 12345L
+                    elanTag = Uint32.valueOf(5000L)
+                    macTimeout = Uint32.valueOf(12345L)
                 ]
             ]
         ]
     }
 
-    def static createElanInstance(String elan, Long segmentId) {
+    def static createElanInstance(String elan, Uint32 segmentId) {
         new ElanInstanceBuilder >> [
                     elanInstanceName = elan
                     description = ELAN1
                     segmentType = SegmentTypeVxlan
                     segmentationId = segmentId
-                    macTimeout = 12345L
+                    macTimeout = Uint32.valueOf(12345L)
         ]
     }
 
-    def static createElanInstance(String elan, Long segmentId, Long tag) {
+    def static createElanInstance(String elan, Uint32 segmentId, Uint32 tag) {
         new ElanInstanceBuilder >> [
                     elanInstanceName = elan
                     description = ELAN1
                     elanTag = tag
                     segmentationId = segmentId
                     segmentType = SegmentTypeVxlan
-                    macTimeout = 12345L
+                    macTimeout = Uint32.valueOf(12345L)
         ]
     }
 
@@ -146,7 +147,7 @@ class ExpectedObjects {
                     ]
                 ]
                 metadata = new MetadataBuilder >> [
-                    metadata = ElanHelper.getElanMetadataLabel(elanInstance.getElanTag(), interfaceInfo.interfaceTag)
+                    metadata = ElanHelper.getElanMetadataLabel(elanInstance.getElanTag().toJava(), interfaceInfo.interfaceTag)
                     metadataMask = ElanHelper.getElanMetadataMask()
                 ]
             ]
@@ -209,7 +210,7 @@ class ExpectedObjects {
                     ]
                 ]
                 metadata = new MetadataBuilder >> [
-                    metadata = ElanHelper.getElanMetadataLabel(elanInstance.getElanTag())
+                    metadata = ElanHelper.getElanMetadataLabel(elanInstance.getElanTag().toJava())
                     metadataMask = MetaDataUtil.METADATA_MASK_SERVICE
                 ]
             ]
@@ -283,7 +284,7 @@ class ExpectedObjects {
                     ]
                 ]
                 metadata = new MetadataBuilder >> [
-                         metadata = ElanHelper.getElanMetadataLabel(elanInstance.getElanTag())
+                         metadata = ElanHelper.getElanMetadataLabel(elanInstance.getElanTag().toJava())
                          metadataMask = MetaDataUtil.METADATA_MASK_SERVICE
                 ]
             ]
@@ -293,14 +294,14 @@ class ExpectedObjects {
         ]
     }
 
-    def static checkEvpnAdvertiseRoute(Long vni, String mac, String tepip, String prefix, String rd1) {
+    def static checkEvpnAdvertiseRoute(Uint32 vni, String mac, String tepip, String prefix, String rd1) {
        new NetworksBuilder >> [
            bgpControlPlaneType = BgpControlPlaneType.PROTOCOLEVPN
            encapType = EncapType.VXLAN
-           ethtag = 0L
+           ethtag = Uint32.valueOf(0L)
            l2vni = vni
-           l3vni = 0L
-           label = 0L
+           l3vni = Uint32.valueOf(0L)
+           label = Uint32.valueOf(0L)
            macaddress = mac
            nexthop = new Ipv4Address(tepip)
            prefixLen = prefix

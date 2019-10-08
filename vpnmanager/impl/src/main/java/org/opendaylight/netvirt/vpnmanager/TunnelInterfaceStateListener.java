@@ -15,7 +15,6 @@ import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -76,6 +75,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -178,7 +179,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         }
 
         //Remove the corresponding nexthop from the routepath under extraroute in fibentries.
-        BigInteger srcDpnId = new BigInteger(update.getSrcInfo().getTepDeviceId());
+        Uint64 srcDpnId = Uint64.valueOf(update.getSrcInfo().getTepDeviceId()).intern();
         String srcTepIp = update.getSrcInfo().getTepIp().stringValue();
         List<VpnInstanceOpDataEntry> vpnInstanceOpData = vpnUtil.getAllVpnInstanceOpData();
         if (vpnInstanceOpData == null) {
@@ -257,11 +258,11 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void handleTunnelEventForDPN(StateTunnelList stateTunnelList, TunnelAction tunnelAction) {
-        final BigInteger srcDpnId = new BigInteger(stateTunnelList.getSrcInfo().getTepDeviceId());
+        final Uint64 srcDpnId = Uint64.valueOf(stateTunnelList.getSrcInfo().getTepDeviceId()).intern();
         final String srcTepIp = stateTunnelList.getSrcInfo().getTepIp().stringValue();
         String destTepIp = stateTunnelList.getDstInfo().getTepIp().stringValue();
         String rd;
-        BigInteger remoteDpnId = null;
+        Uint64 remoteDpnId = null;
         boolean isTepDeletedOnDpn = false;
 
         LOG.info("handleTunnelEventForDPN: Handle tunnel event for srcDpn {} SrcTepIp {} DestTepIp {} ",
@@ -320,7 +321,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
             }
             // Get the list of VpnInterfaces from Intf Mgr for a destDPN only for internal tunnel.
             if (tunTypeVal == VpnConstants.ITMTunnelLocType.Internal.getValue()) {
-                remoteDpnId = new BigInteger(stateTunnelList.getDstInfo().getTepDeviceId());
+                remoteDpnId = Uint64.valueOf(stateTunnelList.getDstInfo().getTepDeviceId()).intern();
                 try {
                     result = intfRpcService.getDpnInterfaceList(
                             new GetDpnInterfaceListInputBuilder().setDpid(remoteDpnId).build());
@@ -344,7 +345,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
              * Update the adjacencies with the updated nexthop.
              */
             List<Uuid> subnetList = new ArrayList<>();
-            Map<Long, String> vpnIdRdMap = new HashMap<>();
+            Map<Uint32, String> vpnIdRdMap = new HashMap<>();
             Set<String> listVpnName = new HashSet<>();
 
             for (Interfaces interfaces : srcDpninterfacelist) {
@@ -385,8 +386,8 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
             }
 
             //Iterate over the VpnId-to-Rd map.
-            for (Map.Entry<Long, String> entry : vpnIdRdMap.entrySet()) {
-                Long vpnId = entry.getKey();
+            for (Map.Entry<Uint32, String> entry : vpnIdRdMap.entrySet()) {
+                Uint32 vpnId = entry.getKey();
                 rd = entry.getValue();
                 if (tunnelAction == TunnelAction.TUNNEL_EP_ADD
                     && tunTypeVal == VpnConstants.ITMTunnelLocType.External.getValue()) {
@@ -419,19 +420,19 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void handleTunnelEventForDPNVpn(StateTunnelList stateTunnelList,
-                                            Map<Long, String> vpnIdRdMap, TunnelAction tunnelAction,
+                                            Map<Uint32, String> vpnIdRdMap, TunnelAction tunnelAction,
                                             boolean isTepDeletedOnDpn, List<Uuid> subnetList,
                                             TunnelEventProcessingMethod method,
                                             VpnInterface cfgVpnInterface) {
         String rd;
         String intfName = cfgVpnInterface.getName();
-        final BigInteger srcDpnId = new BigInteger(stateTunnelList.getSrcInfo().getTepDeviceId());
+        final Uint64 srcDpnId = Uint64.valueOf(stateTunnelList.getSrcInfo().getTepDeviceId()).intern();
         String destTepIp = stateTunnelList.getDstInfo().getTepIp().stringValue();
         String srcTepIp = stateTunnelList.getSrcInfo().getTepIp().stringValue();
         int tunTypeVal = getTunnelType(stateTunnelList);
-        BigInteger remoteDpnId = null;
+        Uint64 remoteDpnId = null;
         if (tunTypeVal == VpnConstants.ITMTunnelLocType.Internal.getValue()) {
-            remoteDpnId = new BigInteger(stateTunnelList.getDstInfo().getTepDeviceId());
+            remoteDpnId = Uint64.valueOf(stateTunnelList.getDstInfo().getTepDeviceId()).intern();
         }
         if (cfgVpnInterface.getVpnInstanceNames() == null) {
             LOG.warn("handleTunnelEventForDpn: no vpnName found for interface {}", intfName);
@@ -469,7 +470,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                             }
                         }
                         //Populate the map for VpnId-to-Rd
-                        long vpnId = vpnUtil.getVpnId(vpnName);
+                        Uint32 vpnId = vpnUtil.getVpnId(vpnName);
                         rd = vpnUtil.getVpnRd(vpnName);
                         vpnIdRdMap.put(vpnId, rd);
                     }
@@ -483,7 +484,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                             adjacencies != null && adjacencies.getAdjacency() != null ? adjacencies.getAdjacency()
                                 : emptyList();
                         String prefix = null;
-                        long vpnId = vpnUtil.getVpnId(vpnInterface.getVpnInstanceName());
+                        Uint32 vpnId = vpnUtil.getVpnId(vpnInterface.getVpnInstanceName());
                         if (vpnIdRdMap.containsKey(vpnId)) {
                             rd = vpnIdRdMap.get(vpnId);
                             LOG.info("handleTunnelEventForDPN: Remote DpnId {} VpnId {} rd {} VpnInterface {}"
@@ -491,7 +492,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                                     destTepIp);
                             for (Adjacency adj : adjList) {
                                 prefix = adj.getIpAddress();
-                                long label = adj.getLabel();
+                                Uint32 label = adj.getLabel();
                                 if (tunnelAction == TunnelAction.TUNNEL_EP_ADD
                                         && tunTypeVal == VpnConstants.ITMTunnelLocType.Internal.getValue()) {
                                     fibManager.manageRemoteRouteOnDPN(true, srcDpnId, vpnId, rd, prefix, destTepIp,
@@ -568,7 +569,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
     private void programDcGwLoadBalancingGroup(StateTunnelList tunnelState, int addOrRemove, boolean isTunnelUp) {
         IpAddress dcGwIp = tunnelState.getDstInfo().getTepIp();
         String dcGwIpAddress = String.valueOf(dcGwIp.stringValue());
-        BigInteger dpId = new BigInteger(tunnelState.getSrcInfo().getTepDeviceId());
+        Uint64 dpId = Uint64.valueOf(tunnelState.getSrcInfo().getTepDeviceId()).intern();
         fibManager.programDcGwLoadBalancingGroup(dpId, dcGwIpAddress, addOrRemove, isTunnelUp,
                 tunnelState.getTransportType());
     }

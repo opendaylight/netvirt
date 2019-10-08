@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.vpnmanager.arp.responder;
 
 import com.google.common.base.Optional;
-import java.math.BigInteger;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -22,6 +21,7 @@ import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,12 +98,13 @@ public class ArpResponderHandler {
      *            mac address
      */
 
-    public void addArpResponderFlow(BigInteger dpnId, int lportTag, String interfaceName,
-            String gatewayIp, String mac) {
+    public void addArpResponderFlow(Uint64 dpnId, int lportTag, String interfaceName,
+                                    String gatewayIp, String mac) {
 
         LOG.trace("Creating the ARP Responder flow for VPN Interface {}", interfaceName);
         ArpReponderInputBuilder builder = new ArpReponderInputBuilder();
-        builder.setDpId(dpnId).setInterfaceName(interfaceName).setSpa(gatewayIp).setSha(mac).setLportTag(lportTag);
+        builder.setDpId(dpnId.toJava()).setInterfaceName(interfaceName)
+                .setSpa(gatewayIp).setSha(mac).setLportTag(lportTag);
         builder.setInstructions(ArpResponderUtil
                 .getInterfaceInstructions(interfaceManager, interfaceName, gatewayIp, mac, itmRpcService));
         elanService.addArpResponderFlow(builder.buildForInstallFlow());
@@ -124,7 +125,7 @@ public class ArpResponderHandler {
      * @param subnetUuid
      *            subnet Id of the interface
      */
-    public void removeArpResponderFlow(BigInteger dpId, int lportTag, String ifName, String gatewayIp,
+    public void removeArpResponderFlow(Uint64 dpId, int lportTag, String ifName, String gatewayIp,
             Uuid subnetUuid) {
         if (gatewayIp == null) {
             Optional<String> gwIpOptional = vpnUtil.getVpnSubnetGatewayIp(subnetUuid);
@@ -134,7 +135,7 @@ public class ArpResponderHandler {
         }
         if (gatewayIp != null && NWUtil.isIpv4Address(gatewayIp)) {
             ArpReponderInputBuilder builder = new ArpReponderInputBuilder();
-            builder.setDpId(dpId).setInterfaceName(ifName).setSpa(gatewayIp).setLportTag(lportTag);
+            builder.setDpId(dpId.toJava()).setInterfaceName(ifName).setSpa(gatewayIp).setLportTag(lportTag);
             elanService.removeArpResponderFlow(builder.buildForRemoveFlow());
         }
     }

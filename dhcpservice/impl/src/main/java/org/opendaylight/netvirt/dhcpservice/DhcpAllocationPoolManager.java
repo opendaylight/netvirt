@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.dhcpservice;
 
 import com.google.common.base.Optional;
-import java.math.BigInteger;
 import java.util.Collections;
 import java.util.EventListener;
 import java.util.List;
@@ -56,6 +55,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -133,7 +133,7 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
     }
 
     @NonNull
-    public Map<BigInteger, List<String>> getElanDpnInterfacesByName(DataBroker broker, String elanInstanceName) {
+    public Map<Uint64, List<String>> getElanDpnInterfacesByName(DataBroker broker, String elanInstanceName) {
         InstanceIdentifier<ElanDpnInterfacesList> elanDpnIfacesIid = InstanceIdentifier.builder(ElanDpnInterfaces.class)
                 .child(ElanDpnInterfacesList.class, new ElanDpnInterfacesListKey(elanInstanceName)).build();
         Optional<ElanDpnInterfacesList> elanDpnIfacesOpc = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
@@ -171,7 +171,7 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
         try {
             Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
             RpcResult<AllocateIdOutput> rpcResult = result.get();
-            return rpcResult.getResult().getIdValue();
+            return rpcResult.getResult().getIdValue().toJava();
         } catch (NullPointerException | InterruptedException | ExecutionException e) {
             LOG.trace("Failed to allocate id for DHCP Allocation Pool Service", e);
         }

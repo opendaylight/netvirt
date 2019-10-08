@@ -47,6 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.rd.to.networks.EvpnRdToNetworkBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.rd.to.networks.EvpnRdToNetworkKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,7 +110,7 @@ public class EvpnTestHelper  {
 
     public void addMacVrfEntryToDS(String rd, String macAddress, String prefix,
                                    List<String> nextHopList, VrfEntry.EncapType encapType,
-                                   long l2vni, String gatewayMacAddress, RouteOrigin origin)
+                                   Uint32 l2vni, String gatewayMacAddress, RouteOrigin origin)
             throws TransactionCommitFailedException {
         MacVrfEntryBuilder macEntryBuilder = new MacVrfEntryBuilder().setOrigin(origin.getValue());
         buildVpnEncapSpecificInfo(macEntryBuilder, encapType, l2vni, macAddress,
@@ -134,7 +135,7 @@ public class EvpnTestHelper  {
     }
 
     private static void buildVpnEncapSpecificInfo(MacVrfEntryBuilder builder,
-                                                  VrfEntry.EncapType encapType, long l2vni, String macAddress,
+                                                  VrfEntry.EncapType encapType, Uint32 l2vni, String macAddress,
                                                   String gatewayMac, List<String> nextHopList) {
         builder.setEncapType(encapType);
         builder.setGatewayMacAddress(gatewayMac);

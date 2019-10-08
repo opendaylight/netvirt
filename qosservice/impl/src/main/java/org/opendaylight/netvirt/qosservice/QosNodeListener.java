@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.qosservice;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.PostConstruct;
@@ -33,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,7 +87,7 @@ public class QosNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
     @Override
     protected void add(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModification) {
         NodeKey nodeKey = key.firstKeyOf(Node.class);
-        BigInteger dpId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
+        Uint64 dpId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
         createTableMissEntry(dpId);
     }
 
@@ -96,7 +96,7 @@ public class QosNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         return QosNodeListener.this;
     }
 
-    public void createTableMissEntry(BigInteger dpnId) {
+    public void createTableMissEntry(Uint64 dpnId) {
         List<MatchInfo> matches = new ArrayList<>();
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();

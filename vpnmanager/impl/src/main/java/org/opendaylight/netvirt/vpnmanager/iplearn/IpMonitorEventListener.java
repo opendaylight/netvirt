@@ -44,7 +44,7 @@ public class IpMonitorEventListener implements AlivenessMonitorListener {
 
     @Override
     public void onMonitorEvent(MonitorEvent notification) {
-        Long monitorId = notification.getEventData().getMonitorId();
+        Long monitorId = notification.getEventData().getMonitorId().toJava();
         MacEntry macEntry = AlivenessMonitorUtils.getMacEntryFromMonitorId(monitorId);
         if (macEntry == null) {
             LOG.debug("No MacEntry found associated with the monitor Id {}", monitorId);

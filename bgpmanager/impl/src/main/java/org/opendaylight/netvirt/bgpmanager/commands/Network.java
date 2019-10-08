@@ -17,6 +17,7 @@ import org.opendaylight.netvirt.bgpmanager.BgpManager;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.qbgpConstants;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,7 +83,7 @@ public class Network extends OsgiCommandSupport {
     protected Object doExecute() {
         switch (action) {
             case "add":
-                int label = qbgpConstants.LBL_EXPLICIT_NULL;
+                Uint32 label = Uint32.valueOf(qbgpConstants.LBL_EXPLICIT_NULL);
                 if (pfx == null) {
                     session.getConsole().println(ERROR + PFX + IS_NEEDED);
                     return null;
@@ -101,7 +102,7 @@ public class Network extends OsgiCommandSupport {
                     if (!Commands.isValid(session.getConsole(), lbl, Commands.Validators.INT, LB)) {
                         return null;
                     } else {
-                        label = Integer.parseInt(lbl);
+                        label = Uint32.valueOf(lbl);
                     }
                 }
                 if (!Commands.isValid(session.getConsole(), afi, Commands.Validators.AFI, AFI)) {
@@ -110,7 +111,8 @@ public class Network extends OsgiCommandSupport {
                 }
                 LOG.info("ADD: Adding Fib entry rd {} prefix {} nexthop {} label {}", rd, pfx, nh, label);
                 bgpManager.addPrefix(rd, null /*maAddress*/, pfx, nh,
-                        VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, null /*gatewayMacAddress*/, staticOrigin);
+                        VrfEntry.EncapType.Mplsgre, label, Uint32.ZERO /*l3vni*/, null /*gatewayMacAddress*/,
+                        staticOrigin);
                 LOG.info("ADD: Added Fib entry rd {} prefix {} nexthop {} label {}", rd, pfx, nh, label);
                 break;
             case "del":

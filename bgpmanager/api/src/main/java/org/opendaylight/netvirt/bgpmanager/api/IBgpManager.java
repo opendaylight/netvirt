@@ -13,6 +13,7 @@ import java.util.List;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public interface IBgpManager {
 
@@ -43,14 +44,14 @@ public interface IBgpManager {
      * and sends the BGP message.
      */
     void addPrefix(String rd, String macAddress, String prefix, List<String> nextHopList,
-                          VrfEntry.EncapType encapType, int vpnLabel, long l3vni, String gatewayMac,
-                          RouteOrigin origin);
+                   VrfEntry.EncapType encapType, Uint32 vpnLabel, Uint32 l3vni, String gatewayMac,
+                   RouteOrigin origin);
 
     /**
      * Adds a route in a BGP neighbour. It persists the VrfEntry in Datastore and sends the BGP message.
      */
     void addPrefix(String rd, String macAddress, String prefix, String nextHop,
-                          VrfEntry.EncapType encapType, int vpnLabel, long l3vni, String gatewayMac,
+                          VrfEntry.EncapType encapType, Uint32 vpnLabel, Uint32 l3vni, String gatewayMac,
                           RouteOrigin origin);
 
     void deletePrefix(String rd, String prefix);
@@ -62,14 +63,14 @@ public interface IBgpManager {
      * MD-SAL.
      */
     void advertisePrefix(String rd, String macAddress, String prefix, List<String> nextHopList,
-                                VrfEntry.EncapType encapType, long vpnLabel, long l3vni, long l2vni,
+                                VrfEntry.EncapType encapType, Uint32 vpnLabel, Uint32 l3vni, Uint32 l2vni,
                                 String gatewayMac) throws Exception;
 
     /**
      * Advertises a Prefix to a BGP neighbour. Only sends the BGP messages, no writing to MD-SAL.
      */
     void advertisePrefix(String rd, String macAddress, String prefix, String nextHop,
-                                VrfEntry.EncapType encapType, long vpnLabel, long l3vni, long l2vni,
+                                VrfEntry.EncapType encapType, Uint32 vpnLabel, Uint32 l3vni, Uint32 l2vni,
                                 String gatewayMac) throws Exception;
 
     void withdrawPrefix(String rd, String prefix);

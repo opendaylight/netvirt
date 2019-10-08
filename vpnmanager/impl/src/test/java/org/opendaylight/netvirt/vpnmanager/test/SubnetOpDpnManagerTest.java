@@ -13,7 +13,6 @@ import static org.mockito.Mockito.verify;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Before;
@@ -39,12 +38,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.sub
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.SubnetToDpnKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.subnet.to.dpn.VpnInterfaces;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 
 @RunWith(MockitoJUnitRunner.class)
 public class SubnetOpDpnManagerTest {
 
-    BigInteger dpId = BigInteger.valueOf(1);
+    Uint64 dpId = Uint64.valueOf(1);
     Uuid subnetId = Uuid.getDefaultInstance("067e6162-3b6f-4ae2-a171-2470b63dff00");
     String infName = "VPN";
     SubnetToDpn subnetToDpn = null;

@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.dhcpservice;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -74,6 +73,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Tr
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.subnet.dhcp.port.data.SubnetToDhcpPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -164,7 +164,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
             return;
         }
         Class<? extends PacketInReason> pktInReason = packet.getPacketInReason();
-        short tableId = packet.getTableId().getValue();
+        short tableId = packet.getTableId().getValue().toJava();
         if ((tableId == NwConstants.DHCP_TABLE || tableId == NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL)
                 && isPktInReasonSendtoCtrl(pktInReason)) {
             byte[] inPayload = packet.getPayload();
@@ -183,12 +183,13 @@ public class DhcpPktHandler implements PacketProcessingListener {
             if (pktIn != null) {
                 LOG.trace("DHCPPkt received: {}", pktIn);
                 LOG.trace("Received Packet: {}", packet);
-                BigInteger metadata = packet.getMatch().getMetadata().getMetadata();
+                Uint64 metadata = packet.getMatch().getMetadata().getMetadata();
                 long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
                 String macAddress = DHCPUtils.byteArrayToString(ethPkt.getSourceMACAddress());
                 pktInCounter.label(macAddress).increment();
-                BigInteger tunnelId =
-                        packet.getMatch().getTunnel() == null ? null : packet.getMatch().getTunnel().getTunnelId();
+                Uint64 tunnelId =
+                        packet.getMatch().getTunnel() == null ? null
+                                                              : packet.getMatch().getTunnel().getTunnelId();
                 String interfaceName = getInterfaceNameFromTag(portTag);
                 if (interfaceName == null) {
                     pktDropCounter.label(macAddress).label(UNKNOWN_LABEL).label(
@@ -244,8 +245,8 @@ public class DhcpPktHandler implements PacketProcessingListener {
         }
     }
 
-    private void sendPacketOut(byte[] pktOut, String mac, BigInteger dpnId, String interfaceName,
-                               BigInteger tunnelId) {
+    private void sendPacketOut(byte[] pktOut, String mac, Uint64 dpnId, String interfaceName,
+                               Uint64 tunnelId) {
         List<Action> action = getEgressAction(interfaceName, tunnelId);
         if (action == null) {
             pktDropCounter.label(mac).label(interfaceName).label(
@@ -806,7 +807,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
         return interfaceName;
     }
 
-    private List<Action> getEgressAction(String interfaceName, BigInteger tunnelId) {
+    private List<Action> getEgressAction(String interfaceName, Uint64 tunnelId) {
         try {
             if (interfaceManager.isItmDirectTunnelsEnabled() && tunnelId != null) {
                 GetEgressActionsForTunnelInputBuilder egressAction =

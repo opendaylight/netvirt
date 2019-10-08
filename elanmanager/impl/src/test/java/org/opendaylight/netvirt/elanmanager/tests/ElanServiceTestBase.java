@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.elanmanager.tests;
 
 import com.google.common.collect.Lists;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -73,6 +72,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public class ElanServiceTestBase {
 
@@ -84,11 +85,11 @@ public class ElanServiceTestBase {
     protected @Inject SingleTransactionDataBroker singleTxdataBroker;
     protected @Inject OdlInterfaceRpcService odlInterfaceRpcService;
     public static final String ELAN1 = "34701c04-1118-4c65-9425-78a80d49a211";
-    public static final Long ELAN1_SEGMENT_ID = 100L;
+    public static final Uint32 ELAN1_SEGMENT_ID = Uint32.valueOf(100L);
 
-    protected static final BigInteger DPN1_ID = new BigInteger("1");
-    protected static final BigInteger DPN2_ID = new BigInteger("2");
-    protected static final BigInteger DPN3_ID = new BigInteger("3");
+    protected static final Uint64 DPN1_ID = Uint64.valueOf("1").intern();
+    protected static final Uint64 DPN2_ID = Uint64.valueOf("2").intern();
+    protected static final Uint64 DPN3_ID = Uint64.valueOf("3").intern();
 
     protected static final String DPN1_ID_STR = "1";
     protected static final String DPN2_ID_STR = "2";
@@ -379,7 +380,7 @@ public class ElanServiceTestBase {
 
     }
 
-    protected InstanceIdentifier<Flow> getFlowIid(short tableId, FlowId flowid, BigInteger dpnId) {
+    protected InstanceIdentifier<Flow> getFlowIid(short tableId, FlowId flowid, Uint64 dpnId) {
 
         FlowKey flowKey = new FlowKey(new FlowId(flowid));
         NodeId nodeId =
@@ -393,7 +394,7 @@ public class ElanServiceTestBase {
     }
 
 
-    protected void createElanInstance(String elan1, Long elan1SegmentId) {
+    protected void createElanInstance(String elan1, Uint32 elan1SegmentId) {
         ElanInstance elanInstance = ExpectedObjects.createElanInstance(elan1, elan1SegmentId);
         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                 ElanHelper.getElanInstanceConfigurationDataPath(elan1), elanInstance);

@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.natservice.internal;
 import static org.opendaylight.netvirt.natservice.internal.AbstractSnatService.LOAD_END;
 import static org.opendaylight.netvirt.natservice.internal.AbstractSnatService.LOAD_START;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -45,6 +44,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,8 +61,8 @@ public class Ipv6SubnetFlowProgrammer {
         this.mdsalManager = mdsalManager;
     }
 
-    public void addSubnetSpecificFlows(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
-            long routerId, Routers routers, BigInteger routerMetadata) {
+    public void addSubnetSpecificFlows(TypedReadWriteTransaction<Configuration> confTx, Uint64 dpnId,
+                                       Uint32 routerId, Routers routers, Uint64 routerMetadata) {
         String extGwMacAddress = NatUtil.getExtGwMacAddFromRouterName(dataBroker, routers.getRouterName());
         for (ExternalIps externalIp : routers.getExternalIps()) {
             if (NWUtil.isIpv4Address(externalIp.getIpAddress())) {
@@ -70,9 +71,9 @@ public class Ipv6SubnetFlowProgrammer {
             }
 
             // Currently we only handle one external IPv6 address per router, others if present will be ignored.
-            long extSubnetId  = NatUtil.getExternalSubnetVpnId(dataBroker, externalIp.getSubnetId());
+            Uint32 extSubnetId  = NatUtil.getExternalSubnetVpnId(dataBroker, externalIp.getSubnetId());
 
-            BigInteger extIpv6SubnetMetadata = MetaDataUtil.getVpnIdMetadata(extSubnetId);
+            Uint64 extIpv6SubnetMetadata = MetaDataUtil.getVpnIdMetadata(extSubnetId.longValue());
             LOG.info("addSubnetSpecificFlows : flows on NAPTSwitch {} for routerId {}, routerName {},"
                     + " extIPv6Address {} Installing", dpnId, routerId, routers.getRouterName(),
                     externalIp.getIpAddress());
@@ -107,8 +108,9 @@ public class Ipv6SubnetFlowProgrammer {
         }
     }
 
-    public void removeSubnetSpecificFlows(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
-            long routerId, Routers routers) throws ExecutionException, InterruptedException {
+    public void removeSubnetSpecificFlows(TypedReadWriteTransaction<Configuration> confTx, Uint64 dpnId,
+                                          Uint32 routerId, Routers routers)
+            throws ExecutionException, InterruptedException {
         for (ExternalIps externalIp : routers.getExternalIps()) {
             if (NWUtil.isIpv4Address(externalIp.getIpAddress())) {
                 // Skip ipv4 subnets in the external network
@@ -147,7 +149,8 @@ public class Ipv6SubnetFlowProgrammer {
     }
 
     private void addIpv6InboundTerminatingServiceTblEntry(TypedReadWriteTransaction<Configuration> confTx,
-            long extSubnetId, BigInteger extIpv6SubnetMetadata,BigInteger dpnId, long routerId) {
+                                                          Uint32 extSubnetId, Uint64 extIpv6SubnetMetadata,Uint64 dpnId,
+                                                          Uint32 routerId) {
         // Install the tunnel table entry in NAPT Switch for inbound traffic from a non NAPT Switch.
         LOG.debug("addIpv6InboundTerminatingServiceTblEntry : entry for Terminating Service Table for switch {},"
                 + " routerId {}, Installing", dpnId, routerId);
@@ -159,7 +162,7 @@ public class Ipv6SubnetFlowProgrammer {
             LOG.error("addIpv6InboundTerminatingServiceTblEntry : external subnet id is invalid.");
             return;
         }
-        matches.add(new MatchTunnelId(BigInteger.valueOf(extSubnetId)));
+        matches.add(new MatchTunnelId(Uint64.valueOf(extSubnetId)));
         ActionNxLoadMetadata actionLoadMeta = new ActionNxLoadMetadata(extIpv6SubnetMetadata, LOAD_START, LOAD_END);
         actionsInfos.add(actionLoadMeta);
         actionsInfos.add(new ActionNxResubmit(NwConstants.INBOUND_NAPT_TABLE));
@@ -174,7 +177,7 @@ public class Ipv6SubnetFlowProgrammer {
     }
 
     private void removeIpv6InboundTerminatingServiceTblEntry(TypedReadWriteTransaction<Configuration> confTx,
-            BigInteger dpnId, long routerId) throws ExecutionException, InterruptedException {
+            Uint64 dpnId, Uint32 routerId) throws ExecutionException, InterruptedException {
         // Install the tunnel table entry in NAPT Switch for inbound traffic from a non NAPT Switch.
         LOG.debug("removeIpv6InboundTerminatingServiceTblEntry : entry for Terminating Service Table for switch {},"
                 + " routerId {}, Removing", dpnId, routerId);
@@ -184,7 +187,7 @@ public class Ipv6SubnetFlowProgrammer {
     }
 
     private void addIPv6FlowToUpdateSrcMacToRouterGwMac(TypedReadWriteTransaction<Configuration> confTx,
-            String extGwMacAddress, long extSubnetId, BigInteger dpnId, long routerId, BigInteger routerMetadata) {
+            String extGwMacAddress, Uint32 extSubnetId, Uint64 dpnId, Uint32 routerId, Uint64 routerMetadata) {
         LOG.debug("addIPv6FlowToUpdateSrcMacToRouterGwMac : called for switch {}, routerId {}", dpnId, routerId);
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV6);
@@ -193,7 +196,7 @@ public class Ipv6SubnetFlowProgrammer {
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
         listActionInfo.add(new ActionSetFieldEthernetSource(new MacAddress(extGwMacAddress)));
         ActionNxLoadMetadata actionLoadMeta = new ActionNxLoadMetadata(MetaDataUtil
-                .getVpnIdMetadata(extSubnetId), LOAD_START, LOAD_END);
+                .getVpnIdMetadata(extSubnetId.longValue()), LOAD_START, LOAD_END);
         listActionInfo.add(actionLoadMeta);
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();
         listActionInfo.add(new ActionNxResubmit(NwConstants.NAPT_PFIB_TABLE));
@@ -207,7 +210,7 @@ public class Ipv6SubnetFlowProgrammer {
     }
 
     private void removeIPv6FlowToUpdateSrcMacToRouterGwMac(TypedReadWriteTransaction<Configuration> confTx,
-             BigInteger dpnId, long routerId)
+             Uint64 dpnId, Uint32 routerId)
                     throws ExecutionException, InterruptedException {
         LOG.debug("removeIPv6FlowToUpdateSrcMacToRouterGwMac : called for switch {}, routerId {}", dpnId, routerId);
         String flowRef = NatUtil.getIpv6FlowRef(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId);
@@ -216,7 +219,7 @@ public class Ipv6SubnetFlowProgrammer {
     }
 
     private void addIpv6NaptPfibOutboundFlow(TypedReadWriteTransaction<Configuration> confTx,
-            String tenantIpv6SubnetCidr, BigInteger extIpv6SubnetMetadata, BigInteger dpnId, long routerId) {
+            String tenantIpv6SubnetCidr, Uint64 extIpv6SubnetMetadata, Uint64 dpnId, Uint32 routerId) {
         LOG.debug("addIpv6NaptPfibOutboundFlow : called for NAPTSwitch {}, routerId {}, tenantIPv6Cidr {}",
                 dpnId, routerId, tenantIpv6SubnetCidr);
         List<MatchInfoBase> matches = new ArrayList<>();
@@ -226,7 +229,7 @@ public class Ipv6SubnetFlowProgrammer {
 
         List<ActionInfo> listActionInfo = new ArrayList<>();
         ArrayList<InstructionInfo> instructions = new ArrayList<>();
-        listActionInfo.add(new ActionNxLoadInPort(BigInteger.ZERO));
+        listActionInfo.add(new ActionNxLoadInPort(Uint64.ZERO));
         listActionInfo.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
         instructions.add(new InstructionApplyActions(listActionInfo));
 
@@ -238,7 +241,7 @@ public class Ipv6SubnetFlowProgrammer {
     }
 
     private void removeIpv6NaptPfibOutboundFlow(TypedReadWriteTransaction<Configuration> confTx,
-            String tenantIpv6SubnetCidr, BigInteger dpnId, long routerId)
+            String tenantIpv6SubnetCidr, Uint64 dpnId, Uint32 routerId)
                     throws ExecutionException, InterruptedException {
         LOG.debug("removeIpv6NaptPfibOutboundFlow : called for NAPTSwitch {}, routerId {}, tenantIPv6Cidr {}",
                 dpnId, routerId, tenantIpv6SubnetCidr);
@@ -247,8 +250,8 @@ public class Ipv6SubnetFlowProgrammer {
         NatUtil.removeFlow(confTx, mdsalManager, dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef);
     }
 
-    private void addIpv6NaptInboundFibEntry(TypedReadWriteTransaction<Configuration> confTx, long extSubnetId,
-            String tenantIpv6SubnetCidr, BigInteger extIpv6SubnetMetadata, BigInteger dpnId, long routerId) {
+    private void addIpv6NaptInboundFibEntry(TypedReadWriteTransaction<Configuration> confTx, Uint32 extSubnetId,
+            String tenantIpv6SubnetCidr, Uint64 extIpv6SubnetMetadata, Uint64 dpnId, Uint32 routerId) {
         LOG.debug("addIpv6NaptInboundFibEntry : called for NAPTSwitch {}, routerId {}, tenantIPv6Cidr {}",
                 dpnId, routerId, tenantIpv6SubnetCidr);
         List<MatchInfo> matches = new ArrayList<>();
@@ -271,7 +274,7 @@ public class Ipv6SubnetFlowProgrammer {
     }
 
     private void removeIpv6NaptInboundFibEntry(TypedReadWriteTransaction<Configuration> confTx,
-            String tenantIpv6SubnetCidr, BigInteger dpnId, long routerId)
+            String tenantIpv6SubnetCidr, Uint64 dpnId, Uint32 routerId)
                     throws ExecutionException, InterruptedException {
         LOG.debug("removeIpv6NaptInboundFibEntry : called for NAPTSwitch {}, routerId {}, tenantIPv6Cidr {}",
                 dpnId, routerId, tenantIpv6SubnetCidr);
@@ -280,9 +283,9 @@ public class Ipv6SubnetFlowProgrammer {
         NatUtil.removeFlow(confTx, mdsalManager, dpnId, NwConstants.L3_FIB_TABLE, flowRef);
     }
 
-    private void addIpv6NaptInboundNaptFlow(TypedReadWriteTransaction<Configuration> confTx, long extSubnetId,
-            String tenantIpv6SubnetCidr, BigInteger extIpv6SubnetMetadata, BigInteger dpnId, long routerId,
-            BigInteger routerMetadata) {
+    private void addIpv6NaptInboundNaptFlow(TypedReadWriteTransaction<Configuration> confTx, Uint32 extSubnetId,
+            String tenantIpv6SubnetCidr, Uint64 extIpv6SubnetMetadata, Uint64 dpnId, Uint32 routerId,
+            Uint64 routerMetadata) {
         LOG.debug("addIpv6NaptInboundNaptFlow : called for switch {}, routerId {}, tenantIPv6Cidr {}",
                 dpnId, routerId, tenantIpv6SubnetCidr);
         List<MatchInfoBase> matches = new ArrayList<>();
@@ -307,7 +310,7 @@ public class Ipv6SubnetFlowProgrammer {
     }
 
     private void removeIpv6NaptInboundNaptFlow(TypedReadWriteTransaction<Configuration> confTx,
-            String tenantIpv6SubnetCidr,BigInteger dpnId, long routerId)
+            String tenantIpv6SubnetCidr,Uint64 dpnId, Uint32 routerId)
                     throws ExecutionException, InterruptedException {
         LOG.debug("removeIpv6NaptInboundNaptFlow : called for switch {}, routerId {}, tenantIPv6Cidr {}",
                 dpnId, routerId, tenantIpv6SubnetCidr);

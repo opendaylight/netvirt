@@ -23,6 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +70,7 @@ public class NodeListener extends AsyncDataTreeChangeListenerBase<Node, NodeList
             LOG.warn("Unexpected nodeId {}", nodeId.getValue());
             return;
         }
-        BigInteger dpId = new BigInteger(node[1]);
+        Uint64 dpId = Uint64.valueOf(new BigInteger(node[1]));
         ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
             tx -> dhcpManager.setupDefaultDhcpFlows(tx, dpId)), LOG, "Error handling node addition for {}", add);
         dhcpExternalTunnelManager.installDhcpDropActionOnDpn(dpId);

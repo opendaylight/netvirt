@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.ipv6service;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.PostConstruct;
@@ -30,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,11 +70,11 @@ public class Ipv6NodeListener extends AsyncClusteredDataTreeChangeListenerBase<F
         LOG.trace("FlowCapableNode Added: key: {}", key);
 
         NodeKey nodeKey = key.firstKeyOf(Node.class);
-        BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
+        Uint64 dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
         createTableMissEntry(dpnId);
     }
 
-    private void createTableMissEntry(BigInteger dpnId) {
+    private void createTableMissEntry(Uint64 dpnId) {
         if (!ipv6ServiceEosHandler.isClusterOwner()) {
             LOG.trace("Not a cluster Owner, skip flow programming.");
             return;

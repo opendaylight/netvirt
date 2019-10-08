@@ -48,6 +48,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.R
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryOutput;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +57,7 @@ import org.slf4j.LoggerFactory;
 public class EvpnSnatFlowProgrammer {
     private static final Logger LOG = LoggerFactory.getLogger(EvpnSnatFlowProgrammer.class);
 
-    private static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
+    private static final Uint64 COOKIE_TUNNEL = Uint64.valueOf("9000000", 16).intern();
 
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
@@ -80,9 +82,9 @@ public class EvpnSnatFlowProgrammer {
         this.natOverVxlanUtil = natOverVxlanUtil;
     }
 
-    public void evpnAdvToBgpAndInstallFibAndTsFlows(final BigInteger dpnId, final short tableId,
+    public void evpnAdvToBgpAndInstallFibAndTsFlows(final Uint64 dpnId, final short tableId,
         final String externalIp, final String vpnName, final String rd, final String nextHopIp,
-        final long routerId, final String routerName, final Uuid extNetworkId,
+        final Uint32 routerId, final String routerName, final Uuid extNetworkId,
         TypedWriteTransaction<Configuration> confTx) {
      /*
       * 1) Install the flow INTERNAL_TUNNEL_TABLE (table=36)-> INBOUND_NAPT_TABLE (table=44)
@@ -109,15 +111,15 @@ public class EvpnSnatFlowProgrammer {
             return;
         }
         //get l3Vni value for external VPN
-        long l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
+        Uint32 l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
         if (l3Vni == NatConstants.DEFAULT_L3VNI_VALUE) {
             LOG.debug("evpnAdvToBgpAndInstallFibAndTsFlows : L3VNI value is not configured in Internet VPN {}"
                     + " and RD {} Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue with "
                     + "installing SNAT flows for External Fixed IP {}", vpnName, rd, externalIp);
-            l3Vni = natOverVxlanUtil.getInternetVpnVni(vpnName, routerId).longValue();
+            l3Vni = natOverVxlanUtil.getInternetVpnVni(vpnName, routerId);
         }
 
-        long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
+        Uint32 vpnId = NatUtil.getVpnId(dataBroker, vpnName);
         if (vpnId == NatConstants.INVALID_ID) {
             LOG.error("evpnAdvToBgpAndInstallFibAndTsFlows : Invalid Vpn Id is found for Vpn Name {}",
                     vpnName);
@@ -146,7 +148,7 @@ public class EvpnSnatFlowProgrammer {
 
         ListenableFuture<RpcResult<CreateFibEntryOutput>> futureVxlan = fibService.createFibEntry(input);
 
-        final long finalL3Vni = l3Vni;
+        final Uint32 finalL3Vni = l3Vni;
         Futures.addCallback(futureVxlan, new FutureCallback<RpcResult<CreateFibEntryOutput>>() {
             @Override
             public void onFailure(@NonNull Throwable error) {
@@ -181,8 +183,8 @@ public class EvpnSnatFlowProgrammer {
         }, MoreExecutors.directExecutor());
     }
 
-    public void evpnDelFibTsAndReverseTraffic(final BigInteger dpnId, final long routerId, final String externalIp,
-        final String vpnName, String extGwMacAddress) {
+    public void evpnDelFibTsAndReverseTraffic(final Uint64 dpnId, final Uint32 routerId, final String externalIp,
+                                              final String vpnName, String extGwMacAddress) {
      /*
       * 1) Remove the flow INTERNAL_TUNNEL_TABLE (table=36)-> INBOUND_NAPT_TABLE (table=44)
       *    (FIP VM on DPN1 is responding back to external fixed IP on DPN2) {DNAT to SNAT traffic on
@@ -204,7 +206,7 @@ public class EvpnSnatFlowProgrammer {
             LOG.error("evpnDelFibTsAndReverseTraffic : Could not retrieve RD value from VPN Name {}", vpnName);
             return;
         }
-        long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
+        Uint32 vpnId = NatUtil.getVpnId(dataBroker, vpnName);
         if (vpnId == NatConstants.INVALID_ID) {
             LOG.error("evpnDelFibTsAndReverseTraffic : Invalid Vpn Id is found for Vpn Name {}", vpnName);
             return;
@@ -214,12 +216,12 @@ public class EvpnSnatFlowProgrammer {
                     + "External Router ID {} ", routerId);
             return;
         }
-        long l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
+        Uint32 l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
         if (l3Vni == NatConstants.DEFAULT_L3VNI_VALUE) {
             LOG.debug("evpnDelFibTsAndReverseTraffic : L3VNI value is not configured in Internet VPN {} and RD {} "
                     + "Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue with installing "
                     + "SNAT flows for External Fixed IP {}", vpnName, rd, externalIp);
-            l3Vni = natOverVxlanUtil.getInternetVpnVni(vpnName, routerId).longValue();
+            l3Vni = natOverVxlanUtil.getInternetVpnVni(vpnName, routerId);
         }
 
         final String externalFixedIp = NatUtil.validateAndAddNetworkMask(externalIp);
@@ -231,7 +233,7 @@ public class EvpnSnatFlowProgrammer {
                 NwConstants.L3_FIB_TABLE, NwConstants.INBOUND_NAPT_TABLE, dpnId, l3Vni, externalIp, vpnName, routerId);
 
         ListenableFuture<RpcResult<RemoveFibEntryOutput>> futureVxlan = fibService.removeFibEntry(input);
-        final long finalL3Vni = l3Vni;
+        final Uint32 finalL3Vni = l3Vni;
         Futures.addCallback(futureVxlan, new FutureCallback<RpcResult<RemoveFibEntryOutput>>() {
             @Override
             public void onFailure(@NonNull Throwable error) {
@@ -262,36 +264,37 @@ public class EvpnSnatFlowProgrammer {
         }, MoreExecutors.directExecutor());
     }
 
-    public void makeTunnelTableEntry(BigInteger dpnId, long l3Vni, List<Instruction> customInstructions,
+    public void makeTunnelTableEntry(Uint64 dpnId, Uint32 l3Vni, List<Instruction> customInstructions,
                                      short tableId, TypedWriteTransaction<Configuration> confTx) {
         LOG.debug("makeTunnelTableEntry : Create terminating service table {} --> table {} flow on NAPT DpnId {} "
                 + "with l3Vni {} as matching parameter", NwConstants.INTERNAL_TUNNEL_TABLE, tableId, dpnId, l3Vni);
         List<MatchInfo> mkMatches = new ArrayList<>();
-        mkMatches.add(new MatchTunnelId(BigInteger.valueOf(l3Vni)));
+        mkMatches.add(new MatchTunnelId(Uint64.valueOf(l3Vni)));
 
         Flow terminatingServiceTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE,
                 NatEvpnUtil.getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, l3Vni, NatConstants.SNAT_FLOW_NAME),
                 NatConstants.DEFAULT_VPN_INTERNAL_TUNNEL_TABLE_PRIORITY,
                 String.format("%s:%d", "TST Flow Entry ", l3Vni),
-                0, 0, COOKIE_TUNNEL.add(BigInteger.valueOf(l3Vni)), mkMatches, customInstructions);
+                0, 0, Uint64.valueOf(COOKIE_TUNNEL.toJava().add(BigInteger.valueOf(l3Vni.longValue()))),
+                mkMatches, customInstructions);
         mdsalManager.addFlow(confTx, dpnId, terminatingServiceTableFlowEntity);
         LOG.debug("makeTunnelTableEntry : Successfully installed terminating service table flow {} on DpnId {}",
                 terminatingServiceTableFlowEntity, dpnId);
     }
 
-    public void removeTunnelTableEntry(BigInteger dpnId, long l3Vni, TypedReadWriteTransaction<Configuration> confTx)
+    public void removeTunnelTableEntry(Uint64 dpnId, Uint32 l3Vni, TypedReadWriteTransaction<Configuration> confTx)
             throws ExecutionException, InterruptedException {
         LOG.debug("removeTunnelTableEntry : Remove terminating service table {} --> table {} flow on NAPT DpnId {} "
                 + "with l3Vni {} as matching parameter", NwConstants.INTERNAL_TUNNEL_TABLE,
                 NwConstants.INBOUND_NAPT_TABLE, dpnId, l3Vni);
         List<MatchInfo> mkMatches = new ArrayList<>();
         // Matching metadata
-        mkMatches.add(new MatchTunnelId(BigInteger.valueOf(l3Vni)));
+        mkMatches.add(new MatchTunnelId(Uint64.valueOf(l3Vni)));
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE,
                 NatEvpnUtil.getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, l3Vni, NatConstants.SNAT_FLOW_NAME),
                 NatConstants.DEFAULT_VPN_INTERNAL_TUNNEL_TABLE_PRIORITY,
                 String.format("%s:%d", "TST Flow Entry ", l3Vni), 0, 0,
-                COOKIE_TUNNEL.add(BigInteger.valueOf(l3Vni)), mkMatches, null);
+                Uint64.valueOf(COOKIE_TUNNEL.toJava().add(BigInteger.valueOf(l3Vni.longValue()))), mkMatches, null);
         mdsalManager.removeFlow(confTx, dpnId, flowEntity);
         LOG.debug("removeTunnelTableEntry : Successfully removed terminating service table flow {} on DpnId {}",
                 flowEntity, dpnId);

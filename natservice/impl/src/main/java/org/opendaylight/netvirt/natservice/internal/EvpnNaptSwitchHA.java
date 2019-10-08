@@ -8,8 +8,6 @@
 
 package org.opendaylight.netvirt.natservice.internal;
 
-import java.math.BigInteger;
-
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -20,6 +18,8 @@ import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,11 +44,11 @@ public class EvpnNaptSwitchHA {
         this.natOverVxlanUtil = natOverVxlanUtil;
     }
 
-    public void evpnRemoveSnatFlowsInOldNaptSwitch(String routerName, long routerId, String vpnName,
-            BigInteger naptSwitch, TypedReadWriteTransaction<Configuration> confTx)
+    public void evpnRemoveSnatFlowsInOldNaptSwitch(String routerName, Uint32 routerId, String vpnName,
+                                                   Uint64 naptSwitch, TypedReadWriteTransaction<Configuration> confTx)
             throws ExecutionException, InterruptedException {
         //Handling VXLAN Provider type flow removal from old NAPT switch
-        Long vpnId = NatUtil.getNetworkVpnIdFromRouterId(dataBroker, routerId);
+        Uint32 vpnId = NatUtil.getNetworkVpnIdFromRouterId(dataBroker, routerId);
         if (vpnId == NatConstants.INVALID_ID) {
             LOG.error("evpnRemoveSnatFlowsInOldNaptSwitch : Unable to retrieved vpnId for routerId {}", routerId);
             return;
@@ -58,12 +58,12 @@ public class EvpnNaptSwitchHA {
             LOG.error("evpnRemoveSnatFlowsInOldNaptSwitch : Could not retrieve RD value from VPN Name {} ", vpnName);
             return;
         }
-        long l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
+        Uint32 l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
         if (l3Vni == NatConstants.DEFAULT_L3VNI_VALUE) {
             LOG.debug("evpnRemoveSnatFlowsInOldNaptSwitch : L3VNI value is not configured in Internet VPN {} and RD {} "
                     + "Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue to installing "
                     + "NAT flows", vpnName, rd);
-            l3Vni = natOverVxlanUtil.getInternetVpnVni(vpnName, routerId).longValue();
+            l3Vni = natOverVxlanUtil.getInternetVpnVni(vpnName, routerId);
         }
         String gwMacAddress = NatUtil.getExtGwMacAddFromRouterName(dataBroker, routerName);
         if (gwMacAddress == null) {
@@ -92,7 +92,7 @@ public class EvpnNaptSwitchHA {
         evpnSnatFlowProgrammer.removeTunnelTableEntry(naptSwitch, l3Vni, confTx);
 
         //Remove the INTERNAL_TUNNEL_TABLE entry which forwards the packet to Outbound NAPT Table (table36->46)
-        long tunnelId = NatEvpnUtil.getTunnelIdForRouter(idManager, dataBroker, routerName, routerId);
+        Uint64 tunnelId = NatEvpnUtil.getTunnelIdForRouter(idManager, dataBroker, routerName, routerId);
 
         String tsFlowRef = getFlowRefTs(naptSwitch, NwConstants.INTERNAL_TUNNEL_TABLE, tunnelId);
         FlowEntity tsNatFlowEntity = NatUtil.buildFlowEntity(naptSwitch, NwConstants.INTERNAL_TUNNEL_TABLE, tsFlowRef);
@@ -101,12 +101,12 @@ public class EvpnNaptSwitchHA {
         mdsalManager.removeFlow(confTx, tsNatFlowEntity);
     }
 
-    private String getFlowRefTs(BigInteger dpnId, short tableId, long routerID) {
+    private String getFlowRefTs(Uint64 dpnId, short tableId, Uint64 routerID) {
         return NatConstants.NAPT_FLOWID_PREFIX + dpnId + NatConstants.FLOWID_SEPARATOR + tableId + NatConstants
                 .FLOWID_SEPARATOR + routerID;
     }
 
-    private String getFlowRefSnat(BigInteger dpnId, short tableId, String routerID) {
+    private String getFlowRefSnat(Uint64 dpnId, short tableId, String routerID) {
         return NatConstants.SNAT_FLOWID_PREFIX + dpnId + NatConstants.FLOWID_SEPARATOR + tableId + NatConstants
                 .FLOWID_SEPARATOR + routerID;
     }

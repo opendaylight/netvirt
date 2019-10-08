@@ -8,14 +8,14 @@
 
 package org.opendaylight.netvirt.natservice.internal;
 
-import java.math.BigInteger;
-
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public interface NatConstants {
 
     short DEFAULT_NAPT_FLOW_PRIORITY = 10;
     String NAPT_FLOW_NAME = "SNAT";
-    BigInteger COOKIE_NAPT_BASE = new BigInteger("8000000", 16);
+    Uint64 COOKIE_NAPT_BASE = Uint64.valueOf("8000000", 16).intern();
     String NAPT_FLOWID_PREFIX = "SNAT.";
     String IPV6_FLOWID_PREFIX = "IPv6.";
     String FLOWID_SEPARATOR = ".";
@@ -24,7 +24,7 @@ public interface NatConstants {
     int EVENT_QUEUE_LENGTH = 1000000;
     String FLOWID_PREFIX = "L3.";
     int DEFAULT_DNAT_FLOW_PRIORITY = 10;
-    int INVALID_ID = -1;
+    Uint32 INVALID_ID = Uint32.valueOf(0L);
     short SNAT_FIB_FLOW_PRIORITY = 42;
     short SNAT_TRK_FLOW_PRIORITY = 6;
     short SNAT_NEW_FLOW_PRIORITY = 5;
@@ -40,8 +40,8 @@ public interface NatConstants {
     long VNI_DEFAULT_HIGH_VALUE = 99999L;
     int DEFAULT_TS_FLOW_PRIORITY = 10;
     short DEFAULT_PREFIX = 32;
-    long DEFAULT_L3VNI_VALUE = 0;
-    int DEFAULT_LABEL_VALUE = 0;
+    Uint32 DEFAULT_L3VNI_VALUE = Uint32.ZERO;
+    Uint32 DEFAULT_LABEL_VALUE = Uint32.ZERO;
     String DNAT_FLOW_NAME = "DNAT";
     short DEFAULT_HARD_TIMEOUT = 0;
     short DEFAULT_IDLE_TIMEOUT = 0;

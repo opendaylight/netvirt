@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.router.to.vpn.mapping.RoutermappingBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.router.to.vpn.mapping.RoutermappingKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,7 +86,7 @@ public class RouterPortsListener
                     SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                             LogicalDatastoreType.OPERATIONAL, routerMappingId);
             if (!optRouterMapping.isPresent()) {
-                Long vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
+                Uint32 vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
                 LOG.debug("add : Updating router {} to VPN {} association with Id {}", routerName, vpnName, vpnId);
                 Routermapping routerMapping = new RoutermappingBuilder().withKey(new RoutermappingKey(routerName))
                     .setRouterName(routerName).setVpnName(vpnName.getValue()).setVpnId(vpnId).build();
