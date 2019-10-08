@@ -17,6 +17,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -365,6 +366,8 @@ public class EvpnDnatFlowProgrammer {
         }
     }
 
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private void makeTunnelTableEntry(BigInteger dpnId, long l3Vni, List<Instruction> customInstructions,
                                       TypedWriteTransaction<Configuration> confTx) {
         LOG.debug("makeTunnelTableEntry : Create terminating service table {} --> table {} flow on DpnId {} "
@@ -382,6 +385,8 @@ public class EvpnDnatFlowProgrammer {
                 terminatingServiceTableFlowEntity, dpnId);
     }
 
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private void removeTunnelTableEntry(BigInteger dpnId, long l3Vni, TypedReadWriteTransaction<Configuration> confTx)
             throws ExecutionException, InterruptedException {
         LOG.debug("removeTunnelTableEntry : Remove terminating service table {} --> table {} flow on DpnId {} "

@@ -99,7 +99,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     @Override
     public void onPacketReceived(PacketReceived notification) {
 
-        short tableId = notification.getTableId().getValue();
+        short tableId = notification.getTableId().getValue().toJava();
         LOG.trace("{} onPacketReceived: Packet punted from table {}", LOGGING_PREFIX, tableId);
         if (!vpnUtil.isArpLearningEnabled()) {
             LOG.trace("Not handling packet as ARP Based Learning is disabled");
@@ -111,7 +111,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                     LOGGING_PREFIX, tableId);
             return;
         }
-        BigInteger metadata = notification.getMatch().getMetadata().getMetadata();
+        BigInteger metadata = notification.getMatch().getMetadata().getMetadata().toJava();
         Ethernet res = new Ethernet();
 
         if (tableId == NwConstants.L3_SUBNET_ROUTE_TABLE) {
@@ -257,7 +257,8 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                 getTargetSubnetForPacketOut(elanTag, dstIpStr);
         if (targetSubnetForPacketOut != null) {
             // Handle subnet routes ip requests
-            transmitArpOrNsPacket(targetSubnetForPacketOut.getNhDpnId(), srcIpStr, srcMac, dstIp, dstIpStr, elanTag);
+            transmitArpOrNsPacket(targetSubnetForPacketOut.getNhDpnId().toJava(),
+                                        srcIpStr, srcMac, dstIp, dstIpStr, elanTag);
         } else {
             Counter counter = packetInCounter.label(CounterUtility.subnet_route_packet_failed.toString())
                     .label(srcIpStr + "." + dstIpStr);
@@ -372,7 +373,8 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                 return;
             }
 
-            transmitArpOrNsPacket(targetSubnetForPacketOut.getNhDpnId(), sourceIp, sourceMac, dstIp, dstIpStr, elanTag);
+            transmitArpOrNsPacket(targetSubnetForPacketOut.getNhDpnId().toJava(),
+                                        sourceIp, sourceMac, dstIp, dstIpStr, elanTag);
         } catch (ReadFailedException e) {
             LOG.error("handlePacketToInternalNetwork: Failed to read data store for destIp {} elanTag {}", dstIpStr,
                     elanTag);

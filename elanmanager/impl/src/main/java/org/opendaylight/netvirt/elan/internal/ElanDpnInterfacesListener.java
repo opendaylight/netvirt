@@ -72,7 +72,7 @@ public class ElanDpnInterfacesListener
     protected void update(InstanceIdentifier<DpnInterfaces> identifier, DpnInterfaces original,
                           DpnInterfaces update) {
         LOG.debug("received Dpninterfaces update event for dpn {}", update.getDpId());
-        BigInteger dpnId = update.getDpId();
+        BigInteger dpnId = update.getDpId().toJava();
         String elanInstanceName = identifier.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
         ElanInstance elanInstance = elanInstanceCache.get(elanInstanceName).orNull();
 
@@ -93,7 +93,7 @@ public class ElanDpnInterfacesListener
     @Override
     protected void add(InstanceIdentifier<DpnInterfaces> identifier, DpnInterfaces dpnInterfaces) {
         LOG.debug("received Dpninterfaces add event for dpn {}", dpnInterfaces.getDpId());
-        BigInteger dpnId = dpnInterfaces.getDpId();
+        BigInteger dpnId = dpnInterfaces.getDpId().toJava();
         String elanInstanceName = identifier.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
         ElanInstance elanInstance = elanInstanceCache.get(elanInstanceName).orNull();
 

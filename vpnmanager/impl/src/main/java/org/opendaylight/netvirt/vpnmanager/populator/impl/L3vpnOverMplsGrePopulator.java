@@ -67,7 +67,7 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
             return;
         }
         Adjacency nextHop = input.getNextHop();
-        long label = nextHop.getLabel();
+        long label = nextHop.getLabel().toJava();
         String vpnName = input.getVpnName();
         String primaryRd = input.getPrimaryRd();
         String rd = input.getRd();

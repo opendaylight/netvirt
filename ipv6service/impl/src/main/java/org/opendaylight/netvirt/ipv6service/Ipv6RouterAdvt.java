@@ -205,18 +205,18 @@ public class Ipv6RouterAdvt {
     }
 
     private byte[] fillRouterAdvertisementPacket(RouterAdvertisementPacket pdu) {
-        ByteBuffer buf = ByteBuffer.allocate(Ipv6Constants.ICMPV6_OFFSET + pdu.getIpv6Length());
+        ByteBuffer buf = ByteBuffer.allocate(Ipv6Constants.ICMPV6_OFFSET + pdu.getIpv6Length().toJava());
 
         buf.put(Ipv6Util.convertEthernetHeaderToByte(pdu), 0, 14);
         buf.put(Ipv6Util.convertIpv6HeaderToByte(pdu), 0, 40);
-        buf.put(icmp6RAPayloadtoByte(pdu), 0, pdu.getIpv6Length());
+        buf.put(icmp6RAPayloadtoByte(pdu), 0, pdu.getIpv6Length().toJava());
         int checksum = Ipv6Util.calculateIcmpv6Checksum(buf.array(), pdu);
         buf.putShort(Ipv6Constants.ICMPV6_OFFSET + 2, (short)checksum);
         return buf.array();
     }
 
     private static byte[] icmp6RAPayloadtoByte(RouterAdvertisementPacket pdu) {
-        byte[] data = new byte[pdu.getIpv6Length()];
+        byte[] data = new byte[pdu.getIpv6Length().toJava()];
         Arrays.fill(data, (byte)0);
 
         ByteBuffer buf = ByteBuffer.wrap(data);

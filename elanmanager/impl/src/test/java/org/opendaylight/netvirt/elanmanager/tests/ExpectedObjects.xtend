@@ -146,7 +146,7 @@ class ExpectedObjects {
                     ]
                 ]
                 metadata = new MetadataBuilder >> [
-                    metadata = ElanHelper.getElanMetadataLabel(elanInstance.getElanTag(), interfaceInfo.interfaceTag)
+                    metadata = ElanHelper.getElanMetadataLabel(elanInstance.getElanTag().toJava(), interfaceInfo.interfaceTag)
                     metadataMask = ElanHelper.getElanMetadataMask()
                 ]
             ]
@@ -209,7 +209,7 @@ class ExpectedObjects {
                     ]
                 ]
                 metadata = new MetadataBuilder >> [
-                    metadata = ElanHelper.getElanMetadataLabel(elanInstance.getElanTag())
+                    metadata = ElanHelper.getElanMetadataLabel(elanInstance.getElanTag().toJava())
                     metadataMask = MetaDataUtil.METADATA_MASK_SERVICE
                 ]
             ]
@@ -283,7 +283,7 @@ class ExpectedObjects {
                     ]
                 ]
                 metadata = new MetadataBuilder >> [
-                         metadata = ElanHelper.getElanMetadataLabel(elanInstance.getElanTag())
+                         metadata = ElanHelper.getElanMetadataLabel(elanInstance.getElanTag().toJava())
                          metadataMask = MetaDataUtil.METADATA_MASK_SERVICE
                 ]
             ]

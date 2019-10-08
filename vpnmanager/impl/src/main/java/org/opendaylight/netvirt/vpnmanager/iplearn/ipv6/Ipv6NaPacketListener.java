@@ -43,7 +43,7 @@ public class Ipv6NaPacketListener extends AbstractIpLearnNotificationHandler imp
         IpAddress srcIP = new IpAddress(naPacket.getSourceIpv6());
         MacAddress srcMac = naPacket.getSourceMac();
         IpAddress targetIP = new IpAddress(naPacket.getTargetAddress());
-        BigInteger metadata = pktMetadata.getMetadata();
+        BigInteger metadata = pktMetadata.getMetadata().toJava();
         LOG.debug("NA notification received from interface {} and IP {} having MAC {}, targetIP={}", srcInterface,
                 srcIP.stringValue(), srcMac.getValue(), targetIP.stringValue());
 

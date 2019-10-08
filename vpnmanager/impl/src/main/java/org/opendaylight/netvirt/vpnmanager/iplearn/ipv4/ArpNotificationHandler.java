@@ -44,7 +44,7 @@ public class ArpNotificationHandler extends AbstractIpLearnNotificationHandler i
         IpAddress srcIP = notification.getSrcIpaddress();
         MacAddress srcMac = MacAddress.getDefaultInstance(notification.getSrcMac().getValue());
         IpAddress targetIP = notification.getDstIpaddress();
-        BigInteger metadata = notification.getMetadata();
+        BigInteger metadata = notification.getMetadata().toJava();
         boolean isGarp = srcIP.equals(targetIP);
         if (!isGarp) {
             LOG.info(
@@ -66,7 +66,7 @@ public class ArpNotificationHandler extends AbstractIpLearnNotificationHandler i
         String srcInterface = notification.getInterface();
         IpAddress srcIP = notification.getSrcIpaddress();
         MacAddress srcMac = MacAddress.getDefaultInstance(notification.getSrcMac().getValue());
-        BigInteger metadata = notification.getMetadata();
+        BigInteger metadata = notification.getMetadata().toJava();
         IpAddress targetIP = notification.getDstIpaddress();
         LOG.info("ArpNotification Response Received from interface {} and IP {} having MAC {}, learning MAC",
                 srcInterface, srcIP.stringValue(), srcMac.getValue());

@@ -135,7 +135,7 @@ public final class ArpResponderUtil {
     public static List<MatchInfo> getMatchCriteria(int lportTag, ElanInstance elanInstance,
             String ipAddress) {
 
-        BigInteger metadata = ElanHelper.getElanMetadataLabel(elanInstance.getElanTag(), lportTag);
+        BigInteger metadata = ElanHelper.getElanMetadataLabel(elanInstance.getElanTag().toJava(), lportTag);
         BigInteger metadataMask = ElanHelper.getElanMetadataMask();
         return Arrays.asList(MatchEthernetType.ARP, MatchArpOp.REQUEST, new MatchArpTpa(ipAddress, "32"),
                 new MatchMetadata(metadata, metadataMask));
@@ -245,7 +245,7 @@ public final class ArpResponderUtil {
             org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action actionClass = v
                     .getAction();
             if (actionClass instanceof NxActionResubmitRpcAddGroupCase) {
-                tableId.set(((NxActionResubmitRpcAddGroupCase) actionClass).getNxResubmit().getTable());
+                tableId.set(((NxActionResubmitRpcAddGroupCase) actionClass).getNxResubmit().getTable().toJava());
                 return true;
             } else {
                 return false;
@@ -408,7 +408,7 @@ public final class ArpResponderUtil {
             RpcResult<AllocateIdOutput> rpcResult = result.get();
             if (rpcResult.isSuccessful()) {
                 LOG.trace("Retrieved Group Id is {}", rpcResult.getResult().getIdValue());
-                return rpcResult.getResult().getIdValue();
+                return rpcResult.getResult().getIdValue().toJava();
             } else {
                 LOG.warn("RPC Call to Allocate Id returned with Errors {}", rpcResult.getErrors());
             }

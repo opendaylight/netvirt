@@ -273,6 +273,9 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -323,7 +326,7 @@ public final class NatUtil {
 
         long vpnId = NatConstants.INVALID_ID;
         if (vpnInstance.isPresent()) {
-            Long vpnIdAsLong = vpnInstance.get().getVpnId();
+            Long vpnIdAsLong = vpnInstance.get().getVpnId().toJava();
             if (vpnIdAsLong != null) {
                 vpnId = vpnIdAsLong;
             }
@@ -337,9 +340,9 @@ public final class NatUtil {
         }
 
         try {
-            return confTx.read(getVpnInstanceToVpnIdIdentifier(vpnName)).get().toJavaUtil().map(
+            return (confTx.read(getVpnInstanceToVpnIdIdentifier(vpnName)).get().toJavaUtil().map(
                 org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
-                    .VpnInstance::getVpnId).orElse(Long.valueOf(NatConstants.INVALID_ID));
+                    .VpnInstance::getVpnId).orElse(Uint32.valueOf(NatConstants.INVALID_ID))).toJava();
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Error retrieving VPN id for {}", vpnName, e);
         }
@@ -593,9 +596,9 @@ public final class NatUtil {
             return null;
         }
         InstanceIdentifier<RouterToNaptSwitch> id = buildNaptSwitchIdentifier(routerName);
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+        return (SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
                 LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(RouterToNaptSwitch::getPrimarySwitchId).orElse(
-                null);
+                Uint64.valueOf(0L))).toJava();
     }
 
     public static InstanceIdentifier<RouterToNaptSwitch> buildNaptSwitchIdentifier(String routerId) {
@@ -792,9 +795,9 @@ public final class NatUtil {
 
     static long getAssociatedVpn(DataBroker broker, String routerName) {
         InstanceIdentifier<Routermapping> routerMappingId = NatUtil.getRouterVpnMappingId(routerName);
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+        return (SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
                 LogicalDatastoreType.OPERATIONAL, routerMappingId).toJavaUtil().map(Routermapping::getVpnId).orElse(
-                Long.valueOf(NatConstants.INVALID_ID));
+                Uint32.valueOf(NatConstants.INVALID_ID))).toJava();
     }
 
     @Nullable
@@ -906,7 +909,7 @@ public final class NatUtil {
     }
 
     @NonNull
-    public static List<Integer> getInternalIpPortListInfo(DataBroker dataBroker, Long routerId,
+    public static List<Uint16> getInternalIpPortListInfo(DataBroker dataBroker, Long routerId,
                                                           String internalIpAddress, ProtocolTypes protocolType) {
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                 LogicalDatastoreType.CONFIGURATION,
@@ -1063,7 +1066,7 @@ public final class NatUtil {
         Map<String, Long> externalIpsLabel = new HashMap<>();
         if (ipMappingOptional.isPresent()) {
             for (IpMap ipMap : ipMappingOptional.get().nonnullIpMap()) {
-                externalIpsLabel.put(ipMap.getExternalIp(), ipMap.getLabel());
+                externalIpsLabel.put(ipMap.getExternalIp(), ipMap.getLabel().toJava());
             }
         }
         return externalIpsLabel;
@@ -1082,7 +1085,7 @@ public final class NatUtil {
             short countOfLstLoadExtIp = 32767;
             for (ExternalIpCounter externalIpCounter : externalCounter.nonnullExternalIpCounter()) {
                 String curExternalIp = externalIpCounter.getExternalIp();
-                short countOfCurExtIp = externalIpCounter.getCounter();
+                short countOfCurExtIp = externalIpCounter.getCounter().toJava();
                 if (countOfCurExtIp < countOfLstLoadExtIp) {
                     countOfLstLoadExtIp = countOfCurExtIp;
                     leastLoadedExternalIp = curExternalIp;
@@ -1144,7 +1147,7 @@ public final class NatUtil {
         List<BigInteger> dpns = new ArrayList<>();
         if (routerDpnListData.isPresent()) {
             for (DpnVpninterfacesList dpnVpnInterface : routerDpnListData.get().nonnullDpnVpninterfacesList()) {
-                dpns.add(dpnVpnInterface.getDpnId());
+                dpns.add(dpnVpnInterface.getDpnId().toJava());
             }
         }
         return dpns;
@@ -1407,7 +1410,7 @@ public final class NatUtil {
                 interfaceManagerRpcService.getDpidFromInterface(dpIdInput);
             RpcResult<GetDpidFromInterfaceOutput> dpIdResult = dpIdOutput.get();
             if (dpIdResult.isSuccessful()) {
-                nodeId = dpIdResult.getResult().getDpid();
+                nodeId = dpIdResult.getResult().getDpid().toJava();
             } else {
                 LOG.debug("getDpnForInterface : Could not retrieve DPN Id for interface {}", ifName);
             }
@@ -1475,17 +1478,17 @@ public final class NatUtil {
                 } else if (actionClass instanceof SetFieldCase) {
                     if (((SetFieldCase) actionClass).getSetField().getVlanMatch() != null) {
                         int vlanVid = ((SetFieldCase) actionClass).getSetField().getVlanMatch().getVlanId()
-                            .getVlanId().getValue();
+                            .getVlanId().getValue().toJava();
                         listActionInfo.add(new ActionSetFieldVlanVid(pos++, vlanVid));
                     }
                 } else if (actionClass instanceof NxActionResubmitRpcAddGroupCase) {
-                    Short tableId = ((NxActionResubmitRpcAddGroupCase) actionClass).getNxResubmit().getTable();
+                    Short tableId = ((NxActionResubmitRpcAddGroupCase) actionClass).getNxResubmit().getTable().toJava();
                     listActionInfo.add(new ActionNxResubmit(pos++, tableId));
                 } else if (actionClass instanceof NxActionRegLoadNodesNodeTableFlowApplyActionsCase) {
                     NxRegLoad nxRegLoad =
                         ((NxActionRegLoadNodesNodeTableFlowApplyActionsCase) actionClass).getNxRegLoad();
-                    listActionInfo.add(new ActionRegLoad(pos++, NxmNxReg6.class, nxRegLoad.getDst().getStart(),
-                        nxRegLoad.getDst().getEnd(), nxRegLoad.getValue().longValue()));
+                    listActionInfo.add(new ActionRegLoad(pos++, NxmNxReg6.class, nxRegLoad.getDst().getStart().toJava(),
+                        nxRegLoad.getDst().getEnd().toJava(), nxRegLoad.getValue().longValue()));
                 }
             }
             return listActionInfo;
@@ -2802,24 +2805,24 @@ public final class NatUtil {
             LOG.debug("removeSnatEntriesForPort: Internal Ip retrieved for interface {} is {} in router with Id {}",
                 interfaceName, internalIp, routerId);
             for (ProtocolTypes protocol : protocolTypesList) {
-                List<Integer> portList = NatUtil.getInternalIpPortListInfo(dataBroker, routerId, internalIp, protocol);
+                List<Uint16> portList = NatUtil.getInternalIpPortListInfo(dataBroker, routerId, internalIp, protocol);
                 if (portList != null) {
-                    for (Integer portnum : portList) {
+                    for (Uint16 portnum : portList) {
                         //build and remove the flow in outbound table
                         removeNatFlow(mdsalManager, naptSwitch, NwConstants.OUTBOUND_NAPT_TABLE,
-                            routerId, internalIp, portnum, protocol.getName());
+                            routerId, internalIp, portnum.toJava(), protocol.getName());
 
                         //build and remove the flow in inboundtable
 
                         removeNatFlow(mdsalManager, naptSwitch, NwConstants.INBOUND_NAPT_TABLE, routerId,
-                            internalIp, portnum, protocol.getName());
+                            internalIp, portnum.toJava(), protocol.getName());
 
                         //Get the external IP address and the port from the model
 
                         NAPTEntryEvent.Protocol proto = protocol.toString().equals(ProtocolTypes.TCP.toString())
                             ? NAPTEntryEvent.Protocol.TCP : NAPTEntryEvent.Protocol.UDP;
                         IpPortExternal ipPortExternal = NatUtil.getExternalIpPortMap(dataBroker, routerId,
-                            internalIp, String.valueOf(portnum), proto);
+                            internalIp, String.valueOf(portnum.toJava()), proto);
                         if (ipPortExternal == null) {
                             LOG.error("removeSnatEntriesForPort: Mapping for internalIp {} "
                                 + "with port {} is not found in "
@@ -2827,7 +2830,7 @@ public final class NatUtil {
                             return;
                         }
                         String externalIpAddress = ipPortExternal.getIpAddress();
-                        String internalIpPort = internalIp + ":" + portnum;
+                        String internalIpPort = internalIp + ":" + portnum.toJava();
                         // delete the entry from IntExtIpPortMap DS
 
                         naptManager.removeFromIpPortMapDS(routerId, internalIpPort, proto);

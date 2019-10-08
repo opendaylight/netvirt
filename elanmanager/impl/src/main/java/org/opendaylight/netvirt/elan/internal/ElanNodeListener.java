@@ -103,7 +103,7 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
         this.broker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.mdsalManager = mdsalManager;
-        this.tempSmacLearnTimeout = elanConfig.getTempSmacLearnTimeout();
+        this.tempSmacLearnTimeout = elanConfig.getTempSmacLearnTimeout().toJava();
         this.arpPuntTimeout = elanConfig.getArpPuntTimeout().intValue();
         this.puntLldpToController = elanConfig.isPuntLldpToController();
         this.idManagerService = idManagerService;
