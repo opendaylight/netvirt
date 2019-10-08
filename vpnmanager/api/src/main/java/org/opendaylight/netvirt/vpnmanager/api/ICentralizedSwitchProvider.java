@@ -8,8 +8,8 @@
 
 package org.opendaylight.netvirt.vpnmanager.api;
 
-import java.math.BigInteger;
 import org.eclipse.jdt.annotation.Nullable;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 /**
  * ICentralizedSwitchProvider allows to create or interrogate centralized
@@ -29,6 +29,6 @@ public interface ICentralizedSwitchProvider {
      * @return The primary switch id.
      */
     @Nullable
-    BigInteger getPrimarySwitchForRouter(String routerName);
+    Uint64 getPrimarySwitchForRouter(String routerName);
 
 }

@@ -40,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NetworksKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -137,7 +138,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
         for (Neighbors nbr : nbrList) {
             try {
                 LOG.trace("nbr {} checking status, AS num: {}", nbr.getAddress().getValue(), nbr.getRemoteAs());
-                bcm.getPeerStatus(nbr.getAddress().getValue(), nbr.getRemoteAs());
+                bcm.getPeerStatus(nbr.getAddress().getValue(), nbr.getRemoteAs().toJava());
                 LOG.trace("nbr {} status is: PEER UP", nbr.getAddress().getValue());
             } catch (BgpRouterException bre) {
                 if (bre.getErrorCode() == BgpRouterException.BGP_PEER_DOWN) {
@@ -158,17 +159,17 @@ public class BgpManager implements AutoCloseable, IBgpManager {
 
     @Override
     public void addPrefix(String rd, String macAddress, String prefix, List<String> nextHopList,
-                          VrfEntry.EncapType encapType, int vpnLabel, long l3vni,
+                          VrfEntry.EncapType encapType, Uint32 vpnLabel, Uint32 l3vni,
                           String gatewayMac, RouteOrigin origin) {
         fibDSWriter.addFibEntryToDS(rd, prefix, nextHopList,
                 encapType, vpnLabel, l3vni, gatewayMac, origin);
         bcm.addPrefix(rd, macAddress, prefix, nextHopList,
-                encapType, vpnLabel, l3vni, 0 /*l2vni*/, gatewayMac);
+                encapType, vpnLabel, l3vni, Uint32.ZERO /*l2vni*/, gatewayMac);
     }
 
     @Override
     public void addPrefix(String rd, String macAddress, String prefix, String nextHop, VrfEntry.EncapType encapType,
-                          int vpnLabel, long l3vni, String gatewayMac, RouteOrigin origin) {
+                          Uint32 vpnLabel, Uint32 l3vni, String gatewayMac, RouteOrigin origin) {
         addPrefix(rd, macAddress, prefix, Collections.singletonList(nextHop), encapType, vpnLabel, l3vni,
                 gatewayMac, origin);
     }
@@ -181,7 +182,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
 
     @Override
     public void advertisePrefix(String rd, String macAddress, String prefix, List<String> nextHopList,
-                                VrfEntry.EncapType encapType, long vpnLabel, long l3vni, long l2vni,
+                                VrfEntry.EncapType encapType, Uint32 vpnLabel, Uint32 l3vni, Uint32 l2vni,
                                 String gatewayMac) {
         LOG.info("Advertise Prefix: Adding Prefix rd {} prefix {} label {} l3vni {} l2vni {}",
                 rd, prefix, vpnLabel, l3vni, l2vni);
@@ -193,7 +194,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
 
     @Override
     public void advertisePrefix(String rd, String macAddress, String prefix, String nextHop,
-                                VrfEntry.EncapType encapType, long vpnLabel, long l3vni, long l2vni,
+                                VrfEntry.EncapType encapType, Uint32 vpnLabel, Uint32 l3vni, Uint32 l2vni,
                                 String gatewayMac) {
         LOG.info("ADVERTISE: Adding Prefix rd {} prefix {} nexthop {} label {} l3vni {} l2vni {}",
                 rd, prefix, nextHop, vpnLabel, l3vni, l2vni);

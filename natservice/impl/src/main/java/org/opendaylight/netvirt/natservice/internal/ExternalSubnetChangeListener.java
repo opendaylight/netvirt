@@ -20,6 +20,7 @@ import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalSubnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +57,7 @@ public class ExternalSubnetChangeListener extends AsyncDataTreeChangeListenerBas
         LOG.info("remove : External Subnet remove mapping method - key:{}. value={}",
                 subnet.key(), subnet);
         String extSubnetUuid = subnet.getId().getValue();
-        long vpnId = NatUtil.getVpnId(dataBroker, extSubnetUuid);
+        Uint32 vpnId = NatUtil.getVpnId(dataBroker, extSubnetUuid);
         if (vpnId == NatConstants.INVALID_ID) {
             LOG.error("Vpn Instance not found for External subnet : {}", extSubnetUuid);
             return;

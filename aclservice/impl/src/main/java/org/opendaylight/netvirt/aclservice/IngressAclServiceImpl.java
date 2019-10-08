@@ -12,7 +12,6 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import com.google.common.collect.Lists;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -57,6 +56,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.SubnetInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg6;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -147,7 +147,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
             Action action, int addOrRemove) {
         LOG.info("{} programDhcpService for port {}, action={}, addOrRemove={}", this.directionString,
                 port.getInterfaceId(), action, addOrRemove);
-        BigInteger dpid = port.getDpId();
+        Uint64 dpid = Uint64.valueOf(port.getDpId());
         int lportTag = port.getLPortTag();
         allowDhcpClientTraffic(flowEntries, dpid, lportTag, addOrRemove);
         allowDhcpv6ClientTraffic(flowEntries, dpid, lportTag, addOrRemove);
@@ -178,7 +178,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         LOG.info("{} programAntiSpoofingRules for port {}, AAPs={}, action={}, addOrRemove={}", this.directionString,
                 port.getInterfaceId(), allowedAddresses, action, addOrRemove);
 
-        BigInteger dpid = port.getDpId();
+        Uint64 dpid = Uint64.valueOf(port.getDpId());
         int lportTag = port.getLPortTag();
         if (action == Action.ADD || action == Action.REMOVE) {
             programCommitterDropFlow(flowEntries, dpid, lportTag, addOrRemove);
@@ -192,27 +192,28 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         }
     }
 
-    private void programCommitterDropFlow(List<FlowEntity> flowEntries, BigInteger dpId, int lportTag,
+    private void programCommitterDropFlow(List<FlowEntity> flowEntries, Uint64 dpId, int lportTag,
             int addOrRemove) {
         List<MatchInfoBase> matches = new ArrayList<>();
         List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
 
-        BigInteger metaData = MetaDataUtil.METADATA_MASK_ACL_DROP
-                .and(AclConstants.METADATA_DROP_FLAG.shiftLeft(2));
-        BigInteger metaDataMask = MetaDataUtil.METADATA_MASK_ACL_DROP
-                .and(AclConstants.METADATA_DROP_FLAG.shiftLeft(2));
+        Uint64 metaData = Uint64.fromLongBits(MetaDataUtil.METADATA_MASK_ACL_DROP.longValue()
+                & (AclConstants.METADATA_DROP_FLAG.longValue() << 2));
+        Uint64 metaDataMask = Uint64.fromLongBits(MetaDataUtil.METADATA_MASK_ACL_DROP.longValue()
+                & (AclConstants.METADATA_DROP_FLAG.longValue() << 2));
+
         matches.add(new NxMatchRegister(NxmNxReg6.class, MetaDataUtil.getLportTagForReg6(lportTag).longValue(),
                 MetaDataUtil.getLportTagMaskForReg6()));
         matches.add(new MatchMetadata(metaData, metaDataMask));
 
-        String flowName = "Ingress_" + dpId + "_" + lportTag + "_Drop";
+        String flowName = "Ingress_" + dpId.toString() + "_" + lportTag + "_Drop";
         addFlowEntryToList(flowEntries, dpId, getAclCommitterTable(), flowName,
                 AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY, 0, 0, AclServiceUtils.getDropFlowCookie(lportTag),
                 matches, instructions, addOrRemove);
     }
 
     @Override
-    protected void programGotoClassifierTableRules(List<FlowEntity> flowEntries, BigInteger dpId,
+    protected void programGotoClassifierTableRules(List<FlowEntity> flowEntries, Uint64 dpId,
             List<AllowedAddressPairs> aaps, int lportTag, int addOrRemove) {
         for (AllowedAddressPairs aap : aaps) {
             IpPrefixOrAddress attachIp = aap.getIpAddress();
@@ -226,8 +227,8 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
             List<InstructionInfo> gotoInstructions = new ArrayList<>();
             gotoInstructions.add(new InstructionGotoTable(getAclConntrackClassifierTable()));
 
-            String flowName = "Ingress_Fixed_Goto_Classifier_" + dpId + "_" + lportTag + "_" + mac.getValue() + "_"
-                    + attachIp.stringValue();
+            String flowName = "Ingress_Fixed_Goto_Classifier_" + dpId.toString() + "_" + lportTag + "_"
+                    + mac.getValue() + "_" + attachIp.stringValue();
             addFlowEntryToList(flowEntries, dpId, getAclAntiSpoofingTable(), flowName,
                     AclConstants.PROTO_MATCH_PRIORITY, 0, 0, AclConstants.COOKIE_ACL_BASE, matches, gotoInstructions,
                     addOrRemove);
@@ -235,7 +236,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
     }
 
     @Override
-    protected void programRemoteAclTableFlow(List<FlowEntity> flowEntries, BigInteger dpId, Integer aclTag,
+    protected void programRemoteAclTableFlow(List<FlowEntity> flowEntries, Uint64 dpId, Integer aclTag,
             AllowedAddressPairs aap, int addOrRemove) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
         flowMatches.addAll(AclServiceUtils.buildIpAndSrcServiceMatch(aclTag, aap));
@@ -255,7 +256,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      * @param lportTag the lport tag
      * @param addOrRemove is write or delete
      */
-    protected void ingressAclDhcpAllowServerTraffic(List<FlowEntity> flowEntries, BigInteger dpId, int lportTag,
+    protected void ingressAclDhcpAllowServerTraffic(List<FlowEntity> flowEntries, Uint64 dpId, int lportTag,
             int addOrRemove) {
         final List<MatchInfoBase> matches = AclServiceUtils.buildDhcpMatches(AclConstants.DHCP_SERVER_PORT_IPV4,
                 AclConstants.DHCP_CLIENT_PORT_IPV4, lportTag, serviceMode);
@@ -275,13 +276,13 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      * @param lportTag the lport tag
      * @param addOrRemove is write or delete
      */
-    protected void ingressAclDhcpv6AllowServerTraffic(List<FlowEntity> flowEntries, BigInteger dpId, int lportTag,
+    protected void ingressAclDhcpv6AllowServerTraffic(List<FlowEntity> flowEntries, Uint64 dpId, int lportTag,
             int addOrRemove) {
         final List<MatchInfoBase> matches = AclServiceUtils.buildDhcpV6Matches(AclConstants.DHCP_SERVER_PORT_IPV6,
                 AclConstants.DHCP_CLIENT_PORT_IPV6, lportTag, serviceMode);
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
 
-        String flowName = "Ingress_DHCP_Server_v6" + "_" + dpId + "_" + lportTag + "_Permit_";
+        String flowName = "Ingress_DHCP_Server_v6" + "_" + dpId.toString() + "_" + lportTag + "_Permit_";
         addFlowEntryToList(flowEntries, dpId, getAclAntiSpoofingTable(), flowName,
                 AclConstants.PROTO_DHCP_SERVER_MATCH_PRIORITY, 0, 0, AclConstants.COOKIE_ACL_BASE, matches,
                 instructions, addOrRemove);
@@ -298,7 +299,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      */
     private void ingressAclIcmpv6AllowedTraffic(List<FlowEntity> flowEntries, AclInterface port,
             InterfaceType interfaceType, int addOrRemove) {
-        BigInteger dpId = port.getDpId();
+        Uint64 dpId = Uint64.valueOf(port.getDpId());
         int lportTag = port.getLPortTag();
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
 
@@ -348,7 +349,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
                     AclServiceManager.MatchCriteria.MATCH_SOURCE));
             String flowName = "Ingress_ICMPv6" + "_" + port.getDpId() + "_" + port.getLPortTag() + "_"
                     + AclConstants.ICMPV6_TYPE_RA + "_LinkLocal_Permit_";
-            addFlowEntryToList(flowEntries, port.getDpId(), getAclAntiSpoofingTable(), flowName,
+            addFlowEntryToList(flowEntries, Uint64.valueOf(port.getDpId()), getAclAntiSpoofingTable(), flowName,
                     AclConstants.PROTO_IPV6_ALLOWED_PRIORITY, 0, 0, AclConstants.COOKIE_ACL_BASE, matches,
                     instructions, addOrRemove);
         }
@@ -362,7 +363,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      * @param lportTag the lport tag
      * @param addOrRemove whether to add or remove the flow
      */
-    protected void programArpRule(List<FlowEntity> flowEntries, BigInteger dpId, int lportTag, int addOrRemove) {
+    protected void programArpRule(List<FlowEntity> flowEntries, Uint64 dpId, int lportTag, int addOrRemove) {
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.ARP);
         matches.add(AclServiceUtils.buildLPortTagMatch(lportTag, serviceMode));
@@ -412,7 +413,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      */
     private void programIpv4BroadcastRule(List<FlowEntity> flowEntries, AclInterface port,
             List<SubnetInfo> subnetInfoList, int addOrRemove) {
-        BigInteger dpId = port.getDpId();
+        Uint64 dpId = Uint64.valueOf(port.getDpId());
         int lportTag = port.getLPortTag();
         MatchInfoBase lportMatchInfo = AclServiceUtils.buildLPortTagMatch(lportTag, serviceMode);
         if (subnetInfoList != null) {
@@ -423,7 +424,8 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
                 matches.add(lportMatchInfo);
                 List<InstructionInfo> instructions = new ArrayList<>();
                 instructions.add(new InstructionGotoTable(getAclConntrackClassifierTable()));
-                String flowName = "Ingress_v4_Broadcast_" + dpId + "_" + lportTag + "_" + broadcastAddress + "_Permit";
+                String flowName = "Ingress_v4_Broadcast_" + dpId.longValue() + "_"
+                                    + lportTag + "_" + broadcastAddress + "_Permit";
                 addFlowEntryToList(flowEntries, dpId, getAclAntiSpoofingTable(), flowName,
                         AclConstants.PROTO_MATCH_PRIORITY, 0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions,
                         addOrRemove);
@@ -441,7 +443,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      * @param lportTag the lport tag
      * @param addOrRemove is write or delete
      */
-    protected void allowDhcpClientTraffic(List<FlowEntity> flowEntries, BigInteger dpId, int lportTag,
+    protected void allowDhcpClientTraffic(List<FlowEntity> flowEntries, Uint64 dpId, int lportTag,
             int addOrRemove) {
         final List<MatchInfoBase> matches = AclServiceUtils.buildDhcpMatches(AclConstants.DHCP_CLIENT_PORT_IPV4,
                 AclConstants.DHCP_SERVER_PORT_IPV4, lportTag, serviceMode);
@@ -461,7 +463,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      * @param lportTag the lport tag
      * @param addOrRemove is write or delete
      */
-    protected void allowDhcpv6ClientTraffic(List<FlowEntity> flowEntries, BigInteger dpId, int lportTag,
+    protected void allowDhcpv6ClientTraffic(List<FlowEntity> flowEntries, Uint64 dpId, int lportTag,
             int addOrRemove) {
         final List<MatchInfoBase> matches = AclServiceUtils.buildDhcpV6Matches(AclConstants.DHCP_CLIENT_PORT_IPV6,
                 AclConstants.DHCP_SERVER_PORT_IPV6, lportTag, serviceMode);
@@ -482,7 +484,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      */
     protected void allowIcmpTrafficToDhcpServer(List<FlowEntity> flowEntries, AclInterface port,
             List<AllowedAddressPairs> allowedAddresses, int addOrRemove) {
-        BigInteger dpId = port.getDpId();
+        Uint64 dpId = Uint64.valueOf(port.getDpId());
         int lportTag = port.getLPortTag();
         for (AllowedAddressPairs allowedAddress : allowedAddresses) {
             if (AclServiceUtils.isIPv4Address(allowedAddress)) {
@@ -503,7 +505,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         }
     }
 
-    private void programIcmpFlow(List<FlowEntity> flowEntries, BigInteger dpId, int lportTag,
+    private void programIcmpFlow(List<FlowEntity> flowEntries, Uint64 dpId, int lportTag,
             AllowedAddressPairs allowedAddress, MatchIpProtocol protocol, MatchInfo icmpTypeMatchInfo,
             int icmpType, int addOrRemove) {
         List<MatchInfoBase> matches = new ArrayList<>();
@@ -514,7 +516,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         matches.add(icmpTypeMatchInfo);
 
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
-        String flowName = "Ingress_DHCP_Service_ICMP_" + dpId + "_" + lportTag + "_" + icmpType + "_Permit_";
+        String flowName = "Ingress_DHCP_Service_ICMP_" + dpId.toString() + "_" + lportTag + "_" + icmpType + "_Permit_";
         addFlowEntryToList(flowEntries, dpId, getAclAntiSpoofingTable(), flowName,
                 AclConstants.PROTO_DHCP_SERVER_MATCH_PRIORITY, 0, 0, AclConstants.COOKIE_ACL_BASE, matches,
                 instructions, addOrRemove);
@@ -528,7 +530,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      * @param lportTag the lport tag
      * @param addOrRemove is write or delete
      */
-    protected void dropTrafficToDhcpServer(List<FlowEntity> flowEntries, BigInteger dpId, int lportTag,
+    protected void dropTrafficToDhcpServer(List<FlowEntity> flowEntries, Uint64 dpId, int lportTag,
             int addOrRemove) {
         InstructionInfo writeMetatdata = AclServiceUtils.getWriteMetadataForDropFlag();
         List<InstructionInfo> instructions = Lists.newArrayList(writeMetatdata);

@@ -8,10 +8,10 @@
 
 package org.opendaylight.netvirt.vpnmanager.api;
 
-import java.math.BigInteger;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public interface IVpnFootprintService {
 
@@ -24,6 +24,6 @@ public interface IVpnFootprintService {
      * @param interfaceName Name of the VPN interface to be added/removed to/from the specified DPN
      * @param add true for addition, false for removal
      */
-    void updateVpnToDpnMapping(BigInteger dpId, String vpnName, String primaryRd, @Nullable String interfaceName,
+    void updateVpnToDpnMapping(Uint64 dpId, String vpnName, String primaryRd, @Nullable String interfaceName,
             ImmutablePair<IpAddresses.IpAddressSource, String> ipAddressSourceValuePair, boolean add);
 }

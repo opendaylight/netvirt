@@ -8,9 +8,8 @@
 
 package org.opendaylight.netvirt.natservice.api;
 
-import java.math.BigInteger;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public interface CentralizedSwitchScheduler {
 
@@ -41,5 +40,5 @@ public interface CentralizedSwitchScheduler {
      * @param routerName the router name.
      * @return success/failure
      */
-    BigInteger getCentralizedSwitch(String routerName);
+    Uint64 getCentralizedSwitch(String routerName);
 }

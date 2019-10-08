@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,6 +54,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,8 +106,8 @@ public class VpnSubnetRouteHandler {
             return;
         }
         String vpnName = subnetmap.getVpnId().getValue();
-        long vpnId = waitAndGetVpnIdIfInvalid(vpnName);
-        if (vpnId == VpnConstants.INVALID_ID) {
+        Uint32 vpnId = waitAndGetVpnIdIfInvalid(vpnName);
+        if (vpnId.longValue() == VpnConstants.INVALID_ID) {
             LOG.error(
                     "{} onSubnetAddedToVpn: VpnInstance to VPNId mapping not yet available for VpnName {} "
                             + "processing subnet {} with IP {}, bailing out now.",
@@ -179,7 +180,7 @@ public class VpnSubnetRouteHandler {
             subOpBuilder.setSubnetToDpn(new ArrayList<>());
             subOpBuilder.setRouteAdvState(TaskState.Idle);
             subOpBuilder.setElanTag(elanTag);
-            Long l3Vni = vpnInstanceOpData.getL3vni();
+            Long l3Vni = vpnInstanceOpData.getL3vni().toJava();
             subOpBuilder.setL3vni(l3Vni);
             subOpEntry = subOpBuilder.build();
             SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier,
@@ -205,9 +206,9 @@ public class VpnSubnetRouteHandler {
         try {
             //In second critical section , Port-Op-Data will be updated.
             vpnUtil.lockSubnet(subnetId.getValue());
-            BigInteger dpnId = null;
+            Uint64 dpnId = null;
             SubnetToDpn subDpn = null;
-            Map<BigInteger, SubnetToDpn> subDpnMap = new HashMap<>();
+            Map<Uint64, SubnetToDpn> subDpnMap = new HashMap<>();
 
             optionalSubs = SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL,
                     subOpIdentifier);
@@ -227,7 +228,7 @@ public class VpnSubnetRouteHandler {
                                     subnetId.getValue(), subnetIp, vpnName, e);
                             continue;
                         }
-                        if (dpnId.equals(BigInteger.ZERO)) {
+                        if (dpnId.equals(Uint64.ZERO)) {
                             LOG.error("{} onSubnetAddedToVpn: Port {} is not assigned DPN yet,"
                                             + " ignoring subnet {} subnetIP {} vpn {}", LOGGING_PREFIX, port.getValue(),
                                     subnetId.getValue(), subnetIp, vpnName);
@@ -276,9 +277,9 @@ public class VpnSubnetRouteHandler {
         }
     }
 
-    private long waitAndGetVpnIdIfInvalid(String vpnName) {
-        long vpnId = vpnUtil.getVpnId(vpnName);
-        if (vpnId == VpnConstants.INVALID_ID) {
+    private Uint32 waitAndGetVpnIdIfInvalid(String vpnName) {
+        Uint32 vpnId = vpnUtil.getVpnId(vpnName);
+        if (vpnId.longValue() == VpnConstants.INVALID_ID) {
             LOG.debug("VpnId is invalid, waiting to fetch again: vpnName={}, vpnId={}", vpnName, vpnId);
             vpnOpDataSyncer.waitForVpnDataReady(VpnOpDataType.vpnInstanceToId, vpnName,
                     VpnConstants.PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS);
@@ -447,7 +448,7 @@ public class VpnSubnetRouteHandler {
                 // Interface State not yet available
                 return;
             }
-            final BigInteger dpnId;
+            final Uint64 dpnId;
             try {
                 dpnId = InterfaceUtils.getDpIdFromInterface(intfState);
             } catch (Exception e) {
@@ -456,7 +457,7 @@ public class VpnSubnetRouteHandler {
                         LOGGING_PREFIX, portId.getValue(), subnetId.getValue(), subnetIp, vpnName, rd, e);
                 return;
             }
-            if (dpnId.equals(BigInteger.ZERO)) {
+            if (dpnId.equals(Uint64.ZERO)) {
                 LOG.error("{} onPortAddedToSubnet: Port {} is not assigned DPN yet, ignoring subnetRoute "
                                 + "inclusion for the interface into subnet {} subnetIp {} vpnName {} rd {}",
                         LOGGING_PREFIX, portId.getValue(), subnetId.getValue(), subnetIp, vpnName, rd);
@@ -527,7 +528,7 @@ public class VpnSubnetRouteHandler {
             if (portOpEntry == null) {
                 return;
             }
-            BigInteger dpnId = portOpEntry.getDpnId();
+            Uint64 dpnId = portOpEntry.getDpnId();
             if (dpnId == null) {
                 LOG.error("{} onPortRemovedFromSubnet:  Port {} does not have a DPNId associated,"
                                 + " ignoring removal from subnet {}", LOGGING_PREFIX, portId.getValue(),
@@ -552,7 +553,7 @@ public class VpnSubnetRouteHandler {
                     optionalSubs.get().getRouteAdvState(), optionalSubs.get().getLastAdvState());
             SubnetOpDataEntry subnetOpDataEntry = optionalSubs.get();
             SubnetOpDataEntryBuilder subOpBuilder = new SubnetOpDataEntryBuilder(subnetOpDataEntry);
-            BigInteger nhDpnId = subOpBuilder.getNhDpnId();
+            Uint64 nhDpnId = subOpBuilder.getNhDpnId();
             if (nhDpnId != null && nhDpnId.equals(dpnId)) {
                 // select another NhDpnId
                 if (last) {
@@ -586,10 +587,10 @@ public class VpnSubnetRouteHandler {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void onInterfaceUp(BigInteger dpnId, String intfName, Uuid subnetId) {
+    public void onInterfaceUp(Uint64 dpnId, String intfName, Uuid subnetId) {
         //TODO(vivek): Change this to use more granularized lock at subnetId level
         SubnetToDpn subDpn = null;
-        if (dpnId == null || Objects.equals(dpnId, BigInteger.ZERO)) {
+        if (dpnId == null || Objects.equals(dpnId, Uint64.ZERO)) {
             LOG.error("{} onInterfaceUp: Unable to determine the DPNID for port {} on subnet {}", LOGGING_PREFIX,
                     intfName, subnetId.getValue());
             return;
@@ -655,8 +656,8 @@ public class VpnSubnetRouteHandler {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void onInterfaceDown(final BigInteger dpnId, final String interfaceName, Uuid subnetId) {
-        if (dpnId == null || Objects.equals(dpnId, BigInteger.ZERO)) {
+    public void onInterfaceDown(final Uint64 dpnId, final String interfaceName, Uuid subnetId) {
+        if (dpnId == null || Objects.equals(dpnId, Uint64.ZERO)) {
             LOG.error("{} onInterfaceDown: Unable to determine the DPNID for port {} on subnet {}", LOGGING_PREFIX,
                     interfaceName, subnetId.getValue());
             return;
@@ -682,7 +683,7 @@ public class VpnSubnetRouteHandler {
                     subnetId.getValue(), subOpBuilder.getSubnetCidr(), subOpBuilder.getVpnName(),
                     subOpBuilder.getVrfId(), subOpBuilder.getRouteAdvState(), subOpBuilder.getLastAdvState(),
                     interfaceName);
-            BigInteger nhDpnId = subOpBuilder.getNhDpnId();
+            Uint64 nhDpnId = subOpBuilder.getNhDpnId();
             if (nhDpnId != null && nhDpnId.equals(dpnId)) {
                 // select another NhDpnId
                 if (last) {
@@ -716,7 +717,7 @@ public class VpnSubnetRouteHandler {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void updateSubnetRouteOnTunnelUpEvent(Uuid subnetId, BigInteger dpnId) {
+    public void updateSubnetRouteOnTunnelUpEvent(Uuid subnetId, Uint64 dpnId) {
         LOG.info("{} updateSubnetRouteOnTunnelUpEvent: Subnet {} Dpn {}", LOGGING_PREFIX, subnetId.getValue(),
                 dpnId.toString());
         try {
@@ -774,7 +775,7 @@ public class VpnSubnetRouteHandler {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void updateSubnetRouteOnTunnelDownEvent(Uuid subnetId, BigInteger dpnId) {
+    public void updateSubnetRouteOnTunnelDownEvent(Uuid subnetId, Uint64 dpnId) {
         LOG.info("updateSubnetRouteOnTunnelDownEvent: Subnet {} Dpn {}", subnetId.getValue(), dpnId.toString());
         //TODO(vivek): Change this to use more granularized lock at subnetId level
         try {
@@ -796,7 +797,7 @@ public class VpnSubnetRouteHandler {
                     optionalSubs.get().getLastAdvState());
             SubnetOpDataEntry subOpEntry = null;
             SubnetOpDataEntryBuilder subOpBuilder = new SubnetOpDataEntryBuilder(optionalSubs.get());
-            BigInteger nhDpnId = subOpBuilder.getNhDpnId();
+            Uint64 nhDpnId = subOpBuilder.getNhDpnId();
             if (nhDpnId != null && nhDpnId.equals(dpnId)) {
                 electNewDpnForSubnetRoute(subOpBuilder, dpnId, subnetId, null /*networkId*/, true);
                 subOpEntry = subOpBuilder.build();
@@ -826,8 +827,8 @@ public class VpnSubnetRouteHandler {
         try {
             //BGP manager will handle withdraw and advertise internally if prefix
             //already exist
-            long label = 0;
-            long l3vni = 0;
+            Uint32 label = Uint32.ZERO;
+            Uint32 l3vni = Uint32.ZERO;
 
             VrfEntry.EncapType encapType =  VpnUtil.getEncapType(VpnUtil.isL3VpnOverVxLan(l3vni));
             if (encapType.equals(VrfEntry.EncapType.Vxlan)) {
@@ -837,7 +838,7 @@ public class VpnSubnetRouteHandler {
             }
             bgpManager.advertisePrefix(subOpBuilder.getVrfId(), null /*macAddress*/, subOpBuilder.getSubnetCidr(),
                     Arrays.asList(nextHopIp), encapType,  label, l3vni,
-                    0 /*l2vni*/, null /*gatewayMacAddress*/);
+                    Uint32.ZERO /*l2vni*/, null /*gatewayMacAddress*/);
             subOpBuilder.setLastAdvState(subOpBuilder.getRouteAdvState()).setRouteAdvState(TaskState.Advertised);
         } catch (Exception e) {
             LOG.error("{} publishSubnetRouteToBgp: Subnet route not advertised for subnet {} subnetIp {} vpn {} rd {}"
@@ -861,8 +862,8 @@ public class VpnSubnetRouteHandler {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private boolean addSubnetRouteToFib(String rd, String subnetIp, BigInteger nhDpnId, String nextHopIp,
-                                        String vpnName, Long elanTag, long label, long l3vni,
+    private boolean addSubnetRouteToFib(String rd, String subnetIp, Uint64 nhDpnId, String nextHopIp,
+                                        String vpnName, Long elanTag, Uint32 label, Uint32 l3vni,
                                         Uuid subnetId, boolean isBgpVpn, String networkName) {
 
         Preconditions.checkNotNull(rd,
@@ -877,7 +878,8 @@ public class VpnSubnetRouteHandler {
         LOG.info("{} addSubnetRouteToFib: Adding SubnetRoute fib entry for vpnName {}, subnetIP {}, elanTag {}",
                 LOGGING_PREFIX, vpnName, subnetIp, elanTag);
         L3vpnInput input = new L3vpnInput().setRouteOrigin(RouteOrigin.CONNECTED).setRd(rd).setVpnName(vpnName)
-                .setSubnetIp(subnetIp).setNextHopIp(nextHopIp).setL3vni(l3vni).setLabel(label).setElanTag(elanTag)
+                .setSubnetIp(subnetIp).setNextHopIp(nextHopIp).setL3vni(l3vni.longValue())
+                .setLabel(label.longValue()).setElanTag(elanTag)
                 .setDpnId(nhDpnId).setEncapType(encapType).setNetworkName(networkName).setPrimaryRd(rd);
         if (!isBgpVpn) {
             vpnPopulator.populateFib(input, null /*writeCfgTxn*/);
@@ -892,7 +894,7 @@ public class VpnSubnetRouteHandler {
             // BGP manager will handle withdraw and advertise internally if prefix
             // already exist
             bgpManager.advertisePrefix(rd, null /*macAddress*/, subnetIp, Collections.singletonList(nextHopIp),
-                    encapType, label, l3vni, 0 /*l2vni*/, null /*gatewayMacAddress*/);
+                    encapType, label, l3vni, Uint32.ZERO /*l2vni*/, null /*gatewayMacAddress*/);
         } catch (Exception e) {
             LOG.error("{} addSubnetRouteToFib: Subnet route not advertised for subnet {} subnetIp {} vpnName {} rd {} "
                     + "with dpnid {}", LOGGING_PREFIX, subnetId.getValue(), subnetIp, vpnName, rd, nhDpnId, e);
@@ -901,8 +903,8 @@ public class VpnSubnetRouteHandler {
         return true;
     }
 
-    private int getLabel(String rd, String subnetIp) {
-        int label = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME, VpnUtil.getNextHopLabelKey(rd, subnetIp));
+    private Uint32 getLabel(String rd, String subnetIp) {
+        Uint32 label = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME, VpnUtil.getNextHopLabelKey(rd, subnetIp));
         LOG.trace("{} getLabel: Allocated subnetroute label {} for rd {} prefix {}", LOGGING_PREFIX, label, rd,
                 subnetIp);
         return label;
@@ -943,7 +945,7 @@ public class VpnSubnetRouteHandler {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private void electNewDpnForSubnetRoute(SubnetOpDataEntryBuilder subOpBuilder, @Nullable BigInteger oldDpnId,
+    private void electNewDpnForSubnetRoute(SubnetOpDataEntryBuilder subOpBuilder, @Nullable Uint64 oldDpnId,
                                            Uuid subnetId, Uuid networkId, boolean isBgpVpn) {
         List<SubnetToDpn> subDpnList = null;
         boolean isRouteAdvertised = false;
@@ -951,10 +953,10 @@ public class VpnSubnetRouteHandler {
         String rd = subOpBuilder.getVrfId();
         String subnetIp = subOpBuilder.getSubnetCidr();
         String vpnName = subOpBuilder.getVpnName();
-        long elanTag = subOpBuilder.getElanTag();
+        long elanTag = subOpBuilder.getElanTag().toJava();
         boolean isAlternateDpnSelected = false;
-        long l3vni = 0;
-        long label = 0;
+        Uint32 l3vni = Uint32.ZERO;
+        Uint32 label = Uint32.ZERO;
         String networkName = networkId != null ? networkId.getValue() : null;
 
         LOG.info("{} electNewDpnForSubnetRoute: Handling subnet {} subnetIp {} vpn {} rd {} TaskState {}"
@@ -984,7 +986,7 @@ public class VpnSubnetRouteHandler {
         }
 
         String nhTepIp = null;
-        BigInteger nhDpnId = null;
+        Uint64 nhDpnId = null;
         for (SubnetToDpn subnetToDpn : subDpnList) {
             if (subnetToDpn.getDpnId().equals(oldDpnId)) {
                 // Is this same is as input dpnId, then ignore it
@@ -1014,7 +1016,7 @@ public class VpnSubnetRouteHandler {
                         rd);
                 // Withdraw route from BGP for this subnet
                 boolean routeWithdrawn = deleteSubnetRouteFromFib(rd, subnetIp, vpnName, isBgpVpn);
-                subOpBuilder.setNhDpnId(null);
+                //subOpBuilder.setNhDpnId(Uint64.valueOf(null));
                 subOpBuilder.setLastAdvState(subOpBuilder.getRouteAdvState());
                 if (routeWithdrawn) {
                     subOpBuilder.setRouteAdvState(TaskState.Withdrawn);

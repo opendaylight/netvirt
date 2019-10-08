@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.qosservice;
 
-import java.math.BigInteger;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,8 +19,8 @@ public final class QosAlertGenerator {
     }
 
     public static void raiseAlert(final String qosPolicyName, final String qosPolicyUuid, final String portUuid,
-                                  final String networkUuid, final BigInteger rxPackets,
-                                  final BigInteger rxDroppedPackets) {
+                                  final String networkUuid, final Uint64 rxPackets,
+                                  final Uint64 rxDroppedPackets) {
         LOG.debug(QosConstants.ALERT_MSG_FORMAT, qosPolicyName, qosPolicyUuid, portUuid, networkUuid,
                                                                                         rxPackets, rxDroppedPackets);
     }

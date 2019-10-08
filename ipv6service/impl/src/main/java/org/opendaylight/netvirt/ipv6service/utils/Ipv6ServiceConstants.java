@@ -8,7 +8,7 @@
 
 package org.opendaylight.netvirt.ipv6service.utils;
 
-import java.math.BigInteger;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public interface Ipv6ServiceConstants {
 
@@ -30,7 +30,7 @@ public interface Ipv6ServiceConstants {
     short DEFAULT_FLOW_PRIORITY = 50;
     short PUNT_NA_FLOW_PRIORITY = 40;
 
-    BigInteger INVALID_DPID = new BigInteger("-1");
+    Uint64 INVALID_DPID = Uint64.valueOf("-1").intern();
     String FLOWID_PREFIX = "IPv6.";
     String FLOWID_SEPARATOR = ".";
 

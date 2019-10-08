@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
-import java.math.BigInteger;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -21,6 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp.rev160428.desi
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.subnet.dhcp.port.data.SubnetToDhcpPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +60,7 @@ public class DhcpDesignatedDpnListener
     @Override
     protected void remove(InstanceIdentifier<DesignatedSwitchForTunnel> identifier, DesignatedSwitchForTunnel del) {
         LOG.debug("Remove for DesignatedSwitchForTunnel : {}", del);
-        dhcpExternalTunnelManager.removeFromLocalCache(BigInteger.valueOf(del.getDpId()),
+        dhcpExternalTunnelManager.removeFromLocalCache(Uint64.valueOf(del.getDpId()),
                 del.getTunnelRemoteIpAddress(), del.getElanInstanceName());
         dhcpExternalTunnelManager.unInstallDhcpFlowsForVms(del.getElanInstanceName(),
                 del.getTunnelRemoteIpAddress(), DhcpServiceUtils.getListOfDpns(broker));
@@ -68,7 +68,7 @@ public class DhcpDesignatedDpnListener
         java.util.Optional<SubnetToDhcpPort> subnetDhcpData = dhcpExternalTunnelManager
                 .getSubnetDhcpPortData(del.getElanInstanceName());
         if (subnetDhcpData.isPresent()) {
-            dhcpExternalTunnelManager.configureDhcpArpRequestResponseFlow(BigInteger.valueOf(del.getDpId()),
+            dhcpExternalTunnelManager.configureDhcpArpRequestResponseFlow(Uint64.valueOf(del.getDpId()),
                     del.getElanInstanceName(), false, del.getTunnelRemoteIpAddress(),
                     subnetDhcpData.get().getPortFixedip(), subnetDhcpData.get().getPortMacaddress());
         }
@@ -79,9 +79,9 @@ public class DhcpDesignatedDpnListener
     protected void update(InstanceIdentifier<DesignatedSwitchForTunnel> identifier, DesignatedSwitchForTunnel original,
             DesignatedSwitchForTunnel update) {
         LOG.debug("Update for DesignatedSwitchForTunnel original {}, update {}", original, update);
-        dhcpExternalTunnelManager.removeFromLocalCache(BigInteger.valueOf(original.getDpId()),
+        dhcpExternalTunnelManager.removeFromLocalCache(Uint64.valueOf(original.getDpId()),
                 original.getTunnelRemoteIpAddress(), original.getElanInstanceName());
-        BigInteger designatedDpnId = BigInteger.valueOf(update.getDpId());
+        Uint64 designatedDpnId = Uint64.valueOf(update.getDpId());
         IpAddress tunnelRemoteIpAddress = update.getTunnelRemoteIpAddress();
         String elanInstanceName = update.getElanInstanceName();
         dhcpExternalTunnelManager.updateLocalCache(designatedDpnId, tunnelRemoteIpAddress, elanInstanceName);
@@ -91,10 +91,11 @@ public class DhcpDesignatedDpnListener
         if (subnetDhcpData.isPresent()) {
             LOG.trace("Removing Designated DPN {} DHCP Arp Flows for Elan {}.", original.getDpId(),
                     original.getElanInstanceName());
-            dhcpExternalTunnelManager.configureDhcpArpRequestResponseFlow(BigInteger.valueOf(original.getDpId()),
+            dhcpExternalTunnelManager.configureDhcpArpRequestResponseFlow(Uint64.valueOf(original.getDpId()),
                     original.getElanInstanceName(), false, original.getTunnelRemoteIpAddress(),
                     subnetDhcpData.get().getPortFixedip(), subnetDhcpData.get().getPortMacaddress());
-            LOG.trace("Configuring DHCP Arp Flows for Designated dpn {} Elan {}", designatedDpnId, elanInstanceName);
+            LOG.trace("Configuring DHCP Arp Flows for Designated dpn {} Elan {}", designatedDpnId.toString(),
+                elanInstanceName);
             dhcpExternalTunnelManager.configureDhcpArpRequestResponseFlow(designatedDpnId, elanInstanceName,
                     true, tunnelRemoteIpAddress, subnetDhcpData.get().getPortFixedip(),
                     subnetDhcpData.get().getPortMacaddress());
@@ -104,7 +105,7 @@ public class DhcpDesignatedDpnListener
     @Override
     protected void add(InstanceIdentifier<DesignatedSwitchForTunnel> identifier, DesignatedSwitchForTunnel add) {
         LOG.debug("Add for DesignatedSwitchForTunnel : {}", add);
-        BigInteger designatedDpnId = BigInteger.valueOf(add.getDpId());
+        Uint64 designatedDpnId = Uint64.valueOf(add.getDpId());
         IpAddress tunnelRemoteIpAddress = add.getTunnelRemoteIpAddress();
         String elanInstanceName = add.getElanInstanceName();
         dhcpExternalTunnelManager.updateLocalCache(designatedDpnId, tunnelRemoteIpAddress, elanInstanceName);

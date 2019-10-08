@@ -11,7 +11,6 @@ package org.opendaylight.netvirt.dhcpservice;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import com.google.common.base.Optional;
-import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -43,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.s
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,7 +126,7 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
         LOG.trace("DhcpSubnetListener installNeutronPortEntries : portList: {}", portList);
         for (Uuid portIntf : portList) {
             NodeConnectorId nodeConnectorId = getNodeConnectorIdForPortIntf(portIntf);
-            BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
+            Uint64 dpId = Uint64.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
             String interfaceName = portIntf.getValue();
             Port port = dhcpManager.getNeutronPort(interfaceName);
             String vmMacAddress = port.getMacAddress().getValue();
@@ -147,7 +147,7 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
         LOG.trace("DhcpSubnetListener uninstallNeutronPortEntries : portList: {}", portList);
         for (Uuid portIntf : portList) {
             NodeConnectorId nodeConnectorId = getNodeConnectorIdForPortIntf(portIntf);
-            BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
+            Uint64 dpId = Uint64.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
             String interfaceName = portIntf.getValue();
             Port port = dhcpManager.getNeutronPort(interfaceName);
             String vmMacAddress = port.getMacAddress().getValue();
@@ -173,13 +173,13 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
             String vmMacAddress = port.getMacAddress().getValue();
             Uuid networkId = port.getNetworkId();
             //install the entries on designated dpnId
-            List<BigInteger> listOfDpns = DhcpServiceUtils.getListOfDpns(dataBroker);
+            List<Uint64> listOfDpns = DhcpServiceUtils.getListOfDpns(dataBroker);
             IpAddress tunnelIp = dhcpExternalTunnelManager.getTunnelIpBasedOnElan(networkId.getValue(), vmMacAddress);
             if (null == tunnelIp) {
                 LOG.warn("DhcpSubnetListener installDirectPortEntries tunnelIP is null for  port {}", portIntf);
                 continue;
             }
-            BigInteger designatedDpnId =
+            Uint64 designatedDpnId =
                     dhcpExternalTunnelManager.readDesignatedSwitchesForExternalTunnel(tunnelIp, networkId.getValue());
             LOG.trace("CR-DHCP DhcpSubnetListener update Install DIRECT vmMacAddress: {} tunnelIp: {} "
                     + "designatedDpnId : {} ListOf Dpn: {}",
@@ -196,7 +196,7 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
             Port port = dhcpManager.getNeutronPort(portIntf.getValue());
             String vmMacAddress = port.getMacAddress().getValue();
             Uuid networkId = port.getNetworkId();
-            List<BigInteger> listOfDpns = DhcpServiceUtils.getListOfDpns(dataBroker);
+            List<Uint64> listOfDpns = DhcpServiceUtils.getListOfDpns(dataBroker);
             LOG.trace("DhcpSubnetListener uninstallDirectPortEntries  vmMacAddress: {} networkId: {} ListOf Dpn: {}",
                     vmMacAddress, networkId, listOfDpns);
             dhcpExternalTunnelManager.unInstallDhcpFlowsForVms(networkId.getValue(), listOfDpns, vmMacAddress);

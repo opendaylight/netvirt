@@ -34,13 +34,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public final class FibHelper {
     private FibHelper() {
 
     }
 
-    public static RoutePaths buildRoutePath(String nextHop, Long label) {
+    public static RoutePaths buildRoutePath(String nextHop, Uint32 label) {
         RoutePathsBuilder builder = new RoutePathsBuilder()
                 .withKey(new RoutePathsKey(nextHop))
                 .setNexthopAddress(nextHop);
@@ -61,7 +62,7 @@ public final class FibHelper {
                 .setRoutePaths(routePaths).setOrigin(origin.getValue()).setParentVpnRd(parentVpnRd);
     }
 
-    public static VrfEntryBuilder getVrfEntryBuilder(String prefix, long label, String nextHop, RouteOrigin origin,
+    public static VrfEntryBuilder getVrfEntryBuilder(String prefix, Uint32 label, String nextHop, RouteOrigin origin,
             @Nullable String parentVpnRd) {
         if (nextHop != null) {
             RoutePaths routePath = buildRoutePath(nextHop, label);
@@ -71,7 +72,7 @@ public final class FibHelper {
         }
     }
 
-    public static VrfEntryBuilder getVrfEntryBuilder(VrfEntry vrfEntry, long label,
+    public static VrfEntryBuilder getVrfEntryBuilder(VrfEntry vrfEntry, Uint32 label,
             List<String> nextHopList, RouteOrigin origin, @Nullable String parentvpnRd) {
         List<RoutePaths> routePaths =
                 nextHopList.stream().map(nextHop -> buildRoutePath(nextHop, label))

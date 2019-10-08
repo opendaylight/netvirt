@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.natservice.internal;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import com.google.common.base.Optional;
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Collections;
 import javax.annotation.PostConstruct;
@@ -39,6 +38,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.r
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,7 +109,7 @@ public class RouterDpnChangeListener
     protected void add(final InstanceIdentifier<DpnVpninterfacesList> identifier, final DpnVpninterfacesList dpnInfo) {
         LOG.trace("add : key: {}, value: {}", dpnInfo.key(), dpnInfo);
         final String routerUuid = identifier.firstKeyOf(RouterDpnList.class).getRouterId();
-        BigInteger dpnId = dpnInfo.getDpnId();
+        Uint64 dpnId = dpnInfo.getDpnId();
         //check router is associated to external network
         InstanceIdentifier<Routers> id = NatUtil.buildRouterIdentifier(routerUuid);
         Optional<Routers> routerData =
@@ -119,8 +120,8 @@ public class RouterDpnChangeListener
             Uuid networkId = router.getNetworkId();
             if (networkId != null) {
                 if (natMode == NatMode.Conntrack) {
-                    BigInteger naptSwitch = NatUtil.getPrimaryNaptfromRouterName(dataBroker, router.getRouterName());
-                    if (naptSwitch == null || naptSwitch.equals(BigInteger.ZERO)) {
+                    Uint64 naptSwitch = NatUtil.getPrimaryNaptfromRouterName(dataBroker, router.getRouterName());
+                    if (naptSwitch == null || naptSwitch.equals(Uint64.ZERO)) {
                         LOG.warn("add : NAPT switch is not selected.");
                         return;
                     }
@@ -139,7 +140,7 @@ public class RouterDpnChangeListener
                             }
                         }), LOG, "Error notifying NAT service manager");
                 } else {
-                    Long routerId = NatUtil.getVpnId(dataBroker, routerUuid);
+                    Uint32 routerId = NatUtil.getVpnId(dataBroker, routerUuid);
                     if (routerId == NatConstants.INVALID_ID) {
                         LOG.error("add : Invalid routerId returned for routerName {}", routerUuid);
                         return;
@@ -159,7 +160,7 @@ public class RouterDpnChangeListener
                         Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerUuid);
                         return Collections.singletonList(
                             txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, confTx -> {
-                                Long vpnId;
+                                Uint32 vpnId;
                                 if (vpnName == null) {
                                     LOG.debug("add : Internal vpn associated to router {}", routerUuid);
                                     vpnId = routerId;
@@ -216,12 +217,12 @@ public class RouterDpnChangeListener
     protected void remove(InstanceIdentifier<DpnVpninterfacesList> identifier, DpnVpninterfacesList dpnInfo) {
         LOG.trace("remove : key: {}, value: {}", dpnInfo.key(), dpnInfo);
         final String routerUuid = identifier.firstKeyOf(RouterDpnList.class).getRouterId();
-        Long routerId = NatUtil.getVpnId(dataBroker, routerUuid);
+        Uint32 routerId = NatUtil.getVpnId(dataBroker, routerUuid);
         if (routerId == NatConstants.INVALID_ID) {
             LOG.error("REMOVE: Invalid routId returned for routerName {}",routerUuid);
             return;
         }
-        BigInteger dpnId = dpnInfo.getDpnId();
+        Uint64 dpnId = dpnInfo.getDpnId();
         //check router is associated to external network
         InstanceIdentifier<Routers> id = NatUtil.buildRouterIdentifier(routerUuid);
         Optional<Routers> routerData =
@@ -232,8 +233,8 @@ public class RouterDpnChangeListener
             Uuid networkId = router.getNetworkId();
             if (networkId != null) {
                 if (natMode == NatMode.Conntrack) {
-                    BigInteger naptSwitch = NatUtil.getPrimaryNaptfromRouterName(dataBroker, router.getRouterName());
-                    if (naptSwitch == null || naptSwitch.equals(BigInteger.ZERO)) {
+                    Uint64 naptSwitch = NatUtil.getPrimaryNaptfromRouterName(dataBroker, router.getRouterName());
+                    if (naptSwitch == null || naptSwitch.equals(Uint64.ZERO)) {
                         LOG.warn("remove : NAPT switch is not selected.");
                         return;
                     }
@@ -257,7 +258,7 @@ public class RouterDpnChangeListener
                         Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerUuid);
                         return Collections.singletonList(
                             txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, confTx -> {
-                                Long vpnId;
+                                Uint32 vpnId;
                                 if (vpnName == null) {
                                     LOG.debug("remove : Internal vpn associated to router {}", routerUuid);
                                     vpnId = routerId;
@@ -313,14 +314,14 @@ public class RouterDpnChangeListener
         LOG.trace("Update key: {}, original: {}, update: {}", update.key(), original, update);
     }
 
-    private void installDefaultNatRouteForRouterExternalSubnets(BigInteger dpnId, Collection<Uuid> externalSubnetIds) {
+    private void installDefaultNatRouteForRouterExternalSubnets(Uint64 dpnId, Collection<Uuid> externalSubnetIds) {
         if (externalSubnetIds == null) {
             LOG.error("installDefaultNatRouteForRouterExternalSubnets : No external subnets for router");
             return;
         }
 
         for (Uuid subnetId : externalSubnetIds) {
-            long vpnIdForSubnet = NatUtil.getExternalSubnetVpnId(dataBroker, subnetId);
+            Uint32 vpnIdForSubnet = NatUtil.getExternalSubnetVpnId(dataBroker, subnetId);
             if (vpnIdForSubnet != NatConstants.INVALID_ID) {
                 LOG.info("installDefaultNatRouteForRouterExternalSubnets : Installing default routes in FIB on dpn {} "
                         + "for subnetId {} with vpnId {}", dpnId, subnetId, vpnIdForSubnet);

@@ -9,7 +9,6 @@
 package org.opendaylight.netvirt.aclservice.utils;
 
 import com.google.common.collect.Lists;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -40,6 +39,7 @@ import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig.DefaultBehavior;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,12 +52,12 @@ public class AclNodeDefaultFlowsTxBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclNodeDefaultFlowsTxBuilder.class);
 
-    private final BigInteger dpId;
+    private final Uint64 dpId;
     private final IMdsalApiManager mdsalManager;
     private final AclserviceConfig config;
     private final TypedWriteTransaction<Configuration> tx;
 
-    public AclNodeDefaultFlowsTxBuilder(BigInteger dpId, IMdsalApiManager mdsalManager, AclserviceConfig config,
+    public AclNodeDefaultFlowsTxBuilder(Uint64 dpId, IMdsalApiManager mdsalManager, AclserviceConfig config,
             TypedWriteTransaction<Configuration> tx) {
         this.dpId = dpId;
         this.mdsalManager = mdsalManager;
@@ -231,10 +231,10 @@ public class AclNodeDefaultFlowsTxBuilder {
 
     private List<MatchInfoBase> getMetadataForCommitterDropFlag() {
         List<MatchInfoBase> matches = new ArrayList<>();
-        BigInteger metaData = MetaDataUtil.METADATA_MASK_ACL_DROP
-                .and(AclConstants.METADATA_DROP_FLAG.shiftLeft(2));
-        BigInteger metaDataMask = MetaDataUtil.METADATA_MASK_ACL_DROP
-                .and(AclConstants.METADATA_DROP_FLAG.shiftLeft(2));
+        Uint64 metaData = Uint64.fromLongBits(MetaDataUtil.METADATA_MASK_ACL_DROP.longValue()
+                & (AclConstants.METADATA_DROP_FLAG.longValue() << 2));
+        Uint64 metaDataMask = Uint64.fromLongBits(MetaDataUtil.METADATA_MASK_ACL_DROP.longValue()
+                & (AclConstants.METADATA_DROP_FLAG.longValue() << 2));
         matches.add(new MatchMetadata(metaData, metaDataMask));
 
         return matches;
@@ -322,7 +322,8 @@ public class AclNodeDefaultFlowsTxBuilder {
 
     private void programConntrackClassifierFlow(short tableId, short gotoTableId, MatchEthernetType etherType,
             IPProtocols protocol) {
-        String flowId = "Fixed_Conntrk_Classifier_" + dpId + "_" + tableId + "_" + etherType + "_" + protocol.name();
+        String flowId = "Fixed_Conntrk_Classifier_" + dpId.toString() + "_"
+                            + tableId + "_" + etherType + "_" + protocol.name();
 
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.addAll(AclServiceUtils.buildIpProtocolMatches(etherType, protocol));
@@ -340,14 +341,14 @@ public class AclNodeDefaultFlowsTxBuilder {
                 AclServiceUtils.buildBroadcastIpV4Matches(AclConstants.IPV4_ALL_SUBNET_BROADCAST_ADDR);
         List<InstructionInfo> ipBroadcastInstructions =
                 AclServiceOFFlowBuilder.getGotoInstructionInfo(NwConstants.EGRESS_ACL_CONNTRACK_CLASSIFIER_TABLE);
-        String ipBroadcastflowName = "Ingress_v4_Broadcast_" + dpId + "_Permit";
+        String ipBroadcastflowName = "Ingress_v4_Broadcast_" + dpId.toString() + "_Permit";
         addFlowToTx(NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE, ipBroadcastflowName, AclConstants.PROTO_MATCH_PRIORITY,
                 ipBroadcastMatches, ipBroadcastInstructions);
 
         final List<MatchInfoBase> l2BroadcastMatch = AclServiceUtils.buildL2BroadcastMatches();
         List<InstructionInfo> l2BroadcastInstructions =
                 AclServiceOFFlowBuilder.getResubmitInstructionInfo(NwConstants.EGRESS_LPORT_DISPATCHER_TABLE);
-        String l2BroadcastflowName = "Ingress_L2_Broadcast_" + dpId + "_Permit";
+        String l2BroadcastflowName = "Ingress_L2_Broadcast_" + dpId.toString() + "_Permit";
         addFlowToTx(NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE, l2BroadcastflowName,
                 AclConstants.PROTO_L2BROADCAST_TRAFFIC_MATCH_PRIORITY, l2BroadcastMatch, l2BroadcastInstructions);
     }
@@ -378,7 +379,7 @@ public class AclNodeDefaultFlowsTxBuilder {
         actionsInfos.add(new ActionNxResubmit(gotoTableId));
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionApplyActions(actionsInfos));
-        flowId = "Fixed_Conntrk_Trk_" + dpId + "_" + flowId + gotoTableId;
+        flowId = "Fixed_Conntrk_Trk_" + dpId.toString() + "_" + flowId + gotoTableId;
         addFlowToTx(tableId, flowId, priority, matches, instructions);
     }
 
@@ -405,7 +406,7 @@ public class AclNodeDefaultFlowsTxBuilder {
         actionsInfos.add(new ActionNxResubmit(dispatcherTableId));
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionApplyActions(actionsInfos));
-        flowId = "Fixed_Conntrk_Trk_" + dpId + "_" + flowId + dispatcherTableId;
+        flowId = "Fixed_Conntrk_Trk_" + dpId.toString() + "_" + flowId + dispatcherTableId;
         addFlowToTx(tableId, flowId, priority, matches, instructions);
     }
 
@@ -417,12 +418,12 @@ public class AclNodeDefaultFlowsTxBuilder {
         actionsInfos.add(new ActionNxCtClear());
         instructions.add(new InstructionApplyActions(actionsInfos));
         instructions.add(new InstructionGotoTable(NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE));
-        String flowName = "Egress_Fixed_Ct_Clear_Table_Ipv4_" + this.dpId;
+        String flowName = "Egress_Fixed_Ct_Clear_Table_Ipv4_" + this.dpId.toString();
         addFlowToTx(NwConstants.EGRESS_ACL_DUMMY_TABLE, flowName, AclConstants.ACL_DEFAULT_PRIORITY, matches,
                 instructions);
         matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV6);
-        flowName = "Egress_Fixed_Ct_Clear_Table_Ipv6_" + this.dpId;
+        flowName = "Egress_Fixed_Ct_Clear_Table_Ipv6_" + this.dpId.toString();
         addFlowToTx(NwConstants.EGRESS_ACL_DUMMY_TABLE, flowName, AclConstants.ACL_DEFAULT_PRIORITY, matches,
                 instructions);
     }
@@ -431,11 +432,12 @@ public class AclNodeDefaultFlowsTxBuilder {
             List<InstructionInfo> instructions) {
         int idleTimeOut = 0;
         int hardTimeOut = 0;
-        BigInteger cookie = AclConstants.COOKIE_ACL_BASE;
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(this.dpId, tableId, flowId, priority, flowId, idleTimeOut,
+        Uint64 cookie = AclConstants.COOKIE_ACL_BASE;
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(Uint64.valueOf(this.dpId.toString()), tableId, flowId,
+                                                          priority, flowId, idleTimeOut,
                                                           hardTimeOut, cookie, matches, instructions);
-        LOG.trace("Installing Acl default Flow:: DpnId: {}, flowId: {}, flowName: {}, tableId: {}", dpId, flowId,
-                  flowId, tableId);
+        LOG.trace("Installing Acl default Flow:: DpnId: {}, flowId: {}, flowName: {}, tableId: {}",
+                  dpId.toString(), flowId, flowId, tableId);
         mdsalManager.addFlow(tx, flowEntity);
     }
 

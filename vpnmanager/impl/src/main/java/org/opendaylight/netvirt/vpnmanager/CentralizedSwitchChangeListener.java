@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -33,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -129,7 +129,7 @@ public class CentralizedSwitchChangeListener
             return;
         }
 
-        BigInteger primarySwitchId = routerToNaptSwitch.getPrimarySwitchId();
+        Uint64 primarySwitchId = routerToNaptSwitch.getPrimarySwitchId();
         Uuid extNetworkId = router.getNetworkId();
         String extGwMacAddress = router.getExtGwMacAddress();
         String routerName = router.getRouterName();
