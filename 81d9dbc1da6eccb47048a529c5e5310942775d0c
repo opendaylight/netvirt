@@ -22,6 +22,30 @@
       "revId": "81d9dbc1da6eccb47048a529c5e5310942775d0c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1fb635c6_0da74353",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/ElanInstanceEntityOwnershipListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 8158
+      },
+      "writtenOn": "2019-10-09T06:36:00Z",
+      "side": 1,
+      "message": "Have addressed this in the latest patch.",
+      "parentUuid": "0611fa8c_8d29926b",
+      "range": {
+        "startLine": 111,
+        "startChar": 34,
+        "endLine": 111,
+        "endChar": 36
+      },
+      "revId": "81d9dbc1da6eccb47048a529c5e5310942775d0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
