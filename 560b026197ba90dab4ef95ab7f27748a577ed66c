@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85de318e_2e6e3678",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/recovery/impl/L2GatewayConnectionInstanceRecoveryHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-10-10T07:56:52Z",
+      "side": 1,
+      "message": "delete the commented code",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 91,
+        "endChar": 16
+      },
+      "revId": "560b026197ba90dab4ef95ab7f27748a577ed66c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
