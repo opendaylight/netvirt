@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e97414aa_eb78673c",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclElanInterfaceListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-10-14T08:43:43Z",
+      "side": 1,
+      "message": "I would suggest migrating the cache to use Uint64 instead of BigInteger -- it is faster and BigInteger/Uint64 conversions are not cheap.",
+      "range": {
+        "startLine": 90,
+        "startChar": 56,
+        "endLine": 90,
+        "endChar": 65
+      },
+      "revId": "d7b6fa1152af892fc5594b630945342e1d6dbd62",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
