@@ -1215,7 +1215,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         Flow terminatingServiceTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE,
             getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, serviceId, ""),
                 NatConstants.DEFAULT_VPN_INTERNAL_TUNNEL_TABLE_PRIORITY,
-                String.format("%s:%d", "TST Flow Entry ", serviceId), 0, 0,
+                String.format("%s:%s", "TST Flow Entry ", serviceId), 0, 0,
                 Uint64.valueOf(COOKIE_TUNNEL.toJava().add(BigInteger.valueOf(serviceId.longValue()))),
                 mkMatches, customInstructions);
 

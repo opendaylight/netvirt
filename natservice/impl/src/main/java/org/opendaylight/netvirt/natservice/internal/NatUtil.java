@@ -912,10 +912,15 @@ public final class NatUtil {
     @NonNull
     public static List<Uint16> getInternalIpPortListInfo(DataBroker dataBroker, Uint32 routerId,
                                                           String internalIpAddress, ProtocolTypes protocolType) {
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+        List<Uint16> portList = SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                 LogicalDatastoreType.CONFIGURATION,
                 buildSnatIntIpPortIdentifier(routerId, internalIpAddress, protocolType)).toJavaUtil().map(
                 IntIpProtoType::getPorts).orElse(emptyList());
+
+        if (!portList.isEmpty()) {
+            portList = new ArrayList<>(portList);
+        }
+        return portList;
     }
 
     public static InstanceIdentifier<IntIpProtoType> buildSnatIntIpPortIdentifier(Uint32 routerId,
@@ -1291,7 +1296,7 @@ public final class NatUtil {
         if (optionalRouterDpnList.isPresent()) {
             List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns
                     .router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces> routerInterfaces =
-                    optionalRouterDpnList.get().getRouterInterfaces();
+                    new ArrayList<>(optionalRouterDpnList.get().nonnullRouterInterfaces());
             org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn
                     .list.dpn.vpninterfaces.list.RouterInterfaces routerInterface =
                     new RouterInterfacesBuilder().withKey(new RouterInterfacesKey(vpnInterfaceName))
@@ -1569,9 +1574,15 @@ public final class NatUtil {
     public static List<Uuid> getSubnetIdsFromNetworkId(DataBroker broker, Uuid networkId) {
         InstanceIdentifier<NetworkMap> id = InstanceIdentifier.builder(NetworkMaps.class)
             .child(NetworkMap.class, new NetworkMapKey(networkId)).build();
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(NetworkMap::getSubnetIdList).orElse(
+        List<Uuid> subnetIdList = SingleTransactionDataBroker
+                .syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                        LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(NetworkMap::getSubnetIdList).orElse(
                 emptyList());
+        if(!subnetIdList.isEmpty()) {
+            subnetIdList = new ArrayList<>(subnetIdList);
+        }
+
+        return subnetIdList;
     }
 
     @Nullable
@@ -1814,9 +1825,13 @@ public final class NatUtil {
     @NonNull
     public static List<Ports> getFloatingIpPortsForRouter(DataBroker broker, Uuid routerUuid) {
         InstanceIdentifier<RouterPorts> routerPortsIdentifier = getRouterPortsId(routerUuid.getValue());
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION,
+        List<Ports> portsList = SingleTransactionDataBroker
+                .syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker, LogicalDatastoreType.CONFIGURATION,
                 routerPortsIdentifier).toJavaUtil().map(RouterPorts::getPorts).orElse(emptyList());
+        if(!portsList.isEmpty()) {
+            portsList = new ArrayList<>(portsList);
+        }
+        return portsList;
     }
 
     @NonNull
@@ -1829,7 +1844,7 @@ public final class NatUtil {
             for (Networks externalNw : externalNwData.get().nonnullNetworks()) {
                 if (externalNw.getVpnid() != null && externalNw.getVpnid().equals(vpnUuid)) {
                     @Nullable List<Uuid> routerIds = externalNw.getRouterIds();
-                    return routerIds != null ? routerIds : emptyList();
+                    return routerIds != null ? new ArrayList<>(routerIds) : emptyList();
                 }
             }
         }
@@ -2425,13 +2440,13 @@ public final class NatUtil {
         try {
             Optional<DpnInterfaces> dpnInElanInterfaces = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                 LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId);
-            List<String> elanInterfaceList;
+            List<String> elanInterfaceList = new ArrayList<>();
             DpnInterfaces dpnInterface;
-            if (!dpnInElanInterfaces.isPresent()) {
-                elanInterfaceList = new ArrayList<>();
-            } else {
+            if (dpnInElanInterfaces.isPresent()) {
                 dpnInterface = dpnInElanInterfaces.get();
-                elanInterfaceList = dpnInterface.getInterfaces();
+
+                elanInterfaceList = (dpnInterface.getInterfaces() != null && !dpnInterface.getInterfaces().isEmpty())
+                        ? new ArrayList<>(dpnInterface.getInterfaces()) : elanInterfaceList;
             }
             if (!elanInterfaceList.contains(pseudoPortId)) {
                 elanInterfaceList.add(pseudoPortId);
@@ -2459,7 +2474,7 @@ public final class NatUtil {
         try {
             Optional<DpnInterfaces> dpnInElanInterfaces = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                     LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId);
-            List<String> elanInterfaceList;
+            List<String> elanInterfaceList = new ArrayList<>();
             DpnInterfaces dpnInterface;
             if (!dpnInElanInterfaces.isPresent()) {
                 LOG.info("No interface in any dpn for {}", elanInstanceName);
@@ -2467,7 +2482,8 @@ public final class NatUtil {
             }
 
             dpnInterface = dpnInElanInterfaces.get();
-            elanInterfaceList = dpnInterface.getInterfaces();
+            elanInterfaceList = (dpnInterface.getInterfaces() != null && !dpnInterface.getInterfaces().isEmpty())
+                    ? new ArrayList<>(dpnInterface.getInterfaces()) : elanInterfaceList;
             if (!elanInterfaceList.contains(pseudoPortId)) {
                 LOG.info("Router port not present in DPN {} for VPN {}", dpnId, elanInstanceName);
                 return;

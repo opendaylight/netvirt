@@ -214,9 +214,7 @@ public class ElanL2GatewayMulticastUtils {
         LocatorSet tobeDeleted = buildLocatorSet(dstNodeId, removedDstTep);
         RemoteMcastMacsBuilder newMacBuilder = new RemoteMcastMacsBuilder(existingMac);
 
-        List<LocatorSet> existingLocatorList = newMacBuilder.getLocatorSet();
-        List<LocatorSet> locatorList = new ArrayList<>();
-        existingLocatorList.forEach(locatorSet -> locatorList.add(locatorSet));
+        List<LocatorSet> locatorList = new ArrayList<>(existingMac.nonnullLocatorSet());
         locatorList.remove(tobeDeleted);
         newMacBuilder.setLocatorSet(locatorList);
         RemoteMcastMacs mac = newMacBuilder.build();
