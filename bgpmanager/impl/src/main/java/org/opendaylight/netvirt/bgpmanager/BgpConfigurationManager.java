@@ -2881,8 +2881,7 @@ public class BgpConfigurationManager {
 
         //** update or delete the vrfs with the rest of AddressFamilies already present in the last list
         AddressFamiliesVrf adfToDel = adfBuilder.build();
-        List<AddressFamiliesVrf> adfListOriginal = vrfOriginal.getAddressFamiliesVrf() == null
-                ? new ArrayList<>() : vrfOriginal.getAddressFamiliesVrf();
+        List<AddressFamiliesVrf> adfListOriginal = new ArrayList<>(vrfOriginal.nonnullAddressFamiliesVrf());
         List<AddressFamiliesVrf> adfListToRemoveFromOriginal = new ArrayList<>();
         adfListOriginal.forEach(adf -> {
             if (adf.equals(adfToDel)) {

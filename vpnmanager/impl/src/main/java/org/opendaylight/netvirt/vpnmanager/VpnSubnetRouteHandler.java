@@ -107,7 +107,7 @@ public class VpnSubnetRouteHandler {
         }
         String vpnName = subnetmap.getVpnId().getValue();
         Uint32 vpnId = waitAndGetVpnIdIfInvalid(vpnName);
-        if (vpnId.longValue() == VpnConstants.INVALID_ID) {
+        if (VpnConstants.INVALID_ID.equals(vpnId)) {
             LOG.error(
                     "{} onSubnetAddedToVpn: VpnInstance to VPNId mapping not yet available for VpnName {} "
                             + "processing subnet {} with IP {}, bailing out now.",
@@ -180,7 +180,7 @@ public class VpnSubnetRouteHandler {
             subOpBuilder.setSubnetToDpn(new ArrayList<>());
             subOpBuilder.setRouteAdvState(TaskState.Idle);
             subOpBuilder.setElanTag(elanTag);
-            Long l3Vni = vpnInstanceOpData.getL3vni().toJava();
+            Long l3Vni = vpnInstanceOpData.getL3vni() != null ? vpnInstanceOpData.getL3vni().toJava() : 0L;
             subOpBuilder.setL3vni(l3Vni);
             subOpEntry = subOpBuilder.build();
             SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier,
@@ -279,7 +279,7 @@ public class VpnSubnetRouteHandler {
 
     private Uint32 waitAndGetVpnIdIfInvalid(String vpnName) {
         Uint32 vpnId = vpnUtil.getVpnId(vpnName);
-        if (vpnId.longValue() == VpnConstants.INVALID_ID) {
+        if (VpnConstants.INVALID_ID.equals(vpnId)) {
             LOG.debug("VpnId is invalid, waiting to fetch again: vpnName={}, vpnId={}", vpnName, vpnId);
             vpnOpDataSyncer.waitForVpnDataReady(VpnOpDataType.vpnInstanceToId, vpnName,
                     VpnConstants.PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS);
@@ -620,7 +620,9 @@ public class VpnSubnetRouteHandler {
                     subOpBuilder.getRouteAdvState(), subOpBuilder.getLastAdvState());
             boolean isExternalSubnetVpn = VpnUtil.isExternalSubnetVpn(subnetOpDataEntry.getVpnName(),
                     subnetId.getValue());
-            List<SubnetToDpn> subDpnList = subOpBuilder.getSubnetToDpn();
+            List<SubnetToDpn> subDpnList = new ArrayList<>();
+            subDpnList = subOpBuilder.getSubnetToDpn() != null ? new ArrayList<>(subOpBuilder.getSubnetToDpn())
+                    : subDpnList;
             subDpnList.add(subDpn);
             subOpBuilder.setSubnetToDpn(subDpnList);
             if (subOpBuilder.getRouteAdvState() != TaskState.Advertised) {
@@ -949,7 +951,9 @@ public class VpnSubnetRouteHandler {
                                            Uuid subnetId, Uuid networkId, boolean isBgpVpn) {
         List<SubnetToDpn> subDpnList = null;
         boolean isRouteAdvertised = false;
-        subDpnList = subOpBuilder.getSubnetToDpn();
+        subDpnList = new ArrayList<>();
+        subDpnList = subOpBuilder.getSubnetToDpn() != null ? new ArrayList<>(subOpBuilder.getSubnetToDpn())
+                : subDpnList;
         String rd = subOpBuilder.getVrfId();
         String subnetIp = subOpBuilder.getSubnetCidr();
         String vpnName = subOpBuilder.getVpnName();

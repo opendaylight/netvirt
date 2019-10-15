@@ -36,7 +36,7 @@ public interface DhcpMConstants {
     String DEFAULT_DOMAIN_NAME = "openstacklocal";
 
     Uint64 COOKIE_VM_INGRESS_TABLE = Uint64.valueOf("6800001", 16).intern();
-    Uint64 INVALID_DPID = Uint64.valueOf("-1").intern();
+    Uint64 INVALID_DPID = Uint64.ZERO;
     String DHCP_JOB_KEY_PREFIX = "DHCP_";
     int RETRY_COUNT = 6;
 }
