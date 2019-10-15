@@ -37,6 +37,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.sub
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.SubnetToDpnBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.SubnetToDpnKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.subnet.to.dpn.VpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.subnet.to.dpn.VpnInterfacesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.subnet.to.dpn.VpnInterfacesKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
@@ -104,8 +106,13 @@ public class SubnetOpDpnManagerTest {
     public void testAddInterfaceToDpn() {
 
         subOpDpnManager.addInterfaceToDpn(subnetId, dpId, infName);
-
-        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, dpnOpId, subnetToDpn,
+        List<VpnInterfaces> vpnIntfList = new ArrayList<>();
+        VpnInterfaces vpnIntfs =
+                new VpnInterfacesBuilder().withKey(new VpnInterfacesKey(infName)).setInterfaceName(infName).build();
+        vpnIntfList.add(vpnIntfs);
+        SubnetToDpn subnetToDpnLocal = new SubnetToDpnBuilder().setDpnId(dpId).withKey(new SubnetToDpnKey(dpId))
+                .setVpnInterfaces(vpnIntfList).build();
+        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, dpnOpId, subnetToDpnLocal,
                 WriteTransaction.CREATE_MISSING_PARENTS);
 
     }
