@@ -119,7 +119,8 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
             importRouteTargets.addAll(inputImportRouteSet);
             exportRouteTargets.addAll(inputExportRouteSet);
 
-            List<String> rd = input.getRouteDistinguishers();
+            List<String> rd = input.getRouteDistinguishers() != null
+                    ? input.getRouteDistinguishers() : new ArrayList<>();
 
             if (rd == null || rd.isEmpty()) {
                 // generate new RD
