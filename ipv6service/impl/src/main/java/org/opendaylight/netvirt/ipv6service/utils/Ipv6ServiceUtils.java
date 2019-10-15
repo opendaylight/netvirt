@@ -409,9 +409,14 @@ public class Ipv6ServiceUtils {
         List<String> ofportIds = interfaceState.getLowerLayerIf();
         if (ofportIds != null && !ofportIds.isEmpty()) {
             NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
-            dpId = Uint64.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
+            dpId = getDpnIdFromNodeConnectorId(nodeConnectorId);
         }
         return dpId;
+    }
+
+    public static Uint64 getDpnIdFromNodeConnectorId(NodeConnectorId nodeConnectorId) {
+        Long dpIdLong = MDSALUtil.getDpnIdFromPortName(nodeConnectorId);
+        return dpIdLong < 0 ? Uint64.ZERO : Uint64.valueOf(dpIdLong);
     }
 
     public static long getRemoteBCGroup(long elanTag) {

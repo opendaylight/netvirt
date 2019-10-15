@@ -75,7 +75,8 @@ public class ElanInterfaceStateChangeListener
             return;
         }
         NodeConnectorId nodeConnectorId = new NodeConnectorId(delIf.getLowerLayerIf().get(0));
-        Uint64 dpId = Uint64.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
+        Long dpIdLong = MDSALUtil.getDpnIdFromPortName(nodeConnectorId);
+        Uint64 dpId = dpIdLong < 0 ? Uint64.ZERO : Uint64.valueOf(dpIdLong);
         InterfaceInfo interfaceInfo = new InterfaceInfo(dpId, nodeConnectorId.getValue());
         interfaceInfo.setInterfaceName(interfaceName);
         interfaceInfo.setInterfaceType(InterfaceInfo.InterfaceType.VLAN_INTERFACE);
