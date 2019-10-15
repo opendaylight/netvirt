@@ -209,12 +209,12 @@ public class NeutronvpnNatManager implements AutoCloseable {
             if (origExtGw.getExternalFixedIps() != null) {
                 if (!origExtGw.getExternalFixedIps().isEmpty()) {
                     if (newExtGw.getExternalFixedIps() != null && !newExtGw.getExternalFixedIps().isEmpty()) {
-                        List<ExternalFixedIps> origExtFixedIps = origExtGw.getExternalFixedIps();
+                        List<ExternalFixedIps> origExtFixedIps = new ArrayList<>(origExtGw.nonnullExternalFixedIps());
                         HashSet<String> origFixedIpSet = new HashSet<>();
                         for (ExternalFixedIps fixedIps : origExtFixedIps) {
                             origFixedIpSet.add(fixedIps.getIpAddress().stringValue());
                         }
-                        List<ExternalFixedIps> newExtFixedIps = newExtGw.getExternalFixedIps();
+                        List<ExternalFixedIps> newExtFixedIps = new ArrayList<>(newExtGw.nonnullExternalFixedIps());
                         HashSet<String> updFixedIpSet = new HashSet<>();
                         for (ExternalFixedIps fixedIps : newExtFixedIps) {
                             updFixedIpSet.add(fixedIps.getIpAddress().stringValue());
@@ -327,10 +327,8 @@ public class NeutronvpnNatManager implements AutoCloseable {
                 return;
             }
             NetworksBuilder builder = new NetworksBuilder(optionalNets.get());
-            List<Uuid> rtrList = builder.getRouterIds();
-            if (rtrList == null) {
-                rtrList = new ArrayList<>();
-            }
+            List<Uuid> rtrList = (builder.getRouterIds() != null && !builder.getRouterIds().isEmpty())
+                    ? new ArrayList<>(builder.getRouterIds()) : new ArrayList<>();
             rtrList.add(routerId);
             builder.setRouterIds(rtrList);
             if (NeutronvpnUtils.isFlatOrVlanNetwork(input)) {
@@ -382,7 +380,8 @@ public class NeutronvpnNatManager implements AutoCloseable {
         Networks nets = optionalNets.get();
         try {
             NetworksBuilder builder = new NetworksBuilder(nets);
-            List<Uuid> rtrList = builder.getRouterIds();
+            List<Uuid> rtrList = new ArrayList<>();
+            rtrList = builder.getRouterIds() != null ? new ArrayList<>(builder.getRouterIds()) : rtrList;
             if (rtrList != null) {
                 rtrList.remove(routerId);
                 builder.setRouterIds(rtrList);
@@ -670,8 +669,8 @@ public class NeutronvpnNatManager implements AutoCloseable {
         if (optionalExternalSubnets.isPresent()) {
             Subnets subnets = optionalExternalSubnets.get();
             List<Uuid> routerIds;
-            if (subnets.getRouterIds() != null) {
-                routerIds = subnets.getRouterIds();
+            if (subnets.getRouterIds() != null && !subnets.getRouterIds().isEmpty()) {
+                routerIds = new ArrayList<>(subnets.getRouterIds());
             } else {
                 routerIds = new ArrayList<>();
             }
@@ -716,7 +715,8 @@ public class NeutronvpnNatManager implements AutoCloseable {
         List<Subnets> fixedIpsSubnets = getSubnets(getExternalSubnetsUuidsSetForFixedIps(externalFixedIps));
         for (Subnets subnets : fixedIpsSubnets) {
             Uuid subnetId = subnets.getId();
-            List<Uuid> routerIds = subnets.getRouterIds();
+            List<Uuid> routerIds = new ArrayList<>();
+            routerIds = subnets.getRouterIds() != null ? new ArrayList<>(subnets.getRouterIds()) : routerIds;
             if (routerIds != null) {
                 if (subnets.getExternalNetworkId() != null
                         && subnets.getExternalNetworkId().equals(externalNetworkId)

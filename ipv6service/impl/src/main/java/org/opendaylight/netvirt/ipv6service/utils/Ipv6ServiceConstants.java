@@ -30,7 +30,7 @@ public interface Ipv6ServiceConstants {
     short DEFAULT_FLOW_PRIORITY = 50;
     short PUNT_NA_FLOW_PRIORITY = 40;
 
-    Uint64 INVALID_DPID = Uint64.valueOf("-1").intern();
+    Uint64 INVALID_DPID = Uint64.ZERO;
     String FLOWID_PREFIX = "IPv6.";
     String FLOWID_SEPARATOR = ".";
 
