@@ -435,7 +435,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
 
         Flow terminatingServiceTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE,
             getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, serviceId, ""), flowPriority,
-            String.format("%s:%d", "TST Flow Entry ", serviceId),
+            String.format("%s:%s", "TST Flow Entry ", serviceId),
             0, 0, Uint64.valueOf(COOKIE_TUNNEL.add(BigInteger.valueOf(serviceId.longValue()))),
                 mkMatches, customInstructions);
 
