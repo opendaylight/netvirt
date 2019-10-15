@@ -236,8 +236,8 @@ public class NeutronvpnUtils {
     protected Uuid getVpnForNetwork(Uuid network) {
         InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
         Optional<VpnMaps> optionalVpnMaps = read(LogicalDatastoreType.CONFIGURATION, vpnMapsIdentifier);
-        if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().getVpnMap() != null) {
-            for (VpnMap vpnMap : optionalVpnMaps.get().nonnullVpnMap()) {
+        if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().nonnullVpnMap() != null) {
+            for (VpnMap vpnMap : new ArrayList<>(optionalVpnMaps.get().nonnullVpnMap())) {
                 List<Uuid> netIds = vpnMap.getNetworkIds();
                 if (netIds != null && netIds.contains(network)) {
                     return vpnMap.getVpnId();
@@ -281,8 +281,8 @@ public class NeutronvpnUtils {
 
         InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
         Optional<VpnMaps> optionalVpnMaps = read(LogicalDatastoreType.CONFIGURATION, vpnMapsIdentifier);
-        if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().getVpnMap() != null) {
-            for (VpnMap vpnMap : optionalVpnMaps.get().nonnullVpnMap()) {
+        if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().nonnullVpnMap() != null) {
+            for (VpnMap vpnMap : new ArrayList<>(optionalVpnMaps.get().nonnullVpnMap())) {
                 List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.vpnmap
                     .RouterIds> routerIdsList = vpnMap.getRouterIds();
                 if (routerIdsList == null || routerIdsList.isEmpty()) {
@@ -334,7 +334,11 @@ public class NeutronvpnUtils {
         Optional<VpnMap> optionalVpnMap = read(LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
         if (optionalVpnMap.isPresent()) {
             VpnMap vpnMap = optionalVpnMap.get();
-            return vpnMap.getNetworkIds();
+            if (vpnMap.getNetworkIds() != null && !vpnMap.getNetworkIds().isEmpty()) {
+                return new ArrayList<>(vpnMap.getNetworkIds());
+            } else {
+                return null;
+            }
         }
         LOG.error("getNetworksforVpn: Failed as VPNMaps DS is absent for VPN {}", vpnId.getValue());
         return null;

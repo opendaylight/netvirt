@@ -103,7 +103,8 @@ public class ElanTunnelInterfaceStateListener extends AsyncDataTreeChangeListene
     }
 
     private static boolean isInternalTunnel(StateTunnelList stateTunnelList) {
-        return stateTunnelList.getDstInfo().getTepDeviceType() == TepTypeInternal.class;
+        return stateTunnelList.getDstInfo() != null
+                ? stateTunnelList.getDstInfo().getTepDeviceType() == TepTypeInternal.class : false;
     }
 
 }
