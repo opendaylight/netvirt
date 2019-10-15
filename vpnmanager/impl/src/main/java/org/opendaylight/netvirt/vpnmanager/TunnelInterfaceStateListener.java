@@ -236,8 +236,10 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
             programDcGwLoadBalancingGroup(add, NwConstants.ADD_FLOW, isTunnelUp);
         }
         LOG.info("add: ITM Tunnel ,type {} ,added between src: {} and dest: {}",
-                fibManager.getTransportTypeStr(add.getTransportType().toString()),
-                add.getSrcInfo().getTepDeviceId(), add.getDstInfo().getTepDeviceId());
+                fibManager.getTransportTypeStr(add.getTransportType() != null
+                        ? add.getTransportType().toString() : null),
+                add.getSrcInfo().getTepDeviceId() != null ? add.getSrcInfo().getTepDeviceId() : "0",
+                add.getDstInfo().getTepDeviceId() != null ? add.getDstInfo().getTepDeviceId() : "0");
         handleTunnelEventForDPN(add, TunnelAction.TUNNEL_EP_ADD);
     }
 
@@ -258,9 +260,12 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void handleTunnelEventForDPN(StateTunnelList stateTunnelList, TunnelAction tunnelAction) {
-        final Uint64 srcDpnId = Uint64.valueOf(stateTunnelList.getSrcInfo().getTepDeviceId()).intern();
-        final String srcTepIp = stateTunnelList.getSrcInfo().getTepIp().stringValue();
-        String destTepIp = stateTunnelList.getDstInfo().getTepIp().stringValue();
+        final Uint64 srcDpnId = stateTunnelList.getSrcInfo().getTepDeviceId() != null
+                ? Uint64.valueOf(stateTunnelList.getSrcInfo().getTepDeviceId()).intern() : Uint64.ZERO;
+        final String srcTepIp = stateTunnelList.getSrcInfo().getTepIp() != null
+                ? stateTunnelList.getSrcInfo().getTepIp().stringValue() : "0";
+        String destTepIp = stateTunnelList.getDstInfo().getTepIp() != null
+                ? stateTunnelList.getDstInfo().getTepIp().stringValue() : "0";
         String rd;
         Uint64 remoteDpnId = null;
         boolean isTepDeletedOnDpn = false;

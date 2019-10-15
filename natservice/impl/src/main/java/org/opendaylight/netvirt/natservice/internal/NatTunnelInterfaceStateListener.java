@@ -223,18 +223,25 @@ public class NatTunnelInterfaceStateListener
     }
 
     private void hndlTepEvntsForDpn(StateTunnelList stateTunnelList, TunnelAction tunnelAction) {
-        final Uint64 srcDpnId = Uint64.valueOf(stateTunnelList.getSrcInfo().getTepDeviceId());
-        final String srcTepIp = stateTunnelList.getSrcInfo().getTepIp().stringValue();
-        final String destTepIp = stateTunnelList.getDstInfo().getTepIp().stringValue();
+        LOG.trace("hndlTepEvntsForDpn : stateTunnelList {}", stateTunnelList);
+        final Uint64 srcDpnId = stateTunnelList.getSrcInfo() != null
+                ? Uint64.valueOf(stateTunnelList.getSrcInfo().getTepDeviceId()) : Uint64.ZERO;
+        final String srcTepIp = stateTunnelList.getSrcInfo() != null
+                ? stateTunnelList.getSrcInfo().getTepIp().stringValue() : null;
+        final String destTepIp = stateTunnelList.getDstInfo() != null
+                ? stateTunnelList.getDstInfo().getTepIp().stringValue() : null;
         LOG.trace("hndlTepEvntsForDpn : Handle tunnel event for srcDpn {} SrcTepIp {} DestTepIp {} ",
                 srcDpnId, srcTepIp, destTepIp);
         int tunTypeVal = getTunnelType(stateTunnelList);
         LOG.trace("hndlTepEvntsForDpn : tunTypeVal is {}", tunTypeVal);
-        String srcTepId = stateTunnelList.getSrcInfo().getTepDeviceId();
-        String tunnelType = stateTunnelList.getTransportType().toString();
+        String srcTepId = stateTunnelList.getSrcInfo().getTepDeviceId() != null
+                ? stateTunnelList.getSrcInfo().getTepDeviceId() : "0";
+        String tunnelType = stateTunnelList.getTransportType() != null
+                ? stateTunnelList.getTransportType().toString() : null;
         String tunnelName = stateTunnelList.getTunnelInterfaceName();
 
-        if (tunTypeVal == NatConstants.ITMTunnelLocType.Invalid.getValue()) {
+        if (tunTypeVal == NatConstants.ITMTunnelLocType.Invalid.getValue() || srcDpnId.equals(Uint64.ZERO)
+                || srcTepIp == null || destTepIp == null) {
             LOG.warn("hndlTepEvntsForDpn : Ignoring TEP event {} for the DPN {} "
                     + "since its a INVALID TUNNEL TYPE {} b/w SRC IP {} and DST IP {} and " + "TUNNEL NAME {} ",
                 tunnelAction, srcTepId, tunnelType, srcTepIp, destTepIp, tunnelName);
