@@ -378,8 +378,10 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         }
         List<String> existingElanInterfaces = elanState.getElanInterfaces();
         List<String> elanInterfaces = new ArrayList<>();
-        existingElanInterfaces.forEach(iface -> elanInterfaces.add(iface));
-        boolean isRemoved = elanInterfaces != null && elanInterfaces.remove(interfaceName);
+        if (existingElanInterfaces != null) {
+            elanInterfaces.addAll(existingElanInterfaces);
+        }
+        boolean isRemoved = elanInterfaces.remove(interfaceName);
         if (!isRemoved) {
             return elanState;
         }

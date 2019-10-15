@@ -70,10 +70,20 @@ public class NodeListener extends AsyncDataTreeChangeListenerBase<Node, NodeList
             LOG.warn("Unexpected nodeId {}", nodeId.getValue());
             return;
         }
-        Uint64 dpId = Uint64.valueOf(new BigInteger(node[1]));
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
-            tx -> dhcpManager.setupDefaultDhcpFlows(tx, dpId)), LOG, "Error handling node addition for {}", add);
-        dhcpExternalTunnelManager.installDhcpDropActionOnDpn(dpId);
+        try {
+            if (node[1] != null) {
+                Uint64 dpId = Uint64.valueOf(node[1]);
+                ListenableFutures.addErrorLogging(
+                        txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
+                            tx -> dhcpManager.setupDefaultDhcpFlows(tx, dpId)),
+                            LOG, "Error handling node addition for {}", add);
+                dhcpExternalTunnelManager.installDhcpDropActionOnDpn(dpId);
+            } else {
+                LOG.error("Unexpected nodeId {} found", nodeId.getValue());
+            }
+        } catch (NumberFormatException ex) {
+            LOG.error("Unexpected nodeId {} found", nodeId.getValue());
+        }
     }
 
     @Override

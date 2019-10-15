@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg3;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
 public interface VpnConstants {
@@ -19,7 +20,7 @@ public interface VpnConstants {
     short DEFAULT_FLOW_PRIORITY = 10;
     int DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY = 1;
     int VPN_ID_LENGTH = 24;
-    long INVALID_ID = -1;
+    Uint32 INVALID_ID = Uint32.ZERO;
     String SEPARATOR = ".";
     Uint64 COOKIE_L3_BASE = Uint64.valueOf("8000000", 16).intern();
     String FLOWID_PREFIX = "L3.";

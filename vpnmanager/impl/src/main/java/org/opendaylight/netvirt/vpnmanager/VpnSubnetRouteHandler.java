@@ -107,7 +107,7 @@ public class VpnSubnetRouteHandler {
         }
         String vpnName = subnetmap.getVpnId().getValue();
         Uint32 vpnId = waitAndGetVpnIdIfInvalid(vpnName);
-        if (vpnId.longValue() == VpnConstants.INVALID_ID) {
+        if (VpnConstants.INVALID_ID.equals(vpnId)) {
             LOG.error(
                     "{} onSubnetAddedToVpn: VpnInstance to VPNId mapping not yet available for VpnName {} "
                             + "processing subnet {} with IP {}, bailing out now.",
@@ -279,7 +279,7 @@ public class VpnSubnetRouteHandler {
 
     private Uint32 waitAndGetVpnIdIfInvalid(String vpnName) {
         Uint32 vpnId = vpnUtil.getVpnId(vpnName);
-        if (vpnId.longValue() == VpnConstants.INVALID_ID) {
+        if (VpnConstants.INVALID_ID.equals(vpnId)) {
             LOG.debug("VpnId is invalid, waiting to fetch again: vpnName={}, vpnId={}", vpnName, vpnId);
             vpnOpDataSyncer.waitForVpnDataReady(VpnOpDataType.vpnInstanceToId, vpnName,
                     VpnConstants.PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS);

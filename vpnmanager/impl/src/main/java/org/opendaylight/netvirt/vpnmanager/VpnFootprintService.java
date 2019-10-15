@@ -101,7 +101,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                 // Considering the possibility of VpnInstanceOpData not being ready yet cause
                 // the VPN is
                 // still in its creation process
-                if (vpnId.longValue() == VpnConstants.INVALID_ID) {
+                if (VpnConstants.INVALID_ID.equals(vpnId)) {
                     LOG.error("updateVpnToDpnMapping: Operational data  for vpn not ready. Waiting to update vpn"
                             + " footprint for vpn {} on dpn {} interface {}", vpnName, dpId, interfaceName);
                     vpnOpDataSyncer.waitForVpnDataReady(VpnOpDataSyncer.VpnOpDataType.vpnInstanceToId, vpnName,
