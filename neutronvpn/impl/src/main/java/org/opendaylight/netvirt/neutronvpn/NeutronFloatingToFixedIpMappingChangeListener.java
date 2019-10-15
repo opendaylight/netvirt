@@ -44,6 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.floati
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.floatingips.attributes.floatingips.Floatingip;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -173,7 +174,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                     }
                     InternalToExternalPortMap intExtPortMap = new InternalToExternalPortMapBuilder().withKey(new
                             InternalToExternalPortMapKey(fixedIpAddress)).setInternalIp(fixedIpAddress)
-                            .setExternalIp(floatingIpAddress).setExternalId(floatingIpId).setLabel(0L).build();
+                            .setExternalIp(floatingIpAddress).setExternalId(floatingIpId).setLabel(Uint32.ZERO).build();
                     intExtPortMapList.add(intExtPortMap);
                     fixedNeutronPortBuilder.setInternalToExternalPortMap(intExtPortMapList);
                 }
