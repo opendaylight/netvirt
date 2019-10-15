@@ -820,7 +820,7 @@ public class VpnManagerImpl implements IVpnManager {
                     VpnUtil.getAssociatedSubnetIdentifier(rt, rtType, cidr)).get();
             boolean deleteParent = false;
             if (associatedSubnet.isPresent()) {
-                List<AssociatedVpn> associatedVpns = associatedSubnet.get().getAssociatedVpn();
+                List<AssociatedVpn> associatedVpns = new ArrayList<>(associatedSubnet.get().nonnullAssociatedVpn());
                 if (associatedVpns == null || associatedVpns.isEmpty()) {
                     deleteParent = true;
                 } else {
@@ -864,7 +864,8 @@ public class VpnManagerImpl implements IVpnManager {
         Optional<RouteTarget> rtToSubnetsAssociation = tx.read(LogicalDatastoreType.OPERATIONAL,
                 rtIdentifier).get();
         if (rtToSubnetsAssociation.isPresent()) {
-            List<AssociatedSubnet> associatedSubnets = rtToSubnetsAssociation.get().getAssociatedSubnet();
+            List<AssociatedSubnet> associatedSubnets = new ArrayList<>(rtToSubnetsAssociation.get()
+                    .nonnullAssociatedSubnet());
             if (associatedSubnets != null && !associatedSubnets.isEmpty()) {
                 for (Iterator<AssociatedSubnet> iterator = associatedSubnets.iterator(); iterator.hasNext(); ) {
                     if (Objects.equals(iterator.next().getCidr(), cidr)) {
