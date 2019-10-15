@@ -578,13 +578,13 @@ public final class VpnUtil {
      */
     public Uint32 getVpnId(String vpnName) {
         if (vpnName == null) {
-            return Uint32.valueOf(VpnConstants.INVALID_ID);
+            return VpnConstants.INVALID_ID;
         }
 
         return read(LogicalDatastoreType.CONFIGURATION, VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnName))
                 .toJavaUtil().map(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911
                         .vpn.instance.to.vpn.id.VpnInstance::getVpnId)
-                        .orElse(Uint32.valueOf(VpnConstants.INVALID_ID));
+                        .orElse(VpnConstants.INVALID_ID);
     }
 
     /**
@@ -1284,7 +1284,7 @@ public final class VpnUtil {
         mkMatches.add(new MatchEthernetDestination(new MacAddress(gwMacAddress)));
         List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionGotoTable(NwConstants.L3_FIB_TABLE));
-        if (subnetVpnId.longValue() != VpnConstants.INVALID_ID) {
+        if (!VpnConstants.INVALID_ID.equals(subnetVpnId)) {
             String vpnName = getVpnName(subnetVpnId);
             if (vpnName != null) {
                 smap = getSubnetmapFromItsUuid(Uuid.getDefaultInstance(vpnName));
@@ -1413,8 +1413,7 @@ public final class VpnUtil {
                         interfaceName, dpnId.toString(), vpnIdsOptional.get().getVpnInstanceName());
                 return;
             }
-            FlowEntity flowEntity = buildL3vpnGatewayFlow(dpnId, gwMac, vpnId,
-                Uint32.valueOf(VpnConstants.INVALID_ID));
+            FlowEntity flowEntity = buildL3vpnGatewayFlow(dpnId, gwMac, vpnId,VpnConstants.INVALID_ID);
             if (addOrRemove == NwConstants.ADD_FLOW) {
                 mdsalManager.addFlow(writeInvTxn, flowEntity);
             } else if (addOrRemove == NwConstants.DEL_FLOW) {
@@ -2007,13 +2006,14 @@ public final class VpnUtil {
         lock.lock();
         try {
             Optional<DpnInterfaces> dpnInElanInterfaces = read(LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId);
-            List<String> elanInterfaceList;
+            List<String> elanInterfaceList = new ArrayList<>();
             DpnInterfaces dpnInterface;
             if (!dpnInElanInterfaces.isPresent()) {
                 elanInterfaceList = new ArrayList<>();
             } else {
                 dpnInterface = dpnInElanInterfaces.get();
-                elanInterfaceList = dpnInterface.getInterfaces();
+                elanInterfaceList = (dpnInterface.getInterfaces() != null && !dpnInterface.getInterfaces().isEmpty())
+                        ? new ArrayList<>(dpnInterface.getInterfaces()) : elanInterfaceList;
             }
             if (!elanInterfaceList.contains(routerInterfacePortId)) {
                 elanInterfaceList.add(routerInterfacePortId);
@@ -2034,14 +2034,15 @@ public final class VpnUtil {
         lock.lock();
         try {
             Optional<DpnInterfaces> dpnInElanInterfaces = read(LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId);
-            List<String> elanInterfaceList;
+            List<String> elanInterfaceList = new ArrayList<>();
             DpnInterfaces dpnInterface;
             if (!dpnInElanInterfaces.isPresent()) {
                 LOG.info("No interface in any dpn for {}", vpnName);
                 return;
             } else {
                 dpnInterface = dpnInElanInterfaces.get();
-                elanInterfaceList = dpnInterface.getInterfaces();
+                elanInterfaceList = (dpnInterface.getInterfaces() != null && !dpnInterface.getInterfaces().isEmpty())
+                        ? new ArrayList<>(dpnInterface.getInterfaces()) : elanInterfaceList;
             }
             if (!elanInterfaceList.contains(routerInterfacePortId)) {
                 LOG.info("Router port not present in DPN {} for VPN {}", dpnId, vpnName);
@@ -2135,7 +2136,11 @@ public final class VpnUtil {
         Map<String, String> elanInstanceRouterPortMap = new HashMap<>();
         Optional<Subnetmaps> subnetMapsData = read(LogicalDatastoreType.CONFIGURATION, buildSubnetMapsWildCardPath());
         if (subnetMapsData.isPresent()) {
-            List<Subnetmap> subnetMapList = subnetMapsData.get().getSubnetmap();
+            List<Subnetmap> subnetMapList = new ArrayList<>();
+            Subnetmaps subnetMaps = subnetMapsData.get();
+            subnetMapList = (subnetMaps.getSubnetmap() != null && !subnetMaps.getSubnetmap().isEmpty())
+                    ? new ArrayList<>(subnetMaps.getSubnetmap()) : subnetMapList;
+
             if (subnetMapList != null && !subnetMapList.isEmpty()) {
                 for (Subnetmap subnet : subnetMapList) {
                     if (subnet.getVpnId() != null && subnet.getVpnId().getValue().equals(vpnName)
