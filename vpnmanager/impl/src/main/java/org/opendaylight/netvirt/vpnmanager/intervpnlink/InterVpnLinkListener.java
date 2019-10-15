@@ -200,7 +200,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
 
             // Wait for VPN Operational data ready
             Uint32 vpn1Id = vpnUtil.getVpnId(vpn1Name);
-            if (vpn1Id.longValue() == VpnConstants.INVALID_ID) {
+            if (VpnConstants.INVALID_ID.equals(vpn1Id)) {
                 boolean vpn1Ready =
                         vpnOpDataSyncer.waitForVpnDataReady(VpnOpDataSyncer.VpnOpDataType.vpnInstanceToId, vpn1Name,
                                 VpnConstants.PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS);
@@ -214,7 +214,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                 }
             }
             Uint32 vpn2Id = vpnUtil.getVpnId(vpn2Name);
-            if (vpn2Id.longValue() == VpnConstants.INVALID_ID) {
+            if (VpnConstants.INVALID_ID.equals(vpn2Id)) {
                 boolean vpn1Ready =
                         vpnOpDataSyncer.waitForVpnDataReady(VpnOpDataSyncer.VpnOpDataType.vpnInstanceToId,vpn2Name,
                                 VpnConstants.PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS);
