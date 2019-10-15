@@ -280,7 +280,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
     @Nullable
     public Uint64 readDesignatedSwitchesForExternalTunnel(IpAddress tunnelIp, String elanInstanceName) {
         if (tunnelIp == null || elanInstanceName == null || elanInstanceName.isEmpty()) {
-            return null;
+            return Uint64.ZERO;
         }
         InstanceIdentifier<DesignatedSwitchForTunnel> instanceIdentifier =
                 InstanceIdentifier.builder(DesignatedSwitchesForExternalTunnels.class)
@@ -291,7 +291,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         if (designatedSwitchForTunnelOptional.isPresent()) {
             return Uint64.valueOf(designatedSwitchForTunnelOptional.get().getDpId());
         }
-        return null;
+        return Uint64.ZERO;
     }
 
     public void writeDesignatedSwitchForExternalTunnel(Uint64 dpnId, IpAddress tunnelIp,
