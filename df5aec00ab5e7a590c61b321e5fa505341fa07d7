@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2b105243_59d02d11",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 1279,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-10-15T19:20:17Z",
+      "side": 1,
+      "message": "This is causing UT failure in https://logs.opendaylight.org/releng/vex-yul-odl-jenkins-1/netvirt-maven-verify-magnesium-mvn35-openjdk11/32/console.log.gz, it would seem\n\nCaused by: java.lang.NullPointerException\n\tat org.opendaylight.netvirt.aclservice.utils.AclServiceUtils.getHardTimoutForApplyStatefulChangeOnExistingTraffic(AclServiceUtils.java:1279)\n\tat org.opendaylight.netvirt.aclservice.AbstractAclServiceImpl.programAclForExistingTrafficTable(AbstractAclServiceImpl.java:519)\n\tat org.opendaylight.netvirt.aclservice.AbstractAclServiceImpl.programForAceNotHavingRemoteAclId(AbstractAclServiceImpl.java:464)\n\tat org.opendaylight.netvirt.aclservice.AbstractAclServiceImpl.programAceRule(AbstractAclServiceImpl.java:434)\n\tat org.opendaylight.netvirt.aclservice.AbstractAclServiceImpl.programAclRules(AbstractAclServiceImpl.java:392)\n\tat org.opendaylight.netvirt.aclservice.AbstractAclServiceImpl.programAclWithAllowedAddress(AbstractAclServiceImpl.java:360)\n\tat org.opendaylight.netvirt.aclservice.AbstractAclServiceImpl.programAcl(AbstractAclServiceImpl.java:348)\n\tat org.opendaylight.netvirt.aclservice.AbstractAclServiceImpl.applyAcl(AbstractAclServiceImpl.java:137)\n\tat org.opendaylight.netvirt.aclservice.AclServiceManagerImpl.notify(AclServiceManagerImpl.java:51)\n\tat org.opendaylight.netvirt.aclservice.listeners.AclInterfaceStateListener.add(AclInterfaceStateListener.java:189)\n\tat org.opendaylight.netvirt.aclservice.listeners.AclInterfaceStateListener.add(AclInterfaceStateListener.java:42)\n\tat org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase$DataTreeChangeHandler.run(AsyncDataTreeChangeListenerBase.java:171)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)\n\tat java.base/java.lang.Thread.run(Thread.java:834)",
+      "range": {
+        "startLine": 1279,
+        "startChar": 86,
+        "endLine": 1279,
+        "endChar": 95
+      },
+      "revId": "df5aec00ab5e7a590c61b321e5fa505341fa07d7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
