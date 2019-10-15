@@ -141,7 +141,7 @@ public class Ipv6ServiceInterfaceEventListener
         if (null != iface) {
             LOG.debug("Port {} is a Neutron port", iface.getName());
             NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
-            Uint64 dpId = Uint64.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
+            Uint64 dpId = Ipv6ServiceUtils.getDpnIdFromNodeConnectorId(nodeConnectorId);
 
             if (!dpId.equals(Ipv6ServiceConstants.INVALID_DPID)) {
                 Uuid portId = new Uuid(iface.getName());

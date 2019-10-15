@@ -334,7 +334,11 @@ public class NeutronvpnUtils {
         Optional<VpnMap> optionalVpnMap = read(LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
         if (optionalVpnMap.isPresent()) {
             VpnMap vpnMap = optionalVpnMap.get();
-            return vpnMap.getNetworkIds();
+            if (vpnMap.getNetworkIds() != null && !vpnMap.getNetworkIds().isEmpty()) {
+                return new ArrayList<>(vpnMap.getNetworkIds());
+            } else {
+                return null;
+            }
         }
         LOG.error("getNetworksforVpn: Failed as VPNMaps DS is absent for VPN {}", vpnId.getValue());
         return null;
