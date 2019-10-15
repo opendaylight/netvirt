@@ -10,6 +10,8 @@ package org.opendaylight.netvirt.elan.internal;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -94,7 +96,7 @@ public class ElanBridgeManager {
         this.southboundUtils = southboundUtils;
         this.random = new Random(System.currentTimeMillis());
         this.maxBackoff = elanConfig.getControllerMaxBackoff() != null
-                ? elanConfig.getControllerMaxBackoff().toJava() : 0L;
+                ? elanConfig.getControllerMaxBackoff().toJava() : 1000L;
         this.inactivityProbe = elanConfig.getControllerInactivityProbe() != null
                 ? elanConfig.getControllerInactivityProbe().toJava() : 0L;
     }
@@ -183,14 +185,9 @@ public class ElanBridgeManager {
             return;
         }
 
-        List<ManagedNodeEntry> originalManagedNodes = getManagedNodeEntries(originalNode);
-        if (originalManagedNodes == null) {
-            return;
-        }
-        List<ManagedNodeEntry> updatedManagedNodes = getManagedNodeEntries(updatedNode);
-        if (updatedManagedNodes == null) {
-            return;
-        }
+        List<ManagedNodeEntry> originalManagedNodes = new ArrayList<>(getManagedNodeEntries(originalNode));
+        List<ManagedNodeEntry> updatedManagedNodes = new ArrayList<>(getManagedNodeEntries(updatedNode));
+
         updatedManagedNodes.removeAll(originalManagedNodes);
         if (updatedManagedNodes.isEmpty()) {
             return;
@@ -225,7 +222,7 @@ public class ElanBridgeManager {
             return null;
         }
 
-        return ovsdbNode.getManagedNodeEntry();
+        return ovsdbNode.nonnullManagedNodeEntry();
     }
 
     private void prepareIntegrationBridge(Node ovsdbNode, Node brIntNode) {
