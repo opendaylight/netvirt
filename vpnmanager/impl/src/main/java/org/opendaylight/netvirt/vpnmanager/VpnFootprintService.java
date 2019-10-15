@@ -101,7 +101,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                 // Considering the possibility of VpnInstanceOpData not being ready yet cause
                 // the VPN is
                 // still in its creation process
-                if (vpnId.longValue() == VpnConstants.INVALID_ID) {
+                if (VpnConstants.INVALID_ID.equals(vpnId)) {
                     LOG.error("updateVpnToDpnMapping: Operational data  for vpn not ready. Waiting to update vpn"
                             + " footprint for vpn {} on dpn {} interface {}", vpnName, dpId, interfaceName);
                     vpnOpDataSyncer.waitForVpnDataReady(VpnOpDataSyncer.VpnOpDataType.vpnInstanceToId, vpnName,
@@ -141,10 +141,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                 Optional<VpnToDpnList> dpnInVpn = tx.read(LogicalDatastoreType.OPERATIONAL, id).checkedGet();
                 if (dpnInVpn.isPresent()) {
                     VpnToDpnList vpnToDpnList = dpnInVpn.get();
-                    List<VpnInterfaces> vpnInterfaces = vpnToDpnList.getVpnInterfaces();
-                    if (vpnInterfaces == null) {
-                        vpnInterfaces = new ArrayList<>();
-                    }
+                    List<VpnInterfaces> vpnInterfaces = new ArrayList<>(vpnToDpnList.nonnullVpnInterfaces());
                     vpnInterfaces.add(vpnInterface);
                     VpnToDpnListBuilder vpnToDpnListBuilder = new VpnToDpnListBuilder(vpnToDpnList);
                     vpnToDpnListBuilder.setDpnState(VpnToDpnList.DpnState.Active).setVpnInterfaces(vpnInterfaces);
@@ -218,10 +215,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                 Optional<VpnToDpnList> dpnInVpn = tx.read(LogicalDatastoreType.OPERATIONAL, id).checkedGet();
                 if (dpnInVpn.isPresent()) {
                     VpnToDpnList vpnToDpnList = dpnInVpn.get();
-                    List<IpAddresses> ipAddresses = vpnToDpnList.getIpAddresses();
-                    if (ipAddresses == null) {
-                        ipAddresses = new ArrayList<>();
-                    }
+                    List<IpAddresses> ipAddresses = new ArrayList<>(vpnToDpnList.nonnullIpAddresses());
                     ipAddresses.add(ipAddressesBldr.build());
                     VpnToDpnListBuilder vpnToDpnListBuilder = new VpnToDpnListBuilder(vpnToDpnList);
                     vpnToDpnListBuilder.setDpnState(VpnToDpnList.DpnState.Active).setIpAddresses(ipAddresses);
@@ -283,7 +277,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                         return;
                     }
                     VpnToDpnList dpnInVpn = dpnInVpnOpt.get();
-                    List<VpnInterfaces> vpnInterfaces = dpnInVpn.getVpnInterfaces();
+                    List<VpnInterfaces> vpnInterfaces = new ArrayList<>(dpnInVpn.nonnullVpnInterfaces());
                     if (vpnInterfaces == null) {
                         LOG.error("Could not find vpnInterfaces for DpnInVpn map for VPN=[name={} rd={} id={}] and "
                                 + "dpnId={}", vpnName, rd, id, dpnId);
@@ -358,7 +352,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                     return;
                 }
                 VpnToDpnList dpnInVpn = dpnInVpnOpt.get();
-                List<IpAddresses> ipAddresses = dpnInVpn.getIpAddresses();
+                List<IpAddresses> ipAddresses = new ArrayList<>(dpnInVpn.nonnullIpAddresses());
                 if (ipAddresses == null) {
                     LOG.info("Could not find ipAddresses for DpnInVpn map for VPN=[name={} rd={} id={}] "
                             + "and dpnId={}", vpnName, rd, id, dpnId);
