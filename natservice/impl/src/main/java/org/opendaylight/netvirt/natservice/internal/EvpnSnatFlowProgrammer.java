@@ -274,7 +274,7 @@ public class EvpnSnatFlowProgrammer {
         Flow terminatingServiceTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE,
                 NatEvpnUtil.getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, l3Vni, NatConstants.SNAT_FLOW_NAME),
                 NatConstants.DEFAULT_VPN_INTERNAL_TUNNEL_TABLE_PRIORITY,
-                String.format("%s:%d", "TST Flow Entry ", l3Vni),
+                String.format("%s:%s", "TST Flow Entry ", l3Vni),
                 0, 0, Uint64.valueOf(COOKIE_TUNNEL.toJava().add(BigInteger.valueOf(l3Vni.longValue()))),
                 mkMatches, customInstructions);
         mdsalManager.addFlow(confTx, dpnId, terminatingServiceTableFlowEntity);
@@ -293,7 +293,7 @@ public class EvpnSnatFlowProgrammer {
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE,
                 NatEvpnUtil.getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, l3Vni, NatConstants.SNAT_FLOW_NAME),
                 NatConstants.DEFAULT_VPN_INTERNAL_TUNNEL_TABLE_PRIORITY,
-                String.format("%s:%d", "TST Flow Entry ", l3Vni), 0, 0,
+                String.format("%s:%s", "TST Flow Entry ", l3Vni), 0, 0,
                 Uint64.valueOf(COOKIE_TUNNEL.toJava().add(BigInteger.valueOf(l3Vni.longValue()))), mkMatches, null);
         mdsalManager.removeFlow(confTx, dpnId, flowEntity);
         LOG.debug("removeTunnelTableEntry : Successfully removed terminating service table flow {} on DpnId {}",

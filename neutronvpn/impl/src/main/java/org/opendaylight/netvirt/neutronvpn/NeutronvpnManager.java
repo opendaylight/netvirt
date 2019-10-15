@@ -394,9 +394,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             if (sn.isPresent()) {
                 SubnetmapBuilder builder = new SubnetmapBuilder(sn.get());
                 if (null != portId) {
-                    List<Uuid> portList = builder.getPortList();
-                    if (null == portList) {
-                        portList = new ArrayList<>();
+                    List<Uuid> existingPortList = builder.getPortList();
+                    List<Uuid> portList = new ArrayList<>();
+                    if (null != existingPortList) {
+                        portList.addAll(existingPortList);
                     }
                     portList.add(portId);
                     builder.setPortList(portList);
@@ -454,7 +455,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
                 builder.setInternetVpnId(null);
                 if (portId != null && builder.getPortList() != null) {
-                    List<Uuid> portList = builder.getPortList();
+                    List<Uuid> portList = new ArrayList<>(builder.getPortList());
                     portList.remove(portId);
                     builder.setPortList(portList);
                 }
@@ -488,15 +489,16 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         id);
             if (sn.isPresent()) {
                 SubnetmapBuilder builder = new SubnetmapBuilder(sn.get());
-                if (null != portId && null != builder.getPortList()) {
-                    List<Uuid> portList = builder.getPortList();
+                if (null != portId && null != builder.getPortList() && !builder.getPortList().isEmpty()) {
+                    List<Uuid> portList = new ArrayList<>(builder.getPortList());
                     portList.remove(portId);
                     builder.setPortList(portList);
                     LOG.debug("Removing port {} from existing subnetmap node: {} ", portId.getValue(),
                         subnetId.getValue());
                 }
-                if (null != directPortId && null != builder.getDirectPortList()) {
-                    List<Uuid> directPortList = builder.getDirectPortList();
+                if (null != directPortId && null != builder.getDirectPortList()
+                        && !builder.getDirectPortList().isEmpty()) {
+                    List<Uuid> directPortList = new ArrayList<>(builder.getDirectPortList());
                     directPortList.remove(directPortId);
                     builder.setDirectPortList(directPortList);
                     LOG.debug("Removing direct port {} from existing subnetmap node: {} ", directPortId
@@ -747,7 +749,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         if (optionalVpnMap.isPresent()) {
             VpnMap vpnMap = optionalVpnMap.get();
             VpnMapBuilder vpnMapBuilder = new VpnMapBuilder(vpnMap);
-            List<RouterIds> rtrIds = vpnMap.getRouterIds();
+            List<RouterIds> rtrIds = new ArrayList<>(vpnMap.nonnullRouterIds());
             if (rtrIds == null) {
                 rtrIds = new ArrayList<>();
             }
@@ -1468,7 +1470,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 // eliminating implicitly created (router or VLAN provider external network specific) VPN from
                 // getL3VPN output
                 if (optionalVpn.isPresent() && optionalVpn.get().getIpv4Family().getRouteDistinguisher() != null
-                        || optionalVpn.get().getIpv6Family().getRouteDistinguisher() != null) {
+                        || optionalVpn.isPresent() && optionalVpn.get().getIpv6Family()
+                        .getRouteDistinguisher() != null) {
                     vpns.add(optionalVpn.get());
                 } else {
                     result.set(
@@ -1933,7 +1936,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     .setInterfaceId(interfaceName).build();
             if (optRouterInterfaces.isPresent()) {
                 RouterInterfaces routerInterfaces = optRouterInterfaces.get();
-                List<Interfaces> interfaces = routerInterfaces.getInterfaces();
+                List<Interfaces> interfaces = new ArrayList<>(routerInterfaces.nonnullInterfaces());
                 if (interfaces != null && interfaces.remove(routerInterface)) {
                     if (interfaces.isEmpty()) {
                         SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,

@@ -78,6 +78,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
@@ -528,5 +529,9 @@ public final class DhcpServiceUtils {
         connectedDpnIds.remove(dpnId);
     }
 
+    public static Uint64 getDpnIdFromNodeConnectorId(NodeConnectorId nodeConnectorId) {
+        Long dpIdLong = MDSALUtil.getDpnIdFromPortName(nodeConnectorId);
+        return dpIdLong < 0 ? Uint64.ZERO : Uint64.valueOf(dpIdLong);
+    }
 }
 

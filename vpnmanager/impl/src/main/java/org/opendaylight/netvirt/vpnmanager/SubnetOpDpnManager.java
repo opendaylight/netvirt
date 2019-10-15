@@ -127,7 +127,10 @@ public class SubnetOpDpnManager {
                 subDpn = optionalSubDpn.get();
             }
             SubnetToDpnBuilder subDpnBuilder = new SubnetToDpnBuilder(subDpn);
-            List<VpnInterfaces> vpnIntfList = subDpnBuilder.getVpnInterfaces();
+            List<VpnInterfaces> vpnIntfList = new ArrayList<>();
+            vpnIntfList = subDpnBuilder.getVpnInterfaces() != null ? new ArrayList<>(subDpnBuilder.getVpnInterfaces())
+                    : vpnIntfList;
+
             VpnInterfaces vpnIntfs =
                 new VpnInterfacesBuilder().withKey(new VpnInterfacesKey(intfName)).setInterfaceName(intfName).build();
             vpnIntfList.add(vpnIntfs);
@@ -165,7 +168,10 @@ public class SubnetOpDpnManager {
                 listSubnet.add(subnetId);
                 portOpBuilder.setSubnetIds(listSubnet);
             } else {
-                List<Uuid> listSubnet = optionalPortOp.get().getSubnetIds();
+                PortOpDataEntry portEntry = optionalPortOp.get();
+                List<Uuid> listSubnet = new ArrayList<>();
+                listSubnet = (portEntry.getSubnetIds() != null && !portEntry.getSubnetIds().isEmpty())
+                        ? new ArrayList<>(portEntry.getSubnetIds()) : listSubnet;
                 portOpBuilder = new PortOpDataEntryBuilder(optionalPortOp.get());
                 if (listSubnet == null) {
                     listSubnet = new ArrayList<>();
@@ -209,7 +215,9 @@ public class SubnetOpDpnManager {
             }
 
             SubnetToDpnBuilder subDpnBuilder = new SubnetToDpnBuilder(optionalSubDpn.get());
-            List<VpnInterfaces> vpnIntfList = subDpnBuilder.getVpnInterfaces();
+            List<VpnInterfaces> vpnIntfList = new ArrayList<>();
+            vpnIntfList = (subDpnBuilder.getVpnInterfaces() != null && !subDpnBuilder.getVpnInterfaces().isEmpty())
+                    ? new ArrayList<>(subDpnBuilder.getVpnInterfaces()) : vpnIntfList;
             VpnInterfaces vpnIntfs =
                 new VpnInterfacesBuilder().withKey(new VpnInterfacesKey(intfName)).setInterfaceName(intfName).build();
             vpnIntfList.remove(vpnIntfs);
@@ -248,7 +256,9 @@ public class SubnetOpDpnManager {
                         intfName);
             } else {
                 portOpEntry = optionalPortOp.get();
-                List<Uuid> listSubnet = portOpEntry.getSubnetIds();
+                List<Uuid> listSubnet = new ArrayList<>();
+                listSubnet = (portOpEntry.getSubnetIds() != null && !portOpEntry.getSubnetIds().isEmpty())
+                        ? new ArrayList<>(portOpEntry.getSubnetIds()) : listSubnet;
                 if (listSubnet == null) {
                     listSubnet = new ArrayList<>();
                 }
