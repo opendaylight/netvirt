@@ -126,7 +126,8 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
         LOG.trace("DhcpSubnetListener installNeutronPortEntries : portList: {}", portList);
         for (Uuid portIntf : portList) {
             NodeConnectorId nodeConnectorId = getNodeConnectorIdForPortIntf(portIntf);
-            Uint64 dpId = Uint64.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
+            long dpIdLong = MDSALUtil.getDpnIdFromPortName(nodeConnectorId);
+            Uint64 dpId = dpIdLong < 0 ? Uint64.ZERO : Uint64.valueOf(dpIdLong);
             String interfaceName = portIntf.getValue();
             Port port = dhcpManager.getNeutronPort(interfaceName);
             String vmMacAddress = port.getMacAddress().getValue();
@@ -147,7 +148,8 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
         LOG.trace("DhcpSubnetListener uninstallNeutronPortEntries : portList: {}", portList);
         for (Uuid portIntf : portList) {
             NodeConnectorId nodeConnectorId = getNodeConnectorIdForPortIntf(portIntf);
-            Uint64 dpId = Uint64.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
+            Long dpIdLong = MDSALUtil.getDpnIdFromPortName(nodeConnectorId);
+            Uint64 dpId = dpIdLong < 0 ? Uint64.ZERO : Uint64.valueOf(dpIdLong);
             String interfaceName = portIntf.getValue();
             Port port = dhcpManager.getNeutronPort(interfaceName);
             String vmMacAddress = port.getMacAddress().getValue();

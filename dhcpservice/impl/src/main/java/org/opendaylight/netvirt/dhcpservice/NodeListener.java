@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
-import java.math.BigInteger;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -70,10 +69,15 @@ public class NodeListener extends AsyncDataTreeChangeListenerBase<Node, NodeList
             LOG.warn("Unexpected nodeId {}", nodeId.getValue());
             return;
         }
-        Uint64 dpId = Uint64.valueOf(new BigInteger(node[1]));
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
-            tx -> dhcpManager.setupDefaultDhcpFlows(tx, dpId)), LOG, "Error handling node addition for {}", add);
-        dhcpExternalTunnelManager.installDhcpDropActionOnDpn(dpId);
+        if (node[1] != null && Long.parseLong(node[1]) > 0) {
+            Uint64 dpId = Uint64.valueOf(node[1]);
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
+                tx -> dhcpManager.setupDefaultDhcpFlows(tx, dpId)),
+                    LOG, "Error handling node addition for {}", add);
+            dhcpExternalTunnelManager.installDhcpDropActionOnDpn(dpId);
+        } else {
+            LOG.error("Unexpected nodeId {} found", nodeId.getValue());
+        }
     }
 
     @Override
