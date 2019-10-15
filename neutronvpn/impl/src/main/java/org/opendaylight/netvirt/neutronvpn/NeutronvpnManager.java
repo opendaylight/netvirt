@@ -394,9 +394,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             if (sn.isPresent()) {
                 SubnetmapBuilder builder = new SubnetmapBuilder(sn.get());
                 if (null != portId) {
-                    List<Uuid> portList = builder.getPortList();
-                    if (null == portList) {
-                        portList = new ArrayList<>();
+                    List<Uuid> existingPortList = builder.getPortList();
+                    List<Uuid> portList = new ArrayList<>();
+                    if (null != existingPortList) {
+                        portList.addAll(existingPortList);
                     }
                     portList.add(portId);
                     builder.setPortList(portList);
