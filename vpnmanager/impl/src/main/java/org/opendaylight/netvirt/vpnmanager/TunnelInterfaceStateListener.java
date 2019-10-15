@@ -236,8 +236,10 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
             programDcGwLoadBalancingGroup(add, NwConstants.ADD_FLOW, isTunnelUp);
         }
         LOG.info("add: ITM Tunnel ,type {} ,added between src: {} and dest: {}",
-                fibManager.getTransportTypeStr(add.getTransportType().toString()),
-                add.getSrcInfo().getTepDeviceId(), add.getDstInfo().getTepDeviceId());
+                fibManager.getTransportTypeStr(add.getTransportType() != null
+                        ? add.getTransportType().toString() : "Invalid"),
+                add.getSrcInfo() != null ? add.getSrcInfo().getTepDeviceId() : "0",
+                add.getDstInfo() != null ? add.getDstInfo().getTepDeviceId() : "0");
         handleTunnelEventForDPN(add, TunnelAction.TUNNEL_EP_ADD);
     }
 
@@ -258,9 +260,12 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void handleTunnelEventForDPN(StateTunnelList stateTunnelList, TunnelAction tunnelAction) {
-        final Uint64 srcDpnId = Uint64.valueOf(stateTunnelList.getSrcInfo().getTepDeviceId()).intern();
-        final String srcTepIp = stateTunnelList.getSrcInfo().getTepIp().stringValue();
-        String destTepIp = stateTunnelList.getDstInfo().getTepIp().stringValue();
+        final Uint64 srcDpnId = stateTunnelList.getSrcInfo() != null
+                ? Uint64.valueOf(stateTunnelList.getSrcInfo().getTepDeviceId()).intern() : Uint64.ZERO;
+        final String srcTepIp = stateTunnelList.getSrcInfo() != null
+                ? stateTunnelList.getSrcInfo().getTepIp().stringValue() : null;
+        String destTepIp = stateTunnelList.getDstInfo() != null
+                ? stateTunnelList.getDstInfo().getTepIp().stringValue() : null;
         String rd;
         Uint64 remoteDpnId = null;
         boolean isTepDeletedOnDpn = false;
@@ -321,7 +326,8 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
             }
             // Get the list of VpnInterfaces from Intf Mgr for a destDPN only for internal tunnel.
             if (tunTypeVal == VpnConstants.ITMTunnelLocType.Internal.getValue()) {
-                remoteDpnId = Uint64.valueOf(stateTunnelList.getDstInfo().getTepDeviceId()).intern();
+                remoteDpnId = Uint64.valueOf(stateTunnelList.getDstInfo() != null
+                        ? stateTunnelList.getDstInfo().getTepDeviceId() : "0").intern();
                 try {
                     result = intfRpcService.getDpnInterfaceList(
                             new GetDpnInterfaceListInputBuilder().setDpid(remoteDpnId).build());
@@ -426,13 +432,17 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                                             VpnInterface cfgVpnInterface) {
         String rd;
         String intfName = cfgVpnInterface.getName();
-        final Uint64 srcDpnId = Uint64.valueOf(stateTunnelList.getSrcInfo().getTepDeviceId()).intern();
-        String destTepIp = stateTunnelList.getDstInfo().getTepIp().stringValue();
-        String srcTepIp = stateTunnelList.getSrcInfo().getTepIp().stringValue();
+        final Uint64 srcDpnId = Uint64.valueOf(stateTunnelList.getSrcInfo() != null
+                ? stateTunnelList.getSrcInfo().getTepDeviceId() : "0").intern();
+        String destTepIp = stateTunnelList.getDstInfo() != null ? stateTunnelList.getDstInfo().getTepIp().stringValue()
+                : null;
+        String srcTepIp = stateTunnelList.getSrcInfo() != null ? stateTunnelList.getSrcInfo().getTepIp().stringValue()
+                : null;
         int tunTypeVal = getTunnelType(stateTunnelList);
         Uint64 remoteDpnId = null;
         if (tunTypeVal == VpnConstants.ITMTunnelLocType.Internal.getValue()) {
-            remoteDpnId = Uint64.valueOf(stateTunnelList.getDstInfo().getTepDeviceId()).intern();
+            remoteDpnId = Uint64.valueOf(stateTunnelList.getDstInfo() != null
+                    ? stateTunnelList.getDstInfo().getTepDeviceId() : "0").intern();
         }
         if (cfgVpnInterface.getVpnInstanceNames() == null) {
             LOG.warn("handleTunnelEventForDpn: no vpnName found for interface {}", intfName);

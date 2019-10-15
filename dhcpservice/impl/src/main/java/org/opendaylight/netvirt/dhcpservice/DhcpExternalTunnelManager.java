@@ -33,6 +33,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -277,10 +278,10 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         tunnelIpElanNameToVmMacCache.remove(tunnelIpElanNamePair);
     }
 
-    @Nullable
+    @NonNull
     public Uint64 readDesignatedSwitchesForExternalTunnel(IpAddress tunnelIp, String elanInstanceName) {
         if (tunnelIp == null || elanInstanceName == null || elanInstanceName.isEmpty()) {
-            return null;
+            return Uint64.ZERO;
         }
         InstanceIdentifier<DesignatedSwitchForTunnel> instanceIdentifier =
                 InstanceIdentifier.builder(DesignatedSwitchesForExternalTunnels.class)
@@ -291,7 +292,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         if (designatedSwitchForTunnelOptional.isPresent()) {
             return Uint64.valueOf(designatedSwitchForTunnelOptional.get().getDpId());
         }
-        return null;
+        return Uint64.ZERO;
     }
 
     public void writeDesignatedSwitchForExternalTunnel(Uint64 dpnId, IpAddress tunnelIp,

@@ -92,8 +92,14 @@ public class NeutronEvpnManager {
                 continue;
             }
             try {
-                neutronvpnManager.createVpn(vpn.getId(), vpn.getName(), vpn.getTenantId(), vpn.getRouteDistinguisher(),
-                        vpn.getImportRT(), vpn.getExportRT(), null /*router-id*/, null /*network-id*/,
+                List<String> rdList = vpn.getRouteDistinguisher() != null
+                        ? new ArrayList<>(vpn.getRouteDistinguisher()) : new ArrayList<>();
+                List<String> importRdList = vpn.getImportRT() != null
+                        ? new ArrayList<>(vpn.getImportRT()) : new ArrayList<>();
+                List<String> exportRdList = vpn.getExportRT() != null
+                        ? new ArrayList<>(vpn.getExportRT()) : new ArrayList<>();
+                neutronvpnManager.createVpn(vpn.getId(), vpn.getName(), vpn.getTenantId(), rdList,
+                        importRdList, exportRdList, null /*router-id*/, null /*network-id*/,
                         vpnInstanceType, 0 /*l2vni*/);
             } catch (Exception ex) {
                 errorList.add(RpcResultBuilder.newError(RpcError.ErrorType.APPLICATION,
