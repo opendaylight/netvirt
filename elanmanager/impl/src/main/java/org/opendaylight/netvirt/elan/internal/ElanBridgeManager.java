@@ -10,6 +10,8 @@ package org.opendaylight.netvirt.elan.internal;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -183,11 +185,11 @@ public class ElanBridgeManager {
             return;
         }
 
-        List<ManagedNodeEntry> originalManagedNodes = getManagedNodeEntries(originalNode);
+        List<ManagedNodeEntry> originalManagedNodes = new ArrayList<>(getManagedNodeEntries(originalNode));
         if (originalManagedNodes == null) {
             return;
         }
-        List<ManagedNodeEntry> updatedManagedNodes = getManagedNodeEntries(updatedNode);
+        List<ManagedNodeEntry> updatedManagedNodes = new ArrayList<>(getManagedNodeEntries(updatedNode));
         if (updatedManagedNodes == null) {
             return;
         }
@@ -225,7 +227,7 @@ public class ElanBridgeManager {
             return null;
         }
 
-        return ovsdbNode.getManagedNodeEntry();
+        return ovsdbNode.nonnullManagedNodeEntry();
     }
 
     private void prepareIntegrationBridge(Node ovsdbNode, Node brIntNode) {

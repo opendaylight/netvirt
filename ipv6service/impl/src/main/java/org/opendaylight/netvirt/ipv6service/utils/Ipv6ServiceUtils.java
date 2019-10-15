@@ -409,7 +409,8 @@ public class Ipv6ServiceUtils {
         List<String> ofportIds = interfaceState.getLowerLayerIf();
         if (ofportIds != null && !ofportIds.isEmpty()) {
             NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
-            dpId = Uint64.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
+            Long dpIdLong = MDSALUtil.getDpnIdFromPortName(nodeConnectorId);
+            dpId = dpIdLong < 0 ? Uint64.ZERO : Uint64.valueOf(dpIdLong);
         }
         return dpId;
     }
