@@ -990,7 +990,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             .child(LabelRouteInfo.class, new LabelRouteInfoKey(lri.getLabel())).build();
 
         List<String> vpnInstancesList = lri.getVpnInstanceList() != null
-            ? lri.getVpnInstanceList() : new ArrayList<>();
+            ? new ArrayList<>(lri.getVpnInstanceList()) : new ArrayList<>();
         if (vpnInstancesList.contains(vpnInstanceName)) {
             LOG.debug("vpninstance {} name is present", vpnInstanceName);
             vpnInstancesList.remove(vpnInstanceName);
@@ -1039,7 +1039,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             MDSALUtil.buildFlowEntity(destDpId, NwConstants.INTERNAL_TUNNEL_TABLE,
             getTableMissFlowRef(destDpId, NwConstants.INTERNAL_TUNNEL_TABLE, label),
                     FibConstants.DEFAULT_VPN_INTERNAL_TUNNEL_TABLE_PRIORITY,
-                    String.format("%s:%d", "TST Flow Entry ", label), 0, 0,
+                    String.format("%s:%s", "TST Flow Entry ", label), 0, 0,
                     Uint64.valueOf(COOKIE_TUNNEL.longValue() + label.longValue()),
                     mkMatches, mkInstructions);
 
@@ -1065,7 +1065,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             NwConstants.INTERNAL_TUNNEL_TABLE,
             getTableMissFlowRef(dpId, NwConstants.INTERNAL_TUNNEL_TABLE, label),
                 FibConstants.DEFAULT_VPN_INTERNAL_TUNNEL_TABLE_PRIORITY,
-                String.format("%s:%d", "TST Flow Entry ", label), 0, 0,
+                String.format("%s:%s", "TST Flow Entry ", label), 0, 0,
                 Uint64.valueOf(COOKIE_TUNNEL.longValue() + label.longValue()), mkMatches, null);
         Node nodeDpn = FibUtil.buildDpnNode(flowEntity.getDpnId());
         FlowKey flowKey = new FlowKey(new FlowId(flowEntity.getFlowId()));
