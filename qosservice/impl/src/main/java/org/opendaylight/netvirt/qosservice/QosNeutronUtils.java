@@ -605,7 +605,9 @@ public class QosNeutronUtils {
                                                            .interfaces.rev140508.interfaces.state.Interface ifState) {
         String lowerLayerIf = ifState.getLowerLayerIf().get(0);
         NodeConnectorId nodeConnectorId = new NodeConnectorId(lowerLayerIf);
-        return Uint64.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
+        Long dpIdLong = MDSALUtil.getDpnIdFromPortName(nodeConnectorId);
+        Uint64 dpnId = dpIdLong < 0 ? Uint64.ZERO : Uint64.valueOf(dpIdLong);
+        return dpnId;
     }
 
     public Uint64 getDpnForInterface(String ifName) {
