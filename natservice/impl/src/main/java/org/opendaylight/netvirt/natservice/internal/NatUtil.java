@@ -1291,7 +1291,7 @@ public final class NatUtil {
         if (optionalRouterDpnList.isPresent()) {
             List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns
                     .router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces> routerInterfaces =
-                    optionalRouterDpnList.get().getRouterInterfaces();
+                    new ArrayList<>(optionalRouterDpnList.get().nonnullRouterInterfaces());
             org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn
                     .list.dpn.vpninterfaces.list.RouterInterfaces routerInterface =
                     new RouterInterfacesBuilder().withKey(new RouterInterfacesKey(vpnInterfaceName))
@@ -2425,13 +2425,13 @@ public final class NatUtil {
         try {
             Optional<DpnInterfaces> dpnInElanInterfaces = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                 LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId);
-            List<String> elanInterfaceList;
+            List<String> elanInterfaceList = new ArrayList<>();
             DpnInterfaces dpnInterface;
-            if (!dpnInElanInterfaces.isPresent()) {
-                elanInterfaceList = new ArrayList<>();
-            } else {
+            if (dpnInElanInterfaces.isPresent()) {
                 dpnInterface = dpnInElanInterfaces.get();
-                elanInterfaceList = dpnInterface.getInterfaces();
+
+                elanInterfaceList = (dpnInterface.getInterfaces() != null && !dpnInterface.getInterfaces().isEmpty())
+                        ? new ArrayList<>(dpnInterface.getInterfaces()) : elanInterfaceList;
             }
             if (!elanInterfaceList.contains(pseudoPortId)) {
                 elanInterfaceList.add(pseudoPortId);
@@ -2459,7 +2459,7 @@ public final class NatUtil {
         try {
             Optional<DpnInterfaces> dpnInElanInterfaces = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                     LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId);
-            List<String> elanInterfaceList;
+            List<String> elanInterfaceList = new ArrayList<>();
             DpnInterfaces dpnInterface;
             if (!dpnInElanInterfaces.isPresent()) {
                 LOG.info("No interface in any dpn for {}", elanInstanceName);
@@ -2467,7 +2467,8 @@ public final class NatUtil {
             }
 
             dpnInterface = dpnInElanInterfaces.get();
-            elanInterfaceList = dpnInterface.getInterfaces();
+            elanInterfaceList = (dpnInterface.getInterfaces() != null && !dpnInterface.getInterfaces().isEmpty())
+                    ? new ArrayList<>(dpnInterface.getInterfaces()) : elanInterfaceList;
             if (!elanInterfaceList.contains(pseudoPortId)) {
                 LOG.info("Router port not present in DPN {} for VPN {}", dpnId, elanInstanceName);
                 return;

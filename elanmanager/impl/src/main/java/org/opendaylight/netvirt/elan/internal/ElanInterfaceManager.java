@@ -378,8 +378,10 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         }
         List<String> existingElanInterfaces = elanState.getElanInterfaces();
         List<String> elanInterfaces = new ArrayList<>();
-        existingElanInterfaces.forEach(iface -> elanInterfaces.add(iface));
-        boolean isRemoved = elanInterfaces != null && elanInterfaces.remove(interfaceName);
+        if (existingElanInterfaces != null) {
+            elanInterfaces.addAll(existingElanInterfaces);
+        }
+        boolean isRemoved = elanInterfaces.remove(interfaceName);
         if (!isRemoved) {
             return elanState;
         }
@@ -478,7 +480,10 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         try {
             DpnInterfaces dpnInterfaces = elanUtils.getElanInterfaceInfoByElanDpn(elanName, dpId);
             if (dpnInterfaces != null) {
-                List<String> interfaceLists = dpnInterfaces.getInterfaces();
+                List<String> interfaceLists = null;
+                if (dpnInterfaces.getInterfaces() != null) {
+                    interfaceLists = new ArrayList<>(dpnInterfaces.getInterfaces());
+                }
                 if (interfaceLists != null) {
                     interfaceLists.remove(interfaceName);
                 }

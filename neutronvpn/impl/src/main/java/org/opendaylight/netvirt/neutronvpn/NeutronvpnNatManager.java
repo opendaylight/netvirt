@@ -209,12 +209,12 @@ public class NeutronvpnNatManager implements AutoCloseable {
             if (origExtGw.getExternalFixedIps() != null) {
                 if (!origExtGw.getExternalFixedIps().isEmpty()) {
                     if (newExtGw.getExternalFixedIps() != null && !newExtGw.getExternalFixedIps().isEmpty()) {
-                        List<ExternalFixedIps> origExtFixedIps = origExtGw.getExternalFixedIps();
+                        List<ExternalFixedIps> origExtFixedIps = new ArrayList<>(origExtGw.nonnullExternalFixedIps());
                         HashSet<String> origFixedIpSet = new HashSet<>();
                         for (ExternalFixedIps fixedIps : origExtFixedIps) {
                             origFixedIpSet.add(fixedIps.getIpAddress().stringValue());
                         }
-                        List<ExternalFixedIps> newExtFixedIps = newExtGw.getExternalFixedIps();
+                        List<ExternalFixedIps> newExtFixedIps = new ArrayList<>(newExtGw.nonnullExternalFixedIps());
                         HashSet<String> updFixedIpSet = new HashSet<>();
                         for (ExternalFixedIps fixedIps : newExtFixedIps) {
                             updFixedIpSet.add(fixedIps.getIpAddress().stringValue());
@@ -327,10 +327,8 @@ public class NeutronvpnNatManager implements AutoCloseable {
                 return;
             }
             NetworksBuilder builder = new NetworksBuilder(optionalNets.get());
-            List<Uuid> rtrList = builder.getRouterIds();
-            if (rtrList == null) {
-                rtrList = new ArrayList<>();
-            }
+            List<Uuid> rtrList = (builder.getRouterIds() != null && !builder.getRouterIds().isEmpty())
+                    ? new ArrayList<>(builder.getRouterIds()) : new ArrayList<>();
             rtrList.add(routerId);
             builder.setRouterIds(rtrList);
             if (NeutronvpnUtils.isFlatOrVlanNetwork(input)) {
@@ -670,8 +668,8 @@ public class NeutronvpnNatManager implements AutoCloseable {
         if (optionalExternalSubnets.isPresent()) {
             Subnets subnets = optionalExternalSubnets.get();
             List<Uuid> routerIds;
-            if (subnets.getRouterIds() != null) {
-                routerIds = subnets.getRouterIds();
+            if (subnets.getRouterIds() != null && !subnets.getRouterIds().isEmpty()) {
+                routerIds = new ArrayList<>(subnets.getRouterIds());
             } else {
                 routerIds = new ArrayList<>();
             }
