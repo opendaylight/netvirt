@@ -392,7 +392,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             LOG.info("processVpnInterfaceUp: Binding vpn service to interface {} onto dpn {} for vpn {}",
                      interfaceName, dpId, vpnName);
             Uint32 vpnId = vpnUtil.getVpnId(vpnName);
-            if (vpnId.longValue() == VpnConstants.INVALID_ID) {
+            if (VpnConstants.INVALID_ID.equals(vpnId)) {
                 LOG.warn("processVpnInterfaceUp: VpnInstance to VPNId mapping not available for VpnName {}"
                         + " processing vpninterface {} on dpn {}, bailing out now.", vpnName, interfaceName,
                         dpId);
