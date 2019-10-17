@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b14bb739_71a9ace0",
+        "filename": "dhcpservice/impl/src/main/java/org/opendaylight/netvirt/dhcpservice/NodeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-10-17T13:25:04Z",
+      "side": 1,
+      "message": "This should be fine as we are just checking the String value doesn\u0027t contain -ve value which is not valid DPNID. added the try catch for NumberFormat Exception",
+      "parentUuid": "208cc6fd_e821da2a",
+      "revId": "6d06fd4bef59c1beead5a58004a89571e1ec32cd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "76882dc5_12cb822b",
         "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2019-10-17T12:11:25Z",
       "side": 1,
       "message": "The multiple instances of this code pattern suggest that a single method would be useful ;-).",
+      "revId": "6d06fd4bef59c1beead5a58004a89571e1ec32cd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a94616f1_81ab87b0",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 608,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-10-17T13:25:04Z",
+      "side": 1,
+      "message": "Except in Ipv6 and DHCP module, the instance occurrence is only one in other modules. Added the utility API in module where there is multiple occurrence",
+      "parentUuid": "76882dc5_12cb822b",
       "revId": "6d06fd4bef59c1beead5a58004a89571e1ec32cd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
