@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "208cc6fd_e821da2a",
+        "filename": "dhcpservice/impl/src/main/java/org/opendaylight/netvirt/dhcpservice/NodeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2019-10-17T12:11:25Z",
+      "side": 1,
+      "message": "This change reduces the range of acceptable values: Uint64 supports [0,18446744073709551615] but long can only represent up to 9223372036854775807. Is this reduction OK? You might also want to handle NumberFormatException.",
+      "revId": "6d06fd4bef59c1beead5a58004a89571e1ec32cd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76882dc5_12cb822b",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 608,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2019-10-17T12:11:25Z",
+      "side": 1,
+      "message": "The multiple instances of this code pattern suggest that a single method would be useful ;-).",
+      "revId": "6d06fd4bef59c1beead5a58004a89571e1ec32cd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
