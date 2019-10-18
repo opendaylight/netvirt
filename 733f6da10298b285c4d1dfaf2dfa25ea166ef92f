@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd87d777_6f3105bb",
+        "filename": "dhcpservice/impl/src/main/java/org/opendaylight/netvirt/dhcpservice/NodeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2019-10-18T08:02:08Z",
+      "side": 1,
+      "message": "Please just use the Uint64 validation:\n\n    if (node[1] !\u003d null) {\n        Uint64 dpId \u003d Uint64.valueOf(node[1]);\n\n        ...\n\n(Relying on the try / catch.)\n\nThis avoids attempting to replicate the Uint64 validation, and avoids a useless BigInteger creation (which is quite expensive).",
+      "revId": "733f6da10298b285c4d1dfaf2dfa25ea166ef92f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
