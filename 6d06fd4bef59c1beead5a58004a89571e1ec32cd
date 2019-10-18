@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "6f52fe54_d52a450c",
+        "filename": "dhcpservice/impl/src/main/java/org/opendaylight/netvirt/dhcpservice/NodeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2019-10-18T08:02:08Z",
+      "side": 1,
+      "message": "Alternatively, create the Uint64 without checking and handle the exception...",
+      "parentUuid": "5837038f_2f79348f",
+      "revId": "6d06fd4bef59c1beead5a58004a89571e1ec32cd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "76882dc5_12cb822b",
         "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
         "patchSetId": 2
