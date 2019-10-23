@@ -149,7 +149,7 @@ public class Cache extends OsgiCommandSupport {
             }
             AsId asId = config.getAsId();
             if (asId != null) {
-                long asNum = asId.getLocalAs().longValue();
+                Long asNum = asId.getLocalAs().longValue();
                 IpAddress routerId = asId.getRouterId();
                 Long spt = asId.getStalepathTime().toJava();
                 Boolean afb = asId.isAnnounceFbit();
@@ -163,9 +163,9 @@ public class Cache extends OsgiCommandSupport {
                     spt = gracefulRestart.getStalepathTime().toJava();
                 }
                 ps.printf("%nBGP Router%n");
-                ps.printf("\t%-15s  %d%n\t%-15s  %s%n\t%-15s  %s%n\t%-15s  %s%n",
-                        ASSTR, asNum, RISTR, rid, SPSTR, spt == null || spt == 0 ? "default" : spt.toString(), FBSTR,
-                        bit);
+                ps.printf("\t%-15s  %s%n\t%-15s  %s%n\t%-15s  %s%n\t%-15s  %s%n",
+                        ASSTR, asNum.toString(), RISTR, rid, SPSTR,
+                        spt == null || spt == 0 ? "default" : spt.toString(), FBSTR, bit);
             }
 
             Logging logging = config.getLogging();

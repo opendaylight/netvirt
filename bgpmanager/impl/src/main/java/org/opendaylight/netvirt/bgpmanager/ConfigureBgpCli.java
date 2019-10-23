@@ -119,6 +119,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
             session.getConsole().println(
                     "exec configure-bgp -op [start-bgp-server | stop-bgp-server | add-neighbor | delete-neighbor|"
                             + " add-route | delete-route | graceful-restart| enable-log ]");
+            return null;
         }
         switch (op) {
             case "start-bgp-server":
