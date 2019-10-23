@@ -9,8 +9,12 @@ package org.opendaylight.netvirt.bgpmanager;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -45,6 +49,8 @@ public class FibDSWriter {
     private final SingleTransactionDataBroker singleTxDB;
     private final BgpUtil bgpUtil;
 
+    private final Map<String, ArrayList<String>> fibMap = new HashMap<>();
+
     @Inject
     public FibDSWriter(final DataBroker dataBroker, final BgpUtil bgpUtil) {
         this.bgpUtil = bgpUtil;
@@ -67,6 +73,12 @@ public class FibDSWriter {
             }
             LOG.debug("Created vrfEntry for {} nexthop {} label {}", prefix, nextHop, label);
         }
+        ArrayList<String> temp = new ArrayList<String>();
+        if ((fibMap.get(appendrdtoprefix(rd, prefix)) != null)) {
+            temp.addAll(fibMap.get(appendrdtoprefix(rd, prefix)));
+        }
+        temp.addAll(nextHopList);
+        fibMap.put(appendrdtoprefix(rd, prefix),temp);
 
         // Looking for existing prefix in MDSAL database
         InstanceIdentifier<VrfEntry> vrfEntryId =
@@ -78,6 +90,10 @@ public class FibDSWriter {
         buildVpnEncapSpecificInfo(vrfEntryBuilder, encapType, label, l3vni,
                 gatewayMacAddress, nextHopList);
         bgpUtil.update(vrfEntryId, vrfEntryBuilder.build());
+    }
+
+    private String appendrdtoprefix(String rd, String prefix) {
+        return rd + "/" + prefix;
     }
 
     public void addMacEntryToDS(String rd, String macAddress, String prefix,
@@ -184,21 +200,29 @@ public class FibDSWriter {
                     singleTxDB.syncReadOptional(LogicalDatastoreType.CONFIGURATION, vrfEntryId);
             List<RoutePaths> routePaths =
                     existingVrfEntry.toJavaUtil().map(VrfEntry::getRoutePaths).orElse(Collections.emptyList());
-            if (routePaths.size() == 1) {
-                if (routePaths.get(0).getNexthopAddress().equals(nextHop)) {
+            if (fibMap.get(appendrdtoprefix(rd,prefix)) != null) { //Key is there
+                // If nexthop is there, delete it from List
+                List<String> list = fibMap.get(appendrdtoprefix(rd,prefix));
+                list.remove(nextHop);
+                routePaths.stream()
+                        .map(RoutePaths::getNexthopAddress)
+                        .filter(nextHopAddress -> nextHopAddress.equals(nextHop))
+                        .findFirst()
+                        .ifPresent(nh -> {
+                            InstanceIdentifier<RoutePaths> routePathId =
+                                    FibHelper.buildRoutePathId(rd, prefix, nextHop);
+                            bgpUtil.delete(routePathId);
+                        });
+                if (list.isEmpty()) {
+                    fibMap.remove(appendrdtoprefix(rd, prefix));
                     bgpUtil.delete(vrfEntryId);
                 }
-            } else {
-                routePaths.stream()
-                    .map(RoutePaths::getNexthopAddress)
-                    .filter(nextHopAddress -> nextHopAddress.equals(nextHop))
-                    .findFirst()
-                    .ifPresent(nh -> {
-                        InstanceIdentifier<RoutePaths> routePathId =
-                                FibHelper.buildRoutePathId(rd, prefix, nextHop);
-                        bgpUtil.delete(routePathId);
-                    });
             }
+            else {
+                LOG.error("Delete the request received from Quagga,the doesn't have the RD {} , "
+                                + "Prefix {} and nexthop {}", rd,prefix,nextHop);
+            }
+
         } catch (ReadFailedException e) {
             LOG.error("Error while reading vrfEntry for rd {}, prefix {}", rd, prefix);
             return;

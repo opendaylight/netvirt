@@ -25,6 +25,8 @@ public interface BgpConstants {
     String BGP_DEF_LOG_FILE = "/opt/quagga/var/log/quagga/zrpcd.init.log";
     String BFD_COUNTER_NBR_PKTS_RX = "BfdNeighborPacketsReceived";
     String BFD_COUNTER_NBR_PKTS_TX = "BfdNeighborPacketsSent";
+    String BGP_COUNTER_IPV4_PFX = "BgpIPV4Prefixes:Bgp_IPV4_Prefixes";
+    String BGP_COUNTER_IPV6_PFX = "BgpIPV6Prefixes:Bgp_IPV6_Prefixes";
     long DEFAULT_ETH_TAG = 0L;
     int BGP_DEFAULT_MULTIPATH = 2;
     int BFD_DEFAULT_DETECT_MULT = 3;
