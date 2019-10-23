@@ -165,11 +165,11 @@ public class BgpCounters implements Runnable, AutoCloseable {
             // Store in the file
             toFile.write(sb.toString().trim());
         } catch (UnknownHostException e) {
-            LOG.error("Unknown host {}", bgpSdncMip, e);
+            LOG.info("Unknown host exception occured while socket creation {} ", bgpSdncMip);
         } catch (SocketTimeoutException e) {
-            LOG.error("Socket timeout", e);
+            LOG.info("Socket timeout Exception occured while socket creation");
         } catch (IOException e) {
-            LOG.error("I/O error", e);
+            LOG.info("I/O exception occured while socket creation");
         }
     }
 

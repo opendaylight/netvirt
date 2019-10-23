@@ -2096,6 +2096,8 @@ public class BgpConfigurationManager {
     }
 
     public void peerDown(String ipAddress, long asNumber) {
+        PeerDownEvent peerDownEvent = new PeerDownEvent(ipAddress,asNumber);
+        bgpUpdatesHistory.addToHistory(TransactionType.ADD, peerDownEvent);
         List<String> tepIpList = bgpUtil.getDcgwTepConfig(ipAddress);
         if (tepIpList == null) {
             LOG.error("No Tep IP configured for DCGW {} on a peerDown", ipAddress);
@@ -2107,6 +2109,8 @@ public class BgpConfigurationManager {
     }
 
     public void peerUp(String ipAddress, long asNumber) {
+        PeerUpEvent peerUpEvent = new PeerUpEvent(ipAddress,asNumber);
+        bgpUpdatesHistory.addToHistory(TransactionType.ADD, peerUpEvent);
         List<String> tepIpList = bgpUtil.getDcgwTepConfig(ipAddress);
         if (tepIpList == null) {
             LOG.error("No Tep IP configured for DCGW {} on a peerUp", ipAddress);
