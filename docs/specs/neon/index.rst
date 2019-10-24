@@ -6,7 +6,6 @@ Contents:
 .. toctree::
    :maxdepth: 1
 
-   Coe Service Integration <coe-service-integration>
    Enable discovery of Virtual IPs (or Movable IPs) holding Virtual MACs <vpn_vmac_movement>
    EVPN and l2gw integration <evpn-l2gw-integration>
    EVPN Route Type 3 support <evpn-rt3-support>

@@ -42,7 +42,6 @@ tables = {
     90: "QOS_DSCP",
     100: "SFC_IN_CLASS_FILTER",
     101: "SFC_IN_CLASS_ACL",
-    180: "COE_KBPRXY",
     210: "IN_ACL_ASPF",
     211: "IN_ACL_CTRK_CLASS",
     212: "IN_ACL_CTRK_SNDR",

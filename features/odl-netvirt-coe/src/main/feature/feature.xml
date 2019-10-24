@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<features name="odl-netvirt-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.2.0">
-    <feature name="odl-netvirt-coe" version="${project.version}">
-        <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-coe-config.xml">
-            mvn:org.opendaylight.netvirt/coe-impl/${project.version}/xml/config
-        </configfile>
-    </feature>
-</features>
