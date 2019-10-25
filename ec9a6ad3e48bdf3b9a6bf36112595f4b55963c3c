@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d002f966_ebc07b91",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 2885,
+      "author": {
+        "id": 7802
+      },
+      "writtenOn": "2019-10-25T06:23:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2511d024_c6a80a8d",
+      "range": {
+        "startLine": 2884,
+        "startChar": 51,
+        "endLine": 2885,
+        "endChar": 37
+      },
+      "revId": "ec9a6ad3e48bdf3b9a6bf36112595f4b55963c3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a4f6ad01_fbe36f38",
         "filename": "dhcpservice/impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
         "patchSetId": 20
@@ -36,6 +60,30 @@
       "writtenOn": "2019-10-24T15:28:48Z",
       "side": 1,
       "message": "hmm.. so Uint64.ZERO works as null did previously? In that case @Nullable is misleading and should really become @NonNull",
+      "range": {
+        "startLine": 283,
+        "startChar": 19,
+        "endLine": 283,
+        "endChar": 30
+      },
+      "revId": "ec9a6ad3e48bdf3b9a6bf36112595f4b55963c3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "155f9249_c76cc7e3",
+        "filename": "dhcpservice/impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 7802
+      },
+      "writtenOn": "2019-10-25T06:23:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a4f6ad01_fbe36f38",
       "range": {
         "startLine": 283,
         "startChar": 19,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "beb2c851_8ddea78c",
+        "filename": "dhcpservice/impl/src/main/java/org/opendaylight/netvirt/dhcpservice/NodeListener.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 7802
+      },
+      "writtenOn": "2019-10-25T06:23:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a23e4f06_08580029",
+      "range": {
+        "startLine": 83,
+        "startChar": 39,
+        "endLine": 83,
+        "endChar": 41
+      },
+      "revId": "ec9a6ad3e48bdf3b9a6bf36112595f4b55963c3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f6fe59ed_f1ea37da",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
         "patchSetId": 20
@@ -82,6 +154,30 @@
       "writtenOn": "2019-10-24T15:28:48Z",
       "side": 1,
       "message": "with this change the null check becomes superfluous (and also below)",
+      "range": {
+        "startLine": 189,
+        "startChar": 12,
+        "endLine": 189,
+        "endChar": 40
+      },
+      "revId": "ec9a6ad3e48bdf3b9a6bf36112595f4b55963c3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96800fc4_9a8264a1",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 7802
+      },
+      "writtenOn": "2019-10-25T06:23:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f6fe59ed_f1ea37da",
       "range": {
         "startLine": 189,
         "startChar": 12,
