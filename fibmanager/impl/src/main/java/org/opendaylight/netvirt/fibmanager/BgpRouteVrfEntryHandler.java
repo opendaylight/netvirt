@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.fibmanager;
 
+import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
 import com.google.common.base.Optional;
@@ -38,7 +39,7 @@ import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldMplsLabel;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldTunnelId;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.utils.batching.ActionableResource;
-import org.opendaylight.genius.utils.batching.ActionableResourceImpl;
+import org.opendaylight.genius.utils.batching.ActionableResources;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.batching.ResourceHandler;
 import org.opendaylight.genius.utils.batching.SubTransaction;
@@ -57,6 +58,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.pre
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.Routes;
+import org.opendaylight.yangtools.concepts.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
@@ -66,6 +68,39 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements ResourceHandler {
+    private static final class ActionableResourceIdentifier implements Identifier {
+        private static final long serialVersionUID = 1L;
+
+        private final String routeDistinguisher;
+        private final String destPrefix;
+
+        ActionableResourceIdentifier(final String routeDistinguisher, final String destPrefix) {
+            this.routeDistinguisher = requireNonNull(routeDistinguisher);
+            this.destPrefix = requireNonNull(destPrefix);
+        }
+
+        @Override
+        public int hashCode() {
+            return routeDistinguisher.hashCode() * 31 + destPrefix.hashCode();
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof ActionableResourceIdentifier)) {
+                return false;
+            }
+            final ActionableResourceIdentifier other = (ActionableResourceIdentifier) obj;
+            return routeDistinguisher.equals(other.routeDistinguisher) && destPrefix.equals(other.destPrefix);
+        }
+
+        @Override
+        public String toString() {
+            return routeDistinguisher + destPrefix;
+        }
+    }
 
     private static final Logger LOG = LoggerFactory.getLogger(BgpRouteVrfEntryHandler.class);
     private static final int BATCH_INTERVAL = 500;
@@ -147,28 +182,18 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
     }
 
     void createFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
-        ActionableResourceImpl actResource = new ActionableResourceImpl(rd + vrfEntry.getDestPrefix());
-        actResource.setAction(ActionableResource.CREATE);
-        actResource.setInstanceIdentifier(identifier);
-        actResource.setInstance(vrfEntry);
-        vrfEntryBufferQ.add(actResource);
+        vrfEntryBufferQ.add(ActionableResources.create(new ActionableResourceIdentifier(rd, vrfEntry.getDestPrefix()),
+            identifier, vrfEntry));
     }
 
     void removeFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
-        ActionableResourceImpl actResource = new ActionableResourceImpl(rd + vrfEntry.getDestPrefix());
-        actResource.setAction(ActionableResource.DELETE);
-        actResource.setInstanceIdentifier(identifier);
-        actResource.setInstance(vrfEntry);
-        vrfEntryBufferQ.add(actResource);
+        vrfEntryBufferQ.add(ActionableResources.delete(new ActionableResourceIdentifier(rd, vrfEntry.getDestPrefix()),
+            identifier, vrfEntry));
     }
 
     void updateFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry original, VrfEntry update, String rd) {
-        ActionableResourceImpl actResource = new ActionableResourceImpl(rd + update.getDestPrefix());
-        actResource.setAction(ActionableResource.UPDATE);
-        actResource.setInstanceIdentifier(identifier);
-        actResource.setInstance(update);
-        actResource.setOldInstance(original);
-        vrfEntryBufferQ.add(actResource);
+        vrfEntryBufferQ.add(ActionableResources.update(new ActionableResourceIdentifier(rd, update.getDestPrefix()),
+            identifier, update, original));
     }
 
     /*
