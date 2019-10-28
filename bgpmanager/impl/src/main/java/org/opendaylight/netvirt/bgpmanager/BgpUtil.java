@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.bgpmanager;
 
 import com.google.common.base.Optional;
-
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -140,7 +139,7 @@ public class BgpUtil implements AutoCloseable {
     }
 
     public <T extends DataObject> void update(final InstanceIdentifier<T> path, final T data) {
-        ActionableResource actResource = new ActionableResourceImpl(path.toString());
+        ActionableResourceImpl actResource = new ActionableResourceImpl(path.toString());
         actResource.setAction(ActionableResource.UPDATE);
         actResource.setInstanceIdentifier(path);
         actResource.setInstance(data);
@@ -148,7 +147,7 @@ public class BgpUtil implements AutoCloseable {
     }
 
     public <T extends DataObject> void write(final InstanceIdentifier<T> path, final T data) {
-        ActionableResource actResource = new ActionableResourceImpl(path.toString());
+        ActionableResourceImpl actResource = new ActionableResourceImpl(path.toString());
         actResource.setAction(ActionableResource.CREATE);
         actResource.setInstanceIdentifier(path);
         actResource.setInstance(data);
@@ -156,7 +155,7 @@ public class BgpUtil implements AutoCloseable {
     }
 
     public <T extends DataObject> void delete(final InstanceIdentifier<T> path) {
-        ActionableResource actResource = new ActionableResourceImpl(path.toString());
+        ActionableResourceImpl actResource = new ActionableResourceImpl(path.toString());
         actResource.setAction(ActionableResource.DELETE);
         actResource.setInstanceIdentifier(path);
         actResource.setInstance(null);

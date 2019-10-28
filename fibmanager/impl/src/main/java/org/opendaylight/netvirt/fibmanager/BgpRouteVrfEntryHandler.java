@@ -147,7 +147,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
     }
 
     void createFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
-        ActionableResource actResource = new ActionableResourceImpl(rd + vrfEntry.getDestPrefix());
+        ActionableResourceImpl actResource = new ActionableResourceImpl(rd + vrfEntry.getDestPrefix());
         actResource.setAction(ActionableResource.CREATE);
         actResource.setInstanceIdentifier(identifier);
         actResource.setInstance(vrfEntry);
@@ -155,7 +155,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
     }
 
     void removeFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
-        ActionableResource actResource = new ActionableResourceImpl(rd + vrfEntry.getDestPrefix());
+        ActionableResourceImpl actResource = new ActionableResourceImpl(rd + vrfEntry.getDestPrefix());
         actResource.setAction(ActionableResource.DELETE);
         actResource.setInstanceIdentifier(identifier);
         actResource.setInstance(vrfEntry);
@@ -163,7 +163,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
     }
 
     void updateFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry original, VrfEntry update, String rd) {
-        ActionableResource actResource = new ActionableResourceImpl(rd + update.getDestPrefix());
+        ActionableResourceImpl actResource = new ActionableResourceImpl(rd + update.getDestPrefix());
         actResource.setAction(ActionableResource.UPDATE);
         actResource.setInstanceIdentifier(identifier);
         actResource.setInstance(update);
