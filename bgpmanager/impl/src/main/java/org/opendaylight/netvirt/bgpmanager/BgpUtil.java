@@ -26,7 +26,7 @@ import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.utils.batching.ActionableResource;
-import org.opendaylight.genius.utils.batching.ActionableResourceImpl;
+import org.opendaylight.genius.utils.batching.ActionableResources;
 import org.opendaylight.genius.utils.batching.DefaultBatchHandler;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.mdsal.binding.api.DataBroker;
@@ -144,27 +144,15 @@ public class BgpUtil implements AutoCloseable {
     }
 
     public <T extends DataObject> void update(final InstanceIdentifier<T> path, final T data) {
-        ActionableResourceImpl actResource = new ActionableResourceImpl(path.toString());
-        actResource.setAction(ActionableResource.UPDATE);
-        actResource.setInstanceIdentifier(path);
-        actResource.setInstance(data);
-        bgpResourcesBufferQ.add(actResource);
+        bgpResourcesBufferQ.add(ActionableResources.update(path, data));
     }
 
     public <T extends DataObject> void write(final InstanceIdentifier<T> path, final T data) {
-        ActionableResourceImpl actResource = new ActionableResourceImpl(path.toString());
-        actResource.setAction(ActionableResource.CREATE);
-        actResource.setInstanceIdentifier(path);
-        actResource.setInstance(data);
-        bgpResourcesBufferQ.add(actResource);
+        bgpResourcesBufferQ.add(ActionableResources.create(path, data));
     }
 
     public <T extends DataObject> void delete(final InstanceIdentifier<T> path) {
-        ActionableResourceImpl actResource = new ActionableResourceImpl(path.toString());
-        actResource.setAction(ActionableResource.DELETE);
-        actResource.setInstanceIdentifier(path);
-        actResource.setInstance(null);
-        bgpResourcesBufferQ.add(actResource);
+        bgpResourcesBufferQ.add(ActionableResources.delete(path));
     }
 
     // Convert ProtocolType to thrift protocol_type
