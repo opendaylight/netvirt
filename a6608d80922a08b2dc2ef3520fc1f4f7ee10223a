@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bdc5ab58_522fd9b0",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 32
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-10-31T05:36:59Z",
+      "side": 1,
+      "message": "No need of new List creation in if block",
+      "range": {
+        "startLine": 239,
+        "startChar": 43,
+        "endLine": 239,
+        "endChar": 59
+      },
+      "revId": "a6608d80922a08b2dc2ef3520fc1f4f7ee10223a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
