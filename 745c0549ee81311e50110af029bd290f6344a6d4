@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_921c6579",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/statisitcs/ElanStatisticsImpl.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5703
+      },
+      "writtenOn": "2016-07-13T07:44:59Z",
+      "side": 1,
+      "message": "Local variable instead of class field which causes anti-singleton. Unnecessary inner return.",
+      "revId": "745c0549ee81311e50110af029bd290f6344a6d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_d216dd54",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanForwardingEntriesHandler.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5703
+      },
+      "writtenOn": "2016-07-13T07:44:59Z",
+      "side": 1,
+      "message": "Same here, anti-singleton",
+      "revId": "745c0549ee81311e50110af029bd290f6344a6d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
