@@ -34,6 +34,42 @@
       "revId": "dcddae1037b3eadd3b69e8b27f324c355f7a2cdc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_5e2120b3",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 759,
+      "author": {
+        "id": 4292
+      },
+      "writtenOn": "2019-11-01T22:26:37Z",
+      "side": 1,
+      "message": "True .. Thanks for comment .. Now I use synchronized block instead creating another thread.",
+      "parentUuid": "1a622d24_6b91c051",
+      "revId": "dcddae1037b3eadd3b69e8b27f324c355f7a2cdc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6b3d40bb",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 759,
+      "author": {
+        "id": 4292
+      },
+      "writtenOn": "2019-11-01T22:26:37Z",
+      "side": 1,
+      "message": "There are two methods with same name setUpMacFlows with different signature. From ElanPacket-in handler class we are directly calling the setupMacflows method which doesn\u0027t have jobcoordinator.",
+      "parentUuid": "1a622d24_a8511eda",
+      "revId": "dcddae1037b3eadd3b69e8b27f324c355f7a2cdc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
