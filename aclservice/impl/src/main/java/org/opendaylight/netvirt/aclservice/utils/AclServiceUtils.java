@@ -33,6 +33,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -961,13 +962,15 @@ public final class AclServiceUtils {
         return flowMatches;
     }
 
-    public static List<Ace> getAceListFromAcl(Acl acl) {
-        if (acl.getAccessListEntries() != null) {
-            List<Ace> aceList = acl.getAccessListEntries().getAce();
-            if (aceList != null && !aceList.isEmpty()
-                    && aceList.get(0).augmentation(SecurityRuleAttr.class) != null) {
-                return aceList;
-            }
+    public static @NonNull List<Ace> aceList(@NonNull Acl acl) {
+        final AccessListEntries ale = acl.getAccessListEntries();
+        return ale == null ? Collections.emptyList() : ale.nonnullAce();
+    }
+
+    public static @NonNull List<Ace> getAceListFromAcl(Acl acl) {
+        List<Ace> aceList = aceList(acl);
+        if (!aceList.isEmpty() && aceList.get(0).augmentation(SecurityRuleAttr.class) != null) {
+            return aceList;
         }
         return Collections.emptyList();
     }
@@ -1024,14 +1027,11 @@ public final class AclServiceUtils {
 
     public static Set<Uuid> getRemoteAclIdsByDirection(Acl acl, Class<? extends DirectionBase> direction) {
         Set<Uuid> remoteAclIds = new HashSet<>();
-        AccessListEntries accessListEntries = acl.getAccessListEntries();
-        if (accessListEntries != null && accessListEntries.getAce() != null) {
-            for (Ace ace : accessListEntries.getAce()) {
-                SecurityRuleAttr aceAttr = AclServiceUtils.getAccessListAttributes(ace);
-                if (aceAttr != null && Objects.equals(aceAttr.getDirection(), direction)
-                        && doesAceHaveRemoteGroupId(aceAttr)) {
-                    remoteAclIds.add(aceAttr.getRemoteGroupId());
-                }
+        for (Ace ace : aceList(acl)) {
+            SecurityRuleAttr aceAttr = AclServiceUtils.getAccessListAttributes(ace);
+            if (aceAttr != null && Objects.equals(aceAttr.getDirection(), direction)
+                    && doesAceHaveRemoteGroupId(aceAttr)) {
+                remoteAclIds.add(aceAttr.getRemoteGroupId());
             }
         }
         return remoteAclIds;
