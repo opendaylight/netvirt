@@ -1103,17 +1103,18 @@ public class NeutronvpnUtils {
         return npe != null && SUPPORTED_NETWORK_TYPES.contains(npe.getNetworkType());
     }
 
-    static boolean isNetworkOfType(Network network, Class<? extends NetworkTypeBase> type) {
-        NetworkProviderExtension npe = network.augmentation(NetworkProviderExtension.class);
-        if (npe != null && npe.getNetworkType() != null) {
-            return type.isAssignableFrom(npe.getNetworkType());
+    static boolean isFlatOrVlanNetwork(Network network) {
+        if (network != null) {
+            NetworkProviderExtension npe = network.augmentation(NetworkProviderExtension.class);
+            if (npe != null) {
+                Class<? extends NetworkTypeBase> npeType = npe.getNetworkType();
+                if (npeType != null) {
+                    return NetworkTypeVlan.class.isAssignableFrom(npeType)
+                            || NetworkTypeFlat.class.isAssignableFrom(npeType);
+                }
+            }
         }
         return false;
-    }
-
-    static boolean isFlatOrVlanNetwork(Network network) {
-        return network != null
-                && (isNetworkOfType(network, NetworkTypeVlan.class) || isNetworkOfType(network, NetworkTypeFlat.class));
     }
 
     static boolean isVlanOrVxlanNetwork(Class<? extends NetworkTypeBase> type) {
