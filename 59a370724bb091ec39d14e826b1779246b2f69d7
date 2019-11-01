@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_1d0c773a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1329,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-15T04:43:00Z",
+      "side": 1,
+      "message": "I see the chances of ElanDpnInterfacesList getting overwritten if we place this code here. So, create this entry (if it doesn\u0027t exist) in ElanInstanceManager#add method.",
+      "revId": "59a370724bb091ec39d14e826b1779246b2f69d7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
