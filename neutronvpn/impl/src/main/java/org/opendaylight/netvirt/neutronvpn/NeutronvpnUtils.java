@@ -1014,8 +1014,8 @@ public class NeutronvpnUtils {
     }
 
     static Boolean getIsExternal(Network network) {
-        return network.augmentation(NetworkL3Extension.class) != null
-                && network.augmentation(NetworkL3Extension.class).isExternal();
+        NetworkL3Extension ext = network.augmentation(NetworkL3Extension.class);
+        return ext != null && ext.isExternal();
     }
 
     static InstanceIdentifier<NetworkMap> buildNetworkMapIdentifier(Uuid networkId) {
