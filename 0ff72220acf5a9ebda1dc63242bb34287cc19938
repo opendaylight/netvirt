@@ -37,6 +37,40 @@
     },
     {
       "key": {
+        "uuid": "ba068154_ed8d1733",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 451,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-15T07:38:55Z",
+      "side": 1,
+      "message": "please use SingleTransactionDataBroker.",
+      "revId": "0ff72220acf5a9ebda1dc63242bb34287cc19938",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_2d88bf1e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-15T07:38:55Z",
+      "side": 1,
+      "message": "why do we need to pass vpnInterfaceManager as a parameter here?  You have used the object to call up the method alreayd",
+      "revId": "0ff72220acf5a9ebda1dc63242bb34287cc19938",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_6da00791",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 18
