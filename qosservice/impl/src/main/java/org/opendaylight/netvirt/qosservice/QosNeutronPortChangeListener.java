@@ -117,8 +117,6 @@ public class QosNeutronPortChangeListener extends AsyncClusteredDataTreeChangeLi
         }
     }
 
-
-
     private void checkForPortIpAddressUpdate(Port original, Port update) {
         QosPolicy qosPolicy = qosNeutronUtils.getQosPolicy(update);
         if (qosPolicy == null || !qosNeutronUtils.hasDscpMarkingRule(qosPolicy)) {

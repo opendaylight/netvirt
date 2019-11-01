@@ -808,7 +808,7 @@ public class QosNeutronUtils {
         } else {
             Network network = neutronVpnManager.getNeutronNetwork(port.getNetworkId());
 
-            if (network.augmentation(QosNetworkExtension.class) != null) {
+            if (network != null && network.augmentation(QosNetworkExtension.class) != null) {
                 qosUuid = network.augmentation(QosNetworkExtension.class).getQosPolicyId();
             }
         }
