@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "ba068154_a61dfe68",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 2066,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-10T10:16:28Z",
+      "side": 1,
+      "message": "continue?",
+      "range": {
+        "startLine": 2066,
+        "startChar": 20,
+        "endLine": 2066,
+        "endChar": 27
+      },
+      "revId": "2953e3a644c17a21d9a8ac714e395b19702647a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_a6e7be3f",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 17
@@ -19,6 +42,52 @@
         "startChar": 20,
         "endLine": 2066,
         "endChar": 27
+      },
+      "revId": "2953e3a644c17a21d9a8ac714e395b19702647a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_861a7a6c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 2072,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-10T10:16:28Z",
+      "side": 1,
+      "message": "continue?",
+      "range": {
+        "startLine": 2072,
+        "startChar": 20,
+        "endLine": 2072,
+        "endChar": 27
+      },
+      "revId": "2953e3a644c17a21d9a8ac714e395b19702647a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_e626e6b9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 2077,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-10T10:16:28Z",
+      "side": 1,
+      "message": "Are you trying to check if a string is present in a list of adjacency objects? Is that correct?",
+      "range": {
+        "startLine": 2077,
+        "startChar": 28,
+        "endLine": 2077,
+        "endChar": 85
       },
       "revId": "2953e3a644c17a21d9a8ac714e395b19702647a1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
