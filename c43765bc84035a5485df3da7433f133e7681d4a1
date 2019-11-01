@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7af0899e_b4c38889",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 2080,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-23T12:46:21Z",
+      "side": 1,
+      "message": "please use key as \"VPNINTERFACE-\" + \u003cinterface-name\u003e alinging with the jobkey format for vpninterfaces.",
+      "revId": "c43765bc84035a5485df3da7433f133e7681d4a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_94c00c7e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 2092,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-23T12:46:21Z",
+      "side": 1,
+      "message": "print the vpnInterface name here too..",
+      "revId": "c43765bc84035a5485df3da7433f133e7681d4a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
