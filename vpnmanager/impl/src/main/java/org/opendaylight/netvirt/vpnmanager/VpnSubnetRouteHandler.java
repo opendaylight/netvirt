@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Objects;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -481,9 +482,7 @@ public class VpnSubnetRouteHandler {
             }
             SubnetOpDataEntry subnetOpDataEntry = optionalSubs.get();
             SubnetOpDataEntryBuilder subOpBuilder = new SubnetOpDataEntryBuilder(subnetOpDataEntry);
-            List<SubnetToDpn> subDpnList = subOpBuilder.getSubnetToDpn();
-            subDpnList.add(subDpn);
-            subOpBuilder.setSubnetToDpn(subDpnList);
+            subOpBuilder.setSubnetToDpn(concat(subnetOpDataEntry.getSubnetToDpn(), subDpn));
             if (subOpBuilder.getRouteAdvState() != TaskState.Advertised) {
                 if (subOpBuilder.getNhDpnId() == null) {
                     // No nexthop selected yet, elect one now
@@ -619,9 +618,7 @@ public class VpnSubnetRouteHandler {
                     subOpBuilder.getRouteAdvState(), subOpBuilder.getLastAdvState());
             boolean isExternalSubnetVpn = VpnUtil.isExternalSubnetVpn(subnetOpDataEntry.getVpnName(),
                     subnetId.getValue());
-            List<SubnetToDpn> subDpnList = subOpBuilder.getSubnetToDpn();
-            subDpnList.add(subDpn);
-            subOpBuilder.setSubnetToDpn(subDpnList);
+            subOpBuilder.setSubnetToDpn(concat(subnetOpDataEntry.getSubnetToDpn(), subDpn));
             if (subOpBuilder.getRouteAdvState() != TaskState.Advertised) {
                 if (subOpBuilder.getNhDpnId() == null) {
                     // No nexthop selected yet, elect one now
@@ -1048,9 +1045,18 @@ public class VpnSubnetRouteHandler {
         }
     }
 
-    private boolean isRouteAdvertised(SubnetOpDataEntryBuilder subOpBuilder) {
+    private static boolean isRouteAdvertised(SubnetOpDataEntryBuilder subOpBuilder) {
         return subOpBuilder.getRouteAdvState() == TaskState.Advertised
                 || subOpBuilder.getRouteAdvState() == TaskState.PendingAdvertise;
+    }
+
+    private static @NonNull List<SubnetToDpn> concat(@Nullable List<SubnetToDpn> list, @NonNull SubnetToDpn entry) {
+        final List<SubnetToDpn> ret = new ArrayList<>();
+        if (list != null) {
+            ret.addAll(list);
+        }
+        ret.add(entry);
+        return ret;
     }
 }
 
