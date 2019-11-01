@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_248f7c76",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-09T10:40:29Z",
+      "side": 1,
+      "message": "return if elanInstance is null. i saw few NPEs in karaf logs due to this.\nAfter this, let Suvitha start testing it.",
+      "revId": "0409e9b68797c85f984b75c2dacbe39a354cba3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
