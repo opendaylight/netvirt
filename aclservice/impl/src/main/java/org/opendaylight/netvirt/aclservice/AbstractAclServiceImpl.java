@@ -52,7 +52,6 @@ import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntries;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIp;
@@ -386,11 +385,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                 LOG.warn("The ACL {} not found in cache", aclUuid.getValue());
                 continue;
             }
-            AccessListEntries accessListEntries = acl.getAccessListEntries();
-            if (accessListEntries != null && accessListEntries.getAce() != null) {
-                for (Ace ace: accessListEntries.getAce()) {
-                    programAceRule(flowEntries, port, aclUuid.getValue(), ace, addOrRemove);
-                }
+            for (Ace ace : AclServiceUtils.aceList(acl)) {
+                programAceRule(flowEntries, port, aclUuid.getValue(), ace, addOrRemove);
             }
         }
         return true;
@@ -410,7 +406,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         SecurityRuleAttr aceAttr = AclServiceUtils.getAccessListAttributes(ace);
         if (aceAttr == null) {
             LOG.error("Ace {} of Acl {} is either null or not having SecurityRuleAttr",
-                    ((ace == null) ? null : ace.getRuleName()), aclName);
+                    ace == null ? null : ace.getRuleName(), aclName);
             return;
         }
         if (addOrRemove == NwConstants.ADD_FLOW && aceAttr.isDeleted()) {

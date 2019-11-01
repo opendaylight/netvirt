@@ -21,7 +21,6 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -175,7 +174,7 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
      * @param aclName the acl name
      * @param action the action
      */
-    private void updateRemoteAclCache(@Nullable List<Ace> aceList, String aclName, AclServiceManager.Action action) {
+    private void updateRemoteAclCache(@NonNull List<Ace> aceList, String aclName, AclServiceManager.Action action) {
         for (Ace ace : aceList) {
             SecurityRuleAttr aceAttributes = ace.augmentation(SecurityRuleAttr.class);
             if (AclServiceUtils.doesAceHaveRemoteGroupId(aceAttributes)) {
@@ -248,22 +247,17 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
         return this;
     }
 
-    @NonNull
-    private List<Ace> getChangedAceList(Acl updatedAcl, Acl currentAcl) {
+    private static @NonNull List<Ace> getChangedAceList(Acl updatedAcl, Acl currentAcl) {
         if (updatedAcl == null) {
             return Collections.emptyList();
         }
-        List<Ace> updatedAceList =
-            updatedAcl.getAccessListEntries() == null || updatedAcl.getAccessListEntries().getAce() == null
-                ? new ArrayList<>()
-                : new ArrayList<>(updatedAcl.getAccessListEntries().getAce());
+        List<Ace> updatedAceList = AclServiceUtils.aceList(updatedAcl);
         if (currentAcl == null) {
             return updatedAceList;
         }
-        List<Ace> currentAceList =
-            currentAcl.getAccessListEntries() == null || currentAcl.getAccessListEntries().getAce() == null
-                ? new ArrayList<>()
-                : new ArrayList<>(currentAcl.getAccessListEntries().getAce());
+
+        List<Ace> currentAceList = AclServiceUtils.aceList(currentAcl);
+        updatedAceList = new ArrayList<>(updatedAceList);
         for (Iterator<Ace> iterator = updatedAceList.iterator(); iterator.hasNext();) {
             Ace ace1 = iterator.next();
             for (Ace ace2 : currentAceList) {
