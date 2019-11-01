@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_7c4ee970",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 748,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-05-17T09:23:01Z",
+      "side": 1,
+      "message": "make it a trace. The log doesn\u0027t add much value but can fill up logs with noise on scale setup.",
+      "revId": "c724e4210781a173f2ce20080527f9cf29ac7689",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
