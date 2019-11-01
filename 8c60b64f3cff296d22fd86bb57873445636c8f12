@@ -1,0 +1,191 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_bc64a349",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronBgpvpnChangeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-24T09:16:06Z",
+      "side": 1,
+      "message": "You don\u0027t need these local variables and simply pass original.getRouteDistinguishers() and update.getRouteDistinguishers().",
+      "revId": "8c60b64f3cff296d22fd86bb57873445636c8f12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_c72710b5",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronBgpvpnChangeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-24T09:16:06Z",
+      "side": 1,
+      "message": "change vpnInstanceId to vpnInstanceName",
+      "revId": "8c60b64f3cff296d22fd86bb57873445636c8f12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_9c4f1fbd",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronBgpvpnChangeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-24T09:16:06Z",
+      "side": 1,
+      "message": "This is unnecessarily called if there is no update in originalRds.",
+      "revId": "8c60b64f3cff296d22fd86bb57873445636c8f12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_e77214ac",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-24T09:16:06Z",
+      "side": 1,
+      "message": "you could use vpnInstanceConfig for existence check",
+      "revId": "8c60b64f3cff296d22fd86bb57873445636c8f12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_a7780c90",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-24T09:16:06Z",
+      "side": 1,
+      "message": "why do you need lock here ?",
+      "revId": "8c60b64f3cff296d22fd86bb57873445636c8f12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_c7755099",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-24T09:16:06Z",
+      "side": 1,
+      "message": "why do you need syncWrite to update RDs ? it can be syncUpdate with setting only setRouteDistinguisher(rds) along with VpnInstance key.",
+      "revId": "8c60b64f3cff296d22fd86bb57873445636c8f12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_c79c30c3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 839,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-24T09:16:06Z",
+      "side": 1,
+      "message": "I think this method should go inside VpnInterfaceManager",
+      "revId": "8c60b64f3cff296d22fd86bb57873445636c8f12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_27c09c7b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 842,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-24T09:16:06Z",
+      "side": 1,
+      "message": "This leads to iterating over all of the vpn interfaces. why don\u0027t you use vpn-instance-op-data to get vpn interfaces of specific vpn instance ?",
+      "revId": "8c60b64f3cff296d22fd86bb57873445636c8f12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_a73bec9a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 851,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-24T09:16:06Z",
+      "side": 1,
+      "message": "you don\u0027t need {} and return in case of predicate is with single line which is passed to filter method.",
+      "revId": "8c60b64f3cff296d22fd86bb57873445636c8f12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_e745f417",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 865,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-24T09:16:06Z",
+      "side": 1,
+      "message": "use stream().filter().forEach(...) in place of if-else and iterator.",
+      "revId": "8c60b64f3cff296d22fd86bb57873445636c8f12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_07111805",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1545,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-24T09:16:06Z",
+      "side": 1,
+      "message": "why do you need this ?",
+      "revId": "8c60b64f3cff296d22fd86bb57873445636c8f12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
