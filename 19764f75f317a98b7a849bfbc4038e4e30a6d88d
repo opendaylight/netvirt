@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_18864266",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-16T04:52:16Z",
+      "side": 1,
+      "message": "Also add the check for ElanUtils.isVxlan(elanInstance)",
+      "revId": "19764f75f317a98b7a849bfbc4038e4e30a6d88d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
