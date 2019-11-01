@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_ed6357af",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronBgpvpnChangeListener.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-15T07:38:55Z",
+      "side": 1,
+      "message": "can RDs be removed as part of an update from an existing BGPVPN?  how do we handle that here?",
+      "revId": "0ff72220acf5a9ebda1dc63242bb34287cc19938",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_74544754",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronBgpvpnChangeListener.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-16T13:11:49Z",
+      "side": 1,
+      "message": "ok rephrasing: if existing RDs are removed by the tenant as part of bgpvpn-update, do we not want to retriage the primaryRd?",
+      "parentUuid": "ba068154_9e73cc4c",
+      "revId": "0ff72220acf5a9ebda1dc63242bb34287cc19938",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_6da00791",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 2047,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-15T07:38:55Z",
+      "side": 1,
+      "message": "will the primaryRd change because of update to list of RDs?",
+      "revId": "0ff72220acf5a9ebda1dc63242bb34287cc19938",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_2d9f1f54",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 2081,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-15T07:38:55Z",
+      "side": 1,
+      "message": "can we please run this loop only for secondary adjacencies!",
+      "revId": "0ff72220acf5a9ebda1dc63242bb34287cc19938",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_8dca8b4d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 2089,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-15T07:38:55Z",
+      "side": 1,
+      "message": "can we please do a checked submit for operTxn alone as thats the way other invocations of addNewAdjToVpnInterface() is managed.  Something like:\n\nListenableFuture\u003cVoid\u003e operFuture \u003d writeOperTxn.submit();\n                try {\n                    operFuture.get();\n                } catch (ExecutionException e) {\n                    LOG.error(\"Exception encountered while submitting operational future for update VpnInterface {}: \"\n                            + \"{}\", vpnInterfaceName, e);\n                    return null;\n                }",
+      "revId": "0ff72220acf5a9ebda1dc63242bb34287cc19938",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
