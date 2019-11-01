@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.neutronvpn;
 
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
@@ -13,6 +12,7 @@ import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -25,7 +25,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -176,14 +175,11 @@ public class NeutronvpnUtils {
             .put(NetworkTypeVxlan.class, SegmentTypeVxlan.class)
             .build();
 
-    private static final Set<Class<? extends NetworkTypeBase>> SUPPORTED_NETWORK_TYPES = new HashSet<>();
-
-    static {
-        SUPPORTED_NETWORK_TYPES.add(NetworkTypeFlat.class);
-        SUPPORTED_NETWORK_TYPES.add(NetworkTypeVlan.class);
-        SUPPORTED_NETWORK_TYPES.add(NetworkTypeVxlan.class);
-        SUPPORTED_NETWORK_TYPES.add(NetworkTypeGre.class);
-    }
+    private static final ImmutableSet<Class<? extends NetworkTypeBase>> SUPPORTED_NETWORK_TYPES = ImmutableSet.of(
+        NetworkTypeFlat.class,
+        NetworkTypeVlan.class,
+        NetworkTypeVxlan.class,
+        NetworkTypeGre.class);
 
     private final ConcurrentMap<Uuid, Network> networkMap = new ConcurrentHashMap<>();
     private final ConcurrentMap<Uuid, Router> routerMap = new ConcurrentHashMap<>();
@@ -1104,7 +1100,7 @@ public class NeutronvpnUtils {
 
     static boolean isNetworkTypeSupported(Network network) {
         NetworkProviderExtension npe = network.augmentation(NetworkProviderExtension.class);
-        return npe != null && npe.getNetworkType() != null && SUPPORTED_NETWORK_TYPES.contains(npe.getNetworkType());
+        return npe != null && SUPPORTED_NETWORK_TYPES.contains(npe.getNetworkType());
     }
 
     static boolean isNetworkOfType(Network network, Class<? extends NetworkTypeBase> type) {
