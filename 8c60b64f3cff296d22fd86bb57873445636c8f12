@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_87f3489d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronBgpvpnChangeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 4292
+      },
+      "writtenOn": "2019-11-01T22:26:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_bc64a349",
+      "revId": "8c60b64f3cff296d22fd86bb57873445636c8f12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_c72710b5",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronBgpvpnChangeListener.java",
         "patchSetId": 5
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_67ee24b6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronBgpvpnChangeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 4292
+      },
+      "writtenOn": "2019-11-01T22:26:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_c72710b5",
+      "revId": "8c60b64f3cff296d22fd86bb57873445636c8f12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_9c4f1fbd",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronBgpvpnChangeListener.java",
         "patchSetId": 5
@@ -47,6 +83,24 @@
       "writtenOn": "2017-04-24T09:16:06Z",
       "side": 1,
       "message": "This is unnecessarily called if there is no update in originalRds.",
+      "revId": "8c60b64f3cff296d22fd86bb57873445636c8f12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_874fc8bc",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronBgpvpnChangeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 4292
+      },
+      "writtenOn": "2019-11-01T22:26:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_9c4f1fbd",
       "revId": "8c60b64f3cff296d22fd86bb57873445636c8f12",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -115,6 +169,24 @@
       "writtenOn": "2017-04-24T09:16:06Z",
       "side": 1,
       "message": "I think this method should go inside VpnInterfaceManager",
+      "revId": "8c60b64f3cff296d22fd86bb57873445636c8f12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_07eab874",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 839,
+      "author": {
+        "id": 4292
+      },
+      "writtenOn": "2019-11-01T22:26:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_c79c30c3",
       "revId": "8c60b64f3cff296d22fd86bb57873445636c8f12",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
