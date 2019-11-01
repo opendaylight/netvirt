@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_df766c05",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 801,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-09-19T07:22:26Z",
+      "side": 1,
+      "message": "woah so bucketIds were overwriting themselves for the different types?\nsuggest wrapping \"listBucketInfo.size() + 1\" with some utility function such as getNextAvailableBucketId() for clarity",
+      "revId": "1fece0398f98ea876860016d9a872708f79f0802",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
