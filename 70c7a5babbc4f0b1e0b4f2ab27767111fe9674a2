@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_1cbe9065",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 758,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-28T01:51:55Z",
+      "side": 1,
+      "message": "Tali, The synchronization is needed to avoid any race condition while handling mac learning/expiry notifications. \nIn the current code, only mac address is used as synchronization. but it can be duplicated across ELAN instances. so elantag+macaddress combination is used for it.\ntx.submit() would be done by callers of setupMacFlows.\n\nGovinda, you also have to change synchronization with the above key in all deleteMacFlows methods.\nAlso move this synchronization to above setupMacFlows method so that it can be applicable for every callers.",
+      "parentUuid": "1a622d24_7cd98482",
+      "revId": "70c7a5babbc4f0b1e0b4f2ab27767111fe9674a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
