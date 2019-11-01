@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_f2ffa165",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanDpnInterfaceClusteredListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5703
+      },
+      "writtenOn": "2016-07-13T06:06:05Z",
+      "side": 1,
+      "message": "This return is actually unnecessary, the outer return will do the work",
+      "revId": "4d8c7c03b30978ec20a37d0d315c5c1999d2df0a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_d2025d6e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5703
+      },
+      "writtenOn": "2016-07-13T06:06:05Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "4d8c7c03b30978ec20a37d0d315c5c1999d2df0a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_12f4d585",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 5703
+      },
+      "writtenOn": "2016-07-13T06:06:05Z",
+      "side": 1,
+      "message": "Did auto-formatting add this? Empty \u003c\u003e is enough",
+      "revId": "4d8c7c03b30978ec20a37d0d315c5c1999d2df0a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_72f3919e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanSmacFlowEventListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5703
+      },
+      "writtenOn": "2016-07-13T06:06:05Z",
+      "side": 1,
+      "message": "Assigning to local variable instead of the class field",
+      "revId": "4d8c7c03b30978ec20a37d0d315c5c1999d2df0a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_52ee4db5",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanSmacFlowEventListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5703
+      },
+      "writtenOn": "2016-07-13T06:06:05Z",
+      "side": 1,
+      "message": "After the fix, this return is unnecessary",
+      "revId": "4d8c7c03b30978ec20a37d0d315c5c1999d2df0a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_922f45f6",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanSmacFlowEventListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5703
+      },
+      "writtenOn": "2016-07-13T06:06:05Z",
+      "side": 1,
+      "message": "Don\u0027t we want to add a \"default callback\" here that at least logs success/failure in at least debug mode? Probably failure in WARN?",
+      "revId": "4d8c7c03b30978ec20a37d0d315c5c1999d2df0a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
