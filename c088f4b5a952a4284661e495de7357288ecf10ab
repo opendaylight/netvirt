@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_c3da4d4b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 2065,
+      "author": {
+        "id": 4292
+      },
+      "writtenOn": "2019-11-01T22:26:37Z",
+      "side": 1,
+      "message": "Already we have null check above if VpnToDpnLists is empty or null . otherwise we will populate the data with list of vpnInterfaces for dpId key.",
+      "parentUuid": "da01753e_4395bd85",
+      "revId": "c088f4b5a952a4284661e495de7357288ecf10ab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_838b2567",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 9
