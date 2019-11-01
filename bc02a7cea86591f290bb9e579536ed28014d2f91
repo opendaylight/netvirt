@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_7d96e3f1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 2081,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-17T16:18:36Z",
+      "side": 1,
+      "message": "I suggest that you fire DJC for this vpnInterface and within that invoke the addNewAdjToVpnInterface as all such invocations for this method is fired off the VPNInterface DJC.",
+      "revId": "bc02a7cea86591f290bb9e579536ed28014d2f91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_3dfd7b3b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 2089,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-17T16:18:36Z",
+      "side": 1,
+      "message": "what is this futures used for?",
+      "revId": "bc02a7cea86591f290bb9e579536ed28014d2f91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
