@@ -181,6 +181,20 @@ public class NeutronvpnUtils {
         NetworkTypeVxlan.class,
         NetworkTypeGre.class);
 
+
+    private static final InstanceIdentifier<VpnInstanceOpData> VPN_INSTANCE_OP_DATA_IID =
+            InstanceIdentifier.create(VpnInstanceOpData.class);
+    private static final InstanceIdentifier<VpnMaps> VPN_MAPS_IID = InstanceIdentifier.create(VpnMaps.class);
+    private static final InstanceIdentifier<Subnetmaps> SUBNETMAPS_IID = InstanceIdentifier.create(Subnetmaps.class);
+    private static final InstanceIdentifier<Networks> NEUTRON_NETWORKS_IID = InstanceIdentifier.builder(Neutron.class)
+            .child(Networks.class).build();
+    private static final InstanceIdentifier<Ports> NEUTRON_PORTS_IID = InstanceIdentifier.builder(Neutron.class)
+            .child(Ports.class).build();
+    private static final InstanceIdentifier<Routers> NEUTRON_ROUTERS_IID = InstanceIdentifier.builder(Neutron.class)
+            .child(Routers.class).build();
+    private static final InstanceIdentifier<Subnets> NEUTRON_SUBNETS_IID = InstanceIdentifier.builder(Neutron.class)
+            .child(Subnets.class).build();
+
     private final ConcurrentMap<Uuid, Network> networkMap = new ConcurrentHashMap<>();
     private final ConcurrentMap<Uuid, Router> routerMap = new ConcurrentHashMap<>();
     private final ConcurrentMap<Uuid, Port> portMap = new ConcurrentHashMap<>();
@@ -218,9 +232,7 @@ public class NeutronvpnUtils {
 
     @Nullable
     public VpnMap getVpnMap(Uuid id) {
-        InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class).child(VpnMap.class,
-                new VpnMapKey(id)).build();
-        Optional<VpnMap> optionalVpnMap = read(LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
+        Optional<VpnMap> optionalVpnMap = read(LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier(id));
         if (optionalVpnMap.isPresent()) {
             return optionalVpnMap.get();
         }
@@ -230,8 +242,7 @@ public class NeutronvpnUtils {
 
     @Nullable
     protected Uuid getVpnForNetwork(Uuid network) {
-        InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
-        Optional<VpnMaps> optionalVpnMaps = read(LogicalDatastoreType.CONFIGURATION, vpnMapsIdentifier);
+        Optional<VpnMaps> optionalVpnMaps = read(LogicalDatastoreType.CONFIGURATION, VPN_MAPS_IID);
         if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().nonnullVpnMap() != null) {
             for (VpnMap vpnMap : new ArrayList<>(optionalVpnMaps.get().nonnullVpnMap())) {
                 List<Uuid> netIds = vpnMap.getNetworkIds();
@@ -275,8 +286,7 @@ public class NeutronvpnUtils {
             return null;
         }
 
-        InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
-        Optional<VpnMaps> optionalVpnMaps = read(LogicalDatastoreType.CONFIGURATION, vpnMapsIdentifier);
+        Optional<VpnMaps> optionalVpnMaps = read(LogicalDatastoreType.CONFIGURATION, VPN_MAPS_IID);
         if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().nonnullVpnMap() != null) {
             for (VpnMap vpnMap : new ArrayList<>(optionalVpnMaps.get().nonnullVpnMap())) {
                 List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.vpnmap
@@ -312,9 +322,7 @@ public class NeutronvpnUtils {
 
     @Nullable
     protected List<Uuid> getRouterIdListforVpn(Uuid vpnId) {
-        InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class).child(VpnMap.class,
-                new VpnMapKey(vpnId)).build();
-        Optional<VpnMap> optionalVpnMap = read(LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
+        Optional<VpnMap> optionalVpnMap = read(LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier(vpnId));
         if (optionalVpnMap.isPresent()) {
             VpnMap vpnMap = optionalVpnMap.get();
             return NeutronUtils.getVpnMapRouterIdsListUuid(vpnMap.getRouterIds());
@@ -325,9 +333,7 @@ public class NeutronvpnUtils {
 
     @Nullable
     protected List<Uuid> getNetworksForVpn(Uuid vpnId) {
-        InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class).child(VpnMap.class,
-                new VpnMapKey(vpnId)).build();
-        Optional<VpnMap> optionalVpnMap = read(LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
+        Optional<VpnMap> optionalVpnMap = read(LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier(vpnId));
         if (optionalVpnMap.isPresent()) {
             VpnMap vpnMap = optionalVpnMap.get();
             if (vpnMap.getNetworkIds() != null && !vpnMap.getNetworkIds().isEmpty()) {
@@ -343,8 +349,7 @@ public class NeutronvpnUtils {
     protected List<Uuid> getSubnetsforVpn(Uuid vpnid) {
         List<Uuid> subnets = new ArrayList<>();
         // read subnetmaps
-        InstanceIdentifier<Subnetmaps> subnetmapsid = InstanceIdentifier.builder(Subnetmaps.class).build();
-        Optional<Subnetmaps> subnetmaps = read(LogicalDatastoreType.CONFIGURATION, subnetmapsid);
+        Optional<Subnetmaps> subnetmaps = read(LogicalDatastoreType.CONFIGURATION, SUBNETMAPS_IID);
         if (subnetmaps.isPresent() && subnetmaps.get().getSubnetmap() != null) {
             List<Subnetmap> subnetMapList = subnetmaps.get().getSubnetmap();
             for (Subnetmap candidateSubnetMap : subnetMapList) {
@@ -384,9 +389,7 @@ public class NeutronvpnUtils {
         if (router != null) {
             return router;
         }
-        InstanceIdentifier<Router> inst = InstanceIdentifier.create(Neutron.class).child(Routers.class).child(Router
-                .class, new RouterKey(routerId));
-        Optional<Router> rtr = read(LogicalDatastoreType.CONFIGURATION, inst);
+        Optional<Router> rtr = read(LogicalDatastoreType.CONFIGURATION, getNeutronRouterIid(routerId));
         if (rtr.isPresent()) {
             router = rtr.get();
         }
@@ -394,9 +397,7 @@ public class NeutronvpnUtils {
     }
 
     public InstanceIdentifier<Router> getNeutronRouterIid(Uuid routerId) {
-        return InstanceIdentifier.create(Neutron.class).child(Routers.class).child(Router
-                .class, new RouterKey(routerId));
-
+        return NEUTRON_ROUTERS_IID.child(Router.class, new RouterKey(routerId));
     }
 
     protected Network getNeutronNetwork(Uuid networkId) {
@@ -406,8 +407,7 @@ public class NeutronvpnUtils {
             return network;
         }
         LOG.debug("getNeutronNetwork for {}", networkId.getValue());
-        InstanceIdentifier<Network> inst = InstanceIdentifier.create(Neutron.class).child(Networks.class)
-            .child(Network.class, new NetworkKey(networkId));
+        InstanceIdentifier<Network> inst = NEUTRON_NETWORKS_IID.child(Network.class, new NetworkKey(networkId));
         Optional<Network> net = read(LogicalDatastoreType.CONFIGURATION, inst);
         if (net.isPresent()) {
             network = net.get();
@@ -421,8 +421,7 @@ public class NeutronvpnUtils {
             return prt;
         }
         LOG.debug("getNeutronPort for {}", portId.getValue());
-        InstanceIdentifier<Port> inst = InstanceIdentifier.create(Neutron.class).child(Ports.class).child(Port.class,
-                new PortKey(portId));
+        InstanceIdentifier<Port> inst = NEUTRON_PORTS_IID.child(Port.class, new PortKey(portId));
         Optional<Port> port = read(LogicalDatastoreType.CONFIGURATION, inst);
         if (port.isPresent()) {
             prt = port.get();
@@ -794,8 +793,7 @@ public class NeutronvpnUtils {
         if (subnet != null) {
             return subnet;
         }
-        InstanceIdentifier<Subnet> inst = InstanceIdentifier.create(Neutron.class).child(Subnets.class).child(Subnet
-                .class, new SubnetKey(subnetId));
+        InstanceIdentifier<Subnet> inst = NEUTRON_SUBNETS_IID.child(Subnet.class, new SubnetKey(subnetId));
         Optional<Subnet> sn = read(LogicalDatastoreType.CONFIGURATION, inst);
 
         if (sn.isPresent()) {
@@ -807,8 +805,7 @@ public class NeutronvpnUtils {
 
     protected List<Subnetmap> getNeutronRouterSubnetMapList(Uuid routerId) {
         List<Subnetmap> subnetMapList = new ArrayList<>();
-        Optional<Subnetmaps> subnetMaps = read(LogicalDatastoreType.CONFIGURATION,
-                InstanceIdentifier.builder(Subnetmaps.class).build());
+        Optional<Subnetmaps> subnetMaps = read(LogicalDatastoreType.CONFIGURATION, SUBNETMAPS_IID);
         if (subnetMaps.isPresent() && subnetMaps.get().getSubnetmap() != null) {
             for (Subnetmap subnetmap : subnetMaps.get().getSubnetmap()) {
                 if (routerId.equals(subnetmap.getRouterId())) {
@@ -824,8 +821,7 @@ public class NeutronvpnUtils {
     protected List<Uuid> getNeutronRouterSubnetIds(Uuid routerId) {
         LOG.debug("getNeutronRouterSubnetIds for {}", routerId.getValue());
         List<Uuid> subnetIdList = new ArrayList<>();
-        Optional<Subnetmaps> subnetMaps = read(LogicalDatastoreType.CONFIGURATION,
-            InstanceIdentifier.builder(Subnetmaps.class).build());
+        Optional<Subnetmaps> subnetMaps = read(LogicalDatastoreType.CONFIGURATION, SUBNETMAPS_IID);
         if (subnetMaps.isPresent() && subnetMaps.get().getSubnetmap() != null) {
             for (Subnetmap subnetmap : subnetMaps.get().getSubnetmap()) {
                 if (routerId.equals(subnetmap.getRouterId())) {
@@ -842,11 +838,9 @@ public class NeutronvpnUtils {
     @Nullable
     protected Short getIPPrefixFromPort(Port port) {
         try {
-            Uuid subnetUUID = port.getFixedIps().get(0).getSubnetId();
-            SubnetKey subnetkey = new SubnetKey(subnetUUID);
-            InstanceIdentifier<Subnet> subnetidentifier = InstanceIdentifier.create(Neutron.class).child(Subnets
-                    .class).child(Subnet.class, subnetkey);
-            Optional<Subnet> subnet = read(LogicalDatastoreType.CONFIGURATION, subnetidentifier);
+            // FIXME: why are we not using getNeutronSubnet() here? it does caching for us...
+            Optional<Subnet> subnet = read(LogicalDatastoreType.CONFIGURATION,
+                NEUTRON_SUBNETS_IID.child(Subnet.class, new SubnetKey(port.getFixedIps().get(0).getSubnetId())));
             if (subnet.isPresent()) {
                 String cidr = subnet.get().getCidr().stringValue();
                 // Extract the prefix length from cidr
@@ -1031,9 +1025,7 @@ public class NeutronvpnUtils {
     }
 
     static InstanceIdentifier<Subnetmap> buildSubnetMapIdentifier(Uuid subnetId) {
-        InstanceIdentifier<Subnetmap> id = InstanceIdentifier.builder(Subnetmaps.class).child(Subnetmap.class, new
-                SubnetmapKey(subnetId)).build();
-        return id;
+        return SUBNETMAPS_IID.child(Subnetmap.class, new SubnetmapKey(subnetId));
     }
 
     static InstanceIdentifier<Interface> buildVlanInterfaceIdentifier(String interfaceName) {
@@ -1230,9 +1222,7 @@ public class NeutronvpnUtils {
     }
 
     protected boolean doesVpnExist(Uuid vpnId) {
-        InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class).child(VpnMap.class,
-                new VpnMapKey(vpnId)).build();
-        return read(LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier).isPresent();
+        return read(LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier(vpnId)).isPresent();
     }
 
     protected Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external
@@ -1304,8 +1294,7 @@ public class NeutronvpnUtils {
      */
     protected List<Subnetmap> getNeutronRouterSubnetMaps(Uuid routerId) {
         List<Subnetmap> subnetIdList = new ArrayList<>();
-        Optional<Subnetmaps> subnetMaps = read(LogicalDatastoreType.CONFIGURATION,
-            InstanceIdentifier.builder(Subnetmaps.class).build());
+        Optional<Subnetmaps> subnetMaps = read(LogicalDatastoreType.CONFIGURATION, SUBNETMAPS_IID);
         if (subnetMaps.isPresent() && subnetMaps.get().getSubnetmap() != null) {
             for (Subnetmap subnetmap : subnetMaps.get().getSubnetmap()) {
                 if (routerId.equals(subnetmap.getRouterId())) {
@@ -1392,8 +1381,7 @@ public class NeutronvpnUtils {
     }
 
     protected InstanceIdentifier<VpnInstanceOpDataEntry> getVpnOpDataIdentifier(String primaryRd) {
-        return InstanceIdentifier.builder(VpnInstanceOpData.class)
-                .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(primaryRd)).build();
+        return VPN_INSTANCE_OP_DATA_IID.child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(primaryRd));
     }
 
     public boolean shouldVpnHandleIpVersionChoiceChange(IpVersionChoice ipVersion, Uuid routerId, boolean add) {
@@ -1425,8 +1413,7 @@ public class NeutronvpnUtils {
         if (sm == null) {
             return false;
         }
-        InstanceIdentifier<Subnetmaps> subnetMapsId = InstanceIdentifier.builder(Subnetmaps.class).build();
-        Optional<Subnetmaps> allSubnetMaps = read(LogicalDatastoreType.CONFIGURATION, subnetMapsId);
+        Optional<Subnetmaps> allSubnetMaps = read(LogicalDatastoreType.CONFIGURATION, SUBNETMAPS_IID);
         // calculate and store in list IpVersion for each subnetMap, belonging to current VpnInstance
         List<IpVersionChoice> snIpVersions = new ArrayList<>();
         for (Subnetmap snMap : allSubnetMaps.get().nonnullSubnetmap()) {
@@ -1490,10 +1477,7 @@ public class NeutronvpnUtils {
             }
             return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                     OPERATIONAL, tx -> {
-                    InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier
-                            .builder(VpnInstanceOpData.class).child(VpnInstanceOpDataEntry.class,
-                                        new VpnInstanceOpDataEntryKey(vpnInstanceOpDataEntry.getVrfId())).build();
-                    tx.merge(id, builder.build(), false);
+                    tx.merge(getVpnOpDataIdentifier(vpnInstanceOpDataEntry.getVrfId()), builder.build(), false);
                     LOG.info("updateVpnInstanceWithIpFamily: Successfully {} {} to Vpn {}",
                             add == true ? "added" : "removed", ipVersion, vpnName);
                 }));
@@ -1657,8 +1641,7 @@ public class NeutronvpnUtils {
                     + "Primary RD not found", choice, vpn.getValue());
             return;
         }
-        InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
-              .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(primaryRd)).build();
+        InstanceIdentifier<VpnInstanceOpDataEntry> id = getVpnOpDataIdentifier(primaryRd);
 
         Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
             read(LogicalDatastoreType.OPERATIONAL, id);
@@ -1776,6 +1759,10 @@ public class NeutronvpnUtils {
                 return futures;
             }
         }, JOB_MAX_RETRIES);
+    }
+
+    private static InstanceIdentifier<VpnMap> vpnMapIdentifier(Uuid uuid) {
+        return VPN_MAPS_IID.child(VpnMap.class, new VpnMapKey(uuid));
     }
 
     private class SettableFutureCallback<T> implements FutureCallback<T> {
