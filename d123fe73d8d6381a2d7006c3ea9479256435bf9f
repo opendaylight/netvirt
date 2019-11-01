@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_599e5f57",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2242,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-23T07:54:43Z",
+      "side": 1,
+      "message": "return \"MAC-\" + macAddress + \" ELAN_TAG-\" + elanTag;",
+      "revId": "d123fe73d8d6381a2d7006c3ea9479256435bf9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
