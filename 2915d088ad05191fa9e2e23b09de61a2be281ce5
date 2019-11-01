@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_a81bb171",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-08-31T16:08:46Z",
+      "side": 1,
+      "message": "in what scenario we can have that the table not exist and we still have an isLastElanInterface\u003dfalse?",
+      "revId": "2915d088ad05191fa9e2e23b09de61a2be281ce5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
