@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_4887af0f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanPacketInHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-22T11:49:35Z",
+      "side": 1,
+      "message": "make metadata also as final though is is effectively final.",
+      "revId": "79d5d42ac8d9ea002b8de5be1e622f790d417632",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c8c0df2c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanPacketInHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-22T11:49:35Z",
+      "side": 1,
+      "message": "elanTag is not added into job key. Have a method like getElanMacJobKey(long elanTag, String macAddress) in ElanUtil.java and use it here.",
+      "revId": "79d5d42ac8d9ea002b8de5be1e622f790d417632",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_28dfd30e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 736,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-22T11:49:35Z",
+      "side": 1,
+      "message": "remove this log.",
+      "revId": "79d5d42ac8d9ea002b8de5be1e622f790d417632",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2806b386",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 761,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-22T11:49:35Z",
+      "side": 1,
+      "message": "same comment as before.",
+      "revId": "79d5d42ac8d9ea002b8de5be1e622f790d417632",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
