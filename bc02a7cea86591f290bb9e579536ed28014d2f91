@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "ba068154_5df2ff6f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 2070,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-17T16:18:36Z",
+      "side": 1,
+      "message": "\u0027There is no adjacency available for vpnInterface \u003c\u003e\"",
+      "revId": "bc02a7cea86591f290bb9e579536ed28014d2f91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_343798b2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 2073,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-23T12:46:21Z",
+      "side": 1,
+      "message": "a succint comment here above this line to help understand what is being matched to trigger addNewAdjToVpnInterface will help a lot..",
+      "revId": "bc02a7cea86591f290bb9e579536ed28014d2f91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_7d96e3f1",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 20
