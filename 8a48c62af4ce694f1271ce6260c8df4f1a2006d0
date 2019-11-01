@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3afa9182_41bc206d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-31T06:03:01Z",
+      "side": 1,
+      "message": "just enqueue the job with elan interface name.",
+      "revId": "8a48c62af4ce694f1271ce6260c8df4f1a2006d0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_e1a6ec52",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 2199,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-31T06:03:01Z",
+      "side": 1,
+      "message": "as discussed, make sure you update elanInstanceToInterfacesCache properly as part of clustered DCN listener.",
+      "revId": "8a48c62af4ce694f1271ce6260c8df4f1a2006d0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
