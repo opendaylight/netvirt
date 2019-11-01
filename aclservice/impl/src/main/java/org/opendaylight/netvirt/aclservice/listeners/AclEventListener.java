@@ -18,7 +18,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -107,10 +106,12 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
                 this.aclServiceUtils.releaseAclTag(aclName);
             }
             // Handle Rule deletion If SG Remove event is received before SG Rule delete event
-            List<Ace> aceList = acl.getAccessListEntries().getAce();
-            Collection<AclInterface> aclInterfaces =
-                    ImmutableSet.copyOf(aclDataUtil.getInterfaceList(new Uuid(aclName)));
-            updateAceRules(aclInterfaces, aclName, aceList, AclServiceManager.Action.REMOVE);
+            List<Ace> aceList = AclServiceUtils.aceList(acl);
+            if (!aceList.isEmpty()) {
+                Collection<AclInterface> aclInterfaces =
+                        ImmutableSet.copyOf(aclDataUtil.getInterfaceList(new Uuid(aclName)));
+                updateAceRules(aclInterfaces, aclName, aceList, AclServiceManager.Action.REMOVE);
+            }
         }
     }
 
@@ -175,7 +176,7 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
      * @param aclName the acl name
      * @param action the action
      */
-    private void updateRemoteAclCache(@Nullable List<Ace> aceList, String aclName, AclServiceManager.Action action) {
+    private void updateRemoteAclCache(@Nonnull List<Ace> aceList, String aclName, AclServiceManager.Action action) {
         for (Ace ace : aceList) {
             SecurityRuleAttr aceAttributes = ace.augmentation(SecurityRuleAttr.class);
             if (AclServiceUtils.doesAceHaveRemoteGroupId(aceAttributes)) {
@@ -251,21 +252,17 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
     }
 
     @Nonnull
-    private List<Ace> getChangedAceList(Acl updatedAcl, Acl currentAcl) {
+    private static List<Ace> getChangedAceList(Acl updatedAcl, Acl currentAcl) {
         if (updatedAcl == null) {
             return Collections.emptyList();
         }
-        List<Ace> updatedAceList =
-            updatedAcl.getAccessListEntries() == null || updatedAcl.getAccessListEntries().getAce() == null
-                ? new ArrayList<>()
-                : new ArrayList<>(updatedAcl.getAccessListEntries().getAce());
+        List<Ace> updatedAceList = AclServiceUtils.aceList(updatedAcl);
         if (currentAcl == null) {
             return updatedAceList;
         }
-        List<Ace> currentAceList =
-            currentAcl.getAccessListEntries() == null || currentAcl.getAccessListEntries().getAce() == null
-                ? new ArrayList<>()
-                : new ArrayList<>(currentAcl.getAccessListEntries().getAce());
+
+        List<Ace> currentAceList = AclServiceUtils.aceList(currentAcl);
+        updatedAceList = new ArrayList<>(updatedAceList);
         for (Iterator<Ace> iterator = updatedAceList.iterator(); iterator.hasNext();) {
             Ace ace1 = iterator.next();
             for (Ace ace2 : currentAceList) {
@@ -277,11 +274,15 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
         return updatedAceList;
     }
 
-    private List<Ace> getDeletedAceList(Acl acl) {
-        if (acl == null || acl.getAccessListEntries() == null || acl.getAccessListEntries().getAce() == null) {
+    private static List<Ace> getDeletedAceList(Acl acl) {
+        if (acl == null) {
             return null;
         }
-        List<Ace> aceList = acl.getAccessListEntries().getAce();
+        List<Ace> aceList = AclServiceUtils.aceList(acl);
+        if (aceList.isEmpty()) {
+            return null;
+        }
+
         List<Ace> deletedAceList = new ArrayList<>();
         for (Ace ace: aceList) {
             if (ace.augmentation(SecurityRuleAttr.class).isDeleted()) {
