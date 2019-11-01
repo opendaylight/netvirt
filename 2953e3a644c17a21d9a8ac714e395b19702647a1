@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_a6e7be3f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 2066,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-10T10:47:11Z",
+      "side": 1,
+      "message": "continue can be used only for loops. for lambda expressions, it should be return.",
+      "parentUuid": "ba068154_a61dfe68",
+      "range": {
+        "startLine": 2066,
+        "startChar": 20,
+        "endLine": 2066,
+        "endChar": 27
+      },
+      "revId": "2953e3a644c17a21d9a8ac714e395b19702647a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
