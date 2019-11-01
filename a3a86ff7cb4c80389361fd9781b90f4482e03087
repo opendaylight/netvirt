@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7af0899e_d81f6208",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-24T12:57:26Z",
+      "side": 1,
+      "message": "it\u0027s costly read. let us try to optimize it if csit stabilizes with this review.",
+      "revId": "a3a86ff7cb4c80389361fd9781b90f4482e03087",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_582c124b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-24T12:57:26Z",
+      "side": 1,
+      "message": "use stream here because you are using jc for the task.",
+      "revId": "a3a86ff7cb4c80389361fd9781b90f4482e03087",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_782bce30",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-24T12:57:26Z",
+      "side": 1,
+      "message": "use interface name as key. \nwe might need to job key for elaninterface. it can be taken up later.",
+      "revId": "a3a86ff7cb4c80389361fd9781b90f4482e03087",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_98ddda45",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1486,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-24T12:57:26Z",
+      "side": 1,
+      "message": "make it as default",
+      "revId": "a3a86ff7cb4c80389361fd9781b90f4482e03087",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
