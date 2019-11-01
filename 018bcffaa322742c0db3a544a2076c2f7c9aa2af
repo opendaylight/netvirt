@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_81d41948",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanDpnInterfaceClusteredListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5703
+      },
+      "writtenOn": "2016-07-12T13:22:38Z",
+      "side": 1,
+      "message": "You assigned the new object to a local variable instead of assigning it to the field of the class",
+      "revId": "018bcffaa322742c0db3a544a2076c2f7c9aa2af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_415161d7",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
         "patchSetId": 12
