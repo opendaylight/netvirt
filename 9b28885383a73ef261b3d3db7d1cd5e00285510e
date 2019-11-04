@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_abf4c587",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-03T11:37:58Z",
+      "side": 1,
+      "message": "instead of using csc keyword, can we please use thrift.sdnc.mip (or) thrift.odl.mip",
+      "revId": "9b28885383a73ef261b3d3db7d1cd5e00285510e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
