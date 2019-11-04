@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "7a1969be_4ae53aa7",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/VtyshCli.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-12-05T07:42:47Z",
+      "side": 1,
+      "message": "maybe you can add \ndisplay routign bgp ipv6 vpn summary\ntoo",
+      "range": {
+        "startLine": 55,
+        "startChar": 8,
+        "endLine": 55,
+        "endChar": 47
+      },
+      "revId": "b24fd69ab43bb10cbc5629c23f396ab120dcfe40",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_8d6c699e",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/VtyshCli.java",
         "patchSetId": 1
