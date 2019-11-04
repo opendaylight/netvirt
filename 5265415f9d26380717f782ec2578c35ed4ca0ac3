@@ -26,6 +26,29 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_700a0d7a",
+        "filename": "docs/specs/netvirt-statistics-spec.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 8051
+      },
+      "writtenOn": "2019-11-04T22:11:05Z",
+      "side": 1,
+      "message": "1.Will this involve getting it directly from the switch bypassing the ofp or do we retrieve it using ofp ?\n2. Do we plan to store the stats - if yes probably lets rethink since stats storage has been seen as detrimental to scale\n3. Since there is an option to disable stats in the ofp, so with stats turned off this feature should not affect the normal netvirt functioning",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 61
+      },
+      "revId": "5265415f9d26380717f782ec2578c35ed4ca0ac3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_5a44481a",
         "filename": "docs/specs/netvirt-statistics-spec.rst",
         "patchSetId": 8
@@ -38,6 +61,29 @@
       "side": 1,
       "message": "1) The stats collection will be on demand.\n2) Since we neither use OFP statistics, nor store the data, the only scale issue could be running many RPC calls simultaneously - but in that case load balancing of the calls could be a solution.",
       "parentUuid": "1a622d24_f01d7dbf",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 43
+      },
+      "revId": "5265415f9d26380717f782ec2578c35ed4ca0ac3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f01d7dbf",
+        "filename": "docs/specs/netvirt-statistics-spec.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 8051
+      },
+      "writtenOn": "2019-11-04T22:11:05Z",
+      "side": 1,
+      "message": "1. will the stats collection be by demand or periodic ?\n2. we need to account for scale in either cases -- 1000 switches",
       "range": {
         "startLine": 32,
         "startChar": 0,
@@ -74,6 +120,29 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_1080f9be",
+        "filename": "docs/specs/netvirt-statistics-spec.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 8051
+      },
+      "writtenOn": "2019-11-04T22:11:05Z",
+      "side": 1,
+      "message": "Please incorporate infra impacts in case we plan to store stats",
+      "range": {
+        "startLine": 108,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 4
+      },
+      "revId": "5265415f9d26380717f782ec2578c35ed4ca0ac3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_9a49c033",
         "filename": "docs/specs/netvirt-statistics-spec.rst",
         "patchSetId": 8
@@ -86,6 +155,29 @@
       "side": 1,
       "message": "Done in previous comments.",
       "parentUuid": "1a622d24_307b75f6",
+      "range": {
+        "startLine": 116,
+        "startChar": 0,
+        "endLine": 118,
+        "endChar": 4
+      },
+      "revId": "5265415f9d26380717f782ec2578c35ed4ca0ac3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_307b75f6",
+        "filename": "docs/specs/netvirt-statistics-spec.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 8051
+      },
+      "writtenOn": "2019-11-04T22:11:05Z",
+      "side": 1,
+      "message": "Please incorporate the scale impacts",
       "range": {
         "startLine": 116,
         "startChar": 0,
