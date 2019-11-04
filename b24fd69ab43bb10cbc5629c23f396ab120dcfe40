@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a1969be_8d6c699e",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/VtyshCli.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-12-06T07:06:47Z",
+      "side": 1,
+      "message": "Since this is a cherry-pick, it should ideally be same as the master branch patch. If we decide to add the \"ipv6 vpn summary\" too, lets do it via a new patch. thanks.",
+      "parentUuid": "7a1969be_4ae53aa7",
+      "range": {
+        "startLine": 55,
+        "startChar": 8,
+        "endLine": 55,
+        "endChar": 47
+      },
+      "revId": "b24fd69ab43bb10cbc5629c23f396ab120dcfe40",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
