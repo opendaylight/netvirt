@@ -201,10 +201,10 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                 .getUpdatedAllowedAddressPairs(portAfter.getAllowedAddressPairs(), portBefore.getAllowedAddressPairs());
         List<AllowedAddressPairs> deletedAaps = AclServiceUtils
                 .getUpdatedAllowedAddressPairs(portBefore.getAllowedAddressPairs(), portAfter.getAllowedAddressPairs());
-        if (deletedAaps != null && !deletedAaps.isEmpty()) {
+        if (!deletedAaps.isEmpty()) {
             processDhcpServiceUpdate(deleteFlowEntries, portBefore, deletedAaps, NwConstants.DEL_FLOW);
         }
-        if (addedAaps != null && !addedAaps.isEmpty()) {
+        if (!addedAaps.isEmpty()) {
             processDhcpServiceUpdate(addFlowEntries, portAfter, addedAaps, NwConstants.ADD_FLOW);
         }
         programFlows(AclConstants.ACL_JOB_KEY_PREFIX + portAfter.getInterfaceId(), deleteFlowEntries,
@@ -220,13 +220,13 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                 .getUpdatedAllowedAddressPairs(portAfter.getAllowedAddressPairs(), portBefore.getAllowedAddressPairs());
         List<AllowedAddressPairs> deletedAaps = AclServiceUtils
                 .getUpdatedAllowedAddressPairs(portBefore.getAllowedAddressPairs(), portAfter.getAllowedAddressPairs());
-        if (deletedAaps != null && !deletedAaps.isEmpty()) {
+        if (!deletedAaps.isEmpty()) {
             programAclWithAllowedAddress(deleteFlowEntries, portBefore, deletedAaps, Action.UPDATE,
                     NwConstants.DEL_FLOW);
             updateRemoteAclFilterTable(deleteFlowEntries, portBefore, portBefore.getSecurityGroups(), deletedAaps,
                     NwConstants.DEL_FLOW);
         }
-        if (addedAaps != null && !addedAaps.isEmpty()) {
+        if (!addedAaps.isEmpty()) {
             programAclWithAllowedAddress(addFlowEntries, portAfter, addedAaps, Action.UPDATE, NwConstants.ADD_FLOW);
             updateRemoteAclFilterTable(addFlowEntries, portAfter, portAfter.getSecurityGroups(), addedAaps,
                     NwConstants.ADD_FLOW);
