@@ -164,17 +164,17 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
                 aclInterfaceBefore.getSecurityGroups());
         List<Uuid> deletedAcls = AclServiceUtils.getUpdatedAclList(aclInterfaceBefore.getSecurityGroups(),
                 aclInterfaceAfter.getSecurityGroups());
-        if (deletedAcls != null && !deletedAcls.isEmpty()) {
+        if (!deletedAcls.isEmpty()) {
             aclDataUtil.removeAclInterfaceMap(deletedAcls, aclInterfaceAfter);
         }
-        if (addedAcls != null && !addedAcls.isEmpty()) {
+        if (!addedAcls.isEmpty()) {
             aclDataUtil.addOrUpdateAclInterfaceMap(addedAcls, aclInterfaceAfter);
         }
         List<AllowedAddressPairs> addedAap = AclServiceUtils.getUpdatedAllowedAddressPairs(aclInterfaceAfter
                 .getAllowedAddressPairs(), aclInterfaceBefore.getAllowedAddressPairs());
         List<AllowedAddressPairs> deletedAap = AclServiceUtils.getUpdatedAllowedAddressPairs(aclInterfaceBefore
                 .getAllowedAddressPairs(), aclInterfaceAfter.getAllowedAddressPairs());
-        if (deletedAap != null && !deletedAap.isEmpty() || addedAap != null && !addedAap.isEmpty()) {
+        if (!deletedAap.isEmpty() || !addedAap.isEmpty()) {
             LOG.debug("Update cache with new AAP = {}", aclInterfaceAfter.getInterfaceId());
             aclDataUtil.addOrUpdateAclInterfaceMap(aclInterfaceAfter.getSecurityGroups(), aclInterfaceAfter);
         }

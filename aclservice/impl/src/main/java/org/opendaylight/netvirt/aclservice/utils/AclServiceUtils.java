@@ -374,23 +374,15 @@ public final class AclServiceUtils {
             return newAclList;
         }
         List<Uuid> origAclList = new ArrayList<>(currentAclList);
-        for (Iterator<Uuid> iterator = newAclList.iterator(); iterator.hasNext();) {
-            Uuid updatedAclUuid = iterator.next();
-            for (Uuid currentAclUuid :origAclList) {
-                if (updatedAclUuid.getValue().equals(currentAclUuid.getValue())) {
-                    iterator.remove();
-                }
-            }
-        }
+        newAclList.removeAll(origAclList);
         return newAclList;
     }
 
-    @Nullable
     public static List<AllowedAddressPairs> getUpdatedAllowedAddressPairs(
             @Nullable List<AllowedAddressPairs> updatedAllowedAddressPairs,
             @Nullable List<AllowedAddressPairs> currentAllowedAddressPairs) {
         if (updatedAllowedAddressPairs == null) {
-            return null;
+            return Collections.emptyList();
         }
         List<AllowedAddressPairs> newAllowedAddressPairs = new ArrayList<>(updatedAllowedAddressPairs);
         if (currentAllowedAddressPairs == null) {
@@ -1103,12 +1095,12 @@ public final class AclServiceUtils {
         LOG.debug("Processing interface additions for port {}", portAfter.getInterfaceId());
         List<AllowedAddressPairs> addedAllowedAddressPairs = getUpdatedAllowedAddressPairs(
                 portAfter.getAllowedAddressPairs(), portBefore.getAllowedAddressPairs());
-        if (addedAllowedAddressPairs != null && !addedAllowedAddressPairs.isEmpty()) {
+        if (!addedAllowedAddressPairs.isEmpty()) {
             addAclPortsLookup(portAfter, portAfter.getSecurityGroups(), addedAllowedAddressPairs);
         }
 
         List<Uuid> addedAcls = getUpdatedAclList(portAfter.getSecurityGroups(), portBefore.getSecurityGroups());
-        if (addedAcls != null && !addedAcls.isEmpty()) {
+        if (!addedAcls.isEmpty()) {
             addAclPortsLookup(portAfter, addedAcls, portAfter.getAllowedAddressPairs());
         }
     }
@@ -1117,12 +1109,12 @@ public final class AclServiceUtils {
         LOG.debug("Processing interface removals for port {}", portAfter.getInterfaceId());
         List<AllowedAddressPairs> deletedAllowedAddressPairs = getUpdatedAllowedAddressPairs(
                 portBefore.getAllowedAddressPairs(), portAfter.getAllowedAddressPairs());
-        if (deletedAllowedAddressPairs != null && !deletedAllowedAddressPairs.isEmpty()) {
+        if (!deletedAllowedAddressPairs.isEmpty()) {
             deleteAclPortsLookup(portAfter, portAfter.getSecurityGroups(), deletedAllowedAddressPairs);
         }
 
         List<Uuid> deletedAcls = getUpdatedAclList(portBefore.getSecurityGroups(), portAfter.getSecurityGroups());
-        if (deletedAcls != null && !deletedAcls.isEmpty()) {
+        if (!deletedAcls.isEmpty()) {
             deleteAclPortsLookup(portAfter, deletedAcls, portAfter.getAllowedAddressPairs());
         }
     }
