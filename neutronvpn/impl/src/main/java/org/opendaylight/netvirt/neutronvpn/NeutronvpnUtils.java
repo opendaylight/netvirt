@@ -295,12 +295,8 @@ public class NeutronvpnUtils {
                     continue;
                 }
                 // Skip router vpnId fetching from internet BGP-VPN
-                if (vpnMap.getNetworkIds() != null && !vpnMap.getNetworkIds().isEmpty()) {
-                    // We only need to check the first network; if it’s not an external network there’s no
-                    // need to check the rest of the VPN’s network list
-                    if (getIsExternal(getNeutronNetwork(vpnMap.getNetworkIds().iterator().next()))) {
-                        continue;
-                    }
+                if (hasExternalNetwork(vpnMap.getNetworkIds())) {
+                    continue;
                 }
                 // FIXME: NETVIRT-1503: this check can be replaced by a ReadOnlyTransaction.exists()
                 if (routerIdsList.stream().anyMatch(routerIds -> routerId.equals(routerIds.getRouterId()))) {
@@ -319,6 +315,26 @@ public class NeutronvpnUtils {
         LOG.debug("getVpnForRouter: Failed for router {} as no VPN present in VPNMaps DS", routerId.getValue());
         return null;
     }
+
+    // We only need to check the first network; if it’s not an external network there’s no
+    // need to check the rest of the VPN’s network list. Note that some UUIDs may point to unknown networks, in which
+    // case we check more  and assume false.
+    private boolean hasExternalNetwork(List<Uuid> uuids) {
+        if (uuids != null) {
+            for (Uuid uuid : uuids) {
+                final Network network = getNeutronNetwork(uuid);
+                if (network != null) {
+                    if (Boolean.TRUE.equals(getIsExternal(network))) {
+                        return true;
+                    }
+                } else {
+                    LOG.debug("hasExternalNetwork: cannot find network for {}", uuid);
+                }
+            }
+        }
+        return false;
+    }
+
 
     @Nullable
     protected List<Uuid> getRouterIdListforVpn(Uuid vpnId) {
@@ -400,33 +416,24 @@ public class NeutronvpnUtils {
         return NEUTRON_ROUTERS_IID.child(Router.class, new RouterKey(routerId));
     }
 
-    protected Network getNeutronNetwork(Uuid networkId) {
-        Network network = null;
-        network = networkMap.get(networkId);
+    protected @Nullable Network getNeutronNetwork(Uuid networkId) {
+        Network network = networkMap.get(networkId);
         if (network != null) {
             return network;
         }
         LOG.debug("getNeutronNetwork for {}", networkId.getValue());
         InstanceIdentifier<Network> inst = NEUTRON_NETWORKS_IID.child(Network.class, new NetworkKey(networkId));
-        Optional<Network> net = read(LogicalDatastoreType.CONFIGURATION, inst);
-        if (net.isPresent()) {
-            network = net.get();
-        }
-        return network;
+        return read(LogicalDatastoreType.CONFIGURATION, inst).orNull();
     }
 
-    protected Port getNeutronPort(Uuid portId) {
+    protected @Nullable Port getNeutronPort(Uuid portId) {
         Port prt = portMap.get(portId);
         if (prt != null) {
             return prt;
         }
         LOG.debug("getNeutronPort for {}", portId.getValue());
         InstanceIdentifier<Port> inst = NEUTRON_PORTS_IID.child(Port.class, new PortKey(portId));
-        Optional<Port> port = read(LogicalDatastoreType.CONFIGURATION, inst);
-        if (port.isPresent()) {
-            prt = port.get();
-        }
-        return prt;
+        return read(LogicalDatastoreType.CONFIGURATION, inst).orNull();
     }
 
     public PortIdToSubport getPortIdToSubport(Uuid portId) {
