@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a1742b88_0e0101c4",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 951,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-11-08T11:54:11Z",
+      "side": 0,
+      "message": "at the end of the day this just refactors the code to make it more optimal -- we are really just iterating over the list below.",
+      "range": {
+        "startLine": 949,
+        "startChar": 0,
+        "endLine": 951,
+        "endChar": 29
+      },
+      "revId": "612069d7cda5e26d4c6f3905c45c6f15c28b6739",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
