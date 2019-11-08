@@ -944,11 +944,7 @@ public class VpnSubnetRouteHandler {
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void electNewDpnForSubnetRoute(SubnetOpDataEntryBuilder subOpBuilder, @Nullable Uint64 oldDpnId,
                                            Uuid subnetId, Uuid networkId, boolean isBgpVpn) {
-        List<SubnetToDpn> subDpnList = null;
         boolean isRouteAdvertised = false;
-        subDpnList = new ArrayList<>();
-        subDpnList = subOpBuilder.getSubnetToDpn() != null ? new ArrayList<>(subOpBuilder.getSubnetToDpn())
-                : subDpnList;
         String rd = subOpBuilder.getVrfId();
         String subnetIp = subOpBuilder.getSubnetCidr();
         String vpnName = subOpBuilder.getVpnName();
@@ -986,24 +982,27 @@ public class VpnSubnetRouteHandler {
 
         String nhTepIp = null;
         Uint64 nhDpnId = null;
-        for (SubnetToDpn subnetToDpn : subDpnList) {
-            if (subnetToDpn.getDpnId().equals(oldDpnId)) {
-                // Is this same is as input dpnId, then ignore it
-                continue;
-            }
-            nhDpnId = subnetToDpn.getDpnId();
-            if (vpnNodeListener.isConnectedNode(nhDpnId)) {
-                // selected dpnId is connected to ODL
-                // but does it have a TEP configured at all?
-                try {
-                    nhTepIp = InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, nhDpnId);
-                    if (nhTepIp != null) {
-                        isAlternateDpnSelected = true;
-                        break;
+        List<SubnetToDpn> subDpnList = subOpBuilder.getSubnetToDpn();
+        if (subDpnList != null) {
+            for (SubnetToDpn subnetToDpn : subDpnList) {
+                if (subnetToDpn.getDpnId().equals(oldDpnId)) {
+                    // Is this same is as input dpnId, then ignore it
+                    continue;
+                }
+                nhDpnId = subnetToDpn.getDpnId();
+                if (vpnNodeListener.isConnectedNode(nhDpnId)) {
+                    // selected dpnId is connected to ODL
+                    // but does it have a TEP configured at all?
+                    try {
+                        nhTepIp = InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, nhDpnId);
+                        if (nhTepIp != null) {
+                            isAlternateDpnSelected = true;
+                            break;
+                        }
+                    } catch (Exception e) {
+                        LOG.warn("{} electNewDpnForSubnetRoute: Unable to find TepIp for rd {} subnetroute subnetip {}"
+                                + " for dpnid {}, attempt next", LOGGING_PREFIX, rd, subnetIp, nhDpnId.toString(), e);
                     }
-                } catch (Exception e) {
-                    LOG.warn("{} electNewDpnForSubnetRoute: Unable to find TepIp for rd {} subnetroute subnetip {}"
-                            + " for dpnid {}, attempt next", LOGGING_PREFIX, rd, subnetIp, nhDpnId.toString(), e);
                 }
             }
         }
