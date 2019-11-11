@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_68cfbf56",
+        "filename": "vpnservice/aclservice/aclservice-shell/pom.xml",
+        "patchSetId": 18
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7802
+      },
+      "writtenOn": "2019-11-11T22:10:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_ff15279c",
+      "revId": "40484f1e0befd9eaeb21ea86c8f7bff95d6f4961",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_df1823d5",
         "filename": "vpnservice/aclservice/aclservice-shell/pom.xml",
         "patchSetId": 18
@@ -30,6 +48,30 @@
       "writtenOn": "2017-11-17T19:01:37Z",
       "side": 1,
       "message": "2017?",
+      "range": {
+        "startLine": 3,
+        "startChar": 14,
+        "endLine": 3,
+        "endChar": 18
+      },
+      "revId": "40484f1e0befd9eaeb21ea86c8f7bff95d6f4961",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a8e1b72b",
+        "filename": "vpnservice/aclservice/aclservice-shell/pom.xml",
+        "patchSetId": 18
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 7802
+      },
+      "writtenOn": "2019-11-11T22:10:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_df1823d5",
       "range": {
         "startLine": 3,
         "startChar": 14,
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_48fe3b6c",
+        "filename": "vpnservice/aclservice/aclservice-shell/pom.xml",
+        "patchSetId": 18
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 7802
+      },
+      "writtenOn": "2019-11-11T22:10:25Z",
+      "side": 1,
+      "message": "This looks like  action item for you, please let me know if i need to take any action on this.",
+      "parentUuid": "9a245df4_9f1a2bc4",
+      "revId": "40484f1e0befd9eaeb21ea86c8f7bff95d6f4961",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_ff7c07ee",
         "filename": "vpnservice/aclservice/aclservice-shell/src/main/java/org/opendaylight/netvirt/aclservice/shell/DisplayAclDataCaches.java",
         "patchSetId": 18
@@ -70,6 +130,30 @@
       "writtenOn": "2017-11-17T19:01:37Z",
       "side": 1,
       "message": "same comment about these dates",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "40484f1e0befd9eaeb21ea86c8f7bff95d6f4961",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_08d44346",
+        "filename": "vpnservice/aclservice/aclservice-shell/src/main/java/org/opendaylight/netvirt/aclservice/shell/DisplayAclDataCaches.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 7802
+      },
+      "writtenOn": "2019-11-11T22:10:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_ff7c07ee",
       "range": {
         "startLine": 2,
         "startChar": 17,
@@ -99,6 +183,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_c8bd0b04",
+        "filename": "vpnservice/aclservice/api/src/main/java/org/opendaylight/netvirt/aclservice/api/utils/IAclDataUtil.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7802
+      },
+      "writtenOn": "2019-11-11T22:10:25Z",
+      "side": 1,
+      "message": "I has been removed.\n\nYes as all these are provided ACLDataUtil so better to keep it separate.",
+      "parentUuid": "9a245df4_1f863bdb",
+      "revId": "40484f1e0befd9eaeb21ea86c8f7bff95d6f4961",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_5f6b931d",
         "filename": "vpnservice/aclservice/pom.xml",
         "patchSetId": 18
@@ -110,6 +212,30 @@
       "writtenOn": "2017-11-17T19:01:37Z",
       "side": 1,
       "message": "shell",
+      "range": {
+        "startLine": 28,
+        "startChar": 12,
+        "endLine": 28,
+        "endChar": 22
+      },
+      "revId": "40484f1e0befd9eaeb21ea86c8f7bff95d6f4961",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_48e75be4",
+        "filename": "vpnservice/aclservice/pom.xml",
+        "patchSetId": 18
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 7802
+      },
+      "writtenOn": "2019-11-11T22:10:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_5f6b931d",
       "range": {
         "startLine": 28,
         "startChar": 12,
