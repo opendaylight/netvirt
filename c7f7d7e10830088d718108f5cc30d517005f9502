@@ -20,6 +20,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_946c799e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "make it debug, since there are cases when update will be triggered when we don\u0027t have to send a notification. Sending an error log in such cases would appear wrong.\nHave it as debug\nalso, to the log, you can add...\n ..., hence not proceeding with subnetmapListener update for subnet {}",
+      "revId": "c7f7d7e10830088d718108f5cc30d517005f9502",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_f4720de4",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapListener.java",
         "patchSetId": 4
@@ -38,6 +55,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_7400bdaa",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "check here if both lists are not equal, and return..because we\u0027ll have many updates when we don\u0027t have to send a notif, no need to process further checks in that case.\n\nfurther, have an if-else block",
+      "revId": "c7f7d7e10830088d718108f5cc30d517005f9502",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_547781d4",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapListener.java",
         "patchSetId": 4
@@ -50,6 +84,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "1a622d24_d40551c3",
+      "revId": "c7f7d7e10830088d718108f5cc30d517005f9502",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d40551c3",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "please see comment above, this will be changed to just else after that.",
       "revId": "c7f7d7e10830088d718108f5cc30d517005f9502",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
