@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "da2a55be_fc2ab17c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "here",
+      "range": {
+        "startLine": 350,
+        "startChar": 30,
+        "endLine": 350,
+        "endChar": 70
+      },
+      "revId": "2d9e0f9f7dfea9d190ba42d0e8bee8547cafb235",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_5c22dda4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "here",
+      "range": {
+        "startLine": 385,
+        "startChar": 30,
+        "endLine": 385,
+        "endChar": 70
+      },
+      "revId": "2d9e0f9f7dfea9d190ba42d0e8bee8547cafb235",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_a12652cc",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 2
@@ -49,6 +95,24 @@
       "side": 1,
       "message": "I agree, this is a valid point because there is no ordering guarantees with yang lists.\n\nAt the same time, however, this has to be fixed in a different review for supporting dualstack VMs rather than in this review.\n\nWe need to make sure single stack VMs that may be only IPv4 (or) only IPv6 are working correctly and this fix falls in line with that.\n\nSo I think we should take this fix.",
       "parentUuid": "da2a55be_9cc57590",
+      "revId": "2d9e0f9f7dfea9d190ba42d0e8bee8547cafb235",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_1c286585",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Hi Sridhar,\n\nI see that it is a bug not only in update, but across this class.\nInitially, we supported one fixed IPv4 IP per port, and it was fine. Now when we have evolved to support IPv6 IPs, we can have multiple IPs per port belonging to different subnets (a combination of IPv4 and IPv6 subnets).\nI see that this has been handled in neutronvpnmanager.createVpnInterface() to retrieve the IPv6 IP correctly and populate IPv6 interfaces properly, but the handling of the same to populate subnetmaps DS and other operations is still doing a .get(0).getSubnetId().\nHave marked a few such lines in this review with \"here\".\n\nIs my analysis correct in your opinion?",
+      "parentUuid": "da2a55be_a12652cc",
       "revId": "2d9e0f9f7dfea9d190ba42d0e8bee8547cafb235",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
