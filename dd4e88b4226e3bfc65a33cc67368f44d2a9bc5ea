@@ -87,6 +87,60 @@
       "revId": "dd4e88b4226e3bfc65a33cc67368f44d2a9bc5ea",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_e1fdea3b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Doesn\u0027t seem consistent. Let me check the history of changes in this area to make sense of it..",
+      "parentUuid": "da2a55be_418836e7",
+      "revId": "dd4e88b4226e3bfc65a33cc67368f44d2a9bc5ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_1c8a251b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "I\u0027ve checked. We can safely remove this line.\nThe case where a neutron port created first without an IP, and then updated later when it gets an IP is already handled via handleNeutronPortUpdated() on line 203.\nAs I discussed this Vishal, this was probably added in 54410 since the incorrect edit in add() lead to handleNeutronPortCreated() not being ever called from there and thus, had to be added here.",
+      "parentUuid": "da2a55be_fcbe31d3",
+      "revId": "dd4e88b4226e3bfc65a33cc67368f44d2a9bc5ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_fcbe31d3",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Well..\nVishal/Vivek: The culprit is again the same review: https://git.opendaylight.org/gerrit/#/c/54410/\n\nThis code added the call to handleNeutronPortCreated(update) from within update(). None of us were added as reviewers, otherwise we could maybe have caught it back then... :(\n\nNeed to revisit this (54410) buggy fix completely and fix it.",
+      "parentUuid": "da2a55be_e1fdea3b",
+      "revId": "dd4e88b4226e3bfc65a33cc67368f44d2a9bc5ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
