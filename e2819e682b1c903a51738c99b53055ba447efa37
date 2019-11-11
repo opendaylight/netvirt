@@ -20,6 +20,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_94006203",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "shouldn\u0027t info contain the minimum information since it\u0027s the lower level of log and will be always printed?\nIn my opinion, TRACE should be retained to print the entire interface object.",
+      "revId": "e2819e682b1c903a51738c99b53055ba447efa37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1209cc95",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
         "patchSetId": 19
@@ -32,6 +49,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "1a622d24_1f0c6b3a",
+      "revId": "e2819e682b1c903a51738c99b53055ba447efa37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_1f0c6b3a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "ditto",
       "revId": "e2819e682b1c903a51738c99b53055ba447efa37",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -56,6 +90,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_7f163f4d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "e2819e682b1c903a51738c99b53055ba447efa37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_52035473",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
         "patchSetId": 19
@@ -68,6 +119,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "1a622d24_1f710ba8",
+      "revId": "e2819e682b1c903a51738c99b53055ba447efa37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_1f710ba8",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "an enum can never be null.\n\n\"\nIf a value is not specified, then one will be automatically assigned.\n   If the \"enum\" substatement is the first one defined, the assigned\n   value is zero (0); otherwise, the assigned value is one greater than\n   the current highest enum value.\n\n   If the current highest value is equal to 2147483647, then an enum\n   value MUST be specified for \"enum\" substatements following the one\n   with the current highest value.\n\"",
       "revId": "e2819e682b1c903a51738c99b53055ba447efa37",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
