@@ -87,6 +87,23 @@
       "revId": "358129dfd1d22257de8132e53734b9fdd484b4a5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_cb582bfd",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1417,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "1. optAdjacencies will always be present since infName is fetched from VpnPortIPtoPortData which gets populated only once a vpn interface for the same is created, hence the vm adjacency will be there.\n\n2. still, an extra if () check doesn\u0027t harm as such, but the else block, where we are creating adjacency list with just the erAdj and updating the vpninf is wrong, since an extra route adjacency shouldn\u0027t be added if the vm adjacency is absent.",
+      "revId": "358129dfd1d22257de8132e53734b9fdd484b4a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
