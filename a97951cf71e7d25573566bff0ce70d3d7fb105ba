@@ -69,6 +69,24 @@
       "revId": "a97951cf71e7d25573566bff0ce70d3d7fb105ba",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ebef58e7",
+        "filename": "vpnservice/qosservice/qosservice-impl/pom.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Sam, \n\nI see these two - powermock.version and mockitoall.version defined explicitly in cloudservicechain-impl and natservice-impl POMs. These are the only two to be removed.\n\nBut, I also checked the effective POM, I didn\u0027t see these properties being defined in vpnservice/commons/config-parent and it\u0027s parent.\nSo shall these be defined in the upper level POMs itself so all these 3 modules can make use of the same?",
+      "parentUuid": "fafc7978_37d38961",
+      "revId": "a97951cf71e7d25573566bff0ce70d3d7fb105ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
