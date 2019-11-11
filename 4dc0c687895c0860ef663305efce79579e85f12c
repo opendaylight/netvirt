@@ -55,6 +55,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_257d5d1d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "use long primitive type",
+      "revId": "4dc0c687895c0860ef663305efce79579e85f12c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a5ef8d86",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapChangeListener.java",
         "patchSetId": 4
@@ -67,6 +84,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "fafc7978_0578192a",
+      "revId": "4dc0c687895c0860ef663305efce79579e85f12c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0578192a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "declare after line 68, could be reused twice above too.",
       "revId": "4dc0c687895c0860ef663305efce79579e85f12c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -132,6 +166,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_65ae4587",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "make it error for add(), leave it as debug for update()",
+      "range": {
+        "startLine": 76,
+        "startChar": 20,
+        "endLine": 76,
+        "endChar": 25
+      },
+      "revId": "4dc0c687895c0860ef663305efce79579e85f12c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a09c9bc1",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapChangeListener.java",
         "patchSetId": 4
@@ -144,6 +201,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "fafc7978_25cb9d54",
+      "revId": "4dc0c687895c0860ef663305efce79579e85f12c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_25cb9d54",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "add comment about the usecase handled here:\n// subnet added to VPN case upon config DS replay after reboot\n// ports added to subnet upon config DS replay after reboot are handled implicitly by the above notification in SubnetRouteHandler",
       "revId": "4dc0c687895c0860ef663305efce79579e85f12c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
