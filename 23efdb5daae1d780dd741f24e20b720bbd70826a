@@ -38,6 +38,23 @@
     },
     {
       "key": {
+        "uuid": "a1734bc3_d0bf5b51",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 580,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "the following would be more clear as per the if condition checks..\n\nEither port {} is not a normal VNIC port or it is a direct with switchdev type port",
+      "revId": "23efdb5daae1d780dd741f24e20b720bbd70826a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "300c79c6_6a18b617",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 3
@@ -74,6 +91,23 @@
     },
     {
       "key": {
+        "uuid": "1b8b9cf1_de9a2967",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 633,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "if (!(NeutronUtils.isPortVnicTypeNormal(port)) || isPortTypeSwitchdev(port))\n\nI think this is intended here, the ! is incorrectly covered for both conditions.",
+      "revId": "23efdb5daae1d780dd741f24e20b720bbd70826a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1777e5e2_d4880dc7",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 3
@@ -86,6 +120,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "ea085e0c_7220d39c",
+      "revId": "23efdb5daae1d780dd741f24e20b720bbd70826a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ea085e0c_7220d39c",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 638,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "correct this similar to earlier comment",
       "revId": "23efdb5daae1d780dd741f24e20b720bbd70826a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
