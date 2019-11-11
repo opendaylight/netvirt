@@ -20,6 +20,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_62e93480",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "not 2015 - 2017 ?",
+      "revId": "aa828538ffeb0e05a949696377c405ec26cf3dcd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_43450f6f",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
         "patchSetId": 4
@@ -32,6 +49,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "fafc7978_e29364f8",
+      "revId": "aa828538ffeb0e05a949696377c405ec26cf3dcd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e29364f8",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Please use port.getUuid().getValue()\nTo us, port names are the uuid values. Explicit port names configured via OpenStack are not used.",
       "revId": "aa828538ffeb0e05a949696377c405ec26cf3dcd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -56,6 +90,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_c290e0ee",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "aa828538ffeb0e05a949696377c405ec26cf3dcd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_835ed743",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
         "patchSetId": 4
@@ -68,6 +119,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "fafc7978_62b77487",
+      "revId": "aa828538ffeb0e05a949696377c405ec26cf3dcd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_62b77487",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "missed printing key here..\nwill be good to print the trunk port uuid too.",
       "revId": "aa828538ffeb0e05a949696377c405ec26cf3dcd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -104,6 +172,41 @@
       "side": 1,
       "message": "I\u0027m in two minds on how to do this, hence the WiP marker. I want to keep this as lean as possible. Once Alon\u0027s patch lands then I\u0027ll see what works out best... using cache+read so refs get filled from neutronPortChangeistener, or update parentRefs from TrunkChangeListener when subports are added/deleted. Might likely go with cache-only and update Refs from subport add/delete combined.",
       "parentUuid": "fafc7978_b9beaefd",
+      "revId": "aa828538ffeb0e05a949696377c405ec26cf3dcd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_026948f9",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 865,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Vishal, correct me if I am wrong.\n\nDon\u0027t we need to read from neutron DS in case the call lands on another PL?\nThese hashmap based caches will reside on a single PL right?\nIf not found in cache, should we be reading from the datastore then?",
+      "revId": "aa828538ffeb0e05a949696377c405ec26cf3dcd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b9beaefd",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 865,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Clustered Trunk listener is required..yes..\nGoing further, we do need to write code to read from DS in case it\u0027s not present in cache for reboot usecase.\nUpon a cluster reboot, a different shard could get elected as the config shard, and the DCNs received all at once might do fetches before the caches are populated again.\n\nWhat do you think?",
+      "parentUuid": "fafc7978_e34fe390",
       "revId": "aa828538ffeb0e05a949696377c405ec26cf3dcd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
