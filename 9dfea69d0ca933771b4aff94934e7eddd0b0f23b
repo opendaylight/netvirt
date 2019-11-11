@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "263c30c1_2e133e81",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/BaseVrfEntryHandler.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "reading the vpninterfaces config DS from FIB doesn\u0027t seem to be a good idea.\nLet\u0027s think of a better approach..",
+      "revId": "9dfea69d0ca933771b4aff94934e7eddd0b0f23b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2a3ed546_60254c62",
         "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/BaseVrfEntryHandler.java",
         "patchSetId": 9
@@ -14,6 +31,29 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "67a6b394_93eb8d69",
+      "range": {
+        "startLine": 376,
+        "startChar": 75,
+        "endLine": 376,
+        "endChar": 111
+      },
+      "revId": "9dfea69d0ca933771b4aff94934e7eddd0b0f23b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "67a6b394_93eb8d69",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/BaseVrfEntryHandler.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "check not reqd as discussed",
       "range": {
         "startLine": 376,
         "startChar": 75,
@@ -50,6 +90,29 @@
     },
     {
       "key": {
+        "uuid": "e0af4601_0b3e6f75",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/BaseVrfEntryHandler.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "fix in line with above comment",
+      "range": {
+        "startLine": 379,
+        "startChar": 67,
+        "endLine": 379,
+        "endChar": 111
+      },
+      "revId": "9dfea69d0ca933771b4aff94934e7eddd0b0f23b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ddb8d753_1f6d8e45",
         "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 9
@@ -62,6 +125,29 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "4968fa08_c5cbc015",
+      "range": {
+        "startLine": 923,
+        "startChar": 71,
+        "endLine": 923,
+        "endChar": 107
+      },
+      "revId": "9dfea69d0ca933771b4aff94934e7eddd0b0f23b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4968fa08_c5cbc015",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 923,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "ditto",
       "range": {
         "startLine": 923,
         "startChar": 71,
@@ -98,6 +184,29 @@
     },
     {
       "key": {
+        "uuid": "abc51b6e_c32dced8",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 926,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 926,
+        "startChar": 66,
+        "endLine": 926,
+        "endChar": 106
+      },
+      "revId": "9dfea69d0ca933771b4aff94934e7eddd0b0f23b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a177afe_acc07d29",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 9
@@ -110,6 +219,29 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "fe15e206_8da42dad",
+      "range": {
+        "startLine": 2928,
+        "startChar": 40,
+        "endLine": 2928,
+        "endChar": 49
+      },
+      "revId": "9dfea69d0ca933771b4aff94934e7eddd0b0f23b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fe15e206_8da42dad",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 2928,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "can we add vpninterface uuid here?",
       "range": {
         "startLine": 2928,
         "startChar": 40,
@@ -146,6 +278,29 @@
     },
     {
       "key": {
+        "uuid": "4eb996e7_4cf339cb",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 2934,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "vpn interface id here as well?",
+      "range": {
+        "startLine": 2934,
+        "startChar": 30,
+        "endLine": 2934,
+        "endChar": 43
+      },
+      "revId": "9dfea69d0ca933771b4aff94934e7eddd0b0f23b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "47759a5c_ada4232f",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 9
@@ -158,6 +313,29 @@
       "side": 1,
       "message": "For External networks, vpn-interface for external interfaces gets created as soon as external-network is created.\n\nNeutronNetworkChangeListener.java:                nvpnManager.createExternalVpnInterfaces(input.getUuid());\n\nSince, subnetmap data will not be available, we cannot refer this DS to retrieve network related attributes.",
       "parentUuid": "9ad309d1_1288ac74",
+      "range": {
+        "startLine": 2951,
+        "startChar": 48,
+        "endLine": 2951,
+        "endChar": 68
+      },
+      "revId": "9dfea69d0ca933771b4aff94934e7eddd0b0f23b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ad309d1_1288ac74",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 2951,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "read it from subnetmap please to avoid backpool to NN",
       "range": {
         "startLine": 2951,
         "startChar": 48,
@@ -194,6 +372,29 @@
     },
     {
       "key": {
+        "uuid": "54e669dc_c8eb5621",
+        "filename": "vpnmanager/api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 9
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "I guess we added it for VNI forwarding to fetch nw attributes using subnetmap.\nCan you please check if we have any usages for this after your review?\nIf not, can we remove it?",
+      "range": {
+        "startLine": 84,
+        "startChar": 14,
+        "endLine": 87,
+        "endChar": 16
+      },
+      "revId": "9dfea69d0ca933771b4aff94934e7eddd0b0f23b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a9af8759_1921a38f",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnElanInterfaceChangeListener.java",
         "patchSetId": 9
@@ -206,6 +407,29 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "1deed96a_423b6c68",
+      "range": {
+        "startLine": 118,
+        "startChar": 7,
+        "endLine": 141,
+        "endChar": 60
+      },
+      "revId": "9dfea69d0ca933771b4aff94934e7eddd0b0f23b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1deed96a_423b6c68",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnElanInterfaceChangeListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "not reqd as discussed",
       "range": {
         "startLine": 118,
         "startChar": 7,
