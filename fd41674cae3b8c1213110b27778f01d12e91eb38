@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba51214e_906d9335",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "FloatingIP info is populated only upon association with fixedIP, not when we create one. Upon associate, it comes as an update, so that is where the model gets populated.\nThe use case which enables association upon addition of floatingIP will be handled in subsequent reviews.",
+      "parentUuid": "ba51214e_309f6754",
+      "revId": "fd41674cae3b8c1213110b27778f01d12e91eb38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba51214e_f0316fa3",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 12
@@ -83,6 +101,60 @@
       "writtenOn": "2016-07-01T08:37:03Z",
       "side": 1,
       "message": "Done",
+      "parentUuid": "ba51214e_f0316fa3",
+      "revId": "fd41674cae3b8c1213110b27778f01d12e91eb38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_10618339",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "My upper comment is also for comments on this block in earlier patchsets. But yes, I do see the scope of moving this to FloatingIP class. Even though delete is triggered here, the operation is about floatingIP deletion. Suraj is working on this as we speak.",
+      "parentUuid": "ba51214e_50ac9ba0",
+      "revId": "fd41674cae3b8c1213110b27778f01d12e91eb38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_d0770b01",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "1) Haven\u0027t checked on Mitaka, been testing on OS Liberty.\n2) +1, indicated the same in earlier comment.\n3) I believe we lock on the entity, thus preventing any two writes/deletes from coming at once. The operations should come in sequentially in presence of a lock.",
+      "parentUuid": "ba51214e_d020abf9",
+      "revId": "fd41674cae3b8c1213110b27778f01d12e91eb38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba51214e_50ac9ba0",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Please bear with my long comment, I\u0027ll summarize the issue here:\n\n1. There\u0027s a bug in OS Liberty where upon deletion of a neutron port, the corresponding dissociation of this neutron port with the associated floating IP is not sent to ODL.\nThis function is actually a workaround (albeit a very costly one!) where with the neutron port, we first retrieve the entire datastore content for the following:\n\ncontainer floating-ip-info {\n        config true;\n        list router-ports {\n            key router-id;\n            leaf router-id { type string; }\n            leaf external-network-id { type yang:uuid; }\n            list ports {\n                key port-name;\n                leaf port-name { type string; }\n                list ip-mapping {\n                    key \"internal-ip\";\n                    uses external-interface-info;\n                }\n            }\n        }\n    }\n\nNote that this has three level of nested lists.\nUpon retrieval, we delete at the highermost level depending on the number of ports, IPs per port present.\n\n2. This performs delete either at the uppermost router-ports level if only one port is present, or at the middle ports-list level if multiple ports are there.\n\n3. Four if-blocks are there to first check for existence of data at the container and then at the list level followed by deletion. Else mostly deals with debug logs to give proper detailed info on the operation performed.",
       "parentUuid": "ba51214e_f0316fa3",
       "revId": "fd41674cae3b8c1213110b27778f01d12e91eb38",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
