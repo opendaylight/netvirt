@@ -20,6 +20,23 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_957b0c7a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "let\u0027s not use wildcard imports..\nI believe it is one of the warnings Java 8 throws.",
+      "revId": "bc98f63d58e62074337051b781a9718adbf195a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_e78c53d9",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 6
@@ -32,6 +49,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "7a6b29fe_d5df4467",
+      "revId": "bc98f63d58e62074337051b781a9718adbf195a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_d5df4467",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 885,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "please add LOG.warn(msg)",
       "revId": "bc98f63d58e62074337051b781a9718adbf195a3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -56,6 +90,23 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_b5da8875",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 891,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "very much an L3VPN here",
+      "revId": "bc98f63d58e62074337051b781a9718adbf195a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_c78b17c1",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 6
@@ -68,6 +119,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "7a6b29fe_15e6dc43",
+      "revId": "bc98f63d58e62074337051b781a9718adbf195a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_15e6dc43",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 901,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "ditto",
       "revId": "bc98f63d58e62074337051b781a9718adbf195a3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -92,6 +160,23 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_55d3345f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1635,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "for the failed networks, please add them to the the failedNwList with appropriate error message.\n\nIt\u0027ll be good if we can specify failures for L2/L3 VPN uniquely in the error message.",
+      "revId": "bc98f63d58e62074337051b781a9718adbf195a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_4766e72a",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 6
@@ -104,6 +189,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "7a6b29fe_7543d012",
+      "revId": "bc98f63d58e62074337051b781a9718adbf195a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_7543d012",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 2082,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "change the CLI implementation to reflect the same too (in the shell bundle)",
       "revId": "bc98f63d58e62074337051b781a9718adbf195a3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -128,6 +230,23 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_d5c62499",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1116,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "can\u0027t these utils be protected?",
+      "revId": "bc98f63d58e62074337051b781a9718adbf195a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_876c7f09",
         "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/ConfigureL3VpnCommand.java",
         "patchSetId": 6
@@ -140,6 +259,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "7a6b29fe_b5c1e881",
+      "revId": "bc98f63d58e62074337051b781a9718adbf195a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_b5c1e881",
+        "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/ConfigureL3VpnCommand.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "let\u0027s avoid wildcarded imports.",
       "revId": "bc98f63d58e62074337051b781a9718adbf195a3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -164,6 +300,23 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_553a1499",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/l3vpn.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 734,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "an EVPN :)",
+      "revId": "bc98f63d58e62074337051b781a9718adbf195a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_e77a93b8",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
         "patchSetId": 6
@@ -176,6 +329,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "7a6b29fe_353dd88f",
+      "revId": "bc98f63d58e62074337051b781a9718adbf195a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_353dd88f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "ditto",
       "revId": "bc98f63d58e62074337051b781a9718adbf195a3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
