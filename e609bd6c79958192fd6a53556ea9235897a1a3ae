@@ -2,6 +2,57 @@
   "comments": [
     {
       "key": {
+        "uuid": "1a622d24_7245686f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1356,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "adjMap is not needed, please remove it.",
+      "revId": "e609bd6c79958192fd6a53556ea9235897a1a3ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_925be453",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1437,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "why are we retaining this list?",
+      "revId": "e609bd6c79958192fd6a53556ea9235897a1a3ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b25ee043",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1439,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "size will never be \u003e 1 now, so what happens to ECMP case",
+      "revId": "e609bd6c79958192fd6a53556ea9235897a1a3ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_7dc1b97f",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 2
@@ -14,6 +65,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "1a622d24_d2555c1e",
+      "revId": "e609bd6c79958192fd6a53556ea9235897a1a3ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d2555c1e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 573,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "nhList?",
       "revId": "e609bd6c79958192fd6a53556ea9235897a1a3ae",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -38,6 +106,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_3232d010",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 674,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "rename appropriately when changing from list",
+      "revId": "e609bd6c79958192fd6a53556ea9235897a1a3ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_dd628dd7",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 2
@@ -50,6 +135,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "1a622d24_1237d400",
+      "revId": "e609bd6c79958192fd6a53556ea9235897a1a3ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_1237d400",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 675,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "refactor comments",
       "revId": "e609bd6c79958192fd6a53556ea9235897a1a3ae",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -74,6 +176,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_723c48e3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 749,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "e609bd6c79958192fd6a53556ea9235897a1a3ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_5d583d32",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 2
@@ -92,6 +211,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_b22540c4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1532,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "why loop over if it\u0027ll always be one element?",
+      "revId": "e609bd6c79958192fd6a53556ea9235897a1a3ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_fd52e911",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 2
@@ -104,6 +240,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "1a622d24_9222c4b7",
+      "revId": "e609bd6c79958192fd6a53556ea9235897a1a3ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_9222c4b7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1568,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "ditto",
       "revId": "e609bd6c79958192fd6a53556ea9235897a1a3ae",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
