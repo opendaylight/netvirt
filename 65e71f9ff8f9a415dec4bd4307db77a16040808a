@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_b2ed05f2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1492,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Kiran, please indicate \u0027not found in VPNMaps DS\u0027, so that it\u0027s more clear from the logs.\nVPN could otherwise be found in VpnInstances DS too.\n\nThis could in fact be debug additionally stating something like:\n\u0027Not proceeding with removeL3VPN for related dissociation(s)/deletions.\u0027",
+      "revId": "65e71f9ff8f9a415dec4bd4307db77a16040808a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
