@@ -26,6 +26,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9bbec563",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "might want to keep it 4, the ^^^^^^^ headings won\u0027t be displayed otherwise.",
+      "range": {
+        "startLine": 2,
+        "startChar": 7,
+        "endLine": 2,
+        "endChar": 15
+      },
+      "revId": "eb0bd08868d0d1ffcbb54f3a8d99837590bcbc59",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_bd761304",
         "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
         "patchSetId": 13
@@ -38,6 +61,23 @@
       "side": 1,
       "message": "included it",
       "parentUuid": "fafc7978_bb15894a",
+      "revId": "eb0bd08868d0d1ffcbb54f3a8d99837590bcbc59",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bb15894a",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "trello card not indicated anywhere in the document",
       "revId": "eb0bd08868d0d1ffcbb54f3a8d99837590bcbc59",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -62,6 +102,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_1b049548",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Use Cases can be made a bulleted list.",
+      "revId": "eb0bd08868d0d1ffcbb54f3a8d99837590bcbc59",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_dd667750",
         "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
         "patchSetId": 13
@@ -74,6 +131,29 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "fafc7978_3b8eb9d0",
+      "range": {
+        "startLine": 92,
+        "startChar": 0,
+        "endLine": 92,
+        "endChar": 74
+      },
+      "revId": "eb0bd08868d0d1ffcbb54f3a8d99837590bcbc59",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3b8eb9d0",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "pipeline here and eerywhere below would look better if placed before the codeblocks. In the output, it looks confusing when placed afterwards.",
       "range": {
         "startLine": 92,
         "startChar": 0,
@@ -110,6 +190,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_1bb2d593",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "see generated doc...half of the line is in bold.",
+      "range": {
+        "startLine": 140,
+        "startChar": 1,
+        "endLine": 140,
+        "endChar": 23
+      },
+      "revId": "eb0bd08868d0d1ffcbb54f3a8d99837590bcbc59",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_7d578b58",
         "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
         "patchSetId": 13
@@ -122,6 +225,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "fafc7978_db6b2def",
+      "revId": "eb0bd08868d0d1ffcbb54f3a8d99837590bcbc59",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_db6b2def",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "3 yang changes under odl-l3vpn and odl-fib.yang should be made into lists respectively..",
       "revId": "eb0bd08868d0d1ffcbb54f3a8d99837590bcbc59",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -146,6 +266,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_fb7551cb",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "no need of 2 separate codeblocks for this one and below, merge into one..",
+      "revId": "eb0bd08868d0d1ffcbb54f3a8d99837590bcbc59",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_3de8637b",
         "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
         "patchSetId": 13
@@ -158,6 +295,29 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "fafc7978_bb3e29d8",
+      "range": {
+        "startLine": 413,
+        "startChar": 3,
+        "endLine": 426,
+        "endChar": 11
+      },
+      "revId": "eb0bd08868d0d1ffcbb54f3a8d99837590bcbc59",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bb3e29d8",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "all these extra whitespaces when next line is started get wrapped, resulting in big long paras.\nA line should be left in between if intention is to give a spaced out look.",
       "range": {
         "startLine": 413,
         "startChar": 3,
@@ -194,6 +354,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3b2a3990",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "unnecessarily highlighted",
+      "range": {
+        "startLine": 481,
+        "startChar": 25,
+        "endLine": 481,
+        "endChar": 33
+      },
+      "revId": "eb0bd08868d0d1ffcbb54f3a8d99837590bcbc59",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1dd47fbb",
         "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
         "patchSetId": 13
@@ -206,6 +389,29 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "fafc7978_db104d5b",
+      "range": {
+        "startLine": 532,
+        "startChar": 5,
+        "endLine": 535,
+        "endChar": 6
+      },
+      "revId": "eb0bd08868d0d1ffcbb54f3a8d99837590bcbc59",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_db104d5b",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 535,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "appears as one single line, might want to break into a list.",
       "range": {
         "startLine": 532,
         "startChar": 5,
