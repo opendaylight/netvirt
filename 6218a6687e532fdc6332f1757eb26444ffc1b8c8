@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "1a622d24_12714276",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "this case will be handled by interfacestatechangelistener, right?\nWhy have you retained it here too?\nI guess this needs to be removed.",
+      "revId": "6218a6687e532fdc6332f1757eb26444ffc1b8c8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f20da6e9",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/QosInterfaceStateChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "interfaceState UP event only",
+      "revId": "6218a6687e532fdc6332f1757eb26444ffc1b8c8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_58463950",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/resources/org/opendaylight/blueprint/neutronvpn.xml",
         "patchSetId": 4
@@ -31,6 +65,23 @@
       "side": 1,
       "message": "Changed to lower case \u0027q\u0027",
       "parentUuid": "1a622d24_58463950",
+      "revId": "6218a6687e532fdc6332f1757eb26444ffc1b8c8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d2122a08",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/resources/org/opendaylight/blueprint/neutronvpn.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "init or start?\nplease check",
       "revId": "6218a6687e532fdc6332f1757eb26444ffc1b8c8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
