@@ -156,6 +156,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_205b16f7",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "can we have this like:\n\nin update(), we can check:\nif (original.getDeviceId().equals(\"PENDING\")) {\nhandleFloatingIpPortCreatedOrUpdated(update)\n}\nthen:\n\nthe function can be simplified to:\nhandleFloatingIpPortCreatedOrUpdated(Port port) {\nif (!port.getDeviceId().equals(\"PENDING\"))\n...\n...\n}\n\nthis to me is easier to read since we are not passing null from add() in original, and having just one Port param seems better..",
+      "range": {
+        "startLine": 229,
+        "startChar": 4,
+        "endLine": 231,
+        "endChar": 57
+      },
+      "revId": "b802de9846553ed6c0fc7210054cb6f81b5c45c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9684a50b",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 1
@@ -168,6 +191,29 @@
       "side": 1,
       "message": "I actually copied this code from the original one, but yes - deviceId comes as a string",
       "parentUuid": "fafc7978_7d2e44fc",
+      "range": {
+        "startLine": 234,
+        "startChar": 45,
+        "endLine": 234,
+        "endChar": 65
+      },
+      "revId": "b802de9846553ed6c0fc7210054cb6f81b5c45c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7d2e44fc",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "are we converting it to uuid here because it comes as a string, or just for safety?",
       "range": {
         "startLine": 234,
         "startChar": 45,
