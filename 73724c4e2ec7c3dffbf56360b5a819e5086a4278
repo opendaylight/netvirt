@@ -55,6 +55,23 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_0765a11d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1327,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "since we are returning the list here and not actually adding the extra route adjacency, this can be named as getAdjacencyForExtraRoute() / createAdjacency... / returnAdjacency...",
+      "revId": "73724c4e2ec7c3dffbf56360b5a819e5086a4278",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_1f9386fb",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 1
@@ -67,6 +84,23 @@
       "side": 1,
       "message": "Since we are comparing extra route nexthop with VM fixed ip , i would keep it that way so that we clearly know what we are comparing it with.",
       "parentUuid": "3a65312a_c79449e4",
+      "revId": "73724c4e2ec7c3dffbf56360b5a819e5086a4278",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_c79449e4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1328,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "you can name it as String nextHopIp",
       "revId": "73724c4e2ec7c3dffbf56360b5a819e5086a4278",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -126,6 +160,23 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_e7c065e2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1362,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "function name is misleading..we are not updating adjacency actually.\nwe are adding adjacency and updating vpninterface.\n\nAs per the current design, would be better to name it something like updateVpnInterfaceWithExtraRouteAdjacency()",
+      "revId": "73724c4e2ec7c3dffbf56360b5a819e5086a4278",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_df258e0b",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 1
@@ -138,6 +189,23 @@
       "side": 1,
       "message": "This we will address in a different review.  Let us not burden this review from landing.",
       "parentUuid": "3a65312a_27bb7d73",
+      "revId": "73724c4e2ec7c3dffbf56360b5a819e5086a4278",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_27bb7d73",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1380,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Logic from 1380-1387 and adjMap won\u0027t be needed if we agree on removing the nexthop list..",
       "revId": "73724c4e2ec7c3dffbf56360b5a819e5086a4278",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -173,6 +241,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "1a622d24_df6c6e39",
+      "revId": "73724c4e2ec7c3dffbf56360b5a819e5086a4278",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_07be4165",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1411,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Vivek, this is what I was pointing out.\nFor a destination (D) with multiple next hops (N1, N2), adjacency for each will be added to each of the vpn interface, keyed on D with nh as N1 for inf1, and keyed on D and next hop as N2 for inf2.\n\nIn the yang model, we dont need to have a nexthop list.\nIt is only complicating the implementation.\n\nAnyway, if you see, always we are making a new array list and adding next hop to the list, so the list always has 1 element, in which case why have the list at all?\n\nAlso, if we do agree we need just a nexthop and not a list..this section of code can be refactored to directly write the new adjacecny with the adjacency identifier without having to read and then do an update.",
       "revId": "73724c4e2ec7c3dffbf56360b5a819e5086a4278",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
