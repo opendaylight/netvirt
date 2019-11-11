@@ -20,6 +20,40 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_5a94df36",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "is this removed as part a rebase? just check once..",
+      "revId": "5315b28a4c948ba807edfe89714f667618328fbf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ba99b370",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1379,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "why do we need to read vpninterfaces?\nonce we\u0027ve fetched infName, it indicates vmAdj is there..\ncan\u0027t we go ahead and directly write to adjIdentifier, within a try-catch?\nif it fails, we anyway receive an error.",
+      "revId": "5315b28a4c948ba807edfe89714f667618328fbf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_4eaa6471",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 4
@@ -32,6 +66,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "1a622d24_9a9e7755",
+      "revId": "5315b28a4c948ba807edfe89714f667618328fbf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_9a9e7755",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1403,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "print the vpninterface name here too.\nshall we keep it as debug log?",
       "revId": "5315b28a4c948ba807edfe89714f667618328fbf",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
