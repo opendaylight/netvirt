@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "5cb45367_06bf90d8",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "please add this check in all three of add(), remove(), and update().\nAlso, better to have this in parent callers, as in add() etc. rather than in handleNeutronPortCreated() and similar lower level functions.",
+      "range": {
+        "startLine": 569,
+        "startChar": 8,
+        "endLine": 571,
+        "endChar": 9
+      },
+      "revId": "28a56b32c0d6fb1a869fd2b7b2648726de66f3c1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e9d80727_db1cd96d",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 1
