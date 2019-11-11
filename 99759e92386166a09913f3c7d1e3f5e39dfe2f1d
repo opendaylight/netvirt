@@ -20,6 +20,23 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_38e8cc0f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 26
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "why is the type needed anymore when we receive inputs for L2 and L3 VPN separately?",
+      "revId": "99759e92386166a09913f3c7d1e3f5e39dfe2f1d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_fa2f6486",
         "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
         "patchSetId": 26
@@ -32,6 +49,23 @@
       "side": 1,
       "message": "Will be created for RT2",
       "parentUuid": "3a65312a_18e35034",
+      "revId": "99759e92386166a09913f3c7d1e3f5e39dfe2f1d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_18e35034",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 26
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "similar RPC for create/delete/get L2VPN needs to be added",
       "revId": "99759e92386166a09913f3c7d1e3f5e39dfe2f1d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
