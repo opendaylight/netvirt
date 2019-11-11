@@ -26,6 +26,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_48758ac9",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 10
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "port corresponding to router interface on this subnet",
+      "range": {
+        "startLine": 40,
+        "startChar": 29,
+        "endLine": 40,
+        "endChar": 60
+      },
+      "revId": "3cb634e0a8a4517a2eb34c9d9a68af30c546082e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_43244b0c",
         "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
         "patchSetId": 10
@@ -38,6 +61,29 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "fafc7978_c8505a34",
+      "range": {
+        "startLine": 50,
+        "startChar": 29,
+        "endLine": 50,
+        "endChar": 76
+      },
+      "revId": "3cb634e0a8a4517a2eb34c9d9a68af30c546082e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c8505a34",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 10
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "fixed ip of the router interface port on this subnet",
       "range": {
         "startLine": 50,
         "startChar": 29,
@@ -74,6 +120,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_8852d232",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "FixedIP everywhere..",
+      "range": {
+        "startLine": 223,
+        "startChar": 41,
+        "endLine": 223,
+        "endChar": 49
+      },
+      "revId": "3cb634e0a8a4517a2eb34c9d9a68af30c546082e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c3695bfa",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 10
@@ -86,6 +155,29 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "fafc7978_283be6eb",
+      "range": {
+        "startLine": 225,
+        "startChar": 17,
+        "endLine": 228,
+        "endChar": 37
+      },
+      "revId": "3cb634e0a8a4517a2eb34c9d9a68af30c546082e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_283be6eb",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "please remove the else block, as done in my recent review where create and update are separated..\nsee updateSubnetNode().\nadd apropriate logs as done there..",
       "range": {
         "startLine": 225,
         "startChar": 17,
@@ -122,6 +214,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_485c6a4b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "null check already in caller, not required here.",
+      "range": {
+        "startLine": 233,
+        "startChar": 16,
+        "endLine": 233,
+        "endChar": 35
+      },
+      "revId": "3cb634e0a8a4517a2eb34c9d9a68af30c546082e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a32ed7a2",
         "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/ShowSubnet.java",
         "patchSetId": 10
@@ -134,6 +249,29 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "fafc7978_636b4fb7",
+      "range": {
+        "startLine": 98,
+        "startChar": 48,
+        "endLine": 98,
+        "endChar": 53
+      },
+      "revId": "3cb634e0a8a4517a2eb34c9d9a68af30c546082e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_636b4fb7",
+        "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/ShowSubnet.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": ".getValue()",
       "range": {
         "startLine": 98,
         "startChar": 48,
