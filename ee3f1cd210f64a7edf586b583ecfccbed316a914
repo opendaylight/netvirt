@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_f896e24a",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/DisplayAclDataCaches.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 7802
+      },
+      "writtenOn": "2019-11-11T22:10:25Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "ba1f61a0_ac3d3991",
+      "range": {
+        "startLine": 60,
+        "startChar": 12,
+        "endLine": 60,
+        "endChar": 18
+      },
+      "revId": "ee3f1cd210f64a7edf586b583ecfccbed316a914",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_cc3a2d98",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/Commands.java",
         "patchSetId": 2
@@ -36,6 +60,24 @@
       "writtenOn": "2017-09-22T01:37:56Z",
       "side": 1,
       "message": "it would be better to use the dependency injection rather than passing the classes around",
+      "revId": "ee3f1cd210f64a7edf586b583ecfccbed316a914",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_389d1a67",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/Commands.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 7802
+      },
+      "writtenOn": "2019-11-11T22:10:25Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "ba1f61a0_cc3a2d98",
       "revId": "ee3f1cd210f64a7edf586b583ecfccbed316a914",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
