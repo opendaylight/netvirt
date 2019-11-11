@@ -73,6 +73,42 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_71e2b804",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "LockManager provides a utility to have clusterwide locks in order to maintain data consistency.\nA look at the lock function in NeutronVpnUtils shows failure to acquire one is logged as an error, though a time interval of 5 secs almost always ensures lock being granted in my experience.\nSince multiple DCNs on the NN entities keep getting triggered at a fast pace, having this locks have helped a lot in updating the datastores sequentially.",
+      "parentUuid": "9a561d44_c04ad426",
+      "revId": "2ca80e1aba48561cc58ef814ca94e8bdc543c584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_b7f8a9e6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Thanks for raising this Stephen. We had a discussion and are planning to move to using synchronized blocks for entire NeutronVPN module instead of using this lockmanager timed API. Since the DCNs from northbound land up on the same eVIP node, synchronized blocks should be enough.",
+      "parentUuid": "9a561d44_f1c0882c",
+      "revId": "2ca80e1aba48561cc58ef814ca94e8bdc543c584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_0055ecc5",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
         "patchSetId": 20
@@ -172,6 +208,40 @@
       "side": 1,
       "message": "Yes, interface will be created on port create. Without binding information we cant set parentref [tap vs vhu?] and that is what can come in an update and we\u0027re setting here.",
       "parentUuid": "9a561d44_1a79d993",
+      "revId": "2ca80e1aba48561cc58ef814ca94e8bdc543c584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_dae3e131",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnProvider.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Is it recommended to have classes access broker like this?\nOnly a function exposed via provider - getNeutronSubnets in neutronvpnutils accesses this. I would recommend keeping it in neutronvpnmanager class which holds all the externally exposed functions and already has DataBroker.",
+      "revId": "2ca80e1aba48561cc58ef814ca94e8bdc543c584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_bac38d89",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnProvider.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "As per the earlier discussion with Shlomi, floatingIP listener class instance was added so that code to delete floatingIP mapping upon deletion of neutron port could be kept with floatingIP listener class.\nMy question is, is it good to have instances of listener classes?\nI believe this was the reason why deletion of mapping code was placed in portchangelistener class.\nWould like to know the recommended code practice here.",
       "revId": "2ca80e1aba48561cc58ef814ca94e8bdc543c584",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
