@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_d85cc84d",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 1595,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "this can be refactored, so you can avoid having explicit cosntant for VXLAN provider type..\n\nif (extNwProviderType !\u003d null \u0026\u0026 extNwProviderType.equals(VrfEntry.EncapType.Vxlan)) {\n...\n...\n}",
+      "range": {
+        "startLine": 1589,
+        "startChar": 8,
+        "endLine": 1595,
+        "endChar": 9
+      },
+      "revId": "411ea41969261edfd16f17ecce1a394c2c65ebc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_bde616ae",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatConstants.java",
         "patchSetId": 13
@@ -13,6 +36,24 @@
       "writtenOn": "2017-03-02T04:15:07Z",
       "side": 1,
       "message": "refer this from NwConstants or something.. Please talk to Abhinav.",
+      "revId": "411ea41969261edfd16f17ecce1a394c2c65ebc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3856b42a",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatConstants.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "see my comment in ExternalRoutersListener.java for the same.",
+      "parentUuid": "fafc7978_bde616ae",
       "revId": "411ea41969261edfd16f17ecce1a394c2c65ebc7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
