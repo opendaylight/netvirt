@@ -20,6 +20,23 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_18d2185c",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/IFibManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "make the TODO statement more descriptive",
+      "revId": "ccf3f39370291682ac6c82bd6807ddc240e033d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_b8c04c2b",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
         "patchSetId": 3
@@ -32,6 +49,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "9a561d44_f8d48448",
+      "revId": "ccf3f39370291682ac6c82bd6807ddc240e033d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_f8d48448",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "extra line",
       "revId": "ccf3f39370291682ac6c82bd6807ddc240e033d2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -56,6 +90,23 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_58cc90bc",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibConstants.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "make TODO statement more descriptive",
+      "revId": "ccf3f39370291682ac6c82bd6807ddc240e033d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_f8080493",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibManager.java",
         "patchSetId": 3
@@ -68,6 +119,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "9a561d44_38cf1cb2",
+      "revId": "ccf3f39370291682ac6c82bd6807ddc240e033d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_38cf1cb2",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "don\u0027t use wildcard imports",
       "revId": "ccf3f39370291682ac6c82bd6807ddc240e033d2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -92,6 +160,23 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_78c0747c",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "What is this comment and similar other ones for?",
+      "revId": "ccf3f39370291682ac6c82bd6807ddc240e033d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_f81644a6",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibManagerProvider.java",
         "patchSetId": 3
@@ -104,6 +189,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "9a561d44_d8bf00fa",
+      "revId": "ccf3f39370291682ac6c82bd6807ddc240e033d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_d8bf00fa",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibManagerProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "don\u0027t mention internal features numbers here",
       "revId": "ccf3f39370291682ac6c82bd6807ddc240e033d2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -128,6 +230,23 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_f83be499",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibRpcServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "remove wildcarded imports.",
+      "revId": "ccf3f39370291682ac6c82bd6807ddc240e033d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_98b10892",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/inter-vpn-link.yang",
         "patchSetId": 3
@@ -146,6 +265,41 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_7847d41d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/inter-vpn-link.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "newer version has to be imported",
+      "revId": "ccf3f39370291682ac6c82bd6807ddc240e033d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_785a3451",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/inter-vpn-link.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Thanks for taking up all other changes Suraj.\nThis one needs to be taken up now, because the usages in VpnManager and NeutronVPN are dependent on this.\nIn case a new patch is required, please do it now itself.\nOtherwise, let it be.",
+      "parentUuid": "9a561d44_98b10892",
+      "revId": "ccf3f39370291682ac6c82bd6807ddc240e033d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_18be9865",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 3
@@ -158,6 +312,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "9a561d44_d856e0d1",
+      "revId": "ccf3f39370291682ac6c82bd6807ddc240e033d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_d856e0d1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "no wildcarded imports",
       "revId": "ccf3f39370291682ac6c82bd6807ddc240e033d2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
