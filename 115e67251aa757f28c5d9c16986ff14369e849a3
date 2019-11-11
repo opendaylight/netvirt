@@ -26,6 +26,29 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_90a53fb7",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NeutronvpnAlarms.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "if this is specific to extra route, it should be named something like \"ExtraRouteConfigFaultAlarm\"",
+      "range": {
+        "startLine": 18,
+        "startChar": 46,
+        "endLine": 18,
+        "endChar": 62
+      },
+      "revId": "115e67251aa757f28c5d9c16986ff14369e849a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_9ae439e2",
         "filename": "vpnservice/alarm/alarm-impl/src/test/java/org/opendaylight/netvirt/alarm/test/AlarmTest.java",
         "patchSetId": 29
@@ -38,6 +61,29 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "9a245df4_509bc771",
+      "range": {
+        "startLine": 26,
+        "startChar": 13,
+        "endLine": 26,
+        "endChar": 22
+      },
+      "revId": "115e67251aa757f28c5d9c16986ff14369e849a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_509bc771",
+        "filename": "vpnservice/alarm/alarm-impl/src/test/java/org/opendaylight/netvirt/alarm/test/AlarmTest.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "if this alarm is specific to extra route, this should be named as ExtraRouteConfigFaultAlarmTest",
       "range": {
         "startLine": 26,
         "startChar": 13,
