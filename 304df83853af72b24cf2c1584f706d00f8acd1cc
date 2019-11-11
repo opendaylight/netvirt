@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_ffb9e879",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "as discussed, append | at the beginning of line to retain formatting \"as-is\".",
+      "revId": "304df83853af72b24cf2c1584f706d00f8acd1cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
