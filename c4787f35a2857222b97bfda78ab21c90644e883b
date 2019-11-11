@@ -23,6 +23,29 @@
       "revId": "c4787f35a2857222b97bfda78ab21c90644e883b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e175a24a_e52bfdb7",
+        "filename": "fibmanager/shell/src/main/java/org/opendaylight/netvirt/fibmanager/shell/ShowFibCommand.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "this must be giving NPE as fibentries found would be null or empty.\nWhy not check for fibEntries to be non-null and non-empty before proceeding?\n\nOr does it still throw NPE right after it is read?",
+      "range": {
+        "startLine": 105,
+        "startChar": 48,
+        "endLine": 105,
+        "endChar": 73
+      },
+      "revId": "c4787f35a2857222b97bfda78ab21c90644e883b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
