@@ -20,6 +20,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_80e71b40",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "neutronvpn",
+      "revId": "d6b6db75699ac760f25ceb2e638157e4aae90527",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_34ac85ed",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapListener.java",
         "patchSetId": 3
@@ -32,6 +49,23 @@
       "side": 1,
       "message": "I have written one error LOG here. But I think, it could be something better. Please suggest.",
       "parentUuid": "1a622d24_60e47f3b",
+      "revId": "d6b6db75699ac760f25ceb2e638157e4aae90527",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_60e47f3b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "return an appropriate error log here",
       "revId": "d6b6db75699ac760f25ceb2e638157e4aae90527",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -56,6 +90,41 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_40c4e391",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "please take care of comments of PS1 wholistically and not for those specific lines...\nreuse declared variables as indicated in PS1, else it defeats the purpose of having them in the first place.",
+      "revId": "d6b6db75699ac760f25ceb2e638157e4aae90527",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7469dd8a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "thanks Suraj.\nSee, so many places we had missed earlier :)\nmore readable now..",
+      "parentUuid": "1a622d24_9462b9d6",
+      "revId": "d6b6db75699ac760f25ceb2e638157e4aae90527",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_745f1d0f",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapListener.java",
         "patchSetId": 3
@@ -68,6 +137,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "1a622d24_80befbfd",
+      "revId": "d6b6db75699ac760f25ceb2e638157e4aae90527",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_80befbfd",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "always print value of uuid in logs.\nplease check the same everywhere..",
       "revId": "d6b6db75699ac760f25ceb2e638157e4aae90527",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -92,6 +178,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_6052bfde",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "else if not needed since returning in above block, convert this to independent \u0027if\u0027",
+      "revId": "d6b6db75699ac760f25ceb2e638157e4aae90527",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_14a6a910",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapListener.java",
         "patchSetId": 3
@@ -110,6 +213,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_a06337b0",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "ditto as above, comments from PS1 not handled.\nprint subnet ID",
+      "revId": "d6b6db75699ac760f25ceb2e638157e4aae90527",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_f4aa0dd3",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapListener.java",
         "patchSetId": 3
@@ -122,6 +242,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "1a622d24_806c3b9e",
+      "revId": "d6b6db75699ac760f25ceb2e638157e4aae90527",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_806c3b9e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "elanInstance {} config DS",
       "revId": "d6b6db75699ac760f25ceb2e638157e4aae90527",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
