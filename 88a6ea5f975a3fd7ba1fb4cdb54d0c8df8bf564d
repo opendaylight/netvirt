@@ -87,6 +87,23 @@
       "revId": "88a6ea5f975a3fd7ba1fb4cdb54d0c8df8bf564d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_efebfc75",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/resources/org/opendaylight/blueprint/neutronvpn.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "did you check this?",
+      "revId": "88a6ea5f975a3fd7ba1fb4cdb54d0c8df8bf564d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
