@@ -20,6 +20,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_645c75ee",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "nitpick..\n\"Table 220 \u003d\u003e VxLAN port\" instead ??",
+      "revId": "eae91a1a02b5d7b94a4d49dfa51f1453e761465a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_642ab52d",
         "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
         "patchSetId": 2
@@ -32,6 +49,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "fafc7978_a46dbd9b",
+      "revId": "eae91a1a02b5d7b94a4d49dfa51f1453e761465a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a46dbd9b",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "see key \"dest-prefix\" below..\nso if you\u0027ve gotten rid of the warnings, this \"\" should not be requiring a fix here..",
       "revId": "eae91a1a02b5d7b94a4d49dfa51f1453e761465a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
