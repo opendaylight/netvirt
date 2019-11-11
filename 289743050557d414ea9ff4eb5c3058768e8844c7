@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_59e0be28",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Vivek, why move the identifier builder within sync block?\njust the read/write calls are important to be covered within that right?",
+      "parentUuid": "fafc7978_5e61c403",
+      "revId": "289743050557d414ea9ff4eb5c3058768e8844c7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_fe46b879",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 12
