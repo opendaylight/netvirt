@@ -145,6 +145,42 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_c989da27",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronBgpvpnChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 0,
+      "message": "Guys, guys.. :)\nI think this broke 9 months ago by the commit https://git.opendaylight.org/gerrit/#/c/46253/57\n\nafter line 133, a closing brace } is missing...\nonce you put that back again, everything will make sense..none of the other parts need any amendment.",
+      "parentUuid": "9a245df4_52975490",
+      "revId": "7c4ad9a4e8025ee413c6988317f66c207dbac9d7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_5072a749",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronBgpvpnChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 0,
+      "message": "Sure, but can you please the code remain as is, without any edits in this class?",
+      "parentUuid": "9a245df4_5c680687",
+      "revId": "7c4ad9a4e8025ee413c6988317f66c207dbac9d7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_dc13560b",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 3
@@ -157,6 +193,29 @@
       "side": 0,
       "message": "FB analysis reports getAdjacencyforExtraRoute never returns null in any code path and visual inspection confirms. I also annotated with @Nonnull to prevent potential future breakage.",
       "parentUuid": "9a245df4_26e38506",
+      "range": {
+        "startLine": 762,
+        "startChar": 24,
+        "endLine": 762,
+        "endChar": 41
+      },
+      "revId": "7c4ad9a4e8025ee413c6988317f66c207dbac9d7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_26e38506",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 762,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 0,
+      "message": "the list can very well be null",
       "range": {
         "startLine": 762,
         "startChar": 24,
@@ -205,6 +264,41 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_10cdcf5d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1355,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 0,
+      "message": "Sure, but can you please retain the deleted code here?",
+      "parentUuid": "9a245df4_bc2dc248",
+      "revId": "7c4ad9a4e8025ee413c6988317f66c207dbac9d7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e6eccd91",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1355,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 0,
+      "message": "this is a bug.\nthanks for bringing it to light!\ncan you please amend it the following way?\n\nRouterInterfacesBuilder builder \u003d new RouterInterfacesBuilder().setRouterId(routerId);\nList\u003cInterfaces\u003e interfaces \u003d new ArrayList\u003c\u003e();\ninterfaces.add(routerInterface);\nMDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routerInterfacesId, builder.setInterfaces(interfaces).build());",
+      "revId": "7c4ad9a4e8025ee413c6988317f66c207dbac9d7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_9c30be9f",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 3
@@ -229,6 +323,29 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_69ed4eef",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1772,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 0,
+      "message": "this is a valid null check.\nAny reason why we want to remove it?",
+      "range": {
+        "startLine": 1771,
+        "startChar": 20,
+        "endLine": 1772,
+        "endChar": 95
+      },
+      "revId": "7c4ad9a4e8025ee413c6988317f66c207dbac9d7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_dce196ff",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
         "patchSetId": 3
@@ -241,6 +358,29 @@
       "side": 0,
       "message": "\"Redundant nullcheck of builder, which is known to be non-null\".  The new operator never returns null.",
       "parentUuid": "9a245df4_4621594c",
+      "range": {
+        "startLine": 535,
+        "startChar": 16,
+        "endLine": 535,
+        "endChar": 38
+      },
+      "revId": "7c4ad9a4e8025ee413c6988317f66c207dbac9d7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_4621594c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 535,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 0,
+      "message": "why should we remove this check?\nthe builder can very well be null here.",
       "range": {
         "startLine": 535,
         "startChar": 16,
