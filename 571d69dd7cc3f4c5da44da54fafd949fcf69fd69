@@ -17,6 +17,23 @@
       "revId": "571d69dd7cc3f4c5da44da54fafd949fcf69fd69",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_02160f55",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "we have to retain both the lines \"as-is\", so i guess you would have to append | in both the lines..\ncheck the output.",
+      "revId": "571d69dd7cc3f4c5da44da54fafd949fcf69fd69",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
