@@ -16,6 +16,24 @@
       "revId": "47b1fe5116829df897ece5bfbb1802756856e17b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_837a0a75",
+        "filename": "vpnservice/features/src/main/features/features.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "It should not be right?\nIt should be in features.xml of genius rather",
+      "parentUuid": "9a561d44_a772bb0e",
+      "revId": "47b1fe5116829df897ece5bfbb1802756856e17b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
