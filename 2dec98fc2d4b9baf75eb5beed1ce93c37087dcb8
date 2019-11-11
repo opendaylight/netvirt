@@ -108,6 +108,42 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b1cd8c33",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1162,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "+1, so are we altering subnetmap yang in this review itself or another one...\nAsking because I see a +2.",
+      "parentUuid": "fafc7978_115a9882",
+      "revId": "2dec98fc2d4b9baf75eb5beed1ce93c37087dcb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fc0ecbe3",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1162,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "It\u0027ll be pretty minimal, just a few lines..",
+      "parentUuid": "fafc7978_bcec432b",
+      "revId": "2dec98fc2d4b9baf75eb5beed1ce93c37087dcb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a8c241e6",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 8
@@ -119,6 +155,24 @@
       "writtenOn": "2017-03-05T09:28:44Z",
       "side": 1,
       "message": "I wonder if we should use the old portName as key, or the new name.\nWe are both deleting the old port and creating a new port in createVpnInterface if i\u0027m not mistaken.\nMaybe there should be a separate DJC inside createVpnInterface for the delete() and the add()?\n\nIn any case I believe these problems exist across the board.. this probably improves the situation in any case..",
+      "revId": "2dec98fc2d4b9baf75eb5beed1ce93c37087dcb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_11d1f8cc",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1168,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "We are not deleting and creating vpninterface again, we are just updating it.\nAlso, the portname derived from the uuid remains same across updates.",
+      "parentUuid": "fafc7978_a8c241e6",
       "revId": "2dec98fc2d4b9baf75eb5beed1ce93c37087dcb8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
