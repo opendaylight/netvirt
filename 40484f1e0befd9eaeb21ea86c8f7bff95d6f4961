@@ -1,0 +1,124 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_ff15279c",
+        "filename": "vpnservice/aclservice/aclservice-shell/pom.xml",
+        "patchSetId": 18
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-11-17T19:01:37Z",
+      "side": 1,
+      "message": "just use the directory name as shell without aclservice to match the api and impl.",
+      "revId": "40484f1e0befd9eaeb21ea86c8f7bff95d6f4961",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_df1823d5",
+        "filename": "vpnservice/aclservice/aclservice-shell/pom.xml",
+        "patchSetId": 18
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-11-17T19:01:37Z",
+      "side": 1,
+      "message": "2017?",
+      "range": {
+        "startLine": 3,
+        "startChar": 14,
+        "endLine": 3,
+        "endChar": 18
+      },
+      "revId": "40484f1e0befd9eaeb21ea86c8f7bff95d6f4961",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_9f1a2bc4",
+        "filename": "vpnservice/aclservice/aclservice-shell/pom.xml",
+        "patchSetId": 18
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-11-17T19:01:37Z",
+      "side": 1,
+      "message": "note to self - we should make a shell commons pom to hold this stuff.",
+      "revId": "40484f1e0befd9eaeb21ea86c8f7bff95d6f4961",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_ff7c07ee",
+        "filename": "vpnservice/aclservice/aclservice-shell/src/main/java/org/opendaylight/netvirt/aclservice/shell/DisplayAclDataCaches.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-11-17T19:01:37Z",
+      "side": 1,
+      "message": "same comment about these dates",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "40484f1e0befd9eaeb21ea86c8f7bff95d6f4961",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_1f863bdb",
+        "filename": "vpnservice/aclservice/api/src/main/java/org/opendaylight/netvirt/aclservice/api/utils/IAclDataUtil.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-11-17T19:01:37Z",
+      "side": 1,
+      "message": "No need to add the I. WE need to change the IAclServiceUtil also.\n\nOther comment can this stuff go in Aclinterface? No problem is these are all provided by the AClDataUtil so that is better to keep a separate interface.",
+      "revId": "40484f1e0befd9eaeb21ea86c8f7bff95d6f4961",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_5f6b931d",
+        "filename": "vpnservice/aclservice/pom.xml",
+        "patchSetId": 18
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-11-17T19:01:37Z",
+      "side": 1,
+      "message": "shell",
+      "range": {
+        "startLine": 28,
+        "startChar": 12,
+        "endLine": 28,
+        "endChar": 22
+      },
+      "revId": "40484f1e0befd9eaeb21ea86c8f7bff95d6f4961",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
