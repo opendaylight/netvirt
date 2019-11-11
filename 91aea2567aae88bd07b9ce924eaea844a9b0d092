@@ -16,6 +16,24 @@
       "revId": "91aea2567aae88bd07b9ce924eaea844a9b0d092",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_3782f852",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Entire vpnservice codebase being migrated to Netvirt is based on just IPv4 addresses. I believe there are plans already in motion to add IPv6 support for VPNService.\nNeed others to comment and confirm the same.\n\nWe could bail out and avoid NPE in case its not IPv4 until then.",
+      "parentUuid": "ba51214e_b055371f",
+      "revId": "91aea2567aae88bd07b9ce924eaea844a9b0d092",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
