@@ -20,6 +20,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_eb6ec795",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 30
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "default is mandatory false only, so the extra line to indicate the same could be avoided.",
+      "revId": "a9b57699034f3efd2c6018f2d26d45c3ff2fb1c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_8ebf5cd0",
         "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
         "patchSetId": 30
@@ -32,6 +49,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "1a622d24_4b6c1b9d",
+      "revId": "a9b57699034f3efd2c6018f2d26d45c3ff2fb1c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4b6c1b9d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 30
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "L3VPN(s)",
       "revId": "a9b57699034f3efd2c6018f2d26d45c3ff2fb1c4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -56,6 +90,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_cb0f8be0",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 30
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "could have done a .set to the earlier line itself :)",
+      "revId": "a9b57699034f3efd2c6018f2d26d45c3ff2fb1c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_8ee2bcd3",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 30
@@ -68,6 +119,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "1a622d24_2beeffec",
+      "revId": "a9b57699034f3efd2c6018f2d26d45c3ff2fb1c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2beeffec",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 30
+      },
+      "lineNbr": 962,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "this is getL3VPN only.\nAssuming, you are not intending to change the getL3VPN RPC to getVPN here..",
       "revId": "a9b57699034f3efd2c6018f2d26d45c3ff2fb1c4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -92,6 +160,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_8bbab3df",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 30
+      },
+      "lineNbr": 985,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "a9b57699034f3efd2c6018f2d26d45c3ff2fb1c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_ceecb4ca",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 30
@@ -104,6 +189,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "1a622d24_4bc89b74",
+      "revId": "a9b57699034f3efd2c6018f2d26d45c3ff2fb1c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4bc89b74",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 30
+      },
+      "lineNbr": 991,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "l3vpnlist",
       "revId": "a9b57699034f3efd2c6018f2d26d45c3ff2fb1c4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -128,6 +230,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_8ba113ac",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 30
+      },
+      "lineNbr": 997,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "a9b57699034f3efd2c6018f2d26d45c3ff2fb1c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_8e091c98",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 30
@@ -140,6 +259,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "1a622d24_0b950340",
+      "revId": "a9b57699034f3efd2c6018f2d26d45c3ff2fb1c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_0b950340",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 30
+      },
+      "lineNbr": 1018,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "ditto here and everywhere in this function",
       "revId": "a9b57699034f3efd2c6018f2d26d45c3ff2fb1c4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -164,6 +300,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_ab87af0e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 30
+      },
+      "lineNbr": 1075,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "l3vpn, since RPC remains deleteL3VPN",
+      "revId": "a9b57699034f3efd2c6018f2d26d45c3ff2fb1c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_2ef8c87b",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 30
@@ -176,6 +329,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "1a622d24_0b7ce31f",
+      "revId": "a9b57699034f3efd2c6018f2d26d45c3ff2fb1c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_0b7ce31f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 30
+      },
+      "lineNbr": 2063,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "l3vpn",
       "revId": "a9b57699034f3efd2c6018f2d26d45c3ff2fb1c4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -212,6 +382,23 @@
       "side": 1,
       "message": "Will not be changed to an augmentation",
       "parentUuid": "1a622d24_ae37b8af",
+      "revId": "a9b57699034f3efd2c6018f2d26d45c3ff2fb1c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_eb78872d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/l3vpn.yang",
+        "patchSetId": 30
+      },
+      "lineNbr": 729,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "shall we edit the l3vpn.yang itself or augment it via odl-l3vpn.yang?\nAre we allowed to edit  the ietf-draft yang?",
       "revId": "a9b57699034f3efd2c6018f2d26d45c3ff2fb1c4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -266,6 +453,23 @@
       "side": 1,
       "message": "OOps thanks !",
       "parentUuid": "1a622d24_0ec7cc46",
+      "revId": "a9b57699034f3efd2c6018f2d26d45c3ff2fb1c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_8b8f5323",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 30
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "if this is the aug being used, please remove the same from l3vpn.yang",
       "revId": "a9b57699034f3efd2c6018f2d26d45c3ff2fb1c4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
