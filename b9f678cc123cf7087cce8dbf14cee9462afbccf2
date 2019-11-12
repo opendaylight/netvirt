@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_280f1be3",
+        "filename": "docs/specs/qbgp-tcp-md5-signature-option.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-03-19T12:54:13Z",
+      "side": 1,
+      "message": "disagree with changing API\nI would prefer having a new API to set secret per peer, more than modifying createPeer itself\n\nexpecting\n    i32 setPeerSecret(1:string ipAddress, 2:string rfc2385_sharedSecret),",
+      "range": {
+        "startLine": 132,
+        "startChar": 0,
+        "endLine": 132,
+        "endChar": 8
+      },
+      "revId": "b9f678cc123cf7087cce8dbf14cee9462afbccf2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_68f803c5",
+        "filename": "docs/specs/qbgp-tcp-md5-signature-option.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-03-19T12:54:13Z",
+      "side": 1,
+      "message": "[ZRPC] must support the new field",
+      "range": {
+        "startLine": 363,
+        "startChar": 0,
+        "endLine": 363,
+        "endChar": 2
+      },
+      "revId": "b9f678cc123cf7087cce8dbf14cee9462afbccf2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0814d7f3",
+        "filename": "docs/specs/qbgp-tcp-md5-signature-option.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-03-19T12:54:13Z",
+      "side": 1,
+      "message": "replace [OSR] with [ZRPC]\n[ZRPC] Zebra Remote  Procedure Call \u003chttps://github.com/6WIND/zrpcd/\u003e. This is the quagga wrapper for Bgpconfigurator and Bgp Updater",
+      "revId": "b9f678cc123cf7087cce8dbf14cee9462afbccf2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
