@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_7d65ce1c",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "This is intentional. Configurations \u0027qos-alert-enabled\u0027, \u0027qos-alert-log-file\u0027 and \u0027qos-alert-poll-interval\u0027 are generic and can be shared even if new alert condition is introduced. \n\n\u0027qos-drop-packet-threshold\u0027 is one such specific configuration. So later if there are multiple such configurations are added, only drop packet % alert can be turned of by setting very high \u0027qos-drop-packet-threshold\u0027 value.",
+      "parentUuid": "fafc7978_ac7f0a65",
+      "revId": "64d0bba27c89146fca4fa680c114fc09ce8b46ca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c9336060",
         "filename": "docs/specs/qos-alert.rst",
         "patchSetId": 15
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-01T20:50:49Z",
       "side": 1,
       "message": "typo \"minimizes\"",
+      "revId": "64d0bba27c89146fca4fa680c114fc09ce8b46ca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7d978eec",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_c9336060",
       "revId": "64d0bba27c89146fca4fa680c114fc09ce8b46ca",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
