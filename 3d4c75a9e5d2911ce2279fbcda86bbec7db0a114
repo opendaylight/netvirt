@@ -2,6 +2,76 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_d23d792e",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouter.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-03-14T21:05:45Z",
+      "side": 1,
+      "message": "I think there is an error with the API.\na new API is added in qbgp.thrift, right ?\nIn that case, that code should not have been added\n\n-1",
+      "range": {
+        "startLine": 175,
+        "startChar": 0,
+        "endLine": 175,
+        "endChar": 20
+      },
+      "revId": "3d4c75a9e5d2911ce2279fbcda86bbec7db0a114",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4f4ef797",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouter.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-03-16T08:05:50Z",
+      "side": 1,
+      "message": "sorry, I misread the code. I was thinking createPeer was called with the 3rd parameter.\n\n+1 on that code.",
+      "parentUuid": "fafc7978_8336feb2",
+      "range": {
+        "startLine": 175,
+        "startChar": 0,
+        "endLine": 175,
+        "endChar": 20
+      },
+      "revId": "3d4c75a9e5d2911ce2279fbcda86bbec7db0a114",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_72392d41",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouterException.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-03-14T21:05:45Z",
+      "side": 1,
+      "message": "You should check with vpnservice conceptors that BGp router exception should be handled or not in the BGP Manager code.\n\nDo you expect the thrift to return a simple error code, or do you expect also to return a thrift exception error ?",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 48,
+        "endChar": 0
+      },
+      "revId": "3d4c75a9e5d2911ce2279fbcda86bbec7db0a114",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_08ba300a",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouterException.java",
         "patchSetId": 5
