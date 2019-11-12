@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_144e1497",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-03-02T19:38:22Z",
+      "side": 1,
+      "message": "looks like the alert log file config was removed in the latest version.  Does this sentence need to be removed, or does the karaf cli provide a log4j config cli that allows configuration of the alert log file?\n\nAlso, in the config section of the spec, it would be good to add a mention that the alert log file should be configured in the  log4j config file.\n\nAlso, what is the behavior if the qos alert is enabled but the qos alert log file has not been configured?",
+      "revId": "62de63d4a52e9073e487ca7d3860e9236244d218",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
