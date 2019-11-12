@@ -1,0 +1,45 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_04ca941a",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-02-22T20:45:56Z",
+      "side": 1,
+      "message": "What do you think about making the plain text file optional?  Perhaps just enabling logging in the karaf debug log is sufficient for some use cases.\ne.g.\n    log:set DEBUG org.opendaylight.netvirt.qosalert",
+      "revId": "5f93dca019e38b32387b1252b18055b16439e7a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ed4c90ca",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-02-23T20:45:12Z",
+      "side": 1,
+      "message": "The thought behind my suggestion is - I think - similar to Tali\u0027s comment.  Which is to take advantage of existing logging infrastructure instead of creating a new (additional) logging infrastructure.  (some other comments/replies suggested that the new plain text file could be used for other logging/alerts that might be created in the future.)\n\nI didn\u0027t know enough about log4j to suggest something like Tali, but if you could satisfy your requirement using log4j then that would address my comment also.",
+      "parentUuid": "fafc7978_ba0e4039",
+      "range": {
+        "startLine": 106,
+        "startChar": 17,
+        "endLine": 106,
+        "endChar": 35
+      },
+      "revId": "5f93dca019e38b32387b1252b18055b16439e7a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
