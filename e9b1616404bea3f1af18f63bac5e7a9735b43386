@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_ee7dfa6f",
+        "filename": "docs/specs/soft-gre.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-16T18:01:36Z",
+      "side": 1,
+      "message": "Please assign a gerrit topic and create a trello card for this item.  Put the Trello Card link in the Targeted Release section.",
+      "revId": "e9b1616404bea3f1af18f63bac5e7a9735b43386",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ce80fe48",
+        "filename": "docs/specs/soft-gre.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-16T18:01:36Z",
+      "side": 1,
+      "message": "the diagram shows a block \u0027CSS\u0027.  You may want to represent that as OpenFlow-Capable-Switch?",
+      "revId": "e9b1616404bea3f1af18f63bac5e7a9735b43386",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_0eab16d7",
+        "filename": "docs/specs/soft-gre.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-16T18:01:36Z",
+      "side": 1,
+      "message": "We can see if one group per datapath that just holds output action to that specific dc-gw tunnel port can be created and use that group in the FIB flow realization.\n\nIn that way when you want to setup the tunnel you will create a group with just output to that tunnel port, per ovs-datapath (this needs intervention by controller).  \n\nBut on teardown of the tunnel, you will just remove that group, which automatically removes all the flows used by the group (this does not need intervention from controller).",
+      "revId": "e9b1616404bea3f1af18f63bac5e7a9735b43386",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_cea91ee1",
+        "filename": "docs/specs/soft-gre.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-16T18:01:36Z",
+      "side": 1,
+      "message": "DC-GW failover scenario today does not incur packet losses.  But with this feature, it seems there will be packet losses as tunnel setup time is required.\n\nHow do you plan to address this?",
+      "revId": "e9b1616404bea3f1af18f63bac5e7a9735b43386",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_0e3676e7",
+        "filename": "docs/specs/soft-gre.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-16T18:01:36Z",
+      "side": 1,
+      "message": "say if set to True , dynamic creation will happen instead.",
+      "revId": "e9b1616404bea3f1af18f63bac5e7a9735b43386",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4e306ee8",
+        "filename": "docs/specs/soft-gre.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-16T18:01:36Z",
+      "side": 1,
+      "message": "Please let know the way this implementation is going scale for 100 OVS-Datapath deployed cloud...",
+      "revId": "e9b1616404bea3f1af18f63bac5e7a9735b43386",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
