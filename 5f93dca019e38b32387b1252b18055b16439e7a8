@@ -19,6 +19,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_84dde4e2",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-22T21:31:05Z",
+      "side": 1,
+      "message": "Did you consider making this config as part of org.ops4j.pax.logging.cfg? \nI think that by creating a new log4j appender and adding a category for the qos package/class(es) name(s) you can get the same result while utilizing the existing karaf pax logging infra",
+      "range": {
+        "startLine": 106,
+        "startChar": 17,
+        "endLine": 106,
+        "endChar": 35
+      },
+      "revId": "5f93dca019e38b32387b1252b18055b16439e7a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ed4c90ca",
         "filename": "docs/specs/qos-alert.rst",
         "patchSetId": 12
@@ -30,6 +53,30 @@
       "writtenOn": "2017-02-23T20:45:12Z",
       "side": 1,
       "message": "The thought behind my suggestion is - I think - similar to Tali\u0027s comment.  Which is to take advantage of existing logging infrastructure instead of creating a new (additional) logging infrastructure.  (some other comments/replies suggested that the new plain text file could be used for other logging/alerts that might be created in the future.)\n\nI didn\u0027t know enough about log4j to suggest something like Tali, but if you could satisfy your requirement using log4j then that would address my comment also.",
+      "parentUuid": "fafc7978_ba0e4039",
+      "range": {
+        "startLine": 106,
+        "startChar": 17,
+        "endLine": 106,
+        "endChar": 35
+      },
+      "revId": "5f93dca019e38b32387b1252b18055b16439e7a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b0981fc1",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-24T05:16:54Z",
+      "side": 1,
+      "message": "I\u0027m not aware o any rest/karaf shell command to change the log file name but programmatically it\u0027s possible to use log4j api. Check out the following example http://stackoverflow.com/questions/8965946/configuring-log4j-loggers-programmatically\n\norg.ops4j.pax.logging.cfg is packaged as part of karaf but if you create the appender programmatically you don\u0027t need to change the default config",
       "parentUuid": "fafc7978_ba0e4039",
       "range": {
         "startLine": 106,
