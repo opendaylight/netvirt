@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b6e2e22c",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f3d75c49",
+      "revId": "d49c36ed3066c991473f2e43a5ac13434c837b98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_d35338e0",
         "filename": "docs/specs/qos-alert.rst",
         "patchSetId": 11
@@ -48,6 +66,24 @@
       "side": 1,
       "message": "Having a hard-round value of 2 files maximum retained might not be of much help.\n\nI suggest that we should enroll a new parameter no_log_files_to_retain to the configuration that will enable users to save as many log files backed up for any production postmortem.\n\nWe should be able to use generic log file rotation mechanims for this alert file too..",
       "parentUuid": "fafc7978_5625765a",
+      "revId": "d49c36ed3066c991473f2e43a5ac13434c837b98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5625765a",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Once \u003clogfilename\u003e reaches 1MB, current log file will get moved to \u003clogfilename\u003e.old file name and new file with \u003clogfilename\u003e will start. \n\nAt any point, there will be two log files, one with 1MB old data and one current (running) log file. \n\nUpdated the same in spec.",
+      "parentUuid": "fafc7978_d35338e0",
       "revId": "d49c36ed3066c991473f2e43a5ac13434c837b98",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
