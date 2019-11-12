@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_8336feb2",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouter.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5899
+      },
+      "writtenOn": "2019-11-12T20:55:56Z",
+      "side": 1,
+      "message": "I don\u0027t understand this comment.  This class is a layer on top of thrift-generated \u0027BgpConfigurator.Client\u0027 so _some_ code needs to be added.",
+      "parentUuid": "fafc7978_d23d792e",
+      "range": {
+        "startLine": 175,
+        "startChar": 0,
+        "endLine": 175,
+        "endChar": 20
+      },
+      "revId": "3d4c75a9e5d2911ce2279fbcda86bbec7db0a114",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_72392d41",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouterException.java",
         "patchSetId": 5
@@ -120,6 +144,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e3e26a00",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouterException.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5899
+      },
+      "writtenOn": "2019-11-12T20:55:56Z",
+      "side": 1,
+      "message": "\u0027BgpRouterException\u0027 is already being handled by the reactors \u0027BgpConfigurationManager\u0027 registers (e.g. BgpConfigurationManager.NeighborsReactor.add [0]).\n\nI\u0027m expecting \u0027setPeerSecret\u0027 to return error codes (which \u0027BgpRouter\u0027 will wrap in \u0027BgpRouterException\u0027).  The only TException I expect is TApplicationException.UNKNOWN_METHOD (see TBaseProcessor.process [1]).\n\nAFAIK I\u0027m not altering the way thrift exceptions are being handled in BgpManager.\n\n\n [0] BgpConfigurationManager.NeighborsReactor.add https://git.opendaylight.org/gerrit/gitweb?p\u003dnetvirt.git;a\u003dblob;f\u003dvpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java;hb\u003drefs/heads/master#l718\n\n 699         @Override\n 700         protected synchronized void add(InstanceIdentifier\u003cNeighbors\u003e iid, Neighbors val) {\n 701             if (ignoreClusterDcnEventForFollower()) {\n 702                 return;\n 703             }\n 704             LOG.debug(\"received add Neighbors config val {}\", val.getAddress().getValue());\n 705             synchronized (BgpConfigurationManager.this) {\n 706                 String peerIp \u003d val.getAddress().getValue();\n 707                 long as \u003d val.getRemoteAs();\n 708                 BgpRouter br \u003d getClient(YANG_OBJ);\n 709                 if (br \u003d\u003d null) {\n 710                     LOG.error(\"{} Unable to process add for peer {} as {}; {}\", YANG_OBJ, peerIp, as,\n 711                             BgpRouterException.BGP_ERR_NOT_INITED, ADD_WARN);\n 712                     return;\n 713                 }\n 714                 try {\n 715                     //itmProvider.buildTunnelsToDCGW(new IpAddress(peerIp.toCharArray()));\n 716                     br.addNeighbor(peerIp, as);\n 717 \n 718                 } catch (TException | BgpRouterException e) {\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n 719                     LOG.error(\"{} Add received exception; {}\", YANG_OBJ, ADD_WARN, e);\n 720                 }\n 721             }\n 722         }\n\n\n [1] TBaseProcessor.process https://github.com/apache/thrift/blob/0.9.1/lib/java/src/org/apache/thrift/TBaseProcessor.java#L25-L41 :\n \n  @Override\n  public boolean process(TProtocol in, TProtocol out) throws TException {\n    TMessage msg \u003d in.readMessageBegin();\n    ProcessFunction fn \u003d processMap.get(msg.name);\n    if (fn \u003d\u003d null) {\n      TProtocolUtil.skip(in, TType.STRUCT);\n      in.readMessageEnd();\n      TApplicationException x \u003d new TApplicationException(TApplicationException.UNKNOWN_METHOD, \"Invalid method name: \u0027\"+msg.name+\"\u0027\");\n      out.writeMessageBegin(new TMessage(msg.name, TMessageType.EXCEPTION, msg.seqid));\n      x.write(out);\n      out.writeMessageEnd();\n      out.getTransport().flush();\n      return true;\n    }\n    fn.process(msg.seqid, in, out, iface);\n    return true;\n  }",
+      "parentUuid": "fafc7978_08ba300a",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 48,
+        "endChar": 0
+      },
+      "revId": "3d4c75a9e5d2911ce2279fbcda86bbec7db0a114",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1248a1cb",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/gen/BgpConfigurator.java",
         "patchSetId": 5
@@ -179,6 +227,30 @@
       "side": 1,
       "message": "wonderful.\n+1",
       "parentUuid": "fafc7978_c0591c90",
+      "range": {
+        "startLine": 47,
+        "startChar": 11,
+        "endLine": 47,
+        "endChar": 14
+      },
+      "revId": "3d4c75a9e5d2911ce2279fbcda86bbec7db0a114",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c0591c90",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/gen/BgpConfigurator.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5899
+      },
+      "writtenOn": "2019-11-12T20:55:56Z",
+      "side": 1,
+      "message": "I did roughly this:\n\n $ export TDIR\u003dvpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift\n $ git checkout master\n $ thrift -out $TDIR/gen/ --gen java $TDIR/idl/qbgp.thrift\n $ git stash save \"generated files from original thrift\"\n $ git checkout local/qbgp-tcp-md5-signature-option/thrift-B\n $ thrift -out $TDIR/gen/ --gen java $TDIR/idl/qbgp.thrift\n $ git stash save \"generated files from modified thrift\"\n $ git diff -U1 stash@{1}..stash@{0} -- $TDIR/gen/* \u003e setPeerSecret.patch\n $ git checkout -b local/qbgp-tcp-md5-signature-option/gen-B master\n $ git apply  --ignore-whitespace setPeerSecret.patch",
+      "parentUuid": "fafc7978_28bd7403",
       "range": {
         "startLine": 47,
         "startChar": 11,
