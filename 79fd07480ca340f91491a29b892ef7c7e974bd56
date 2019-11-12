@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "da01753e_2b7a47f1",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "how about service unbind? it should be done only when dscp rule is removed (either dscp-rule is removed from policy or associated qos-policy is changed.",
+      "range": {
+        "startLine": 505,
+        "startChar": 12,
+        "endLine": 505,
+        "endChar": 23
+      },
+      "revId": "79fd07480ca340f91491a29b892ef7c7e974bd56",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_ebaddf89",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 514,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "return boundServicesInstance.isPresent() directly",
+      "range": {
+        "startLine": 514,
+        "startChar": 12,
+        "endLine": 514,
+        "endChar": 45
+      },
+      "revId": "79fd07480ca340f91491a29b892ef7c7e974bd56",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_e61a3616",
         "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
         "patchSetId": 2
