@@ -16,6 +16,24 @@
       "revId": "299a30fde8ccff2d6b891f8d5deb013d6e4df90c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_03eb6378",
+        "filename": "vpnservice/qosservice/api/pom.xml",
+        "patchSetId": 8
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_746680ee",
+      "revId": "299a30fde8ccff2d6b891f8d5deb013d6e4df90c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
