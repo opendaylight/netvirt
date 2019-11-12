@@ -55,6 +55,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_859ddbbe",
+        "filename": "docs/specs/qos.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Add Qos alert generation functionality also ...\n\nMonitoring drop counts \n----------------------\nPeriodically monitor the neutron port statistics and log an alert message if drop packet % cross the threshold value.",
+      "revId": "d7fa55666aa00884067c4b383f77092dadd65297",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_42e29e2f",
         "filename": "docs/specs/qos.rst",
         "patchSetId": 7
@@ -120,6 +137,23 @@
       "side": 1,
       "message": "No. Lport tag and Ethtype are the match criteria for Subports and Trunkports. No need to add any other options",
       "parentUuid": "1a622d24_ce69abfa",
+      "revId": "d7fa55666aa00884067c4b383f77092dadd65297",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e5adafea",
+        "filename": "docs/specs/qos.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Add yang change for Qos alert \n\nmodule qosalert-config {\n    yang-version 1;\n    namespace \"urn:opendaylight:params:xml:ns:yang:netvirt:qosalert:config\";\n    prefix \"qosalert\";\n\n    revision \"2017-01-03\" {\n        description \"Initial revision of qosalert model\";\n    }\n\n    description \"This YANG module defines QoS alert configuration.\";\n\n    container qosalert-config {\n    config true;\n\n      leaf qos-alert-enabled {\n         type boolean;\n         default false;\n      }\n    \n      leaf qos-drop-packet-threshold {\n         type uint16;\n         default 25;\n      }\n\n      leaf qos-alert-log-file {\n         type string;\n         default qosalert/qos-alert.log;\n      }\n\n    }",
       "revId": "d7fa55666aa00884067c4b383f77092dadd65297",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
