@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_386c2608",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-21T15:51:29Z",
+      "side": 1,
+      "message": "please capture here how will the format be in the log-file..\n\nAlso please mention that the log file should be a local/nfs location and cannot be a URL.",
+      "revId": "91e638513ebe9183e627ed5058ce8235ca58ca8f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
