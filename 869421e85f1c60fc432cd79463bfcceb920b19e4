@@ -1,0 +1,227 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_44dcea12",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-06T05:00:07Z",
+      "side": 1,
+      "message": "\u0027\u0027rx-dropped\u0027\u0027",
+      "range": {
+        "startLine": 32,
+        "startChar": 46,
+        "endLine": 32,
+        "endChar": 56
+      },
+      "revId": "869421e85f1c60fc432cd79463bfcceb920b19e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e4ccfe63",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-06T05:00:07Z",
+      "side": 1,
+      "message": "Is this the keyword used? If yes, it should be \u0027\u0027qos-alert\u0027\u0027. If not, use appropriate keyword.",
+      "range": {
+        "startLine": 32,
+        "startChar": 3,
+        "endLine": 32,
+        "endChar": 12
+      },
+      "revId": "869421e85f1c60fc432cd79463bfcceb920b19e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_24d726ef",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-06T05:00:07Z",
+      "side": 1,
+      "message": "\u0027\u0027rx_packets\u0027\u0027",
+      "range": {
+        "startLine": 32,
+        "startChar": 61,
+        "endLine": 32,
+        "endChar": 71
+      },
+      "revId": "869421e85f1c60fc432cd79463bfcceb920b19e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_642f6ef7",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-06T05:00:07Z",
+      "side": 1,
+      "message": "Needs more details. Where is this information being polled from? Looks like the spec is missing the most crucial part of information? Is it OFPlugin? by default stats are disabled, so how\u0027re you addressing it? Is it OVSDB? Which table are you monitoring?",
+      "revId": "869421e85f1c60fc432cd79463bfcceb920b19e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_64080e92",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-06T05:00:07Z",
+      "side": 1,
+      "message": "Use proper formatting to highlight this, probably \u0027\u0027xyz\u0027\u0027",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 39
+      },
+      "revId": "869421e85f1c60fc432cd79463bfcceb920b19e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c4ff3a66",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-06T05:00:07Z",
+      "side": 1,
+      "message": "How is this alert logged? Is there an existing alert service? Is it just karaf log? Need to capture these details.",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 10
+      },
+      "revId": "869421e85f1c60fc432cd79463bfcceb920b19e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a402f66c",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-06T05:00:07Z",
+      "side": 1,
+      "message": "Yang file name?",
+      "revId": "869421e85f1c60fc432cd79463bfcceb920b19e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_04f94280",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-06T05:00:07Z",
+      "side": 1,
+      "message": "This will work better as a table.",
+      "revId": "869421e85f1c60fc432cd79463bfcceb920b19e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e4f35e9d",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-06T05:00:07Z",
+      "side": 1,
+      "message": "This can\u0027t be NA. This is a new service and will have clustering impact. need to specify how it will work in cluster.",
+      "revId": "869421e85f1c60fc432cd79463bfcceb920b19e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_24ee06b5",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-06T05:00:07Z",
+      "side": 1,
+      "message": "This can\u0027t be N.A. Stats are known to have performance impact. need to explain why this will have no performance impact.",
+      "range": {
+        "startLine": 116,
+        "startChar": 0,
+        "endLine": 116,
+        "endChar": 4
+      },
+      "revId": "869421e85f1c60fc432cd79463bfcceb920b19e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_842c1204",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-06T05:00:07Z",
+      "side": 1,
+      "message": "These should be a CLI block.",
+      "revId": "869421e85f1c60fc432cd79463bfcceb920b19e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
