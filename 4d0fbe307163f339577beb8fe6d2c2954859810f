@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_1ce43aab",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouter.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 6280
+      },
+      "writtenOn": "2017-03-14T15:42:56Z",
+      "side": 1,
+      "message": "It should be \u0027SECRET\u0027 instead of \u0027PASSWORD\u0027 as in function definition.",
+      "range": {
+        "startLine": 178,
+        "startChar": 94,
+        "endLine": 178,
+        "endChar": 102
+      },
+      "revId": "4d0fbe307163f339577beb8fe6d2c2954859810f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4ffe0207",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouter.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 6280
+      },
+      "writtenOn": "2017-03-14T15:42:56Z",
+      "side": 1,
+      "message": "Shoudn\u0027t it be also @Nullable as addNeighbourAux parameter?",
+      "range": {
+        "startLine": 270,
+        "startChar": 70,
+        "endLine": 270,
+        "endChar": 86
+      },
+      "revId": "4d0fbe307163f339577beb8fe6d2c2954859810f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8f08ea29",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouter.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 6280
+      },
+      "writtenOn": "2017-03-14T15:42:56Z",
+      "side": 1,
+      "message": "Shoudn\u0027t it be in capital letters: MD5?",
+      "range": {
+        "startLine": 272,
+        "startChar": 67,
+        "endLine": 272,
+        "endChar": 70
+      },
+      "revId": "4d0fbe307163f339577beb8fe6d2c2954859810f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fce05698",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouterException.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 6280
+      },
+      "writtenOn": "2017-03-14T15:42:56Z",
+      "side": 1,
+      "message": "It should be \u0027SECRET\u0027 instead of \u0027PASSWORD\u0027 as in function definition.",
+      "range": {
+        "startLine": 45,
+        "startChar": 17,
+        "endLine": 45,
+        "endChar": 25
+      },
+      "revId": "4d0fbe307163f339577beb8fe6d2c2954859810f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5ced228e",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouterException.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 6280
+      },
+      "writtenOn": "2017-03-14T15:42:56Z",
+      "side": 1,
+      "message": "It should be \u0027secret\u0027 instead of \u0027password\u0027 as in function definition.",
+      "range": {
+        "startLine": 46,
+        "startChar": 81,
+        "endLine": 46,
+        "endChar": 89
+      },
+      "revId": "4d0fbe307163f339577beb8fe6d2c2954859810f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3cf2de6f",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouterException.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 6280
+      },
+      "writtenOn": "2017-03-14T15:42:56Z",
+      "side": 1,
+      "message": "It should be \u0027secret\u0027 instead of \u0027password\u0027 as in function definition.",
+      "range": {
+        "startLine": 47,
+        "startChar": 86,
+        "endLine": 47,
+        "endChar": 94
+      },
+      "revId": "4d0fbe307163f339577beb8fe6d2c2954859810f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
