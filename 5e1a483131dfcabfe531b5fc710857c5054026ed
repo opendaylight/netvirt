@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_3e226152",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-08-30T05:06:09Z",
+      "side": 1,
+      "message": "This check can be moved to the top of the function.",
+      "revId": "5e1a483131dfcabfe531b5fc710857c5054026ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_1e1f9d09",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-08-30T05:06:09Z",
+      "side": 1,
+      "message": "same as above",
+      "revId": "5e1a483131dfcabfe531b5fc710857c5054026ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_5e1595e3",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-08-30T05:06:09Z",
+      "side": 1,
+      "message": "same as above.",
+      "revId": "5e1a483131dfcabfe531b5fc710857c5054026ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
