@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_a75d637b",
+        "filename": "docs/specs/qbgp-tcp-md5-signature-option.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6265
+      },
+      "writtenOn": "2017-03-01T23:52:58Z",
+      "side": 1,
+      "message": "line: 227, comment to alternatives section\nThe only good solution is that MD-SAL provides the encryption transparently. \n\nThis need is not specific for this function; there can be more sensitive data in the system in this situation and we dont have a solution for this in MD-SAL.\n\nThe RPC option, I dont see that is good enough due to that breaks backward compatibiliy somehow in REST interface; \nin case it is used only for configuring BGP neigbour with md5pass, the Cloud Service Orchetrator should \nuse different calls for configuring the same element with and withot password.\n\nSecurity wise REST and Thrift interfaces should be protected with TLS; and the security of those interfaces should not\nbe included in this solution.\n\nif we want to avoid show this attribute, could be an option we dont allow configuring this attribute by REST, but only by CLI interface? and we encrypt in bgpmanager?",
+      "revId": "27d404a978543a65618449edd7bd345cc89c86d0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9a8a3562",
         "filename": "docs/specs/qbgp-tcp-md5-signature-option.rst",
         "patchSetId": 6
