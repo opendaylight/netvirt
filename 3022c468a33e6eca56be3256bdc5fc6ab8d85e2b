@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_a49dbd59",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/test/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouterAddNeighborTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 6280
+      },
+      "writtenOn": "2017-03-29T14:44:13Z",
+      "side": 1,
+      "message": "could it be removed?",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 43
+      },
+      "revId": "3022c468a33e6eca56be3256bdc5fc6ab8d85e2b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
