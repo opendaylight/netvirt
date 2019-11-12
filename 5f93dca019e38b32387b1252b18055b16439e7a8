@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_2d50580a",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "This makes sense to me. Tali also provided comments (please see below) on logging approach. I shall make the change in spec once we conclude.",
+      "parentUuid": "fafc7978_04ca941a",
+      "revId": "5f93dca019e38b32387b1252b18055b16439e7a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_84dde4e2",
         "filename": "docs/specs/qos-alert.rst",
         "patchSetId": 12
@@ -78,6 +96,54 @@
       "side": 1,
       "message": "I\u0027m not aware o any rest/karaf shell command to change the log file name but programmatically it\u0027s possible to use log4j api. Check out the following example http://stackoverflow.com/questions/8965946/configuring-log4j-loggers-programmatically\n\norg.ops4j.pax.logging.cfg is packaged as part of karaf but if you create the appender programmatically you don\u0027t need to change the default config",
       "parentUuid": "fafc7978_ba0e4039",
+      "range": {
+        "startLine": 106,
+        "startChar": 17,
+        "endLine": 106,
+        "endChar": 35
+      },
+      "revId": "5f93dca019e38b32387b1252b18055b16439e7a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ba0e4039",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "org.ops4j.pax.logging.cfg is handy but configuration is static in nature. Though, I observed that I was able to change the log file name dynamically in org.ops4j.pax.logging.cfg without restarting the controller but only reason log file was made configurable so that it can be modified by directly from karaf shell command and RESTCONF.\n\nLet me know if there is any log4j java API to change the same through java program or is there a way same can be set through karaf shell command?\n\nAlso, I see org.ops4j.pax.logging.cfg is present in \u0027target\u0027 dir and I am not able to find original source for org.ops4j.pax.logging.cfg where I can make the changes and define new appender for qos with default values like file name, size and max backup index. could you please point me to source org.ops4j.pax.logging.cfg file.\n\nAlso, there is suggestion from Eric (please see above) to use karaf DEBUG log by default for logging and use text file only if its really required and configured by user. This approach is more flexible and provides both the options.",
+      "parentUuid": "fafc7978_84dde4e2",
+      "range": {
+        "startLine": 106,
+        "startChar": 17,
+        "endLine": 106,
+        "endChar": 35
+      },
+      "revId": "5f93dca019e38b32387b1252b18055b16439e7a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_dc185c20",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Thanks Tali. I shall upload the new spec after making the changes.",
+      "parentUuid": "fafc7978_b0981fc1",
       "range": {
         "startLine": 106,
         "startChar": 17,
