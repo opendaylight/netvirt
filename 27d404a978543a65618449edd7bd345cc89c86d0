@@ -22,6 +22,47 @@
       "revId": "27d404a978543a65618449edd7bd345cc89c86d0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7acdd165",
+        "filename": "docs/specs/qbgp-tcp-md5-signature-option.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-02T08:35:17Z",
+      "side": 1,
+      "message": "the neighbors is existing yang and not a new yang.  The last line of tcp-security-option-grouping is the only thing being added here..\n\nIf we need to support Ipv6 we need to revisit the complete ebgp.yang.",
+      "parentUuid": "fafc7978_9a8a3562",
+      "range": {
+        "startLine": 97,
+        "startChar": 33,
+        "endLine": 97,
+        "endChar": 34
+      },
+      "revId": "27d404a978543a65618449edd7bd345cc89c86d0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3ae7c9e5",
+        "filename": "docs/specs/qbgp-tcp-md5-signature-option.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-02T08:35:17Z",
+      "side": 1,
+      "message": "so the ODL admin can configure and view the \"plain password\" for each neighbor.  In the carbon timeframe, it looks like you will not be able to implement \u0027transparent encryption\u0027 alternative as changes for that span across aaa, yangtools , netconf projects.",
+      "revId": "27d404a978543a65618449edd7bd345cc89c86d0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
