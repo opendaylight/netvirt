@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_162b4aec",
+        "filename": "docs/specs/qbgp-tcp-md5-signature-option.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-03-22T07:53:33Z",
+      "side": 1,
+      "message": "I understand that BGP_ERR_NOT_SUPPORTED will be used only on the client side.\nhowever, good to have such define.\n+1",
+      "range": {
+        "startLine": 133,
+        "startChar": 0,
+        "endLine": 133,
+        "endChar": 4
+      },
+      "revId": "69759303f43cbbd7f0a4c9317d52ce2f636ac8c6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d648a2ce",
+        "filename": "docs/specs/qbgp-tcp-md5-signature-option.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-03-22T07:53:33Z",
+      "side": 1,
+      "message": "I don\u0027t know if password encryption involves QBGP too ?\nI mean, currently, QBGP MD5 password is not salted and encrypted in show running from QBGP.\n\nSo that means that there may be a security leak.\n\nDo you want to include the following element ?\n- out of specification, but to be considered on a lts : an evolution of QBGP so as hide the md5 secret in a salted way",
+      "range": {
+        "startLine": 409,
+        "startChar": 0,
+        "endLine": 409,
+        "endChar": 0
+      },
+      "revId": "69759303f43cbbd7f0a4c9317d52ce2f636ac8c6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_363ace36",
         "filename": "docs/specs/qbgp-tcp-md5-signature-option.rst",
         "patchSetId": 9
