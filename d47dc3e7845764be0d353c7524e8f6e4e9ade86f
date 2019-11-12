@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_2c1261b4",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertConfigListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "There is no issue with checkstyle. I verified, line length is less than 120 only. But I am not sure why its showing like this here.",
+      "parentUuid": "fafc7978_d0fc1c42",
+      "revId": "d47dc3e7845764be0d353c7524e8f6e4e9ade86f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_90a29449",
         "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
         "patchSetId": 4
@@ -36,6 +54,42 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5f602635",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done. Thread is started only when alert is enabled.",
+      "parentUuid": "fafc7978_ccf6355d",
+      "revId": "d47dc3e7845764be0d353c7524e8f6e4e9ade86f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ccf6355d",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Flag initDone is used to stop the thread gracefully when bundle/blueprint is uninstalled. initDone is set to true and thread is started with init() or @PostConstruct. initDone is set to false with close or @PreDestroy.\n\nOtherwise, its observed that thread is not stopped gracefully and results in exceptions when it wakes up after 2 (default value) minutes.\n\nThread creation is not tied to polling enable/disable configuration in order to avoid multiple creation/deletion of thread at run time with configuration change. Moreover, this thread is very light weight and thread timeout is in minutes so will not have any performance impact. Please let me know your comments.",
+      "parentUuid": "fafc7978_90a29449",
+      "revId": "d47dc3e7845764be0d353c7524e8f6e4e9ade86f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_50982c1b",
         "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
         "patchSetId": 4
@@ -47,6 +101,24 @@
       "writtenOn": "2017-03-23T20:06:44Z",
       "side": 1,
       "message": "maybe change name to be getDefaultConfig() - setDefault doesn\u0027t seem descriptive enough",
+      "revId": "d47dc3e7845764be0d353c7524e8f6e4e9ade86f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8cf26d99",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_50982c1b",
       "revId": "d47dc3e7845764be0d353c7524e8f6e4e9ade86f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
