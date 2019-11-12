@@ -1,0 +1,56 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_f3d75c49",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-22T09:26:10Z",
+      "side": 1,
+      "message": "Packet drop threshold hit for qos policy qos-name with qos-id qos-uuid for port port-uuid on network network-uuid",
+      "revId": "d49c36ed3066c991473f2e43a5ac13434c837b98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d35338e0",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-22T09:26:10Z",
+      "side": 1,
+      "message": "does the log file roll automatically after a specific size?\n\nsince this about packet drops per port for all the ports in the cloud, the alerts file could overrun easily..\n\nHaving huge alert result files that can\u0027t be opened, will not benefit the administrators.",
+      "revId": "d49c36ed3066c991473f2e43a5ac13434c837b98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_76a23a9a",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-22T11:27:17Z",
+      "side": 1,
+      "message": "Having a hard-round value of 2 files maximum retained might not be of much help.\n\nI suggest that we should enroll a new parameter no_log_files_to_retain to the configuration that will enable users to save as many log files backed up for any production postmortem.\n\nWe should be able to use generic log file rotation mechanims for this alert file too..",
+      "parentUuid": "fafc7978_5625765a",
+      "revId": "d49c36ed3066c991473f2e43a5ac13434c837b98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
