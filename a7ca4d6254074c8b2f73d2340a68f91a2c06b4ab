@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_eb097f96",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "•Sampling frequency is 5 minutes. Updated same in spec. Currently sampling frequency configurable is not configurable.\n\n•when enabled, neutron ports having qos bw limit rule are monitored. Updated same in spec.\n\n• Currently threshold is global configuration. Since threshold is specified as drop ratio i.e. drop %, its independent of port rate. This is made global to simplify the configuration. It\u0027s value is expected to be configured little higher than tolerable limit of most \u0027sensitive\u0027 neutron ports.           \n\n• Ports statistics are already gathered and this feature just utilizing the same.",
+      "parentUuid": "fafc7978_31f5ce83",
+      "revId": "a7ca4d6254074c8b2f73d2340a68f91a2c06b4ab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_91f2ba98",
         "filename": "docs/specs/qos-alert.rst",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-27T21:01:58Z",
       "side": 1,
       "message": "do other ODL features / projects use individualized log files like this?  where does this file get place (by default)?",
+      "revId": "a7ca4d6254074c8b2f73d2340a68f91a2c06b4ab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cbaabb18",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "I have observed karaf log files in \u0027data/log/*\u0027 and some other properties/conf files getting created in \u0027configuration/*\u0027 directories (path relative to distribution karaf directory). Let me know if you feel default location should be somewhere else.",
+      "parentUuid": "fafc7978_91f2ba98",
       "revId": "a7ca4d6254074c8b2f73d2340a68f91a2c06b4ab",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
