@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_9a8a3562",
+        "filename": "docs/specs/qbgp-tcp-md5-signature-option.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-03-02T07:54:38Z",
+      "side": 1,
+      "message": "to prevent churn in the yangs for upgrades etc, maybe we can accept ip-address as the address, so we dont have to change it for ipv6 underlay. the implementation can have a check for ipv6, log error for ipv6 until it gets supported.",
+      "range": {
+        "startLine": 97,
+        "startChar": 33,
+        "endLine": 97,
+        "endChar": 34
+      },
+      "revId": "27d404a978543a65618449edd7bd345cc89c86d0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
