@@ -71,6 +71,78 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_d5c50a3d",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_44dcea12",
+      "range": {
+        "startLine": 32,
+        "startChar": 46,
+        "endLine": 32,
+        "endChar": 56
+      },
+      "revId": "869421e85f1c60fc432cd79463bfcceb920b19e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_55e91ab7",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e4ccfe63",
+      "range": {
+        "startLine": 32,
+        "startChar": 3,
+        "endLine": 32,
+        "endChar": 12
+      },
+      "revId": "869421e85f1c60fc432cd79463bfcceb920b19e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_75c6de4a",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_24d726ef",
+      "range": {
+        "startLine": 32,
+        "startChar": 61,
+        "endLine": 32,
+        "endChar": 71
+      },
+      "revId": "869421e85f1c60fc432cd79463bfcceb920b19e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_642f6ef7",
         "filename": "docs/specs/qos-alert.rst",
         "patchSetId": 5
@@ -134,6 +206,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_c14a65c4",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_c4ff3a66",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 10
+      },
+      "revId": "869421e85f1c60fc432cd79463bfcceb920b19e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a402f66c",
         "filename": "docs/specs/qos-alert.rst",
         "patchSetId": 5
@@ -145,6 +241,24 @@
       "writtenOn": "2017-02-06T05:00:07Z",
       "side": 1,
       "message": "Yang file name?",
+      "revId": "869421e85f1c60fc432cd79463bfcceb920b19e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a145a1b4",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_a402f66c",
       "revId": "869421e85f1c60fc432cd79463bfcceb920b19e4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -168,6 +282,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_fc90f244",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_04f94280",
+      "revId": "869421e85f1c60fc432cd79463bfcceb920b19e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e4f35e9d",
         "filename": "docs/specs/qos-alert.rst",
         "patchSetId": 5
@@ -179,6 +311,24 @@
       "writtenOn": "2017-02-06T05:00:07Z",
       "side": 1,
       "message": "This can\u0027t be NA. This is a new service and will have clustering impact. need to specify how it will work in cluster.",
+      "revId": "869421e85f1c60fc432cd79463bfcceb920b19e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fcde3210",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e4f35e9d",
       "revId": "869421e85f1c60fc432cd79463bfcceb920b19e4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -208,6 +358,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9cd726ed",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_24ee06b5",
+      "range": {
+        "startLine": 116,
+        "startChar": 0,
+        "endLine": 116,
+        "endChar": 4
+      },
+      "revId": "869421e85f1c60fc432cd79463bfcceb920b19e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_842c1204",
         "filename": "docs/specs/qos-alert.rst",
         "patchSetId": 5
@@ -219,6 +393,24 @@
       "writtenOn": "2017-02-06T05:00:07Z",
       "side": 1,
       "message": "These should be a CLI block.",
+      "revId": "869421e85f1c60fc432cd79463bfcceb920b19e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f22db947",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_842c1204",
       "revId": "869421e85f1c60fc432cd79463bfcceb920b19e4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
