@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_10eb1db1",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/test/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouterAddNeighborTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-03-30T15:20:56Z",
+      "side": 1,
+      "message": "we usually don\u0027t use this style in ODL (I see the idea, so that you know what bracket closes what), so if you\u0027re used to reading other code, this is more distracting than helpful.. is it important to you, or do you mind removing all of these?",
+      "revId": "e9d5d60cfabb56b627137c7fb44629f6717e74bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b0db311a",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/test/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouterAddNeighborTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-03-30T15:20:56Z",
+      "side": 1,
+      "message": "IMHO it would be simpler and more obvious to read if you simply did x2 assertThat - so you don\u0027t need the rep() helper and you don\u0027t need your constants above and you just do e.g.:\n\nassertThat(e.getFunctionCode()).isEqualTo(SET_PEER_SECRET);\nassertThat(e.getErrorCode()).isEqualTo(BGP_ERR_FAILED);\n\nPS: Prefer using Google Truth to Hamcrest, much cooler \u0026 better.",
+      "revId": "e9d5d60cfabb56b627137c7fb44629f6717e74bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_70d1c9fa",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/test/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouterAddNeighborTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-03-30T15:20:56Z",
+      "side": 1,
+      "message": "private (but I would compeltely remove it, see above)",
+      "revId": "e9d5d60cfabb56b627137c7fb44629f6717e74bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
