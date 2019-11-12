@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_a62b2993",
+        "filename": "docs/specs/qbgp-tcp-md5-signature-option.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 5899
+      },
+      "writtenOn": "2019-11-12T20:55:56Z",
+      "side": 1,
+      "message": "I\u0027ve added this to the list of \"Security considerations\".",
+      "parentUuid": "fafc7978_d648a2ce",
+      "range": {
+        "startLine": 409,
+        "startChar": 0,
+        "endLine": 409,
+        "endChar": 0
+      },
+      "revId": "69759303f43cbbd7f0a4c9317d52ce2f636ac8c6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_363ace36",
         "filename": "docs/specs/qbgp-tcp-md5-signature-option.rst",
         "patchSetId": 9
@@ -77,6 +101,42 @@
       "side": 1,
       "message": "[0] and [1] may be usable for L3VPN support.\nAFAIK, the EVPN support is not in this.\nAs consequence, it is not usable, as of today.",
       "parentUuid": "fafc7978_631c9314",
+      "revId": "69759303f43cbbd7f0a4c9317d52ce2f636ac8c6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_631c9314",
+        "filename": "docs/specs/qbgp-tcp-md5-signature-option.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 440,
+      "author": {
+        "id": 5899
+      },
+      "writtenOn": "2019-11-12T20:55:56Z",
+      "side": 1,
+      "message": "I don\u0027t know if it is being actively used, but repos odlvpn2bgpd [0] and opnfv-quagga-packaging [1] have commits up to May 2016.\n\n [0] https://git-us.netdef.org/projects/OSR/repos/odlvpn2bgpd/commits\n\n [1] https://git-us.netdef.org/projects/OSR/repos/opnfv-quagga-packaging/commits?until\u003drefs%2Fheads%2Fcapnproto\u0026merges\u003dinclude",
+      "parentUuid": "fafc7978_363ace36",
+      "revId": "69759303f43cbbd7f0a4c9317d52ce2f636ac8c6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0decd0c6",
+        "filename": "docs/specs/qbgp-tcp-md5-signature-option.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 440,
+      "author": {
+        "id": 5899
+      },
+      "writtenOn": "2019-11-12T20:55:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_12b98fe9",
       "revId": "69759303f43cbbd7f0a4c9317d52ce2f636ac8c6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
