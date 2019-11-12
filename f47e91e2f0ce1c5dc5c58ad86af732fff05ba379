@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f281f6c3",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_25cea12e",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 41
+      },
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_6fa2424c",
         "filename": "docs/specs/qos-alert.rst",
         "patchSetId": 13
@@ -96,6 +120,78 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_d3f15102",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Apart from changing the filename manually in org.ops4j.pax.logging.cfg, log file can be configured through RESTCONF and therefore its not removed from yang. \n\nThis is retained just for ease of configuration and management.",
+      "parentUuid": "fafc7978_26ddfce0",
+      "range": {
+        "startLine": 106,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 13
+      },
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_52728211",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Based on Tali/Eric comments, instead of plain text file, karaf log4j logging framework shall be used. Logging properties (like file name, file size, number of log files etc) can be configured in log4j config file org.ops4j.pax.logging.cfg. Configuration of log file name shall still be supported through REST or karaf shell. So there is no change in the yang.",
+      "parentUuid": "fafc7978_6fa2424c",
+      "range": {
+        "startLine": 106,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 13
+      },
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d87a0823",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done.\n\n\nEven restconf ends up changing the file name in logging.cfg programmatically. The main purpose of opening this configuration through restconf was \u0027ease of configuration\u0027.\n\nIf manually changing the logging.cfg is in general practice and acceptable then this config does not add any value.\n\n\nMoreover, I observed that logging.cfg can be changed dynamically and its not mandatory to have the configuration before startup.",
+      "parentUuid": "fafc7978_582d7894",
+      "range": {
+        "startLine": 106,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 13
+      },
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c5dcf5e6",
         "filename": "docs/specs/qos-alert.rst",
         "patchSetId": 13
@@ -107,6 +203,30 @@
       "writtenOn": "2017-02-28T05:22:04Z",
       "side": 1,
       "message": "nitpick: don\u0027t need quotes on any of these.",
+      "range": {
+        "startLine": 133,
+        "startChar": 0,
+        "endLine": 133,
+        "endChar": 4
+      },
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9267ca4c",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_c5dcf5e6",
       "range": {
         "startLine": 133,
         "startChar": 0,
@@ -142,6 +262,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3256de5c",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_25f50157",
+      "range": {
+        "startLine": 157,
+        "startChar": 0,
+        "endLine": 157,
+        "endChar": 58
+      },
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_45f00567",
         "filename": "docs/specs/qos-alert.rst",
         "patchSetId": 13
@@ -153,6 +297,30 @@
       "writtenOn": "2017-02-28T05:22:04Z",
       "side": 1,
       "message": "reword this is \"This uses direct-statistics RPC instead of OpenflowPlugin statistics-manager. This is lightweight beause only node-connector statistics are queries intead of all statistics.",
+      "range": {
+        "startLine": 159,
+        "startChar": 3,
+        "endLine": 161,
+        "endChar": 15
+      },
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b2c92e28",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_45f00567",
       "range": {
         "startLine": 159,
         "startChar": 3,
@@ -188,6 +356,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f2cf3627",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_85e66dae",
+      "range": {
+        "startLine": 162,
+        "startChar": 92,
+        "endLine": 163,
+        "endChar": 9
+      },
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_65eb8978",
         "filename": "docs/specs/qos-alert.rst",
         "patchSetId": 13
@@ -199,6 +391,30 @@
       "writtenOn": "2017-02-28T05:22:04Z",
       "side": 1,
       "message": "\u0027\u0027odl-netvirt-openstack\u0027\u0027 as this is a keyword",
+      "range": {
+        "startLine": 178,
+        "startChar": 39,
+        "endLine": 178,
+        "endChar": 60
+      },
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d2d4b2be",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_65eb8978",
       "range": {
         "startLine": 178,
         "startChar": 39,
@@ -228,6 +444,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_32041e49",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "CLI are fairly simple to understand. Keywords are kind of self-explanatory.",
+      "parentUuid": "fafc7978_a500d134",
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_459765ec",
         "filename": "docs/specs/qos-alert.rst",
         "patchSetId": 13
@@ -239,6 +473,24 @@
       "writtenOn": "2017-02-28T05:22:04Z",
       "side": 1,
       "message": "add the test resource also.",
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f2b45683",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_459765ec",
       "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -268,6 +520,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_a0f0b467",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_259ce10e",
+      "range": {
+        "startLine": 257,
+        "startChar": 0,
+        "endLine": 257,
+        "endChar": 4
+      },
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a58731b4",
         "filename": "docs/specs/qos-alert.rst",
         "patchSetId": 13
@@ -279,6 +555,24 @@
       "writtenOn": "2017-02-28T05:22:04Z",
       "side": 1,
       "message": "specify if any UTs will be added or not. Most likely can leave it as \u0027Standard UTs will be added\u0027",
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_00d0a0f4",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_a58731b4",
       "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -302,6 +596,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_40bf48aa",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_0591ddf0",
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c58a35be",
         "filename": "docs/specs/qos-alert.rst",
         "patchSetId": 13
@@ -313,6 +625,24 @@
       "writtenOn": "2017-02-28T05:22:04Z",
       "side": 1,
       "message": "Please add high level CSIT test cases that will be added for this feature. This can\u0027t be empty. This is to provide a guideline to test resource on what test cases to add.",
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a091d448",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_c58a35be",
       "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -342,6 +672,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_40e2a82f",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_45be4566",
+      "range": {
+        "startLine": 287,
+        "startChar": 27,
+        "endLine": 287,
+        "endChar": 69
+      },
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_25c341ee",
         "filename": "docs/specs/qos-alert.rst",
         "patchSetId": 13
@@ -353,6 +707,24 @@
       "writtenOn": "2017-02-28T05:22:04Z",
       "side": 1,
       "message": "This is not needed, should be covered by change up top where you add link to this.",
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b265ae1f",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_25c341ee",
       "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
