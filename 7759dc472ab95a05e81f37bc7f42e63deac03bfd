@@ -23,6 +23,29 @@
       "revId": "7759dc472ab95a05e81f37bc7f42e63deac03bfd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a09b5f64",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5899
+      },
+      "writtenOn": "2019-11-12T20:55:56Z",
+      "side": 1,
+      "message": "Section 4.8.6.1 of Google Java Style [0]:\n\n  For multi-line /* ... */ comments,\n  subsequent lines must start with *\n  aligned with the * on the previous\n  line.\n\nNot sure why checkstyle is not enforcing it.\n\n[0] https://google.github.io/styleguide/javaguide.html#s4.8.6-comments",
+      "range": {
+        "startLine": 193,
+        "startChar": 0,
+        "endLine": 195,
+        "endChar": 43
+      },
+      "revId": "7759dc472ab95a05e81f37bc7f42e63deac03bfd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
