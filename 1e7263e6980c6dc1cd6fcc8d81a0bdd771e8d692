@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_142b6695",
+        "filename": "vpnservice/qosservice/impl/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f47a2224",
+      "revId": "1e7263e6980c6dc1cd6fcc8d81a0bdd771e8d692",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_748e3229",
         "filename": "vpnservice/qosservice/impl/src/main/resources/org/opendaylight/blueprint/qosservice.xml",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-16T00:46:08Z",
       "side": 1,
       "message": "can you convert this blueprint to use the inject annotations like aclservice does it?",
+      "revId": "1e7263e6980c6dc1cd6fcc8d81a0bdd771e8d692",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2491ff52",
+        "filename": "vpnservice/qosservice/impl/src/main/resources/org/opendaylight/blueprint/qosservice.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_748e3229",
       "revId": "1e7263e6980c6dc1cd6fcc8d81a0bdd771e8d692",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
