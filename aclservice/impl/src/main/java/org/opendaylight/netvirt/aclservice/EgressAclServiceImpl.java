@@ -182,7 +182,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
                 | MetaDataUtil.METADATA_MASK_ACL_DROP.longValue());
         matches.add(new MatchMetadata(metaData, metaDataMask));
 
-        String flowName = "Egress_" + dpId.toString() + "_" + lportTag + "_Drop";
+        String flowName = "Egress_" + dpId + "_" + lportTag + "_Drop";
         addFlowEntryToList(flowEntries, dpId, getAclCommitterTable(), flowName,
                 AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY, 0, 0, AclServiceUtils.getDropFlowCookie(lportTag),
                 matches, instructions, addOrRemove);
@@ -218,7 +218,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
             List<InstructionInfo> gotoInstructions = new ArrayList<>();
             gotoInstructions.add(new InstructionGotoTable(getAclConntrackClassifierTable()));
 
-            String flowName = "Egress_Fixed_Goto_Classifier_" + dpId.toString() + "_" + lportTag + "_"
+            String flowName = "Egress_Fixed_Goto_Classifier_" + dpId + "_" + lportTag + "_"
                     + mac.getValue() + "_" + attachIp.stringValue();
             addFlowEntryToList(flowEntries, dpId, getAclAntiSpoofingTable(), flowName,
                     AclConstants.PROTO_MATCH_PRIORITY, 0, 0, AclConstants.COOKIE_ACL_BASE, matches, gotoInstructions,
@@ -240,7 +240,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
 
         for (Integer icmpv6Type: AclConstants.allowedIcmpv6NdList()) {
             List<MatchInfoBase> matches = AclServiceUtils.buildIcmpV6Matches(icmpv6Type, 0, lportTag, serviceMode);
-            String flowName = "Egress_ICMPv6" + "_" + dpId.toString() + "_" + lportTag + "_" + icmpv6Type + "_Permit_";
+            String flowName = "Egress_ICMPv6" + "_" + dpId + "_" + lportTag + "_" + icmpv6Type + "_Permit_";
             addFlowEntryToList(flowEntries, dpId, getAclAntiSpoofingTable(), flowName,
                     AclConstants.PROTO_IPV6_ALLOWED_PRIORITY, 0, 0, AclConstants.COOKIE_ACL_BASE, matches,
                     instructions, addOrRemove);
