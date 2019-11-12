@@ -42,6 +42,109 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_05d9dd21",
+        "filename": "docs/specs/qbgp-md5-signature-option.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-28T04:40:47Z",
+      "side": 1,
+      "message": "should we ever allow the password to be viewable by REST APIs for this yang?",
+      "revId": "23f7e7bbd8a0e8494f9b36d1c688e6dad4235e87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a5cf3155",
+        "filename": "docs/specs/qbgp-md5-signature-option.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-28T04:40:47Z",
+      "side": 1,
+      "message": "are there other security options possible that we donot currently support (or) this is only for future expansion?",
+      "revId": "23f7e7bbd8a0e8494f9b36d1c688e6dad4235e87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_45064587",
+        "filename": "docs/specs/qbgp-md5-signature-option.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-28T04:40:47Z",
+      "side": 1,
+      "message": "rfc2385_sharedsecret",
+      "revId": "23f7e7bbd8a0e8494f9b36d1c688e6dad4235e87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_85330d61",
+        "filename": "docs/specs/qbgp-md5-signature-option.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-28T04:40:47Z",
+      "side": 1,
+      "message": "please capture what is the impact of a password difference between ODL Quagga and the neighbour?  Will that result in neighbourship loss, any retries ?",
+      "revId": "23f7e7bbd8a0e8494f9b36d1c688e6dad4235e87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c5f99581",
+        "filename": "docs/specs/qbgp-md5-signature-option.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-28T04:40:47Z",
+      "side": 1,
+      "message": "since the spec adds a security feature, both the above seem to be limitations of the feature.. \n\nRecommend reconsidering making the password unviewable for the 1st point.  \n\nAlso recommend if the password can be hash-stored and that hash is sent via thrift interface to QBGP.",
+      "revId": "23f7e7bbd8a0e8494f9b36d1c688e6dad4235e87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_267e9c19",
+        "filename": "docs/specs/qbgp-md5-signature-option.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-01T12:46:44Z",
+      "side": 1,
+      "message": "I was telling that this being a security feature, should not have security limitations :)\n\nHave you considered any alternatives to overcome the above 2 limitations?",
+      "parentUuid": "fafc7978_d96ea02e",
+      "revId": "23f7e7bbd8a0e8494f9b36d1c688e6dad4235e87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f2cbc450",
         "filename": "docs/specs/qbgp-md5-signature-option.rst",
         "patchSetId": 2
@@ -76,6 +179,24 @@
       "writtenOn": "2017-02-28T04:40:47Z",
       "side": 1,
       "message": "can you let know that the alternative RPC is for doing which one ?",
+      "revId": "23f7e7bbd8a0e8494f9b36d1c688e6dad4235e87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e6977438",
+        "filename": "docs/specs/qbgp-md5-signature-option.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-01T12:46:44Z",
+      "side": 1,
+      "message": "But will the password provided here be retained across reboots of the ODL controller cluster?",
+      "parentUuid": "fafc7978_7947b477",
       "revId": "23f7e7bbd8a0e8494f9b36d1c688e6dad4235e87",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
