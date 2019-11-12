@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_d0fc1c42",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertConfigListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-03-23T20:06:44Z",
+      "side": 1,
+      "message": "how does this pass checkstyle for lines longer than 120?",
+      "revId": "d47dc3e7845764be0d353c7524e8f6e4e9ade86f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_90a29449",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-03-23T20:06:44Z",
+      "side": 1,
+      "message": "something about this loop using initDone doesn\u0027t see right. The only place I see it changing is the restoreDefaultConfig() somaybe that is whay you need the state, but it would be good if the state wasn\u0027t needed and the thread itself could be the state.",
+      "revId": "d47dc3e7845764be0d353c7524e8f6e4e9ade86f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_50982c1b",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-03-23T20:06:44Z",
+      "side": 1,
+      "message": "maybe change name to be getDefaultConfig() - setDefault doesn\u0027t seem descriptive enough",
+      "revId": "d47dc3e7845764be0d353c7524e8f6e4e9ade86f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
