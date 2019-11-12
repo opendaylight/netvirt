@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_fc901050",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-04-18T08:39:40Z",
+      "side": 1,
+      "message": "remove empty line",
+      "revId": "9a08d538531908518cf8ed685b222c1054c2a87e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_1cd23400",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-04-18T08:39:40Z",
+      "side": 1,
+      "message": "is it not possible to get neutron port from intf/intf name?",
+      "revId": "9a08d538531908518cf8ed685b222c1054c2a87e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
