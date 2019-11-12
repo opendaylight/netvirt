@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_c5dcf5e6",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-28T05:22:04Z",
+      "side": 1,
+      "message": "nitpick: don\u0027t need quotes on any of these.",
+      "range": {
+        "startLine": 133,
+        "startChar": 0,
+        "endLine": 133,
+        "endChar": 4
+      },
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_65eb8978",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-28T05:22:04Z",
+      "side": 1,
+      "message": "\u0027\u0027odl-netvirt-openstack\u0027\u0027 as this is a keyword",
+      "range": {
+        "startLine": 178,
+        "startChar": 39,
+        "endLine": 178,
+        "endChar": 60
+      },
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_459765ec",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-28T05:22:04Z",
+      "side": 1,
+      "message": "add the test resource also.",
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
