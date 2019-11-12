@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_8eca5a9f",
+        "filename": "vpnservice/features/pom.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_13585555",
+      "revId": "bfc1d149c6ca926dbff5e50af7083f61136de5b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_53313d0a",
         "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-28T22:06:16Z",
       "side": 1,
       "message": "final?",
+      "revId": "bfc1d149c6ca926dbff5e50af7083f61136de5b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_aebe3efe",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_53313d0a",
       "revId": "bfc1d149c6ca926dbff5e50af7083f61136de5b9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_2e3a4e98",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "default config is read from initial config xml file and can not be null.",
+      "parentUuid": "fafc7978_f352f133",
+      "revId": "bfc1d149c6ca926dbff5e50af7083f61136de5b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_333479fa",
         "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
         "patchSetId": 6
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ae459e16",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Extra fields are used because each field individually can be set through karaf CLI. karaf CLI support is added by dependent patch https://git.opendaylight.org/gerrit/53340",
+      "parentUuid": "fafc7978_333479fa",
+      "revId": "bfc1d149c6ca926dbff5e50af7083f61136de5b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_933ba5ea",
         "filename": "vpnservice/qosservice/impl/src/main/resources/initial/netvirt-qosalert-config.xml",
         "patchSetId": 6
@@ -81,6 +153,30 @@
       "writtenOn": "2017-03-28T22:06:16Z",
       "side": 1,
       "message": "remove this part",
+      "range": {
+        "startLine": 8,
+        "startChar": 41,
+        "endLine": 8,
+        "endChar": 60
+      },
+      "revId": "bfc1d149c6ca926dbff5e50af7083f61136de5b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ee4fa632",
+        "filename": "vpnservice/qosservice/impl/src/main/resources/initial/netvirt-qosalert-config.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2019-11-12T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_933ba5ea",
       "range": {
         "startLine": 8,
         "startChar": 41,
