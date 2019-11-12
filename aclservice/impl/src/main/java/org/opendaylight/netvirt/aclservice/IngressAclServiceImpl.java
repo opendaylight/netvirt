@@ -108,8 +108,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
                     AclServiceUtils.getBoundServices(String.format("%s.%s.%s", "acl", "egressacl", interfaceName),
                             serviceIndex, flowPriority, AclConstants.COOKIE_ACL_BASE, instructions);
             InstanceIdentifier<BoundServices> path = AclServiceUtils.buildServiceId(interfaceName,
-                    ServiceIndex.getIndex(NwConstants.EGRESS_ACL_SERVICE_NAME, NwConstants.EGRESS_ACL_SERVICE_INDEX),
-                    serviceMode);
+                    serviceIndex, serviceMode);
 
             return Collections.singletonList(
                     txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> tx.put(
@@ -206,7 +205,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
                 MetaDataUtil.getLportTagMaskForReg6()));
         matches.add(new MatchMetadata(metaData, metaDataMask));
 
-        String flowName = "Ingress_" + dpId.toString() + "_" + lportTag + "_Drop";
+        String flowName = "Ingress_" + dpId + "_" + lportTag + "_Drop";
         addFlowEntryToList(flowEntries, dpId, getAclCommitterTable(), flowName,
                 AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY, 0, 0, AclServiceUtils.getDropFlowCookie(lportTag),
                 matches, instructions, addOrRemove);
@@ -227,7 +226,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
             List<InstructionInfo> gotoInstructions = new ArrayList<>();
             gotoInstructions.add(new InstructionGotoTable(getAclConntrackClassifierTable()));
 
-            String flowName = "Ingress_Fixed_Goto_Classifier_" + dpId.toString() + "_" + lportTag + "_"
+            String flowName = "Ingress_Fixed_Goto_Classifier_" + dpId + "_" + lportTag + "_"
                     + mac.getValue() + "_" + attachIp.stringValue();
             addFlowEntryToList(flowEntries, dpId, getAclAntiSpoofingTable(), flowName,
                     AclConstants.PROTO_MATCH_PRIORITY, 0, 0, AclConstants.COOKIE_ACL_BASE, matches, gotoInstructions,
@@ -282,7 +281,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
                 AclConstants.DHCP_CLIENT_PORT_IPV6, lportTag, serviceMode);
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
 
-        String flowName = "Ingress_DHCP_Server_v6" + "_" + dpId.toString() + "_" + lportTag + "_Permit_";
+        String flowName = "Ingress_DHCP_Server_v6" + "_" + dpId + "_" + lportTag + "_Permit_";
         addFlowEntryToList(flowEntries, dpId, getAclAntiSpoofingTable(), flowName,
                 AclConstants.PROTO_DHCP_SERVER_MATCH_PRIORITY, 0, 0, AclConstants.COOKIE_ACL_BASE, matches,
                 instructions, addOrRemove);
@@ -335,24 +334,27 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
     @Override
     protected void programIcmpv6RARule(List<FlowEntity> flowEntries, AclInterface port, List<SubnetInfo> subnets,
             int addOrRemove) {
-        if (AclServiceUtils.isIpv6Subnet(subnets)) {
-            /* Allow ICMPv6 Router Advertisement packets from external routers as well as internal routers
-             * if subnet is configured with IPv6 version
-             * Allow ICMPv6 Router Advertisement packets if originating from any LinkLocal Address.
-             */
-            List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
-            List<MatchInfoBase> matches =
-                    AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_RA, 0,
-                            port.getLPortTag(), serviceMode);
-            matches.addAll(AclServiceUtils.buildIpMatches(
-                    new IpPrefixOrAddress(IpPrefixBuilder.getDefaultInstance(AclConstants.IPV6_LINK_LOCAL_PREFIX)),
-                    AclServiceManager.MatchCriteria.MATCH_SOURCE));
-            String flowName = "Ingress_ICMPv6" + "_" + port.getDpId() + "_" + port.getLPortTag() + "_"
-                    + AclConstants.ICMPV6_TYPE_RA + "_LinkLocal_Permit_";
-            addFlowEntryToList(flowEntries, Uint64.valueOf(port.getDpId()), getAclAntiSpoofingTable(), flowName,
-                    AclConstants.PROTO_IPV6_ALLOWED_PRIORITY, 0, 0, AclConstants.COOKIE_ACL_BASE, matches,
-                    instructions, addOrRemove);
+        if (!AclServiceUtils.isIpv6Subnet(subnets)) {
+            return;
         }
+
+        Uint64 dpid = Uint64.valueOf(port.getDpId());
+        /* Allow ICMPv6 Router Advertisement packets from external routers as well as internal routers
+         * if subnet is configured with IPv6 version
+         * Allow ICMPv6 Router Advertisement packets if originating from any LinkLocal Address.
+         */
+        List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
+        List<MatchInfoBase> matches =
+                AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_RA, 0,
+                        port.getLPortTag(), serviceMode);
+        matches.addAll(AclServiceUtils.buildIpMatches(
+                new IpPrefixOrAddress(IpPrefixBuilder.getDefaultInstance(AclConstants.IPV6_LINK_LOCAL_PREFIX)),
+                AclServiceManager.MatchCriteria.MATCH_SOURCE));
+        String flowName = "Ingress_ICMPv6" + "_" + dpid + "_" + port.getLPortTag() + "_"
+                + AclConstants.ICMPV6_TYPE_RA + "_LinkLocal_Permit_";
+        addFlowEntryToList(flowEntries, dpid, getAclAntiSpoofingTable(), flowName,
+                AclConstants.PROTO_IPV6_ALLOWED_PRIORITY, 0, 0, AclConstants.COOKIE_ACL_BASE, matches,
+                instructions, addOrRemove);
     }
 
     /**
@@ -424,7 +426,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
                 matches.add(lportMatchInfo);
                 List<InstructionInfo> instructions = new ArrayList<>();
                 instructions.add(new InstructionGotoTable(getAclConntrackClassifierTable()));
-                String flowName = "Ingress_v4_Broadcast_" + dpId.longValue() + "_"
+                String flowName = "Ingress_v4_Broadcast_" + dpId + "_"
                                     + lportTag + "_" + broadcastAddress + "_Permit";
                 addFlowEntryToList(flowEntries, dpId, getAclAntiSpoofingTable(), flowName,
                         AclConstants.PROTO_MATCH_PRIORITY, 0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions,
@@ -516,7 +518,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         matches.add(icmpTypeMatchInfo);
 
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
-        String flowName = "Ingress_DHCP_Service_ICMP_" + dpId.toString() + "_" + lportTag + "_" + icmpType + "_Permit_";
+        String flowName = "Ingress_DHCP_Service_ICMP_" + dpId + "_" + lportTag + "_" + icmpType + "_Permit_";
         addFlowEntryToList(flowEntries, dpId, getAclAntiSpoofingTable(), flowName,
                 AclConstants.PROTO_DHCP_SERVER_MATCH_PRIORITY, 0, 0, AclConstants.COOKIE_ACL_BASE, matches,
                 instructions, addOrRemove);

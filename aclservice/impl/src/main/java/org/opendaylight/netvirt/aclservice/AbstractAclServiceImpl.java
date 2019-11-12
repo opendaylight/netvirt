@@ -119,8 +119,9 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             return false;
         }
         BigInteger dpId = port.getDpId();
+        String portId = port.getInterfaceId();
         if (dpId == null || port.getLPortTag() == null) {
-            LOG.error("Unable to find DpId from ACL interface with id {}", port.getInterfaceId());
+            LOG.error("Unable to find DpId from ACL interface with id {}", portId);
             return false;
         }
 
@@ -130,13 +131,14 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             programDhcpService(flowEntries, port, Action.ADD, NwConstants.ADD_FLOW);
         } else {
             if (port.getSecurityGroups() == null) {
-                LOG.info("Port {} without SGs", port.getInterfaceId());
+                LOG.info("Port {} without SGs", portId);
                 return false;
             }
-            programAcl(flowEntries, port, Action.ADD, NwConstants.ADD_FLOW);
+            programAclWithAllowedAddress(flowEntries, port, port.getAllowedAddressPairs(),
+                    Action.ADD, NwConstants.ADD_FLOW);
             updateRemoteAclFilterTable(flowEntries, port, NwConstants.ADD_FLOW);
         }
-        programFlows(AclConstants.ACL_JOB_KEY_PREFIX + port.getInterfaceId(), flowEntries, NwConstants.ADD_FLOW);
+        programFlows(AclConstants.ACL_JOB_KEY_PREFIX + portId, flowEntries, NwConstants.ADD_FLOW);
         return true;
     }
 
@@ -343,10 +345,6 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                 matches, instructions, addOrRemove);
     }
 
-    private void programAcl(List<FlowEntity> flowEntries, AclInterface port, Action action, int addOrRemove) {
-        programAclWithAllowedAddress(flowEntries, port, port.getAllowedAddressPairs(), action, addOrRemove);
-    }
-
     private void programAclWithAllowedAddress(List<FlowEntity> flowEntries, AclInterface port,
             List<AllowedAddressPairs> allowedAddresses, Action action, int addOrRemove) {
         Uint64 dpId = Uint64.valueOf(port.getDpId());
@@ -532,7 +530,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         if (port.getInterfaceType() == InterfaceType.DhcpService) {
             programDhcpService(flowEntries, port, Action.REMOVE, NwConstants.DEL_FLOW);
         } else {
-            programAcl(flowEntries, port, Action.REMOVE, NwConstants.DEL_FLOW);
+            programAclWithAllowedAddress(flowEntries, port, port.getAllowedAddressPairs(),
+                    Action.REMOVE, NwConstants.DEL_FLOW);
             updateRemoteAclFilterTable(flowEntries, port, NwConstants.DEL_FLOW);
         }
         programFlows(AclConstants.ACL_JOB_KEY_PREFIX + port.getInterfaceId(), flowEntries, NwConstants.DEL_FLOW);
@@ -979,7 +978,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         }
 
         String flowName =
-                this.directionString + "_Fixed_Conntrk_" + dpId.toString() + "_"
+                this.directionString + "_Fixed_Conntrk_" + dpId + "_"
                     + lportTag + "_" + matchEtherType + "_Recirc";
         addFlowEntryToList(flowEntries, dpId, getAclConntrackSenderTable(), flowName,
                 AclConstants.ACL_DEFAULT_PRIORITY, 0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions,
