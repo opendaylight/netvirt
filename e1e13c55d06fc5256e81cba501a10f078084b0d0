@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_d7750499",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-02-16T06:49:44Z",
+      "side": 1,
+      "message": "shouldn\u0027t this be rx_received counter?",
+      "revId": "e1e13c55d06fc5256e81cba501a10f078084b0d0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_49a4d3a5",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-02-16T06:49:44Z",
+      "side": 1,
+      "message": "in yang files range can be used to define the lower/upper bound for the values.",
+      "revId": "e1e13c55d06fc5256e81cba501a10f078084b0d0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
