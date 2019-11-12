@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_ceda704b",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-22T02:43:21Z",
+      "side": 1,
+      "message": "Please print the the port-id, network-id, and the qos-policy-id, qos-policy-name along here...",
+      "revId": "3cfebd3198753ac8e842f2b9e2d9e83260641f80",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2edcdc45",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-22T02:43:21Z",
+      "side": 1,
+      "message": "default can be alerts/qos/qos-alerts.log",
+      "revId": "3cfebd3198753ac8e842f2b9e2d9e83260641f80",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
