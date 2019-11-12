@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_582d7894",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-03-02T05:10:59Z",
+      "side": 1,
+      "message": "What if name in logging.cfg and in restconf are different? .cfg is easier to configure/manage than restconf and can be done before startup. Rest support doesn\u0027t add any value but adds possibility of conflict.",
+      "parentUuid": "fafc7978_d3f15102",
+      "range": {
+        "startLine": 106,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 13
+      },
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c5dcf5e6",
         "filename": "docs/specs/qos-alert.rst",
         "patchSetId": 13
