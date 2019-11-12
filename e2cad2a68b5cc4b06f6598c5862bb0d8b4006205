@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_ba2760c9",
+        "filename": "docs/specs/qbgp-md5-signature-option.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T16:31:38Z",
+      "side": 1,
+      "message": "remove ericsson-bgp. YANG changes is the headline.",
+      "revId": "e2cad2a68b5cc4b06f6598c5862bb0d8b4006205",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
