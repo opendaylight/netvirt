@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_08ba300a",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouterException.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-03-15T07:47:31Z",
+      "side": 1,
+      "message": "If you implement thrift exceptions, because currently QBGP creates thrift exceptions for some other thrift calls, then I would not want that the code executed in ODL be different, because you enabled the thrift exception handler in ODL.\n( at least, I would not want to alter the behaviour)",
+      "parentUuid": "fafc7978_72392d41",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 48,
+        "endChar": 0
+      },
+      "revId": "3d4c75a9e5d2911ce2279fbcda86bbec7db0a114",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4f3557f6",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouterException.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-03-16T08:05:50Z",
+      "side": 1,
+      "message": "ok.\nI understand that in order to get the error code, one needs to have a thrift exception that gets the error.\nAnd as it is alreadyt implemented like that in BGP router, there is no risk to catch other exceptions coming from other thrift APIs ( only the one accepted \u003d UNKNOWN METHOD)\n\n+1",
+      "parentUuid": "fafc7978_e3e26a00",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 48,
+        "endChar": 0
+      },
+      "revId": "3d4c75a9e5d2911ce2279fbcda86bbec7db0a114",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1248a1cb",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/gen/BgpConfigurator.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-03-14T21:05:45Z",
+      "side": 1,
+      "message": "+1",
+      "range": {
+        "startLine": 47,
+        "startChar": 11,
+        "endLine": 47,
+        "endChar": 14
+      },
+      "revId": "3d4c75a9e5d2911ce2279fbcda86bbec7db0a114",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_28bd7403",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/gen/BgpConfigurator.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-03-15T07:47:31Z",
+      "side": 1,
+      "message": "Just to be sure.\nHow did you make the modification ?\na- Did you use thrift compiler to get that file ?\nb- Or did you try to modify manually it in analogous way of other modifs\n\nas far as i know, there are some inconsistencies in the provided java files, which means that if you try to use a) method, you will not obtain the exact wished.\nwhatever, I think you can at least ensure with a that the modifications you brought here are the good ones.",
+      "parentUuid": "fafc7978_1248a1cb",
+      "range": {
+        "startLine": 47,
+        "startChar": 11,
+        "endLine": 47,
+        "endChar": 14
+      },
+      "revId": "3d4c75a9e5d2911ce2279fbcda86bbec7db0a114",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7a4c5b77",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/gen/BgpConfigurator.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-03-16T08:05:50Z",
+      "side": 1,
+      "message": "wonderful.\n+1",
+      "parentUuid": "fafc7978_c0591c90",
+      "range": {
+        "startLine": 47,
+        "startChar": 11,
+        "endLine": 47,
+        "endChar": 14
+      },
+      "revId": "3d4c75a9e5d2911ce2279fbcda86bbec7db0a114",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
