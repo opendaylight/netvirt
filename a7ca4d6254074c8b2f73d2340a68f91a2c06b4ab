@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_31f5ce83",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-01-27T21:01:58Z",
+      "side": 1,
+      "message": "A few questions:\n\n- the spec does not talk about the sampling frequency.  what is it?  is there any value in making the sampling frequency configurable?\n\n- when enabled, does this monitor all neutron ports or only ports that have a qos bw limit rule applied?\n\n- is there any value to making this per port ?  that is, I could imagine that the workloads on different Neutron ports could have different characteristics and so a different drop threshold might be interesting in those cases.  \n\n- are the statistics being monitored already being gathered and this features is just utilizing them, or does this feature need to start polling/monitoring when its enabled?  If the latter, then maybe a possible new scaling concern?",
+      "revId": "a7ca4d6254074c8b2f73d2340a68f91a2c06b4ab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_91f2ba98",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-01-27T21:01:58Z",
+      "side": 1,
+      "message": "do other ODL features / projects use individualized log files like this?  where does this file get place (by default)?",
+      "revId": "a7ca4d6254074c8b2f73d2340a68f91a2c06b4ab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
