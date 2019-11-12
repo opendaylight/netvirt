@@ -2,6 +2,76 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_25cea12e",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-28T05:22:04Z",
+      "side": 1,
+      "message": "This should be https://git.opendaylight.org/gerrit/#/q/topic:qos-alert so on can see all patches that went to implement this feature.",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 41
+      },
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6fa2424c",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-28T18:03:51Z",
+      "side": 1,
+      "message": "I believe this will change based on logging approach as per comments from Tali, right? Rest of the yang changes look fine. Need to make decision on logging quickly so yang changes can be frozen in time for M4 deadline.",
+      "range": {
+        "startLine": 106,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 13
+      },
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_26ddfce0",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-03-01T13:11:29Z",
+      "side": 1,
+      "message": "Then this section in yang is not needed, right? can you remove it?",
+      "parentUuid": "fafc7978_52728211",
+      "range": {
+        "startLine": 106,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 13
+      },
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c5dcf5e6",
         "filename": "docs/specs/qos-alert.rst",
         "patchSetId": 13
@@ -59,6 +129,80 @@
       "writtenOn": "2017-02-28T05:22:04Z",
       "side": 1,
       "message": "add the test resource also.",
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_259ce10e",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-28T05:22:04Z",
+      "side": 1,
+      "message": "This can\u0027t be N.A. This needs to include high level breakdown of individual work items. Ideally each work item will translate to a patch. e.g. Add yang, add implementation for A, add implementation for B, add CLI, add CSIT, add UTs etc.",
+      "range": {
+        "startLine": 257,
+        "startChar": 0,
+        "endLine": 257,
+        "endChar": 4
+      },
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a58731b4",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-28T05:22:04Z",
+      "side": 1,
+      "message": "specify if any UTs will be added or not. Most likely can leave it as \u0027Standard UTs will be added\u0027",
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c58a35be",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-28T05:22:04Z",
+      "side": 1,
+      "message": "Please add high level CSIT test cases that will be added for this feature. This can\u0027t be empty. This is to provide a guideline to test resource on what test cases to add.",
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_25c341ee",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-28T05:22:04Z",
+      "side": 1,
+      "message": "This is not needed, should be covered by change up top where you add link to this.",
       "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
