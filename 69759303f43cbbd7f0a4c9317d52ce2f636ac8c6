@@ -1,0 +1,39 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_363ace36",
+        "filename": "docs/specs/qbgp-tcp-md5-signature-option.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 440,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-03-22T07:53:33Z",
+      "side": 1,
+      "message": "Are you still using [OSR] ?\nIf there are no more references, should not it be removed?",
+      "revId": "69759303f43cbbd7f0a4c9317d52ce2f636ac8c6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_12b98fe9",
+        "filename": "docs/specs/qbgp-tcp-md5-signature-option.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 440,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-03-23T08:53:01Z",
+      "side": 1,
+      "message": "[0] and [1] may be usable for L3VPN support.\nAFAIK, the EVPN support is not in this.\nAs consequence, it is not usable, as of today.",
+      "parentUuid": "fafc7978_631c9314",
+      "revId": "69759303f43cbbd7f0a4c9317d52ce2f636ac8c6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
