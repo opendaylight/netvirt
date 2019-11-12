@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_0a5ab64f",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-17T06:17:04Z",
+      "side": 1,
+      "message": "it would be good to a have a generic alert service and Qos being the initial consumer of such a service instead of a customized Qos alert service.",
+      "revId": "366d10d77ac89e3ebfae6c4f67c8138c23777fd2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2f96ac4c",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-17T06:17:04Z",
+      "side": 1,
+      "message": "can you please let know which logfile is referredn here?",
+      "revId": "366d10d77ac89e3ebfae6c4f67c8138c23777fd2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2a5fba42",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-17T06:17:04Z",
+      "side": 1,
+      "message": "is packets_recieved is (packets_dropped + packets_processed)",
+      "revId": "366d10d77ac89e3ebfae6c4f67c8138c23777fd2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ca48ae89",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-17T06:17:04Z",
+      "side": 1,
+      "message": "Shouldn\u0027t all this be configuration of a separate alert framework instead of having a piecemeal textual log only for qos alerts?\n\nWill these alerts be available in some oper datastores inside Qos or all of is made available only in text-file?",
+      "revId": "366d10d77ac89e3ebfae6c4f67c8138c23777fd2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_aa328a0d",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-17T06:17:04Z",
+      "side": 1,
+      "message": "plesae use descriptions for every attribute in a yang",
+      "revId": "366d10d77ac89e3ebfae6c4f67c8138c23777fd2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6a59c259",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-17T06:17:04Z",
+      "side": 1,
+      "message": "can this file locator be a URL?\n\nFurther this should be property of the alert framework and feel shouldn\u0027t be driven to be Qos Specific.",
+      "revId": "366d10d77ac89e3ebfae6c4f67c8138c23777fd2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4a54be20",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-17T06:17:04Z",
+      "side": 1,
+      "message": "you can add a comment\ndescription poll-interval in minutes",
+      "revId": "366d10d77ac89e3ebfae6c4f67c8138c23777fd2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ea3c92e4",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-17T06:17:04Z",
+      "side": 1,
+      "message": "Isn\u0027t EOS deprecated from Carbon?",
+      "revId": "366d10d77ac89e3ebfae6c4f67c8138c23777fd2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
