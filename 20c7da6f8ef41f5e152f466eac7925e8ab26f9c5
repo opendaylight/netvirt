@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_fc017607",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouter.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 6280
+      },
+      "writtenOn": "2017-03-14T15:42:45Z",
+      "side": 1,
+      "message": "Shoudn\u0027t it be also @Nullable as addNeighbourAux parameter?",
+      "range": {
+        "startLine": 261,
+        "startChar": 70,
+        "endLine": 261,
+        "endChar": 86
+      },
+      "revId": "20c7da6f8ef41f5e152f466eac7925e8ab26f9c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6f0dc637",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouter.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 6280
+      },
+      "writtenOn": "2017-03-14T15:42:45Z",
+      "side": 1,
+      "message": "Shoudn\u0027t it be in capital letters: MD5?",
+      "range": {
+        "startLine": 263,
+        "startChar": 67,
+        "endLine": 263,
+        "endChar": 70
+      },
+      "revId": "20c7da6f8ef41f5e152f466eac7925e8ab26f9c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
