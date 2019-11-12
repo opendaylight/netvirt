@@ -42,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_32fa6c43",
+        "filename": "docs/specs/qbgp-md5-signature-option.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5899
+      },
+      "writtenOn": "2019-11-12T20:55:56Z",
+      "side": 1,
+      "message": "RFC 2385 only adds a TCP option containing a signature.   The payload of the packet is not modified at all.\n\ntcpdump can validate RFC2385 signatures. See option -M.",
+      "parentUuid": "fafc7978_f2d2a4fe",
+      "revId": "23f7e7bbd8a0e8494f9b36d1c688e6dad4235e87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_05d9dd21",
         "filename": "docs/specs/qbgp-md5-signature-option.rst",
         "patchSetId": 2
@@ -53,6 +71,24 @@
       "writtenOn": "2017-02-28T04:40:47Z",
       "side": 1,
       "message": "should we ever allow the password to be viewable by REST APIs for this yang?",
+      "revId": "23f7e7bbd8a0e8494f9b36d1c688e6dad4235e87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1b32e05e",
+        "filename": "docs/specs/qbgp-md5-signature-option.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5899
+      },
+      "writtenOn": "2019-11-12T20:55:56Z",
+      "side": 1,
+      "message": "No, we shouldn\u0027t.  Only admin roles should access \"neighbors\" list.\n\nI\u0027ll update configuration and security sections.",
+      "parentUuid": "fafc7978_05d9dd21",
       "revId": "23f7e7bbd8a0e8494f9b36d1c688e6dad4235e87",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -76,6 +112,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_db6698ba",
+        "filename": "docs/specs/qbgp-md5-signature-option.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5899
+      },
+      "writtenOn": "2019-11-12T20:55:56Z",
+      "side": 1,
+      "message": "Yes, there are other security options that Quagga does not support (e.g. TCP-AO rfc5925), and yes, it is for future expansion.",
+      "parentUuid": "fafc7978_a5cf3155",
+      "revId": "23f7e7bbd8a0e8494f9b36d1c688e6dad4235e87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_45064587",
         "filename": "docs/specs/qbgp-md5-signature-option.rst",
         "patchSetId": 2
@@ -93,6 +147,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_dbc21852",
+        "filename": "docs/specs/qbgp-md5-signature-option.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5899
+      },
+      "writtenOn": "2019-11-12T20:55:56Z",
+      "side": 1,
+      "message": "I\u0027ll fix.",
+      "parentUuid": "fafc7978_45064587",
+      "revId": "23f7e7bbd8a0e8494f9b36d1c688e6dad4235e87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_85330d61",
         "filename": "docs/specs/qbgp-md5-signature-option.rst",
         "patchSetId": 2
@@ -104,6 +176,24 @@
       "writtenOn": "2017-02-28T04:40:47Z",
       "side": 1,
       "message": "please capture what is the impact of a password difference between ODL Quagga and the neighbour?  Will that result in neighbourship loss, any retries ?",
+      "revId": "23f7e7bbd8a0e8494f9b36d1c688e6dad4235e87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3b2d24ff",
+        "filename": "docs/specs/qbgp-md5-signature-option.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5899
+      },
+      "writtenOn": "2019-11-12T20:55:56Z",
+      "side": 1,
+      "message": "TCP connection towards neighbor fails. Neighbor is kept in \"Active\" state so Quagga retries (I don\u0027t know the actual retry policy).\n\nI\u0027ll update.",
+      "parentUuid": "fafc7978_85330d61",
       "revId": "23f7e7bbd8a0e8494f9b36d1c688e6dad4235e87",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -145,6 +235,42 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_d96ea02e",
+        "filename": "docs/specs/qbgp-md5-signature-option.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5899
+      },
+      "writtenOn": "2019-11-12T20:55:56Z",
+      "side": 1,
+      "message": "Limitations: Should I add a \"Limitations\" section? Should I just note it here?\n\nPassword REST access: I\u0027ll add an example of shiro configuration here.\n\nBoth BGPs need the password. See section 2.0 of RFC 2385 (page 2).",
+      "parentUuid": "fafc7978_c5f99581",
+      "revId": "23f7e7bbd8a0e8494f9b36d1c688e6dad4235e87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_41fe2aaf",
+        "filename": "docs/specs/qbgp-md5-signature-option.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5899
+      },
+      "writtenOn": "2019-11-12T20:55:56Z",
+      "side": 1,
+      "message": "Apart from RPC I\u0027ve considered other 2 alternatives to store the secret encrypted.  I will update the Alternatives section.",
+      "parentUuid": "fafc7978_267e9c19",
+      "revId": "23f7e7bbd8a0e8494f9b36d1c688e6dad4235e87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f2cbc450",
         "filename": "docs/specs/qbgp-md5-signature-option.rst",
         "patchSetId": 2
@@ -162,6 +288,24 @@
         "endLine": 189,
         "endChar": 33
       },
+      "revId": "23f7e7bbd8a0e8494f9b36d1c688e6dad4235e87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ad7a7d74",
+        "filename": "docs/specs/qbgp-md5-signature-option.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5899
+      },
+      "writtenOn": "2019-11-12T20:55:56Z",
+      "side": 1,
+      "message": "It is planned to study further how to encrypt the password.\n\nRPC is the only solution I\u0027ve found that could be done in Carbon time frame.",
+      "parentUuid": "fafc7978_f2cbc450",
       "revId": "23f7e7bbd8a0e8494f9b36d1c688e6dad4235e87",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -197,6 +341,42 @@
       "side": 1,
       "message": "But will the password provided here be retained across reboots of the ODL controller cluster?",
       "parentUuid": "fafc7978_7947b477",
+      "revId": "23f7e7bbd8a0e8494f9b36d1c688e6dad4235e87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7947b477",
+        "filename": "docs/specs/qbgp-md5-signature-option.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5899
+      },
+      "writtenOn": "2019-11-12T20:55:56Z",
+      "side": 1,
+      "message": "The only carbon-timeframe-feasible solution I\u0027ve found which never stores the password in plain is to create neighbors with RPC:\n\n  rpc add-neighbor {\n    description\n      \"This rpc operation creates a new element in the list bgp/neighbors.  It\n      will fail if the neighbor already exists.\";\n    input {\n      leaf address {\n        type inet:ipv4-address;\n        mandatory \"true\";\n        description \"Neighbor\u0027s address.\";\n      } // leaf address\n      leaf remote-as {\n        type uint32;\n        mandatory \"true\";\n        description \"Neighbor\u0027s Autonomous System Number.\";\n      } // leaf remote-as\n      leaf tcp-md5-signature-option-password {\n        type tcp-md5-signature-password-type;\n        description\n          \"If this input is given then the neighbor will be configured with the\n          tcp-md5-signature-option.\";\n      } // leaf tcp-md5-signature-option-password\n    } // input\n  } // rpc add-neighbor",
+      "parentUuid": "fafc7978_2532215f",
+      "revId": "23f7e7bbd8a0e8494f9b36d1c688e6dad4235e87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c63eb0d9",
+        "filename": "docs/specs/qbgp-md5-signature-option.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5899
+      },
+      "writtenOn": "2019-11-12T20:55:56Z",
+      "side": 1,
+      "message": "The RPC encrypts (using aaa-encryption-service) the secret and stores it in datastore (e.g ebgp:bgp/neighbors/{address}/tcp-md5-signature-password-encrypted)",
+      "parentUuid": "fafc7978_e6977438",
       "revId": "23f7e7bbd8a0e8494f9b36d1c688e6dad4235e87",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
