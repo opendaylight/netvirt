@@ -80,6 +80,23 @@
       "revId": "27d404a978543a65618449edd7bd345cc89c86d0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3db4e3f0",
+        "filename": "docs/specs/qbgp-tcp-md5-signature-option.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-03-02T09:54:18Z",
+      "side": 1,
+      "message": "There is a dependency on kernel, CONFIG_TCP_MD5SIG must be set",
+      "revId": "27d404a978543a65618449edd7bd345cc89c86d0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
