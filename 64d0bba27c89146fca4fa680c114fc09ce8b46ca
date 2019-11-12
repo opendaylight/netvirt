@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_ac7f0a65",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-03-01T20:50:49Z",
+      "side": 1,
+      "message": "The naming of things here has generated another thought.\n\nThe term \"qos-alert\" is generic - at least with respect to qos.  That is, there could be any number of possible qos events that trigger an alert (eventually).  \n\nThis spec introduces one such event: packet drop %\n\nSo, I read \u0027qos-alert-enabled\u0027, \u0027qos-alert-log-file\u0027 and \u0027qos-alert-poll-interval\u0027 as generic to qos alert events and \u0027qos-drop-packet-threshold\u0027 as a specific qos alert event configuration.\n\nIs this the intent?  If so, are the generic configs appropriate for potential enhancements?\n\nFor example, one approach might be to have a generic \u0027qos-alert-log-file\u0027 and then the other configs are specific to packet drops (i.e. the alert event).  i.e. \u0027qos-drop-packet-alert-enabled\u0027, \u0027qos-drop-packet-threshold\u0027 and \u0027qos-drop-packet-alert-poll-interval\u0027.\n\nAlternatively, keep things as they are proposed for now and introduce finer granularity in configuration if and when additional qos alert events are added and the current proposed generic configurations are found to be inappropriate.\n\nThoughts?",
+      "revId": "64d0bba27c89146fca4fa680c114fc09ce8b46ca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c9336060",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-03-01T20:50:49Z",
+      "side": 1,
+      "message": "typo \"minimizes\"",
+      "revId": "64d0bba27c89146fca4fa680c114fc09ce8b46ca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
