@@ -119,6 +119,75 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_25f50157",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-28T05:22:04Z",
+      "side": 1,
+      "message": "reword this as \"QoS Alert Service miniizes scale and performance impact by following:\"",
+      "range": {
+        "startLine": 157,
+        "startChar": 0,
+        "endLine": 157,
+        "endChar": 58
+      },
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_45f00567",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-28T05:22:04Z",
+      "side": 1,
+      "message": "reword this is \"This uses direct-statistics RPC instead of OpenflowPlugin statistics-manager. This is lightweight beause only node-connector statistics are queries intead of all statistics.",
+      "range": {
+        "startLine": 159,
+        "startChar": 3,
+        "endLine": 161,
+        "endChar": 15
+      },
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_85e66dae",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-28T05:22:04Z",
+      "side": 1,
+      "message": "nitpick: would be good to bold this",
+      "range": {
+        "startLine": 162,
+        "startChar": 92,
+        "endLine": 163,
+        "endChar": 9
+      },
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_65eb8978",
         "filename": "docs/specs/qos-alert.rst",
         "patchSetId": 13
@@ -136,6 +205,23 @@
         "endLine": 178,
         "endChar": 60
       },
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a500d134",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-28T05:22:04Z",
+      "side": 1,
+      "message": "this should also include help/usage text if any.",
       "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -199,6 +285,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_0591ddf0",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-28T05:22:04Z",
+      "side": 1,
+      "message": "Should be N.A. if nothing being done.",
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c58a35be",
         "filename": "docs/specs/qos-alert.rst",
         "patchSetId": 13
@@ -210,6 +313,29 @@
       "writtenOn": "2017-02-28T05:22:04Z",
       "side": 1,
       "message": "Please add high level CSIT test cases that will be added for this feature. This can\u0027t be empty. This is to provide a guideline to test resource on what test cases to add.",
+      "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_45be4566",
+        "filename": "docs/specs/qos-alert.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-28T05:22:04Z",
+      "side": 1,
+      "message": "Would prefer link to QoS doc rather than gerrit.",
+      "range": {
+        "startLine": 287,
+        "startChar": 27,
+        "endLine": 287,
+        "endChar": 69
+      },
       "revId": "f47e91e2f0ce1c5dc5c58ad86af732fff05ba379",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
