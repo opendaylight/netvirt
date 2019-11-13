@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_48bfdcfb",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-18T07:01:29Z",
+      "side": 1,
+      "message": "shouldn\u0027t this be an ERROR?",
+      "revId": "a857b41d8ed0fdda82747cdba8ea6ebaa44af379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_e8469020",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-18T07:01:29Z",
+      "side": 1,
+      "message": "can the prefix within the macEntry being learned be an IPv6 address.. because  in that case getIpV4Address() may fetch NULL resulting in NPE?",
+      "revId": "a857b41d8ed0fdda82747cdba8ea6ebaa44af379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_28ba580a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-18T07:01:29Z",
+      "side": 1,
+      "message": "This one too!",
+      "revId": "a857b41d8ed0fdda82747cdba8ea6ebaa44af379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
