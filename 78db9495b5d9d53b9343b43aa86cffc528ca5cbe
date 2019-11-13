@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7af0899e_e46713e9",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/ElanMacEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7af0899e_43826453",
+      "revId": "78db9495b5d9d53b9343b43aa86cffc528ca5cbe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_23875863",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/ElanMacEntryListener.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2017-05-24T07:38:41Z",
       "side": 1,
       "message": "same here.",
+      "revId": "78db9495b5d9d53b9343b43aa86cffc528ca5cbe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_c46497e7",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/ElanMacEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7af0899e_23875863",
       "revId": "78db9495b5d9d53b9343b43aa86cffc528ca5cbe",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -71,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "7af0899e_44a0a7f4",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/EvpnElanInstanceListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "1. There was no problem with notation and augmentation listener was hitting fine.\n\n2. while testing i found that when augmentation listener was hit, we try to advertise or withdraw routes, we were reading elaninstance (from cache first, if missed then from data store), we found that evpnName is null is elanInstance, \nDue to which advertise or withdraw was failing.\nThis could have been easily solved if we read from data store all the time instead of cache, but reading from cache was found to be expensive.\nThere were few cases where even after updating cache we found evpnname was null from elaninstance. After discussion with suneelu, we moved listener to listen to elaninstance like it was done earlier. i have tested this piece of code and its working fine",
+      "parentUuid": "7af0899e_a36ea894",
+      "revId": "78db9495b5d9d53b9343b43aa86cffc528ca5cbe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_a3f508cd",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
         "patchSetId": 2
@@ -82,6 +136,24 @@
       "writtenOn": "2017-05-24T07:38:41Z",
       "side": 1,
       "message": "change return type to Optional\u003cString\u003e",
+      "revId": "78db9495b5d9d53b9343b43aa86cffc528ca5cbe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_87bbb571",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7af0899e_a3f508cd",
       "revId": "78db9495b5d9d53b9343b43aa86cffc528ca5cbe",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -105,6 +177,24 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_e7af192a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7af0899e_432c244b",
+      "revId": "78db9495b5d9d53b9343b43aa86cffc528ca5cbe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_83260c67",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
         "patchSetId": 2
@@ -116,6 +206,24 @@
       "writtenOn": "2017-05-24T07:38:41Z",
       "side": 1,
       "message": "same as above",
+      "revId": "78db9495b5d9d53b9343b43aa86cffc528ca5cbe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_c7ac9d38",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7af0899e_83260c67",
       "revId": "78db9495b5d9d53b9343b43aa86cffc528ca5cbe",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -168,6 +276,24 @@
       "writtenOn": "2017-05-24T07:38:41Z",
       "side": 1,
       "message": "is it just added now ? I hope this was the reason why old augment listener was not initialized.",
+      "revId": "78db9495b5d9d53b9343b43aa86cffc528ca5cbe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_8481ef4c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/org/opendaylight/blueprint/elanmanager.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "This is for new listener which is newly added.",
+      "parentUuid": "7af0899e_e3ed50f1",
       "revId": "78db9495b5d9d53b9343b43aa86cffc528ca5cbe",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
