@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3f340549",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-23T07:20:03Z",
+      "side": 0,
+      "message": "Done. Will implement batching for VxLAN Encap in a subsequent review",
+      "parentUuid": "fafc7978_b32af48d",
+      "revId": "60a48833433a3541bdee11d016eacde961228076",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5311085c",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 28
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_7f416da8",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-23T07:20:03Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "fafc7978_5311085c",
+      "revId": "60a48833433a3541bdee11d016eacde961228076",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f63e2a8b",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 28
@@ -47,6 +83,24 @@
       "writtenOn": "2017-02-22T12:01:15Z",
       "side": 0,
       "message": "why is this else case removed ?",
+      "revId": "60a48833433a3541bdee11d016eacde961228076",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5f258907",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 1312,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-23T07:20:03Z",
+      "side": 0,
+      "message": "Oversight while rebasing. Added back.",
+      "parentUuid": "fafc7978_f63e2a8b",
       "revId": "60a48833433a3541bdee11d016eacde961228076",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
