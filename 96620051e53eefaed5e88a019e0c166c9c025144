@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_f049a360",
+        "filename": "vpnservice/model-bgp/src/main/yang/ebgp.yang",
+        "patchSetId": 18
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-13T11:13:37Z",
+      "side": 1,
+      "message": "No need for mandatory \"false\"\nAlso should add a description like for the l3vni",
+      "revId": "96620051e53eefaed5e88a019e0c166c9c025144",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
