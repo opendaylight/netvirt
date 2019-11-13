@@ -260,6 +260,75 @@
       "revId": "75924c81091804e86494deb119f35e90d7e17ad8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e554aa00",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T11:08:20Z",
+      "side": 1,
+      "message": "please note that all BGP specific routes need to be continue to be batched for EVPN too...so Line 231 to 235 should apply for create/delete lifecycles for imported EVPN BGP Routes.\n\nSo please make the changes here accordingly.",
+      "revId": "75924c81091804e86494deb119f35e90d7e17ad8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_257232ad",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T11:10:57Z",
+      "side": 1,
+      "message": "Ok, i saw your comment that this comes in a subsequent reveiw.. thanks.",
+      "parentUuid": "fafc7978_e554aa00",
+      "revId": "75924c81091804e86494deb119f35e90d7e17ad8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a546224d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 458,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T11:08:20Z",
+      "side": 1,
+      "message": "gatewaymacaddress required in both the cases.",
+      "revId": "75924c81091804e86494deb119f35e90d7e17ad8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_856afeb0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 1283,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T11:10:57Z",
+      "side": 1,
+      "message": "can you please let me know why this is required here?  Is this not performing the same thing as setupGwMacIfExternalVpn ?",
+      "revId": "75924c81091804e86494deb119f35e90d7e17ad8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
