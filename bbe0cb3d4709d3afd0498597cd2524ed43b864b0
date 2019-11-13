@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_9e081a2a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-15T11:14:33Z",
+      "side": 1,
+      "message": "Nit: is there any reason for indentation changes ? it makes this review goes into red band.",
+      "revId": "bbe0cb3d4709d3afd0498597cd2524ed43b864b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_111fed0a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 2203,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-17T08:56:11Z",
+      "side": 1,
+      "message": "change it to Optional\u003cIpAddress\u003e",
+      "revId": "bbe0cb3d4709d3afd0498597cd2524ed43b864b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_510215b5",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 20
