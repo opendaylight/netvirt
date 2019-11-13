@@ -2,6 +2,236 @@
   "comments": [
     {
       "key": {
+        "uuid": "9a245df4_40056244",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "move this initialization to setupItm",
+      "range": {
+        "startLine": 223,
+        "startChar": 0,
+        "endLine": 223,
+        "endChar": 8
+      },
+      "revId": "c3274beb2cb836bff4038c9dc9222d63b9582163",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_20002e33",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "remove this sleep",
+      "range": {
+        "startLine": 233,
+        "startChar": 25,
+        "endLine": 233,
+        "endChar": 27
+      },
+      "revId": "c3274beb2cb836bff4038c9dc9222d63b9582163",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_408c42da",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "combine these two calls and call them attachEvpnToNetwork",
+      "range": {
+        "startLine": 236,
+        "startChar": 0,
+        "endLine": 236,
+        "endChar": 8
+      },
+      "revId": "c3274beb2cb836bff4038c9dc9222d63b9582163",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_20878eb6",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "avoid the duplicate code till here and call checkEvpnAdvRT2()",
+      "range": {
+        "startLine": 280,
+        "startChar": 0,
+        "endLine": 280,
+        "endChar": 0
+      },
+      "revId": "c3274beb2cb836bff4038c9dc9222d63b9582163",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_8092baf3",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "remove sleep",
+      "range": {
+        "startLine": 319,
+        "startChar": 25,
+        "endLine": 319,
+        "endChar": 27
+      },
+      "revId": "c3274beb2cb836bff4038c9dc9222d63b9582163",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_20ae6e2e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "avoid duplicate code till here call checkEvpnAdvRT2NewInterface",
+      "range": {
+        "startLine": 332,
+        "startChar": 0,
+        "endLine": 332,
+        "endChar": 8
+      },
+      "revId": "c3274beb2cb836bff4038c9dc9222d63b9582163",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_80a91a26",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "remove this tx.delete",
+      "range": {
+        "startLine": 335,
+        "startChar": 8,
+        "endLine": 335,
+        "endChar": 26
+      },
+      "revId": "c3274beb2cb836bff4038c9dc9222d63b9582163",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c0667229",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "avoid the duplicate code till here and call one of the above methods\nclub these two delete calls and call it as detachEvpnFromElan",
+      "range": {
+        "startLine": 386,
+        "startChar": 0,
+        "endLine": 386,
+        "endChar": 8
+      },
+      "revId": "c3274beb2cb836bff4038c9dc9222d63b9582163",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a069befa",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "remove sleep",
+      "range": {
+        "startLine": 390,
+        "startChar": 25,
+        "endLine": 390,
+        "endChar": 27
+      },
+      "revId": "c3274beb2cb836bff4038c9dc9222d63b9582163",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_407a82bd",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "same goes for the following two methods avoid duplicate code and remove sleeps",
+      "range": {
+        "startLine": 396,
+        "startChar": 0,
+        "endLine": 396,
+        "endChar": 4
+      },
+      "revId": "c3274beb2cb836bff4038c9dc9222d63b9582163",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_71d5dee3",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/utils/BgpManagerTestImpl.java",
         "patchSetId": 3
