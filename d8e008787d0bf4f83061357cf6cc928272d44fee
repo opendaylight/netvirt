@@ -1,0 +1,112 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_dd81f34e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-19T04:40:25Z",
+      "side": 1,
+      "message": "what about unbindService?",
+      "revId": "d8e008787d0bf4f83061357cf6cc928272d44fee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1da53b04",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-19T04:40:25Z",
+      "side": 1,
+      "message": "is this patch defendant on ingress tunnel service binding in genius?",
+      "revId": "d8e008787d0bf4f83061357cf6cc928272d44fee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9db80b2c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 603,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-19T04:40:25Z",
+      "side": 1,
+      "message": "most of the code here is copy-paste from VpnInterfaceManager.bindService\nmove this method to VpnUtil and share the code",
+      "revId": "d8e008787d0bf4f83061357cf6cc928272d44fee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7db56730",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-19T04:40:25Z",
+      "side": 1,
+      "message": "looks to me like all the metadata matches for different vpnInstances created for the same tunnelInterface will be the same so why does binding needs to take place per vpnInstance?",
+      "revId": "d8e008787d0bf4f83061357cf6cc928272d44fee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fda957e0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 641,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-19T04:40:25Z",
+      "side": 1,
+      "message": "this will throw if dcGatewayIpListOptional is not present",
+      "range": {
+        "startLine": 641,
+        "startChar": 41,
+        "endLine": 641,
+        "endChar": 87
+      },
+      "revId": "d8e008787d0bf4f83061357cf6cc928272d44fee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5daea3e8",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 642,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-19T04:40:25Z",
+      "side": 1,
+      "message": "also if no dc-gw defined need to bail out from this method",
+      "revId": "d8e008787d0bf4f83061357cf6cc928272d44fee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
