@@ -53,6 +53,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_90cd1b88",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/elan.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "This is maintained as list so that tomorrow if additional arguments are added at a later point of time there wont be  much refactoring effort , like it is happening in static mac entries now. This way the yang structure does not change much if additional attribute is added to each tep other than ip.\nWith leaf list we cannot add additional arguments to the structure.",
+      "parentUuid": "fafc7978_9fac4ea2",
+      "revId": "f7644d9f4a7aa3c3158230020763fe909dbb7023",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_bf90324f",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
         "patchSetId": 3
