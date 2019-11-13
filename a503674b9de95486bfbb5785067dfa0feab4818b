@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_de275bc8",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-10T11:59:08Z",
+      "side": 1,
+      "message": "2017",
+      "revId": "a503674b9de95486bfbb5785067dfa0feab4818b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f3ded8d8",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-10T11:59:08Z",
+      "side": 1,
+      "message": "why is this table referred. use NWConstants universally.",
+      "revId": "a503674b9de95486bfbb5785067dfa0feab4818b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3e1e6770",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-10T11:59:08Z",
+      "side": 1,
+      "message": "all of these, aren\u0027t they in respective constants like NwConstants and VpnConstants?",
+      "revId": "a503674b9de95486bfbb5785067dfa0feab4818b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_19e45daa",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-10T11:59:08Z",
+      "side": 1,
+      "message": "why is this required?",
+      "revId": "a503674b9de95486bfbb5785067dfa0feab4818b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_399b2119",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 607,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-10T11:59:08Z",
+      "side": 1,
+      "message": "binding service on tunnels, be it internal or external, let that be moved to existing TunnelInterfaceListener?\n\nInvocations can reside here.",
+      "revId": "a503674b9de95486bfbb5785067dfa0feab4818b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_999e8d05",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 695,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-10T11:59:08Z",
+      "side": 1,
+      "message": "this is hanging around here :) ?",
+      "revId": "a503674b9de95486bfbb5785067dfa0feab4818b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
