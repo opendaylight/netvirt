@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_ac265114",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 1446,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-08T15:05:48Z",
+      "side": 1,
+      "message": "The API itself should provide a VNI and you should use only that VNI..\n\nLet us not dig in our internal l3vni to use this.\n\nPlease fix this in a subsequent review.",
+      "revId": "02b1a44428f8adf12fd12376bcc45753f4d90690",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ec2059f9",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpUtil.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-08T15:05:48Z",
+      "side": 1,
+      "message": "please address this in the next review..\n\nYou may not need this as RT5 will carry VNI already.",
+      "revId": "02b1a44428f8adf12fd12376bcc45753f4d90690",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cc1bd5c8",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouter.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-08T15:05:48Z",
+      "side": 1,
+      "message": "validate this in a subsequent review as i think check for encapType of VXLAN is sufficient here.",
+      "revId": "02b1a44428f8adf12fd12376bcc45753f4d90690",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4c5ec577",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-08T15:05:48Z",
+      "side": 1,
+      "message": "In the next review, please drive label 0 if its l3vni stuff here for BGP Safety.",
+      "revId": "02b1a44428f8adf12fd12376bcc45753f4d90690",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8c4f0dbe",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 726,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-08T15:05:48Z",
+      "side": 1,
+      "message": "use l3vni evenly in the comments.. Avoid using evi .",
+      "revId": "02b1a44428f8adf12fd12376bcc45753f4d90690",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
