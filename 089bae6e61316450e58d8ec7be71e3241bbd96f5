@@ -1,0 +1,62 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_9f65cae2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 14
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-12T02:56:23Z",
+      "side": 1,
+      "message": "why is the L2VNI here?",
+      "range": {
+        "startLine": 140,
+        "startChar": 9,
+        "endLine": 141,
+        "endChar": 5
+      },
+      "revId": "089bae6e61316450e58d8ec7be71e3241bbd96f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ebfc1cb7",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 14
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-10T13:27:51Z",
+      "side": 1,
+      "message": "please retain these !",
+      "revId": "089bae6e61316450e58d8ec7be71e3241bbd96f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cbb2f892",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 14
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-10T14:29:19Z",
+      "side": 1,
+      "message": "OOps, this is right change.",
+      "parentUuid": "fafc7978_2bbc64ba",
+      "revId": "089bae6e61316450e58d8ec7be71e3241bbd96f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
