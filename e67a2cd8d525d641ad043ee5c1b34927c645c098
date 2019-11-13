@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_953de6c6",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/utils/InterfaceMgrTestImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Moved all the genius test utility files to new package teststubs under common.\n\nTried to reuse TestInterfaceManager, but came across cyclic dependencies between Lockmanager and testutils and also between InterfaceManager and testutils",
+      "parentUuid": "ba1f61a0_7ba8358d",
+      "revId": "e67a2cd8d525d641ad043ee5c1b34927c645c098",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_bbb74df4",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/utils/InterfaceMgrTestImpl.java",
         "patchSetId": 5
