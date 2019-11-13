@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_79abdb89",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_a4e0e696",
+      "revId": "77093600034376b80cf859373bb67ac2e87e0204",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_04f1f26a",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
         "patchSetId": 7
@@ -66,6 +84,30 @@
     },
     {
       "key": {
+        "uuid": "ba068154_8441f60d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_04f1f26a",
+      "range": {
+        "startLine": 75,
+        "startChar": 24,
+        "endLine": 75,
+        "endChar": 25
+      },
+      "revId": "77093600034376b80cf859373bb67ac2e87e0204",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_e4f5ce57",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
         "patchSetId": 7
@@ -101,6 +143,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_045506c6",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "this add will get hit for every RT2 route received from peer, BGPmanager will add macvrfentry(odl-fib.yang) so that elan installs DMAC flow in openflow tables for the received RT2 route",
+      "parentUuid": "da01753e_e4f5ce57",
+      "revId": "77093600034376b80cf859373bb67ac2e87e0204",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_44e77aac",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
         "patchSetId": 7
@@ -112,6 +172,24 @@
       "writtenOn": "2017-04-28T18:30:15Z",
       "side": 1,
       "message": "same question - how often does this occur? Seems like a lot of INFO\u0027s here are really debug or trace.",
+      "revId": "77093600034376b80cf859373bb67ac2e87e0204",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_645df2e9",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "as mentioned whenever RT2 route is received. \nAll error cases flow error logs been added and info logs to verify right flow execution. \nAny logs u feel redundant, let me know i can remove it",
+      "parentUuid": "da01753e_44e77aac",
       "revId": "77093600034376b80cf859373bb67ac2e87e0204",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -135,6 +213,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_c4713e79",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnFlowUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_8404c24a",
+      "revId": "77093600034376b80cf859373bb67ac2e87e0204",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_24ecf68e",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnFlowUtils.java",
         "patchSetId": 7
@@ -146,6 +242,24 @@
       "writtenOn": "2017-04-28T18:30:15Z",
       "side": 1,
       "message": "just remove if not doing anything",
+      "revId": "77093600034376b80cf859373bb67ac2e87e0204",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_046ce69b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnFlowUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_24ecf68e",
       "revId": "77093600034376b80cf859373bb67ac2e87e0204",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -169,6 +283,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_e468c289",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnMacVrfUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_c4fa4a42",
+      "revId": "77093600034376b80cf859373bb67ac2e87e0204",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_6401de37",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnMacVrfUtils.java",
         "patchSetId": 7
@@ -180,6 +312,24 @@
       "writtenOn": "2017-04-28T18:30:15Z",
       "side": 1,
       "message": "remove",
+      "revId": "77093600034376b80cf859373bb67ac2e87e0204",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_240acad2",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnMacVrfUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_6401de37",
       "revId": "77093600034376b80cf859373bb67ac2e87e0204",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -215,6 +365,24 @@
       "side": 1,
       "message": "how does this work? Does this remove the need to wait for vpnmanager and this is eventually called whenever the vpnmanager is available? If so, are there any concerns that vpnmanager isn\u0027t there from the beginning - I assume it comes pretty quickly, but wonder if there is a window where something happens and it isn\u0027t set yet, maybe during a cluster scenario?\n\nI still have the question though why vpnmanager is included. I don\u0027t see vpnmanager used in this class.",
       "parentUuid": "ba068154_840f36e1",
+      "revId": "77093600034376b80cf859373bb67ac2e87e0204",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_840f36e1",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnMacVrfUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Called via beans. Added like this to avoid cyclic dependency \n \u003cbean id\u003d\"evpnMacVrfUtils\"\n        class\u003d\"org.opendaylight.netvirt.elan.evpn.utils.EvpnMacVrfUtils\"\u003e\n    \u003cargument ref\u003d\"dataBroker\" /\u003e\n    \u003cargument ref\u003d\"elanUtils\" /\u003e\n    \u003cargument ref\u003d\"idManagerService\" /\u003e\n    \u003cproperty name\u003d\"vpnManager\" ref\u003d\"vpnManager\"/\u003e\n  \u003c/bean\u003e",
+      "parentUuid": "da01753e_0498d21a",
       "revId": "77093600034376b80cf859373bb67ac2e87e0204",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
