@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "da01753e_5befc2b0",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/EvpnElanInstanceManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-11T10:41:39Z",
+      "side": 1,
+      "message": "this can be moved into canWithdrawEvpnRT2Route() method",
+      "revId": "f08a00bc73fcbb341d027e1633b84614aad8f69b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_5b5b4187",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnUtils.java",
         "patchSetId": 11
@@ -14,6 +31,24 @@
       "side": 1,
       "message": "this can\u0027t be final because of the WaitingServiceTracker block below",
       "parentUuid": "da01753e_5b46a2c0",
+      "revId": "f08a00bc73fcbb341d027e1633b84614aad8f69b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_de20bff9",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnUtils.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-11T14:44:39Z",
+      "side": 1,
+      "message": "Yes Sam, This can\u0027t be final. \nbut it has be made as volatile.",
+      "parentUuid": "da01753e_5b5b4187",
       "revId": "f08a00bc73fcbb341d027e1633b84614aad8f69b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -140,6 +175,23 @@
       "side": 1,
       "message": "like the other comment, this can\u0027t be final",
       "parentUuid": "da01753e_1b741ace",
+      "revId": "f08a00bc73fcbb341d027e1633b84614aad8f69b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_fb44b675",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-11T10:41:39Z",
+      "side": 1,
+      "message": "why can\u0027t you make EvpnElanInstanceManager to listen to EvpnAugmentation ? that way we can avoid lot of unnecessary logic of above checks.\nwill review this post this change.",
       "revId": "f08a00bc73fcbb341d027e1633b84614aad8f69b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
