@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_7251b8d7",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-02T00:58:29Z",
+      "side": 0,
+      "message": "have you intentionally removed this?  It would help you let the test fail if there are any ERROR logs - which, ideally, there should never be.  And if you do want to test failures intentionally, then you could do that with the LogCaptureRule..",
+      "revId": "7a345e7898755253a5ebcccd8bf6950bc0515aaf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_d206a4cd",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-02T00:58:29Z",
+      "side": 0,
+      "message": "you don\u0027t need the JobCoordinatorTestModule and its TestableJobCoordinatorEventsWaiter to await [D]JC jobs here? Ok then..",
+      "revId": "7a345e7898755253a5ebcccd8bf6950bc0515aaf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
