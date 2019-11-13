@@ -1,0 +1,265 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_cafa5542",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T10:35:27Z",
+      "side": 1,
+      "message": "General comment:\n\nThough splitting off a file is useful to help isolate issues, rebasing and even reviews.\nBut, we could have done a better separation of responsibilities, and we should take that in FIB Refactoring.",
+      "revId": "75924c81091804e86494deb119f35e90d7e17ad8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2a9de159",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T10:35:27Z",
+      "side": 1,
+      "message": "i am bit concerned that the interfaceState may not be available at the time you want to take advantage of the lPortTag.  Is it possible to maintain the lportTag inside vpn-interface-operational itself similar to how we maintain the DpnId for safety?\n\nI think both the DPNID and lportTag can be maintained in vpn-interface operational and used.\n\nFor now let us maintain the lportTag in vpn-interface operational.\nWe can remove DpnId from prefix-to-interface in a subseqeunet review.\n\nIn that way the prefix-to-interface can just contain only the prefix-to-vpninterfacename.  Fetching out the vpnInterface will get you everything else to use for us like DpnId and lPortTag.\n\nWhat do you think?",
+      "revId": "75924c81091804e86494deb119f35e90d7e17ad8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_aa1b91c8",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T10:35:27Z",
+      "side": 1,
+      "message": "where is this lportTag used?",
+      "range": {
+        "startLine": 87,
+        "startChar": 54,
+        "endLine": 87,
+        "endChar": 62
+      },
+      "revId": "75924c81091804e86494deb119f35e90d7e17ad8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_aaed51b9",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T10:35:27Z",
+      "side": 1,
+      "message": "would like to have lines from 93 to 117 similar to base class inclding a local method here similar to checkCreateLocalFibEntry()\nwith the conditions remaining intact like below.\n\nWill enable us to ease out in FIB refactoring later.\n\nprivate BigInteger checkCreateLocalFibEntry(Prefixes localNextHopInfo, String localNextHopIP,\n                                                final Long vpnId, final String rd,\n                                                final VrfEntry vrfEntry, Long parentVpnId) {\n        if (localNextHopInfo !\u003d null) {\n            final BigInteger dpnId \u003d localNextHopInfo.getDpnId();\n            if (!isVpnPresentInDpn(rd, dpnId)) {\n                LOG.error(\"The vpnName with vpnId {} rd {} is not available on dpn {}\", vpnId, rd, dpnId.toString());\n                return BigInteger.ZERO;\n            }\n\n            if (Boolean.TRUE.equals(localNextHopInfo.isNatPrefix())) {\n                LOG.debug(\"NAT Prefix {} with vpnId {} rd {}. Skip local dpn {} FIB processing\",\n                        vrfEntry.getDestPrefix(), vpnId, rd, dpnId);\n                return dpnId;\n            }",
+      "revId": "75924c81091804e86494deb119f35e90d7e17ad8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2ab4c1cf",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T10:35:27Z",
+      "side": 1,
+      "message": "the key is incorrect, please backverify with vrfentrylisteneer.  \u0027-\u0027 hyphenation required in keys.",
+      "revId": "75924c81091804e86494deb119f35e90d7e17ad8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6aa2499a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T10:35:27Z",
+      "side": 1,
+      "message": "i believe this review does not handle extra-routes .. Subsequent review will handle extar-routes right?",
+      "revId": "75924c81091804e86494deb119f35e90d7e17ad8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0a7c5deb",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T10:35:27Z",
+      "side": 1,
+      "message": "return an empty list.. Donot insert ZERO!",
+      "revId": "75924c81091804e86494deb119f35e90d7e17ad8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2a87a1d8",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T10:35:27Z",
+      "side": 1,
+      "message": "this macAddress can be null right?",
+      "revId": "75924c81091804e86494deb119f35e90d7e17ad8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_aa49d1b8",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T10:35:27Z",
+      "side": 1,
+      "message": ".equals right?",
+      "revId": "75924c81091804e86494deb119f35e90d7e17ad8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8a568d5a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T10:35:27Z",
+      "side": 1,
+      "message": "BGP Imported EVPN routes is managed in a subseqenut review?",
+      "revId": "75924c81091804e86494deb119f35e90d7e17ad8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4a9e6508",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T10:35:27Z",
+      "side": 1,
+      "message": "in rd {} would be better than vpnID {} here.",
+      "revId": "75924c81091804e86494deb119f35e90d7e17ad8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ea6ab9ec",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T10:35:27Z",
+      "side": 1,
+      "message": "please use checkDeleteLocalFibEntry() here too similar to my create comment.",
+      "revId": "75924c81091804e86494deb119f35e90d7e17ad8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4a6ca508",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T10:35:27Z",
+      "side": 1,
+      "message": "key problem here again",
+      "revId": "75924c81091804e86494deb119f35e90d7e17ad8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4a3ae5e7",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T10:35:27Z",
+      "side": 1,
+      "message": "this method is not much different from deleteLocalFibEntry except for handling import/export.. But let us retain this method here for simplicity :)",
+      "revId": "75924c81091804e86494deb119f35e90d7e17ad8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2a7161e0",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T10:35:27Z",
+      "side": 1,
+      "message": "donot add ZERO",
+      "revId": "75924c81091804e86494deb119f35e90d7e17ad8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
