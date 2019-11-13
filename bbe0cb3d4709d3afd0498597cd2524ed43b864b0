@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_510215b5",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 2206,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-17T08:56:11Z",
+      "side": 1,
+      "message": "Riyaz, Tali is correct. You need to make sure it works for both ARP and other IPv4(v6) packets as well. \nAt least if you are not able to retrieve ip address, don\u0027t throw PacketException which leads to ignoring the mac learning. In that case, let us create MacEntry without IpAddress",
+      "parentUuid": "fafc7978_a0e84d17",
+      "range": {
+        "startLine": 2206,
+        "startChar": 68,
+        "endLine": 2206,
+        "endChar": 89
+      },
+      "revId": "bbe0cb3d4709d3afd0498597cd2524ed43b864b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
