@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_3f92de4b",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/elan.yang",
+        "patchSetId": 18
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-12T11:39:48Z",
+      "side": 1,
+      "message": "superfluous.. Unless you provide mandatory\u003dtrue, default is false only.",
+      "revId": "96620051e53eefaed5e88a019e0c166c9c025144",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f049a360",
         "filename": "vpnservice/model-bgp/src/main/yang/ebgp.yang",
         "patchSetId": 18
