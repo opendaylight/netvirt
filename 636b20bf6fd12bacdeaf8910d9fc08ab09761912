@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_3d5c367e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 1172,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_c23547db",
+      "revId": "636b20bf6fd12bacdeaf8910d9fc08ab09761912",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_427037a5",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 22
@@ -30,6 +48,24 @@
       "writtenOn": "2017-04-21T11:18:26Z",
       "side": 1,
       "message": "why do you pass dataBroker, ivpnManager reference for every methods calls? You could make NeutronEvpnUtils as singleton initialized with these references using BP.",
+      "revId": "636b20bf6fd12bacdeaf8910d9fc08ab09761912",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_1d5fb273",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 1177,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_427037a5",
       "revId": "636b20bf6fd12bacdeaf8910d9fc08ab09761912",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_7d26becf",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 1556,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_82b05f44",
+      "revId": "636b20bf6fd12bacdeaf8910d9fc08ab09761912",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_82c5ff8f",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 22
@@ -64,6 +118,24 @@
       "writtenOn": "2017-04-21T11:18:26Z",
       "side": 1,
       "message": "This is wrong. Make NeutronEvpnManager as singleton and initialize it using blueprint injection. And have neutronEvpnManager as member variable in this class initialized through constructor.",
+      "revId": "636b20bf6fd12bacdeaf8910d9fc08ab09761912",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_ddcb6a1c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 2298,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_82c5ff8f",
       "revId": "636b20bf6fd12bacdeaf8910d9fc08ab09761912",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_dd99aa20",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/evpn/manager/NeutronEvpnManager.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_a2680388",
+      "revId": "636b20bf6fd12bacdeaf8910d9fc08ab09761912",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_429b1767",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/evpn/manager/NeutronEvpnManager.java",
         "patchSetId": 22
@@ -98,6 +188,24 @@
       "writtenOn": "2017-04-21T11:18:26Z",
       "side": 1,
       "message": "This is a costly call. can you move outside of the for loop ?",
+      "revId": "636b20bf6fd12bacdeaf8910d9fc08ab09761912",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_bdfdc63c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/evpn/manager/NeutronEvpnManager.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_429b1767",
       "revId": "636b20bf6fd12bacdeaf8910d9fc08ab09761912",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_9d8f22cc",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/evpn/utils/NeutronEvpnUtils.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_a28f63cb",
+      "revId": "636b20bf6fd12bacdeaf8910d9fc08ab09761912",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_a2a64351",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnHelper.java",
         "patchSetId": 22
@@ -132,6 +258,24 @@
       "writtenOn": "2017-04-21T11:18:26Z",
       "side": 1,
       "message": "change the class name",
+      "revId": "636b20bf6fd12bacdeaf8910d9fc08ab09761912",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_fdbd8e69",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnHelper.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_a2a64351",
       "revId": "636b20bf6fd12bacdeaf8910d9fc08ab09761912",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
