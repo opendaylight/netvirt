@@ -16,6 +16,24 @@
       "revId": "5675f878c1aa67562ca5ba3770e935ba185d828e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_309eefb9",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/elan.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "This prefix will be used to advertise RT2 route.\nEarlier we add prefix as a leaf in elan_interface. But physical_address was a list and prefix was a leaf. \nWe will have one to one mapping for physical address and prefix. How do we get the right physical address for the prefix route need to be advertised? after discussion, we moved prefix inside statis_mac_entries. \nAnd regarding elan base code change, yes, We have modified 4 main files due to this yang change.",
+      "parentUuid": "fafc7978_ed2db0a9",
+      "revId": "5675f878c1aa67562ca5ba3770e935ba185d828e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
