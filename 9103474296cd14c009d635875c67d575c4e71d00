@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_e1a55048",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-14T05:18:18Z",
+      "side": 1,
+      "message": "Guard against null for originalStaticMacEntries with Optional.ofNullable(originalStaticMacEntries).ifPresent(originalStaticMacEntries -\u003e originalStaticMacEntries.stream().forEach(staticMacEntry -\u003e removeInterfaceStaticMacEntries(elanName, interfaceName, staticMacEntry.getMacAddress()));",
+      "revId": "9103474296cd14c009d635875c67d575c4e71d00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_41625c17",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-14T05:18:18Z",
+      "side": 1,
+      "message": "same as above and no need of check checking for updatedStaticMacEntries.size() \u003e 0",
+      "revId": "9103474296cd14c009d635875c67d575c4e71d00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_617160e0",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-14T05:18:18Z",
+      "side": 1,
+      "message": "This has to be done when update.getStaticMacEntries() doesn\u0027t have any entry. this would break now.",
+      "revId": "9103474296cd14c009d635875c67d575c4e71d00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8143a46b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 665,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-14T05:18:18Z",
+      "side": 1,
+      "message": "Guard against null for staticMacEntriesList. also use stream to fill up staticMacAddresses",
+      "revId": "9103474296cd14c009d635875c67d575c4e71d00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_813a84e5",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 2182,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-14T05:18:18Z",
+      "side": 1,
+      "message": "add Preconditions.checkNotNull for macAddress with error message",
+      "revId": "9103474296cd14c009d635875c67d575c4e71d00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_613fa0d7",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 2189,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-14T05:18:18Z",
+      "side": 1,
+      "message": "same as above.",
+      "revId": "9103474296cd14c009d635875c67d575c4e71d00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_41bb7c75",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 2212,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-14T05:18:18Z",
+      "side": 1,
+      "message": "change the method name to updateMacEntries",
+      "revId": "9103474296cd14c009d635875c67d575c4e71d00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e18ef0cf",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 2222,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-14T05:18:18Z",
+      "side": 1,
+      "message": "do you have to return updatedStaticMacEntries ? It\u0027s not necessary.",
+      "revId": "9103474296cd14c009d635875c67d575c4e71d00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a12068b1",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 1235,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-14T05:18:18Z",
+      "side": 1,
+      "message": "move port.getFixedIps() to local variable and check for both fixedIps !\u003d null \u0026\u0026 fixedIps.size() \u003e 0",
+      "revId": "9103474296cd14c009d635875c67d575c4e71d00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_012e94a5",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 1240,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-14T05:18:18Z",
+      "side": 1,
+      "message": "if ipAddress is null, then don\u0027t set IpPrefix",
+      "revId": "9103474296cd14c009d635875c67d575c4e71d00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
