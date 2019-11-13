@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e9fd2b3d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-15T20:38:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_de275bc8",
+      "revId": "a503674b9de95486bfbb5785067dfa0feab4818b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f3ded8d8",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
         "patchSetId": 27
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-10T11:59:08Z",
       "side": 1,
       "message": "why is this table referred. use NWConstants universally.",
+      "revId": "a503674b9de95486bfbb5785067dfa0feab4818b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_49fb9747",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-15T20:38:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f3ded8d8",
       "revId": "a503674b9de95486bfbb5785067dfa0feab4818b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_499277f7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-15T20:38:25Z",
+      "side": 1,
+      "message": "They are. Done",
+      "parentUuid": "fafc7978_3e1e6770",
+      "revId": "a503674b9de95486bfbb5785067dfa0feab4818b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_19e45daa",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
         "patchSetId": 27
@@ -64,6 +118,24 @@
       "writtenOn": "2017-03-10T11:59:08Z",
       "side": 1,
       "message": "why is this required?",
+      "revId": "a503674b9de95486bfbb5785067dfa0feab4818b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_298f33ce",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-15T20:38:25Z",
+      "side": 1,
+      "message": "Not required. removed",
+      "parentUuid": "fafc7978_19e45daa",
       "revId": "a503674b9de95486bfbb5785067dfa0feab4818b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e9ab6b1c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 607,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-15T20:38:25Z",
+      "side": 1,
+      "message": "Sure. I will move this as part of a new review that will handle new tunnel interface additions..",
+      "parentUuid": "fafc7978_399b2119",
+      "revId": "a503674b9de95486bfbb5785067dfa0feab4818b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_999e8d05",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
         "patchSetId": 27
@@ -98,6 +188,24 @@
       "writtenOn": "2017-03-10T11:59:08Z",
       "side": 1,
       "message": "this is hanging around here :) ?",
+      "revId": "a503674b9de95486bfbb5785067dfa0feab4818b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a9ba036c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 695,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-15T20:38:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_999e8d05",
       "revId": "a503674b9de95486bfbb5785067dfa0feab4818b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
