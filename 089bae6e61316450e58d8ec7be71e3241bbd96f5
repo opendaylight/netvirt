@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9f930aa2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 14
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done -- Removed.",
+      "parentUuid": "fafc7978_9f65cae2",
+      "range": {
+        "startLine": 140,
+        "startChar": 9,
+        "endLine": 141,
+        "endChar": 5
+      },
+      "revId": "089bae6e61316450e58d8ec7be71e3241bbd96f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ebfc1cb7",
         "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
         "patchSetId": 14
@@ -54,6 +78,24 @@
       "side": 1,
       "message": "OOps, this is right change.",
       "parentUuid": "fafc7978_2bbc64ba",
+      "revId": "089bae6e61316450e58d8ec7be71e3241bbd96f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2bbc64ba",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 14
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "We discussed this over a call. u asked us to remove l2vni. Now should I retain it?",
+      "parentUuid": "fafc7978_ebfc1cb7",
       "revId": "089bae6e61316450e58d8ec7be71e3241bbd96f5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
