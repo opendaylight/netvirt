@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_d7e24e00",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-17T11:57:21Z",
+      "side": 1,
+      "message": "Surprises me that we are advertising prefixes without the IP Prefix, but we won\u0027t be withdraw them if there is no prefix.\n\nCan you please educate us why so?",
+      "revId": "7b6733d32fffe64f7ec0e73eadff0afea2355086",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
