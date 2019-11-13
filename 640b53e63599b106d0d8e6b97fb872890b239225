@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_0d347491",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T17:44:30Z",
+      "side": 1,
+      "message": "I suggest that you can do this in the PostAddVpnInstanceWorker onSuccess().  \n\nSimilarly you can unbind the L3VNI from tunnel interfaces just before deleting this vpnInstance in the remove() method end.\n\nI donot see the code for remove() lifecycle here.. \nWill you be including that ?",
+      "revId": "640b53e63599b106d0d8e6b97fb872890b239225",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ed181020",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T17:44:30Z",
+      "side": 1,
+      "message": "this should go to table 19, why is this going directly to 21?",
+      "revId": "640b53e63599b106d0d8e6b97fb872890b239225",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2dd69828",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T17:44:30Z",
+      "side": 1,
+      "message": "this flowref should be L3_VNI_DEMUX_TABLE based.",
+      "revId": "640b53e63599b106d0d8e6b97fb872890b239225",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8df864c4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T17:44:30Z",
+      "side": 1,
+      "message": "So looks like we are binding on dc-gw tunnels on all nodes known by ODL right.. Thaat is ok to start with :) !",
+      "revId": "640b53e63599b106d0d8e6b97fb872890b239225",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cd154ce6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T17:44:30Z",
+      "side": 1,
+      "message": "similarly shouldn\u0027t this be L3VNI_DEMUX_TABLE?\n\nFrom the Spec : \nTraffic from DC-Gateway to Local DPN (SYMMETRIC IRB)\n\n| Classifier Table (0) \u003d\u003e\n| L3VNI External Tunnel Demux Table (23) ``match: tun-id\u003dl3vni set vpn-id\u003dl3vpn-id`` \u003d\u003e\n| L3 Gateway MAC Table (19) ``match: vpn-id\u003dl3vpn-id, dst-mac\u003dvpn-subnet-gateway-mac-address`` \u003d\u003e\n| L3 FIB Table (21) ``match: vpn-id\u003dl3vpn-id, nw-dst\u003ddst-vm-ip-address set output to nexthopgroup-dst-vm`` \u003d\u003e\n| NextHopGroup-dst-vm: ``set-eth-dst dst-mac-vm, reg6\u003ddst-vm-lport-tag`` \u003d\u003e\n| Lport Egress Table (220) ``Output to dst vm port``\n\n\nI believe here you are dealing with populating Table 23... is that right?",
+      "revId": "640b53e63599b106d0d8e6b97fb872890b239225",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
