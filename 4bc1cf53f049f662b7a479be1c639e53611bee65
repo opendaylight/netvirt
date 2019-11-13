@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_cfc94e5c",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2134,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-08-01T16:34:14Z",
+      "side": 1,
+      "message": "In my opinion, this comment could be deleted.",
+      "revId": "4bc1cf53f049f662b7a479be1c639e53611bee65",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_afc69a47",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2143,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-08-01T16:34:14Z",
+      "side": 1,
+      "message": "same - deletable.",
+      "revId": "4bc1cf53f049f662b7a479be1c639e53611bee65",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_efc0922c",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2669,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-08-01T16:34:14Z",
+      "side": 1,
+      "message": "same - deletable",
+      "revId": "4bc1cf53f049f662b7a479be1c639e53611bee65",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_2fe2aad5",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2674,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-08-01T16:34:14Z",
+      "side": 1,
+      "message": "same - deletable \n\n(note that the comment was about the \u0027else\u0027 clause, so moving the comment above the \u0027if\u0027 clause will cause more confusion)",
+      "revId": "4bc1cf53f049f662b7a479be1c639e53611bee65",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
