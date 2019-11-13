@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_bfcfbcb2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-21T05:15:11Z",
+      "side": 1,
+      "message": "unbindService should be called under two circumstances:\na. When a VPNInstance is removed.\nb. When a Node is remvoed.\n\nThe former will be addressed in the review.  The latter (b) can be addressed via a separate review.",
+      "parentUuid": "fafc7978_1f6408e4",
+      "revId": "d8e008787d0bf4f83061357cf6cc928272d44fee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1da53b04",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
         "patchSetId": 29
