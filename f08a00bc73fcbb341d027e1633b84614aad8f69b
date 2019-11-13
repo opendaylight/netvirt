@@ -1,0 +1,40 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_e7a08ff6",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnUtils.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-12T14:10:46Z",
+      "side": 1,
+      "message": "Peri, can you explain more on this? This pattern has been used for a while so we can change it, but I would like to change the other instances also with the right change.",
+      "parentUuid": "da01753e_de20bff9",
+      "revId": "f08a00bc73fcbb341d027e1633b84614aad8f69b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_fbccb537",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-11T12:42:46Z",
+      "side": 1,
+      "message": "like the other comment, this can\u0027t be final",
+      "parentUuid": "da01753e_1b741ace",
+      "revId": "f08a00bc73fcbb341d027e1633b84614aad8f69b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
