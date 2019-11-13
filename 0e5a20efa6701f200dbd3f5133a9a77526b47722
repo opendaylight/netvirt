@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_53bc0fbb",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 11
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-08T16:00:58Z",
+      "side": 1,
+      "message": "Will there be a problem using \"mac-address\" both here and in the routerInterface augmentation?\nHow does merge will work for VrfEntry that has the routerInterface augmentation?",
+      "revId": "0e5a20efa6701f200dbd3f5133a9a77526b47722",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_24549cc8",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
         "patchSetId": 11
