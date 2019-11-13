@@ -1,0 +1,56 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_d1536e37",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/java/org/opendaylight/netvirt/elanmanager/api/ElanHelper.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-19T10:57:06Z",
+      "side": 1,
+      "message": "change the class name. Try using this helper from neutron-vpn module.",
+      "revId": "e723a8c2af2e461504c97cf67e865959e83b19ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_3132ba10",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/java/org/opendaylight/netvirt/elanmanager/api/ElanHelper.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-19T10:57:06Z",
+      "side": 1,
+      "message": "you could do it for ElanInterface identifier etc. which is being used in neutronvpn.",
+      "revId": "e723a8c2af2e461504c97cf67e865959e83b19ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_426f97fd",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/java/org/opendaylight/netvirt/elanmanager/api/ElanHelper.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-21T11:18:26Z",
+      "side": 1,
+      "message": "Ok",
+      "parentUuid": "da01753e_7ae36905",
+      "revId": "e723a8c2af2e461504c97cf67e865959e83b19ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
