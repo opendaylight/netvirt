@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_6382c195",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_48bfdcfb",
+      "revId": "a857b41d8ed0fdda82747cdba8ea6ebaa44af379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_e8469020",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
         "patchSetId": 6
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_a34b0986",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done\nAs discussed handled for IPv4 address specifically.\nreviewed code again and added similar safer check at other place as well.",
+      "parentUuid": "ba068154_e8469020",
+      "revId": "a857b41d8ed0fdda82747cdba8ea6ebaa44af379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_28ba580a",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
         "patchSetId": 6
@@ -47,6 +83,24 @@
       "writtenOn": "2017-05-18T07:01:29Z",
       "side": 1,
       "message": "This one too!",
+      "revId": "a857b41d8ed0fdda82747cdba8ea6ebaa44af379",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_834ec594",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_28ba580a",
       "revId": "a857b41d8ed0fdda82747cdba8ea6ebaa44af379",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
