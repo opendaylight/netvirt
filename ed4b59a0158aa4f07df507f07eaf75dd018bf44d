@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_d0c32355",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/elan.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "I think he abandoned that review because of rebase issues. We will make it as augmentation inside elan.",
+      "parentUuid": "fafc7978_2d1b3882",
+      "revId": "ed4b59a0158aa4f07df507f07eaf75dd018bf44d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_30b9cfcc",
         "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/elan.yang",
         "patchSetId": 3
@@ -31,6 +49,53 @@
       "side": 1,
       "message": "Though you are making it as list, it can still  be a atrribute inside elan-evpn augmentation. we don\u0027t need separate container for it.",
       "parentUuid": "fafc7978_30a42fb9",
+      "range": {
+        "startLine": 213,
+        "startChar": 18,
+        "endLine": 213,
+        "endChar": 19
+      },
+      "revId": "ed4b59a0158aa4f07df507f07eaf75dd018bf44d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_30a42fb9",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/elan.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "This is maintained as list so that tomorrow if additional arguments are added at a later point of time there wont be much refactoring effort , like it is happening in static mac entries now. This way the yang structure does not change much if additional attribute is added to each tep other than ip. With leaf list we cannot add additional arguments to the structure.",
+      "range": {
+        "startLine": 213,
+        "startChar": 18,
+        "endLine": 213,
+        "endChar": 19
+      },
+      "revId": "ed4b59a0158aa4f07df507f07eaf75dd018bf44d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8694c143",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/elan.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "This external tep list can be shared by other services other than evpn usecase like l2gw also. That way it does not make sense to keep it inside evp augmentation. It can be moved as direct child of elan itself instead of putting in evpn augmentation.",
+      "parentUuid": "fafc7978_30b9cfcc",
       "range": {
         "startLine": 213,
         "startChar": 18,
