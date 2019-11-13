@@ -20,6 +20,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_c9abd91c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnUtils.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-13T14:55:18Z",
+      "side": 1,
+      "message": "Good, we can use this elsewhere also",
+      "parentUuid": "da01753e_d3d54d44",
+      "revId": "f08a00bc73fcbb341d027e1633b84614aad8f69b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_fbccb537",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
         "patchSetId": 11
