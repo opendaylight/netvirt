@@ -1,0 +1,225 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_866bf283",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-23T16:23:03Z",
+      "side": 1,
+      "message": "you should be able to just @Inject EvpnTestHelper, if you mark it as @Singleton and its constructor with @Inject, instead of having to manually create it like you are below.",
+      "revId": "263431db64a0c471c494c90f622a2cd6f4fa7f44",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a60b96d4",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTestBase.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-23T16:23:03Z",
+      "side": 1,
+      "message": "please don\u0027t use @Deprecated in new code, use SingleTransactionDataBroker#syncDelete here instead",
+      "revId": "263431db64a0c471c494c90f622a2cd6f4fa7f44",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_060f02e2",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/utils/BgpManagerTestImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-23T16:23:03Z",
+      "side": 1,
+      "message": "do not manually write Tx related code anymore now; either use the SingleTransactionDataBroker#syncDelete or a ManagedNewTransactionRunner",
+      "revId": "263431db64a0c471c494c90f622a2cd6f4fa7f44",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e6110e05",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/utils/BgpManagerTestImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-23T16:23:03Z",
+      "side": 1,
+      "message": "do not manually write Tx related code anymore now; either use the SingleTransactionDataBroker#syncDelete or a ManagedNewTransactionRunner",
+      "revId": "263431db64a0c471c494c90f622a2cd6f4fa7f44",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_46757a62",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/utils/EvpnTestHelper.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-23T16:23:03Z",
+      "side": 1,
+      "message": "@Singleton",
+      "revId": "263431db64a0c471c494c90f622a2cd6f4fa7f44",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_26704671",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/utils/EvpnTestHelper.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-23T16:23:03Z",
+      "side": 1,
+      "message": "@Inject",
+      "revId": "263431db64a0c471c494c90f622a2cd6f4fa7f44",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_26f7a6d4",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/utils/EvpnTestHelper.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-23T16:23:03Z",
+      "side": 1,
+      "message": "do not manually write Tx related code anymore now; either use the SingleTransactionDataBroker or (better) a ManagedNewTransactionRunner",
+      "revId": "263431db64a0c471c494c90f622a2cd6f4fa7f44",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_66fd1eb1",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/utils/EvpnTestHelper.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-23T16:23:03Z",
+      "side": 1,
+      "message": "this is buggy.. IFF you caught a ReadFailedException then elanInstanceOptional will be null and this will NPE.  If I were you I just throw ReadFailedException (or OperationFailedException if you are also writing) to let tis propagate",
+      "revId": "263431db64a0c471c494c90f622a2cd6f4fa7f44",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c62faa3d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/utils/EvpnTestHelper.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-23T16:23:03Z",
+      "side": 1,
+      "message": "do not manually write Tx related code anymore now; either use the SingleTransactionDataBroker or (better) a ManagedNewTransactionRunner; you could then return the Future from it to callers",
+      "revId": "263431db64a0c471c494c90f622a2cd6f4fa7f44",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_0626e267",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/utils/EvpnTestHelper.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-23T16:23:03Z",
+      "side": 1,
+      "message": "as above",
+      "revId": "263431db64a0c471c494c90f622a2cd6f4fa7f44",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a63276a4",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/utils/EvpnTestHelper.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-23T16:23:03Z",
+      "side": 1,
+      "message": "as above",
+      "revId": "263431db64a0c471c494c90f622a2cd6f4fa7f44",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e628ee34",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/utils/EvpnTestHelper.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-23T16:23:03Z",
+      "side": 1,
+      "message": "as above",
+      "revId": "263431db64a0c471c494c90f622a2cd6f4fa7f44",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_4623ba55",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/utils/EvpnTestHelper.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-23T16:23:03Z",
+      "side": 1,
+      "message": "as above",
+      "revId": "263431db64a0c471c494c90f622a2cd6f4fa7f44",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
