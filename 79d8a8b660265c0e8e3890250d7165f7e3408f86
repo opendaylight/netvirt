@@ -22,6 +22,47 @@
       "revId": "79d8a8b660265c0e8e3890250d7165f7e3408f86",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_320e1535",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/utils/ElanServiceChainUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 6130
+      },
+      "writtenOn": "2016-12-29T04:52:50Z",
+      "side": 1,
+      "message": "This package will be taken to stable/boron with this review\nhttps://git.opendaylight.org/gerrit/#/c/49629/",
+      "parentUuid": "1a622d24_375f2774",
+      "range": {
+        "startLine": 25,
+        "startChar": 41,
+        "endLine": 25,
+        "endChar": 48
+      },
+      "revId": "79d8a8b660265c0e8e3890250d7165f7e3408f86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b71cd7c2",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/utils/ElanServiceChainUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 6130
+      },
+      "writtenOn": "2016-12-28T13:18:00Z",
+      "side": 1,
+      "message": "instructionKey is missing in buildApplyActionsInstruction",
+      "revId": "79d8a8b660265c0e8e3890250d7165f7e3408f86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
