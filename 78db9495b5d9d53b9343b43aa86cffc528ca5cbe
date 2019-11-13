@@ -19,6 +19,58 @@
     },
     {
       "key": {
+        "uuid": "7af0899e_23875863",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/ElanMacEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-24T07:38:41Z",
+      "side": 1,
+      "message": "same here.",
+      "revId": "78db9495b5d9d53b9343b43aa86cffc528ca5cbe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_a36ea894",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/EvpnElanInstanceListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-24T07:38:41Z",
+      "side": 1,
+      "message": "did you debug why other listener didn\u0027t work ? DCN on augmentation already works in other modules (example: org.opendaylight.genius.interfacemanager.listeners.TerminationPointStateListener).\nOnly difference i see here is we try to augment a object inside a container which is already part of same module. so not sure about this notation: augment \"/elan:elan-instances/elan:elan-instance\" \n\ncan you check it ?",
+      "revId": "78db9495b5d9d53b9343b43aa86cffc528ca5cbe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_9fbbf971",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/EvpnElanInstanceListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-26T11:48:16Z",
+      "side": 1,
+      "message": "okay",
+      "parentUuid": "7af0899e_44a0a7f4",
+      "revId": "78db9495b5d9d53b9343b43aa86cffc528ca5cbe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_a3f508cd",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
         "patchSetId": 2
@@ -47,6 +99,40 @@
       "writtenOn": "2017-05-24T07:38:41Z",
       "side": 1,
       "message": "return Optional.ofNullable(elanInfo).map(elan -\u003e elanInfo.getAugmentation(EvpnAugmentation.class)).map(evpnAug -\u003e evpnAug.getL3vpnName());",
+      "revId": "78db9495b5d9d53b9343b43aa86cffc528ca5cbe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_83260c67",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-24T07:38:41Z",
+      "side": 1,
+      "message": "same as above",
+      "revId": "78db9495b5d9d53b9343b43aa86cffc528ca5cbe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_e316f0f0",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-24T07:38:41Z",
+      "side": 1,
+      "message": "you could apply Optional here too.\nOptional.ofNullable(evpnAugmentation).map(evpnAugmentation.getEvpnName()).ifPresent(evpnName -\u003e {\u003ccode 223-237}));\nagain use optional for Rd.\nThis will make code more declarative and without having more null checks.",
       "revId": "78db9495b5d9d53b9343b43aa86cffc528ca5cbe",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
