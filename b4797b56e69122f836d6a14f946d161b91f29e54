@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_86d1c5fd",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 36
+      },
+      "lineNbr": 973,
+      "author": {
+        "id": 5866
+      },
+      "writtenOn": "2017-02-02T10:44:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_71510062",
+      "revId": "b4797b56e69122f836d6a14f946d161b91f29e54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_91546455",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
         "patchSetId": 36
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-02T05:13:33Z",
       "side": 1,
       "message": "encaptype, macaddress and routermac not written to FIB.. why?",
+      "revId": "b4797b56e69122f836d6a14f946d161b91f29e54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c6dbcd19",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 36
+      },
+      "lineNbr": 1452,
+      "author": {
+        "id": 5866
+      },
+      "writtenOn": "2017-02-02T10:44:03Z",
+      "side": 1,
+      "message": "This is addressed  in review https://git.opendaylight.org/gerrit/#/c/46956/",
+      "parentUuid": "fafc7978_91546455",
       "revId": "b4797b56e69122f836d6a14f946d161b91f29e54",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_46e87db4",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouter.java",
+        "patchSetId": 36
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5866
+      },
+      "writtenOn": "2017-02-02T10:44:03Z",
+      "side": 1,
+      "message": "This is addressed  in review https://git.opendaylight.org/gerrit/#/c/46956/",
+      "parentUuid": "fafc7978_91dbc4ec",
+      "revId": "b4797b56e69122f836d6a14f946d161b91f29e54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_11c87421",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/idl/qbgp.thrift",
         "patchSetId": 36
@@ -64,6 +118,24 @@
       "writtenOn": "2017-02-02T05:13:33Z",
       "side": 1,
       "message": "can\u0027t we indent these better?",
+      "revId": "b4797b56e69122f836d6a14f946d161b91f29e54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_66c78146",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/idl/qbgp.thrift",
+        "patchSetId": 36
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5866
+      },
+      "writtenOn": "2017-02-02T10:44:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_11c87421",
       "revId": "b4797b56e69122f836d6a14f946d161b91f29e54",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
