@@ -73,7 +73,7 @@ public class CloudScVpnInterfaceListener
                     return;
                 }
             } catch (ReadFailedException e) {
-                LOG.error("Error reading the SFC information for VPN {}", vpnName, e);
+                LOG.error("Error reading the ServiceChaining information for VPN {}", vpnName, e);
             }
             break;
         }
@@ -102,7 +102,7 @@ public class CloudScVpnInterfaceListener
                 vpnScHandler.bindScfOnVpnInterface(vpnIfaceAdded.key().getName(),
                         optScfInfoForVpn.get().getScfTag());
             } catch (ReadFailedException e) {
-                LOG.error("Error reading the SFC information for VPN {}", vpnName, e);
+                LOG.error("Error reading the ServiceChaining information for VPN {}", vpnName, e);
             }
         }
     }

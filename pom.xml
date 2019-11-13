@@ -66,58 +66,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <module>vpnmanager</module>
     </modules>
 
-    <profiles>
-        <profile>
-            <id>sfc</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>sfc</module>
-            </modules>
-        </profile>
-        <profile>
-            <!-- When enabled, this empty profile disables the “sfc” profile above -->
-            <id>no-sfc</id>
-        </profile>
-        <profile>
-            <id>sonar-jacoco-aggregate</id>
-            <activation>
-                <property>
-                    <name>odl.jacoco.aggregateFile</name>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.jacoco</groupId>
-                        <artifactId>jacoco-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>merge</id>
-                                <goals>
-                                    <goal>merge</goal>
-                                </goals>
-                                <phase>generate-resources</phase>
-                                <configuration>
-                                    <destFile>${odl.jacoco.aggregateFile}</destFile>
-                                    <fileSets>
-                                        <fileSet>
-                                            <directory>${project.basedir}</directory>
-                                            <includes>
-                                                <include>**/target/code-coverage/*.exec</include>
-                                            </includes>
-                                        </fileSet>
-                                    </fileSets>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-
     <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->
     <build>
         <plugins>
