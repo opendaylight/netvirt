@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_86b0d3f5",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-05-03T21:18:01Z",
+      "side": 1,
+      "message": "sorry, previous comment about noisy logs was meant for these info lines. These info lines look like DEBUG or TRACE level. If they are not too noisy then INFO is fine - but it does look like this event could happen often.\n\nThe logs below for the null elanName can stay at an error if it is an error.",
+      "revId": "ec14e4bc5896e704c496cccb15b8bcdd47bcba31",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
