@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_e9af7e92",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronBgpvpnChangeListener.java",
+        "patchSetId": 57
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "is this intentional?",
+      "range": {
+        "startLine": 109,
+        "startChar": 13,
+        "endLine": 110,
+        "endChar": 21
+      },
+      "revId": "c10d2d4e0e3b886ba911f56c8ea86280ead5402f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
