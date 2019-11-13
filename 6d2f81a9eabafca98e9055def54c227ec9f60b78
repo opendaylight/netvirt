@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7af0899e_5fc191e3",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-26T11:48:16Z",
+      "side": 1,
+      "message": "use Optional for returns as i mentioned before.\nEarlier i mentioned not use Optional only for control flows.",
+      "revId": "6d2f81a9eabafca98e9055def54c227ec9f60b78",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_bfb6b588",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-26T11:48:16Z",
+      "side": 1,
+      "message": "same here.",
+      "revId": "6d2f81a9eabafca98e9055def54c227ec9f60b78",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
