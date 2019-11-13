@@ -22,6 +22,30 @@
       "revId": "c6f736df57d01777b1111b88f6d4566f45811c54",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_77090d95",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnManagerImpl.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done\nremoved it, but later reverted it bcoz of following reasons, \n1. if someone is working in parallel on these changes then it may lead to merge conflict when i rebase.\n2. its not related to my changes so i dont want to change it",
+      "parentUuid": "da01753e_e21c2616",
+      "range": {
+        "startLine": 122,
+        "startChar": 4,
+        "endLine": 125,
+        "endChar": 5
+      },
+      "revId": "c6f736df57d01777b1111b88f6d4566f45811c54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
