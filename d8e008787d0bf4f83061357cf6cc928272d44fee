@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_48925fa0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-19T12:16:02Z",
+      "side": 1,
+      "message": "It is not dependent on service binding in genius.\n\nOnce service binding becomes ready, we will first address changes in the spec, get it reviewed and only then touch any code.",
+      "parentUuid": "fafc7978_1da53b04",
+      "revId": "d8e008787d0bf4f83061357cf6cc928272d44fee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9db80b2c",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
         "patchSetId": 29
