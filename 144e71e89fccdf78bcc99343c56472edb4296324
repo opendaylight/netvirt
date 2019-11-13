@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_a95de3eb",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/l3vpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 753,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-25T13:13:52Z",
+      "side": 0,
+      "message": "doesn\u0027t seem to have any changes?",
+      "revId": "144e71e89fccdf78bcc99343c56472edb4296324",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

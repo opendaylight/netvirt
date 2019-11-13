@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_09c4ef90",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/elan.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-25T13:13:52Z",
+      "side": 1,
+      "message": "are both these config (or) operational??",
+      "revId": "d79153ad0fecc94ec793611028d23fc4bb1c055a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_693c9b94",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/elan.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-25T13:13:52Z",
+      "side": 1,
+      "message": "this again isn\u0027t cohesive.. Can you please explain what use-case this serves?",
+      "revId": "d79153ad0fecc94ec793611028d23fc4bb1c055a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6952db14",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-25T13:13:52Z",
+      "side": 1,
+      "message": "vrfEntryBase would be a better group name.",
+      "revId": "d79153ad0fecc94ec793611028d23fc4bb1c055a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e9ab6bd4",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-25T13:13:52Z",
+      "side": 1,
+      "message": "this division of data doesn\u0027t seem to be cohesive at all !\n\nActually you can put in the l2vni and label also into vrfEntryContents (or vrfEntryBase) and MacVrfEntries will just have only the key change to mac-address.",
+      "revId": "d79153ad0fecc94ec793611028d23fc4bb1c055a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_495557c5",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-25T13:13:52Z",
+      "side": 1,
+      "message": "we use l3vni evenly everywhere.. So do you want to use l2vni here too and give a description that this VNI represents the VXLAN VNI of the only network that will be part of EVPN?",
+      "revId": "d79153ad0fecc94ec793611028d23fc4bb1c055a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6963fbb1",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 370,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-25T13:13:52Z",
+      "side": 1,
+      "message": "looks good.\n\nAnd looks like we re-use associateNetworks RPC, which is fine too..",
+      "revId": "d79153ad0fecc94ec793611028d23fc4bb1c055a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2969f38b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-25T13:13:52Z",
+      "side": 1,
+      "message": "An evpn can have only one network as per the initial implementation.  So why do we have a list of network-ids below?",
+      "revId": "d79153ad0fecc94ec793611028d23fc4bb1c055a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
