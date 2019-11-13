@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b4ebc8da",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 1659,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-02T18:29:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_1409f4dd",
+      "revId": "8044c99dbbdaf3cb04eff4b8fe5635a5101cb679",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_74496030",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 35
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_14be14d5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 551,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-02T18:29:42Z",
+      "side": 1,
+      "message": "Not used. Removed.",
+      "parentUuid": "fafc7978_74496030",
+      "revId": "8044c99dbbdaf3cb04eff4b8fe5635a5101cb679",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f46430ba",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverMplsGrePopulator.java",
         "patchSetId": 35
@@ -47,6 +83,24 @@
       "writtenOn": "2017-03-02T18:06:10Z",
       "side": 1,
       "message": "why no input.getL3Vni() here?",
+      "revId": "8044c99dbbdaf3cb04eff4b8fe5635a5101cb679",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7493205b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverMplsGrePopulator.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-02T18:29:42Z",
+      "side": 1,
+      "message": "We can add input.getL3Vni here. But this was not done for 2 reasons:\n1) Explicitly passing 0 /*l3vni*/ will instantly tell that l3vni is not set for MplsGRE, when looking at the code.\n2) We dont have to worry about NPE while autoboxing from wrapper object to primitive.",
+      "parentUuid": "fafc7978_f46430ba",
       "revId": "8044c99dbbdaf3cb04eff4b8fe5635a5101cb679",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
