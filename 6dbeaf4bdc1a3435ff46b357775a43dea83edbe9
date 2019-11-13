@@ -1,0 +1,146 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_17c4133f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-03T11:42:03Z",
+      "side": 1,
+      "message": "remove AutoCloseable, it\u0027s not required here.",
+      "revId": "6dbeaf4bdc1a3435ff46b357775a43dea83edbe9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_4d056ec1",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-03T11:42:03Z",
+      "side": 1,
+      "message": "yes, there can be chance with elan created with no interfaces.",
+      "revId": "6dbeaf4bdc1a3435ff46b357775a43dea83edbe9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_cdc31e89",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-03T11:42:03Z",
+      "side": 1,
+      "message": "what is is purpose of futures here ? Will you try with JC ?",
+      "revId": "6dbeaf4bdc1a3435ff46b357775a43dea83edbe9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_adf5facc",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-03T11:42:03Z",
+      "side": 1,
+      "message": "this has too many arguments for invoking adding/removing dmac for remote dmac. so can you have a class with EvpnDMacPopulater with in-built builder class for setting required properties and then send EvpnDMacPopulater object (through EvpnDMacPopulaterBuilder#build()) to relevant methods.\n\nAlso try to use one method for adding/remove remote dmac flows by sending MDSALUtil#MdsalOp",
+      "revId": "6dbeaf4bdc1a3435ff46b357775a43dea83edbe9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_6dcf92b1",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-03T11:42:03Z",
+      "side": 1,
+      "message": "why do you catch on ElanException ?",
+      "revId": "6dbeaf4bdc1a3435ff46b357775a43dea83edbe9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_adc05a7d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-03T11:42:03Z",
+      "side": 1,
+      "message": "same comment as above",
+      "range": {
+        "startLine": 149,
+        "startChar": 34,
+        "endLine": 149,
+        "endChar": 35
+      },
+      "revId": "6dbeaf4bdc1a3435ff46b357775a43dea83edbe9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_2d3c6a93",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-03T11:42:03Z",
+      "side": 1,
+      "message": "remove \\n here",
+      "revId": "6dbeaf4bdc1a3435ff46b357775a43dea83edbe9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_6d467225",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-03T11:42:03Z",
+      "side": 1,
+      "message": "remove return",
+      "revId": "6dbeaf4bdc1a3435ff46b357775a43dea83edbe9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
