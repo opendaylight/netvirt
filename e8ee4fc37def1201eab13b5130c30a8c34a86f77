@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_7151ef0d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 54
+      },
+      "lineNbr": 515,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-07T12:14:48Z",
+      "side": 1,
+      "message": "is this annotation required here?  Since this is a new method, can we please make sure to align with checkStyle..",
+      "revId": "e8ee4fc37def1201eab13b5130c30a8c34a86f77",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
