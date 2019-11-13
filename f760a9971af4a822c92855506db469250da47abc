@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_4f639e1a",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2142,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-08-01T17:44:37Z",
+      "side": 1,
+      "message": "remove the extra line that was added.",
+      "revId": "f760a9971af4a822c92855506db469250da47abc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_2f68eaf4",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2668,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-08-01T17:44:37Z",
+      "side": 1,
+      "message": "remove the extra line that was added.",
+      "revId": "f760a9971af4a822c92855506db469250da47abc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
