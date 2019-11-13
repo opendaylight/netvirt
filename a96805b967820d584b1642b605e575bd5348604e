@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_ba6ec3c7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 39
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-25T20:29:18Z",
+      "side": 1,
+      "message": "There is a lot of manual dependency management throughout this patch while you could use BP to manage these dependencies and it would be much easier to manage/extend.\n\nAll you need to do is\n1. Change all the *Populator classes to be BP beans and inject required dependencies\n2. Change the populatorFactory pattern to Registry with registerPopulator(encapType, populator) method\n3. All populator beans will call registerPopulator() in their start() method\n4. Whenever populator is needed get it from the registry by type",
+      "revId": "a96805b967820d584b1642b605e575bd5348604e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6f4adb84",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 39
+      },
+      "lineNbr": 606,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-25T20:29:18Z",
+      "side": 1,
+      "message": "nextHopIp can be null at this point\npatch [1] fixes similar issue \nPls. incorporate similar fix\n\n[1] https://git.opendaylight.org/gerrit/#/c/50658",
+      "range": {
+        "startLine": 606,
+        "startChar": 85,
+        "endLine": 606,
+        "endChar": 109
+      },
+      "revId": "a96805b967820d584b1642b605e575bd5348604e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fa396bd9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverMplsGrePopulator.java",
+        "patchSetId": 39
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-25T20:29:18Z",
+      "side": 1,
+      "message": "could this be null?",
+      "range": {
+        "startLine": 42,
+        "startChar": 37,
+        "endLine": 42,
+        "endChar": 54
+      },
+      "revId": "a96805b967820d584b1642b605e575bd5348604e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
