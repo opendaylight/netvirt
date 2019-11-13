@@ -1,0 +1,45 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_2d1b3882",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/elan.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-24T02:21:29Z",
+      "side": 1,
+      "message": "I have already given my review comments regarding these containers in https://git.opendaylight.org/gerrit/#/c/50996/3/vpnservice/elanmanager/elanmanager-api/src/main/yang/elan.yang. But I see this review is abandoned. Are you addressing it in this review ?",
+      "revId": "ed4b59a0158aa4f07df507f07eaf75dd018bf44d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_30b9cfcc",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/elan.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-24T07:12:18Z",
+      "side": 1,
+      "message": "Though you are making it as list, it can still  be a atrribute inside elan-evpn augmentation. we don\u0027t need separate container for it.",
+      "parentUuid": "fafc7978_30a42fb9",
+      "range": {
+        "startLine": 213,
+        "startChar": 18,
+        "endLine": 213,
+        "endChar": 19
+      },
+      "revId": "ed4b59a0158aa4f07df507f07eaf75dd018bf44d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
