@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_0b913547",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_cbc9ed79",
+      "revId": "47c072737752cd5d37b5586b5bfcb1ee40856a6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_abc4695f",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
         "patchSetId": 21
@@ -30,6 +48,24 @@
       "writtenOn": "2017-04-20T06:10:52Z",
       "side": 1,
       "message": "don\u0027t you need check on L3vpnName ?",
+      "revId": "47c072737752cd5d37b5586b5bfcb1ee40856a6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_aba9097d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "1. 1st phase we are implementing only EVPN bridging routes. i.e. Net attach/Detach to EVPN. advertise/withdraw RT2 routes with L2vni.\n2. When same Network is also attached to L3VPN then we need to advertise RT2 routes with L3vni.\n3. discussion on handling l3vpn detach case whether L3vni RT2 route need to withdraw and then advertise RT2 bridging route OR just advertise RT2 bridging route AND either of cases what RD to use. \nHence temporarily NOT kept check for L3vpn. Based on the results of discussion i will add corresponding checks.",
+      "parentUuid": "da01753e_abc4695f",
       "revId": "47c072737752cd5d37b5586b5bfcb1ee40856a6e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_6bc6014b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Its handled as part of ElanInterfaceManager. For every port which comes UP after Network is attached to EVPN, ElanInterfaceManager will check if the Network is attached to EVPN and advertise route for that port.\nSame is the case with port down event.",
+      "parentUuid": "da01753e_2bb079f3",
+      "revId": "47c072737752cd5d37b5586b5bfcb1ee40856a6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_0b8ad51a",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
         "patchSetId": 21
@@ -64,6 +118,24 @@
       "writtenOn": "2017-04-20T06:10:52Z",
       "side": 1,
       "message": "you don\u0027t need {} for logging exception.",
+      "revId": "47c072737752cd5d37b5586b5bfcb1ee40856a6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_cbc56d3d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_0b8ad51a",
       "revId": "47c072737752cd5d37b5586b5bfcb1ee40856a6e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_995f3f41",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 2290,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_2b87d910",
+      "revId": "47c072737752cd5d37b5586b5bfcb1ee40856a6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_4b84dd0b",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 21
@@ -98,6 +188,24 @@
       "writtenOn": "2017-04-20T06:10:52Z",
       "side": 1,
       "message": "remove this line space",
+      "revId": "47c072737752cd5d37b5586b5bfcb1ee40856a6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_795a5b51",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 2293,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_4b84dd0b",
       "revId": "47c072737752cd5d37b5586b5bfcb1ee40856a6e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
