@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9f64784a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 33
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done\nHandled it. The base code had this logic earlier, I just replaced the physical address with static mac entries making sure business logic is not broken without considering the immutable part.",
+      "parentUuid": "fafc7978_ab302208",
+      "revId": "b62ee0ffdac99b169610e796b64b4c3454ada333",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ae4cb077",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 33
@@ -36,6 +54,42 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3ce2b703",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 33
+      },
+      "lineNbr": 2214,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "extracting source IP from ARP packet Changes --  DONE.",
+      "parentUuid": "fafc7978_3fdaace9",
+      "revId": "b62ee0ffdac99b169610e796b64b4c3454ada333",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3fdaace9",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 33
+      },
+      "lineNbr": 2214,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done\nSince IPv6 is not yet present in genius, i have just added a comment for v6 case. \nand v4 case is handled.\n\nAnd regarding accessing IPv4 when ARP packets get hit. i will discuss with Peri and suneelu and do necessary changes",
+      "parentUuid": "fafc7978_ae4cb077",
+      "revId": "b62ee0ffdac99b169610e796b64b4c3454ada333",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f843226a",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 33
@@ -47,6 +101,24 @@
       "writtenOn": "2017-03-20T11:25:02Z",
       "side": 1,
       "message": "you may need to revisit this later if you really want to retrieve ip address fron non-arp packets.",
+      "revId": "b62ee0ffdac99b169610e796b64b4c3454ada333",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8b30be9f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 33
+      },
+      "lineNbr": 2215,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "I will discuss with you more on this and do necessary changes if required.\n\nCan you guys please take a final look at overall changes.",
+      "parentUuid": "fafc7978_f843226a",
       "revId": "b62ee0ffdac99b169610e796b64b4c3454ada333",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
