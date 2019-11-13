@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_71d5dee3",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/utils/BgpManagerTestImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-11-22T04:54:49Z",
+      "side": 1,
+      "message": "does it make sense to move this over to bgpmanager as a test utils and expose it there so other bundles can use it?",
+      "revId": "c3274beb2cb836bff4038c9dc9222d63b9582163",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
