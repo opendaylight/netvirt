@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_cbc9ed79",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-20T06:10:52Z",
+      "side": 1,
+      "message": "use private final",
+      "revId": "47c072737752cd5d37b5586b5bfcb1ee40856a6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_abc4695f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-20T06:10:52Z",
+      "side": 1,
+      "message": "don\u0027t you need check on L3vpnName ?",
+      "revId": "47c072737752cd5d37b5586b5bfcb1ee40856a6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_2bb079f3",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-20T06:10:52Z",
+      "side": 1,
+      "message": "How do you advertise RT2 routes for macs which are updated in MacEntry after evpn augmentation is created ?",
+      "revId": "47c072737752cd5d37b5586b5bfcb1ee40856a6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_0b8ad51a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-20T06:10:52Z",
+      "side": 1,
+      "message": "you don\u0027t need {} for logging exception.",
+      "revId": "47c072737752cd5d37b5586b5bfcb1ee40856a6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_2b87d910",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 2290,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-20T06:10:52Z",
+      "side": 1,
+      "message": "why error ? no logging required here.",
+      "revId": "47c072737752cd5d37b5586b5bfcb1ee40856a6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_4b84dd0b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 2293,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-20T06:10:52Z",
+      "side": 1,
+      "message": "remove this line space",
+      "revId": "47c072737752cd5d37b5586b5bfcb1ee40856a6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
