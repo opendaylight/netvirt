@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_88f42788",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/utils/ElanServiceChainUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 6130
+      },
+      "writtenOn": "2016-12-22T12:08:04Z",
+      "side": 1,
+      "message": "Can you remove List\u003cInstructionInfo\u003e and use the code like below...        instructions.add(MDSALUtil.buildApplyActionsInstruction(MDSALUtil.buildActions(actionsInfos)));",
+      "revId": "6e05d8e659d5e0e2947a6b80b72629dc170a1cf6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
