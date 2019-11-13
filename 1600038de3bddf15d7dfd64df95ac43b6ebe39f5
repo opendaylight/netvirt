@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_e7cd525f",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3afa9182_1de71442",
+      "revId": "1600038de3bddf15d7dfd64df95ac43b6ebe39f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_bdf520cd",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnMacVrfUtils.java",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2017-06-01T11:40:55Z",
       "side": 1,
       "message": "I don\u0027t see any value set in futures. so you could simply return Collections.emptyList()",
+      "revId": "1600038de3bddf15d7dfd64df95ac43b6ebe39f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_47f2669b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnMacVrfUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3afa9182_bdf520cd",
       "revId": "1600038de3bddf15d7dfd64df95ac43b6ebe39f5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -70,6 +106,24 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_e7f43289",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnMacVrfUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3afa9182_bd1c0015",
+      "revId": "1600038de3bddf15d7dfd64df95ac43b6ebe39f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_dd1f4c08",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnMacVrfUtils.java",
         "patchSetId": 6
@@ -98,6 +152,24 @@
       "writtenOn": "2017-06-01T11:40:55Z",
       "side": 1,
       "message": "you can avoid these local variables. just do it with getEvpnNameFromElan(original).get().\nI hope evpnname is always available when isWithdrawEvpnRT2Routes is called.",
+      "revId": "1600038de3bddf15d7dfd64df95ac43b6ebe39f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_47ad4688",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3afa9182_9d5824fc",
       "revId": "1600038de3bddf15d7dfd64df95ac43b6ebe39f5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -138,6 +210,24 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_67bb22c5",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3afa9182_7d5d78e9",
+      "revId": "1600038de3bddf15d7dfd64df95ac43b6ebe39f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_9d0f84e1",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
         "patchSetId": 6
@@ -149,6 +239,24 @@
       "writtenOn": "2017-06-01T11:40:55Z",
       "side": 1,
       "message": "it looks like Google Optional is used only once here. so can we use fully qualified name here instead of using it for java.util.Optional ?",
+      "revId": "1600038de3bddf15d7dfd64df95ac43b6ebe39f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_27c11a2f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3afa9182_9d0f84e1",
       "revId": "1600038de3bddf15d7dfd64df95ac43b6ebe39f5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
