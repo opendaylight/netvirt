@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9e6dbacf",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 463,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-15T11:47:14Z",
+      "side": 1,
+      "message": "why does old macs get removed only if the updated elan interface has new macs? shouldn\u0027t they get removed independently?",
+      "revId": "bbe0cb3d4709d3afd0498597cd2524ed43b864b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_111fed0a",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 20
@@ -30,6 +47,29 @@
       "writtenOn": "2017-03-17T08:56:11Z",
       "side": 1,
       "message": "change it to Optional\u003cIpAddress\u003e",
+      "revId": "bbe0cb3d4709d3afd0498597cd2524ed43b864b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_dec2a285",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 2206,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-15T11:47:14Z",
+      "side": 1,
+      "message": "will non-ip traffic like ARP get here? what is the result in this case?",
+      "range": {
+        "startLine": 2206,
+        "startChar": 68,
+        "endLine": 2206,
+        "endChar": 89
+      },
       "revId": "bbe0cb3d4709d3afd0498597cd2524ed43b864b0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
