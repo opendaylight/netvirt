@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_4d350eda",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/org/opendaylight/blueprint/elanmanager.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-03-30T12:56:55Z",
+      "side": 1,
+      "message": "I am wondering if a cycle was introduced since vpnmanager, elanmanager and idmanager are all included now and that is causing the SFT to fail.",
+      "revId": "2bb2083ad0196dc8942cf44aac5d7092f32d2d32",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4d3ceebf",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/org/opendaylight/blueprint/elanmanager.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-03-30T12:56:55Z",
+      "side": 1,
+      "message": "nitpick, move databroker to first param",
+      "revId": "2bb2083ad0196dc8942cf44aac5d7092f32d2d32",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6d41f238",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/org/opendaylight/blueprint/elanmanager.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-03-30T12:56:55Z",
+      "side": 1,
+      "message": "nitpick, use lowercase for first letter. Sadly, I think I recall a case where using the same name as the class caused problems for blueprint.",
+      "revId": "2bb2083ad0196dc8942cf44aac5d7092f32d2d32",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
