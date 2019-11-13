@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_a9125c06",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 33
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-01T19:03:16Z",
+      "side": 1,
+      "message": "There are no APIs exposed to get this data from genius. Will have to add a dependency to interface-manager impl module, which is better to avoid:)\nWill fetch from interface manager once an API is exposed.",
+      "parentUuid": "fafc7978_33189d74",
+      "revId": "3aab159d0f1340d58461ff8fcf606833e00a0626",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e642d466",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 33
@@ -71,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_167907c8",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 33
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-01T19:03:16Z",
+      "side": 1,
+      "message": "Not used anywhere. Removed",
+      "parentUuid": "fafc7978_e642d466",
+      "revId": "3aab159d0f1340d58461ff8fcf606833e00a0626",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f311f552",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 33
@@ -82,6 +118,24 @@
       "writtenOn": "2017-03-01T15:21:39Z",
       "side": 1,
       "message": "where is this used?",
+      "revId": "3aab159d0f1340d58461ff8fcf606833e00a0626",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d6101f5b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 33
+      },
+      "lineNbr": 1279,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-01T19:03:16Z",
+      "side": 1,
+      "message": "Not used. Removed.",
+      "parentUuid": "fafc7978_f311f552",
       "revId": "3aab159d0f1340d58461ff8fcf606833e00a0626",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
