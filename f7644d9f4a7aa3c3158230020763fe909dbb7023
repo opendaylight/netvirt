@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_bf6dd29b",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/elan.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-09T05:37:09Z",
+      "side": 1,
+      "message": "I suggest to augment elan-evpns into /elan:elan-instances/elan:elan-instance by having required attributes. we don\u0027t need separate container.",
+      "revId": "f7644d9f4a7aa3c3158230020763fe909dbb7023",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7f2a4a2d",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/elan.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-09T05:37:09Z",
+      "side": 1,
+      "message": "Nit: attribute names can be like evpn-name, l3vpn-name.",
+      "revId": "f7644d9f4a7aa3c3158230020763fe909dbb7023",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9fac4ea2",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/elan.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-09T05:37:09Z",
+      "side": 1,
+      "message": "Do you need list for storing external tep\u0027s ?\nIt can be just leaf-list attribute inside an above elan-evpns augmentation.",
+      "revId": "f7644d9f4a7aa3c3158230020763fe909dbb7023",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bf90324f",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-09T05:37:09Z",
+      "side": 1,
+      "message": "Can you update it with changes proposed in https://git.opendaylight.org/gerrit/#/c/49010/20/vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang ?",
+      "revId": "f7644d9f4a7aa3c3158230020763fe909dbb7023",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
