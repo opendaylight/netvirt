@@ -2372,8 +2372,12 @@ public final class VpnUtil {
     }
 
     public static List<String> getVpnListForVpnInterface(VpnInterface vpnInter) {
-        return vpnInter.nonnullVpnInstanceNames().stream()
-                .map(VpnInstanceNames::getVpnName).collect(Collectors.toList());
+        List<String> ret = new ArrayList<>();
+        if (vpnInter.getVpnInstanceNames() != null) {
+            ret = vpnInter.getVpnInstanceNames().stream()
+                    .map(VpnInstanceNames::getVpnName).collect(Collectors.toList());
+        }
+        return ret;
     }
 
     public void updateVpnInstanceWithRdList(String vpnName, List<String> updatedRdList) {
