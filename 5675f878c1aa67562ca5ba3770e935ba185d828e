@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_ed2db0a9",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/elan.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-24T02:15:48Z",
+      "side": 1,
+      "message": "This will bloat the entire existing elan code.\nhow prefix is going to be used inside static-mac-entry ? do we use it to program table 50/51 flow entries ?\nCan you let me know how it gests used ? Based on the this, let us think about modelling the prefix.",
+      "revId": "5675f878c1aa67562ca5ba3770e935ba185d828e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
