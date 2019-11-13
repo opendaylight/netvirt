@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_64682788",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-20T19:37:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_dd81f34e",
+      "revId": "d8e008787d0bf4f83061357cf6cc928272d44fee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1da53b04",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
         "patchSetId": 29
@@ -71,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_8461cbd5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 603,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-20T19:37:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_9db80b2c",
+      "revId": "d8e008787d0bf4f83061357cf6cc928272d44fee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_7db56730",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
         "patchSetId": 29
@@ -82,6 +118,24 @@
       "writtenOn": "2017-03-19T04:40:25Z",
       "side": 1,
       "message": "looks to me like all the metadata matches for different vpnInstances created for the same tunnelInterface will be the same so why does binding needs to take place per vpnInstance?",
+      "revId": "d8e008787d0bf4f83061357cf6cc928272d44fee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_89fba646",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-20T19:37:09Z",
+      "side": 1,
+      "message": "We should not be doing this per vpn instance. It should ideally be bound whenever an external VxLAN tunnel interface comes up.\nHowever, in current genius implementation bind service for tunnels is only handled for Internal VxLAN, MPLSOverGre tunnels and External VxLAN towards a TOR switch.\nExternal VxLAN towards DC-GW case is not covered yet while tunnel binding in genius, as the ingress tunnel binding spec will handle the same.\nOnce that spec is implemented, we will remove this piece of code, since a tunnel interface state will be responsible for binding service on it.\nFor now, we only had two choices. One to bind services during vpn instance creation, and the other to bind services on node connection, and we have chosen the former as a temporary solution",
+      "parentUuid": "fafc7978_7db56730",
       "revId": "d8e008787d0bf4f83061357cf6cc928272d44fee",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -111,6 +165,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_29f43a86",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 641,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-20T19:37:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_fda957e0",
+      "range": {
+        "startLine": 641,
+        "startChar": 41,
+        "endLine": 641,
+        "endChar": 87
+      },
+      "revId": "d8e008787d0bf4f83061357cf6cc928272d44fee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5daea3e8",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
         "patchSetId": 29
@@ -122,6 +200,24 @@
       "writtenOn": "2017-03-19T04:40:25Z",
       "side": 1,
       "message": "also if no dc-gw defined need to bail out from this method",
+      "revId": "d8e008787d0bf4f83061357cf6cc928272d44fee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a92f8af5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 642,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-20T19:37:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_5daea3e8",
       "revId": "d8e008787d0bf4f83061357cf6cc928272d44fee",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
