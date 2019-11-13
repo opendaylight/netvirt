@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_7ba8358d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/utils/InterfaceMgrTestImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-09-13T11:25:45Z",
+      "side": 1,
+      "message": "why not use the org.opendaylight.genius.testutils.TestInterfaceManager here instead of writing a fairly long new impl? Note also https://git.opendaylight.org/gerrit/#/c/63010/.  This class is very strange, to me, because it seems to be some sort of mix of the TestInterfaceManager (a test stub) and the real InterfacemgrProvider implementation... IMHO it would be better to either just use TestInterfaceManager (and contribute SIMPLE extensions to it  if it\u0027s missing something, such as c/63010), OR to just bind the real InterfacemgrProvider, if you have to.  If you avoid it, it\u0027s better, but if your component test really does absolutely require a full real implementation of an external component, then you technically can do that.",
+      "revId": "e67a2cd8d525d641ad043ee5c1b34927c645c098",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_bbb74df4",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/utils/InterfaceMgrTestImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-09-13T11:25:45Z",
+      "side": 1,
+      "message": "much better throw some Exception instead of return null here (and below), e.g. throw new UnsupportedOperationException();",
+      "revId": "e67a2cd8d525d641ad043ee5c1b34927c645c098",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
