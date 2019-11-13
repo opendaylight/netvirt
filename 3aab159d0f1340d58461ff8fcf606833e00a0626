@@ -90,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_09fa8874",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 33
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-01T19:29:03Z",
+      "side": 1,
+      "message": "Got it. Thanks:)\nI will make this change as part of moving EvpnVrfEntryProcessor to blueprint.",
+      "parentUuid": "fafc7978_c9b24005",
+      "revId": "3aab159d0f1340d58461ff8fcf606833e00a0626",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e642d466",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 33
