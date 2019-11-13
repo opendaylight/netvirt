@@ -19,6 +19,47 @@
     },
     {
       "key": {
+        "uuid": "da01753e_04f1f26a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-28T18:30:15Z",
+      "side": 1,
+      "message": "just remove the close and use the close from the abstract class. It closes the registration.",
+      "parentUuid": "da01753e_f5f58257",
+      "range": {
+        "startLine": 75,
+        "startChar": 24,
+        "endLine": 75,
+        "endChar": 25
+      },
+      "revId": "77093600034376b80cf859373bb67ac2e87e0204",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_e4f5ce57",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-28T18:30:15Z",
+      "side": 1,
+      "message": "how often is this add?",
+      "revId": "77093600034376b80cf859373bb67ac2e87e0204",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_1f1d4f74",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
         "patchSetId": 7
@@ -71,6 +112,23 @@
     },
     {
       "key": {
+        "uuid": "da01753e_24ecf68e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnFlowUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-28T18:30:15Z",
+      "side": 1,
+      "message": "just remove if not doing anything",
+      "revId": "77093600034376b80cf859373bb67ac2e87e0204",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_c4fa4a42",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnMacVrfUtils.java",
         "patchSetId": 7
@@ -99,6 +157,23 @@
       "writtenOn": "2017-04-28T18:30:15Z",
       "side": 1,
       "message": "remove",
+      "revId": "77093600034376b80cf859373bb67ac2e87e0204",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_0498d21a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnMacVrfUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-28T18:30:15Z",
+      "side": 1,
+      "message": "why is this needed - doesn\u0027t look like it is used? Remove it if not, otherwise try to pass it in via the constructor",
       "revId": "77093600034376b80cf859373bb67ac2e87e0204",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
