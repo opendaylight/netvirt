@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7af0899e_24775b04",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-05-25T10:54:56Z",
+      "side": 1,
+      "message": "Change looks fine. But, if this \"error\" is logged when using IPv6 subnets, it could create confusion to the users. Should this actually be LOG.debug?",
+      "revId": "40f6a88380132f995322fa65fd464be3e34d16e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
