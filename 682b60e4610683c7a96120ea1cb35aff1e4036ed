@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_ca67f64b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/pom.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_12f5dced",
+      "revId": "682b60e4610683c7a96120ea1cb35aff1e4036ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_92e8ac11",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
         "patchSetId": 10
@@ -30,6 +48,24 @@
       "writtenOn": "2017-11-02T00:58:29Z",
       "side": 1,
       "message": "why don\u0027t you add your name here in a 2nd @author line? ;)",
+      "revId": "682b60e4610683c7a96120ea1cb35aff1e4036ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_2a59728e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_92e8ac11",
       "revId": "682b60e4610683c7a96120ea1cb35aff1e4036ed",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_0a5e2e76",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_3247401f",
+      "revId": "682b60e4610683c7a96120ea1cb35aff1e4036ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_72689887",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
         "patchSetId": 10
@@ -64,6 +118,24 @@
       "writtenOn": "2017-11-02T00:58:29Z",
       "side": 1,
       "message": "you could remove TestableDataTreeChangeListenerModule if you are not planning to use AsyncEventsWaiter (which *IS* very useful to await processing in async listeners!)",
+      "revId": "682b60e4610683c7a96120ea1cb35aff1e4036ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c9bc2309",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_72689887",
       "revId": "682b60e4610683c7a96120ea1cb35aff1e4036ed",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_6a56ca5d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done\nAsyncEventsWaiter is removed.\n\nI have another patch coming next which will be for EVPN feature. which uses objects following AsyncEventsWaiter.\nSo would like to retain these",
+      "parentUuid": "9a245df4_926d4c9b",
+      "revId": "682b60e4610683c7a96120ea1cb35aff1e4036ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_9256ecd0",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
         "patchSetId": 10
@@ -98,6 +188,24 @@
       "writtenOn": "2017-11-02T00:58:29Z",
       "side": 1,
       "message": "don\u0027t do this, especially not in a test... if it \"failed to set up itm\" then wouldn\u0027t you want your test to fail immediately?  The way you currently have it, it won\u0027t. I doubt that\u0027s intentional?  Just let before() throws TransactionCommitFailedException instead of catch...",
+      "revId": "682b60e4610683c7a96120ea1cb35aff1e4036ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_495793ca",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_9256ecd0",
       "revId": "682b60e4610683c7a96120ea1cb35aff1e4036ed",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_4a53066b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_d25fc4e3",
+      "revId": "682b60e4610683c7a96120ea1cb35aff1e4036ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_5273d47f",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
         "patchSetId": 10
@@ -138,6 +264,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_6971b775",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Here we are creating an elan instance.\nSome background thread invokes ElanInstanceListener and updates the created elan instance with a newly generated elan tag.\nHere the elan tag is generated and updated in the background thread.\nThat is the reason for this wait here.",
+      "parentUuid": "9a245df4_5273d47f",
+      "revId": "682b60e4610683c7a96120ea1cb35aff1e4036ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_326e2097",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
         "patchSetId": 10
@@ -149,6 +293,24 @@
       "writtenOn": "2017-11-02T00:58:29Z",
       "side": 1,
       "message": "this is probably something that got written by a background thread?  Again, interesting approach!  The original idea was to instead await listeners using that AsyncEventsWaiter asyncEventsWaiter, and [D]JC background using JobCoordinatorEventsWaiter, but if this works for you...",
+      "revId": "682b60e4610683c7a96120ea1cb35aff1e4036ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a9672fb6",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Right. We are trying to make sure that the background listener did what it is supposed todo.",
+      "parentUuid": "9a245df4_326e2097",
       "revId": "682b60e4610683c7a96120ea1cb35aff1e4036ed",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -207,6 +369,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_aa4c42c9",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTestModule.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Yes, tested it and it works.",
+      "parentUuid": "9a245df4_d2d18458",
+      "revId": "682b60e4610683c7a96120ea1cb35aff1e4036ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_92bf0cfb",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ExpectedObjects.xtend",
         "patchSetId": 10
@@ -218,6 +398,24 @@
       "writtenOn": "2017-11-02T00:58:29Z",
       "side": 1,
       "message": "what\u0027s this for?",
+      "revId": "682b60e4610683c7a96120ea1cb35aff1e4036ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_8a497eb9",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ExpectedObjects.xtend",
+        "patchSetId": 10
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done -- Removed",
+      "parentUuid": "9a245df4_92bf0cfb",
       "revId": "682b60e4610683c7a96120ea1cb35aff1e4036ed",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -241,6 +439,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_eac91a27",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ExpectedObjects.xtend",
+        "patchSetId": 10
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done - removed",
+      "parentUuid": "9a245df4_32c0e07b",
+      "revId": "682b60e4610683c7a96120ea1cb35aff1e4036ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_72ba580b",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ExpectedObjects.xtend",
         "patchSetId": 10
@@ -252,6 +468,24 @@
       "writtenOn": "2017-11-02T00:58:29Z",
       "side": 1,
       "message": "and this?  I\u0027m more just curious..",
+      "revId": "682b60e4610683c7a96120ea1cb35aff1e4036ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_caced62d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ExpectedObjects.xtend",
+        "patchSetId": 10
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done -- removed.",
+      "parentUuid": "9a245df4_72ba580b",
       "revId": "682b60e4610683c7a96120ea1cb35aff1e4036ed",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -311,6 +545,60 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_8997cb47",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/utils/ElanEgressActionsHelper.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "I did not get it. \nI tried to remove \"getEgressActionsForInterface\" from the formal parameter list,  got an error. Hence retained it",
+      "parentUuid": "9a245df4_b23b309b",
+      "revId": "682b60e4610683c7a96120ea1cb35aff1e4036ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_3ab4f733",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/utils/ElanEgressActionsHelper.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_6ed99921",
+      "revId": "682b60e4610683c7a96120ea1cb35aff1e4036ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e85621cd",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/utils/ElanEgressActionsHelper.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done -- I removed it. but to address you 3rd comment calling FutureRpcResults.fromBuilder takes rpcname as one of a parameter. so I had to add rpcname again",
+      "parentUuid": "9a245df4_86e67bae",
+      "revId": "682b60e4610683c7a96120ea1cb35aff1e4036ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_f245a817",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/utils/ElanEgressActionsHelper.java",
         "patchSetId": 10
@@ -346,6 +634,42 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_c9c6e367",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/utils/ElanEgressActionsHelper.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Ok. Will take care once the patch 64450 gets merged.",
+      "parentUuid": "9a245df4_f245a817",
+      "revId": "682b60e4610683c7a96120ea1cb35aff1e4036ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_680191ae",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/utils/ElanEgressActionsHelper.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_66eb8778",
+      "revId": "682b60e4610683c7a96120ea1cb35aff1e4036ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_12431c15",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/utils/ElanEgressActionsHelper.java",
         "patchSetId": 10
@@ -375,6 +699,42 @@
       "side": 1,
       "message": "so LogLevel.ERROR is actually the default, so you could just remove that, for less code, just in case you want to do 1 last round, but it won\u0027t do any harm either; quite minor, I won\u0027t -1 for this.",
       "parentUuid": "9a245df4_a9c3af55",
+      "revId": "682b60e4610683c7a96120ea1cb35aff1e4036ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a9c3af55",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/utils/ElanEgressActionsHelper.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done - Changed to ERROR",
+      "parentUuid": "9a245df4_12431c15",
+      "revId": "682b60e4610683c7a96120ea1cb35aff1e4036ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_686a3182",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/utils/ElanEgressActionsHelper.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_c6035340",
       "revId": "682b60e4610683c7a96120ea1cb35aff1e4036ed",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false

@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_c98ee378",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "9a245df4_7251b8d7",
+      "revId": "7a345e7898755253a5ebcccd8bf6950bc0515aaf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_d206a4cd",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
         "patchSetId": 10
@@ -30,6 +48,24 @@
       "writtenOn": "2017-11-02T00:58:29Z",
       "side": 0,
       "message": "you don\u0027t need the JobCoordinatorTestModule and its TestableJobCoordinatorEventsWaiter to await [D]JC jobs here? Ok then..",
+      "revId": "7a345e7898755253a5ebcccd8bf6950bc0515aaf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_49f2f306",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "9a245df4_d206a4cd",
       "revId": "7a345e7898755253a5ebcccd8bf6950bc0515aaf",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
