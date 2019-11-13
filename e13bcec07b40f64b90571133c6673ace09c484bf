@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_34005f33",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 9
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_39117a52",
+      "revId": "e13bcec07b40f64b90571133c6673ace09c484bf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b92c4a9a",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
         "patchSetId": 9
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f4ea5772",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 9
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_b92c4a9a",
+      "revId": "e13bcec07b40f64b90571133c6673ace09c484bf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_79178245",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
         "patchSetId": 9
@@ -47,6 +83,24 @@
       "writtenOn": "2017-03-07T10:31:15Z",
       "side": 1,
       "message": "shouldn\u0027t it be macVrfEntry ?",
+      "revId": "e13bcec07b40f64b90571133c6673ace09c484bf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_54052344",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 9
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_79178245",
       "revId": "e13bcec07b40f64b90571133c6673ace09c484bf",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
