@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_e559865b",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/utils/ElanServiceChainUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-22T10:34:06Z",
+      "side": 1,
+      "message": "please don\u0027t use wildcard imports:\n\nhttps://google.github.io/styleguide/javaguide.html#s3.3.1-wildcard-imports",
+      "range": {
+        "startLine": 39,
+        "startChar": 17,
+        "endLine": 39,
+        "endChar": 18
+      },
+      "revId": "c5c3e1e30e43414a6ca0a1ff69f160dfcc6a5f6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e8bf9bf9",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/utils/ElanServiceChainUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-22T10:34:06Z",
+      "side": 1,
+      "message": "you can leave it as \n\n List\u003cInstruction\u003e instructions \u003d new ArrayList\u003c\u003e();\n\nit\u0027s perfectly valid and preferred by some code check tools",
+      "range": {
+        "startLine": 104,
+        "startChar": 59,
+        "endLine": 104,
+        "endChar": 70
+      },
+      "revId": "c5c3e1e30e43414a6ca0a1ff69f160dfcc6a5f6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_25337e15",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/utils/ElanServiceChainUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-22T10:34:06Z",
+      "side": 1,
+      "message": "you dont need to check this, since the code in this project is exclusive for cloud environment.",
+      "range": {
+        "startLine": 105,
+        "startChar": 12,
+        "endLine": 105,
+        "endChar": 50
+      },
+      "revId": "c5c3e1e30e43414a6ca0a1ff69f160dfcc6a5f6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a84c8343",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/utils/ElanServiceChainUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-22T10:34:06Z",
+      "side": 1,
+      "message": "List\u003cActionInfo\u003e actionsInfos \u003d Collections.singletonList( new ActionRegLoad(NxmNxReg2.class, 0, 31, scfTag));",
+      "range": {
+        "startLine": 107,
+        "startChar": 16,
+        "endLine": 108,
+        "endChar": 117
+      },
+      "revId": "c5c3e1e30e43414a6ca0a1ff69f160dfcc6a5f6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_68cc2bbd",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/utils/ElanServiceChainUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-22T10:34:06Z",
+      "side": 1,
+      "message": "scfTag is already a long, why converting it to BigInteger and then back to long?",
+      "range": {
+        "startLine": 108,
+        "startChar": 95,
+        "endLine": 108,
+        "endChar": 101
+      },
+      "revId": "c5c3e1e30e43414a6ca0a1ff69f160dfcc6a5f6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_8847071d",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/utils/VpnServiceChainUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-22T10:34:06Z",
+      "side": 1,
+      "message": "no wildcards please",
+      "range": {
+        "startLine": 13,
+        "startChar": 41,
+        "endLine": 13,
+        "endChar": 42
+      },
+      "revId": "c5c3e1e30e43414a6ca0a1ff69f160dfcc6a5f6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e8567bd1",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/utils/VpnServiceChainUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-22T10:34:06Z",
+      "side": 1,
+      "message": "again, this is not needed in this project",
+      "range": {
+        "startLine": 253,
+        "startChar": 32,
+        "endLine": 253,
+        "endChar": 42
+      },
+      "revId": "c5c3e1e30e43414a6ca0a1ff69f160dfcc6a5f6e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
