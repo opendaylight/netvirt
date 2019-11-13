@@ -1,0 +1,243 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_70802c8b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 670,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-08T11:08:18Z",
+      "side": 1,
+      "message": "what is the need of building staticMacAddresses here ?",
+      "revId": "fc937d86c061a12d204c45c869152796d0a2df7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6ba95d23",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanPacketInHandler.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-08T11:08:18Z",
+      "side": 1,
+      "message": "test it via MAC learning and remove TODO",
+      "revId": "fc937d86c061a12d204c45c869152796d0a2df7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_105c404a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanPacketInHandler.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-08T11:08:18Z",
+      "side": 1,
+      "message": "can you move it to a method like getSrcIpAddress(byte[] data) ?",
+      "revId": "fc937d86c061a12d204c45c869152796d0a2df7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6b767d07",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-08T11:08:18Z",
+      "side": 1,
+      "message": "move this build logic to ElanUtils",
+      "revId": "fc937d86c061a12d204c45c869152796d0a2df7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ebd0adca",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-08T11:08:18Z",
+      "side": 1,
+      "message": "change the variable name to staticMacEntriesIdentifier",
+      "revId": "fc937d86c061a12d204c45c869152796d0a2df7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ab634540",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-08T11:08:18Z",
+      "side": 1,
+      "message": "you don\u0027t need to use return",
+      "revId": "fc937d86c061a12d204c45c869152796d0a2df7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e12a708f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-14T05:18:18Z",
+      "side": 1,
+      "message": "We could use return if you want to end the execution abruptly. But here it already end of the of the method, so having return is unnecessary. We normally don\u0027t it in java.",
+      "parentUuid": "fafc7978_603217a8",
+      "revId": "fc937d86c061a12d204c45c869152796d0a2df7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_abca2518",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-08T11:08:18Z",
+      "side": 1,
+      "message": "change the variable name to staticMacEntriesIdentifier",
+      "revId": "fc937d86c061a12d204c45c869152796d0a2df7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4b48d9b2",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-08T11:08:18Z",
+      "side": 1,
+      "message": "what if macentry is not present ? Just do delete only if it exists",
+      "revId": "fc937d86c061a12d204c45c869152796d0a2df7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_eb59cd8e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-08T11:08:18Z",
+      "side": 1,
+      "message": "remove this",
+      "revId": "fc937d86c061a12d204c45c869152796d0a2df7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_eb826dc6",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-08T11:08:18Z",
+      "side": 1,
+      "message": "This logic is almost same as code block that we have it in ElanInterfaceManager#update method. Can we move it to a common method in ElanUtils ?",
+      "revId": "fc937d86c061a12d204c45c869152796d0a2df7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2bde35dd",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-08T11:08:18Z",
+      "side": 1,
+      "message": "change the method name to getStaticMacEntriesCfgDataPathIdentifier",
+      "revId": "fc937d86c061a12d204c45c869152796d0a2df7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ebe70daa",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 552,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-08T11:08:18Z",
+      "side": 1,
+      "message": "remove the commented code",
+      "revId": "fc937d86c061a12d204c45c869152796d0a2df7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_abbfc55f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1235,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-08T11:08:18Z",
+      "side": 1,
+      "message": "Get IP address at index 0 if port.getFixedIps().size() \u003e 0 and remove TODO",
+      "revId": "fc937d86c061a12d204c45c869152796d0a2df7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
