@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_00e5f0a7",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 2302,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Move these methods to a new file",
+      "range": {
+        "startLine": 2302,
+        "startChar": 5,
+        "endLine": 2302,
+        "endChar": 13
+      },
+      "revId": "8c286341d68e81e2ecb0e243e24f9cf357416e6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_cb3949da",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 2349,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "put vni here",
+      "revId": "8c286341d68e81e2ecb0e243e24f9cf357416e6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_ab3685e5",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 2359,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "keep the result as failure if at least one fails",
+      "revId": "8c286341d68e81e2ecb0e243e24f9cf357416e6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_8b574102",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1344,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "change this as setRd() according to the changed spec",
+      "revId": "8c286341d68e81e2ecb0e243e24f9cf357416e6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_4b4d5972",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1348,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2019-09-17T20:22:31Z",
+      "side": 1,
+      "message": "Do not use syncwrites here , create a datastore job coordinator",
+      "revId": "8c286341d68e81e2ecb0e243e24f9cf357416e6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
