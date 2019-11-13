@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "da01753e_1bceda5a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/EvpnElanInstanceManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-11T10:41:39Z",
+      "side": 1,
+      "message": "can you combine all these if\u0027s together ? have a method like canAdvertiseEvpnRT2Route(original, update) returns boolean.",
+      "revId": "f08a00bc73fcbb341d027e1633b84614aad8f69b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_5b5b4187",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnUtils.java",
         "patchSetId": 11
@@ -73,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_d3d54d44",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnUtils.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-13T04:44:59Z",
+      "side": 1,
+      "message": "since vpnManager ref is initialized asynchronously in GlobalEventExecutor thread, we need make it as volatile to solve memory visibility issue.\nOther fields are final and it already provides initialization safety. so volatile is not required.",
+      "parentUuid": "da01753e_e7a08ff6",
+      "revId": "f08a00bc73fcbb341d027e1633b84614aad8f69b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_c9abd91c",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnUtils.java",
         "patchSetId": 11
@@ -91,6 +126,23 @@
     },
     {
       "key": {
+        "uuid": "da01753e_bb122eb2",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnUtils.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-11T10:41:39Z",
+      "side": 1,
+      "message": "is it to resolve cyclic dependency b/w elan-l3vpn ? is it recommended approach ?",
+      "revId": "f08a00bc73fcbb341d027e1633b84614aad8f69b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_db4e11c1",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnUtils.java",
         "patchSetId": 11
@@ -103,6 +155,24 @@
       "side": 1,
       "message": "Yes, this is to break the cycle. The problem is the vpnmanager interface takes elan (or neutronvpn, natservice) also and eventually you hit a cycle. That is what was failing the sft. elanmanager blueprint requires a reference to vpnmanager and vpnmanager has a reference for elanmanager so neither comes up.\n\nWe use this trick in a couple other places. Remove the vpnmanager reference from elanmanager blueprint so that these classes come up, in the background spin up a thread waiting for the vpnmanager. It is not ideal since the real problem is not fixed - which is that the code is architecturally wrong. We have been just dumping tons of methods into the single interfaces from the services rather than pulling them up to individual classes.\n\nI have the patch below to try to break this cycle by creating an interface just for the methods elanmanager needs from vpnutils but it is having issues. So I think we are fine to commit this patch with the waiting service tracker and work on breaking these cycles later. I think the other EVPN_RT2 patch suffers this same problem, but I haven\u0027t had a chance to look at it yet.\n\nhttps://git.opendaylight.org/gerrit/#/c/54738/",
       "parentUuid": "da01753e_bb122eb2",
+      "revId": "f08a00bc73fcbb341d027e1633b84614aad8f69b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_53c15d7f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnUtils.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-13T04:44:59Z",
+      "side": 1,
+      "message": "why can\u0027t we use \u003creference id\u003d\"vpnManager\"          interface\u003d\"org.opendaylight.netvirt.vpnmanager.api.IVpnManager\" availability\u003d\"optional\" /\u003e in elanmanager.xml for vpnManager ref ? I hope availability\u003d\"optional\" will break the circular dependency.",
+      "parentUuid": "da01753e_db4e11c1",
       "revId": "f08a00bc73fcbb341d027e1633b84614aad8f69b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
