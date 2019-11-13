@@ -74,6 +74,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_8c80bf47",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnUtils.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-13T14:55:18Z",
+      "side": 1,
+      "message": "I was trying to avoid that because the optional hides an underlying architectural issue - the interfaces are not abstracted correctly and causing cycles. This becomes a bigger problem when we try to use the Singleton injection which does not use the optional so it will fail.\n\nI pushed another patch set that uses the optional. We can go with that as we remove these cycles.",
+      "parentUuid": "da01753e_53c15d7f",
+      "revId": "f08a00bc73fcbb341d027e1633b84614aad8f69b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_ec96ab93",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnUtils.java",
         "patchSetId": 11
@@ -86,6 +104,24 @@
       "side": 1,
       "message": "Yes, please.",
       "parentUuid": "da01753e_9bf3ea72",
+      "revId": "f08a00bc73fcbb341d027e1633b84614aad8f69b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_bb4b4daf",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnUtils.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-11T12:42:46Z",
+      "side": 1,
+      "message": "+1...yes, please reuse code",
+      "parentUuid": "da01753e_1bfffa35",
       "revId": "f08a00bc73fcbb341d027e1633b84614aad8f69b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
