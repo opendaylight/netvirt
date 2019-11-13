@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_a2b980eb",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnFlowUtils.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-04T10:14:35Z",
+      "side": 1,
+      "message": "change this class to default access and move it down (after evpnRemoveFlowThatSendsThePacketOnAnExternalTunnel method)",
+      "revId": "488c5a0e974f787a2556b5881c4bae48fb025432",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_e2ca686d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnFlowUtils.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-04T10:14:35Z",
+      "side": 1,
+      "message": "make these variables as private",
+      "revId": "488c5a0e974f787a2556b5881c4bae48fb025432",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_628dd831",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnFlowUtils.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-04T10:14:35Z",
+      "side": 1,
+      "message": "use StringBuilder and delimiter",
+      "revId": "488c5a0e974f787a2556b5881c4bae48fb025432",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_6294b837",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnMacVrfUtils.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-04T10:14:35Z",
+      "side": 1,
+      "message": "use proper annotations to initialize this class",
+      "revId": "488c5a0e974f787a2556b5881c4bae48fb025432",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_c2b004e0",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnMacVrfUtils.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-04T10:14:35Z",
+      "side": 1,
+      "message": "you still need isPresent check though you use checkedGet and change the method return type to Optional\u003cString\u003e",
+      "revId": "488c5a0e974f787a2556b5881c4bae48fb025432",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_02ca0c4f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-04T10:14:35Z",
+      "side": 1,
+      "message": "sometimes ip prefix may not set in macEntry. so guard against null.",
+      "revId": "488c5a0e974f787a2556b5881c4bae48fb025432",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
