@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_f9163d54",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/evpn/utils/NeutronEvpnUtils.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-24T06:57:55Z",
+      "side": 1,
+      "message": "you could use enum constant like enum DsOperation {ADD, DELETE} instead of boolean. This will have more meaningful name and can be extended for UPDATE too.",
+      "revId": "8b6e02aafd6c2c57fc0eae6922d4aec776654175",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_3c0f1330",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnManagerImpl.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-24T06:57:55Z",
+      "side": 1,
+      "message": "use @Override",
+      "revId": "8b6e02aafd6c2c57fc0eae6922d4aec776654175",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
