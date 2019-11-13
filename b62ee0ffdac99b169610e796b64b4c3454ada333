@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_ab302208",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 33
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-20T14:17:19Z",
+      "side": 1,
+      "message": "General note: it is not advisable to change content of a list you haven\u0027t created since it can be immutable, especially list which is part of immutable entity like ElanInterface\n\nCurrently it should work fine but you can never know when mdsal decide to make these lists immutable",
+      "revId": "b62ee0ffdac99b169610e796b64b4c3454ada333",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ae4cb077",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 33
+      },
+      "lineNbr": 2214,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-20T14:17:19Z",
+      "side": 1,
+      "message": "you don\u0027t need to attempt to deserialize every packet. In the ELAN PKT_IN handler you already keep the Ethernet packet. just take the ethernet type using Ethernet.getEtherType() and call deserialize only if it equals NwConstants.ETHTYPE_IPV4\nyou can do something similar to extract source ip from ARP",
+      "revId": "b62ee0ffdac99b169610e796b64b4c3454ada333",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f843226a",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 33
