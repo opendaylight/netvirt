@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_dc2ba080",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 971,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-02T14:15:37Z",
+      "side": 0,
+      "message": "why is this check removed?",
+      "revId": "75f2eee01a3fc051ece33af3109ca5732f59f58f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

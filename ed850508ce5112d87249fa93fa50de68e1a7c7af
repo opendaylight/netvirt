@@ -1,0 +1,344 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_19b1baf8",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 527,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-02T13:28:25Z",
+      "side": 1,
+      "message": "syncUpdate is same as tx.merge with True, so why this unnecessary parameter pass with isUpdate and another syncWrite here?",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_79d1e6fa",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 2227,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-02T13:28:25Z",
+      "side": 1,
+      "message": "do both getDestPrefix() and getIpAddress() carry same value with \u0027/xx\u0027?",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f92b16e9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnConstants.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-02T13:28:25Z",
+      "side": 1,
+      "message": "can we remove this and align with what we discussed yesterday ?\n\nOr if fixing this will take a longer time, we can do so in a subsequent review.. Please take appropriate call.",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_19bc1a69",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-02T14:15:37Z",
+      "side": 1,
+      "message": "set ncapType \u003d VrfEntry.EncapType.Mplsgre here\nand override it below if l3vni is valid.\n\navoid multiple if {] else {}",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b9aa2e17",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 585,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-02T14:15:37Z",
+      "side": 1,
+      "message": "can\u0027t you reuse result of the call from Line 573?",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b9586e57",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 603,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-02T14:15:37Z",
+      "side": 1,
+      "message": "can the above be divided into three pieces:\n\ncreateOperationalAdjacency() returns adjacency.\nIn turn createOperationalAdjacency() calls two methods - createAdjacencyforL3VpnOverVxlan(), createAdjacencyForL3vPN().\nwhoever returns the result value, we return that value as response from createOperationalAdjacency().\n\nAlso a general comment: Please use the terms L3VpnOverVxlan evenly across the existing engine files instead of using keyword Evpn.",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1941ba5a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 634,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-02T14:15:37Z",
+      "side": 1,
+      "message": "why do we need the second for loop here?",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_992c8aad",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 637,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-02T14:15:37Z",
+      "side": 1,
+      "message": "I like this way of coverage, as it automatically takes care of import/export :), but let us review Tali\u0027s comment here.",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d91d7275",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 807,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-02T14:15:37Z",
+      "side": 1,
+      "message": "gr8 :)",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1c0fe831",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 939,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-02T14:15:37Z",
+      "side": 1,
+      "message": "this can have an l3vni right.. why not print that too?",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7c13945c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 942,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-02T14:15:37Z",
+      "side": 1,
+      "message": "the l3vni is set to 0 here, but this will be changed in future review that addresses import/export separately?",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5c10504e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 966,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-02T14:15:37Z",
+      "side": 1,
+      "message": "print l3vni here too.",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1c26c8b7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 971,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-02T14:15:37Z",
+      "side": 1,
+      "message": "why are we not advertising RT5 here.. May be that is a subsequent review again :) ?",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9c1ab86c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 972,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-02T14:15:37Z",
+      "side": 1,
+      "message": "ditt on l3vni logging here.",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1c5d2822",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 1893,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-02T14:15:37Z",
+      "side": 1,
+      "message": "are we using the getIpAddress() elsewhere and expect a different value without the \u0027/xx\u0027 ?(not in fibmanager which i already pointed)..  If so, we might be breaking something!",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7c41d438",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnRpcServiceImpl.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-02T14:15:37Z",
+      "side": 1,
+      "message": "nit: remove this file from PS.",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bc4b3c58",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 1440,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-02T14:15:37Z",
+      "side": 1,
+      "message": "better to aaddress this in another review.",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1c740898",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/input/L3vpnInput.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-02T14:15:37Z",
+      "side": 1,
+      "message": "is nextHopIp required here.. can\u0027t that be taken from adjacency itslef as in \u0027nextHop\u0027.. \nOr you did this because for extra-routes this nexthopip is the OVS VTEP IP, while what equivalent adjacency would carry as nexthop IP as the tenant VM IP ?",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fc9b04c7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/intfc/VpnPopulator.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-02T14:15:37Z",
+      "side": 1,
+      "message": "everywhere please use 2017 as the year.",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9c5f580e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/intfc/VpnPopulator.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-02T14:15:37Z",
+      "side": 1,
+      "message": "do you foresee a remove equivalent for this?\n\nSomething like vpnVrfManager() that will do fib entry management, ipprefix-info management and BGP advertise/withdraw management?",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
