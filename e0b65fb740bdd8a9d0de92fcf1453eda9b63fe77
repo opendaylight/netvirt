@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_45e6a5b5",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-18T05:45:44Z",
+      "side": 1,
+      "message": "This condition is used twice. so have a predicate for macEntry \u003d\u003d null || macEntry.getIpPrefix() \u003d\u003d null.",
+      "revId": "e0b65fb740bdd8a9d0de92fcf1453eda9b63fe77",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
