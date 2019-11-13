@@ -1,0 +1,124 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_0429989a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-09T12:12:55Z",
+      "side": 1,
+      "message": "is this l2 information stored here for ease-of-access?",
+      "revId": "b2c06d358b3d951f549db75d3d10cb058e4f355a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4469e0f7",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-09T12:12:55Z",
+      "side": 1,
+      "message": "response for createEVPN RPC",
+      "revId": "b2c06d358b3d951f549db75d3d10cb058e4f355a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_24577c27",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-09T12:12:55Z",
+      "side": 1,
+      "message": "when we create an EVPN, the l2vni will not be available right?\n\nIt becomes available only when the first (and only) network is associated to that EVPN.. So why is this l2vni requested as an input for RPC here?",
+      "revId": "b2c06d358b3d951f549db75d3d10cb058e4f355a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_93b5cc7f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-10T07:11:50Z",
+      "side": 1,
+      "message": "This doesn\u0027t align with Openstack BGPVPN API for creating L2 VPNs.  I request let us not have different ways of working for L2VPN between Openstack APIs and ODL APIs.\n\nhttps://docs.openstack.org/developer/networking-bgpvpn/",
+      "parentUuid": "fafc7978_4a05690f",
+      "revId": "b2c06d358b3d951f549db75d3d10cb058e4f355a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a43a4ce4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-09T12:12:55Z",
+      "side": 1,
+      "message": "since you are returning a list of evpn-instances, shouldn\u0027t this accept a leaf-list of ids?",
+      "revId": "b2c06d358b3d951f549db75d3d10cb058e4f355a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6434e4fb",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-09T12:12:55Z",
+      "side": 1,
+      "message": "evpn-id",
+      "revId": "b2c06d358b3d951f549db75d3d10cb058e4f355a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_843d88df",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-09T12:12:55Z",
+      "side": 1,
+      "message": "this to be revisited too!\n\nOr may be that if an ID is not supplied, all L3VPN instances are returned, and we want to preserve the same behavioiur for GETEVPN ?",
+      "revId": "b2c06d358b3d951f549db75d3d10cb058e4f355a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
