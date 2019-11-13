@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_3393f2fb",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 38
+      },
+      "lineNbr": 679,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-03-24T01:00:50Z",
+      "side": 1,
+      "message": "isNotEmpty is a static so call is via ElanUtils rather than the reference",
+      "revId": "03239f28370d63dab4499d6cb11bdf4be25f7d5b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
