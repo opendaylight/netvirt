@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_a002c308",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-07-27T15:57:05Z",
+      "side": 1,
+      "message": "Typically constants would have all caps name.\n\nAlso, I\u0027m not sure if there\u0027s a preference or conventions to define log message strings as constants.  I\u0027ll leave that for the commiters to decide.",
+      "revId": "31a6886aac12057fe2eddd5281460b39812f6293",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
