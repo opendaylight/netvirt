@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3e864e66",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done\nReverted all the indentation done.",
+      "parentUuid": "fafc7978_9e081a2a",
+      "revId": "bbe0cb3d4709d3afd0498597cd2524ed43b864b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9e6dbacf",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
         "patchSetId": 20
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e07b7579",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 463,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "1. to avoid confusion i have added comments. \n2. also changed the method name to give it a more meaningful name.\n3.\nLets say  original [1, 2, 3, 4, 5]      updated [4, 5, 6, 7]\nafter execution of segregateToBeDeletedAndAddEntries method\nExistingClone \t\t\t\t\t\t\t---  [1, 2, 3, 4, 5] \noriginalStaticMacEntries    ---- [1, 2, 3]\nupdatedStaticMacEntries    \t--- \n\nNow [1, 2, 3] (originalStaticMacEntries) need to be removed. hence we are looping through originalStaticMacEntries and removing entries\nsametime  [6, 7] (updatedStaticMacEntries) need to be added. hence we are looping through updatedStaticMacEntries and adding entries\n\n\npossible scenarios\na. if orig\u003d{1,2,3,4}   and updated\u003dnull or updated\u003d{} \nthen all {1,2,3,4} should be removed\n\n\nb. if orig\u003dnull or orig\u003d{}  and  updated \u003d{1,2,3,4}\nthen all {1,2,3,4} should be added\n\n\nc. if orig \u003d {1,2,3,4} updated\u003d{2,3,4} \nthen 1 should be removed\n\nd. basically if orig \u003d { 1,2,3,4} and updated is {1,2,3,4,5}\nthen we should just add 5\n\ne. if orig \u003d {1,2,3,4} updated\u003d{2,3,4,5} \nthen 1 should be removed , 5 should be added",
+      "parentUuid": "fafc7978_9e6dbacf",
+      "revId": "bbe0cb3d4709d3afd0498597cd2524ed43b864b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_111fed0a",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 20
@@ -47,6 +83,24 @@
       "writtenOn": "2017-03-17T08:56:11Z",
       "side": 1,
       "message": "change it to Optional\u003cIpAddress\u003e",
+      "revId": "bbe0cb3d4709d3afd0498597cd2524ed43b864b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a3920cf4",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 2203,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_111fed0a",
       "revId": "bbe0cb3d4709d3afd0498597cd2524ed43b864b0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -88,6 +142,78 @@
       "side": 1,
       "message": "Riyaz, Tali is correct. You need to make sure it works for both ARP and other IPv4(v6) packets as well. \nAt least if you are not able to retrieve ip address, don\u0027t throw PacketException which leads to ignoring the mac learning. In that case, let us create MacEntry without IpAddress",
       "parentUuid": "fafc7978_a0e84d17",
+      "range": {
+        "startLine": 2206,
+        "startChar": 68,
+        "endLine": 2206,
+        "endChar": 89
+      },
+      "revId": "bbe0cb3d4709d3afd0498597cd2524ed43b864b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e3c6d415",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 2206,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_dec2a285",
+      "range": {
+        "startLine": 2206,
+        "startChar": 68,
+        "endLine": 2206,
+        "endChar": 89
+      },
+      "revId": "bbe0cb3d4709d3afd0498597cd2524ed43b864b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a0e84d17",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 2206,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "i am not so sure if ARP packets hits here. I will go through code in more detail and discuss with peers and get back on this asap",
+      "parentUuid": "fafc7978_dec2a285",
+      "range": {
+        "startLine": 2206,
+        "startChar": 68,
+        "endLine": 2206,
+        "endChar": 89
+      },
+      "revId": "bbe0cb3d4709d3afd0498597cd2524ed43b864b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_23d1fccd",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 2206,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done\nI have modified it to Optional\u003cipaddress\u003e and when IP address is not present in packet we are creating macentry with just mac address. \n\nBut i believe this case will never hit, as we are learning source ip and source mac via southbound, even for first ARP packet we will receive src ip and src mac both.",
+      "parentUuid": "fafc7978_510215b5",
       "range": {
         "startLine": 2206,
         "startChar": 68,
