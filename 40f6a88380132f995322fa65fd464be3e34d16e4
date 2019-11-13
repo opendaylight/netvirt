@@ -34,6 +34,24 @@
       "revId": "40f6a88380132f995322fa65fd464be3e34d16e4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_dff46189",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-05-26T10:03:42Z",
+      "side": 1,
+      "message": "Agree, but my concern is that when using IPv6 only subnets, I\u0027m seeing an error in karaf and this would create confusion to users. My suggestion is to change the LOG.error to LOG.debug.",
+      "parentUuid": "7af0899e_df910154",
+      "revId": "40f6a88380132f995322fa65fd464be3e34d16e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
