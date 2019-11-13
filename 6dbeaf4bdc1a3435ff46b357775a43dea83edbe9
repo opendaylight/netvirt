@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_905809fc",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_17c4133f",
+      "revId": "6dbeaf4bdc1a3435ff46b357775a43dea83edbe9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_4d056ec1",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
         "patchSetId": 9
@@ -30,6 +48,24 @@
       "writtenOn": "2017-05-03T11:42:03Z",
       "side": 1,
       "message": "yes, there can be chance with elan created with no interfaces.",
+      "revId": "6dbeaf4bdc1a3435ff46b357775a43dea83edbe9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_d071f178",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_4d056ec1",
       "revId": "6dbeaf4bdc1a3435ff46b357775a43dea83edbe9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_5c823a53",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_cdc31e89",
+      "revId": "6dbeaf4bdc1a3435ff46b357775a43dea83edbe9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_adf5facc",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
         "patchSetId": 9
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_1c49d2d0",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_adf5facc",
+      "revId": "6dbeaf4bdc1a3435ff46b357775a43dea83edbe9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_6dcf92b1",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
         "patchSetId": 9
@@ -81,6 +153,24 @@
       "writtenOn": "2017-05-03T11:42:03Z",
       "side": 1,
       "message": "why do you catch on ElanException ?",
+      "revId": "6dbeaf4bdc1a3435ff46b357775a43dea83edbe9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_fcb5ee31",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_6dcf92b1",
       "revId": "6dbeaf4bdc1a3435ff46b357775a43dea83edbe9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -110,6 +200,30 @@
     },
     {
       "key": {
+        "uuid": "ba068154_9c7ca274",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_adc05a7d",
+      "range": {
+        "startLine": 149,
+        "startChar": 34,
+        "endLine": 149,
+        "endChar": 35
+      },
+      "revId": "6dbeaf4bdc1a3435ff46b357775a43dea83edbe9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_2d3c6a93",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
         "patchSetId": 9
@@ -127,6 +241,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_9041290e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_2d3c6a93",
+      "revId": "6dbeaf4bdc1a3435ff46b357775a43dea83edbe9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_6d467225",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
         "patchSetId": 9
@@ -138,6 +270,24 @@
       "writtenOn": "2017-05-03T11:42:03Z",
       "side": 1,
       "message": "remove return",
+      "revId": "6dbeaf4bdc1a3435ff46b357775a43dea83edbe9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_303cbd93",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_6d467225",
       "revId": "6dbeaf4bdc1a3435ff46b357775a43dea83edbe9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
