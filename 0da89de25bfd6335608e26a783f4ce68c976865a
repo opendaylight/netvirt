@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_3e30cee7",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-18T11:22:55Z",
+      "side": 1,
+      "message": "it should be isIpv4PrefixNotAvailable :)\nAlso remove unnecessary brackets",
+      "revId": "0da89de25bfd6335608e26a783f4ce68c976865a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_5ebaf223",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-18T11:22:55Z",
+      "side": 1,
+      "message": "it should be stream().filter(isIpv4PrefixNotAvailable.negate()).",
+      "revId": "0da89de25bfd6335608e26a783f4ce68c976865a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
