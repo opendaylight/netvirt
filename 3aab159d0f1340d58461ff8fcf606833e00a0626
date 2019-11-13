@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_c9b24005",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 33
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-01T19:10:31Z",
+      "side": 1,
+      "message": "All you need is the lport-tag\nYou can get it from IInterfaceManager.getInterfceInfo().getInterfaceTag()",
+      "parentUuid": "fafc7978_a9125c06",
+      "revId": "3aab159d0f1340d58461ff8fcf606833e00a0626",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e642d466",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 33
