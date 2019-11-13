@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_375f2774",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/utils/ElanServiceChainUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-28T13:53:42Z",
+      "side": 1,
+      "message": "this package does exist in Genius Master (carbon), but not in Genius stable/boron. \nThis means that this commit can be landed on Netvirt Master (carbon), but not in Netvirt\u0027s stable/boron.",
+      "range": {
+        "startLine": 25,
+        "startChar": 41,
+        "endLine": 25,
+        "endChar": 48
+      },
+      "revId": "79d8a8b660265c0e8e3890250d7165f7e3408f86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
