@@ -1616,8 +1616,12 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         List<String> newVpnListCopy = new ArrayList<>();
         newVpnListCopy.addAll(newVpnList);
 
+        LOG.info("Navaneeth-First:oldVpnList={}", oldVpnList.toString());
+        LOG.info("Navaneeth-First:newVpnList={}", newVpnList.toString());
         oldVpnList.removeAll(newVpnList);
         newVpnList.removeAll(oldVpnListCopy);
+        LOG.info("Navaneeth-Second:oldVpnList={}", oldVpnList.toString());
+        LOG.info("Navaneeth-Second:newVpnList={}", newVpnList.toString());
         //This block will execute only on if there is a change in the VPN Instance.
         if (!oldVpnList.isEmpty() || !newVpnList.isEmpty()) {
             /*
