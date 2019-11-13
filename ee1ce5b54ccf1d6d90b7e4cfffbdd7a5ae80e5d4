@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_f3cbc650",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 32
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-27T18:22:42Z",
+      "side": 1,
+      "message": "2017",
+      "revId": "ee1ce5b54ccf1d6d90b7e4cfffbdd7a5ae80e5d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
