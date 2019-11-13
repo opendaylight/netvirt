@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7af0899e_43826453",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/ElanMacEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-24T07:38:41Z",
+      "side": 1,
+      "message": "it should be trace or debug.",
+      "revId": "78db9495b5d9d53b9343b43aa86cffc528ca5cbe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_a3f508cd",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-24T07:38:41Z",
+      "side": 1,
+      "message": "change return type to Optional\u003cString\u003e",
+      "revId": "78db9495b5d9d53b9343b43aa86cffc528ca5cbe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_432c244b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-24T07:38:41Z",
+      "side": 1,
+      "message": "return Optional.ofNullable(elanInfo).map(elan -\u003e elanInfo.getAugmentation(EvpnAugmentation.class)).map(evpnAug -\u003e evpnAug.getL3vpnName());",
+      "revId": "78db9495b5d9d53b9343b43aa86cffc528ca5cbe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_f8c4de60",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-24T13:04:25Z",
+      "side": 1,
+      "message": "you could ignore this comment because of jit compiler hot path optimization and GC issues while using Optional in the control path (as per Stephen\u0027s latest email).",
+      "parentUuid": "7af0899e_e316f0f0",
+      "revId": "78db9495b5d9d53b9343b43aa86cffc528ca5cbe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_e3ed50f1",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/org/opendaylight/blueprint/elanmanager.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-24T07:38:41Z",
+      "side": 1,
+      "message": "is it just added now ? I hope this was the reason why old augment listener was not initialized.",
+      "revId": "78db9495b5d9d53b9343b43aa86cffc528ca5cbe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
