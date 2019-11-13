@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_d46432e7",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-08-04T00:00:20Z",
+      "side": 1,
+      "message": "should make \u0027static\u0027 too",
+      "revId": "2c6ce27eada41a18b355fa2fb19d3dcd9da97701",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
