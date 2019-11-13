@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "da01753e_9b300a58",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/EvpnElanInstanceManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-11T10:41:39Z",
+      "side": 1,
+      "message": "shouldn\u0027t it be just with 2017 ?",
+      "revId": "f08a00bc73fcbb341d027e1633b84614aad8f69b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_1bc7fa46",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/EvpnElanInstanceManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-11T10:41:39Z",
+      "side": 1,
+      "message": "change it to final",
+      "revId": "f08a00bc73fcbb341d027e1633b84614aad8f69b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_5befc2b0",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/EvpnElanInstanceManager.java",
         "patchSetId": 11
@@ -30,6 +64,40 @@
       "writtenOn": "2017-04-11T10:41:39Z",
       "side": 1,
       "message": "can you combine all these if\u0027s together ? have a method like canAdvertiseEvpnRT2Route(original, update) returns boolean.",
+      "revId": "f08a00bc73fcbb341d027e1633b84614aad8f69b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_7bf2869b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/EvpnElanInstanceManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-11T10:41:39Z",
+      "side": 1,
+      "message": "do you really catch the Exception ? I hope you are doing it because bgpManager.advertisePrefix throws Exception. So it should be done per prefix level inside for loop at evpnUtils.advertiseEvpnRT2Route.",
+      "revId": "f08a00bc73fcbb341d027e1633b84614aad8f69b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_5b46a2c0",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnUtils.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-11T10:41:39Z",
+      "side": 1,
+      "message": "change it to final",
       "revId": "f08a00bc73fcbb341d027e1633b84614aad8f69b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -197,6 +265,23 @@
     },
     {
       "key": {
+        "uuid": "da01753e_9bf3ea72",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnUtils.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-11T10:41:39Z",
+      "side": 1,
+      "message": "there is already a method like this in FibUtil. Can you consider moving into common place like genius\u0027s itm-api ?",
+      "revId": "f08a00bc73fcbb341d027e1633b84614aad8f69b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_ec96ab93",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnUtils.java",
         "patchSetId": 11
@@ -215,6 +300,23 @@
     },
     {
       "key": {
+        "uuid": "da01753e_1bfffa35",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnUtils.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-11T10:41:39Z",
+      "side": 1,
+      "message": "these 2 methods are already exists in ElanUtils. just reuse it.",
+      "revId": "f08a00bc73fcbb341d027e1633b84614aad8f69b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_bb4b4daf",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnUtils.java",
         "patchSetId": 11
@@ -227,6 +329,91 @@
       "side": 1,
       "message": "+1...yes, please reuse code",
       "parentUuid": "da01753e_1bfffa35",
+      "revId": "f08a00bc73fcbb341d027e1633b84614aad8f69b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_1bad3a32",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnUtils.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-11T10:41:39Z",
+      "side": 1,
+      "message": "This block (106-120) can be replaced with getElanInstance(instanceIdentifier)",
+      "revId": "f08a00bc73fcbb341d027e1633b84614aad8f69b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_5ba7c24f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnUtils.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-11T10:41:39Z",
+      "side": 1,
+      "message": "change the return type to Optional\u003cElanInstance\u003e",
+      "revId": "f08a00bc73fcbb341d027e1633b84614aad8f69b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_fb6dd605",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnUtils.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-11T10:41:39Z",
+      "side": 1,
+      "message": "you dont need {} for logging e. ditto for other places.",
+      "revId": "f08a00bc73fcbb341d027e1633b84614aad8f69b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_7baa861a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnUtils.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-11T10:41:39Z",
+      "side": 1,
+      "message": "guard against null for elanName",
+      "revId": "f08a00bc73fcbb341d027e1633b84614aad8f69b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_1b741ace",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-11T10:41:39Z",
+      "side": 1,
+      "message": "change it to final",
       "revId": "f08a00bc73fcbb341d027e1633b84614aad8f69b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
