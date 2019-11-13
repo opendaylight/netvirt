@@ -1,0 +1,293 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_abcab74c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/EvpnElanInstanceManager.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-19T06:23:10Z",
+      "side": 1,
+      "message": "is this check required ? because elanName never be null. same for remove and update methods.",
+      "revId": "8f08871b3e8490b7cd2dd3a640859fca0c45bceb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_eb779f00",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnUtils.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-19T06:23:10Z",
+      "side": 1,
+      "message": "can you move these methods to EvpnUtils.java ? I don\u0027t think we need another class just for these two methods.",
+      "revId": "8f08871b3e8490b7cd2dd3a640859fca0c45bceb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_6bd28fd3",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnUtils.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-19T06:23:10Z",
+      "side": 1,
+      "message": "you don\u0027t need routeGwMac variable. just do return Optional.of(.....);",
+      "revId": "8f08871b3e8490b7cd2dd3a640859fca0c45bceb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_cb49fbb8",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnUtils.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-19T06:23:10Z",
+      "side": 1,
+      "message": "I don\u0027t think it is appropriate to depend on vpnManager to get interface mac address. just use interfaceMgr#getInterfaceInfoFromOperationalDataStore to get macAddress.\nInterfaceInfo#getMacAddress has that value.",
+      "revId": "8f08871b3e8490b7cd2dd3a640859fca0c45bceb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_4ba34b4f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-19T06:23:10Z",
+      "side": 1,
+      "message": "you could simply do it with return originalEvpnName \u003d\u003d null \u0026\u0026 updateEvpnName !\u003d null;\n\nOr it\u0027s better to do it with\n\nBiPredicate\u003cString, String\u003e isNetAttach \u003d (originalEvpnName, updateEvpnName) -\u003e originalEvpnName \u003d\u003d null \u0026\u0026 updateEvpnName !\u003d null;\n\nBiPredicate\u003cString, String\u003e isDetach \u003d (originalEvpnName, updateEvpnName) -\u003e originalEvpnName !\u003d null \u0026\u0026 updateEvpnName \u003d\u003d null;\n\nAnd use isNet(De)Attach.test(..) wherever its required.",
+      "revId": "8f08871b3e8490b7cd2dd3a640859fca0c45bceb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_ab8917cc",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-19T06:23:10Z",
+      "side": 1,
+      "message": "as I mentioned, these methods are same as above methods.",
+      "revId": "8f08871b3e8490b7cd2dd3a640859fca0c45bceb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_2bbd2769",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-19T06:23:10Z",
+      "side": 1,
+      "message": "Can\u0027t we simply do it with return isNetworkDetachedFromEvpn(original.getEvpnName(), update.getEvpnName()) || isNetDetachedFromL3vpn(original.getL3vpnName(), update.getL3vpnName()) ?",
+      "revId": "8f08871b3e8490b7cd2dd3a640859fca0c45bceb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_0bc023df",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-19T06:23:10Z",
+      "side": 1,
+      "message": "same comment as above.",
+      "revId": "8f08871b3e8490b7cd2dd3a640859fca0c45bceb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_6bb72f87",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-19T06:23:10Z",
+      "side": 1,
+      "message": "can you move this to ElanUtils ?",
+      "revId": "8f08871b3e8490b7cd2dd3a640859fca0c45bceb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_abb0f78b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-19T06:23:10Z",
+      "side": 1,
+      "message": "return Collections.EmptyList();",
+      "revId": "8f08871b3e8490b7cd2dd3a640859fca0c45bceb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_ebaaff17",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-19T06:23:10Z",
+      "side": 1,
+      "message": "you don\u0027t need null check here.",
+      "revId": "8f08871b3e8490b7cd2dd3a640859fca0c45bceb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_2b640721",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-19T06:23:10Z",
+      "side": 1,
+      "message": "what if macEntry.getIpPrefix() is null ?",
+      "revId": "8f08871b3e8490b7cd2dd3a640859fca0c45bceb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_4b718bdf",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-19T06:23:10Z",
+      "side": 1,
+      "message": "add {} for evpnAugmentation and elanName.\nsame comment for other logs",
+      "revId": "8f08871b3e8490b7cd2dd3a640859fca0c45bceb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_6b6e0f03",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-19T06:23:10Z",
+      "side": 1,
+      "message": "what if evpnName is null ? in this cased rd would be set to null too.",
+      "revId": "8f08871b3e8490b7cd2dd3a640859fca0c45bceb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_cb53bb37",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-19T06:23:10Z",
+      "side": 1,
+      "message": "is this always set to 0 ?",
+      "revId": "8f08871b3e8490b7cd2dd3a640859fca0c45bceb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_0b35c3f6",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-19T06:23:10Z",
+      "side": 1,
+      "message": "you could remove return here.",
+      "revId": "8f08871b3e8490b7cd2dd3a640859fca0c45bceb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_cb2a9b8f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/IVpnManager.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-19T06:23:10Z",
+      "side": 1,
+      "message": "this api has to be removed.",
+      "revId": "8f08871b3e8490b7cd2dd3a640859fca0c45bceb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
