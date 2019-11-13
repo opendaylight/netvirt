@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_1cd7e8c2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 46
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-02T19:11:29Z",
+      "side": 1,
+      "message": "Changes were not required for FIB remove. Existing code will suffice.\nAdvertise/Withdraw is handled in \nhttps://git.opendaylight.org/gerrit/#/c/46956",
+      "parentUuid": "fafc7978_3c7d8c6f",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_19b1baf8",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 46
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-02T13:28:25Z",
       "side": 1,
       "message": "syncUpdate is same as tx.merge with True, so why this unnecessary parameter pass with isUpdate and another syncWrite here?",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fc7944fd",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 527,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-02T19:11:29Z",
+      "side": 1,
+      "message": "calls Add/Modify of fib entries sometimes pass the configTx anmetimes they dont. Hence tx.merge and syncWrite both have been used.\nI have removed the isUpdate flag",
+      "parentUuid": "fafc7978_19b1baf8",
       "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_7cdb94ed",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 2227,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-02T19:11:29Z",
+      "side": 1,
+      "message": "Reverted to original. This change was caused due to our intial though of removing mac and ip out of routerIntfc augmentaion and adding it direectly inside vrfEntry.:) This is no longer needed.",
+      "parentUuid": "fafc7978_79d1e6fa",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f92b16e9",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnConstants.java",
         "patchSetId": 46
@@ -64,6 +118,24 @@
       "writtenOn": "2017-02-02T13:28:25Z",
       "side": 1,
       "message": "can we remove this and align with what we discussed yesterday ?\n\nOr if fixing this will take a longer time, we can do so in a subsequent review.. Please take appropriate call.",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_19189a80",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnConstants.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-02T19:11:29Z",
+      "side": 1,
+      "message": "I will be handling getting subnet gateway mac as part of the Router Association review ...\nhttps://git.opendaylight.org/gerrit/#/c/50534/ , As the router interface mac get is also handled there.",
+      "parentUuid": "fafc7978_f92b16e9",
       "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_dc9a8013",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-02T19:11:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_19bc1a69",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b9aa2e17",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 46
@@ -98,6 +188,24 @@
       "writtenOn": "2017-02-02T14:15:37Z",
       "side": 1,
       "message": "can\u0027t you reuse result of the call from Line 573?",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fcbca46e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 585,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-02T19:11:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_b9aa2e17",
       "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_37b76588",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 603,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-02T19:11:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_b9586e57",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1941ba5a",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 46
@@ -132,6 +258,24 @@
       "writtenOn": "2017-02-02T14:15:37Z",
       "side": 1,
       "message": "why do we need the second for loop here?",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b74b5558",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 634,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-02T19:11:29Z",
+      "side": 1,
+      "message": "The second loop is to ensure that the operational vpn interface is written before writing FIB and advertising prefix",
+      "parentUuid": "fafc7978_1941ba5a",
       "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9731f1ee",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 637,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-02T19:11:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_992c8aad",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_d91d7275",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 46
@@ -166,6 +328,24 @@
       "writtenOn": "2017-02-02T14:15:37Z",
       "side": 1,
       "message": "gr8 :)",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9748d15c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 807,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-02T19:11:29Z",
+      "side": 1,
+      "message": "This will be moved in the subsequent review related to iRT//eRT",
+      "parentUuid": "fafc7978_d91d7275",
       "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -189,6 +369,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b76235d6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 939,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-02T19:11:29Z",
+      "side": 1,
+      "message": "The codes changes for iRT/eRT will be handled in a subsequent review.",
+      "parentUuid": "fafc7978_1c0fe831",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_7c13945c",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 46
@@ -200,6 +398,24 @@
       "writtenOn": "2017-02-02T14:15:37Z",
       "side": 1,
       "message": "the l3vni is set to 0 here, but this will be changed in future review that addresses import/export separately?",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f79b1dc7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 942,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-02T19:11:29Z",
+      "side": 1,
+      "message": "The code changes to iRT/eRT will be handled in a subsequent review",
+      "parentUuid": "fafc7978_7c13945c",
       "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -223,6 +439,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_17ab41d9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 966,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-02T19:11:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_5c10504e",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1c26c8b7",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 46
@@ -234,6 +468,24 @@
       "writtenOn": "2017-02-02T14:15:37Z",
       "side": 1,
       "message": "why are we not advertising RT5 here.. May be that is a subsequent review again :) ?",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d7eed921",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 971,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-02T19:11:29Z",
+      "side": 1,
+      "message": "RT5 advertisement is handled by https://git.opendaylight.org/gerrit/#/c/46956",
+      "parentUuid": "fafc7978_1c26c8b7",
       "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -257,6 +509,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_579309a3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 972,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-02T19:11:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_9c1ab86c",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1c5d2822",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 46
@@ -268,6 +538,24 @@
       "writtenOn": "2017-02-02T14:15:37Z",
       "side": 1,
       "message": "are we using the getIpAddress() elsewhere and expect a different value without the \u0027/xx\u0027 ?(not in fibmanager which i already pointed)..  If so, we might be breaking something!",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_37cbe5a6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 1893,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-02T19:11:29Z",
+      "side": 1,
+      "message": "No... This is a bug.. I have reverted it back:)",
+      "parentUuid": "fafc7978_1c5d2822",
       "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -291,6 +579,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_bcfcdc3f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnRpcServiceImpl.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-02T19:11:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_7c41d438",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_bc4b3c58",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 46
@@ -302,6 +608,24 @@
       "writtenOn": "2017-02-02T14:15:37Z",
       "side": 1,
       "message": "better to aaddress this in another review.",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1ceec888",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 1440,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-02T19:11:29Z",
+      "side": 1,
+      "message": "Yes.. will be addressed in the router association review.",
+      "parentUuid": "fafc7978_bc4b3c58",
       "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -325,6 +649,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_bce5fca9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/input/L3vpnInput.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-02T19:11:29Z",
+      "side": 1,
+      "message": "Yes, thats the reason.. NexthopIp represents the TEP IP:)",
+      "parentUuid": "fafc7978_1c740898",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_fc9b04c7",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/intfc/VpnPopulator.java",
         "patchSetId": 46
@@ -342,6 +684,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_fcee648a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/intfc/VpnPopulator.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-02T19:11:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_fc9b04c7",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9c5f580e",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/intfc/VpnPopulator.java",
         "patchSetId": 46
@@ -353,6 +713,24 @@
       "writtenOn": "2017-02-02T14:15:37Z",
       "side": 1,
       "message": "do you foresee a remove equivalent for this?\n\nSomething like vpnVrfManager() that will do fib entry management, ipprefix-info management and BGP advertise/withdraw management?",
+      "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9ce2b89d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/intfc/VpnPopulator.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-02T19:11:29Z",
+      "side": 1,
+      "message": "Yes.. I have a todo at places for L3VPN subfeature that will potentially add new APIs into this interface.. I will handle them at their respective reviews.",
+      "parentUuid": "fafc7978_9c5f580e",
       "revId": "ed850508ce5112d87249fa93fa50de68e1a7c7af",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false

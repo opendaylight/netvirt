@@ -16,6 +16,24 @@
       "revId": "75f2eee01a3fc051ece33af3109ca5732f59f58f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b7819591",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 971,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-02T19:11:29Z",
+      "side": 0,
+      "message": "Error durig rebase. I have added it back",
+      "parentUuid": "fafc7978_dc2ba080",
+      "revId": "75f2eee01a3fc051ece33af3109ca5732f59f58f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
