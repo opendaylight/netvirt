@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_4c452516",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/elan.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-02-08T13:32:56Z",
+      "side": 1,
+      "message": "both are config",
+      "parentUuid": "fafc7978_09c4ef90",
+      "revId": "d79153ad0fecc94ec793611028d23fc4bb1c055a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_693c9b94",
         "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/elan.yang",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-25T13:13:52Z",
       "side": 1,
       "message": "this again isn\u0027t cohesive.. Can you please explain what use-case this serves?",
+      "revId": "d79153ad0fecc94ec793611028d23fc4bb1c055a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cc50f5d6",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/elan.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-02-08T13:32:56Z",
+      "side": 1,
+      "message": "elan-evpn is populated when we associate a network to evpn. Listener of this DS will send rts route for all the ports uner this network\nelan-extn-tep is populated whenever we get an RT2 from a new tep. the listener of this would update the BC-group based on this.",
+      "parentUuid": "fafc7978_693c9b94",
       "revId": "d79153ad0fecc94ec793611028d23fc4bb1c055a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_2c5f01e7",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-02-08T13:32:56Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "fafc7978_6952db14",
+      "revId": "d79153ad0fecc94ec793611028d23fc4bb1c055a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e9ab6bd4",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
         "patchSetId": 2
@@ -64,6 +118,24 @@
       "writtenOn": "2017-01-25T13:13:52Z",
       "side": 1,
       "message": "this division of data doesn\u0027t seem to be cohesive at all !\n\nActually you can put in the l2vni and label also into vrfEntryContents (or vrfEntryBase) and MacVrfEntries will just have only the key change to mac-address.",
+      "revId": "d79153ad0fecc94ec793611028d23fc4bb1c055a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cc6755b6",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-02-08T13:32:56Z",
+      "side": 1,
+      "message": "l2vni is never used by existing vrfentries and label is never used by macVrfEntries. So this division is better right?",
+      "parentUuid": "fafc7978_e9ab6bd4",
       "revId": "d79153ad0fecc94ec793611028d23fc4bb1c055a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_2c06e1ce",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-02-08T13:32:56Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "fafc7978_495557c5",
+      "revId": "d79153ad0fecc94ec793611028d23fc4bb1c055a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_6963fbb1",
         "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
         "patchSetId": 2
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_0c095ddd",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 370,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-02-08T13:32:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_6963fbb1",
+      "revId": "d79153ad0fecc94ec793611028d23fc4bb1c055a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2969f38b",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
         "patchSetId": 2
@@ -115,6 +223,24 @@
       "writtenOn": "2017-01-25T13:13:52Z",
       "side": 1,
       "message": "An evpn can have only one network as per the initial implementation.  So why do we have a list of network-ids below?",
+      "revId": "d79153ad0fecc94ec793611028d23fc4bb1c055a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_acf931ca",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-02-08T13:33:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_2969f38b",
       "revId": "d79153ad0fecc94ec793611028d23fc4bb1c055a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
