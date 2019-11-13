@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "da01753e_73edb38b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 2302,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_00e5f0a7",
+      "range": {
+        "startLine": 2302,
+        "startChar": 5,
+        "endLine": 2302,
+        "endChar": 13
+      },
+      "revId": "8c286341d68e81e2ecb0e243e24f9cf357416e6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_cb3949da",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 6
@@ -36,6 +60,24 @@
       "writtenOn": "2019-09-17T20:22:31Z",
       "side": 1,
       "message": "put vni here",
+      "revId": "8c286341d68e81e2ecb0e243e24f9cf357416e6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_8ef8e1e6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 2349,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "There is no l2vni parameter as part of EVPN config. We had added it earlier but later it was removed after Vivek.N comment as we are not going to use it. instead network segmentation id will be used as l2vni",
+      "parentUuid": "da01753e_cb3949da",
       "revId": "8c286341d68e81e2ecb0e243e24f9cf357416e6b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_4e871962",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 2359,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_ab3685e5",
+      "revId": "8c286341d68e81e2ecb0e243e24f9cf357416e6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_8b574102",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
         "patchSetId": 6
@@ -76,6 +136,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_4ea6f9c2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1344,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_8b574102",
+      "revId": "8c286341d68e81e2ecb0e243e24f9cf357416e6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_4b4d5972",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
         "patchSetId": 6
@@ -87,6 +165,24 @@
       "writtenOn": "2019-09-17T20:22:31Z",
       "side": 1,
       "message": "Do not use syncwrites here , create a datastore job coordinator",
+      "revId": "8c286341d68e81e2ecb0e243e24f9cf357416e6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_524e97c2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1348,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_4b4d5972",
       "revId": "8c286341d68e81e2ecb0e243e24f9cf357416e6b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
