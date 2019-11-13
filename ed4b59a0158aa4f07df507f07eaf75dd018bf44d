@@ -40,6 +40,23 @@
       "revId": "ed4b59a0158aa4f07df507f07eaf75dd018bf44d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0d20f4aa",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-24T02:21:29Z",
+      "side": 1,
+      "message": "same here. https://git.opendaylight.org/gerrit/#/c/50996/3/vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+      "revId": "ed4b59a0158aa4f07df507f07eaf75dd018bf44d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
