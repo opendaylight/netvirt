@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_9ac56d90",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/java/org/opendaylight/netvirt/elanmanager/api/ElanHelper.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_d1536e37",
+      "revId": "e723a8c2af2e461504c97cf67e865959e83b19ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_3132ba10",
         "filename": "vpnservice/elanmanager/elanmanager-api/src/main/java/org/opendaylight/netvirt/elanmanager/api/ElanHelper.java",
         "patchSetId": 20
@@ -48,6 +66,24 @@
       "side": 1,
       "message": "Ok",
       "parentUuid": "da01753e_7ae36905",
+      "revId": "e723a8c2af2e461504c97cf67e865959e83b19ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_7ae36905",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/java/org/opendaylight/netvirt/elanmanager/api/ElanHelper.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 7902
+      },
+      "writtenOn": "2019-11-13T19:19:56Z",
+      "side": 1,
+      "message": "Base code changes. Used in NAT service, VPNmanager and elan. could break any of these features. Can be taken as part of clean up work in future, instead of doing changes as part of RT2. \nif you still feel changes need to be done. i will go ahead and do it.\ni guess for modules this clean up work need to be done. (moving utility methods to helper files in api)",
+      "parentUuid": "da01753e_3132ba10",
       "revId": "e723a8c2af2e461504c97cf67e865959e83b19ba",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
