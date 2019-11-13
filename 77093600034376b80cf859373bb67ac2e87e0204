@@ -1,0 +1,125 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_a4e0e696",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-28T18:30:15Z",
+      "side": 1,
+      "message": "make all these final",
+      "revId": "77093600034376b80cf859373bb67ac2e87e0204",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_1f1d4f74",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-05-02T13:33:24Z",
+      "side": 1,
+      "message": "Seems like this might be noisy and should be reduce to DEBUG or TRACE. unless these routes are not updated that often or there are not that many, but I thought there were a lot.",
+      "parentUuid": "ba068154_045506c6",
+      "revId": "77093600034376b80cf859373bb67ac2e87e0204",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_44e77aac",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/MacVrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-28T18:30:15Z",
+      "side": 1,
+      "message": "same question - how often does this occur? Seems like a lot of INFO\u0027s here are really debug or trace.",
+      "revId": "77093600034376b80cf859373bb67ac2e87e0204",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_8404c24a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/ElanEvpnFlowUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-28T18:30:15Z",
+      "side": 1,
+      "message": "final",
+      "revId": "77093600034376b80cf859373bb67ac2e87e0204",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_c4fa4a42",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnMacVrfUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-28T18:30:15Z",
+      "side": 1,
+      "message": "final",
+      "revId": "77093600034376b80cf859373bb67ac2e87e0204",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_6401de37",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnMacVrfUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-28T18:30:15Z",
+      "side": 1,
+      "message": "remove",
+      "revId": "77093600034376b80cf859373bb67ac2e87e0204",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_df2bc792",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnMacVrfUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-05-02T13:33:24Z",
+      "side": 1,
+      "message": "how does this work? Does this remove the need to wait for vpnmanager and this is eventually called whenever the vpnmanager is available? If so, are there any concerns that vpnmanager isn\u0027t there from the beginning - I assume it comes pretty quickly, but wonder if there is a window where something happens and it isn\u0027t set yet, maybe during a cluster scenario?\n\nI still have the question though why vpnmanager is included. I don\u0027t see vpnmanager used in this class.",
+      "parentUuid": "ba068154_840f36e1",
+      "revId": "77093600034376b80cf859373bb67ac2e87e0204",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
