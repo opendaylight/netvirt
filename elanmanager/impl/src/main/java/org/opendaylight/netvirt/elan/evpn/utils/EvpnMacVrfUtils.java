@@ -88,7 +88,7 @@ public class EvpnMacVrfUtils {
 
         Uint32 elanTag = elanInstance.getElanTag();
         if (elanTag == null || elanTag.longValue() == 0L) {
-            elanTag = Uint32.valueOf(ElanUtils.retrieveNewElanTag(idManager, elanName).longValue());
+            elanTag = ElanUtils.retrieveNewElanTag(idManager, elanName);
         }
         return elanTag;
     }
