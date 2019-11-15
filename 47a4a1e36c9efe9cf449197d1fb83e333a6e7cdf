@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_5bcd88b6",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatConstants.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-28T10:06:54Z",
+      "side": 1,
+      "message": "is the groupId overlap causing any bugs for us.\n\nSince groups are retrieved using unique keys, should groupId overlap matter?",
+      "revId": "47a4a1e36c9efe9cf449197d1fb83e333a6e7cdf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
