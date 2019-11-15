@@ -19,6 +19,42 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_2dcb6aa6",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Correction: DNAT-to-DNAT and SNAT-to-DNAT",
+      "parentUuid": "fafc7978_ade75a3f",
+      "revId": "8d18cd792e90b6354ad9a1117ab8aa3a0f0e9c9a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ade75a3f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "@Kiran,\n\nCurrently, it\u0027s considered that l3vni is not valid MplsGre. But for this VNI spec, we need to use Internet-VPN VNI to be used for all inter-DC communication(DNAT-to DNAT,SNAT-t0 SNAT within DC) if OpenStackSemantics is enabled.\n\nSo, I have removed mplsgre specific check. Let me know if you foresee any issue.",
+      "parentUuid": "fafc7978_db209bf9",
+      "revId": "8d18cd792e90b6354ad9a1117ab8aa3a0f0e9c9a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_fb63df3e",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatOverVxlanUtil.java",
         "patchSetId": 8
@@ -30,6 +66,24 @@
       "writtenOn": "2017-03-30T12:23:50Z",
       "side": 1,
       "message": "What is the plan - merge both pieces then migrate to something common? Or can it be done now as I think the other code is merged.",
+      "revId": "8d18cd792e90b6354ad9a1117ab8aa3a0f0e9c9a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8d9a566c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatOverVxlanUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done. Moved the common code to NatUtil.",
+      "parentUuid": "fafc7978_fb63df3e",
       "revId": "8d18cd792e90b6354ad9a1117ab8aa3a0f0e9c9a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
