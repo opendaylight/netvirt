@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_74111603",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnNodeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-28T12:55:34Z",
+      "side": 1,
+      "message": "can we use DTCN here please?",
+      "revId": "e770a6f8bd0cbe34ad0487fbf76d31007e6a8f3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
