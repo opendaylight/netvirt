@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_ca53076b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 626,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-02T16:27:39Z",
+      "side": 1,
+      "message": "I\u0027m guessing this is required for the reebot case where, extra routes will be processes as existing interface adjacencies. In this case, addExtraRoute will create FIB(which already exists) and also updates the vpnToExtraroutes. However, FIB is written again by pupulateFib() in line 640.\nPlease see if we can add a if(isPrimaryAdjacency) in line640. \nBecause for non-reboot case extra route will not be processed here. and during reboot extraroute fib creation will be handled in ur above code. So, if(isPrimaryAdjacency) @640 will prevent additional fib overwriting. So, please add this check there.\n\nP.S : I would recommend (and I guess would be a better approach) to keep populateFib as it is, and remove lines 623-626(addExtraRoute(), and inaddition populate vpnToExtraRoute() within processVpnAdjacencies() for non-primary adjacencies.",
+      "range": {
+        "startLine": 623,
+        "startChar": 12,
+        "endLine": 626,
+        "endChar": 88
+      },
+      "revId": "433db8a38230c9a2d6b10eb031c49ae867b1ef6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
