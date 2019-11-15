@@ -99,6 +99,29 @@
       "revId": "7a00f38db9fb8eef2c34b99463b6fa7297a3eb6d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c93f58d5",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Would like know under if there is any specific scenario, the data went missing from DS - odl-nat/router-id-name/routerIds which resulted in this exception. Currently, the only place the entry added to this DS is ExternalRoutersListener.add() and currently not handled to remove it in  ExternalRoutersListener.remove(). So, if this DS is cleared explicitly by operator, post which RouterDpnChangeListener.add() is triggered, then this exception might be encountered.",
+      "range": {
+        "startLine": 401,
+        "startChar": 28,
+        "endLine": 401,
+        "endChar": 59
+      },
+      "revId": "7a00f38db9fb8eef2c34b99463b6fa7297a3eb6d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
