@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_642687bc",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 760,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-04-04T17:54:48Z",
+      "side": 1,
+      "message": "I think using getIpAddress().getValue() should be more robust as it allows also ipv6 TEP ips",
+      "range": {
+        "startLine": 760,
+        "startChar": 49,
+        "endLine": 760,
+        "endChar": 91
+      },
+      "revId": "ba7651add85b3927ccd8a6958da7ad7993008df3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
