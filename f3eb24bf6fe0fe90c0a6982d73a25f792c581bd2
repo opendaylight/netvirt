@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "da01753e_338499d3",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 7970
+      },
+      "writtenOn": "2019-11-15T18:58:40Z",
+      "side": 1,
+      "message": "Its not showing correctly.. line is 115 chars long.",
+      "parentUuid": "da01753e_fa12e6b2",
+      "range": {
+        "startLine": 135,
+        "startChar": 0,
+        "endLine": 135,
+        "endChar": 114
+      },
+      "revId": "f3eb24bf6fe0fe90c0a6982d73a25f792c581bd2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_7a26f617",
         "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronPortChangeListener.java",
         "patchSetId": 2
@@ -83,6 +107,30 @@
       "writtenOn": "2019-11-12T19:00:34Z",
       "side": 1,
       "message": "These APIs are already available in MDSALUtil.",
+      "range": {
+        "startLine": 564,
+        "startChar": 26,
+        "endLine": 564,
+        "endChar": 51
+      },
+      "revId": "f3eb24bf6fe0fe90c0a6982d73a25f792c581bd2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_a14b0186",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 564,
+      "author": {
+        "id": 7970
+      },
+      "writtenOn": "2019-11-15T18:58:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_9a747afe",
       "range": {
         "startLine": 564,
         "startChar": 26,
