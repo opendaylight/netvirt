@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "ba068154_8ecc2563",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-19T07:10:38Z",
+      "side": 1,
+      "message": "shouldn\u0027t it be trace ?",
+      "revId": "b6ad9485099bdf03a042f4ec7a8f94c83f9bf6b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_ced62df1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-19T07:10:38Z",
+      "side": 1,
+      "message": "use stream.filter",
+      "revId": "b6ad9485099bdf03a042f4ec7a8f94c83f9bf6b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_0e083590",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 1
