@@ -37,6 +37,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_4fffb0aa",
+        "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat-rpc.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-16T16:55:34Z",
+      "side": 1,
+      "message": "it would be good to have a facility to \nget_nat_translations_for_ipaddress(network, ipaddress)\n\nwill help quick retrieval of an external ip used for an internal ip represented by ip address.",
+      "revId": "a4c19d314dc9744cd900ac03386d7b0a793a65b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_cfce00b4",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/rpcservice/NatRpcServiceImpl.java",
         "patchSetId": 4
@@ -71,6 +88,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_20cfd980",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/rpcservice/NatRpcServiceImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-17T11:13:03Z",
+      "side": 1,
+      "message": "FOr that this error is incorrect.  For that case, we must say\n\n\u0027Not a valid external vpn\u0027",
+      "parentUuid": "fafc7978_eaac92a2",
+      "revId": "a4c19d314dc9744cd900ac03386d7b0a793a65b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_6f56f4d3",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/rpcservice/NatRpcServiceImpl.java",
         "patchSetId": 4
@@ -82,6 +117,23 @@
       "writtenOn": "2017-02-16T16:55:34Z",
       "side": 1,
       "message": "this is wrong error.  we must say \n\u0027No Router found with UUID \u003cxxx\u003e\u0027",
+      "revId": "a4c19d314dc9744cd900ac03386d7b0a793a65b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_efcb04a3",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/rpcservice/NatRpcServiceImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-16T16:55:34Z",
+      "side": 1,
+      "message": "construct",
       "revId": "a4c19d314dc9744cd900ac03386d7b0a793a65b1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
