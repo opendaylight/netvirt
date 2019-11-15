@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_e7254a0b",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/IpAddressSource.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Do we require this new Enum defined. Instead can we make use of existing IpAddressSource everywhere(as this is the final type expected in updateVpnToDpnMapping()). Latest Uploaded patchset has the change on removing this class and making use of existing IpAddressSource.(Request to let me know if till need to retain this class)\n\n\u003ci\u003eodl-l3vpn/vpn-instance-op-data/vpn-instance-op-data-entry/vpn-to-dpn-list/ip-addresses\u003c/i\u003e",
+      "revId": "1e701325dd22594e9226a5b3de37d6edc1aee292",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_e77b8a27",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
         "patchSetId": 5
@@ -30,6 +47,24 @@
       "writtenOn": "2017-06-24T14:36:44Z",
       "side": 1,
       "message": "this should use IpAddressSource.FloatingIP directly .",
+      "revId": "1e701325dd22594e9226a5b3de37d6edc1aee292",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_c722c600",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Since, newly added IpAddressSource class is not required, value can be passed using CreateFibEntryInput.IpAddressSource.FloatingIP",
+      "parentUuid": "fa2559ec_e77b8a27",
       "revId": "1e701325dd22594e9226a5b3de37d6edc1aee292",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +88,24 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_272002f7",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Since, newly added IpAddressSource class is not required, value can be passed using RemoveFibEntryInput.IpAddressSource.FloatingIP",
+      "parentUuid": "fa2559ec_c778062e",
+      "revId": "1e701325dd22594e9226a5b3de37d6edc1aee292",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_2776423f",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
         "patchSetId": 5
@@ -64,6 +117,24 @@
       "writtenOn": "2017-06-24T14:36:44Z",
       "side": 1,
       "message": "make this one common method in some common place... Better would be to place this in a file that goes inside natservice-api",
+      "revId": "1e701325dd22594e9226a5b3de37d6edc1aee292",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_071dfebd",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 2090,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Thought of having it in NatUtil class. Added new API\n\n    public static String validateAndAddNetworkMask(String ipAddress) {\n        return ipAddress.contains(\"/32\") ? ipAddress : (ipAddress + \"/32\");\n    }",
+      "parentUuid": "fa2559ec_2776423f",
       "revId": "1e701325dd22594e9226a5b3de37d6edc1aee292",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
