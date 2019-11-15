@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_23b7a0f6",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatOverVxlanUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "This API will be called when NAT Services comes up(DNAT- when FIP is associated. SNAT - when an NAPT switch is elected).",
+      "revId": "8b4e8246f5ca956a031726aba733715c381b29bc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_69aea92f",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/yang/neutronvpn-config.yang",
         "patchSetId": 5
@@ -14,6 +31,40 @@
       "side": 1,
       "message": "SSeparate patch better.  use that with vni-forwarding topic name.",
       "parentUuid": "fafc7978_63cc088a",
+      "revId": "8b4e8246f5ca956a031726aba733715c381b29bc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_63cc088a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/yang/neutronvpn-config.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Making only the required leaf elements ass deprecated(where the whole container is made deprecated in review - https://git.opendaylight.org/gerrit/#/c/49093/).\n\n\nRequest to let me know if an seperate patch to be raised(as we have yang change again)",
+      "revId": "8b4e8246f5ca956a031726aba733715c381b29bc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_83eaccd8",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnConstants.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Moved the VPN_POOL range to 100000-130000(which was 70000-100000 earlier)",
       "revId": "8b4e8246f5ca956a031726aba733715c381b29bc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
