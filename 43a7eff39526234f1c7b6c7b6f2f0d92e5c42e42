@@ -1,0 +1,243 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_b4cb1e1d",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T05:19:57Z",
+      "side": 1,
+      "message": "copyright fix",
+      "revId": "43a7eff39526234f1c7b6c7b6f2f0d92e5c42e42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_94e6dab2",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T05:19:57Z",
+      "side": 1,
+      "message": "you can use caps here as in L3VPN allcaps is being used as job prefix \u0027NATFLOW\u0027.",
+      "revId": "43a7eff39526234f1c7b6c7b6f2f0d92e5c42e42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f4d5a6b9",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T05:19:57Z",
+      "side": 1,
+      "message": "why Renderer prefix here :) ?\n\nYou are assingning NatFlowRmoveWoker to natSateAdddWorker ;).  Are you sure?",
+      "revId": "43a7eff39526234f1c7b6c7b6f2f0d92e5c42e42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d4efc285",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T05:19:57Z",
+      "side": 1,
+      "message": "for which interface?",
+      "revId": "43a7eff39526234f1c7b6c7b6f2f0d92e5c42e42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_14eaea74",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T05:19:57Z",
+      "side": 1,
+      "message": "this should be ERROR.",
+      "revId": "43a7eff39526234f1c7b6c7b6f2f0d92e5c42e42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f4ec8691",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T05:19:57Z",
+      "side": 1,
+      "message": "for interface?",
+      "revId": "43a7eff39526234f1c7b6c7b6f2f0d92e5c42e42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5403d241",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T05:19:57Z",
+      "side": 1,
+      "message": "for interface?",
+      "revId": "43a7eff39526234f1c7b6c7b6f2f0d92e5c42e42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_34fe0e39",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatInterfaceStateChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T05:19:57Z",
+      "side": 1,
+      "message": "what is the difference between this file and the previous file.\n\nBoth seem to listen only on InterfaceState..",
+      "revId": "43a7eff39526234f1c7b6c7b6f2f0d92e5c42e42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5afadbbd",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatInterfaceStateChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T11:36:22Z",
+      "side": 1,
+      "message": "Please remember to take care of this during the EVPN feature.",
+      "parentUuid": "fafc7978_1722eca3",
+      "revId": "43a7eff39526234f1c7b6c7b6f2f0d92e5c42e42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_748ff6cc",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatInterfaceStateChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T05:19:57Z",
+      "side": 1,
+      "message": "rename this in allcaps appropriately.",
+      "revId": "43a7eff39526234f1c7b6c7b6f2f0d92e5c42e42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_74f89649",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatInterfaceStateChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T05:19:57Z",
+      "side": 1,
+      "message": "comments in previous file apply here too.",
+      "revId": "43a7eff39526234f1c7b6c7b6f2f0d92e5c42e42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_548ab2bf",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatInterfaceStateChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T05:19:57Z",
+      "side": 1,
+      "message": "which interface?  Also please use NAT Service prefix in all ERROR messages in all files of this reveiew.",
+      "revId": "43a7eff39526234f1c7b6c7b6f2f0d92e5c42e42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b4995e21",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatInterfaceStateChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T05:19:57Z",
+      "side": 1,
+      "message": "this check is already done by the callers. why here again?",
+      "revId": "43a7eff39526234f1c7b6c7b6f2f0d92e5c42e42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d496a2ef",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatInterfaceStateChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T05:19:57Z",
+      "side": 1,
+      "message": "this check is already done by the callers, why here again?",
+      "revId": "43a7eff39526234f1c7b6c7b6f2f0d92e5c42e42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
