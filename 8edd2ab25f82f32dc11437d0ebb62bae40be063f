@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_f96cab38",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 661,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-24T10:46:50Z",
+      "side": 1,
+      "message": "can you change it to primaryRd ?",
+      "revId": "8edd2ab25f82f32dc11437d0ebb62bae40be063f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b95a2381",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 675,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-24T10:46:50Z",
+      "side": 1,
+      "message": "can you guard against list.get(0) to avoid ArrayIndexOutofBoundsException ? Also add comment that this is needed only to get tep ip address.",
+      "revId": "8edd2ab25f82f32dc11437d0ebb62bae40be063f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_394e33c2",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 695,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-24T10:46:50Z",
+      "side": 1,
+      "message": "Don\u0027t we need to do it for all the nexthops ?",
+      "revId": "8edd2ab25f82f32dc11437d0ebb62bae40be063f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_59bfb760",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 727,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-24T10:46:50Z",
+      "side": 1,
+      "message": "change argument to ipAddressOrPrefix",
+      "revId": "8edd2ab25f82f32dc11437d0ebb62bae40be063f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_79639b1a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 728,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-24T10:46:50Z",
+      "side": 1,
+      "message": "can you move / to a PREFIX_SEPARATOR constant ?",
+      "revId": "8edd2ab25f82f32dc11437d0ebb62bae40be063f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7918bb84",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1295,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-24T10:46:50Z",
+      "side": 1,
+      "message": "change it to primaryRd",
+      "revId": "8edd2ab25f82f32dc11437d0ebb62bae40be063f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_591b3780",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1309,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-24T10:46:50Z",
+      "side": 1,
+      "message": "this can lead to AIOBE. provide PreConditions in such occurrences.",
+      "revId": "8edd2ab25f82f32dc11437d0ebb62bae40be063f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a40cb63c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1306,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-24T10:46:50Z",
+      "side": 1,
+      "message": "also check nhList !\u003d null",
+      "revId": "8edd2ab25f82f32dc11437d0ebb62bae40be063f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
