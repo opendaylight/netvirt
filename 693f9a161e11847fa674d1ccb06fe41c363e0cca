@@ -264,6 +264,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_cc56e1cd",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-08T12:54:17Z",
+      "side": 1,
+      "message": "This is better done before deleteDpn() method above i.e, before Line 90.",
+      "parentUuid": "7a6b29fe_09862713",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_099d8759",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 1
@@ -345,6 +363,24 @@
       "writtenOn": "2016-08-30T05:41:15Z",
       "side": 1,
       "message": "Nit: remove tabs",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_e9912b48",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 564,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-01T12:34:10Z",
+      "side": 1,
+      "message": "You should be using writeInvTxn since this goes to Inventory Shard ..",
+      "parentUuid": "7a6b29fe_012a892b",
       "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
