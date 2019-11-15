@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_88df72d5",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatOverVxlanUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_2841260b",
+      "revId": "6de71f21ca7bd13a464cb4999716f31716c7908e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a854f6c9",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatOverVxlanUtil.java",
         "patchSetId": 8
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-07T05:16:43Z",
       "side": 1,
       "message": "will this always be non-null?",
+      "revId": "6de71f21ca7bd13a464cb4999716f31716c7908e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4800ea33",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatOverVxlanUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Yes. Since we have defined default values in netvirt-neutronvpn-config.xml, we will not get null",
+      "parentUuid": "fafc7978_a854f6c9",
       "revId": "6de71f21ca7bd13a464cb4999716f31716c7908e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_88f6525b",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatOverVxlanUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_c83dfa90",
+      "revId": "6de71f21ca7bd13a464cb4999716f31716c7908e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_88b81212",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatOverVxlanUtil.java",
         "patchSetId": 8
@@ -64,6 +118,24 @@
       "writtenOn": "2017-03-07T05:16:43Z",
       "side": 1,
       "message": "L small case l rquired in Light.",
+      "revId": "6de71f21ca7bd13a464cb4999716f31716c7908e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_688cceda",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatOverVxlanUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_88b81212",
       "revId": "6de71f21ca7bd13a464cb4999716f31716c7908e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_c8c21ae8",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/RouterDpnChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_c864daba",
+      "revId": "6de71f21ca7bd13a464cb4999716f31716c7908e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_6875ee62",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManagerImpl.java",
         "patchSetId": 8
@@ -98,6 +188,24 @@
       "writtenOn": "2017-03-07T05:16:43Z",
       "side": 1,
       "message": "you have to change INeutronVPNManager to embrace these two public methods too right?",
+      "revId": "6de71f21ca7bd13a464cb4999716f31716c7908e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_68b32e98",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManagerImpl.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Yes. That change is already incoperated as part of this review",
+      "parentUuid": "fafc7978_6875ee62",
       "revId": "6de71f21ca7bd13a464cb4999716f31716c7908e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_28d126cd",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnConstants.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_28f3e60a",
+      "revId": "6de71f21ca7bd13a464cb4999716f31716c7908e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c8efba1c",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnConstants.java",
         "patchSetId": 8
@@ -132,6 +258,24 @@
       "writtenOn": "2017-03-07T05:03:57Z",
       "side": 1,
       "message": "rename this as VPN_IDPOOL_HIGH",
+      "revId": "6de71f21ca7bd13a464cb4999716f31716c7908e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_68de8ede",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnConstants.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_c8efba1c",
       "revId": "6de71f21ca7bd13a464cb4999716f31716c7908e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
