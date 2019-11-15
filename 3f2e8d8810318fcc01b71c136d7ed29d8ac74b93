@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_3d3c732f",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-07T12:41:50Z",
+      "side": 1,
+      "message": "remove this line.",
+      "revId": "3f2e8d8810318fcc01b71c136d7ed29d8ac74b93",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
