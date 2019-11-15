@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_950d4d93",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 633,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T13:21:11Z",
+      "side": 1,
+      "message": "in the next review, fill the primaryRd here itself and provide it to populators, so they need not make another DS read from inside of each populator.",
+      "revId": "c5a3a287c7ca0bb978bfe3ad41f84391684453e3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_955b8d86",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1611,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T13:21:11Z",
+      "side": 1,
+      "message": "super catch :)",
+      "range": {
+        "startLine": 1611,
+        "startChar": 56,
+        "endLine": 1611,
+        "endChar": 57
+      },
+      "revId": "c5a3a287c7ca0bb978bfe3ad41f84391684453e3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f54939b8",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 6
