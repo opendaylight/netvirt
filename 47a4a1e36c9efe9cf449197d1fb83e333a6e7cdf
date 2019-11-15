@@ -16,6 +16,24 @@
       "revId": "47a4a1e36c9efe9cf449197d1fb83e333a6e7cdf",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_95bdf4b9",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatConstants.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "There is no Bug as of now.\n\nBut, from flows point of view, what if we have two flows(1-elan,2-nat) which has same groupId (Since the groupID are retrieved from two different pool here)\n\nEx:\n\nNAT(Non-NAPT to NAT flow)\ncookie\u003d0x8000006, duration\u003d3030.956s, table\u003d26, n_packets\u003d349, n_bytes\u003d27343, priority\u003d5,ip,metadata\u003d0x251d4/0xfffffffe actions\u003dset_field:0x128ea-\u003etun_id,group:205003\n\nGroup Dump\n\ngroup_id\u003d212006,type\u003dall,bucket\u003dactions\u003dgroup:212005,bucket\u003dactions\u003dset_field:0x1773-\u003etun_id,output:1\ngroup_id\u003d212010,type\u003dall,bucket\u003dactions\u003dgroup:212009,bucket\u003dactions\u003dset_field:0x1775-\u003etun_id,output:1\ngroup_id\u003d212000,type\u003dall,bucket\u003dactions\u003dgroup:211999,bucket\u003dactions\u003dset_field:0x1770-\u003etun_id,output:1\ngroup_id\u003d212001,type\u003dall,bucket\u003dactions\u003dset_field:0x199f-\u003etun_id,resubmit(,55)\n\ngroup_id\u003d205003,type\u003dall,bucket\u003dactions\u003doutput:1",
+      "parentUuid": "fafc7978_5bcd88b6",
+      "revId": "47a4a1e36c9efe9cf449197d1fb83e333a6e7cdf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
