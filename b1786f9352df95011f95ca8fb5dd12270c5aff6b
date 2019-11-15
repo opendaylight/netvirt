@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_877682a2",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1178,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2016-09-08T14:44:29Z",
+      "side": 1,
+      "message": "I\u0027m not sure how the floating IP data is getting into the neutronvpn:neutron-vpn-portip-port-data model.\n\nWhen I tested this commit code - the floating IP data was not part of this model.\n\nMaybe we should use the neutron:neutron/ports model?",
+      "revId": "b1786f9352df95011f95ca8fb5dd12270c5aff6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
