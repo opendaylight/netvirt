@@ -16,6 +16,24 @@
       "revId": "563a323402b6e98024aff51e27fd3a33152dc423",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_8218f2d3",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 710,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-09-27T05:25:18Z",
+      "side": 1,
+      "message": "Before selecting NAPT switch (First time), we will be validating existing VXLAN VNI pool if exist any, else we will be creating new VXLAN VNI pool for NAT. \n\nFor VXLAN network, already taken care for getting l3vni value as below manner.\n\nIf BGP-VPN is configured with l3vni value, will use the same value for programming NAT related flows. If not configured will carve-out the l3vni value from the existing NAT pool. (Already allocated at the time NAPT switch selection)\n\nPlease let me know how to proceed further on this approach.",
+      "parentUuid": "ba1f61a0_03a24b4a",
+      "revId": "563a323402b6e98024aff51e27fd3a33152dc423",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
