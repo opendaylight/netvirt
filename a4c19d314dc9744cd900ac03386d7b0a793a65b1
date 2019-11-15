@@ -54,6 +54,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_eff4a4f3",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1670,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-16T16:55:34Z",
+      "side": 1,
+      "message": "is there a reason why you are givin full path here?",
+      "range": {
+        "startLine": 1670,
+        "startChar": 53,
+        "endLine": 1670,
+        "endChar": 54
+      },
+      "revId": "a4c19d314dc9744cd900ac03386d7b0a793a65b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_cfce00b4",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/rpcservice/NatRpcServiceImpl.java",
         "patchSetId": 4
@@ -134,6 +157,23 @@
       "writtenOn": "2017-02-16T16:55:34Z",
       "side": 1,
       "message": "construct",
+      "revId": "a4c19d314dc9744cd900ac03386d7b0a793a65b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8f0998df",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/rpcservice/NatRpcServiceImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-16T16:55:34Z",
+      "side": 1,
+      "message": "fipPorts.isEmpty()",
       "revId": "a4c19d314dc9744cd900ac03386d7b0a793a65b1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
