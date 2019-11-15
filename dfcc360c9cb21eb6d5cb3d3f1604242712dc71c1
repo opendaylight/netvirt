@@ -1,0 +1,112 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_1eb7793b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-25T08:09:19Z",
+      "side": 1,
+      "message": "is this info necessary?",
+      "range": {
+        "startLine": 155,
+        "startChar": 69,
+        "endLine": 156,
+        "endChar": 75
+      },
+      "revId": "dfcc360c9cb21eb6d5cb3d3f1604242712dc71c1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7ea845db",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-25T08:09:19Z",
+      "side": 1,
+      "message": "VniRangesConfig",
+      "revId": "dfcc360c9cb21eb6d5cb3d3f1604242712dc71c1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_deb05145",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2222,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-25T08:09:19Z",
+      "side": 1,
+      "message": "VniRanges",
+      "revId": "dfcc360c9cb21eb6d5cb3d3f1604242712dc71c1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_feb3954a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2226,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-25T08:09:19Z",
+      "side": 1,
+      "message": "if a config is present, that will be used. But why can\u0027t the config be always present with the default range we discussed?\n\nInitially we can restrict to single-low:single-how\n\nPlease refer to vni_ranges parameter value proposition and formatting in neutron.conf/ ml2_conf.ini and follow the same way here.",
+      "revId": "dfcc360c9cb21eb6d5cb3d3f1604242712dc71c1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bead8deb",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2238,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-25T08:09:19Z",
+      "side": 1,
+      "message": "Failed to create OpenDaylight VXLAN VNI range pool.",
+      "revId": "dfcc360c9cb21eb6d5cb3d3f1604242712dc71c1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3e899d75",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/resources/initial/netvirt-opendaylight-vni-range-config.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-25T08:09:19Z",
+      "side": 1,
+      "message": "this overlaps with vpn-pool-range right?\n\nI don\u0027t remember what we finalized, please make me recollect :)",
+      "revId": "dfcc360c9cb21eb6d5cb3d3f1604242712dc71c1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
