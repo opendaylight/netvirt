@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_26a5e3b5",
+        "filename": "vpnservice/qosservice/impl/src/main/resources/org/opendaylight/blueprint/qosservice.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-03-03T21:30:55Z",
+      "side": 1,
+      "message": "whitespace",
+      "revId": "a186614c94db4833385f4e91ef8d98a9808b0388",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
