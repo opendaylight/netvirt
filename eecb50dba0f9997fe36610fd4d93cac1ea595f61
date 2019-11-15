@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_ebd79021",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 864,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Is this additional query to validate VrfEntry before performing delete required ??\n\nMay be we can catch appropriate exception and log it, if the FibEntry is actually missing DS.",
+      "range": {
+        "startLine": 864,
+        "startChar": 17,
+        "endLine": 864,
+        "endChar": 31
+      },
+      "revId": "eecb50dba0f9997fe36610fd4d93cac1ea595f61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
