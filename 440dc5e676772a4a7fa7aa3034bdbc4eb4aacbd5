@@ -20,6 +20,41 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e0a03145",
+        "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat-rpc.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_0078d529",
+      "revId": "440dc5e676772a4a7fa7aa3034bdbc4eb4aacbd5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2526cbce",
+        "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat-rpc.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "I did\u0027t find any reference on how we can order the json output (ordered-by can only be used to order the elements with-in list - https://tools.ietf.org/html/rfc6020#section-7.7.5). Any pointers to example would be appreciated.",
+      "revId": "440dc5e676772a4a7fa7aa3034bdbc4eb4aacbd5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_601e0165",
         "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat-rpc.yang",
         "patchSetId": 7
@@ -32,6 +67,41 @@
       "side": 1,
       "message": "it may be good to quote this difference in other two RPCs too.  Possible to do that?",
       "parentUuid": "fafc7978_c53fffd4",
+      "revId": "440dc5e676772a4a7fa7aa3034bdbc4eb4aacbd5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_80996521",
+        "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat-rpc.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Added description for each of the input and output parameter.",
+      "parentUuid": "fafc7978_601e0165",
+      "revId": "440dc5e676772a4a7fa7aa3034bdbc4eb4aacbd5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c53fffd4",
+        "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat-rpc.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "This Parameter added to show whether the external ip obtained is from SNAT or DNAT.",
       "revId": "440dc5e676772a4a7fa7aa3034bdbc4eb4aacbd5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
