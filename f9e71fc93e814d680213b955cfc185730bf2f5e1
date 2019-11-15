@@ -34,6 +34,24 @@
       "revId": "f9e71fc93e814d680213b955cfc185730bf2f5e1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_56d8411d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Hi Vivek,\n\nSince, we are trying to figure out whether ARP request punt to controller happened due to missing 81 flow(for FIP) or due to missing 81 flow(for VM router interface) and these ARP request will be of Non-Gratuitous(correct me if i\u0027m wrong)\n\nIf, enabling this bloats the karaf logs, then I think its better to keep it in trace and we can only identify if there are any issue in installing 81 rule(with info logs added in installflow).",
+      "parentUuid": "da01753e_b637edaf",
+      "revId": "f9e71fc93e814d680213b955cfc185730bf2f5e1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
