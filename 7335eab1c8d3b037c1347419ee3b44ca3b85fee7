@@ -1,0 +1,412 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_ba441375",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/IVpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-05T11:41:50Z",
+      "side": 1,
+      "message": "I think you can make existing addExtraRoute as deprecated with proper documentation (i.e. this can be used when extra route having only one next hop or same prefix having two different MPLS labels)\n\nAnd add another API which consumes vpnName as an argument. I think in this case you don\u0027t have to provide rd and routerID when vpnname is provided.",
+      "revId": "7335eab1c8d3b037c1347419ee3b44ca3b85fee7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_fa5deb49",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-05T11:41:50Z",
+      "side": 1,
+      "message": "change the description like \"The vrf-id configures unique route distinguisher (RD) for each ipv4 or ipv6 prefix when its nexthop-ip-list connected to same compute node\"",
+      "revId": "7335eab1c8d3b037c1347419ee3b44ca3b85fee7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ee57f000",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-05T11:41:50Z",
+      "side": 1,
+      "message": "you can make VpnUtil.getPrimaryRd to return which eitherprimaryRd if it is available or vpnName.",
+      "revId": "7335eab1c8d3b037c1347419ee3b44ca3b85fee7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6e4be059",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-05T11:41:50Z",
+      "side": 1,
+      "message": "If you do the above, you don\u0027t need if-else here.",
+      "revId": "7335eab1c8d3b037c1347419ee3b44ca3b85fee7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ce7314b0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-05T11:41:50Z",
+      "side": 1,
+      "message": "This has to be done only for primary rd. isn\u0027t it ?",
+      "revId": "7335eab1c8d3b037c1347419ee3b44ca3b85fee7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4e5f040f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-05T11:41:50Z",
+      "side": 1,
+      "message": "you can remove these two lines of code.",
+      "revId": "7335eab1c8d3b037c1347419ee3b44ca3b85fee7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ceaaf4d3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-05T11:41:50Z",
+      "side": 1,
+      "message": "is rd is being used anywhere ? Just remove it if not required.",
+      "revId": "7335eab1c8d3b037c1347419ee3b44ca3b85fee7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ee7c1075",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-05T11:41:50Z",
+      "side": 1,
+      "message": "can you a have method like isBgpVpn(VpnInstance) for this ?",
+      "revId": "7335eab1c8d3b037c1347419ee3b44ca3b85fee7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2ec44891",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-05T11:41:50Z",
+      "side": 1,
+      "message": "I don\u0027t think we need too many if-else to update VpnInstanceOpDataEntry since setting primaryRd,vpnId and vpnInstanceName values are generic for both vpn\u0027s. only below code from 425-439 should be set for bgp vpn.",
+      "revId": "7335eab1c8d3b037c1347419ee3b44ca3b85fee7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4e8d447b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-05T11:41:50Z",
+      "side": 1,
+      "message": "use stream to update vrf for each rd since each tasks are independent.",
+      "revId": "7335eab1c8d3b037c1347419ee3b44ca3b85fee7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_eeb410f4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-05T11:41:50Z",
+      "side": 1,
+      "message": "same as earlier comment",
+      "revId": "7335eab1c8d3b037c1347419ee3b44ca3b85fee7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6e4920d0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 532,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-05T11:41:50Z",
+      "side": 1,
+      "message": "same comment as before.",
+      "revId": "7335eab1c8d3b037c1347419ee3b44ca3b85fee7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ce1154ae",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 598,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-05T11:41:50Z",
+      "side": 1,
+      "message": "remove this line.",
+      "revId": "7335eab1c8d3b037c1347419ee3b44ca3b85fee7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6e2000f8",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 871,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-05T11:41:50Z",
+      "side": 1,
+      "message": "can you return empty list if rd is not present ?",
+      "revId": "7335eab1c8d3b037c1347419ee3b44ca3b85fee7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4e7424fd",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-05T11:41:50Z",
+      "side": 1,
+      "message": "you can have another method like getPrimaryRdforBgpVpn(vpnName) which can return Optional\u003cstring\u003e",
+      "revId": "7335eab1c8d3b037c1347419ee3b44ca3b85fee7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_0e518c62",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-05T11:41:50Z",
+      "side": 1,
+      "message": "you can simply use return read(..)..orNull();",
+      "revId": "7335eab1c8d3b037c1347419ee3b44ca3b85fee7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_aec7b811",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-05T11:41:50Z",
+      "side": 1,
+      "message": "you can simply replace with single method call with my older review comment.",
+      "revId": "7335eab1c8d3b037c1347419ee3b44ca3b85fee7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_eee8907e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-05T11:41:50Z",
+      "side": 1,
+      "message": "change the method like getPrimaryRdFromVpnInstance(VpnInstance vpnInstance)",
+      "revId": "7335eab1c8d3b037c1347419ee3b44ca3b85fee7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f120719d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-05T11:41:50Z",
+      "side": 1,
+      "message": "do the deep-copy before returning it.",
+      "revId": "7335eab1c8d3b037c1347419ee3b44ca3b85fee7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4ef9c44c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1428,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-05T11:41:50Z",
+      "side": 1,
+      "message": "let us use vrfid that is being stored in vpninstanceopdata. because we may not be sure passed rds will reflect the list stored in config ds.",
+      "revId": "7335eab1c8d3b037c1347419ee3b44ca3b85fee7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_1137ede4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1431,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-05T11:41:50Z",
+      "side": 1,
+      "message": "change the return type to Optional\u003cString\u003e",
+      "revId": "7335eab1c8d3b037c1347419ee3b44ca3b85fee7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_11108d4d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1435,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-05T11:41:50Z",
+      "side": 1,
+      "message": "use Optional\u003cString\u003e usedRd \u003d usedRds.stream().flatMap(\u003clogic to return stream of nexthop ips and rd (use some wrapper object) for the route).filter(\u003cpredicate to check given VM ip is in the same dpn\u003e).map(function to return only rd).findAny()\n\nDo you have to use all the nexthop ips ? sine all are connected to same DPN, so use the first ip. In this case you can simply use map instead of flatMap.",
+      "revId": "7335eab1c8d3b037c1347419ee3b44ca3b85fee7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_113ecdb8",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1447,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-05T11:41:50Z",
+      "side": 1,
+      "message": "you don\u0027t need else here.",
+      "revId": "7335eab1c8d3b037c1347419ee3b44ca3b85fee7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_3141493a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1450,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-05T11:41:50Z",
+      "side": 1,
+      "message": "just validate existing extra routes for the same prefixes (with different rds) is not getting overwritten with this merge.",
+      "revId": "7335eab1c8d3b037c1347419ee3b44ca3b85fee7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
