@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_127c0f20",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Hi Alon,\n\nRequest to provide some more inputs on this point of handling switch failure(reason for still calling MDSAL installflow). If we have both salFlowServiceRpc and MDSAL installflow, what will to be total number of FLOW_MOD gets issued to the switch for one SNAT session(2 or 4) ??",
+      "range": {
+        "startLine": 399,
+        "startChar": 7,
+        "endLine": 399,
+        "endChar": 25
+      },
+      "revId": "626c4d576c73b4664b50fa234916ef0f98a95690",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_92d08c20",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "instead of syncInstallFlow, we can opt for installFlow API as this call will be helpful in switch failure case(as flow installation will be done by RPC first in normal scenario\u0027s)",
+      "range": {
+        "startLine": 400,
+        "startChar": 21,
+        "endLine": 400,
+        "endChar": 36
+      },
+      "revId": "626c4d576c73b4664b50fa234916ef0f98a95690",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
