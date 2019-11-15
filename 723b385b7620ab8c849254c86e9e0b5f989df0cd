@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_e39691ef",
+        "filename": "vpnservice/natservice/natservice-impl/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2017-02-14T06:40:13Z",
+      "side": 1,
+      "message": "pls dont put impl dependenacies in nat code..remove..if really needed and API is not present, add it in interfacemanager-api utils",
+      "revId": "723b385b7620ab8c849254c86e9e0b5f989df0cd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c399cd20",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2017-02-14T06:40:13Z",
+      "side": 1,
+      "message": "tunnel-type is present in delInterface object itself..just do a getType..no need to do this complex check",
+      "revId": "723b385b7620ab8c849254c86e9e0b5f989df0cd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
