@@ -52,6 +52,24 @@
       "revId": "6a6dd6e51234a177665a8590ab698f215100aabc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_43c8c354",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 0,
+      "message": "Hi Vivek,\n\nWith latest logs from Tim, We are seeing exception thrown when we try to get internetVni(line 206). \n\nhttp://logs.openstack.org/05/486905/25/experimental/gate-tripleo-ci-centos-7-scenario008-multinode-oooq-nv/762a12b/logs/subnode-2/var/log/extra/odl/karaf.log.txt.gz\n\nThrough we have proper check to capture it and continue further, the full-exception is logged into karaf logs.\n\nInstead, we thought of creating vni-pool by default and allocate a vni(though not used) for flat/vlan case also.\n\nInstead, we need to have additional check for checking poviderType(GRE/VXLAN only) and if openstackSemantics enabled, carve out VNI only for these cases.\n\nRequest let me know if this approch is fine.",
+      "parentUuid": "ba1f61a0_a3c7ff62",
+      "revId": "6a6dd6e51234a177665a8590ab698f215100aabc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
