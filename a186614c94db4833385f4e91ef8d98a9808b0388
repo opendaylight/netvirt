@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_c8a17af9",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronNetworkChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 6892
+      },
+      "writtenOn": "2017-03-07T04:51:10Z",
+      "side": 1,
+      "message": "Done in the next patchset",
+      "parentUuid": "fafc7978_57ec10bb",
+      "revId": "a186614c94db4833385f4e91ef8d98a9808b0388",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f7fd446f",
         "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronPortChangeListener.java",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-06T11:04:42Z",
       "side": 1,
       "message": "where do we handle network-wide policy for this new port?",
+      "revId": "a186614c94db4833385f4e91ef8d98a9808b0388",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_88b3f24b",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronPortChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 6892
+      },
+      "writtenOn": "2017-03-07T04:51:10Z",
+      "side": 1,
+      "message": "Removed this portion of code from here, as the port up case is taken care in QosInterfaceChangeListener",
+      "parentUuid": "fafc7978_f7fd446f",
       "revId": "a186614c94db4833385f4e91ef8d98a9808b0388",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
