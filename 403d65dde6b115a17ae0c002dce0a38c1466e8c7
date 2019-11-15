@@ -17,6 +17,23 @@
       "revId": "403d65dde6b115a17ae0c002dce0a38c1466e8c7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_0a92be9e",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertEosHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 7970
+      },
+      "writtenOn": "2019-11-15T18:58:40Z",
+      "side": 1,
+      "message": "I think isEosOwner will be more meaningful.",
+      "revId": "403d65dde6b115a17ae0c002dce0a38c1466e8c7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
