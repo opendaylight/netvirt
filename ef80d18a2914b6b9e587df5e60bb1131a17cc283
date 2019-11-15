@@ -26,6 +26,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e14c9444",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 670,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "This Section of code is duplicated. May be you can move to Util classes, which in turn returns routerlporttag/routervpnid which can be set as tunnel_id. Going forward same can be enhanced to return router vni.(NatUtil class is preferred)",
+      "range": {
+        "startLine": 654,
+        "startChar": 0,
+        "endLine": 670,
+        "endChar": 9
+      },
+      "revId": "ef80d18a2914b6b9e587df5e60bb1131a17cc283",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_d5ae5c97",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
         "patchSetId": 10
@@ -38,6 +61,29 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "fafc7978_0150b8d2",
+      "range": {
+        "startLine": 747,
+        "startChar": 0,
+        "endLine": 764,
+        "endChar": 13
+      },
+      "revId": "ef80d18a2914b6b9e587df5e60bb1131a17cc283",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0150b8d2",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 764,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Same comment as given in ExternalRouterListener",
       "range": {
         "startLine": 747,
         "startChar": 0,
