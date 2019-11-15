@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_e3b9ffcc",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-03-07T08:03:24Z",
+      "side": 1,
+      "message": "you can add function like hasBandwidthRule and hasDscpMarkingRule for the policy.",
+      "range": {
+        "startLine": 314,
+        "startChar": 32,
+        "endLine": 315,
+        "endChar": 88
+      },
+      "revId": "eabdcff81e8c10b1d760a05dc0fad62b8c4ee581",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
