@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_9aae0384",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T11:36:22Z",
+      "side": 1,
+      "message": "use a \u0027-\u0027.  NAT_FLOW + \u0027-\u0027 + intrf.getName() for job names everywhere.",
+      "revId": "e035572c32e7134563bc893db3cb94cd5cdfa60f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fab46fd2",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatInterfaceStateChangeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T11:36:22Z",
+      "side": 1,
+      "message": "NAT_DS + \u0027-\u0027 + intrf.getName()..\n\nDoes these jobs require serialization with the jobs fired from the previous file?  \n\nIf so, you must use the same key NATFLOW + - + intfName here too.",
+      "revId": "e035572c32e7134563bc893db3cb94cd5cdfa60f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
