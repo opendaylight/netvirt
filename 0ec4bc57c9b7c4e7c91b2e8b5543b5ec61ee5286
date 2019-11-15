@@ -52,6 +52,24 @@
       "revId": "0ec4bc57c9b7c4e7c91b2e8b5543b5ec61ee5286",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_95d7b44a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1271,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Thanks for the comments.\n\nThe call hierarchy of getGatewayMacAddressForInterface() includes multiple methods. And that doesn\u0027t have interface state.(for eg: getGatewayMacAddressForInterface() method is called during tep add and delete. And those methods don\u0027t have interfacestate). So we need to query again from DS. Therefore modifying getGatewayMacAddressForInterface() method might not have much impact.\n\nThis fix used here was mainly introduced to solve the problem during delete operation. During port delete operation interface state is empty when we query from DS. And so we need to pass interfacestate obtained from \u0027interface operational DS notification\u0027.\n\nPlease let me know if any change needs to be made.",
+      "parentUuid": "fafc7978_588f512a",
+      "revId": "0ec4bc57c9b7c4e7c91b2e8b5543b5ec61ee5286",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
