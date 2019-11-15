@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "7a6b29fe_0344ed47",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2055,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-26T13:26:36Z",
+      "side": 1,
+      "message": "This is not the right file for matching on ARP..\nThis file is supposed to only deal with VRFs and so let us not make this file a \u0027jack of all\u0027..\n\nRequest you to create a new file GWMacManager and let that file deal with all flows going into Table 19..  \n\nWe already gave this comment in the last review on MyMac pipeline changes, but we had postponed that then !",
+      "revId": "0819e006ddaf6716b8f940576e3cf75829ab509f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_e3744e69",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 2
