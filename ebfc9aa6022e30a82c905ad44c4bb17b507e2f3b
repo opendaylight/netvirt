@@ -20,6 +20,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_d5fd0a3c",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 2167,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "I didn\u0027t see NAT referring this API. Probably you can revert this change.",
+      "revId": "ebfc9aa6022e30a82c905ad44c4bb17b507e2f3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5bb5ba2f",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
         "patchSetId": 9
@@ -32,6 +49,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "fafc7978_357296e5",
+      "revId": "ebfc9aa6022e30a82c905ad44c4bb17b507e2f3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_357296e5",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 649,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Can we customize this to tun_id based on External Network provider-type(going foward,vni based require vni to carve out pool and use it for gre type).\n\n1) pass on the network-id to this API and add new method which can return valid value for given network provider type.",
       "revId": "ebfc9aa6022e30a82c905ad44c4bb17b507e2f3b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -56,6 +90,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9578a2c5",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 708,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Same comment as given for buildSnatFlowEntity().",
+      "revId": "ebfc9aa6022e30a82c905ad44c4bb17b507e2f3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_69b55730",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
         "patchSetId": 9
@@ -68,6 +119,23 @@
       "side": 1,
       "message": "Moved l3vni value get for VXLAN network.\nMacAddress and GwMacAddress needs to be advertised all external provider type.",
       "parentUuid": "fafc7978_154cb29d",
+      "revId": "ebfc9aa6022e30a82c905ad44c4bb17b507e2f3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_154cb29d",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 903,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "getting l3vni can be moved inside VXLAN check(as it usage is valid on for vxlan type).\n\nAs applicable for macAddress and gwMacAddress",
       "revId": "ebfc9aa6022e30a82c905ad44c4bb17b507e2f3b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
