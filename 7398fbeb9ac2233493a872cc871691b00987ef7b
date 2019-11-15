@@ -1,0 +1,51 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_10cb4554",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VxlanGreConntrackBasedSnatService.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-07-17T06:23:51Z",
+      "side": 1,
+      "message": "Can we have this method here in this class? or in the abstract class? We have ported most of the methods from externalRouterListener to AbstractSnatService.",
+      "range": {
+        "startLine": 110,
+        "startChar": 31,
+        "endLine": 110,
+        "endChar": 55
+      },
+      "revId": "7398fbeb9ac2233493a872cc871691b00987ef7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_c95c64f0",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VxlanGreConntrackBasedSnatService.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-07-17T13:37:12Z",
+      "side": 1,
+      "message": "Ok, may be we can think of this when we have plan to make conttrack and controller based in to one hirearchy. Since this only used in Vxlan/Gre we can then make the external router a instance variable in this class and just change the contructor here? Does that make sense?",
+      "parentUuid": "da2a55be_ee132e64",
+      "range": {
+        "startLine": 110,
+        "startChar": 31,
+        "endLine": 110,
+        "endChar": 55
+      },
+      "revId": "7398fbeb9ac2233493a872cc871691b00987ef7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
