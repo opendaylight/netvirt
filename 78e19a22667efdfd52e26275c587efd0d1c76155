@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_793f2226",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VxlanGreConntrackBasedSnatService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-05-16T10:21:30Z",
+      "side": 1,
+      "message": "Can we move installInboundFibEntry to installSnatSpecificEntriesForNaptSwitch and avoid overiding this method which is suppose to have the common implementation?",
+      "revId": "78e19a22667efdfd52e26275c587efd0d1c76155",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
