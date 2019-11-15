@@ -275,6 +275,100 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_82b871e6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-02-09T09:21:28Z",
+      "side": 1,
+      "message": "Returning empty List is preferred over Optional\u003cList\u003e\n\nhttps://wiki.opendaylight.org/view/OpenDaylight_Java_Style_Guide_-_Proposed#Optional \n\nI did not make the rules   :-)",
+      "parentUuid": "fafc7978_3f2f22f8",
+      "range": {
+        "startLine": 314,
+        "startChar": 16,
+        "endLine": 314,
+        "endChar": 49
+      },
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ac549154",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-02-08T15:20:15Z",
+      "side": 1,
+      "message": "should this one be deleted? deprecated? \nIf it must still co-exist with the getPrimaryRd, I\u0027d add a note in the Javadoc explaining when to use this one or the getPrimaryRd",
+      "range": {
+        "startLine": 478,
+        "startChar": 25,
+        "endLine": 478,
+        "endChar": 33
+      },
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a2ac95a1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-02-09T09:21:28Z",
+      "side": 1,
+      "message": "Ok!",
+      "parentUuid": "fafc7978_bffdd23d",
+      "range": {
+        "startLine": 478,
+        "startChar": 25,
+        "endLine": 478,
+        "endChar": 33
+      },
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8cfd4d3e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1432,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-02-08T15:20:15Z",
+      "side": 1,
+      "message": "I find this a bit dangerous... we must ensure that all the code pieces that feed the \u0027VpnInstance\u0027 are aware that the 1st RD in the list must be the primary one.",
+      "range": {
+        "startLine": 1432,
+        "startChar": 49,
+        "endLine": 1432,
+        "endChar": 50
+      },
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ede5f3a8",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 4
@@ -316,6 +410,29 @@
         "startChar": 4,
         "endLine": 1438,
         "endChar": 5
+      },
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2c1381b9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-02-08T15:20:15Z",
+      "side": 1,
+      "message": "getPrimaryRd ???\n\nnot sure right now what\u0027s the difference between getVpnRd and getPrimaryRd, but it should be symmetrical for removal and addition, if only for coherence.\n\nNote that only a few minutes ago this change [1][2] was merged. Could you please rebase and replace the \u0027getVpnRd\u0027 there as well (in new class IVpnLinkServiceImpl.java)?\n\n[1] https://git.opendaylight.org/gerrit/#/c/50968/ (master)\n[2] https://git.opendaylight.org/gerrit/#/c/51548/ (boron)",
+      "range": {
+        "startLine": 294,
+        "startChar": 34,
+        "endLine": 294,
+        "endChar": 42
       },
       "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
