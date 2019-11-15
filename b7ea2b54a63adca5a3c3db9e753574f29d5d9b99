@@ -26,6 +26,29 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_a31e185d",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 7866
+      },
+      "writtenOn": "2019-11-15T19:59:02Z",
+      "side": 1,
+      "message": "This overview is being repeated in below section \"Problem Description\". Here, please try to give brief about what feature is going to provide. Write it the manner what feature is all about. I agree feature is to address following issues, so you write other way round that this feature will now provide following support.",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 51
+      },
+      "revId": "b7ea2b54a63adca5a3c3db9e753574f29d5d9b99",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_5ecd6eb6",
         "filename": "docs/specs/acl-non-conntrack.rst",
         "patchSetId": 3
@@ -38,6 +61,29 @@
       "side": 1,
       "message": "Space is required to satisfy few online rst to html tools like http://rst.ninjs.org/# and https://livesphinx.herokuapp.com/.\nThese tools are helpful/handy in quickly verifying the doc. \n\nAnd also it doesn\u0027t have any negative impact with this doc tool as well.",
       "parentUuid": "ba1f61a0_9aa379ff",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 1
+      },
+      "revId": "b7ea2b54a63adca5a3c3db9e753574f29d5d9b99",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_9aa379ff",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 7866
+      },
+      "writtenOn": "2019-11-15T19:59:02Z",
+      "side": 1,
+      "message": "Remove such spaces. Indentation will be taken care automatically in right manner.\nFollow same throughout doc.",
       "range": {
         "startLine": 11,
         "startChar": 0,
@@ -98,6 +144,52 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_3aa24dfd",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 7866
+      },
+      "writtenOn": "2019-11-15T19:59:02Z",
+      "side": 1,
+      "message": "Can be shifted to end and that too, without parenthesis.",
+      "range": {
+        "startLine": 14,
+        "startChar": 35,
+        "endLine": 14,
+        "endChar": 60
+      },
+      "revId": "b7ea2b54a63adca5a3c3db9e753574f29d5d9b99",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_5a9d81bb",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 7866
+      },
+      "writtenOn": "2019-11-15T19:59:02Z",
+      "side": 1,
+      "message": "Change to \"with\". Follow same wherever used.",
+      "range": {
+        "startLine": 14,
+        "startChar": 18,
+        "endLine": 14,
+        "endChar": 20
+      },
+      "revId": "b7ea2b54a63adca5a3c3db9e753574f29d5d9b99",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_7e0dd2e7",
         "filename": "docs/specs/acl-non-conntrack.rst",
         "patchSetId": 3
@@ -146,6 +238,52 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_dab05145",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 7866
+      },
+      "writtenOn": "2019-11-15T19:59:02Z",
+      "side": 1,
+      "message": "No need of this.",
+      "range": {
+        "startLine": 28,
+        "startChar": 71,
+        "endLine": 28,
+        "endChar": 93
+      },
+      "revId": "b7ea2b54a63adca5a3c3db9e753574f29d5d9b99",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_7aa845db",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 7866
+      },
+      "writtenOn": "2019-11-15T19:59:02Z",
+      "side": 1,
+      "message": "Change to \"linux conntrack library\".",
+      "range": {
+        "startLine": 28,
+        "startChar": 9,
+        "endLine": 28,
+        "endChar": 28
+      },
+      "revId": "b7ea2b54a63adca5a3c3db9e753574f29d5d9b99",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_5e29ee35",
         "filename": "docs/specs/acl-non-conntrack.rst",
         "patchSetId": 3
@@ -158,6 +296,29 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "ba1f61a0_baad9deb",
+      "range": {
+        "startLine": 79,
+        "startChar": 43,
+        "endLine": 79,
+        "endChar": 47
+      },
+      "revId": "b7ea2b54a63adca5a3c3db9e753574f29d5d9b99",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_baad9deb",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 7866
+      },
+      "writtenOn": "2019-11-15T19:59:02Z",
+      "side": 1,
+      "message": "change to \"is introduced\".",
       "range": {
         "startLine": 79,
         "startChar": 43,
@@ -194,6 +355,29 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_da97b18e",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 7866
+      },
+      "writtenOn": "2019-11-15T19:59:02Z",
+      "side": 1,
+      "message": "Change to \"Traffic not supported by conntrack\"",
+      "range": {
+        "startLine": 96,
+        "startChar": 2,
+        "endLine": 96,
+        "endChar": 49
+      },
+      "revId": "b7ea2b54a63adca5a3c3db9e753574f29d5d9b99",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_9e1ec60a",
         "filename": "docs/specs/acl-non-conntrack.rst",
         "patchSetId": 3
@@ -206,6 +390,29 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "ba1f61a0_7a7fa566",
+      "range": {
+        "startLine": 97,
+        "startChar": 2,
+        "endLine": 97,
+        "endChar": 21
+      },
+      "revId": "b7ea2b54a63adca5a3c3db9e753574f29d5d9b99",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_7a7fa566",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 7866
+      },
+      "writtenOn": "2019-11-15T19:59:02Z",
+      "side": 1,
+      "message": "What values are written , can be specified here too.",
       "range": {
         "startLine": 97,
         "startChar": 2,
@@ -242,6 +449,29 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_9a7a5975",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 7866
+      },
+      "writtenOn": "2019-11-15T19:59:02Z",
+      "side": 1,
+      "message": "through.",
+      "range": {
+        "startLine": 107,
+        "startChar": 51,
+        "endLine": 107,
+        "endChar": 55
+      },
+      "revId": "b7ea2b54a63adca5a3c3db9e753574f29d5d9b99",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_5e9c4e5d",
         "filename": "docs/specs/acl-non-conntrack.rst",
         "patchSetId": 3
@@ -254,6 +484,29 @@
       "side": 1,
       "message": "reg6 is already used in the current pipeline which holds the value of lport tag.\n\nAlso added the current ACL pipeline to the spec which can provide clarity on the difference between current and proposed ACL pipeline.",
       "parentUuid": "ba1f61a0_231b4874",
+      "range": {
+        "startLine": 121,
+        "startChar": 59,
+        "endLine": 121,
+        "endChar": 79
+      },
+      "revId": "b7ea2b54a63adca5a3c3db9e753574f29d5d9b99",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_231b4874",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 7866
+      },
+      "writtenOn": "2019-11-15T19:59:02Z",
+      "side": 1,
+      "message": "reg6 as match criteria is shown to many flows from hereafter, please explain how it came into picture. what is its need? what purpose it is serving here?",
       "range": {
         "startLine": 121,
         "startChar": 59,
@@ -290,6 +543,29 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_1a8e6979",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 7866
+      },
+      "writtenOn": "2019-11-15T19:59:02Z",
+      "side": 1,
+      "message": "For more clarity, it would be best if you can specify in format:  remote SG\u003d \u003c\u003c\u003e\u003e",
+      "range": {
+        "startLine": 146,
+        "startChar": 25,
+        "endLine": 146,
+        "endChar": 34
+      },
+      "revId": "b7ea2b54a63adca5a3c3db9e753574f29d5d9b99",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_25898575",
         "filename": "docs/specs/acl-non-conntrack.rst",
         "patchSetId": 3
@@ -302,6 +578,29 @@
       "side": 1,
       "message": "Added work items",
       "parentUuid": "ba1f61a0_634f006c",
+      "range": {
+        "startLine": 412,
+        "startChar": 0,
+        "endLine": 412,
+        "endChar": 10
+      },
+      "revId": "b7ea2b54a63adca5a3c3db9e753574f29d5d9b99",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_634f006c",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 7866
+      },
+      "writtenOn": "2019-11-15T19:59:02Z",
+      "side": 1,
+      "message": "Why is it empty?",
       "range": {
         "startLine": 412,
         "startChar": 0,
@@ -338,6 +637,29 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_233228f2",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 7866
+      },
+      "writtenOn": "2019-11-15T19:59:02Z",
+      "side": 1,
+      "message": "Developer guide may be updated because new acl tables are introduced.",
+      "range": {
+        "startLine": 448,
+        "startChar": 0,
+        "endLine": 448,
+        "endChar": 20
+      },
+      "revId": "b7ea2b54a63adca5a3c3db9e753574f29d5d9b99",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_e58acd62",
         "filename": "docs/specs/acl-non-conntrack.rst",
         "patchSetId": 3
@@ -350,6 +672,29 @@
       "side": 1,
       "message": "ODL release plan could be un-related here. \nI will update references if I find any.",
       "parentUuid": "ba1f61a0_032f2489",
+      "range": {
+        "startLine": 452,
+        "startChar": 0,
+        "endLine": 452,
+        "endChar": 10
+      },
+      "revId": "b7ea2b54a63adca5a3c3db9e753574f29d5d9b99",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_032f2489",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 7866
+      },
+      "writtenOn": "2019-11-15T19:59:02Z",
+      "side": 1,
+      "message": "ODL Release plan link can be specified.",
       "range": {
         "startLine": 452,
         "startChar": 0,
