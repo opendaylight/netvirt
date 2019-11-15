@@ -70,6 +70,30 @@
       "revId": "7398fbeb9ac2233493a872cc871691b00987ef7b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_ee132e64",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VxlanGreConntrackBasedSnatService.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "We can have it in this specific class(as this advertising label is required only for GRE/VXLAN). But, this is resulting in code duplication and also we require references to vpnService,fibService and bgpManager in this classes. Since, externalRouter already have the references, we thought of reusing the existing implementation.",
+      "parentUuid": "da2a55be_10cb4554",
+      "range": {
+        "startLine": 110,
+        "startChar": 31,
+        "endLine": 110,
+        "endChar": 55
+      },
+      "revId": "7398fbeb9ac2233493a872cc871691b00987ef7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
