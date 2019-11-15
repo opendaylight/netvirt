@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_4c13650d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1199,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-08T14:26:41Z",
+      "side": 1,
+      "message": "please check for vpnInstance.getIpv4Family() !\u003d null",
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_8d3a6732",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
         "patchSetId": 4
@@ -32,6 +49,23 @@
       "side": 1,
       "message": "which module would allocate this RD and store into adjacency.\nWould that be NeutornVpn?\n\nToday we are not storing anything into config Adjacency within the  VPN Engine. If you are planning to allocate RD dynamically within the VPN Engine and persist it, I would advise orthogonal to it, becuase VPN Engine as it stands today never alters any configuration.  All it does is either copy the configuration to operational state + Maintains the current VPN State.",
       "parentUuid": "fafc7978_8d3a6732",
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ecf179ce",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-08T14:26:41Z",
+      "side": 1,
+      "message": "what about removal cycle.. Shouldn\u0027t this use getPrimaryRd() here too?",
       "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
