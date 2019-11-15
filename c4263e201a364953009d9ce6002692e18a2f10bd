@@ -23,6 +23,29 @@
       "revId": "c4263e201a364953009d9ce6002692e18a2f10bd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_77ca3f6f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 0,
+      "message": "We too observed an NullPointer Exception at this point as the Router is not updated with External Gateway info at this point. May be that reason for removal of this line.",
+      "range": {
+        "startLine": 354,
+        "startChar": 23,
+        "endLine": 354,
+        "endChar": 40
+      },
+      "revId": "c4263e201a364953009d9ce6002692e18a2f10bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
