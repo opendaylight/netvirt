@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_e3744e69",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2055,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-27T11:39:44Z",
+      "side": 1,
+      "message": "These are table miss entries programmed for L3VPN when node is connected. So let us have all these table miss programming in a single class (may be we can factor out this code out of VrfEntryListener class) which listens to Node DCN. otherwise we end up in having many NodeListener classes.",
+      "parentUuid": "7a6b29fe_0344ed47",
+      "revId": "0819e006ddaf6716b8f940576e3cf75829ab509f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
