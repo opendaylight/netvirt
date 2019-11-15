@@ -20,6 +20,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_4bade49b",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "An allocation of External Ips to subnets done in round-robin fashion in  ExternalRoutersListener.subnetRegisterMapping().May be same approach can used to distribute the external Ips allocation.",
+      "revId": "88ca4c36ac61457e89430cc1c4d410cf472c108f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_2b87c810",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
         "patchSetId": 5
@@ -38,6 +55,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_ebbe70d3",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 870,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Is it required to have extra DS query to check for Existence of VrfEntry before deleting it?\n\nMay be we can catch the appropriate exception thrown if any attempt is done to delete an non-existent VrfEnty.",
+      "revId": "88ca4c36ac61457e89430cc1c4d410cf472c108f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_6b78a02b",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/RouterDpnChangeListener.java",
         "patchSetId": 5
@@ -50,6 +84,29 @@
       "side": 1,
       "message": "Yes, you are right, the external-routers model is being updated in parallel with vpn-instance and vpn-to-dpn models. So we consciously added the code inside if \"unknown primary napt switch\" and only when the ext-routers DS model is empty.\nThanks.",
       "parentUuid": "1a622d24_eb8cb037",
+      "range": {
+        "startLine": 215,
+        "startChar": 33,
+        "endLine": 215,
+        "endChar": 54
+      },
+      "revId": "88ca4c36ac61457e89430cc1c4d410cf472c108f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_eb8cb037",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/RouterDpnChangeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Probably check required to see if the required DS is not populated due to race-condition before calling this API?? Internally this attempt to create the id-pool and starts allocating external Ips. If these pools and IP-Map exists already, it will blindly overridden with this API call at this point.",
       "range": {
         "startLine": 215,
         "startChar": 33,
