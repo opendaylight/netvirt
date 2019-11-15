@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_c1aee584",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "updated",
+      "parentUuid": "fafc7978_06464323",
+      "revId": "72a6257aff7bf6659432c3d2fb67d05ef4c72dff",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_865193da",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatInterfaceStateChangeListener.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-14T08:31:13Z",
       "side": 1,
       "message": "it is already returning for tunnels from the main thread..then why this check again?",
+      "revId": "72a6257aff7bf6659432c3d2fb67d05ef4c72dff",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a1a9217d",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatInterfaceStateChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "yes.Not required. Removed this redundent-code",
+      "parentUuid": "fafc7978_865193da",
       "revId": "72a6257aff7bf6659432c3d2fb67d05ef4c72dff",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
