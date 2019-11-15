@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_5be74aac",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-09-06T11:54:04Z",
+      "side": 1,
+      "message": "This error is no longer accurate (perhaps the test should be removed entirely?).",
+      "revId": "d5d0fd72537499708121cb74c15527056954f4e5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_bb4926b9",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-09-06T11:54:04Z",
+      "side": 1,
+      "message": "This isn\u0027t quite equivalent: if vpnInstance.get().getVpnId() returns null, this will throw a NullPointerException, whereas the original method would return INVALID_ID. If getVpnId() never returns null then this is safe obviously! But if it does...",
+      "revId": "d5d0fd72537499708121cb74c15527056954f4e5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_3bec168f",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/RouterDpnChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-09-06T11:54:04Z",
+      "side": 1,
+      "message": "This log is no longer accurate.",
+      "revId": "d5d0fd72537499708121cb74c15527056954f4e5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
