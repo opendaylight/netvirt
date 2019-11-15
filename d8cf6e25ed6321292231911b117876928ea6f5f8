@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_3cc20553",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatOverVxlanUtil.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-07T17:45:51Z",
+      "side": 1,
+      "message": "why is BigInteger needed to be returned here if the pool can allocate only long values?",
+      "revId": "d8cf6e25ed6321292231911b117876928ea6f5f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
