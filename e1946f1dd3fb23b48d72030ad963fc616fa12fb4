@@ -25,6 +25,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_8d718478",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 659,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T17:26:56Z",
+      "side": 1,
+      "message": "wheere did the writeConfiTxn go here?",
+      "revId": "e1946f1dd3fb23b48d72030ad963fc616fa12fb4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_ad29e338",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 1
