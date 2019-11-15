@@ -1,0 +1,443 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_48bea4d5",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-20T10:50:27Z",
+      "side": 1,
+      "message": "This is okay provided that the else block gets executed only for extra-routes, and also the vpn-to-extraroutes DS is synchronously updated before this sync delete. Looks like this taken care of in VrfEntryListner.\nGood to proceed.",
+      "range": {
+        "startLine": 404,
+        "startChar": 18,
+        "endLine": 404,
+        "endChar": 62
+      },
+      "revId": "997d27b1f2c2b112af1442af1f037a40d976ca54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_c8c9f47a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 803,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-20T10:50:27Z",
+      "side": 1,
+      "message": "These logs look redundant. Please keep one of them.",
+      "range": {
+        "startLine": 799,
+        "startChar": 16,
+        "endLine": 803,
+        "endChar": 24
+      },
+      "revId": "997d27b1f2c2b112af1442af1f037a40d976ca54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_48a504b4",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 857,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-20T10:50:27Z",
+      "side": 1,
+      "message": "Please add a log here",
+      "range": {
+        "startLine": 856,
+        "startChar": 24,
+        "endLine": 857,
+        "endChar": 31
+      },
+      "revId": "997d27b1f2c2b112af1442af1f037a40d976ca54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_88affc93",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 867,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-20T10:50:27Z",
+      "side": 1,
+      "message": "log",
+      "range": {
+        "startLine": 866,
+        "startChar": 32,
+        "endLine": 867,
+        "endChar": 24
+      },
+      "revId": "997d27b1f2c2b112af1442af1f037a40d976ca54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_889d3c5c",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 922,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-20T10:50:27Z",
+      "side": 1,
+      "message": "debug",
+      "range": {
+        "startLine": 922,
+        "startChar": 28,
+        "endLine": 922,
+        "endChar": 33
+      },
+      "revId": "997d27b1f2c2b112af1442af1f037a40d976ca54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_68bba8e5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-20T10:50:27Z",
+      "side": 1,
+      "message": "type",
+      "range": {
+        "startLine": 23,
+        "startChar": 17,
+        "endLine": 23,
+        "endChar": 31
+      },
+      "revId": "997d27b1f2c2b112af1442af1f037a40d976ca54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_28f250d2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-20T10:50:27Z",
+      "side": 1,
+      "message": "\"primary\"",
+      "range": {
+        "startLine": 26,
+        "startChar": 25,
+        "endLine": 26,
+        "endChar": 45
+      },
+      "revId": "997d27b1f2c2b112af1442af1f037a40d976ca54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_68d44820",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-20T10:50:27Z",
+      "side": 1,
+      "message": "\"Primary\"",
+      "range": {
+        "startLine": 29,
+        "startChar": 28,
+        "endLine": 29,
+        "endChar": 53
+      },
+      "revId": "997d27b1f2c2b112af1442af1f037a40d976ca54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_08edccef",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-20T10:50:27Z",
+      "side": 1,
+      "message": "learnt",
+      "range": {
+        "startLine": 31,
+        "startChar": 25,
+        "endLine": 31,
+        "endChar": 36
+      },
+      "revId": "997d27b1f2c2b112af1442af1f037a40d976ca54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_48d7c423",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-20T10:50:27Z",
+      "side": 1,
+      "message": "\"Learnt IP\"",
+      "range": {
+        "startLine": 34,
+        "startChar": 28,
+        "endLine": 34,
+        "endChar": 55
+      },
+      "revId": "997d27b1f2c2b112af1442af1f037a40d976ca54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_a8de403d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-20T10:50:27Z",
+      "side": 1,
+      "message": "\"Extra Route\"",
+      "range": {
+        "startLine": 39,
+        "startChar": 29,
+        "endLine": 39,
+        "endChar": 57
+      },
+      "revId": "997d27b1f2c2b112af1442af1f037a40d976ca54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_88e1bc00",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-20T10:50:27Z",
+      "side": 1,
+      "message": "Default should be primary",
+      "range": {
+        "startLine": 42,
+        "startChar": 16,
+        "endLine": 42,
+        "endChar": 37
+      },
+      "revId": "997d27b1f2c2b112af1442af1f037a40d976ca54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_a8b120e3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-20T10:50:27Z",
+      "side": 1,
+      "message": "Should we not limit this only to extra routes? This check will handle learnt adjacencies as well",
+      "range": {
+        "startLine": 403,
+        "startChar": 37,
+        "endLine": 403,
+        "endChar": 76
+      },
+      "revId": "997d27b1f2c2b112af1442af1f037a40d976ca54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_e8caf84d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-20T10:50:27Z",
+      "side": 1,
+      "message": "why is this check added? Should we not do this for all types of adjacencies?",
+      "range": {
+        "startLine": 486,
+        "startChar": 20,
+        "endLine": 488,
+        "endChar": 21
+      },
+      "revId": "997d27b1f2c2b112af1442af1f037a40d976ca54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_8839bc43",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1319,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-20T10:50:27Z",
+      "side": 1,
+      "message": "Please retain the original one here. Because in this context, it is guaranteed that the usedRds will be removed before deleting the fib Entry.\nReason: Both the usedRd and FIB are in default config DS and usedRds delete is added to the writeCfgTxn before fib delete is added.",
+      "range": {
+        "startLine": 1319,
+        "startChar": 24,
+        "endLine": 1319,
+        "endChar": 53
+      },
+      "revId": "997d27b1f2c2b112af1442af1f037a40d976ca54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_a8e92082",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1320,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-20T10:50:27Z",
+      "side": 1,
+      "message": "I see that this usedRds() and extraRoutes() is executed twice for extra routes usecase. One in delExtraRoute() which calls removePrefixFromBgp(), and the other in updateExtraRoutesandUsedRdsMap(). We will have to avoid this.",
+      "range": {
+        "startLine": 1316,
+        "startChar": 23,
+        "endLine": 1320,
+        "endChar": 61
+      },
+      "revId": "997d27b1f2c2b112af1442af1f037a40d976ca54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_fc64714a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1320,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-25T13:03:31Z",
+      "side": 1,
+      "message": "The DCN wont be fired if the extra routes point to nextHops on the same DPN, that is why the refreshVrfEntry() was written. But if the nextHops are on the different DPNs, then on an interfaceDown, the delExtraRoute called in the patch will call removePrefixFromBgp(). This is update usedRds, vpnToExtraRoute and fib. FIB update will again call updateUsedRdAndVpnToExtraRoute which will again do the same thing.\nCould you please see if we can avoid this?",
+      "parentUuid": "da2a55be_8d038541",
+      "range": {
+        "startLine": 1316,
+        "startChar": 23,
+        "endLine": 1320,
+        "endChar": 61
+      },
+      "revId": "997d27b1f2c2b112af1442af1f037a40d976ca54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_e802f83c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 852,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-20T10:50:27Z",
+      "side": 1,
+      "message": "Please add the existing syncDelete from MdsalUtils/ InfraUtils",
+      "range": {
+        "startLine": 841,
+        "startChar": 8,
+        "endLine": 852,
+        "endChar": 5
+      },
+      "revId": "997d27b1f2c2b112af1442af1f037a40d976ca54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_1cc98526",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 852,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-25T13:03:31Z",
+      "side": 1,
+      "message": "I tend to disagree.:) Replicating these MDSAL Util methods into Application Utils should have been avoided. These will be removed in the future.\nPlease dont add a new syncDelete() in VpnUtil. Use it from MDSALUtul",
+      "parentUuid": "da2a55be_2dd6d9c5",
+      "range": {
+        "startLine": 841,
+        "startChar": 8,
+        "endLine": 852,
+        "endChar": 5
+      },
+      "revId": "997d27b1f2c2b112af1442af1f037a40d976ca54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
