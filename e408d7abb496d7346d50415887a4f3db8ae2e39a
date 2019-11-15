@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_82467f4d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 667,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "In this change here, the rd is initialized with the vrf id populated in the adjacency(VpnInterface Operational DS). The older code had rd initialized from the vpninstance config DS. This is the only difference in this change. Could you please elaborate the comment and help us to understand how it results in a different behavior.",
+      "parentUuid": "fafc7978_1f982c69",
+      "revId": "e408d7abb496d7346d50415887a4f3db8ae2e39a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9fab7c74",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 8
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-21T08:25:43Z",
       "side": 1,
       "message": "What should this RD be?",
+      "revId": "e408d7abb496d7346d50415887a4f3db8ae2e39a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_226d13cd",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 724,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "The rd is the primary rd for primary adjacency and selected rd for extra route. Since this is stored in vpninterface operational adjacency, it is directly used here.",
+      "parentUuid": "fafc7978_9fab7c74",
       "revId": "e408d7abb496d7346d50415887a4f3db8ae2e39a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
