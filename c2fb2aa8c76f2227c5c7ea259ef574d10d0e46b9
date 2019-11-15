@@ -1,0 +1,74 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_016a51ed",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "update the commit message to indicate what all you are fixing/including here..",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 33
+      },
+      "revId": "c2fb2aa8c76f2227c5c7ea259ef574d10d0e46b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_04337fab",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/resources/initial/netvirt-neutronvpn-config.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "yes, i think we can remove these 2 then, from here and yang model",
+      "parentUuid": "fafc7978_413e19db",
+      "range": {
+        "startLine": 2,
+        "startChar": 2,
+        "endLine": 3,
+        "endChar": 40
+      },
+      "revId": "c2fb2aa8c76f2227c5c7ea259ef574d10d0e46b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_21c035e0",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/resources/initial/netvirt-neutronvpn-config.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "do we need to remove or somehow mark these as deprecated so they don\u0027t get automatically picked up? since now we are readding this dependency into neutronvpn.xml",
+      "range": {
+        "startLine": 2,
+        "startChar": 2,
+        "endLine": 3,
+        "endChar": 40
+      },
+      "revId": "c2fb2aa8c76f2227c5c7ea259ef574d10d0e46b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
