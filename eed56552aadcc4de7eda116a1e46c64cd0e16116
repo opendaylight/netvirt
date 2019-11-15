@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_9e7a4975",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManagerImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-25T08:09:19Z",
+      "side": 1,
+      "message": "need to be OpenDaylight",
+      "parentUuid": "fafc7978_3fafe57e",
+      "range": {
+        "startLine": 92,
+        "startChar": 22,
+        "endLine": 92,
+        "endChar": 34
+      },
+      "revId": "eed56552aadcc4de7eda116a1e46c64cd0e16116",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
