@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e32a062b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 1050,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Sure. Gobinath is planning to introduce VpnHelper in the dependent review. We will move functions used by FibManager to VpnHelper",
+      "parentUuid": "fafc7978_3dc6f149",
+      "range": {
+        "startLine": 1050,
+        "startChar": 4,
+        "endLine": 1050,
+        "endChar": 71
+      },
+      "revId": "b488544c828676feddabb054994a2334e036636f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9dc55d3e",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 20
@@ -59,6 +83,24 @@
       "writtenOn": "2017-02-15T11:08:02Z",
       "side": 1,
       "message": "In addExtraRoute , extraroute-rds-map is updated with allocated rds. Similarly when extra route is deleted , that rd needs to be removed from extraroute-rds-map\u0027s usedRd list. If its not done here , where its done ?",
+      "revId": "b488544c828676feddabb054994a2334e036636f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e35cc6ef",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 1652,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "This will be taken care in the below review\nhttps://git.opendaylight.org/gerrit/#/c/50343/",
+      "parentUuid": "fafc7978_fa2aaf2a",
       "revId": "b488544c828676feddabb054994a2334e036636f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
