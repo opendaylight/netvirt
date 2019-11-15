@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "1a622d24_0241c1a8",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-01-17T17:26:45Z",
+      "side": 1,
+      "message": "is the addition of this 3PP dependency necessary?\nCan\u0027t this be implemented with Map.Entry\u003cString, String\u003e or maybe our own implementation of Pair?",
+      "range": {
+        "startLine": 24,
+        "startChar": 33,
+        "endLine": 24,
+        "endChar": 37
+      },
+      "revId": "e1946f1dd3fb23b48d72030ad963fc616fa12fb4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_ad29e338",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 1
@@ -64,6 +87,144 @@
       "writtenOn": "2017-01-17T04:33:37Z",
       "side": 1,
       "message": "Aren\u0027t these methods already exist ?",
+      "revId": "e1946f1dd3fb23b48d72030ad963fc616fa12fb4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_42fa9943",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 801,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-01-17T17:26:45Z",
+      "side": 1,
+      "message": "This is a copy from the vpnmanager\u0027s one. DRY principle. We should place it a common place like interfaceMgr or ItmMgr.\nNo need to do it right now, but at least add a \u0027TODO\u0027 comment so someone can take it later",
+      "range": {
+        "startLine": 801,
+        "startChar": 26,
+        "endLine": 801,
+        "endChar": 52
+      },
+      "revId": "e1946f1dd3fb23b48d72030ad963fc616fa12fb4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_629cf50f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1384,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-01-17T17:26:45Z",
+      "side": 1,
+      "message": "Same comment as Peri\u0027s on the other class. If possible take these 2 deletes in the same Tx",
+      "range": {
+        "startLine": 1384,
+        "startChar": 28,
+        "endLine": 1384,
+        "endChar": 34
+      },
+      "revId": "e1946f1dd3fb23b48d72030ad963fc616fa12fb4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c26b49ef",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnHelper.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-01-17T17:26:45Z",
+      "side": 1,
+      "message": "VpnUtil.getVpnInstance() returns VpnInstance in CONFIG.\n\nCan we rename this one to getVpnInstanceOpData or similar?\n\nAlso, since now it is offered via vpnmanager-api, the VrfEntryListener class can get rid of its own copy of \u0027getVpnInstance\u0027 method.",
+      "range": {
+        "startLine": 208,
+        "startChar": 51,
+        "endLine": 208,
+        "endChar": 65
+      },
+      "revId": "e1946f1dd3fb23b48d72030ad963fc616fa12fb4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_22531d3a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1222,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-01-17T17:26:45Z",
+      "side": 1,
+      "message": "String primaryRd \u003d (vpnName !\u003d null) ? VpnUtil.getPrim...\n                                     : rd;",
+      "range": {
+        "startLine": 1219,
+        "startChar": 12,
+        "endLine": 1222,
+        "endChar": 13
+      },
+      "revId": "e1946f1dd3fb23b48d72030ad963fc616fa12fb4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a2472d76",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1223,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-01-17T17:26:45Z",
+      "side": 1,
+      "message": "(not related to your change)\nShouldnt this log be downgraded to \u0027debug\u0027?",
+      "range": {
+        "startLine": 1223,
+        "startChar": 16,
+        "endLine": 1223,
+        "endChar": 20
+      },
+      "revId": "e1946f1dd3fb23b48d72030ad963fc616fa12fb4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e20ac524",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1224,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-01-17T17:26:45Z",
+      "side": 1,
+      "message": "(not related to your commit)\n\u0027intern\u0027 leaves unremovable garbage in JVM. In an scenario with thousands of VPNs with hundreds of prefix each one, that is a considerable amount of memory that is used just for synchronizing threads. \nWe should rethink how we synchronize this blocks.",
+      "range": {
+        "startLine": 1224,
+        "startChar": 26,
+        "endLine": 1224,
+        "endChar": 45
+      },
       "revId": "e1946f1dd3fb23b48d72030ad963fc616fa12fb4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
