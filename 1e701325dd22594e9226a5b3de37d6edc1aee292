@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa2559ec_47941637",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-24T14:37:31Z",
+      "side": 1,
+      "message": "give a brief about what is being fixed here..",
+      "revId": "1e701325dd22594e9226a5b3de37d6edc1aee292",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_e77b8a27",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-24T14:36:44Z",
+      "side": 1,
+      "message": "this should use IpAddressSource.FloatingIP directly .",
+      "revId": "1e701325dd22594e9226a5b3de37d6edc1aee292",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_c778062e",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-24T14:36:44Z",
+      "side": 1,
+      "message": "ditto comment here.",
+      "revId": "1e701325dd22594e9226a5b3de37d6edc1aee292",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_2776423f",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 2090,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-24T14:36:44Z",
+      "side": 1,
+      "message": "make this one common method in some common place... Better would be to place this in a file that goes inside natservice-api",
+      "revId": "1e701325dd22594e9226a5b3de37d6edc1aee292",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
