@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_ad29e338",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 773,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-17T04:33:37Z",
+      "side": 1,
+      "message": "you could return false here itself if Pair doesn\u0027t contain values.",
+      "revId": "e1946f1dd3fb23b48d72030ad963fc616fa12fb4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2dfe73ae",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 786,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-17T04:33:37Z",
+      "side": 1,
+      "message": "Nit: remove tabs.",
+      "revId": "e1946f1dd3fb23b48d72030ad963fc616fa12fb4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_0d229751",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 789,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-17T04:33:37Z",
+      "side": 1,
+      "message": "can you do all these md-sal ds updated with single tx ?",
+      "revId": "e1946f1dd3fb23b48d72030ad963fc616fa12fb4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ed1e3b0b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 797,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-17T04:33:37Z",
+      "side": 1,
+      "message": "Aren\u0027t these methods already exist ?",
+      "revId": "e1946f1dd3fb23b48d72030ad963fc616fa12fb4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_0de9f7e5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1228,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-17T04:33:37Z",
+      "side": 1,
+      "message": "add comment why this is needed.",
+      "revId": "e1946f1dd3fb23b48d72030ad963fc616fa12fb4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
