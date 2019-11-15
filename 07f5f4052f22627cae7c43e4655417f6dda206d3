@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_bc4986d2",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 554,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-12T08:32:31Z",
+      "side": 1,
+      "message": "why do we need this check?\nupdateUsedRdsAndVpnToExtraRoute() is called only on a FIB update, that too is original.routePaths.size \u003e update.routePaths.size(). Such a condition applies(for an extra route) only when a nextHop is removed. Either the VPN engine will make sure that that adj is deleted when the nh is removed, or the vpn engine will make sure that the if state is down for the nh from your VpnInterfaceManager changes.\nSo, is this check needed?",
+      "range": {
+        "startLine": 553,
+        "startChar": 20,
+        "endLine": 554,
+        "endChar": 93
+      },
+      "revId": "07f5f4052f22627cae7c43e4655417f6dda206d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_abe5b6a9",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 3
