@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_601e0165",
+        "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat-rpc.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-17T11:13:03Z",
+      "side": 1,
+      "message": "it may be good to quote this difference in other two RPCs too.  Possible to do that?",
+      "parentUuid": "fafc7978_c53fffd4",
+      "revId": "440dc5e676772a4a7fa7aa3034bdbc4eb4aacbd5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
