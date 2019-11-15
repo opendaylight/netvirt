@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_6106e487",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-26T16:04:56Z",
+      "side": 1,
+      "message": "why should we do this way.. When the NATService comes up, this pool should be allocated.  \n\nIMHO, There is no need for a delayed allocation.\n\nWhen NATService comes up\n1. If a NatPool doesn\u0027t exist create it.\n2. If a NatPool exists, but the range value is changed incorrectly (say some allocations exist in the old range), we should NOT honor the new range .  Throw the WARN but continue running NAT Service with Old range.\n3. If a NatPool exists, but the given range is wider than the earlier one, we should attempt to allocate with the new range again (not sure if this is possible with IdManager though :) )",
+      "revId": "8626d89607f1c4fb631df60bb325d051ba3adee3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_410be08d",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1466,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-26T16:04:56Z",
+      "side": 1,
+      "message": "thsi is not necessary.",
+      "revId": "8626d89607f1c4fb631df60bb325d051ba3adee3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a1fc4c73",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatConstants.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-26T16:04:56Z",
+      "side": 1,
+      "message": "can you move the VPN_POOL_RANGE start at 100000 (instead of 70K) in this same review , as otherwise it may create CSIT issues.",
+      "revId": "8626d89607f1c4fb631df60bb325d051ba3adee3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e1f93481",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1745,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-26T16:04:56Z",
+      "side": 1,
+      "message": "All these methods can go into new file NatOverVxlanUtil.java",
+      "revId": "8626d89607f1c4fb631df60bb325d051ba3adee3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c1f6b08e",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1765,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-26T16:04:56Z",
+      "side": 1,
+      "message": "this method implemenation needs a fix as per the comment in teh caller of this method.",
+      "revId": "8626d89607f1c4fb631df60bb325d051ba3adee3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_21f05c90",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1796,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-26T16:04:56Z",
+      "side": 1,
+      "message": "this method\u0027s flesh will be absorbed in createOpenDaylightxxxPool itself as per my earlier comment.",
+      "revId": "8626d89607f1c4fb631df60bb325d051ba3adee3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_01ed58b7",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1811,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-26T16:04:56Z",
+      "side": 1,
+      "message": "this method not necessar",
+      "revId": "8626d89607f1c4fb631df60bb325d051ba3adee3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_612d44fe",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1821,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-26T16:04:56Z",
+      "side": 1,
+      "message": "this is nto required too.",
+      "revId": "8626d89607f1c4fb631df60bb325d051ba3adee3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
