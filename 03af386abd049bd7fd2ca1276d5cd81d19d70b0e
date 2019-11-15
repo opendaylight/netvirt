@@ -17,6 +17,23 @@
       "revId": "03af386abd049bd7fd2ca1276d5cd81d19d70b0e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_545651d3",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1020,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "This change is breaking gre/vxlan use-cases.Since these case still use external-bgp-vpn metadata, all the DNAT traffic to Non-FIP were getting dropped.\n\ncookie\u003d0x8000004, duration\u003d46.217s, table\u003d28, n_packets\u003d0, n_bytes\u003d0, priority\u003d10,ip,metadata\u003d0x30d4e/0xfffffe,nw_src\u003d172.160.0.100 actions\u003dset_field:fa:16:3e:b9:40:f5-\u003eeth_src,resubmit(,21)\n\ncookie\u003d0x8000003, duration\u003d150.335s, table\u003d21, n_packets\u003d0, n_bytes\u003d0, priority\u003d42,ip,metadata\u003d0xfffffe/0xfffffe,nw_dst\u003d172.160.0.3 actions\u003dgoto_table:44\n\nThe following check is required to first check whethee an odl-nat/external-subnet entry is available, then only use externalSubnetId as vpname for creating 21-\u003e44 rule.\n\n\nOptional\u003cSubnets\u003e externalSubnet \u003d NatUtil.getOptionalExternalSubnets(dataBroker, subnetId);",
+      "revId": "03af386abd049bd7fd2ca1276d5cd81d19d70b0e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
