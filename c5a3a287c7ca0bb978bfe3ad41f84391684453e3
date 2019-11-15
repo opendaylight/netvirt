@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e92fa086",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 633,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Sure,thanks",
+      "parentUuid": "fafc7978_950d4d93",
+      "revId": "c5a3a287c7ca0bb978bfe3ad41f84391684453e3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_955b8d86",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 6
@@ -65,6 +83,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9358c533",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Will be removed in the next patch set",
+      "parentUuid": "fafc7978_f54939b8",
+      "range": {
+        "startLine": 316,
+        "startChar": 67,
+        "endLine": 316,
+        "endChar": 73
+      },
+      "revId": "c5a3a287c7ca0bb978bfe3ad41f84391684453e3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b52171fe",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverMplsGrePopulator.java",
         "patchSetId": 6
@@ -94,6 +136,24 @@
       "side": 1,
       "message": "Ok, right now primaryRd and input Rd are the same.  You can address this in the next review.",
       "parentUuid": "fafc7978_695bb02e",
+      "revId": "c5a3a287c7ca0bb978bfe3ad41f84391684453e3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_695bb02e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverMplsGrePopulator.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "As you mentioned in the other review comment(to fill the primaryRd and provide it to populators), populators will have primaryRd which can be used to write the VRF Entry",
+      "parentUuid": "fafc7978_b52171fe",
       "revId": "c5a3a287c7ca0bb978bfe3ad41f84391684453e3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
