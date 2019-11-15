@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_d23547f8",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibManagerImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "will remove spaces in the next patch set",
+      "revId": "8edd2ab25f82f32dc11437d0ebb62bae40be063f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f2304b09",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 655,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "will remove spaces in the next patchset",
+      "revId": "8edd2ab25f82f32dc11437d0ebb62bae40be063f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f96cab38",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 7
@@ -13,6 +47,24 @@
       "writtenOn": "2017-03-24T10:46:50Z",
       "side": 1,
       "message": "can you change it to primaryRd ?",
+      "revId": "8edd2ab25f82f32dc11437d0ebb62bae40be063f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fc3752ae",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 661,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f96cab38",
       "revId": "8edd2ab25f82f32dc11437d0ebb62bae40be063f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -36,6 +88,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_bcb94a30",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 675,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "There will be always a nexthop available when vpnextraroutes.isPresent() check is successful for a particular prefix.",
+      "parentUuid": "fafc7978_b95a2381",
+      "revId": "8edd2ab25f82f32dc11437d0ebb62bae40be063f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_394e33c2",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 7
@@ -47,6 +117,24 @@
       "writtenOn": "2017-03-24T10:46:50Z",
       "side": 1,
       "message": "Don\u0027t we need to do it for all the nexthops ?",
+      "revId": "8edd2ab25f82f32dc11437d0ebb62bae40be063f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9cb44636",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 695,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "The function updateUsedRdAndVpnToExtraRoute() is called when a nexthop in vrfentrylistener is deleted. And this function is called for the last nexthop of the vpntoextraroutes(for the particular prefix). If there are more nexthops under vpntoextraroutes of a prefix , it is handled in VpnInterfaceManager removePrefixFromBgp method.",
+      "parentUuid": "fafc7978_394e33c2",
       "revId": "8edd2ab25f82f32dc11437d0ebb62bae40be063f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +175,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9cb9e617",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 728,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_79639b1a",
+      "revId": "8edd2ab25f82f32dc11437d0ebb62bae40be063f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_7918bb84",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 7
@@ -98,6 +204,24 @@
       "writtenOn": "2017-03-24T10:46:50Z",
       "side": 1,
       "message": "change it to primaryRd",
+      "revId": "8edd2ab25f82f32dc11437d0ebb62bae40be063f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_dc3a4e97",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1295,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_7918bb84",
       "revId": "8edd2ab25f82f32dc11437d0ebb62bae40be063f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
