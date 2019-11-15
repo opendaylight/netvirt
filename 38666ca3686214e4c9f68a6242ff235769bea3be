@@ -163,6 +163,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_dabb6be3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-02-15T11:20:18Z",
+      "side": 1,
+      "message": "Please put a debug log statement here printing which rd is allocated for extra-route.",
+      "revId": "38666ca3686214e4c9f68a6242ff235769bea3be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2d140a4d",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 19
@@ -180,6 +197,40 @@
         "endLine": 626,
         "endChar": 21
       },
+      "revId": "38666ca3686214e4c9f68a6242ff235769bea3be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5acf7b7f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 975,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-02-15T11:20:18Z",
+      "side": 1,
+      "message": "print primaryRd here in log statement.",
+      "revId": "38666ca3686214e4c9f68a6242ff235769bea3be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3aca776e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 979,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-02-15T11:20:18Z",
+      "side": 1,
+      "message": "print primaryRd here in log statement.",
       "revId": "38666ca3686214e4c9f68a6242ff235769bea3be",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
