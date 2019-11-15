@@ -20,6 +20,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5f0666cf",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T05:08:49Z",
+      "side": 1,
+      "message": "which module would allocate this RD and store into adjacency.\nWould that be NeutornVpn?\n\nToday we are not storing anything into config Adjacency within the  VPN Engine. If you are planning to allocate RD dynamically within the VPN Engine and persist it, I would advise orthogonal to it, becuase VPN Engine as it stands today never alters any configuration.  All it does is either copy the configuration to operational state + Maintains the current VPN State.",
+      "parentUuid": "fafc7978_8d3a6732",
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_cca59548",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
         "patchSetId": 4
@@ -79,6 +97,30 @@
       "side": 1,
       "message": "This is to delete entire extra route for the given vpn instance and it is as per existing vpn-to-extra-route model. So it should be primaryRd. \nIn the next review, this will get replaced with vpn name.",
       "parentUuid": "fafc7978_ecaa1918",
+      "range": {
+        "startLine": 254,
+        "startChar": 76,
+        "endLine": 254,
+        "endChar": 101
+      },
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7f808a46",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T04:55:52Z",
+      "side": 1,
+      "message": "+1.. I understand that the next review will enhance teh extra-route and address changes appropriately.",
+      "parentUuid": "fafc7978_ad6dab34",
       "range": {
         "startLine": 254,
         "startChar": 76,
@@ -179,6 +221,59 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_1f917e99",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 606,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T04:55:52Z",
+      "side": 1,
+      "message": "+1.",
+      "parentUuid": "fafc7978_cd490fb9",
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2cb701da",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-08T14:26:41Z",
+      "side": 1,
+      "message": "We should be using the primaryRd here too..",
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_accad14c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-08T14:37:06Z",
+      "side": 1,
+      "message": "Also please always fill the VrfId in every Adjacency and this can loop can use that directly without any confusion.",
+      "parentUuid": "fafc7978_2cb701da",
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2dc89b21",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 4
@@ -263,6 +358,30 @@
       "side": 1,
       "message": "It\u0027s not good idea to return null. Callers should guard against null checks. this can avoid NPE in the project.\nEither return empty List or Optional\u003cList\u003cString\u003e\u003e",
       "parentUuid": "fafc7978_edadf389",
+      "range": {
+        "startLine": 314,
+        "startChar": 16,
+        "endLine": 314,
+        "endChar": 49
+      },
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_dfaff6e1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T04:55:52Z",
+      "side": 1,
+      "message": "If you return empty list, what happens if the caller does a get(index), then also NPE applies right?\n\nReturning any value is not a problem, but making the caller aware of handling the return correctly would be the best approach.",
+      "parentUuid": "fafc7978_6dd2a3d3",
       "range": {
         "startLine": 314,
         "startChar": 16,
@@ -417,6 +536,47 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_bfd83280",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1438,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T04:57:38Z",
+      "side": 1,
+      "message": "Riskly to have this method.  Would recommend to always use the former method, as vpnInstance can become unavailable during deletion lifecycles.",
+      "parentUuid": "fafc7978_8dd6e7c1",
+      "range": {
+        "startLine": 1424,
+        "startChar": 4,
+        "endLine": 1438,
+        "endChar": 5
+      },
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2d053b7a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1440,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T01:44:19Z",
+      "side": 1,
+      "message": "can we use a method isBgpVpn instead.  InternalVPN is a constuct we are using widely to provide l3 forwarding, but in upstream it is either a router (or) a bgpvpn.\n\nBy having method isBgpVpn() it will help us move out BGPVPN specific code later into separate as its being a requested work item upstream.",
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2c1381b9",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkListener.java",
         "patchSetId": 4
@@ -428,6 +588,30 @@
       "writtenOn": "2017-02-08T15:20:15Z",
       "side": 1,
       "message": "getPrimaryRd ???\n\nnot sure right now what\u0027s the difference between getVpnRd and getPrimaryRd, but it should be symmetrical for removal and addition, if only for coherence.\n\nNote that only a few minutes ago this change [1][2] was merged. Could you please rebase and replace the \u0027getVpnRd\u0027 there as well (in new class IVpnLinkServiceImpl.java)?\n\n[1] https://git.opendaylight.org/gerrit/#/c/50968/ (master)\n[2] https://git.opendaylight.org/gerrit/#/c/51548/ (boron)",
+      "range": {
+        "startLine": 294,
+        "startChar": 34,
+        "endLine": 294,
+        "endChar": 42
+      },
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0d083790",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T01:44:19Z",
+      "side": 1,
+      "message": "+1  getVpnRd() need to be slowly deprecated.  getPrimaryRd() will return the single RD that we use to cover the gap for all datastores that have assumed that a VPN can have only one RD :(.\n\nIdeally a VPN is a bucket of multiple VRFs, but historically the design has been driven such that a VPN that can hold only a single VRF (many datastores designed that way).\nThis feature is start of an an attempt to change that theory in baby steps.",
+      "parentUuid": "fafc7978_2c1381b9",
       "range": {
         "startLine": 294,
         "startChar": 34,
