@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_f2f86ac6",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/fib-rpc.yang",
+        "patchSetId": 14
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa2559ec_526336b1",
+      "revId": "6967173fc0f431c9f19625ee6597a2f73ac10197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_12525edd",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/fib-rpc.yang",
         "patchSetId": 14
@@ -30,6 +48,24 @@
       "writtenOn": "2017-06-25T10:59:19Z",
       "side": 1,
       "message": ", required at the end instead of period .",
+      "revId": "6967173fc0f431c9f19625ee6597a2f73ac10197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_d2f566cc",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/fib-rpc.yang",
+        "patchSetId": 14
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa2559ec_12525edd",
       "revId": "6967173fc0f431c9f19625ee6597a2f73ac10197",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_320322ba",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/fib-rpc.yang",
+        "patchSetId": 14
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa2559ec_3255e2c6",
+      "revId": "6967173fc0f431c9f19625ee6597a2f73ac10197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_b258b2fb",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibRpcServiceImpl.java",
         "patchSetId": 14
@@ -64,6 +118,24 @@
       "writtenOn": "2017-06-25T10:59:19Z",
       "side": 1,
       "message": "you cannot say /*remove*/, the value in comments should be the name of the parameter  and not what you intend to send !  so it should remain /* add */",
+      "revId": "6967173fc0f431c9f19625ee6597a2f73ac10197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_12009ea9",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibRpcServiceImpl.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa2559ec_b258b2fb",
       "revId": "6967173fc0f431c9f19625ee6597a2f73ac10197",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_722c7a4b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/resources/org/opendaylight/blueprint/fibmanager.xml",
+        "patchSetId": 14
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "I\u0027m seeing when odl-netvirt-openstack is started, bundle are going to GracePeriod state without this option and I suspect this might be due to kind of cyclic dependency between fibmanager and vpnmanager.\n\n360 | Active      |  80 | 0.4.1.SNAPSHOT                      | ODL :: netvirt :: vpnmanager-shell\n361 | GracePeriod |  80 | 0.4.1.SNAPSHOT                      | ODL :: netvirt :: fibmanager-impl\n362 | GracePeriod |  80 | 0.4.1.SNAPSHOT                      | ODL :: netvirt :: fibmanager-shell\n363 | GracePeriod |  80 | 0.4.1.SNAPSHOT                      | ODL :: netvirt :: neutronvpn-impl\n364 | GracePeriod |  80 | 0.4.1.SNAPSHOT                      | ODL :: netvirt :: neutronvpn-shell\n365 | GracePeriod |  80 | 0.4.1.SNAPSHOT                      | ODL :: netvirt :: dhcpservice-impl\n366 | GracePeriod |  80 | 0.4.1.SNAPSHOT                      | ODL :: netvirt :: cloud-servicechain-impl\n367 | Active      |  80 | 0.4.1.SNAPSHOT                      | ODL :: netvirt :: elanmanager-impl\n368 | GracePeriod |  80 | 0.4.1.SNAPSHOT                      | ODL :: netvirt :: natservice-impl\n369 | Active      |  80 | 0.4.1.SNAPSHOT                      | ODL :: netvirt :: aclservice-impl\n370 | GracePeriod |  80 | 0.4.1.SNAPSHOT                      | ODL :: netvirt :: qosservice-impl\n371 | GracePeriod |  80 | 0.4.1.SNAPSHOT                      | ODL :: netvirt :: policyservice-impl\n372 | Active      |  80 | 0.4.1.SNAPSHOT                      | ODL :: netvirt :: ipv6service-impl\n373 | GracePeriod |  80 | 0.4.1.SNAPSHOT                      | ODL :: netvirt :: statemanager-impl\n374 | Active      |  80 | 0.4.1.SNAPSHOT                      | ODL :: netvirt :: statistics-impl",
+      "parentUuid": "fa2559ec_925daeec",
+      "revId": "6967173fc0f431c9f19625ee6597a2f73ac10197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_f2718a78",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
         "patchSetId": 14
@@ -98,6 +188,24 @@
       "writtenOn": "2017-06-25T10:59:19Z",
       "side": 1,
       "message": "can you please educate me why this movement is required?",
+      "revId": "6967173fc0f431c9f19625ee6597a2f73ac10197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_523176a1",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 1683,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "in above clrRtsFromBgpAndDelFibTs(), \u003ci\u003eodl-nat/intext-ip-map/ip-mapping/ip-map\u003c/i\u003e been refered to get the external-ips for calling fibmanager.removeFibEntry. But, ip-map entries was getting cleared in this naptManager.removeMapping() and as a result, returning without calling removeFibEntry(line:2157) during \"neutron router clear\" . \n\nHence moved this code down to delete entries from ip-map only after fibManager.removeFibEntry() is done.",
+      "parentUuid": "fa2559ec_f2718a78",
       "revId": "6967173fc0f431c9f19625ee6597a2f73ac10197",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_72d3da38",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 1061,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "In this method, we arer referring i\u003eodl-nat/floating-ip-info/router-ports/ports/internal-to-external-port-map\u003c/i\u003e to get the external-ip which are floating-ip UC only",
+      "parentUuid": "fa2559ec_d26e0696",
+      "revId": "6967173fc0f431c9f19625ee6597a2f73ac10197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_1269be8b",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 14
@@ -132,6 +258,24 @@
       "writtenOn": "2017-06-25T10:59:19Z",
       "side": 1,
       "message": "when can flowNames become null?",
+      "revId": "6967173fc0f431c9f19625ee6597a2f73ac10197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_b226f266",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 1985,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Currently, there exists few NatUtils.buildFlowEntity()(line 493-502) not setting flowName(only flowId instead).",
+      "parentUuid": "fa2559ec_1269be8b",
       "revId": "6967173fc0f431c9f19625ee6597a2f73ac10197",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_922bee2f",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 1998,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Hi Vivek,\n\nCurrently, we are supporting only IPv4 for NAT translation. I don\u0027t see we can expect an Ipv6 address being passed here(with expecting NAT functionality to work). So, this additional check is not required.",
+      "parentUuid": "fa2559ec_326cc29c",
+      "revId": "6967173fc0f431c9f19625ee6597a2f73ac10197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_72059ac1",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/IVpnFootprintService.java",
         "patchSetId": 14
@@ -166,6 +328,24 @@
       "writtenOn": "2017-06-25T10:59:19Z",
       "side": 1,
       "message": "can\u0027t this also be ImmutablePair?\n\nuse datastructures consistently please!",
+      "revId": "6967173fc0f431c9f19625ee6597a2f73ac10197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_f21fca07",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/IVpnFootprintService.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa2559ec_72059ac1",
       "revId": "6967173fc0f431c9f19625ee6597a2f73ac10197",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
