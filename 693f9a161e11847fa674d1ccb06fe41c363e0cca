@@ -1,0 +1,256 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_be23cfa5",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1639,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2016-09-08T18:26:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_a918d31e",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_9e289387",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1659,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2016-09-08T18:26:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_49f77f8b",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_de1e8b5e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2007,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2016-09-08T18:26:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_a9ef33e8",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_be0c6f3c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpScheduler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2016-09-08T18:26:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_a9c61366",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_fe11c752",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpScheduler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2016-09-08T18:26:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_e98acb19",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_5e1b9b72",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpScheduler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2016-09-08T18:26:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_c98f0f29",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_9b1a657b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2016-09-08T18:26:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_099d8759",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_7b1f896c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 558,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2016-09-08T18:26:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_a9745336",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_1b0e553b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 564,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2016-09-08T18:26:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_e9912b48",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_fb0a7924",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 564,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2016-09-08T18:26:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_012a892b",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_5b044d17",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 566,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2016-09-08T18:26:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_c996ef3e",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_3b019106",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1281,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2016-09-08T18:26:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_29984369",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_3e185f74",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1207,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2016-09-08T18:26:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_89a87778",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_6706c61e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1248,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2016-09-08T18:26:37Z",
+      "side": 1,
+      "message": "IP match is not required.",
+      "parentUuid": "7a6b29fe_c90b8f8c",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
