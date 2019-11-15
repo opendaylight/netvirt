@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "da01753e_6e4dc672",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-04-04T13:03:44Z",
+      "side": 1,
+      "message": "Avoid package name:) I guess only the google.base Optional is needed. java.util is not needed right?",
+      "range": {
+        "startLine": 137,
+        "startChar": 42,
+        "endLine": 137,
+        "endChar": 64
+      },
+      "revId": "598210ea20f43f4f570e9208082100ccc27d52ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_840e0b33",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
         "patchSetId": 11
@@ -19,6 +42,29 @@
         "startChar": 42,
         "endLine": 137,
         "endChar": 64
+      },
+      "revId": "598210ea20f43f4f570e9208082100ccc27d52ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_ae096e2e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-04-04T13:03:44Z",
+      "side": 1,
+      "message": "could you please make this info? Also please add RD",
+      "range": {
+        "startLine": 596,
+        "startChar": 16,
+        "endLine": 596,
+        "endChar": 21
       },
       "revId": "598210ea20f43f4f570e9208082100ccc27d52ba",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
