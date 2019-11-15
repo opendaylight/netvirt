@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_5292f357",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-12T13:59:49Z",
+      "side": 1,
+      "message": "why not collections.emptyList?",
+      "range": {
+        "startLine": 123,
+        "startChar": 23,
+        "endLine": 123,
+        "endChar": 42
+      },
+      "revId": "b05770e6f0b0eb8f47fea9175021846a22ce139f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_b29fef5e",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-12T13:59:49Z",
+      "side": 1,
+      "message": "Why is this change needed?",
+      "range": {
+        "startLine": 125,
+        "startChar": 15,
+        "endLine": 125,
+        "endChar": 36
+      },
+      "revId": "b05770e6f0b0eb8f47fea9175021846a22ce139f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_ebe96e1b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-20T13:02:02Z",
+      "side": 1,
+      "message": "Will it be more readable to have a usedRds.isEmpty() check before line 264? and then have the original checks as it is?\nOr will this violate some conditions?",
+      "range": {
+        "startLine": 264,
+        "startChar": 29,
+        "endLine": 264,
+        "endChar": 35
+      },
+      "revId": "b05770e6f0b0eb8f47fea9175021846a22ce139f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_72af37e4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-12T13:59:49Z",
+      "side": 1,
+      "message": "will parallelStream be better here?",
+      "range": {
+        "startLine": 168,
+        "startChar": 30,
+        "endLine": 168,
+        "endChar": 38
+      },
+      "revId": "b05770e6f0b0eb8f47fea9175021846a22ce139f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_b21a4f15",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-12T13:59:49Z",
+      "side": 1,
+      "message": "\u0026\u0026 vpnToDpn.getDpnState \u003d\u003d DpnState.ACTIVE",
+      "range": {
+        "startLine": 172,
+        "startChar": 95,
+        "endLine": 172,
+        "endChar": 114
+      },
+      "revId": "b05770e6f0b0eb8f47fea9175021846a22ce139f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_b2b9af30",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-12T13:59:49Z",
+      "side": 1,
+      "message": "parallelstream?",
+      "range": {
+        "startLine": 172,
+        "startChar": 48,
+        "endLine": 172,
+        "endChar": 55
+      },
+      "revId": "b05770e6f0b0eb8f47fea9175021846a22ce139f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
