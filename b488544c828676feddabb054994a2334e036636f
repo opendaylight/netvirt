@@ -45,6 +45,23 @@
       "revId": "b488544c828676feddabb054994a2334e036636f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fa2aaf2a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 1652,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-02-15T11:08:02Z",
+      "side": 1,
+      "message": "In addExtraRoute , extraroute-rds-map is updated with allocated rds. Similarly when extra route is deleted , that rd needs to be removed from extraroute-rds-map\u0027s usedRd list. If its not done here , where its done ?",
+      "revId": "b488544c828676feddabb054994a2334e036636f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
