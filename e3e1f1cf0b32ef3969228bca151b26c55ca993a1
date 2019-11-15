@@ -70,6 +70,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_fedbf1ea",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 606,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-04T18:11:06Z",
+      "side": 1,
+      "message": "why isn\u0027t this update added to the writeOperTxn transaction?",
+      "revId": "e3e1f1cf0b32ef3969228bca151b26c55ca993a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b47185e2",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 17
@@ -99,6 +116,23 @@
       "writtenOn": "2017-02-06T16:20:36Z",
       "side": 1,
       "message": "So we donot service even the primary interface here, just because we run out of RDs for extra-routes?",
+      "revId": "e3e1f1cf0b32ef3969228bca151b26c55ca993a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ded6edc2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 1585,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-04T18:11:06Z",
+      "side": 1,
+      "message": "why only the prefix is the key for sync. block and not prefix+vpn-id?",
       "revId": "e3e1f1cf0b32ef3969228bca151b26c55ca993a1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
