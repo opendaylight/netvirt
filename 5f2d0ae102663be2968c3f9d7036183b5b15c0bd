@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_40d77ded",
+        "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat-rpc.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Comments can be proivded like this https://tools.ietf.org/html/rfc6020#section-6.1.1\n\nblank lines provided",
+      "parentUuid": "fafc7978_a090e943",
+      "revId": "5f2d0ae102663be2968c3f9d7036183b5b15c0bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_917536fc",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 8
@@ -71,6 +89,42 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_c2289288",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1719,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "This Works, but the constructor takes input in CIDR format. So it may fail if multiple allocation-pools provided during subnet creation and input ip not provided in this range(Ex: 30.0.0.65). Currently logic goes through each of the allocation-pool and validates the input.\n\nneutron subnet-create test  --name testsubnet --allocation-pool start\u003d30.0.0.10,end\u003d30.0.0.50 --allocation-pool start\u003d30.0.0.75,end\u003d30.0.0.100 30.0.0.0/24\nCreated a new subnet:\n+-------------------+---------------------------------------------+\n| Field             | Value                                       |\n+-------------------+---------------------------------------------+\n| allocation_pools  | {\"start\": \"30.0.0.10\", \"end\": \"30.0.0.50\"}  |\n|                   | {\"start\": \"30.0.0.75\", \"end\": \"30.0.0.100\"} |\n| cidr              | 30.0.0.0/24                                 |\n| dns_nameservers   |                                             |\n| enable_dhcp       | True                                        |\n| gateway_ip        | 30.0.0.1                                    |\n| host_routes       |                                             |\n| id                | 75f94951-b84e-4961-a527-9f4f3091d0b2        |\n| ip_version        | 4                                           |\n| ipv6_address_mode |                                             |\n| ipv6_ra_mode      |                                             |\n| name              | testsubnet                                  |\n| network_id        | 4235ea3d-ec64-483a-946d-cf2097f35138        |\n| subnetpool_id     |                                             |\n| tenant_id         | 42a5548f79974b909da54a212846013a            |\n+-------------------+---------------------------------------------+",
+      "parentUuid": "fafc7978_60dc4113",
+      "revId": "5f2d0ae102663be2968c3f9d7036183b5b15c0bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_96740c37",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1719,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_96188c1f",
+      "revId": "5f2d0ae102663be2968c3f9d7036183b5b15c0bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a005897b",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/rpcservice/NatRpcServiceImpl.java",
         "patchSetId": 8
@@ -100,6 +154,42 @@
       "side": 1,
       "message": "This is incorrect way of representing error code inside the message.  Please check out other examples and see how we represent  Resource Not Found.\n\n404 is not just for Page Not Found, it is a general error code to educate that resource is not known or does not exist.",
       "parentUuid": "fafc7978_80cb251d",
+      "revId": "5f2d0ae102663be2968c3f9d7036183b5b15c0bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_80cb251d",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/rpcservice/NatRpcServiceImpl.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "404 error code is used for \"Page Not found\". I think the better way is to just display the error-msg. Didn\u0027t find any service-module making use of error-code as of now.",
+      "parentUuid": "fafc7978_a005897b",
+      "revId": "5f2d0ae102663be2968c3f9d7036183b5b15c0bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_76ed28b7",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/rpcservice/NatRpcServiceImpl.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Updated. Referring https://github.com/opendaylight/packetcable/blob/115a89cc11be8bed87add5c17077d3a493e10fd4/packetcable-policy-server/src/test/java/org/opendaylight/controller/packetcable/provider/PCMMServiceTest.java\n\nDidn\u0027t find any RPCs in genius/netvirt currently constructing errMsg in this  format.",
+      "parentUuid": "fafc7978_5622a452",
       "revId": "5f2d0ae102663be2968c3f9d7036183b5b15c0bd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
