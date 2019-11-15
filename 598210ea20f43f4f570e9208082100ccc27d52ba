@@ -1,0 +1,52 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_840e0b33",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-04-04T18:12:05Z",
+      "side": 1,
+      "message": "There are few other methods which makes use of java.util.Optional and that is present in import",
+      "parentUuid": "da01753e_6e4dc672",
+      "range": {
+        "startLine": 137,
+        "startChar": 42,
+        "endLine": 137,
+        "endChar": 64
+      },
+      "revId": "598210ea20f43f4f570e9208082100ccc27d52ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_c43db3bd",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-04-04T18:12:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_ae096e2e",
+      "range": {
+        "startLine": 596,
+        "startChar": 16,
+        "endLine": 596,
+        "endChar": 21
+      },
+      "revId": "598210ea20f43f4f570e9208082100ccc27d52ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
