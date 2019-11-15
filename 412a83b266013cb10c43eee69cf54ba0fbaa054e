@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "da01753e_a82cb84b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-04-06T15:35:11Z",
+      "side": 1,
+      "message": "looks like the first thing this method should do is an early return if no adjList ready.\nIf adjList is null, we\u0027ll make 2 useless MD-SAL reads.",
+      "range": {
+        "startLine": 671,
+        "startChar": 8,
+        "endLine": 671,
+        "endChar": 30
+      },
+      "revId": "412a83b266013cb10c43eee69cf54ba0fbaa054e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_011ddf0f",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 14
@@ -19,6 +42,29 @@
         "startChar": 8,
         "endLine": 671,
         "endChar": 30
+      },
+      "revId": "412a83b266013cb10c43eee69cf54ba0fbaa054e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_28f9e8c8",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 686,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-04-06T15:35:11Z",
+      "side": 1,
+      "message": "print more stuff, like vpnInterface, prefix, label. etc.\nIt makes \u0027grep\u0027 more powerful  :-)",
+      "range": {
+        "startLine": 686,
+        "startChar": 35,
+        "endLine": 686,
+        "endChar": 60
       },
       "revId": "412a83b266013cb10c43eee69cf54ba0fbaa054e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
