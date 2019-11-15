@@ -20,6 +20,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_cca59548",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-02-08T15:20:15Z",
+      "side": 1,
+      "message": "you have removed the \u0027catch(Exception)\u0027, so this SuppressWarnings can be removed too.",
+      "range": {
+        "startLine": 232,
+        "startChar": 8,
+        "endLine": 232,
+        "endChar": 52
+      },
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_6d8463d4",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
         "patchSetId": 4
@@ -61,6 +84,29 @@
         "startChar": 76,
         "endLine": 254,
         "endChar": 101
+      },
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0c679d26",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-02-08T15:20:15Z",
+      "side": 1,
+      "message": "Same comment",
+      "range": {
+        "startLine": 459,
+        "startChar": 9,
+        "endLine": 459,
+        "endChar": 25
       },
       "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
@@ -270,6 +316,52 @@
         "startChar": 4,
         "endLine": 1438,
         "endChar": 5
+      },
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0c167da7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-02-08T15:20:15Z",
+      "side": 1,
+      "message": "idem",
+      "range": {
+        "startLine": 295,
+        "startChar": 34,
+        "endLine": 295,
+        "endChar": 42
+      },
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8c842db2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverMplsGrePopulator.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-02-08T15:20:15Z",
+      "side": 1,
+      "message": "primaryRD and rd are/can be different?",
+      "range": {
+        "startLine": 66,
+        "startChar": 27,
+        "endLine": 66,
+        "endChar": 29
       },
       "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
