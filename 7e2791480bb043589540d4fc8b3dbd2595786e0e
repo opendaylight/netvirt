@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_f8a445a7",
+        "filename": "vpnservice/qosservice/impl/src/main/resources/org/opendaylight/blueprint/qosservice.xml",
+        "patchSetId": 16
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-27T14:39:38Z",
+      "side": 1,
+      "message": "neutronVpnManager here ?",
+      "revId": "7e2791480bb043589540d4fc8b3dbd2595786e0e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
