@@ -16,6 +16,24 @@
       "revId": "f9e71fc93e814d680213b955cfc185730bf2f5e1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_0cc18680",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-10T17:37:07Z",
+      "side": 1,
+      "message": "I was wondering if you can add if() condition and then tailor this INFO..  This can definitely bloat the logs ... \nAnyway I fired CSIT on this review.\n\nIf you want to merge this, please consider adding the if() condition for floating-ip (or) router-interface-ip and then print instead of blanket ARP Request printing.",
+      "parentUuid": "da01753e_56d8411d",
+      "revId": "f9e71fc93e814d680213b955cfc185730bf2f5e1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
