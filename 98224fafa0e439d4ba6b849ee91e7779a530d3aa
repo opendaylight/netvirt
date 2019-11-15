@@ -1,0 +1,124 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_6d8463d4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-09T03:10:31Z",
+      "side": 1,
+      "message": "bgpManager.deleteVrf doesn\u0027t throw any Exception and also it does only ds operations. so don\u0027t need to handle any exception here.",
+      "parentUuid": "fafc7978_ec817990",
+      "range": {
+        "startLine": 250,
+        "startChar": 11,
+        "endLine": 251,
+        "endChar": 84
+      },
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8d4f07be",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 597,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-09T03:10:31Z",
+      "side": 1,
+      "message": "yes, right now both are same. in the next review, it will get changed to choose rd from rd-list when extra route having multiple nexthops.",
+      "parentUuid": "fafc7978_6c3c69e3",
+      "range": {
+        "startLine": 597,
+        "startChar": 28,
+        "endLine": 597,
+        "endChar": 37
+      },
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2dc89b21",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 690,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-09T03:10:31Z",
+      "side": 1,
+      "message": "It should be primary rd",
+      "parentUuid": "fafc7978_6c13c966",
+      "range": {
+        "startLine": 690,
+        "startChar": 58,
+        "endLine": 690,
+        "endChar": 67
+      },
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8dd6e7c1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1438,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-09T03:10:31Z",
+      "side": 1,
+      "message": "both methods are different flavors with vpnname and vpninstance and these are used in multiple places. so it\u0027s okay to have these two methods.",
+      "parentUuid": "fafc7978_acdbf1eb",
+      "range": {
+        "startLine": 1424,
+        "startChar": 4,
+        "endLine": 1438,
+        "endChar": 5
+      },
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4decff8f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverMplsGrePopulator.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-09T03:10:31Z",
+      "side": 1,
+      "message": "Both are different in case of extra-route having multiple nexthops. primaryrd is used to populate vrftable and rd is used to advertise route to bgp peer. I think this got missed while splitting the review.",
+      "parentUuid": "fafc7978_47021e70",
+      "range": {
+        "startLine": 66,
+        "startChar": 27,
+        "endLine": 66,
+        "endChar": 29
+      },
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
