@@ -71,6 +71,23 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_bf76983c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-07-12T11:48:30Z",
+      "side": 1,
+      "message": "vpnInstanceOpData null check (line-no-161) is not returning , but instead continues till here. Here vpnInstanceOpData.stream() will throw NPE",
+      "revId": "b05770e6f0b0eb8f47fea9175021846a22ce139f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_72af37e4",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
         "patchSetId": 5
