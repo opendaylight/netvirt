@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "da2a55be_1ce37208",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-12T08:32:31Z",
+      "side": 1,
+      "message": "Why is this piece of code changed? Is a syncWrite really needed here? If not, please retain the old code.",
+      "range": {
+        "startLine": 406,
+        "startChar": 16,
+        "endLine": 406,
+        "endChar": 65
+      },
+      "revId": "07f5f4052f22627cae7c43e4655417f6dda206d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_abe5b6a9",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 554,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-13T07:21:07Z",
+      "side": 1,
+      "message": "Got it. Please make this check as \u003d\u003dOperStatus.DOWN\nWe should not handle status\u003dUNKNOWN events.",
+      "range": {
+        "startLine": 554,
+        "startChar": 50,
+        "endLine": 554,
+        "endChar": 90
+      },
+      "revId": "07f5f4052f22627cae7c43e4655417f6dda206d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_e53d3bbd",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 3
@@ -13,6 +59,122 @@
       "writtenOn": "2017-07-04T04:49:54Z",
       "side": 1,
       "message": "just continue if nexthop is not primary adjacency",
+      "revId": "07f5f4052f22627cae7c43e4655417f6dda206d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_9c69228e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-12T08:32:31Z",
+      "side": 1,
+      "message": "The nextHop can be a learntIp as well. We should not delete fib for that here",
+      "range": {
+        "startLine": 541,
+        "startChar": 31,
+        "endLine": 541,
+        "endChar": 38
+      },
+      "revId": "07f5f4052f22627cae7c43e4655417f6dda206d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_775f20e6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-14T06:29:53Z",
+      "side": 1,
+      "message": "In adjacency, there is a boolean called primaryAdjacency. Could you please convert this to an enum, with primary_adjacency, extra_route and learnt_ip?",
+      "parentUuid": "da2a55be_cb63caaf",
+      "range": {
+        "startLine": 541,
+        "startChar": 31,
+        "endLine": 541,
+        "endChar": 38
+      },
+      "revId": "07f5f4052f22627cae7c43e4655417f6dda206d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_5c6faa92",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-12T08:32:31Z",
+      "side": 1,
+      "message": "Please pass the writeCfgTxn from processVpnInterfaceDown and use it here",
+      "range": {
+        "startLine": 556,
+        "startChar": 28,
+        "endLine": 556,
+        "endChar": 52
+      },
+      "revId": "07f5f4052f22627cae7c43e4655417f6dda206d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_dc31daa3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1714,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-12T08:32:31Z",
+      "side": 1,
+      "message": "argument not needed",
+      "range": {
+        "startLine": 1714,
+        "startChar": 72,
+        "endLine": 1714,
+        "endChar": 104
+      },
+      "revId": "07f5f4052f22627cae7c43e4655417f6dda206d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_3c275666",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1836,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-12T08:32:31Z",
+      "side": 1,
+      "message": "parameter not needed",
+      "range": {
+        "startLine": 1836,
+        "startChar": 19,
+        "endLine": 1836,
+        "endChar": 34
+      },
       "revId": "07f5f4052f22627cae7c43e4655417f6dda206d3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
