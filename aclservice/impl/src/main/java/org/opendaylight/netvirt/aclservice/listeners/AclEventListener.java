@@ -107,7 +107,7 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
                 this.aclServiceUtils.releaseAclTag(aclName);
             }
             // Handle Rule deletion If SG Remove event is received before SG Rule delete event
-            if (null != acl.getAccessListEntries()) {
+            if (null != acl.getAccessListEntries() && null != acl.getAccessListEntries().getAce()) {
                 List<Ace> aceList = acl.getAccessListEntries().getAce();
                 Collection<AclInterface> aclInterfaces =
                         ImmutableSet.copyOf(aclDataUtil.getInterfaceList(new Uuid(aclName)));
@@ -130,7 +130,7 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
         if (aclClusterUtil.isEntityOwner()) {
             LOG.debug("On update event, remove Ace rules: {} for ACL: {}", deletedAceRules, aclName);
             updateAceRules(interfacesBefore, aclName, deletedAceRules, AclServiceManager.Action.REMOVE);
-            if (null != deletedAceRules && !deletedAceRules.isEmpty()) {
+            if (!deletedAceRules.isEmpty()) {
                 aclServiceUtils.deleteAcesFromConfigDS(aclName, deletedAceRules);
             }
         }
@@ -146,12 +146,10 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
 
     private void updateAceRules(Collection<AclInterface> interfaceList, String aclName, List<Ace> aceList,
             AclServiceManager.Action action) {
-        if (null != aceList && !aceList.isEmpty()) {
-            LOG.trace("update ace rules - action: {} , ace rules: {}", action.name(), aceList);
-            for (AclInterface port : interfaceList) {
-                for (Ace aceRule : aceList) {
-                    aclServiceManager.notifyAce(port, action, aclName, aceRule);
-                }
+        LOG.trace("update ace rules - action: {} , ace rules: {}", action.name(), aceList);
+        for (AclInterface port : interfaceList) {
+            for (Ace aceRule : aceList) {
+                aclServiceManager.notifyAce(port, action, aclName, aceRule);
             }
         }
     }
@@ -229,21 +227,19 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
             return;
         }
 
-        if (aclInterfaces != null) {
-            for (AclInterface aclInterface : aclInterfaces) {
-                AclInterface aclInterfaceInCache =
-                        aclInterfaceCache.addOrUpdate(aclInterface.getInterfaceId(), (prevAclInterface, builder) -> {
-                            SortedSet<Integer> remoteAclTags =
-                                    aclServiceUtils.getRemoteAclTags(aclInterface.getSecurityGroups(), direction);
-                            if (DirectionEgress.class.equals(direction)) {
-                                builder.egressRemoteAclTags(remoteAclTags);
-                            } else {
-                                builder.ingressRemoteAclTags(remoteAclTags);
-                            }
-                        });
+        for (AclInterface aclInterface : aclInterfaces) {
+            AclInterface aclInterfaceInCache =
+                    aclInterfaceCache.addOrUpdate(aclInterface.getInterfaceId(), (prevAclInterface, builder) -> {
+                        SortedSet<Integer> remoteAclTags =
+                                aclServiceUtils.getRemoteAclTags(aclInterface.getSecurityGroups(), direction);
+                        if (DirectionEgress.class.equals(direction)) {
+                            builder.egressRemoteAclTags(remoteAclTags);
+                        } else {
+                            builder.ingressRemoteAclTags(remoteAclTags);
+                        }
+                    });
 
-                aclDataUtil.addOrUpdateAclInterfaceMap(aclInterface.getSecurityGroups(), aclInterfaceInCache);
-            }
+            aclDataUtil.addOrUpdateAclInterfaceMap(aclInterface.getSecurityGroups(), aclInterfaceInCache);
         }
     }
 
@@ -281,7 +277,7 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
 
     private List<Ace> getDeletedAceList(Acl acl) {
         if (acl == null || acl.getAccessListEntries() == null || acl.getAccessListEntries().getAce() == null) {
-            return null;
+            return Collections.emptyList();
         }
         List<Ace> aceList = acl.getAccessListEntries().getAce();
         List<Ace> deletedAceList = new ArrayList<>();
