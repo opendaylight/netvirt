@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_011ddf0f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-04-07T04:42:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_a82cb84b",
+      "range": {
+        "startLine": 671,
+        "startChar": 8,
+        "endLine": 671,
+        "endChar": 30
+      },
+      "revId": "412a83b266013cb10c43eee69cf54ba0fbaa054e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
