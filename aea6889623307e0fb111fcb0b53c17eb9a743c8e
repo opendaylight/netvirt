@@ -36,6 +36,29 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_a18c9980",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "will remove this line in next patch after incorporating new review comments, if any.",
+      "range": {
+        "startLine": 182,
+        "startChar": 8,
+        "endLine": 182,
+        "endChar": 65
+      },
+      "revId": "aea6889623307e0fb111fcb0b53c17eb9a743c8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_fc4e3495",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 7
