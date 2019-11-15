@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_1cf2fd05",
+        "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat-rpc.yang",
+        "patchSetId": 11
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-20T12:24:02Z",
+      "side": 1,
+      "message": "what about internal-port and external-port information in the output here?\n\nIn a running cloud many applications may run on the same internal IP.",
+      "revId": "d4a4b55652c57f3c5bc328384588611d01ced0ca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
