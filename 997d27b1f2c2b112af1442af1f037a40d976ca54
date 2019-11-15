@@ -634,6 +634,30 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_763b7dd1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1320,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "The update of vpnextraroutes and usedrds in this method are inside the if check (nhList !\u003d null \u0026\u0026 nhList.size() \u003e 1). So the updates of vpnextraroutes and usedrds in this method will be triggered only for the nexthops till the last but one. Only for the last one in the particular DPN, update/delete DCN for fib is triggered.",
+      "parentUuid": "da2a55be_fc64714a",
+      "range": {
+        "startLine": 1316,
+        "startChar": 23,
+        "endLine": 1320,
+        "endChar": 61
+      },
+      "revId": "997d27b1f2c2b112af1442af1f037a40d976ca54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_e802f83c",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 6
@@ -693,6 +717,30 @@
       "side": 1,
       "message": "In this Utility class, only syncDelete is missing. So good to have all the method present",
       "parentUuid": "da2a55be_e802f83c",
+      "range": {
+        "startLine": 841,
+        "startChar": 8,
+        "endLine": 852,
+        "endChar": 5
+      },
+      "revId": "997d27b1f2c2b112af1442af1f037a40d976ca54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_1625e1aa",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 852,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "da2a55be_1cc98526",
       "range": {
         "startLine": 841,
         "startChar": 8,
