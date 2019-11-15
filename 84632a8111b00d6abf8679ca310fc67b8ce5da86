@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_5bd18bfa",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-05-10T09:08:27Z",
+      "side": 1,
+      "message": "Is there a reason we need these? The same exact values are used in the first call to buildAndInstallNatFlowsOptionalRpc and copying the values into new vars seems unnecessary and confusing.",
+      "revId": "84632a8111b00d6abf8679ca310fc67b8ce5da86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_1b0d4391",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-05-10T09:08:27Z",
+      "side": 1,
+      "message": "And what if it is null? I ask only because in the previous lines and following lines you check for null for the values you\u0027re lining up.",
+      "revId": "84632a8111b00d6abf8679ca310fc67b8ce5da86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_3b6ac71a",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-05-10T09:08:27Z",
+      "side": 1,
+      "message": "Style issue: This can be refactored to make it more readable. See http://wiki.c2.com/?ArrowAntiPattern",
+      "revId": "84632a8111b00d6abf8679ca310fc67b8ce5da86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
