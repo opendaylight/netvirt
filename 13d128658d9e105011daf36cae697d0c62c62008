@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_5bbada0a",
+        "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat-rpc.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-16T09:31:11Z",
+      "side": 1,
+      "message": "snat is dynamically decided and so it is a state (not config).\n\nwhere as dnat is config as its pinned by the tenant apriori.\n\nwe can just have two RPCs:\nget_nat_translations_on_router\nget_nat_translations_on_vpn\n\nThe output will contain both dnat and snat translations current in effect for the router (in former rpc) and for the vpn (in the latter rpc).\n\nThe vpnuuid you give in the latter rpc must be an Internet VPN UUID.  Further for the latter rpc, since there can be more than one router in the Internet VPN, the output must list all the routers and their current nat translations.",
+      "revId": "13d128658d9e105011daf36cae697d0c62c62008",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
