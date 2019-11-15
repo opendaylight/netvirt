@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f5ae0080",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1271,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-01T07:23:21Z",
+      "side": 1,
+      "message": "You can pass the interfaceState as a parameter to getGatewayMacAddressForInterface(). If the parameter exists it will get PhysAddress and use it , otherwise it can continue to do the usual InterfaceUtils.getGatewayMacAddressForInterface()",
+      "parentUuid": "fafc7978_95d7b44a",
+      "revId": "0ec4bc57c9b7c4e7c91b2e8b5543b5ec61ee5286",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f5e560dc",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 1
