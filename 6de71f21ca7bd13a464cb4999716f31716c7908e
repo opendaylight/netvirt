@@ -36,6 +36,74 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_c83dfa90",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatOverVxlanUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-07T05:16:43Z",
+      "side": 1,
+      "message": "L small case l required in Light",
+      "revId": "6de71f21ca7bd13a464cb4999716f31716c7908e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_88b81212",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatOverVxlanUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-07T05:16:43Z",
+      "side": 1,
+      "message": "L small case l rquired in Light.",
+      "revId": "6de71f21ca7bd13a464cb4999716f31716c7908e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c864daba",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/RouterDpnChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-07T05:16:43Z",
+      "side": 1,
+      "message": "no change in this fiile, why required in this review?",
+      "revId": "6de71f21ca7bd13a464cb4999716f31716c7908e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6875ee62",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManagerImpl.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-07T05:16:43Z",
+      "side": 1,
+      "message": "you have to change INeutronVPNManager to embrace these two public methods too right?",
+      "revId": "6de71f21ca7bd13a464cb4999716f31716c7908e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_28f3e60a",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnConstants.java",
         "patchSetId": 8
