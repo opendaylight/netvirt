@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_cdf3bd9c",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_cbd8ce81",
+      "range": {
+        "startLine": 381,
+        "startChar": 16,
+        "endLine": 387,
+        "endChar": 74
+      },
+      "revId": "260a047ba6b651742af0e1431701a87bbb069d10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_6bd1e256",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 7
@@ -72,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_adee49b2",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 566,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Can you merge this one first. then we will rebase the other on top of it.",
+      "parentUuid": "da2a55be_6bd1e256",
+      "range": {
+        "startLine": 559,
+        "startChar": 20,
+        "endLine": 566,
+        "endChar": 49
+      },
+      "revId": "260a047ba6b651742af0e1431701a87bbb069d10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_ebc4b293",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 7
@@ -83,6 +131,30 @@
       "writtenOn": "2017-07-20T13:02:02Z",
       "side": 1,
       "message": "Please retain the original logic of using installGroupOnDpn(). We have done this specifically to remove the timed wait.",
+      "range": {
+        "startLine": 786,
+        "startChar": 14,
+        "endLine": 787,
+        "endChar": 31
+      },
+      "revId": "260a047ba6b651742af0e1431701a87bbb069d10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_2d3a5936",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 787,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "This is creating race conditions since the loadbalancing group update is being called parallely. When extra routes are added together, most of the times, installGroupOnDpn is returning with error. That\u0027s why we changed only for setupLoadBalancingNextHop.",
+      "parentUuid": "da2a55be_ebc4b293",
       "range": {
         "startLine": 786,
         "startChar": 14,
@@ -118,6 +190,30 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_0d2dd5fe",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 808,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_6b38c2a0",
+      "range": {
+        "startLine": 804,
+        "startChar": 8,
+        "endLine": 808,
+        "endChar": 41
+      },
+      "revId": "260a047ba6b651742af0e1431701a87bbb069d10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_eb72f27a",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 7
@@ -129,6 +225,30 @@
       "writtenOn": "2017-07-20T13:02:02Z",
       "side": 1,
       "message": "Most of the code changes are already present in 59752",
+      "range": {
+        "startLine": 845,
+        "startChar": 18,
+        "endLine": 853,
+        "endChar": 43
+      },
+      "revId": "260a047ba6b651742af0e1431701a87bbb069d10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_ed2fa1f4",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 853,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_eb72f27a",
       "range": {
         "startLine": 845,
         "startChar": 18,
@@ -176,6 +296,30 @@
       "side": 1,
       "message": "Agreed:)",
       "parentUuid": "da2a55be_6df45187",
+      "range": {
+        "startLine": 167,
+        "startChar": 12,
+        "endLine": 167,
+        "endChar": 93
+      },
+      "revId": "260a047ba6b651742af0e1431701a87bbb069d10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_6df45187",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Most of the logic as in handleTunnelEventForDpn will get repeated even if we add a seperate logic. This is because to know where to add the correspoding tunnel ips in the vrfentry we need to use the same core logic as in handleTunnelEventForDpn(for tunnel up). For tunnel down, it was easy as we were just matching the tunnel ip in the vrfentry.",
+      "parentUuid": "da2a55be_0b72e648",
       "range": {
         "startLine": 167,
         "startChar": 12,
