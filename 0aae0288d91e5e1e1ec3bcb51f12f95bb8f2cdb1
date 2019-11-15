@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_57d2b400",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_175aecf2",
+      "revId": "0aae0288d91e5e1e1ec3bcb51f12f95bb8f2cdb1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_97c9bc7a",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatInterfaceStateChangeListener.java",
         "patchSetId": 6
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_37cd705e",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatInterfaceStateChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_97c9bc7a",
+      "revId": "0aae0288d91e5e1e1ec3bcb51f12f95bb8f2cdb1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_d7a224ad",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatInterfaceStateChangeListener.java",
         "patchSetId": 6
@@ -47,6 +83,24 @@
       "writtenOn": "2017-02-15T08:39:56Z",
       "side": 1,
       "message": "same as above comment",
+      "revId": "0aae0288d91e5e1e1ec3bcb51f12f95bb8f2cdb1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_97dc1c14",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatInterfaceStateChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_d7a224ad",
       "revId": "0aae0288d91e5e1e1ec3bcb51f12f95bb8f2cdb1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
