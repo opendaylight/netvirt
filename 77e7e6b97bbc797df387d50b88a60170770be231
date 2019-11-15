@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_de0d1839",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-16T10:19:57Z",
+      "side": 1,
+      "message": "sometimes getDpId throws out excepetions as it gets  null lower-layer-if.  In order to avoid that, the try catch is put here.\n\nFurthe the DPNID copy is available in vpninterface and can be reused, which is taken in catch block.",
+      "parentUuid": "fafc7978_3b555650",
+      "revId": "77e7e6b97bbc797df387d50b88a60170770be231",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1b50525d",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
         "patchSetId": 12
@@ -47,6 +65,24 @@
       "writtenOn": "2017-02-16T09:55:37Z",
       "side": 1,
       "message": "Where was this tunnel check done in the original code?",
+      "revId": "77e7e6b97bbc797df387d50b88a60170770be231",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_de24f8b0",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatInterfaceStateChangeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-16T10:19:57Z",
+      "side": 1,
+      "message": "The tunnel check is not in the original code, but tunnel interfaces should not be processed here, as tunnel interfaces are not router internal interfaces.",
+      "parentUuid": "fafc7978_5b4adaac",
       "revId": "77e7e6b97bbc797df387d50b88a60170770be231",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
