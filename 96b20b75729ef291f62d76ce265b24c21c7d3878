@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_bee4170d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-10T08:55:48Z",
+      "side": 1,
+      "message": "Gobinath already uses HOST_SUBNET constant for this. Just see you can reuse that.",
+      "revId": "96b20b75729ef291f62d76ce265b24c21c7d3878",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_dea59ba2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1290,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-10T08:55:48Z",
+      "side": 1,
+      "message": "what if nhList is with size 1 which is having nextHop ? Does vpntoextraroute and prefixToInterface delete happend in vrfEntryListener ?",
+      "revId": "96b20b75729ef291f62d76ce265b24c21c7d3878",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3e95c732",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1292,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-10T08:55:48Z",
+      "side": 1,
+      "message": "typo",
+      "revId": "96b20b75729ef291f62d76ce265b24c21c7d3878",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
