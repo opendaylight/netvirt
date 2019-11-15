@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_ebb68edb",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Some of the called methods use the returned list for adding new nexthops. (for eg: updateVpnInterfaceOnTepAdd). Returning empty list will throw unsupported operation if new elements are added.",
+      "parentUuid": "da2a55be_5292f357",
+      "range": {
+        "startLine": 123,
+        "startChar": 23,
+        "endLine": 123,
+        "endChar": 42
+      },
+      "revId": "b05770e6f0b0eb8f47fea9175021846a22ce139f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_b29fef5e",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2017-07-12T13:59:49Z",
       "side": 1,
       "message": "Why is this change needed?",
+      "range": {
+        "startLine": 125,
+        "startChar": 15,
+        "endLine": 125,
+        "endChar": 36
+      },
+      "revId": "b05770e6f0b0eb8f47fea9175021846a22ce139f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_eb632e18",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "This may not be required. I will test it and check if exception is seen again. The exception which I saw during testing could be because of the above one.",
+      "parentUuid": "da2a55be_b29fef5e",
       "range": {
         "startLine": 125,
         "startChar": 15,
@@ -111,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_46da3179",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Will add return statement in the next review. Thanks",
+      "parentUuid": "da2a55be_bf76983c",
+      "revId": "b05770e6f0b0eb8f47fea9175021846a22ce139f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_b21a4f15",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
         "patchSetId": 5
@@ -150,6 +216,30 @@
         "startChar": 48,
         "endLine": 172,
         "endChar": 55
+      },
+      "revId": "b05770e6f0b0eb8f47fea9175021846a22ce139f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_2659fdfe",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Will it be a redundant check? We are comparing with srcDpnId for which we got the tunnel update event",
+      "parentUuid": "da2a55be_b21a4f15",
+      "range": {
+        "startLine": 172,
+        "startChar": 95,
+        "endLine": 172,
+        "endChar": 114
       },
       "revId": "b05770e6f0b0eb8f47fea9175021846a22ce139f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
