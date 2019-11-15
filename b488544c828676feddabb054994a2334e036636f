@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_3dc6f149",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 1050,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-15T13:38:30Z",
+      "side": 1,
+      "message": "Move it to utils in the next review",
+      "range": {
+        "startLine": 1050,
+        "startChar": 4,
+        "endLine": 1050,
+        "endChar": 71
+      },
+      "revId": "b488544c828676feddabb054994a2334e036636f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9dc55d3e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 1056,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-15T13:38:30Z",
+      "side": 1,
+      "message": "same as above",
+      "range": {
+        "startLine": 1056,
+        "startChar": 6,
+        "endLine": 1056,
+        "endChar": 54
+      },
+      "revId": "b488544c828676feddabb054994a2334e036636f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
