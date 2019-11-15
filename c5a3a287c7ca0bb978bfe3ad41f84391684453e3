@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_f54939b8",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-02-09T13:23:44Z",
+      "side": 1,
+      "message": "nit: this \u0027String\u0027 is redundant. Not a big deal, but some code-checking tools like sonar complain about it",
+      "range": {
+        "startLine": 316,
+        "startChar": 67,
+        "endLine": 316,
+        "endChar": 73
+      },
+      "revId": "c5a3a287c7ca0bb978bfe3ad41f84391684453e3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
