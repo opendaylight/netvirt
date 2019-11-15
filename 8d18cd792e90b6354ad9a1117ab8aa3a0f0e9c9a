@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_db209bf9",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-03-30T12:23:50Z",
+      "side": 1,
+      "message": "what does this mean to validate?",
+      "revId": "8d18cd792e90b6354ad9a1117ab8aa3a0f0e9c9a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fb63df3e",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatOverVxlanUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-03-30T12:23:50Z",
+      "side": 1,
+      "message": "What is the plan - merge both pieces then migrate to something common? Or can it be done now as I think the other code is merged.",
+      "revId": "8d18cd792e90b6354ad9a1117ab8aa3a0f0e9c9a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
