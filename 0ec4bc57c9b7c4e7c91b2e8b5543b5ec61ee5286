@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_f5e560dc",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1271,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-01T07:25:48Z",
+      "side": 1,
+      "message": "After this comment, i realized that getGatewayMacAddressForInterface() is never called for VM delete lifecycle from vpnInterfaceManager.  So let us leave this as is for now !",
+      "parentUuid": "fafc7978_f5ae0080",
+      "revId": "0ec4bc57c9b7c4e7c91b2e8b5543b5ec61ee5286",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
