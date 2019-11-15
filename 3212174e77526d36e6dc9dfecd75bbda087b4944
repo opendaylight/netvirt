@@ -121,6 +121,59 @@
     },
     {
       "key": {
+        "uuid": "da01753e_a7dc9513",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-21T08:55:08Z",
+      "side": 1,
+      "message": "This is never seen in runs with system test... Under what circumstances these are seen in our runs?",
+      "parentUuid": "da01753e_7921bbb3",
+      "revId": "3212174e77526d36e6dc9dfecd75bbda087b4944",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_06691125",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-25T16:12:19Z",
+      "side": 1,
+      "message": "we should be fixing the write to label mapper then.. Retrying the entire VPN Engine job is a costly operation.",
+      "parentUuid": "da01753e_863b419b",
+      "revId": "3212174e77526d36e6dc9dfecd75bbda087b4944",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_e705fd7a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-21T08:55:08Z",
+      "side": 1,
+      "message": "retries with VPN DJCs have not been tried before and so we need to assess impact of retries before introducing change like this.",
+      "revId": "3212174e77526d36e6dc9dfecd75bbda087b4944",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_793b7b38",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 3
