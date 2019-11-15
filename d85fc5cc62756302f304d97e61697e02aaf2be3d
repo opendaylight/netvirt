@@ -36,6 +36,29 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_5693db4e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1075,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-20T10:38:10Z",
+      "side": 1,
+      "message": "why does this method become static?\nIf it is needed as static, it should be better placed in FibUtil.",
+      "range": {
+        "startLine": 1075,
+        "startChar": 11,
+        "endLine": 1075,
+        "endChar": 17
+      },
+      "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_a50af31e",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 4
@@ -88,6 +111,29 @@
       "writtenOn": "2016-12-21T05:17:39Z",
       "side": 1,
       "message": "change it to extraRoute",
+      "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_568c7b35",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1145,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-20T10:38:10Z",
+      "side": 1,
+      "message": "why not this?\n    existingRDs.addAll(vpnInstance.getIpv4Family().getRouteDistinguisher())",
+      "range": {
+        "startLine": 1143,
+        "startChar": 16,
+        "endLine": 1145,
+        "endChar": 17
+      },
       "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -298,6 +344,29 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_2267fe26",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-20T10:38:10Z",
+      "side": 1,
+      "message": "return (vpnConfig.getRouteDistinguisher() !\u003d null) \n             ? new ArrayList\u003c\u003e(vpnConfig.getRouteDistinguisher())\n             : new ArrayList\u003cString\u003e();",
+      "range": {
+        "startLine": 323,
+        "startChar": 8,
+        "endLine": 327,
+        "endChar": 19
+      },
+      "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_c5aa8fd1",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 4
@@ -309,6 +378,29 @@
       "writtenOn": "2016-12-21T05:17:39Z",
       "side": 1,
       "message": "same comment as above since these methods will be used by VrfListener.",
+      "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a272eee0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 539,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-20T10:38:10Z",
+      "side": 1,
+      "message": "I think it is preferred to return an empty list instead of null",
+      "range": {
+        "startLine": 539,
+        "startChar": 15,
+        "endLine": 539,
+        "endChar": 18
+      },
       "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -350,6 +442,69 @@
       "writtenOn": "2016-12-21T05:17:39Z",
       "side": 1,
       "message": "I don\u0027t think rds.get(0) always a good idea to assume for primary rd. why can\u0027t we use vrf-id in vpn-instance-op-data-entry for primary rd ?",
+      "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4232fa10",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1414,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-20T10:38:10Z",
+      "side": 1,
+      "message": "the primary RD is the first Route-distinguisher that has been saved to DS? If so, I think it deserves to be documented somewhere, in the yang at least.",
+      "range": {
+        "startLine": 1414,
+        "startChar": 89,
+        "endLine": 1414,
+        "endChar": 90
+      },
+      "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_623f36d7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1421,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-20T10:38:10Z",
+      "side": 1,
+      "message": "return vpnName.equals(primaryRd);",
+      "range": {
+        "startLine": 1418,
+        "startChar": 8,
+        "endLine": 1421,
+        "endChar": 25
+      },
+      "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_762d3746",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1424,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-20T10:38:10Z",
+      "side": 1,
+      "message": "too long line. \nStephen Kitt has an ongoing commit to enforce checkstyle on vpnmanager. \nhttps://git.opendaylight.org/gerrit/#/c/48932/ \n\nIf he lands it before you, you\u0027ll need an extra patch to align the code to checkstyle",
       "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
