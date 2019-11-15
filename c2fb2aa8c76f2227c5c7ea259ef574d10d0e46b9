@@ -69,6 +69,71 @@
       "revId": "c2fb2aa8c76f2227c5c7ea259ef574d10d0e46b9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_244e8397",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/resources/initial/netvirt-neutronvpn-config.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_04337fab",
+      "range": {
+        "startLine": 2,
+        "startChar": 2,
+        "endLine": 3,
+        "endChar": 40
+      },
+      "revId": "c2fb2aa8c76f2227c5c7ea259ef574d10d0e46b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_413e19db",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/resources/initial/netvirt-neutronvpn-config.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Don\u0027t see any usage of these values in neutron-vpn(isUseTransportZone/isUseOfTunnels). As it looks like been moved into elan - https://git.opendaylight.org/gerrit/#/c/49093/31/vpnservice/elanmanager/elanmanager-impl/src/main/resources/initial/netvirt-elanmanager-config.xml",
+      "parentUuid": "fafc7978_21c035e0",
+      "range": {
+        "startLine": 2,
+        "startChar": 2,
+        "endLine": 3,
+        "endChar": 40
+      },
+      "revId": "c2fb2aa8c76f2227c5c7ea259ef574d10d0e46b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_81000135",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/resources/initial/netvirt-neutronvpn-config.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Defined the default values as per VNI Spec",
+      "revId": "c2fb2aa8c76f2227c5c7ea259ef574d10d0e46b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
