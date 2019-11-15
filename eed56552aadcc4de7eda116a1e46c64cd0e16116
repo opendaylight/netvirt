@@ -19,6 +19,42 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_800bf08c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/interfaces/INeutronVpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "As discussed during VNI Spec, will expose neutonvpn APIs instead of RPCs.",
+      "parentUuid": "fafc7978_5c43cc6b",
+      "revId": "eed56552aadcc4de7eda116a1e46c64cd0e16116",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5c43cc6b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/interfaces/INeutronVpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_9fd6d1ef",
+      "revId": "eed56552aadcc4de7eda116a1e46c64cd0e16116",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9fbff1a9",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 1
@@ -30,6 +66,24 @@
       "writtenOn": "2019-11-11T18:10:40Z",
       "side": 1,
       "message": "let us please move this to a separate new class.\nThis has no req as such to be placed here.",
+      "revId": "eed56552aadcc4de7eda116a1e46c64cd0e16116",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3c488886",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2222,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Moved all this logic into NAT as this Pool is specifically used by NAT.",
+      "parentUuid": "fafc7978_9fbff1a9",
       "revId": "eed56552aadcc4de7eda116a1e46c64cd0e16116",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -59,6 +113,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9c609402",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2232,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_3fe6c5e8",
+      "range": {
+        "startLine": 2232,
+        "startChar": 17,
+        "endLine": 2232,
+        "endChar": 65
+      },
+      "revId": "eed56552aadcc4de7eda116a1e46c64cd0e16116",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1feb01b1",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 1
@@ -70,6 +148,24 @@
       "writtenOn": "2019-11-11T18:10:40Z",
       "side": 1,
       "message": "can print the pool name, low and high limits here.",
+      "revId": "eed56552aadcc4de7eda116a1e46c64cd0e16116",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7c5df046",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2233,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_1feb01b1",
       "revId": "eed56552aadcc4de7eda116a1e46c64cd0e16116",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -93,6 +189,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_dc569c29",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2235,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_7fd32d04",
+      "revId": "eed56552aadcc4de7eda116a1e46c64cd0e16116",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_bfd91524",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 1
@@ -104,6 +218,24 @@
       "writtenOn": "2019-11-11T18:10:40Z",
       "side": 1,
       "message": "ditto",
+      "revId": "eed56552aadcc4de7eda116a1e46c64cd0e16116",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bc53d837",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2238,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_bfd91524",
       "revId": "eed56552aadcc4de7eda116a1e46c64cd0e16116",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
