@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_71825d95",
+        "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat-rpc.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-16T14:16:25Z",
+      "side": 1,
+      "message": "can you please paste a sample RPC output here to relate to?\n\nMake sure it contains one snat and one Dnat entry..",
+      "revId": "a4c19d314dc9744cd900ac03386d7b0a793a65b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2f97cc91",
+        "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat-rpc.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-16T16:39:54Z",
+      "side": 1,
+      "message": "Great, thanks for the output.\n\nLet us always produce output that has \n\ninternal-ip\nexternal-ip \n\nas the first two items in that order (per router nat translation entry) always for both DNAT and SNAT entries.\n\nfollowed by those two, SNAT entries alone will additionally have\nthe following:\ninternal-port\nexternal-port\nprotocol\n\nPlease note that we only need to change the RPC json output and  am not requesting for the change in these YANGs for that :)\n\nSimilarly at the top level of the output:\nrouter_id\nrouter_name \nneed to be always coming in the output json in that order.",
+      "parentUuid": "fafc7978_af273cb5",
+      "revId": "a4c19d314dc9744cd900ac03386d7b0a793a65b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cfce00b4",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/rpcservice/NatRpcServiceImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-16T16:55:34Z",
+      "side": 1,
+      "message": "routerUuidList.isEmpty() is better :)",
+      "revId": "a4c19d314dc9744cd900ac03386d7b0a793a65b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2fc50c8e",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/rpcservice/NatRpcServiceImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-16T16:55:34Z",
+      "side": 1,
+      "message": "why is this an error?  This is normal behaviour.",
+      "revId": "a4c19d314dc9744cd900ac03386d7b0a793a65b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6f56f4d3",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/rpcservice/NatRpcServiceImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-16T16:55:34Z",
+      "side": 1,
+      "message": "this is wrong error.  we must say \n\u0027No Router found with UUID \u003cxxx\u003e\u0027",
+      "revId": "a4c19d314dc9744cd900ac03386d7b0a793a65b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
