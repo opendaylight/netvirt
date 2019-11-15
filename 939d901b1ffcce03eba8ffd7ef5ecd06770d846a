@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_bddd0e17",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 805,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-07-07T19:12:58Z",
+      "side": 1,
+      "message": "As in the bug comments \" allocateId() is failed and ID is not allocated\", does that get fixed here?",
+      "revId": "939d901b1ffcce03eba8ffd7ef5ecd06770d846a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_9de2cad3",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
         "patchSetId": 1
