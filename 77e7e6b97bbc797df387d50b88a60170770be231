@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_3b555650",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-16T09:55:37Z",
+      "side": 1,
+      "message": "is this nested try catch required?",
+      "revId": "77e7e6b97bbc797df387d50b88a60170770be231",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1b50525d",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-16T09:55:37Z",
+      "side": 1,
+      "message": "nit:formatting",
+      "revId": "77e7e6b97bbc797df387d50b88a60170770be231",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5b4adaac",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatInterfaceStateChangeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-16T09:55:37Z",
+      "side": 1,
+      "message": "Where was this tunnel check done in the original code?",
+      "revId": "77e7e6b97bbc797df387d50b88a60170770be231",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
