@@ -1,0 +1,56 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_7dc43640",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclDataUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-07-07T19:12:58Z",
+      "side": 1,
+      "message": "Sorry I am not clear where this extra map will be used?",
+      "revId": "939d901b1ffcce03eba8ffd7ef5ecd06770d846a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_9de2cad3",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 995,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-07-07T19:12:58Z",
+      "side": 1,
+      "message": "Should we be using JobCoordinator from infrautils as dataStoreCoordinator is deprecated?",
+      "revId": "939d901b1ffcce03eba8ffd7ef5ecd06770d846a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_ede22bd4",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 995,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-07-11T17:52:55Z",
+      "side": 1,
+      "message": "You can use [1] for an example\n\n[1]https://git.opendaylight.org/gerrit/#/c/59177/",
+      "parentUuid": "da2a55be_4d21b79e",
+      "revId": "939d901b1ffcce03eba8ffd7ef5ecd06770d846a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
