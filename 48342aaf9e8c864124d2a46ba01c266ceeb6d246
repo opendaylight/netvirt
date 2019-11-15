@@ -197,6 +197,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b15c2127",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "In the current Approach, when NAPT Switch(OVS) failure happens, an new NAPT switch is elected and all existing Non-Napt switches flows where updated to point to this new NAPT switch(and also re-install ongoing session flows on this new NAPT). How is this achieved in OVS with linux netfilter??",
+      "parentUuid": "fafc7978_f6cdff5e",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_436899f5",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 17
@@ -397,6 +415,59 @@
       "side": 1,
       "message": "Chethan,\n\nTwo external subnet in a router is not supported with this spec, it can be considered as a further enhancement as suggested in the previous comment.",
       "parentUuid": "fafc7978_3493fca4",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3493fca4",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Consider the following topology\n\n1) network1/subnet1(10.0.0.0/24)\n2) network2/subnet2(20.0.0.0/24)\n3) router1(router-interface-add subnet1 and subnet2)\n4) neutron net-create --router:external\u003dTrue myextnet10 --provider:network-type gre\n5) neutron subnet-create --name extsubnet100 myextnet10 172.160.0.0/16\n6) neutron subnet-create --name extsubnet200 myextnet10 172.170.0.0/16\n7) neutron router-gateway-set --fixed-ip subnet_id\u003dextsubnet100,ip_address\u003d172.160.0.3 --fixed-ip subnet_id\u003dextsubnet200,ip_address\u003d172.170.0\n.3 router1 myextnet10\n8) neutron  bgpvpn-create  --export-targets 2000:1 --import-targets 2000:1 --route-distinguishers 2000:1  --name EXT-VPN --type l3\n9) neutron bgpvpn-net-assoc-create EXT-VPN --network myextnet10 \n \nWhen we have multiple external-ips(point 7), then the subnet1 VMs uses external-ip(172.160.0.3) for SNAT nd subnet2 VMs uses external-ip(172.170.0.3) (the external-ips are allocated to subnets in round-robin fashion).\n\nodl-nat:intext-ip-map/\n\t\t\"ip-map\": [\n          {\n            \"internal-ip\": \"10.0.0.0/24\",\n            \"label\": 70006,\n            \"external-ip\": \"172.160.0.3/32\"\n          },\n          {\n            \"internal-ip\": \"20.0.0.0/24\",\n            \"label\": 70005,\n            \"external-ip\": \"172.170.0.3/32\"\n          }\n        ]\n \nOUTBOUND_NAPT_TABLE Flow Dump\n\nSubnet1 VM\n\n cookie\u003d0x8122170, duration\u003d54.992s, table\u003d46, n_packets\u003d6, n_bytes\u003d444, idle_timeout\u003d300, send_flow_rem priority\u003d10,tcp,metadata\u003d0x222e0/0xfffffffe,nw_src\u003d10.0.0.5,tp_src\u003d60941 actions\u003dset_field:172.160.0.3-\u003eip_src,set_field:49152-\u003etcp_src,set_field:fa:16:3e:0a:f6:88-\u003eeth_src,write_metadata:0x222e6/0xffffffff,goto_table:47\n\nSubnet2 VM\n\n cookie\u003d0x8122170, duration\u003d4.651s, table\u003d46, n_packets\u003d2, n_bytes\u003d148, idle_timeout\u003d300, send_flow_rem priority\u003d10,tcp,metadata\u003d0x222e0/0xfffffffe,nw_src\u003d20.0.0.5,tp_src\u003d49520 actions\u003dset_field:172.170.0.3-\u003eip_src,set_field:49152-\u003etcp_src,set_field:fa:16:3e:0a:f6:88-\u003eeth_src,write_metadata:0x222e6/0xffffffff,goto_table:47\n\nHow is this functionality achieved with this approach ??",
+      "parentUuid": "fafc7978_6c949e37",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b12541ad",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "2) In that case, will be having additional subnet match criteria in the below flow ??\n\ntable\u003d46, priority\u003d5,ct_state\u003d+new+trk,ip actions\u003dct(commit,zone\u003d5003,nat(src\u003d192.168.111.21)),ct(ta\nble\u003d47,zone\u003d5003,nat)\n\nSo that there will be multiple ovs flow per subnet(uniquely differentiated by subnet)",
+      "parentUuid": "fafc7978_364b07b2",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_86056cc4",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "1) In OUTBOUND_NAPT_TABLE, currently router_gateway_mac is set to eth_src which will be the mac-address exposed outside(preventing vm mac exposure). What will be the mac address set by netfilter in this case.\n\n2) Currently, per subnet one external-ip is identified(round-robin) and it will be used as external-ip for VM\u0027s of that subnet(odl-nat/intext-ip-map). How is this achieved using netfilter.(will a random ip picked from the range specified ?? ( \u0027commit,zone\u003d1,nat\u0027(\u0027src\u003d192.168.56.9-192.168.56.9\u0027)))",
       "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
