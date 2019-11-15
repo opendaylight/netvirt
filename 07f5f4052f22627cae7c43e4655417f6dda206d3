@@ -135,6 +135,29 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_9ce4823c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-12T08:32:31Z",
+      "side": 1,
+      "message": "I think the routerId is being used only for delExtraRoute() for internal VPN. we don\u0027t need the routerId parameter. Please change the delExtraRoute() signature and remove the routerId param. Use vpnName if rd is null",
+      "range": {
+        "startLine": 553,
+        "startChar": 102,
+        "endLine": 553,
+        "endChar": 107
+      },
+      "revId": "07f5f4052f22627cae7c43e4655417f6dda206d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_5c6faa92",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 3
