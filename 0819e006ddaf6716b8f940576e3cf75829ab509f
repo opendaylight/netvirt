@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "7a6b29fe_3e3302f7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-26T16:51:34Z",
+      "side": 1,
+      "message": "Can we please have a more detailed commit message, to help reviewers understand what is the change and why it is helpful ?",
+      "revId": "0819e006ddaf6716b8f940576e3cf75829ab509f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_1e2e068c",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 2
@@ -13,6 +30,23 @@
       "writtenOn": "2016-09-26T16:51:34Z",
       "side": 1,
       "message": "Can we use a single transaction for all of these and do a batch commit ?",
+      "revId": "0819e006ddaf6716b8f940576e3cf75829ab509f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_c36dd5cd",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2039,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-26T13:26:36Z",
+      "side": 1,
+      "message": "If an ARP request is for a GwIP, is there a reason why we need to punt it back into the ELAN pipeline ?",
       "revId": "0819e006ddaf6716b8f940576e3cf75829ab509f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -66,6 +100,24 @@
       "side": 1,
       "message": "These are table miss entries programmed for L3VPN when node is connected. So let us have all these table miss programming in a single class (may be we can factor out this code out of VrfEntryListener class) which listens to Node DCN. otherwise we end up in having many NodeListener classes.",
       "parentUuid": "7a6b29fe_0344ed47",
+      "revId": "0819e006ddaf6716b8f940576e3cf75829ab509f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_7422b6a3",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2055,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-28T12:50:32Z",
+      "side": 1,
+      "message": "OK !\n\nIn not in this review, in another review we would move entire processNodeAdd into FibNodeCapableListener class itself, because these flows donot do anything with the VRFEntries per se..   \n\nFibNodeCapableListener can continue to deal with only VPN Specific pipeline.   \n\nWe keep on piling content here, making VRFHandler do many things :)",
+      "parentUuid": "7a6b29fe_e3744e69",
       "revId": "0819e006ddaf6716b8f940576e3cf75829ab509f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
