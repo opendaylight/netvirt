@@ -858,6 +858,29 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_86d973f5",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1467,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "during nova delete, the vrf entries delete can come in any order. Due to this, delete of vm ip entry can come after delete of extra route, which will get returned here. This can cause vm ip flow entries not getting deleted for remote fib entries.",
+      "range": {
+        "startLine": 1467,
+        "startChar": 19,
+        "endLine": 1467,
+        "endChar": 38
+      },
+      "revId": "b464266d8881f074b210d4d41fc2400dd17ebad2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_6d952286",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 6
