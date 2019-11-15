@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_2aa6cc53",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 17
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Will be changed while splitting the review.Thanks",
+      "parentUuid": "fafc7978_d4b1a9e2",
+      "revId": "e3e1f1cf0b32ef3969228bca151b26c55ca993a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_34a9157c",
         "filename": "/COMMIT_MSG",
         "patchSetId": 17
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-06T16:20:36Z",
       "side": 1,
       "message": "Enhancement to support a list of rds for an l3vpn",
+      "revId": "e3e1f1cf0b32ef3969228bca151b26c55ca993a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8a641823",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 17
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Will be changed while splitting the review.Thanks",
+      "parentUuid": "fafc7978_34a9157c",
       "revId": "e3e1f1cf0b32ef3969228bca151b26c55ca993a1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_6a673426",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 17
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Will be addressed in the next review. Thanks.",
+      "parentUuid": "fafc7978_3472b549",
+      "revId": "e3e1f1cf0b32ef3969228bca151b26c55ca993a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f43aed32",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 17
@@ -64,6 +118,24 @@
       "writtenOn": "2017-02-06T16:20:36Z",
       "side": 1,
       "message": "Will there be a review to address import/export of extra-routes across two bgpvpns with ECMP?\n\nThis area here needs change to address the same.",
+      "revId": "e3e1f1cf0b32ef3969228bca151b26c55ca993a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ca6e2001",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 827,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "The coding is going on and will be raised by Gobinath.",
+      "parentUuid": "fafc7978_f43aed32",
       "revId": "e3e1f1cf0b32ef3969228bca151b26c55ca993a1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -105,6 +177,42 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_0a5f8842",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 606,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Since all the adjacency activities are handled in VpnInterface Manager right now, I guess we can take this as separate refactoring activity. Primary adjacency could be handled in VpnInterfaceManager and other adjacencies could be separated. This can be taken up during refactoring.",
+      "parentUuid": "fafc7978_b47185e2",
+      "revId": "e3e1f1cf0b32ef3969228bca151b26c55ca993a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_444a2ac6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 606,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "This was done to make sure that the rd allocated for this extra route is commited(syncUpdate) in the VpnToExtraroute DataStore. Otherwise if same extra route prefix is added with a different next hop, wrong rd could be allocated.",
+      "parentUuid": "fafc7978_fedbf1ea",
+      "revId": "e3e1f1cf0b32ef3969228bca151b26c55ca993a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_94644123",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 17
@@ -116,6 +224,24 @@
       "writtenOn": "2017-02-06T16:20:36Z",
       "side": 1,
       "message": "So we donot service even the primary interface here, just because we run out of RDs for extra-routes?",
+      "revId": "e3e1f1cf0b32ef3969228bca151b26c55ca993a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_eaab241c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 614,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Primary interface code flow is not handled here. Only the extra route cases reach here.",
+      "parentUuid": "fafc7978_94644123",
       "revId": "e3e1f1cf0b32ef3969228bca151b26c55ca993a1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -139,6 +265,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_244566b3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 1585,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "This is handled in the below dependent review\nhttps://git.opendaylight.org/gerrit/#/c/50343/",
+      "parentUuid": "fafc7978_ded6edc2",
+      "revId": "e3e1f1cf0b32ef3969228bca151b26c55ca993a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_74643d49",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 17
@@ -150,6 +294,24 @@
       "writtenOn": "2017-02-06T16:20:36Z",
       "side": 1,
       "message": "This is an external VPN only as per line 86.\n\nThis check seems to be redundant.",
+      "revId": "e3e1f1cf0b32ef3969228bca151b26c55ca993a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ca458071",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "This check is similar to the (rd \u003d\u003d null) check in the previous code. Primary rd returned before this line will be vpnName if there are no rds present in vpnInstanceConfig. The VpnUtil.isInternalVpn check returns true if primary rd is same as vpnName. This is same as the rd \u003d\u003dnull check in the previous code.\nPlease let me know if it is required or not.",
+      "parentUuid": "fafc7978_74643d49",
       "revId": "e3e1f1cf0b32ef3969228bca151b26c55ca993a1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
