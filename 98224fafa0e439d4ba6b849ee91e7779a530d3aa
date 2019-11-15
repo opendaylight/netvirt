@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_6d9aa364",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T01:44:19Z",
+      "side": 1,
+      "message": "if this is going to be filled up and used only inside Operational DS, better to make this explicitly config-false.",
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_8d3a6732",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
         "patchSetId": 4
@@ -66,6 +83,24 @@
       "writtenOn": "2017-02-08T14:26:41Z",
       "side": 1,
       "message": "what about removal cycle.. Shouldn\u0027t this use getPrimaryRd() here too?",
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6dff4368",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T01:44:19Z",
+      "side": 1,
+      "message": "Please have getPrimaryRd() used here too like earlier comment.",
+      "parentUuid": "fafc7978_ecf179ce",
       "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -397,6 +432,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_edadf389",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T01:44:19Z",
+      "side": 1,
+      "message": "also i would advise this publich method return NULL instead of an empty created arrayList, as everywhere we need to check for emtpyList unnecessarily.",
+      "parentUuid": "fafc7978_8c770d3b",
+      "range": {
+        "startLine": 314,
+        "startChar": 16,
+        "endLine": 314,
+        "endChar": 49
+      },
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_4dd51fb8",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 4
@@ -540,6 +599,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_8d9ee752",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1424,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T01:44:19Z",
+      "side": 1,
+      "message": "please make sure that no where in a delete lifecycle of VPN Engine this method is used as it will not yield the RD required at that time.",
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_8cfd4d3e",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 4
@@ -551,6 +627,30 @@
       "writtenOn": "2017-02-08T15:20:15Z",
       "side": 1,
       "message": "I find this a bit dangerous... we must ensure that all the code pieces that feed the \u0027VpnInstance\u0027 are aware that the 1st RD in the list must be the primary one.",
+      "range": {
+        "startLine": 1432,
+        "startChar": 49,
+        "endLine": 1432,
+        "endChar": 50
+      },
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cda8ef79",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1432,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T01:44:19Z",
+      "side": 1,
+      "message": "+1..More importantly since updates of bgpvpns are going to be supported, and a bgpvpn can be updated with a brand-new rd list, how do we ensure the primary rd we have captured earlier is retained by this call?\n\nThere is a vpninstance to vpnId, and you can store this primary rd you generate within that DS, the first time around.\n\nAfter that getPrimaryRd() would only retrieve fromt that as that DS is always available until the entire vpn is deleted.\n\nIn that way, we can disallow updates to bgpvpn that change the RD list in total mistakingly removing our primary rd too.",
+      "parentUuid": "fafc7978_8cfd4d3e",
       "range": {
         "startLine": 1432,
         "startChar": 49,
@@ -575,6 +675,30 @@
       "side": 1,
       "message": "Yes, vpninstancetovpnid will have primary rd. we could use that as a first option and fallback option would be returning first item from rd list.\nI hope there won\u0027t be rd deletes in case of bgp instance updates, it should be rd additions to the existing ones to support more no. of nexthops for extra routes.",
       "parentUuid": "fafc7978_cda8ef79",
+      "range": {
+        "startLine": 1432,
+        "startChar": 49,
+        "endLine": 1432,
+        "endChar": 50
+      },
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1fba1e23",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1432,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T04:55:52Z",
+      "side": 1,
+      "message": "rd deletes need to be prevented, but rd expansions can happen and there is already a bug that we are not supporting rd expansions.\n\nPlease write the primary rd first time around into vpn-instance-to-vpn-id and use the getPrimaryRd universally to retrieve from that DS everywhere.",
+      "parentUuid": "fafc7978_ede5f3a8",
       "range": {
         "startLine": 1432,
         "startChar": 49,
