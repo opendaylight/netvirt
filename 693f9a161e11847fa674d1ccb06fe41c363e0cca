@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "7a6b29fe_a918d31e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1639,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-01T12:34:10Z",
+      "side": 1,
+      "message": "can we recode it like this:\n\nif (!vrfTable.isPresent()) {\n    LOG.warn(\"VRF Table not yet available for RD {}\", rd);\n    if (callback !\u003d null) {\n        ListenableFuture\u003cList\u003cVoid\u003e\u003e listenableFuture \u003d new Futures.allasList(new ArrayList\u003c\u003e());\n        Futures.addCallback(listenableFuture, callback);\n     }\n     return;\n}\n\n/* Here fire DJC */",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_be23cfa5",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 1
@@ -14,6 +31,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "7a6b29fe_a918d31e",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_49f77f8b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1659,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-01T12:34:10Z",
+      "side": 1,
+      "message": "can we please multiline this..",
       "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -38,6 +72,23 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_a9ef33e8",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2007,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-01T12:34:10Z",
+      "side": 1,
+      "message": "Do we need this as info?  Can this be just trace?",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_de1e8b5e",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 1
@@ -50,6 +101,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "7a6b29fe_a9ef33e8",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_a9c61366",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpScheduler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-01T12:34:10Z",
+      "side": 1,
+      "message": "looks like there is space inbetween \"! oldMacAddress..\"",
       "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -74,6 +142,23 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_e98acb19",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpScheduler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-01T12:34:10Z",
+      "side": 1,
+      "message": "Do we want an else if ..\n\nCan this be a separate if() ..",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_fe11c752",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpScheduler.java",
         "patchSetId": 1
@@ -86,6 +171,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "7a6b29fe_e98acb19",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_c98f0f29",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpScheduler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-01T12:34:10Z",
+      "side": 1,
+      "message": "ditto comment here !",
       "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -110,6 +212,75 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_298163fb",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-01T12:34:10Z",
+      "side": 1,
+      "message": "These invocations are better done on populateFibOnNewDpn() and cleanUpDpnForVpn() instead of being done here...\n\nYou can write a new file GwMacManager , provide methods in that and invoke them from the above methods.\n\nPlease note that this listener is only to handle aftermath of a DPN enrolling into VPN and a DPN removed from the VPN, but not to manage flows on the DPN itself.",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_6c650db4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-08T12:54:17Z",
+      "side": 1,
+      "message": "I am sorry, this comment alone is not applicable here since we don\u0027t tinker any vrf entry as part of this !\n\nSo let us retain this code here itself for the time being.",
+      "parentUuid": "7a6b29fe_298163fb",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_09862713",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-01T12:34:10Z",
+      "side": 1,
+      "message": "ditto comment as above.",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_099d8759",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-01T12:34:10Z",
+      "side": 1,
+      "message": "Please pass in writeInvTxn here..",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_9b1a657b",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 1
@@ -122,6 +293,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "7a6b29fe_099d8759",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_a9745336",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 558,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-01T12:34:10Z",
+      "side": 1,
+      "message": "Can you put an error message here, if the gwMacAddress fetch fails?",
       "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -199,6 +387,23 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_c996ef3e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 566,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-01T12:34:10Z",
+      "side": 1,
+      "message": "You should be using writeInvTxn here since this flow removal is from Inventory Shard.",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_5b044d17",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 1
@@ -211,6 +416,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "7a6b29fe_c996ef3e",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_29984369",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1281,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-01T12:34:10Z",
+      "side": 1,
+      "message": "Please pass in writeInvTxn here..",
       "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -235,6 +457,23 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_89a87778",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1207,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-01T12:34:10Z",
+      "side": 1,
+      "message": "subnet.getRouterIntfMacAddress can be null... Please check for null and only then add to the list...",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_3e185f74",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 1
@@ -247,6 +486,40 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "7a6b29fe_89a87778",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_0902a76e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1222,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-01T12:34:10Z",
+      "side": 1,
+      "message": "can you please let me know where this method is used?",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_c90b8f8c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1248,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-01T12:34:10Z",
+      "side": 1,
+      "message": "shouldn\u0027t we match if it is an IP (or) IPv6 packet here, given that we are punting the packet directly to FIB-TABLE on match ?",
       "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
