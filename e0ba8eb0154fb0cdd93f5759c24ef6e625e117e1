@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_50648f21",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-22T04:51:33Z",
+      "side": 1,
+      "message": "Even though",
+      "revId": "e0ba8eb0154fb0cdd93f5759c24ef6e625e117e1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_906ef7ff",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-22T04:51:33Z",
+      "side": 1,
+      "message": "The following EVPN NAT use-cases require VNI to be allocated from OpenDaylight VNI Pool:\na. All traffic on external network will be using a VNI allocated for the external-VPN aka Internet VPN.\nb. Similarly all traffic from Non-NAPT switch to NAPTSwitch will be using the VNI allocated for the router from the OpenDaylight VNI Pool.\n\nFor VNI-L3-L3 Fowarding feature also, a VNI must be allocated for every router from the OpenDaylight VNI Pool as that VNI will be used for Non-NAPT to NAPTSwitch traffic.   This fix makes that allocation as only release alone was done earlier.",
+      "revId": "e0ba8eb0154fb0cdd93f5759c24ef6e625e117e1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_30674b27",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-22T04:51:33Z",
+      "side": 1,
+      "message": "router-gateway-set",
+      "revId": "e0ba8eb0154fb0cdd93f5759c24ef6e625e117e1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
