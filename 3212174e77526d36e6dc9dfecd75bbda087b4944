@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_f9be4bd3",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-20T10:32:37Z",
+      "side": 1,
+      "message": "can you change it to allocated-rds (or) used-rds",
+      "revId": "3212174e77526d36e6dc9dfecd75bbda087b4944",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_59df973b",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-20T10:32:37Z",
+      "side": 1,
+      "message": "can you add description what is the nexthop here ? i.e. It is the VM ip address for the extra route.",
+      "revId": "3212174e77526d36e6dc9dfecd75bbda087b4944",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_19d50f1c",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 721,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-20T10:32:37Z",
+      "side": 1,
+      "message": "Not sure i have asked this question multiple times :(\nHope we have only one nexthop in Routes when updateUsedRdAndVpnToExtraRoute is invoked.",
+      "revId": "3212174e77526d36e6dc9dfecd75bbda087b4944",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_79ca5b6f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnExtraRouteHelper.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-20T10:32:37Z",
+      "side": 1,
+      "message": "getRds can be null ?",
+      "revId": "3212174e77526d36e6dc9dfecd75bbda087b4944",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_39b9f3e9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnExtraRouteHelper.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-20T10:32:37Z",
+      "side": 1,
+      "message": "why do you need distinct here ?",
+      "revId": "3212174e77526d36e6dc9dfecd75bbda087b4944",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_b9c4c35f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnExtraRouteHelper.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-20T10:32:37Z",
+      "side": 1,
+      "message": "change the return type to Optional\u003cString\u003e",
+      "revId": "3212174e77526d36e6dc9dfecd75bbda087b4944",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_5984b70b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-20T10:32:37Z",
+      "side": 1,
+      "message": "Good to have this. but why it is is needed now ?",
+      "revId": "3212174e77526d36e6dc9dfecd75bbda087b4944",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_793b7b38",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 602,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-20T10:32:37Z",
+      "side": 1,
+      "message": "nextHop.getNextHopIpList().get(0): Does this mean we always use same rd if VMs are connected to same compute node ?",
+      "revId": "3212174e77526d36e6dc9dfecd75bbda087b4944",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_f9164ba6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1537,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-20T10:32:37Z",
+      "side": 1,
+      "message": "just use Optional.of here.",
+      "revId": "3212174e77526d36e6dc9dfecd75bbda087b4944",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
