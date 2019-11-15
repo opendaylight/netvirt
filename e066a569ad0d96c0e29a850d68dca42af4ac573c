@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_6780548b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2014,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-23T08:45:23Z",
+      "side": 1,
+      "message": "use Collections.singletonList to construct actionsInfos since it is with single entry.",
+      "revId": "e066a569ad0d96c0e29a850d68dca42af4ac573c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_192e288c",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2027,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-23T08:45:23Z",
+      "side": 1,
+      "message": "change argument name to dpId",
+      "revId": "e066a569ad0d96c0e29a850d68dca42af4ac573c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_597a6088",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2030,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-23T08:45:23Z",
+      "side": 1,
+      "message": "add TODO: to point to ARP responder table.",
+      "revId": "e066a569ad0d96c0e29a850d68dca42af4ac573c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_477b98bd",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2038,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-23T08:45:23Z",
+      "side": 1,
+      "message": "just make sure the description doesn\u0027t go beyond some length. otherwise switch might throw an error.",
+      "revId": "e066a569ad0d96c0e29a850d68dca42af4ac573c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_b9561404",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2051,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-23T08:45:23Z",
+      "side": 1,
+      "message": "same comment as before.",
+      "revId": "e066a569ad0d96c0e29a850d68dca42af4ac573c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_19458842",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2059,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-23T08:45:23Z",
+      "side": 1,
+      "message": "I think we don\u0027t even need to program table miss entry for fib table. By default, packet get dropped there is no matched flow entries.",
+      "revId": "e066a569ad0d96c0e29a850d68dca42af4ac573c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
