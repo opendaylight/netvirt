@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_d9fd473c",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Will be changed in next review",
+      "parentUuid": "da01753e_f9be4bd3",
+      "revId": "3212174e77526d36e6dc9dfecd75bbda087b4944",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_59df973b",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2017-04-20T10:32:37Z",
       "side": 1,
       "message": "can you add description what is the nexthop here ? i.e. It is the VM ip address for the extra route.",
+      "revId": "3212174e77526d36e6dc9dfecd75bbda087b4944",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_1997cfed",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Will be changed in next review",
+      "parentUuid": "da01753e_59df973b",
       "revId": "3212174e77526d36e6dc9dfecd75bbda087b4944",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_59a15746",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 721,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Yes, we will have only one nexthop under an extraroute prefix (in vpnextraroutes container) when updateUsedRdAndVpnToExtraRoute is invoked",
+      "parentUuid": "da01753e_19d50f1c",
+      "revId": "3212174e77526d36e6dc9dfecd75bbda087b4944",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_79ca5b6f",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnExtraRouteHelper.java",
         "patchSetId": 3
@@ -64,6 +118,24 @@
       "writtenOn": "2017-04-20T10:32:37Z",
       "side": 1,
       "message": "getRds can be null ?",
+      "revId": "3212174e77526d36e6dc9dfecd75bbda087b4944",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_d959c75b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnExtraRouteHelper.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "There wont be any rds present if destination prefix is not present. So, usedRds.isPresent() will make sure that getRds() wont be null.",
+      "parentUuid": "da01753e_79ca5b6f",
       "revId": "3212174e77526d36e6dc9dfecd75bbda087b4944",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_19334f15",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnExtraRouteHelper.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Because of the yang change, same rd can be present in DS under different nexthops for the same prefix.",
+      "parentUuid": "da01753e_39b9f3e9",
+      "revId": "3212174e77526d36e6dc9dfecd75bbda087b4944",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_b9c4c35f",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnExtraRouteHelper.java",
         "patchSetId": 3
@@ -98,6 +188,24 @@
       "writtenOn": "2017-04-20T10:32:37Z",
       "side": 1,
       "message": "change the return type to Optional\u003cString\u003e",
+      "revId": "3212174e77526d36e6dc9dfecd75bbda087b4944",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_3940d355",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnExtraRouteHelper.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "will change in the next review",
+      "parentUuid": "da01753e_b9c4c35f",
       "revId": "3212174e77526d36e6dc9dfecd75bbda087b4944",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -157,6 +265,60 @@
     },
     {
       "key": {
+        "uuid": "da01753e_7921bbb3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "After reboot some of vpn interfaces are not getting populated in the operational DS. optimisticLockFailedException is thrown. Since retry was not configured, some of the vpn interfaces were never getting populated.",
+      "parentUuid": "da01753e_5984b70b",
+      "revId": "3212174e77526d36e6dc9dfecd75bbda087b4944",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_4156625d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Okay. Then we need to synchronize the block inside addToLabelMapper .And we also need to use a separate transaction for writing it to DS instead of writeOperTxn. Is it ok?\n\nhttps://git.opendaylight.org/gerrit/#/c/55216/3/vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java@1426",
+      "parentUuid": "da01753e_06691125",
+      "revId": "3212174e77526d36e6dc9dfecd75bbda087b4944",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_863b419b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "This is seen during reboot. VpnInterfaceManager#addToLabelMapper is being called for all adjacencies. Since the label is same for all the extra routes with same prefix, OptimisticLockFailedException occurs. As the writeOperTxns are batched together, DJC retry is used.",
+      "parentUuid": "da01753e_a7dc9513",
+      "revId": "3212174e77526d36e6dc9dfecd75bbda087b4944",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_e705fd7a",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
         "patchSetId": 3
@@ -191,6 +353,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_d41eae62",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 602,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Here nextHop refers to the operational vpn interface adjacency. nextHop.getNextHopIpList().get(0) will return the VM Ip to which extraroute is attached. This parameter is added in allocateRdForExtraRouteAndUpdateUsedRdsMap to check if rd is already allocated for this nexthop(usedRds container).",
+      "parentUuid": "da01753e_793b7b38",
+      "revId": "3212174e77526d36e6dc9dfecd75bbda087b4944",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_f9164ba6",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 3
@@ -202,6 +382,24 @@
       "writtenOn": "2017-04-20T10:32:37Z",
       "side": 1,
       "message": "just use Optional.of here.",
+      "revId": "3212174e77526d36e6dc9dfecd75bbda087b4944",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_39173353",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1537,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "will change in next review",
+      "parentUuid": "da01753e_f9164ba6",
       "revId": "3212174e77526d36e6dc9dfecd75bbda087b4944",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
