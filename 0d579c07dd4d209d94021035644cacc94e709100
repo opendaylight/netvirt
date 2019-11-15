@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_983de1be",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclEventListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2017-06-27T12:47:05Z",
+      "side": 1,
+      "message": "Change it to trace as acl object could be heavy.",
+      "range": {
+        "startLine": 78,
+        "startChar": 12,
+        "endLine": 78,
+        "endChar": 17
+      },
+      "revId": "0d579c07dd4d209d94021035644cacc94e709100",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_d84599b4",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclEventListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2017-06-27T12:47:05Z",
+      "side": 1,
+      "message": "Change it to trace as acl object could be heavy.",
+      "range": {
+        "startLine": 129,
+        "startChar": 12,
+        "endLine": 129,
+        "endChar": 17
+      },
+      "revId": "0d579c07dd4d209d94021035644cacc94e709100",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_f81fbdb5",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceStateListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2017-06-27T12:47:05Z",
+      "side": 1,
+      "message": "change to trace",
+      "range": {
+        "startLine": 92,
+        "startChar": 12,
+        "endLine": 92,
+        "endChar": 17
+      },
+      "revId": "0d579c07dd4d209d94021035644cacc94e709100",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_38603535",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2017-06-27T12:47:05Z",
+      "side": 1,
+      "message": "use {}",
+      "range": {
+        "startLine": 157,
+        "startChar": 52,
+        "endLine": 157,
+        "endChar": 77
+      },
+      "revId": "0d579c07dd4d209d94021035644cacc94e709100",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_18657145",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2017-06-27T12:47:05Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 157,
+        "startChar": 31,
+        "endLine": 157,
+        "endChar": 39
+      },
+      "revId": "0d579c07dd4d209d94021035644cacc94e709100",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
