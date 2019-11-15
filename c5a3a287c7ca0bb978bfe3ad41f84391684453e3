@@ -79,6 +79,24 @@
       "revId": "c5a3a287c7ca0bb978bfe3ad41f84391684453e3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e9bfa0a8",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverMplsGrePopulator.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-10T06:06:53Z",
+      "side": 1,
+      "message": "Ok, right now primaryRd and input Rd are the same.  You can address this in the next review.",
+      "parentUuid": "fafc7978_695bb02e",
+      "revId": "c5a3a287c7ca0bb978bfe3ad41f84391684453e3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
