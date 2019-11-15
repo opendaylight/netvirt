@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_c77e3ee4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1286,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "same logic was added in the review https://git.opendaylight.org/gerrit/#/c/52996/19/vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java. Line no 312-320 handles the deletion of the usedrds and vpninterface containers during vrfentry update operation. The method updateUsedRdAndVpnToExtraRoute is deleting the same containers. Similarly there is code added for deleting the same containers in case of vrfentry removal operation(line no:1468-1475). Could you please check why it is not working.",
+      "range": {
+        "startLine": 1275,
+        "startChar": 0,
+        "endLine": 1286,
+        "endChar": 25
+      },
+      "revId": "15c0758a8a3ca0bbf03fcfc25d7788a8ddba0c79",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
