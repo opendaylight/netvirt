@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_4610924e",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Parameters used inside Futures.addCallback requires to be final and the original dpnId cannot be defined final. As a result, these temp final variables were defined and passed inside CallBack.",
+      "parentUuid": "ba068154_5bd18bfa",
+      "revId": "84632a8111b00d6abf8679ca310fc67b8ce5da86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_1b0d4391",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
         "patchSetId": 6
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_4637f2e3",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "For Tagged traffic, we try to retrieve valid vlan-id from iface. Here if it\u0027s null, vlanid will be 0 and we do have check in 334-340.",
+      "parentUuid": "ba068154_1b0d4391",
+      "revId": "84632a8111b00d6abf8679ca310fc67b8ce5da86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_3b6ac71a",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
         "patchSetId": 6
@@ -47,6 +83,24 @@
       "writtenOn": "2017-05-10T09:08:27Z",
       "side": 1,
       "message": "Style issue: This can be refactored to make it more readable. See http://wiki.c2.com/?ArrowAntiPattern",
+      "revId": "84632a8111b00d6abf8679ca310fc67b8ce5da86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_26cbcea6",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Removed unnecessary checks here. Check like Ipv4 packet,payload of type TCP/UDP where already done in NaptPacketInHandler before forwarding the packet to NaptEventHandler.",
+      "parentUuid": "ba068154_3b6ac71a",
       "revId": "84632a8111b00d6abf8679ca310fc67b8ce5da86",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
