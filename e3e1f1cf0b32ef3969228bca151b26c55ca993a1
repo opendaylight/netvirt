@@ -1,0 +1,124 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_d4b1a9e2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 17
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-06T16:20:36Z",
+      "side": 1,
+      "message": "Please make sure all the reviews of ECMP use appropriate commit titles.  See many reviews use this same title..",
+      "revId": "e3e1f1cf0b32ef3969228bca151b26c55ca993a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_34a9157c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 17
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-06T16:20:36Z",
+      "side": 1,
+      "message": "Enhancement to support a list of rds for an l3vpn",
+      "revId": "e3e1f1cf0b32ef3969228bca151b26c55ca993a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3472b549",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 17
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-06T16:20:36Z",
+      "side": 1,
+      "message": "isn\u0027t a key automatically mandatory?",
+      "revId": "e3e1f1cf0b32ef3969228bca151b26c55ca993a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f43aed32",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 827,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-06T16:20:36Z",
+      "side": 1,
+      "message": "Will there be a review to address import/export of extra-routes across two bgpvpns with ECMP?\n\nThis area here needs change to address the same.",
+      "revId": "e3e1f1cf0b32ef3969228bca151b26c55ca993a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b47185e2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 606,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-06T16:20:36Z",
+      "side": 1,
+      "message": "This kind of design complicates the VPNInterface management.\n\nGiven that extra-routes is the only major use-case that ECMP addresses for intra-DC, having a separate extra-route engine will help.",
+      "parentUuid": "fafc7978_444a2ac6",
+      "revId": "e3e1f1cf0b32ef3969228bca151b26c55ca993a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_94644123",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 614,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-06T16:20:36Z",
+      "side": 1,
+      "message": "So we donot service even the primary interface here, just because we run out of RDs for extra-routes?",
+      "revId": "e3e1f1cf0b32ef3969228bca151b26c55ca993a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_74643d49",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-06T16:20:36Z",
+      "side": 1,
+      "message": "This is an external VPN only as per line 86.\n\nThis check seems to be redundant.",
+      "revId": "e3e1f1cf0b32ef3969228bca151b26c55ca993a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
