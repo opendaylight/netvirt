@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_f8556550",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronPortChangeListener.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 6892
+      },
+      "writtenOn": "2017-02-27T15:12:21Z",
+      "side": 1,
+      "message": "Can you declare with the same variable name as what you have referred in blueprint? same comment in other listeners also",
+      "revId": "23229576c08dbb5523508f8660b6c5331add8dc3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
