@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_03a24b4a",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 710,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-09-26T13:19:20Z",
+      "side": 1,
+      "message": "even for provider type of VXLAN, the intradc punt of packet from originating VM to the NAPT Switch can use the allocated InternetVPN VNI..\n\nMake this a method and invoke it universally.",
+      "revId": "563a323402b6e98024aff51e27fd3a33152dc423",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
