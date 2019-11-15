@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_fe66f5b9",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Removed",
+      "parentUuid": "fafc7978_1eb7793b",
+      "range": {
+        "startLine": 155,
+        "startChar": 69,
+        "endLine": 156,
+        "endChar": 75
+      },
+      "revId": "dfcc360c9cb21eb6d5cb3d3f1604242712dc71c1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_7ea845db",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 2
@@ -59,6 +83,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5e0741ca",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2222,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_deb05145",
+      "revId": "dfcc360c9cb21eb6d5cb3d3f1604242712dc71c1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_feb3954a",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 2
@@ -70,6 +112,24 @@
       "writtenOn": "2017-02-25T08:09:19Z",
       "side": 1,
       "message": "if a config is present, that will be used. But why can\u0027t the config be always present with the default range we discussed?\n\nInitially we can restrict to single-low:single-how\n\nPlease refer to vni_ranges parameter value proposition and formatting in neutron.conf/ ml2_conf.ini and follow the same way here.",
+      "revId": "dfcc360c9cb21eb6d5cb3d3f1604242712dc71c1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_febef5ac",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2226,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "If this configuration not done explicitly, then the default range will be taken with the values defined \"netvirt-neutronvpn-config.xml\"\n\nInstead of defining a seperate container, I have defined another attribute \"opendaylight-vni-ranges\" into the existing container \"neutronvpn-config\". The format will be \"\u003cvni_min\u003e:\u003cvni_max\u003e\" and currently supporting single range.",
+      "parentUuid": "fafc7978_feb3954a",
       "revId": "dfcc360c9cb21eb6d5cb3d3f1604242712dc71c1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -93,6 +153,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3e0cfdec",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2238,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_bead8deb",
+      "revId": "dfcc360c9cb21eb6d5cb3d3f1604242712dc71c1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_3e899d75",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/resources/initial/netvirt-opendaylight-vni-range-config.xml",
         "patchSetId": 2
@@ -104,6 +182,24 @@
       "writtenOn": "2017-02-25T08:09:19Z",
       "side": 1,
       "message": "this overlaps with vpn-pool-range right?\n\nI don\u0027t remember what we finalized, please make me recollect :)",
+      "revId": "dfcc360c9cb21eb6d5cb3d3f1604242712dc71c1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9e0d29eb",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/resources/initial/netvirt-opendaylight-vni-range-config.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Right. Discussion done to move the vpn-pool-range 100000-170000",
+      "parentUuid": "fafc7978_3e899d75",
       "revId": "dfcc360c9cb21eb6d5cb3d3f1604242712dc71c1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
