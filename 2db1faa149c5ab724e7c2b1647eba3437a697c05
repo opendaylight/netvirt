@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_00d792c2",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-10T06:09:07Z",
+      "side": 1,
+      "message": "installFlow makes the installation asynchronous.  This way must be used only when sendRpc is false in order to preserve the original behaviour.",
+      "revId": "2db1faa149c5ab724e7c2b1647eba3437a697c05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_c0658a46",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/resources/org/opendaylight/blueprint/natservice.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-10T06:09:07Z",
+      "side": 1,
+      "message": "Is there a need to change these Ref-IDs?",
+      "revId": "2db1faa149c5ab724e7c2b1647eba3437a697c05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
