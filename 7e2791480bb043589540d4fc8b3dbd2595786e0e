@@ -16,6 +16,24 @@
       "revId": "7e2791480bb043589540d4fc8b3dbd2595786e0e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_98b379e8",
+        "filename": "vpnservice/qosservice/impl/src/main/resources/org/opendaylight/blueprint/qosservice.xml",
+        "patchSetId": 16
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 7970
+      },
+      "writtenOn": "2019-11-15T18:58:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f8a445a7",
+      "revId": "7e2791480bb043589540d4fc8b3dbd2595786e0e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
