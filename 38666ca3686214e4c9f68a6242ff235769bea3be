@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_23b259e6",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 19
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_cdcbbe1c",
+      "range": {
+        "startLine": 107,
+        "startChar": 25,
+        "endLine": 107,
+        "endChar": 44
+      },
+      "revId": "38666ca3686214e4c9f68a6242ff235769bea3be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2dd36ad7",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
         "patchSetId": 19
@@ -36,6 +60,30 @@
       "writtenOn": "2017-02-13T18:03:25Z",
       "side": 1,
       "message": "y not just \"rds\"? If you need to stick to the entire name, please correct the spelling.",
+      "range": {
+        "startLine": 109,
+        "startChar": 24,
+        "endLine": 109,
+        "endChar": 44
+      },
+      "revId": "38666ca3686214e4c9f68a6242ff235769bea3be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_03b595cc",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 19
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_2dd36ad7",
       "range": {
         "startLine": 109,
         "startChar": 24,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_63cbc153",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 19
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_0dd666c5",
+      "range": {
+        "startLine": 121,
+        "startChar": 26,
+        "endLine": 121,
+        "endChar": 46
+      },
+      "revId": "38666ca3686214e4c9f68a6242ff235769bea3be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ade63ab2",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 19
@@ -82,6 +154,30 @@
       "writtenOn": "2017-02-13T18:03:25Z",
       "side": 1,
       "message": "Seems like a utility method. Please move it to fibutil and use it from there",
+      "range": {
+        "startLine": 736,
+        "startChar": 32,
+        "endLine": 736,
+        "endChar": 50
+      },
+      "revId": "38666ca3686214e4c9f68a6242ff235769bea3be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e3b7b1d6",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 736,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "These will be moved to FibHelper class in the review\nhttps://git.opendaylight.org/gerrit/#/c/49806/\nAnd FibHelper class will be introduced in the review\nhttps://git.opendaylight.org/gerrit/#/c/49010/",
+      "parentUuid": "fafc7978_ade63ab2",
       "range": {
         "startLine": 736,
         "startChar": 32,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_c3ba6dbf",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 1064,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "same comment as above",
+      "parentUuid": "fafc7978_0dedc68b",
+      "range": {
+        "startLine": 1050,
+        "startChar": 4,
+        "endLine": 1064,
+        "endChar": 5
+      },
+      "revId": "38666ca3686214e4c9f68a6242ff235769bea3be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ed9682ef",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
         "patchSetId": 19
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_c3cb8d1c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 19
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_ed9682ef",
+      "range": {
+        "startLine": 68,
+        "startChar": 16,
+        "endLine": 68,
+        "endChar": 28
+      },
+      "revId": "38666ca3686214e4c9f68a6242ff235769bea3be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_0d49468b",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 19
@@ -151,6 +295,30 @@
       "writtenOn": "2017-02-13T18:03:25Z",
       "side": 1,
       "message": "I think vpnPrefixKey sounds better:)",
+      "range": {
+        "startLine": 610,
+        "startChar": 23,
+        "endLine": 610,
+        "endChar": 39
+      },
+      "revId": "38666ca3686214e4c9f68a6242ff235769bea3be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_03ec75c6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 610,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_0d49468b",
       "range": {
         "startLine": 610,
         "startChar": 23,
@@ -191,6 +359,30 @@
       "writtenOn": "2017-02-13T18:03:25Z",
       "side": 1,
       "message": "I\u0027m guessing the primaryRd will always be present. Should you just return here, or assign the promaryRd if allocateRdForExtraRouteAndUpdateUsedRdsMap() does not return any rd?",
+      "range": {
+        "startLine": 623,
+        "startChar": 21,
+        "endLine": 626,
+        "endChar": 21
+      },
+      "revId": "38666ca3686214e4c9f68a6242ff235769bea3be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_43cddd5c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 626,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "There is no classification among rds (such as primary rd and other rds) while selecting rd for an extra route. So if all rds are allocated and a new extra route comes up, there won\u0027t be any rd to allocate.",
+      "parentUuid": "fafc7978_2d140a4d",
       "range": {
         "startLine": 623,
         "startChar": 21,
@@ -260,6 +452,54 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_03d635c5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 1279,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "I remember this was returning null. Will test it again and confirm it.",
+      "parentUuid": "fafc7978_8d025609",
+      "range": {
+        "startLine": 1279,
+        "startChar": 8,
+        "endLine": 1279,
+        "endChar": 105
+      },
+      "revId": "38666ca3686214e4c9f68a6242ff235769bea3be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f43f66d4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 1279,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "DpnId is not filled for VpnInterface CONFIG DS",
+      "parentUuid": "fafc7978_03d635c5",
+      "range": {
+        "startLine": 1279,
+        "startChar": 8,
+        "endLine": 1279,
+        "endChar": 105
+      },
+      "revId": "38666ca3686214e4c9f68a6242ff235769bea3be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9019cd7b",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 19
@@ -271,6 +511,30 @@
       "writtenOn": "2017-02-13T18:03:25Z",
       "side": 1,
       "message": "vpnPrefixKey",
+      "range": {
+        "startLine": 1596,
+        "startChar": 42,
+        "endLine": 1596,
+        "endChar": 60
+      },
+      "revId": "38666ca3686214e4c9f68a6242ff235769bea3be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e305f17a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 1596,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_9019cd7b",
       "range": {
         "startLine": 1596,
         "startChar": 42,
@@ -306,6 +570,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_43f4bd86",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 1605,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "It is present before addExtraRoute call.",
+      "parentUuid": "fafc7978_503645e8",
+      "range": {
+        "startLine": 1605,
+        "startChar": 20,
+        "endLine": 1605,
+        "endChar": 21
+      },
+      "revId": "38666ca3686214e4c9f68a6242ff235769bea3be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f02779b4",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 19
@@ -317,6 +605,30 @@
       "writtenOn": "2017-02-13T18:03:25Z",
       "side": 1,
       "message": "what if allocateRdForExtraRouteAndUpdateUsedRdsMap fails? Should you assign primaryRd or exit?",
+      "range": {
+        "startLine": 1600,
+        "startChar": 20,
+        "endLine": 1606,
+        "endChar": 17
+      },
+      "revId": "38666ca3686214e4c9f68a6242ff235769bea3be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e32cd104",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 1606,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Thanks. I missed the else case.",
+      "parentUuid": "fafc7978_f02779b4",
       "range": {
         "startLine": 1600,
         "startChar": 20,
@@ -352,6 +664,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_2337f94f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 1665,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_4dacee35",
+      "range": {
+        "startLine": 1663,
+        "startChar": 4,
+        "endLine": 1665,
+        "endChar": 5
+      },
+      "revId": "38666ca3686214e4c9f68a6242ff235769bea3be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f04e596e",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 19
@@ -363,6 +699,30 @@
       "writtenOn": "2017-02-13T18:03:25Z",
       "side": 1,
       "message": "Is there any reason why operTx is not passed and used here? If not, then please maintain the original code",
+      "range": {
+        "startLine": 1669,
+        "startChar": 32,
+        "endLine": 1669,
+        "endChar": 65
+      },
+      "revId": "38666ca3686214e4c9f68a6242ff235769bea3be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a34ac9c2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 1669,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "It is not used in the method because of the below change.",
+      "parentUuid": "fafc7978_f04e596e",
       "range": {
         "startLine": 1669,
         "startChar": 32,
@@ -398,6 +758,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_433b1d38",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 1678,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "This was done to make sure that the rd allocated for this extra route is commited(syncUpdate) in the VpnToExtraroute DataStore. Otherwise if same extra route prefix (behind same CSS) is added with a different next hop in parallel, wrong rd could be allocated.",
+      "parentUuid": "fafc7978_d051950f",
+      "range": {
+        "startLine": 1678,
+        "startChar": 7,
+        "endLine": 1678,
+        "endChar": 27
+      },
+      "revId": "38666ca3686214e4c9f68a6242ff235769bea3be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_10731db2",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 19
@@ -409,6 +793,30 @@
       "writtenOn": "2017-02-13T18:03:25Z",
       "side": 1,
       "message": "same as above",
+      "range": {
+        "startLine": 1742,
+        "startChar": 4,
+        "endLine": 1742,
+        "endChar": 9
+      },
+      "revId": "38666ca3686214e4c9f68a6242ff235769bea3be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_834505b5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 1742,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "same as above",
+      "parentUuid": "fafc7978_10731db2",
       "range": {
         "startLine": 1742,
         "startChar": 4,
@@ -444,6 +852,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_0388f5e5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Since we call build() before returning, progressive use is a little bit difficult here. Otherwise we need to return builder which doesn\u0027t look good in the called method.\nPlease let me know if it still needs to be changed.",
+      "parentUuid": "fafc7978_f09c99c2",
+      "range": {
+        "startLine": 203,
+        "startChar": 4,
+        "endLine": 223,
+        "endChar": 5
+      },
+      "revId": "38666ca3686214e4c9f68a6242ff235769bea3be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_10aafdd3",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 19
@@ -455,6 +887,30 @@
       "writtenOn": "2017-02-13T18:03:25Z",
       "side": 1,
       "message": "Multiple returns can be avoided here. Initialize an empty array list at the beginning and return it at the end. Asign the read extraroutes in between",
+      "range": {
+        "startLine": 271,
+        "startChar": 8,
+        "endLine": 274,
+        "endChar": 33
+      },
+      "revId": "38666ca3686214e4c9f68a6242ff235769bea3be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a37809f3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Already existing code. Will change it.",
+      "parentUuid": "fafc7978_10aafdd3",
       "range": {
         "startLine": 271,
         "startChar": 8,
@@ -490,6 +946,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e361713a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Already existing code. Will change it.",
+      "parentUuid": "fafc7978_b091719b",
+      "range": {
+        "startLine": 369,
+        "startChar": 30,
+        "endLine": 369,
+        "endChar": 36
+      },
+      "revId": "38666ca3686214e4c9f68a6242ff235769bea3be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_10f83de4",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 19
@@ -501,6 +981,30 @@
       "writtenOn": "2017-02-13T18:03:25Z",
       "side": 1,
       "message": "getExtraRoutes",
+      "range": {
+        "startLine": 373,
+        "startChar": 35,
+        "endLine": 373,
+        "endChar": 52
+      },
+      "revId": "38666ca3686214e4c9f68a6242ff235769bea3be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_235c197e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Already existing code. Will change it.",
+      "parentUuid": "fafc7978_10f83de4",
       "range": {
         "startLine": 373,
         "startChar": 35,
@@ -536,6 +1040,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_035f5573",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Already existing code. Will change it.",
+      "parentUuid": "fafc7978_70dee96e",
+      "range": {
+        "startLine": 381,
+        "startChar": 31,
+        "endLine": 381,
+        "endChar": 37
+      },
+      "revId": "38666ca3686214e4c9f68a6242ff235769bea3be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_90e38d32",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 19
@@ -547,6 +1075,30 @@
       "writtenOn": "2017-02-13T18:03:25Z",
       "side": 1,
       "message": "rds",
+      "range": {
+        "startLine": 534,
+        "startChar": 37,
+        "endLine": 534,
+        "endChar": 40
+      },
+      "revId": "38666ca3686214e4c9f68a6242ff235769bea3be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_43503d5e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 534,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_90e38d32",
       "range": {
         "startLine": 534,
         "startChar": 37,
@@ -582,6 +1134,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_a34f69bc",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 1511,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "One nexthop ip from the list is enough to identify the DPN",
+      "parentUuid": "fafc7978_50c0057c",
+      "range": {
+        "startLine": 1511,
+        "startChar": 49,
+        "endLine": 1511,
+        "endChar": 74
+      },
+      "revId": "38666ca3686214e4c9f68a6242ff235769bea3be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_d03b559a",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 19
@@ -593,6 +1169,30 @@
       "writtenOn": "2017-02-13T18:03:25Z",
       "side": 1,
       "message": "Should you allocate primaryRd or error out?",
+      "range": {
+        "startLine": 1533,
+        "startChar": 8,
+        "endLine": 1536,
+        "endChar": 9
+      },
+      "revId": "38666ca3686214e4c9f68a6242ff235769bea3be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_834a25aa",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 1536,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "There is no classification among rds (such as primary rd and other rds) while selecting rd for an extra route. So if all rds are allocated and a new extra route comes up, there won\u0027t be any rd to allocate.",
+      "parentUuid": "fafc7978_d03b559a",
       "range": {
         "startLine": 1533,
         "startChar": 8,
