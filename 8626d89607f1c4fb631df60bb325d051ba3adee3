@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_20d32405",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Added new Util class to take care of above functionality(except point-3 which need to verified with idmanager). For Point-2, currently there is not API\u0027s exposed to achieve this functionality. So, implemented NAT Utils API to achieve it.",
+      "parentUuid": "fafc7978_6106e487",
+      "revId": "8626d89607f1c4fb631df60bb325d051ba3adee3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_410be08d",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-26T16:04:56Z",
       "side": 1,
       "message": "thsi is not necessary.",
+      "revId": "8626d89607f1c4fb631df60bb325d051ba3adee3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_60d9ac21",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1466,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_410be08d",
       "revId": "8626d89607f1c4fb631df60bb325d051ba3adee3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_bb3bd4cf",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatConstants.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done. As discussed earlier, 70k is enough for vpn. So change VPN_POOL_RANGE from 100000 to 170000",
+      "parentUuid": "fafc7978_a1fc4c73",
+      "revId": "8626d89607f1c4fb631df60bb325d051ba3adee3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e1f93481",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 4
@@ -64,6 +118,24 @@
       "writtenOn": "2017-02-26T16:04:56Z",
       "side": 1,
       "message": "All these methods can go into new file NatOverVxlanUtil.java",
+      "revId": "8626d89607f1c4fb631df60bb325d051ba3adee3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_20fa0475",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1745,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e1f93481",
       "revId": "8626d89607f1c4fb631df60bb325d051ba3adee3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_00f7008c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1765,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_c1f6b08e",
+      "revId": "8626d89607f1c4fb631df60bb325d051ba3adee3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_21f05c90",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 4
@@ -98,6 +188,24 @@
       "writtenOn": "2017-02-26T16:04:56Z",
       "side": 1,
       "message": "this method\u0027s flesh will be absorbed in createOpenDaylightxxxPool itself as per my earlier comment.",
+      "revId": "8626d89607f1c4fb631df60bb325d051ba3adee3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_60f08c91",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1796,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_21f05c90",
       "revId": "8626d89607f1c4fb631df60bb325d051ba3adee3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_40ed88b6",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1811,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_01ed58b7",
+      "revId": "8626d89607f1c4fb631df60bb325d051ba3adee3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_612d44fe",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 4
@@ -132,6 +258,24 @@
       "writtenOn": "2017-02-26T16:04:56Z",
       "side": 1,
       "message": "this is nto required too.",
+      "revId": "8626d89607f1c4fb631df60bb325d051ba3adee3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a02d5400",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1821,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_612d44fe",
       "revId": "8626d89607f1c4fb631df60bb325d051ba3adee3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
