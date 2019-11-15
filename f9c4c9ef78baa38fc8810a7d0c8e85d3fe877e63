@@ -132,6 +132,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_58a8f18c",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 7970
+      },
+      "writtenOn": "2019-11-15T18:58:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f2c5848e",
+      "range": {
+        "startLine": 76,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 84
+      },
+      "revId": "f9c4c9ef78baa38fc8810a7d0c8e85d3fe877e63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e46942bf",
         "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
         "patchSetId": 13
@@ -285,6 +309,30 @@
       "side": 1,
       "message": "This is responded in earlier comment.",
       "parentUuid": "fafc7978_24606ace",
+      "range": {
+        "startLine": 155,
+        "startChar": 29,
+        "endLine": 155,
+        "endChar": 46
+      },
+      "revId": "f9c4c9ef78baa38fc8810a7d0c8e85d3fe877e63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_98aed996",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 7970
+      },
+      "writtenOn": "2019-11-15T18:58:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_6465521d",
       "range": {
         "startLine": 155,
         "startChar": 29,
