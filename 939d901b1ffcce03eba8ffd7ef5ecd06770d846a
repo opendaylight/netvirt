@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "da2a55be_1da09a8f",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 432,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-07-07T19:12:58Z",
+      "side": 1,
+      "message": "This method can be moved to AbstractAclService as there is nothing specific to egress/ingress.",
+      "revId": "939d901b1ffcce03eba8ffd7ef5ecd06770d846a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_7dc43640",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclDataUtil.java",
         "patchSetId": 1
