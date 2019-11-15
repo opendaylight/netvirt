@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_1d2f16a3",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibManagerImpl.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-04-04T10:19:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_9a582cfc",
+      "revId": "d72574b23ff11672454b4abd096c691b3189bd7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_9a266c67",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 15
@@ -152,6 +170,24 @@
       "writtenOn": "2017-04-04T05:41:57Z",
       "side": 1,
       "message": "we just need to remove this comment.",
+      "parentUuid": "da01753e_ba1c1015",
+      "revId": "d72574b23ff11672454b4abd096c691b3189bd7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_3d1dba74",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 1838,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-04-04T10:19:11Z",
+      "side": 1,
+      "message": "Done",
       "parentUuid": "da01753e_ba1c1015",
       "revId": "d72574b23ff11672454b4abd096c691b3189bd7f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",

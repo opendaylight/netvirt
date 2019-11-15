@@ -16,6 +16,24 @@
       "revId": "89fa479a22dd8f433c3287b596ba1c6ebbcfb7f5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_fd2b3292",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 552,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-04-04T10:19:11Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "da01753e_7a5d88e9",
+      "revId": "89fa479a22dd8f433c3287b596ba1c6ebbcfb7f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
