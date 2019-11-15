@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_1a005366",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_9aae0384",
+      "revId": "e035572c32e7134563bc893db3cb94cd5cdfa60f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_fab46fd2",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatInterfaceStateChangeListener.java",
         "patchSetId": 7
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-15T11:36:22Z",
       "side": 1,
       "message": "NAT_DS + \u0027-\u0027 + intrf.getName()..\n\nDoes these jobs require serialization with the jobs fired from the previous file?  \n\nIf so, you must use the same key NATFLOW + - + intfName here too.",
+      "revId": "e035572c32e7134563bc893db3cb94cd5cdfa60f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7aeebfb5",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatInterfaceStateChangeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "No. This Job can run independently with the previous Job",
+      "parentUuid": "fafc7978_fab46fd2",
       "revId": "e035572c32e7134563bc893db3cb94cd5cdfa60f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
