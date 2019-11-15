@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_90a5ad06",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/IFibManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-04T06:32:17Z",
+      "side": 0,
+      "message": "make sure gwMacAddress is already updated during initial fib creation. because now we are updating only routepath.",
+      "revId": "d72574b23ff11672454b4abd096c691b3189bd7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

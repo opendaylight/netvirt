@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "da01753e_90576d02",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-04T06:32:17Z",
+      "side": 1,
+      "message": "change return type to Optional\u003cVrfEntry\u003e",
+      "revId": "11c7386a1084282cac1e8bea275c92a59b61a625",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_131a6717",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
         "patchSetId": 10
@@ -20,6 +37,23 @@
     },
     {
       "key": {
+        "uuid": "da01753e_b03d51be",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/IFibManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-04T06:32:17Z",
+      "side": 1,
+      "message": "change the method name to updateRoutePathForFibEntry",
+      "revId": "11c7386a1084282cac1e8bea275c92a59b61a625",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_93b497f3",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/IFibManager.java",
         "patchSetId": 10
@@ -32,6 +66,40 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "da01753e_b03d51be",
+      "revId": "11c7386a1084282cac1e8bea275c92a59b61a625",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_104b7d5a",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/IFibManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-04T06:32:17Z",
+      "side": 1,
+      "message": "use constant addOrRemove instead of boolean nextHopAdd",
+      "revId": "11c7386a1084282cac1e8bea275c92a59b61a625",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_f05eb911",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 683,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-04T06:32:17Z",
+      "side": 1,
+      "message": "There is nothing being done in this if loop. so make it with single if instead if-else",
       "revId": "11c7386a1084282cac1e8bea275c92a59b61a625",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
