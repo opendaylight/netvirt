@@ -127,6 +127,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3c39c1d7",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "With this approach, the traffic will not flow after reverse-SNAT translation. Considering example\n\nDPN1(NAPT,VM1-10.0.0.5) DPN2(Non-NAPT, VM2-20.0.0.5)\n\nIn DPN1, we will have table\u003d21 flow for reaching 20.0.0.5. As soon as VM1 is removed, this entry doesn\u0027t exist.\n\nIf DPN1 is still retained as NAPT, if traffic is initiated from 20.0.0.5(to FIP or external world) SNAT translation happens. But as part of response, after reverse SNAT translation, packet is handed to table\u003d21 and there will be no matching table\u003d21 flow to take to DPN2.",
+      "revId": "bf0fa813a0c6ef4eaf0328c6c721001f0166753a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_91e376a3",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 4
