@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3afa9182_596242d9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5996
+      },
+      "writtenOn": "2017-06-05T16:36:36Z",
+      "side": 1,
+      "message": "stable/ocata and current master for pike as well",
+      "range": {
+        "startLine": 12,
+        "startChar": 44,
+        "endLine": 12,
+        "endChar": 61
+      },
+      "revId": "0b80685a7c8164b5ab2906f51507f39b65ebc6c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
