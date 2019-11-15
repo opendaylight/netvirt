@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "da01753e_9a582cfc",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibManagerImpl.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-03T15:58:35Z",
+      "side": 1,
+      "message": "refreshVrfEntry() will be a better method name.",
+      "revId": "d72574b23ff11672454b4abd096c691b3189bd7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_9a266c67",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 1267,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-03T15:58:35Z",
+      "side": 1,
+      "message": "we should be using the updateFibEntries() lifecycle for this instead of adhoc\u0027ly managing the extra-routes via direct call to refreshFibTables.",
+      "revId": "d72574b23ff11672454b4abd096c691b3189bd7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_9d12e660",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 15
@@ -14,6 +48,23 @@
       "side": 1,
       "message": "when nhList is more than 1 (for a given DPN), then there is nothing to update in vrfEntry. Its just about updating local fib/ts/lfib flow rules. that was the reason for calling refreshFibTables",
       "parentUuid": "da01753e_9a266c67",
+      "revId": "d72574b23ff11672454b4abd096c691b3189bd7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_3a3140a3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 1282,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-03T15:58:35Z",
+      "side": 1,
+      "message": "since the extra-route is not completely deleted within this if condition (i., only one of the nexthops is deleted), we shouldbe retaining the prefixToInterface for that extra-route.  Why is that being removed here permanently?",
       "revId": "d72574b23ff11672454b4abd096c691b3189bd7f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -38,6 +89,23 @@
     },
     {
       "key": {
+        "uuid": "da01753e_5ad36438",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 1287,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-03T15:58:35Z",
+      "side": 1,
+      "message": "since for extra-routes with ecmp, the FIBEntry for extra-route is created by primaryRd, but he publishing with BGP happens with randomly chosen RD from the list of RDs, how do you plan to addresse import/export of extra-routes corrrectly?",
+      "revId": "d72574b23ff11672454b4abd096c691b3189bd7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_b00f112e",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 15
@@ -50,6 +118,23 @@
       "side": 1,
       "message": "This was being handled in L3vpnOverMplsGrePopulator#populateFib by populating vrfTable with RouteOrigin as SELF_IMPORTED and it is being handled accordinly in vrfEntryListener. Gobinath, Make sure it works even with latest code.",
       "parentUuid": "da01753e_5ad36438",
+      "revId": "d72574b23ff11672454b4abd096c691b3189bd7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_ba1c1015",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 1838,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-03T15:58:35Z",
+      "side": 1,
+      "message": "fix the comment.",
       "revId": "d72574b23ff11672454b4abd096c691b3189bd7f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
