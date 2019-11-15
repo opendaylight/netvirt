@@ -146,6 +146,23 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_012a892b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 564,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-08-30T05:41:15Z",
+      "side": 1,
+      "message": "Nit: remove tabs",
+      "revId": "693f9a161e11847fa674d1ccb06fe41c363e0cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_1b0e553b",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 1
