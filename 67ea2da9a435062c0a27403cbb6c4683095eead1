@@ -230,6 +230,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_17c40191",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Hi Vivek,\n\nIf we have two FIPs(on same external-network(mplsovergre)) then we will have only one 36-\u003e25 flow(with tunnel_id as Internet VPN VNI) if openstack-semantics-enabled. So, this check is required to prevent deletion of such flow if one of the FIP is removed and delete it only during last FIP from that dpn is removed.",
+      "parentUuid": "da01753e_f48860c8",
+      "revId": "67ea2da9a435062c0a27403cbb6c4683095eead1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_5909a594",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
         "patchSetId": 7
