@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_c008a693",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-03T05:35:54Z",
+      "side": 1,
+      "message": "use vpnname+prefix for synchronization",
+      "revId": "f4d4d736a6a466d83b4d644b42cb2c4063a7300d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_20007a66",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 597,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-03T05:35:54Z",
+      "side": 1,
+      "message": "Nit: remove trailing space",
+      "revId": "f4d4d736a6a466d83b4d644b42cb2c4063a7300d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
