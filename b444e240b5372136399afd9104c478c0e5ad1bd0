@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_9688f323",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 698,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-27T06:29:03Z",
+      "side": 1,
+      "message": "looks like this is fix for existing issue with vpn code.",
+      "revId": "b444e240b5372136399afd9104c478c0e5ad1bd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_369ca769",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 699,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-27T06:29:03Z",
+      "side": 1,
+      "message": "move these two lines to a method in VpnHelper.\nBecause it\u0027s being reused in updateVpnInterfaceOnTepDelete.",
+      "revId": "b444e240b5372136399afd9104c478c0e5ad1bd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f6785f2d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1247,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-27T06:29:03Z",
+      "side": 1,
+      "message": "do you have to call refreshFibTables ? In line no 1257, you are updating fibEntry. Doesn\u0027t it program fib flows according to latest nhList ?",
+      "revId": "b444e240b5372136399afd9104c478c0e5ad1bd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_968f5323",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1254,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-27T06:29:03Z",
+      "side": 1,
+      "message": "is it needed here ?",
+      "revId": "b444e240b5372136399afd9104c478c0e5ad1bd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
