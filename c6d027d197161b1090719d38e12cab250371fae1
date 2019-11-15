@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_566de631",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 713,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-04-09T04:16:17Z",
+      "side": 1,
+      "message": "Why aren\u0027t the vrf entries update batched into a single transaction in both add/delete TEP event?",
+      "revId": "c6d027d197161b1090719d38e12cab250371fae1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
