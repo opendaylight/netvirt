@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_4609b230",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VxlanGreConntrackBasedSnatService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-05-10T12:55:42Z",
+      "side": 1,
+      "message": "Since most of the code looks same can we extend from ConntrackBasedSnatService and make the ConntrackBasedSnatService Abstract? The method that differs between Vlan/Flat and Vxlan/Gre can be abstract in ConntrackBasedSnatService and have two implementation Flat/VLan and Vxlan/Gre implementing the abstract method.\n\nIt is good that it is not moved to AbstractSnatSerivce as it is better not specific to conntrack implementation.",
+      "revId": "dbf2356d33953d8fb23666ae678ea24bda03777a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
