@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_20a0cb8f",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 7970
+      },
+      "writtenOn": "2019-11-15T18:58:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_b9799efe",
+      "revId": "28a61134c09f0014c01e6c6136c430345b2ca234",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_99177aa3",
         "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-04-10T15:36:34Z",
       "side": 1,
       "message": "comment says the same thing as the code",
+      "revId": "28a61134c09f0014c01e6c6136c430345b2ca234",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_6073f34d",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 7970
+      },
+      "writtenOn": "2019-11-15T18:58:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_99177aa3",
       "revId": "28a61134c09f0014c01e6c6136c430345b2ca234",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_c08f3f22",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 7970
+      },
+      "writtenOn": "2019-11-15T18:58:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_39264e17",
+      "revId": "28a61134c09f0014c01e6c6136c430345b2ca234",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_19238a06",
         "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
         "patchSetId": 1
@@ -64,6 +118,24 @@
       "writtenOn": "2017-04-10T15:36:34Z",
       "side": 1,
       "message": "is this an OK condition or should it be an error or warn?",
+      "revId": "28a61134c09f0014c01e6c6136c430345b2ca234",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_a094bb37",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 559,
+      "author": {
+        "id": 7970
+      },
+      "writtenOn": "2019-11-15T18:58:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_19238a06",
       "revId": "28a61134c09f0014c01e6c6136c430345b2ca234",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_009ae762",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 563,
+      "author": {
+        "id": 7970
+      },
+      "writtenOn": "2019-11-15T18:58:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_f90cc696",
+      "revId": "28a61134c09f0014c01e6c6136c430345b2ca234",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_d91102ae",
         "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
         "patchSetId": 1
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_e09ec355",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 565,
+      "author": {
+        "id": 7970
+      },
+      "writtenOn": "2019-11-15T18:58:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_d91102ae",
+      "revId": "28a61134c09f0014c01e6c6136c430345b2ca234",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_591d12bd",
         "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
         "patchSetId": 1
@@ -115,6 +223,24 @@
       "writtenOn": "2017-04-10T15:36:34Z",
       "side": 1,
       "message": "formatting looks off",
+      "revId": "28a61134c09f0014c01e6c6136c430345b2ca234",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_40a34f9e",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 570,
+      "author": {
+        "id": 7970
+      },
+      "writtenOn": "2019-11-15T18:58:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_591d12bd",
       "revId": "28a61134c09f0014c01e6c6136c430345b2ca234",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
