@@ -17,6 +17,23 @@
       "revId": "813d3f1cfaf4b79c98cf57311af52b6b0e3f4863",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_908b66c2",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "installing table\u003d47-\u003e21 with externalVpnId is already done in handlePrimaryNaptSwitch-\u003einstallNaptPfibEntry-\u003ebuildNaptPfibFlowEntity. If the same flows is used now, then the call to installNaptPfibExternalOutputFlow() can be removed.",
+      "revId": "813d3f1cfaf4b79c98cf57311af52b6b0e3f4863",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
