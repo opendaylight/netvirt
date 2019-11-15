@@ -37,6 +37,42 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_7c1b49ca",
+        "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat-rpc.yang",
+        "patchSetId": 11
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_1c579dcb",
+      "revId": "d4a4b55652c57f3c5bc328384588611d01ced0ca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7ce22930",
+        "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat-rpc.yang",
+        "patchSetId": 11
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "for SNAT only, we can display this information.",
+      "parentUuid": "fafc7978_1cf2fd05",
+      "revId": "d4a4b55652c57f3c5bc328384588611d01ced0ca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f17f6264",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 11
@@ -48,6 +84,24 @@
       "writtenOn": "2017-02-20T08:55:36Z",
       "side": 1,
       "message": "NWUtil.isIpInSubnet",
+      "revId": "d4a4b55652c57f3c5bc328384588611d01ced0ca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_11402606",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 1711,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "The NWUtil.isIpInSubnet takes CIDR as input. So it may fail if multiple allocation-pools provided during subnet creation and input ip not provided in this range(Ex: 30.0.0.65). Currently logic goes through each of the allocation-pools and validates the input.\n\nEx:\nneutron subnet-create test  --name testsubnet --allocation-pool start\u003d30.0.0.10,end\u003d30.0.0.50 --allocation-pool start\u003d30.0.0.75,end\u003d30.0.0.100 30.0.0.0/24\nCreated a new subnet:\n+-------------------+---------------------------------------------+\n| Field             | Value                                       |\n+-------------------+---------------------------------------------+\n| allocation_pools  | {\"start\": \"30.0.0.10\", \"end\": \"30.0.0.50\"}  |\n|                   | {\"start\": \"30.0.0.75\", \"end\": \"30.0.0.100\"} |\n| cidr              | 30.0.0.0/24                                 |\n| dns_nameservers   |                                             |\n| enable_dhcp       | True                                        |\n| gateway_ip        | 30.0.0.1                                    |\n| host_routes       |                                             |\n| id                | 75f94951-b84e-4961-a527-9f4f3091d0b2        |\n| ip_version        | 4                                           |\n| ipv6_address_mode |                                             |\n| ipv6_ra_mode      |                                             |\n| name              | testsubnet                                  |\n| network_id        | 4235ea3d-ec64-483a-946d-cf2097f35138        |\n| subnetpool_id     |                                             |\n| tenant_id         | 42a5548f79974b909da54a212846013a            |\n+-------------------+---------------------------------------------+",
+      "parentUuid": "fafc7978_f17f6264",
       "revId": "d4a4b55652c57f3c5bc328384588611d01ced0ca",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
