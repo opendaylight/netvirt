@@ -1,0 +1,190 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_cbd8ce81",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-20T13:02:02Z",
+      "side": 1,
+      "message": "We dont remove fib if routePaths are null/empty. On tunnel events we need to only remove the route from routepaths and then remove the corresponding flows",
+      "range": {
+        "startLine": 381,
+        "startChar": 16,
+        "endLine": 387,
+        "endChar": 74
+      },
+      "revId": "260a047ba6b651742af0e1431701a87bbb069d10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_6bd1e256",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 566,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-20T13:02:02Z",
+      "side": 1,
+      "message": "This change is already present in https://git.opendaylight.org/gerrit/#/c/59752.\n\nPlease rebase 59646 on 59752.",
+      "range": {
+        "startLine": 559,
+        "startChar": 20,
+        "endLine": 566,
+        "endChar": 49
+      },
+      "revId": "260a047ba6b651742af0e1431701a87bbb069d10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_1cf06566",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 566,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-25T16:47:16Z",
+      "side": 1,
+      "message": "No need to wait for merging the first one. You can raise this as a dependent review:)",
+      "parentUuid": "da2a55be_adee49b2",
+      "range": {
+        "startLine": 559,
+        "startChar": 20,
+        "endLine": 566,
+        "endChar": 49
+      },
+      "revId": "260a047ba6b651742af0e1431701a87bbb069d10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_ebc4b293",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 787,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-20T13:02:02Z",
+      "side": 1,
+      "message": "Please retain the original logic of using installGroupOnDpn(). We have done this specifically to remove the timed wait.",
+      "range": {
+        "startLine": 786,
+        "startChar": 14,
+        "endLine": 787,
+        "endChar": 31
+      },
+      "revId": "260a047ba6b651742af0e1431701a87bbb069d10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_6b38c2a0",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 808,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-20T13:02:02Z",
+      "side": 1,
+      "message": "Redundant. Please keep one, and also add rd, dpnId and prefix",
+      "range": {
+        "startLine": 804,
+        "startChar": 8,
+        "endLine": 808,
+        "endChar": 41
+      },
+      "revId": "260a047ba6b651742af0e1431701a87bbb069d10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_eb72f27a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 853,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-20T13:02:02Z",
+      "side": 1,
+      "message": "Most of the code changes are already present in 59752",
+      "range": {
+        "startLine": 845,
+        "startChar": 18,
+        "endLine": 853,
+        "endChar": 43
+      },
+      "revId": "260a047ba6b651742af0e1431701a87bbb069d10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_0b72e648",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-20T13:02:02Z",
+      "side": 1,
+      "message": "Since a tunnel down is only handling route path deletion for extra routes, should not the tunnel up event handle only extra routes?, i.e, updating the routePath for the fibs with the newly up tunnel event?\nHere it looks like, the above call will call the normal TEP add logic, and this logic acts on all the FIB entries, which is either wrong or unnecessary.",
+      "range": {
+        "startLine": 167,
+        "startChar": 12,
+        "endLine": 167,
+        "endChar": 93
+      },
+      "revId": "260a047ba6b651742af0e1431701a87bbb069d10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_87f4fe87",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-25T16:47:16Z",
+      "side": 1,
+      "message": "Agreed:)",
+      "parentUuid": "da2a55be_6df45187",
+      "range": {
+        "startLine": 167,
+        "startChar": 12,
+        "endLine": 167,
+        "endChar": 93
+      },
+      "revId": "260a047ba6b651742af0e1431701a87bbb069d10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
