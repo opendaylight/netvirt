@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_ab901696",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Though the call from removePrefixFromBGP to removeOrUpdateFibEntry is synchronized, the writeconfigTxn is \"submitted\" only later after the synchronized block. This is leading to race condition where the second thread still thinks that there is a route path and so the completeVrfEntryId is not getting deleted.",
+      "parentUuid": "da2a55be_1ce37208",
+      "range": {
+        "startLine": 406,
+        "startChar": 16,
+        "endLine": 406,
+        "endChar": 65
+      },
+      "revId": "07f5f4052f22627cae7c43e4655417f6dda206d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_bc4986d2",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 3
@@ -64,6 +88,30 @@
         "startChar": 50,
         "endLine": 554,
         "endChar": 90
+      },
+      "revId": "07f5f4052f22627cae7c43e4655417f6dda206d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_cbee2a22",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 554,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "The local groups needs to retained for all cases other than VM down/extraroute deletion(eg: tunnel down events). If the vpntoextraroute is deleted, the corresponding local groups also will be deleted from the switches. [Vpntoextraroutes and usedrds are used for programming ecmp flows and groups]",
+      "parentUuid": "da2a55be_bc4986d2",
+      "range": {
+        "startLine": 553,
+        "startChar": 20,
+        "endLine": 554,
+        "endChar": 93
       },
       "revId": "07f5f4052f22627cae7c43e4655417f6dda206d3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
@@ -135,6 +183,30 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_cb63caaf",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Kiran, can we add new flag in adjacency to identify learntIp? Otherwise we need to query from DS which is costly. what is your opinion?",
+      "parentUuid": "da2a55be_9c69228e",
+      "range": {
+        "startLine": 541,
+        "startChar": 31,
+        "endLine": 541,
+        "endChar": 38
+      },
+      "revId": "07f5f4052f22627cae7c43e4655417f6dda206d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_9ce4823c",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 3
@@ -146,6 +218,30 @@
       "writtenOn": "2017-07-12T08:32:31Z",
       "side": 1,
       "message": "I think the routerId is being used only for delExtraRoute() for internal VPN. we don\u0027t need the routerId parameter. Please change the delExtraRoute() signature and remove the routerId param. Use vpnName if rd is null",
+      "range": {
+        "startLine": 553,
+        "startChar": 102,
+        "endLine": 553,
+        "endChar": 107
+      },
+      "revId": "07f5f4052f22627cae7c43e4655417f6dda206d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_eb2cce4c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Done. Will be raised in the next review",
+      "parentUuid": "da2a55be_9ce4823c",
       "range": {
         "startLine": 553,
         "startChar": 102,
@@ -181,6 +277,30 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_2bb546ee",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Done. Will be raised in the next review",
+      "parentUuid": "da2a55be_5c6faa92",
+      "range": {
+        "startLine": 556,
+        "startChar": 28,
+        "endLine": 556,
+        "endChar": 52
+      },
+      "revId": "07f5f4052f22627cae7c43e4655417f6dda206d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_dc31daa3",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 3
@@ -204,6 +324,30 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_2bac26a0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1714,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_dc31daa3",
+      "range": {
+        "startLine": 1714,
+        "startChar": 72,
+        "endLine": 1714,
+        "endChar": 104
+      },
+      "revId": "07f5f4052f22627cae7c43e4655417f6dda206d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_3c275666",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 3
@@ -215,6 +359,30 @@
       "writtenOn": "2017-07-12T08:32:31Z",
       "side": 1,
       "message": "parameter not needed",
+      "range": {
+        "startLine": 1836,
+        "startChar": 19,
+        "endLine": 1836,
+        "endChar": 34
+      },
+      "revId": "07f5f4052f22627cae7c43e4655417f6dda206d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_abc81675",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1836,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-11-15T21:47:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_3c275666",
       "range": {
         "startLine": 1836,
         "startChar": 19,
