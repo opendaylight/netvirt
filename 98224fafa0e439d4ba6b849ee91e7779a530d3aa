@@ -180,6 +180,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5f830656",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T04:55:52Z",
+      "side": 1,
+      "message": "Are we saying that VRFEntry for extra-routes will carry only the primary rd, but internally when we program the flows rules we will use the list of RDs to program appropriately?",
+      "parentUuid": "fafc7978_cd72af10",
+      "range": {
+        "startLine": 309,
+        "startChar": 67,
+        "endLine": 309,
+        "endChar": 76
+      },
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_8d4f07be",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 4
@@ -292,6 +316,23 @@
         "endLine": 690,
         "endChar": 67
       },
+      "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0ce15dd0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 738,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-08T14:37:06Z",
+      "side": 1,
+      "message": "where do we fill this VrFid?",
       "revId": "98224fafa0e439d4ba6b849ee91e7779a530d3aa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
