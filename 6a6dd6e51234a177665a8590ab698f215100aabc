@@ -34,6 +34,24 @@
       "revId": "6a6dd6e51234a177665a8590ab698f215100aabc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_8348fbb3",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-09-26T12:26:37Z",
+      "side": 0,
+      "message": "Hi Vivek,\n  \n   Have added the check provider type of GRE or VXLAN alone with isOpenStackVniSemanticsEnforced() check where ever required.\n\nThanks,\nKarthikeyan.",
+      "parentUuid": "ba1f61a0_a3489fcc",
+      "revId": "6a6dd6e51234a177665a8590ab698f215100aabc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
