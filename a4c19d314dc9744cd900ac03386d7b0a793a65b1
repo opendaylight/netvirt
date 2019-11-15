@@ -37,6 +37,42 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_af273cb5",
+        "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat-rpc.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_71825d95",
+      "revId": "a4c19d314dc9744cd900ac03386d7b0a793a65b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8abea6d2",
+        "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat-rpc.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "I did\u0027t find any reference on how we can order the json output (ordered-by can only be used to order the elements with-in list - https://tools.ietf.org/html/rfc6020#section-7.7.5). Any pointers to example would be appreciated.",
+      "parentUuid": "fafc7978_2f97cc91",
+      "revId": "a4c19d314dc9744cd900ac03386d7b0a793a65b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_4fffb0aa",
         "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat-rpc.yang",
         "patchSetId": 4
@@ -77,6 +113,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_2acfba80",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1670,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "We have one import with same Class name.\n\nimport org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;",
+      "parentUuid": "fafc7978_eff4a4f3",
+      "range": {
+        "startLine": 1670,
+        "startChar": 53,
+        "endLine": 1670,
+        "endChar": 54
+      },
+      "revId": "a4c19d314dc9744cd900ac03386d7b0a793a65b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_cfce00b4",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/rpcservice/NatRpcServiceImpl.java",
         "patchSetId": 4
@@ -88,6 +148,24 @@
       "writtenOn": "2017-02-16T16:55:34Z",
       "side": 1,
       "message": "routerUuidList.isEmpty() is better :)",
+      "revId": "a4c19d314dc9744cd900ac03386d7b0a793a65b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4ac4be5e",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/rpcservice/NatRpcServiceImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done. But first null check is required",
+      "parentUuid": "fafc7978_cfce00b4",
       "revId": "a4c19d314dc9744cd900ac03386d7b0a793a65b1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -129,6 +207,42 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_a013c9b6",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/rpcservice/NatRpcServiceImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_20cfd980",
+      "revId": "a4c19d314dc9744cd900ac03386d7b0a793a65b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_eaac92a2",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/rpcservice/NatRpcServiceImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Use-case where end-user just created BGP-VPN and not associated with external-network.",
+      "parentUuid": "fafc7978_2fc50c8e",
+      "revId": "a4c19d314dc9744cd900ac03386d7b0a793a65b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_6f56f4d3",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/rpcservice/NatRpcServiceImpl.java",
         "patchSetId": 4
@@ -140,6 +254,24 @@
       "writtenOn": "2017-02-16T16:55:34Z",
       "side": 1,
       "message": "this is wrong error.  we must say \n\u0027No Router found with UUID \u003cxxx\u003e\u0027",
+      "revId": "a4c19d314dc9744cd900ac03386d7b0a793a65b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2a969a4c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/rpcservice/NatRpcServiceImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_6f56f4d3",
       "revId": "a4c19d314dc9744cd900ac03386d7b0a793a65b1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -163,6 +295,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_0a911652",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/rpcservice/NatRpcServiceImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_efcb04a3",
+      "revId": "a4c19d314dc9744cd900ac03386d7b0a793a65b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_8f0998df",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/rpcservice/NatRpcServiceImpl.java",
         "patchSetId": 4
@@ -174,6 +324,24 @@
       "writtenOn": "2017-02-16T16:55:34Z",
       "side": 1,
       "message": "fipPorts.isEmpty()",
+      "revId": "a4c19d314dc9744cd900ac03386d7b0a793a65b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2a7dfa1c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/rpcservice/NatRpcServiceImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_8f0998df",
       "revId": "a4c19d314dc9744cd900ac03386d7b0a793a65b1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
