@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_2d0f2332",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 432,
+      "author": {
+        "id": 7866
+      },
+      "writtenOn": "2019-11-15T19:59:02Z",
+      "side": 1,
+      "message": "Ok. Moved this method to AbstractAclServiceImpl and renamed to getAclFlowPriority().\nRemoved the method from AbstractIngressAclServiceImpl.",
+      "parentUuid": "da2a55be_1da09a8f",
+      "revId": "939d901b1ffcce03eba8ffd7ef5ecd06770d846a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_7dc43640",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclDataUtil.java",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_6d10fb4e",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclDataUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 7866
+      },
+      "writtenOn": "2019-11-15T19:59:02Z",
+      "side": 1,
+      "message": "This map will be populated in add/remove methods of AclInterfaceStateListener.\nAnd, this map will be used add/remove methods of AclNodeListener.",
+      "parentUuid": "da2a55be_7dc43640",
+      "revId": "939d901b1ffcce03eba8ffd7ef5ecd06770d846a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_bddd0e17",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
         "patchSetId": 1
@@ -47,6 +83,24 @@
       "writtenOn": "2017-07-07T19:12:58Z",
       "side": 1,
       "message": "As in the bug comments \" allocateId() is failed and ID is not allocated\", does that get fixed here?",
+      "revId": "939d901b1ffcce03eba8ffd7ef5ecd06770d846a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_ed2b4b80",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 805,
+      "author": {
+        "id": 7866
+      },
+      "writtenOn": "2019-11-15T19:59:02Z",
+      "side": 1,
+      "message": "Root cause of allocateId() failure was acl pools were not created at the time when allocation of ID for acl flow (to be created in pool) gets performed. This happens due to synchronization issue. Since acl pool creation is serialized in createAclIdPools() along with  ID allocation and release from method syncSpecificAclFlow() which in turn calls allocateId/releaseId methods to allocate/release ID.\nHence, allocateId() will not fail.",
+      "parentUuid": "da2a55be_bddd0e17",
       "revId": "939d901b1ffcce03eba8ffd7ef5ecd06770d846a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -100,6 +154,24 @@
       "side": 1,
       "message": "How about making the switch from the deprecated genius DataStoreJobCoordinator to the infrautils JobCoordinator a separate Gerrit change?  It would be easier to review, test - and to use as inspiration for others wanting to switch other modules over in the future.",
       "parentUuid": "da2a55be_ede22bd4",
+      "revId": "939d901b1ffcce03eba8ffd7ef5ecd06770d846a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_4d21b79e",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 995,
+      "author": {
+        "id": 7866
+      },
+      "writtenOn": "2019-11-15T19:59:02Z",
+      "side": 1,
+      "message": "Ok, I will change to switch on Infrautils DJC.",
+      "parentUuid": "da2a55be_9de2cad3",
       "revId": "939d901b1ffcce03eba8ffd7ef5ecd06770d846a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
