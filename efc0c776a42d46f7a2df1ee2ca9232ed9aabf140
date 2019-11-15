@@ -20,6 +20,23 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_ade465e1",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "What was the use-case when this flow is not cleared ?",
+      "revId": "efc0c776a42d46f7a2df1ee2ca9232ed9aabf140",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_6ded4db7",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
         "patchSetId": 3
@@ -32,6 +49,23 @@
       "side": 1,
       "message": "Have verified the CSIT karaf log and not been observed conflict modification error which is thrown by NAT module.\n\nVerified stable/nitrogen log:\n\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\nhttps://logs.opendaylight.org/releng/jenkins092/netvirt-csit-1node-openstack-ocata-gate-stateful-nitrogen/147/odl1_karaf.log.gz",
       "parentUuid": "ba1f61a0_4dd32904",
+      "revId": "efc0c776a42d46f7a2df1ee2ca9232ed9aabf140",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_4dd32904",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "please verify CSIT karaf logs to check for erro which where thornw earlier because of which we used DJC (and now its been removed here)",
       "revId": "efc0c776a42d46f7a2df1ee2ca9232ed9aabf140",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
