@@ -1,0 +1,108 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_a090e943",
+        "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat-rpc.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-17T11:20:42Z",
+      "side": 1,
+      "message": "I am not sure if we can put in like this inside yangs. \n\nI requested for viewing purpose only , not committing purpose :)\n\nBut we will retain them, give couple blank lines between teh comment block and the next rpc.",
+      "revId": "5f2d0ae102663be2968c3f9d7036183b5b15c0bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_917536fc",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1711,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-20T10:05:51Z",
+      "side": 1,
+      "message": "May be this can go into NwUtil :)\n\nBut that can be a separate review since its a genius change.",
+      "revId": "5f2d0ae102663be2968c3f9d7036183b5b15c0bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_60dc4113",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1719,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-17T11:37:06Z",
+      "side": 1,
+      "message": "Can you see if any support methods are availble in \nimport org.apache.commons.net.util.SubnetUtils\nto use, instead of producing our own methods for this?",
+      "revId": "5f2d0ae102663be2968c3f9d7036183b5b15c0bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_96188c1f",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1719,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-20T05:18:47Z",
+      "side": 1,
+      "message": "Ok thanks.. Fix the error string correctly..",
+      "parentUuid": "fafc7978_c2289288",
+      "revId": "5f2d0ae102663be2968c3f9d7036183b5b15c0bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a005897b",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/rpcservice/NatRpcServiceImpl.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-17T11:37:06Z",
+      "side": 1,
+      "message": "is this the rigth way to issue 404 Not Found?",
+      "revId": "5f2d0ae102663be2968c3f9d7036183b5b15c0bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5622a452",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/rpcservice/NatRpcServiceImpl.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-20T05:18:47Z",
+      "side": 1,
+      "message": "This is incorrect way of representing error code inside the message.  Please check out other examples and see how we represent  Resource Not Found.\n\n404 is not just for Page Not Found, it is a general error code to educate that resource is not known or does not exist.",
+      "parentUuid": "fafc7978_80cb251d",
+      "revId": "5f2d0ae102663be2968c3f9d7036183b5b15c0bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
