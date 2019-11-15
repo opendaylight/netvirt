@@ -2,6 +2,24 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_0078d529",
+        "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat-rpc.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-17T11:17:32Z",
+      "side": 1,
+      "message": "A json is unordered collection of attributes and so we cannot enforce the order in attributes.   We can do so only in a CLI output, but here it is going to be purely json output.\n\nso let us leave this as it is !",
+      "parentUuid": "fafc7978_2526cbce",
+      "revId": "440dc5e676772a4a7fa7aa3034bdbc4eb4aacbd5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_601e0165",
         "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat-rpc.yang",
         "patchSetId": 7
