@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa2559ec_526336b1",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/fib-rpc.yang",
+        "patchSetId": 14
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-25T10:59:19Z",
+      "side": 1,
+      "message": "i would suggest define this once outside and use \u0027grouping\u0027 in both createfibentryinput and removefibentryinput to refer that defined entity.",
+      "revId": "6967173fc0f431c9f19625ee6597a2f73ac10197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_12525edd",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/fib-rpc.yang",
+        "patchSetId": 14
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-25T10:59:19Z",
+      "side": 1,
+      "message": ", required at the end instead of period .",
+      "revId": "6967173fc0f431c9f19625ee6597a2f73ac10197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_3255e2c6",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/fib-rpc.yang",
+        "patchSetId": 14
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-25T10:59:19Z",
+      "side": 1,
+      "message": "remove trailing white space",
+      "revId": "6967173fc0f431c9f19625ee6597a2f73ac10197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_b258b2fb",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibRpcServiceImpl.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-25T10:59:19Z",
+      "side": 1,
+      "message": "you cannot say /*remove*/, the value in comments should be the name of the parameter  and not what you intend to send !  so it should remain /* add */",
+      "revId": "6967173fc0f431c9f19625ee6597a2f73ac10197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_925daeec",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/resources/org/opendaylight/blueprint/fibmanager.xml",
+        "patchSetId": 14
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-25T10:59:19Z",
+      "side": 1,
+      "message": "this optional is really confusing.. why cna\u0027t this be mandatory?",
+      "revId": "6967173fc0f431c9f19625ee6597a2f73ac10197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_f2718a78",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 1683,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-25T10:59:19Z",
+      "side": 1,
+      "message": "can you please educate me why this movement is required?",
+      "revId": "6967173fc0f431c9f19625ee6597a2f73ac10197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_d26e0696",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 1061,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-25T10:59:19Z",
+      "side": 1,
+      "message": "how do you know this is floatingip?",
+      "revId": "6967173fc0f431c9f19625ee6597a2f73ac10197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_1269be8b",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 1985,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-25T10:59:19Z",
+      "side": 1,
+      "message": "when can flowNames become null?",
+      "revId": "6967173fc0f431c9f19625ee6597a2f73ac10197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_326cc29c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 1998,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-25T10:59:19Z",
+      "side": 1,
+      "message": "what if its an ipV6 address?\n\nif its an ipv4 address then do this logic, otherwise please return wahtever input as is !",
+      "revId": "6967173fc0f431c9f19625ee6597a2f73ac10197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_72059ac1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/IVpnFootprintService.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-25T10:59:19Z",
+      "side": 1,
+      "message": "can\u0027t this also be ImmutablePair?\n\nuse datastructures consistently please!",
+      "revId": "6967173fc0f431c9f19625ee6597a2f73ac10197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
