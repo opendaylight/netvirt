@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_5c6f68fd",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1067,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-28T05:02:49Z",
+      "side": 1,
+      "message": "Hope these methods will get removed to VpnHelper in Kency/Gobinath review.",
+      "revId": "aea6889623307e0fb111fcb0b53c17eb9a743c8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_9c78e0c5",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1077,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-28T05:02:49Z",
+      "side": 1,
+      "message": "you can simply do return FibUtil.read(broker, LogicalDatastoreType.OPERATIONAL, vpnExtraRoutesId).orNull();",
+      "revId": "aea6889623307e0fb111fcb0b53c17eb9a743c8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_fc4e3495",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 699,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-28T05:02:49Z",
+      "side": 1,
+      "message": "you could retrieve primary rd only once and use it for each adjacency.",
+      "revId": "aea6889623307e0fb111fcb0b53c17eb9a743c8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_5c46487d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 766,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-28T05:02:49Z",
+      "side": 1,
+      "message": "same comment here.",
+      "revId": "aea6889623307e0fb111fcb0b53c17eb9a743c8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7c7344e7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1498,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-28T05:02:49Z",
+      "side": 1,
+      "message": "just revisit whether this synchronization is still necessary. Since id manager fix is already in, it may not be required. Just test it out.",
+      "revId": "aea6889623307e0fb111fcb0b53c17eb9a743c8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_3c49cc8b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1410,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-28T05:02:49Z",
+      "side": 1,
+      "message": "Nit: remove trailing space.",
+      "revId": "aea6889623307e0fb111fcb0b53c17eb9a743c8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
