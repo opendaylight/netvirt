@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "505975c8_3db8859f",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclEventListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-11-15T07:05:25Z",
+      "side": 1,
+      "message": "If I am seeing this correctly, the result is only ever iterated over -- hence a Collections.emptyList() is appropriate.",
+      "range": {
+        "startLine": 280,
+        "startChar": 19,
+        "endLine": 280,
+        "endChar": 37
+      },
+      "revId": "28f403950fb55617fbb3f066d1bba0d9ba684a73",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
