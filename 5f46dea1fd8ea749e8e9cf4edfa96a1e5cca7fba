@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_cbc56e3e",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-07-20T13:10:43Z",
+      "side": 1,
+      "message": "shouldn\u0027t this be using infrautils?",
+      "revId": "5f46dea1fd8ea749e8e9cf4edfa96a1e5cca7fba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_cb9e0e54",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclDataUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-07-20T13:10:43Z",
+      "side": 1,
+      "message": "The method name and description do not match.",
+      "revId": "5f46dea1fd8ea749e8e9cf4edfa96a1e5cca7fba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_4bba1ec1",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 835,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-07-20T13:10:43Z",
+      "side": 1,
+      "message": "checkstyle should have flagged this as an error since there is no space here.",
+      "revId": "5f46dea1fd8ea749e8e9cf4edfa96a1e5cca7fba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
