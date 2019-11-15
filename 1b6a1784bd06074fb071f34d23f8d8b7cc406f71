@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_087f0267",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronNetworkChangeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-07T05:02:05Z",
+      "side": 1,
+      "message": "what if the extension is not available.. Please always do a null check of networkQos before accessing its contents..",
+      "revId": "1b6a1784bd06074fb071f34d23f8d8b7cc406f71",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
