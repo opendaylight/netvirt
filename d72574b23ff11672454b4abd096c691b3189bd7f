@@ -1,0 +1,76 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_9d12e660",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 1267,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-04T05:41:57Z",
+      "side": 1,
+      "message": "when nhList is more than 1 (for a given DPN), then there is nothing to update in vrfEntry. Its just about updating local fib/ts/lfib flow rules. that was the reason for calling refreshFibTables",
+      "parentUuid": "da01753e_9a266c67",
+      "revId": "d72574b23ff11672454b4abd096c691b3189bd7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_700e4936",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 1282,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-04T05:41:57Z",
+      "side": 1,
+      "message": "This code is to remove adjacency for extra-route on the vpn-interface.",
+      "parentUuid": "da01753e_3a3140a3",
+      "revId": "d72574b23ff11672454b4abd096c691b3189bd7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_b00f112e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 1287,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-04T05:41:57Z",
+      "side": 1,
+      "message": "This was being handled in L3vpnOverMplsGrePopulator#populateFib by populating vrfTable with RouteOrigin as SELF_IMPORTED and it is being handled accordinly in vrfEntryListener. Gobinath, Make sure it works even with latest code.",
+      "parentUuid": "da01753e_5ad36438",
+      "revId": "d72574b23ff11672454b4abd096c691b3189bd7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_101d3d67",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 1838,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-04T05:41:57Z",
+      "side": 1,
+      "message": "we just need to remove this comment.",
+      "parentUuid": "da01753e_ba1c1015",
+      "revId": "d72574b23ff11672454b4abd096c691b3189bd7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
