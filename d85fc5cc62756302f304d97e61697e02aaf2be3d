@@ -1,0 +1,375 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_45031f0d",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-21T05:17:39Z",
+      "side": 1,
+      "message": "add description about this container.",
+      "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6500db01",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-21T05:17:39Z",
+      "side": 1,
+      "message": "Nit: remove trailing space",
+      "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a50af31e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1075,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-21T05:17:39Z",
+      "side": 1,
+      "message": "Yes, Let us have these methods in VpnHelper.java and reuse it in Fib and vpn modules.\n(https://git.opendaylight.org/gerrit/#/c/49061/5/vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java@1111)",
+      "parentUuid": "1a622d24_5693db4e",
+      "range": {
+        "startLine": 1075,
+        "startChar": 11,
+        "endLine": 1075,
+        "endChar": 17
+      },
+      "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e5134b5a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1334,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-21T05:17:39Z",
+      "side": 1,
+      "message": "you can simply use optVpnName.orNull()",
+      "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c50e0f32",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 2080,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-21T05:17:39Z",
+      "side": 1,
+      "message": "change it to extraRoute",
+      "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_05192779",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-21T05:17:39Z",
+      "side": 1,
+      "message": "Nit: Keep the line length less than 120 chars",
+      "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c5356fdc",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-21T05:17:39Z",
+      "side": 1,
+      "message": "why are you doing it for all rd\u0027s ? You can just invoke fibManager.populateFibOnNewDpn for primary rd since it just deals with vrfEntries on the new dpn.",
+      "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_053007e7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-21T05:17:39Z",
+      "side": 1,
+      "message": "removing vrfTable for primary rd is sufficient.",
+      "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_654e1b71",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-21T05:17:39Z",
+      "side": 1,
+      "message": "use rds.forEach(...) to remove bgp vrfs",
+      "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_45515f0d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-21T05:17:39Z",
+      "side": 1,
+      "message": "use it from VpnHelper",
+      "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a5583333",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-21T05:17:39Z",
+      "side": 1,
+      "message": "Both if-else are exactly same except deleting bgp vrfs in case of bgp vpn. so combine it.",
+      "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_855b772d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-21T05:17:39Z",
+      "side": 1,
+      "message": "primaryRd never be null. use !VpnUtil.isInternalVpn(...) instead.",
+      "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c53c4fc2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-21T05:17:39Z",
+      "side": 1,
+      "message": "why can\u0027t you simply use nhList ?",
+      "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_254c2370",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-21T05:17:39Z",
+      "side": 1,
+      "message": "Line length is too long. keep it less than 120",
+      "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_256383dd",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1791,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-21T05:17:39Z",
+      "side": 1,
+      "message": "is this check necessary ?",
+      "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_055e4712",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1801,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-21T05:17:39Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_659c5bc1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-21T05:17:39Z",
+      "side": 1,
+      "message": "Move these 3 methods into VpnHelper",
+      "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c5aa8fd1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-21T05:17:39Z",
+      "side": 1,
+      "message": "same comment as above since these methods will be used by VrfListener.",
+      "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_25ba6323",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 539,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-21T05:17:39Z",
+      "side": 1,
+      "message": "just make use of getListOfRdsFromVpnInstance(vpnInstance);",
+      "parentUuid": "1a622d24_a272eee0",
+      "range": {
+        "startLine": 539,
+        "startChar": 15,
+        "endLine": 539,
+        "endChar": 18
+      },
+      "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_05b5a730",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1409,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-21T05:17:39Z",
+      "side": 1,
+      "message": "I don\u0027t think rds.get(0) always a good idea to assume for primary rd. why can\u0027t we use vrf-id in vpn-instance-op-data-entry for primary rd ?",
+      "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6583bb56",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1439,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-21T05:17:39Z",
+      "side": 1,
+      "message": "return Optional.empty();",
+      "revId": "d85fc5cc62756302f304d97e61697e02aaf2be3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
