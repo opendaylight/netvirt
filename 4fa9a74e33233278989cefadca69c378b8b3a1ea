@@ -26,6 +26,77 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_84a2f648",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 639,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Sure Chetan, I\u0027ll update this as you say in the spec. Please make sure the implemetation is updated to be in sync with the same.",
+      "parentUuid": "fafc7978_41a2c0fd",
+      "range": {
+        "startLine": 628,
+        "startChar": 5,
+        "endLine": 639,
+        "endChar": 7
+      },
+      "revId": "4fa9a74e33233278989cefadca69c378b8b3a1ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_446aceee",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 658,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "as discussed with vivek, keeping this as enum",
+      "parentUuid": "fafc7978_eba8f821",
+      "range": {
+        "startLine": 658,
+        "startChar": 16,
+        "endLine": 658,
+        "endChar": 32
+      },
+      "revId": "4fa9a74e33233278989cefadca69c378b8b3a1ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_eba8f821",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 658,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "shall I keep this as enum for easy usage, or keep the type as segment-type as done in ELAN when stored under elan-instances container?",
+      "range": {
+        "startLine": 658,
+        "startChar": 16,
+        "endLine": 658,
+        "endChar": 32
+      },
+      "revId": "4fa9a74e33233278989cefadca69c378b8b3a1ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_6165441d",
         "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
         "patchSetId": 1
@@ -54,6 +125,24 @@
       "writtenOn": "2017-02-26T19:26:08Z",
       "side": 1,
       "message": "how will the fib access the VPN interface name?\n\nFYI - NAT vrf-entries of FIP/router-gw are not associated with any VPN interface (at least for external VLAN/flat networks)",
+      "parentUuid": "fafc7978_6165441d",
+      "revId": "4fa9a74e33233278989cefadca69c378b8b3a1ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a439faf3",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 711,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
       "parentUuid": "fafc7978_6165441d",
       "revId": "4fa9a74e33233278989cefadca69c378b8b3a1ea",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
