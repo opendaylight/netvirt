@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_5329db35",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "I guess DNAT section also needs to be fixed.\nPlease indicate the VNI pools we intend to use.",
+      "revId": "f2757d5334c59e1281a874a00e908d163d7d322f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_33a37fb3",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "for VLAN provider external network, the internet VPN will be implicitly created, and the corresponding VNI will be used I believe.\nIf such is the case, better to retain that VNI is per the Internet VPN (this Internet VPN is created implicitly for VLAN provider external network and explicitly in case of GRE based provider external networks)",
+      "revId": "f2757d5334c59e1281a874a00e908d163d7d322f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
