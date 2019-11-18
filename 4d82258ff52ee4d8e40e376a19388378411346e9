@@ -1,0 +1,40 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_3743b315",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-14T15:12:14Z",
+      "side": 1,
+      "message": "We can probably always go to PNAT_TABLE first, even if there is just SNAT.. 25 will lead us to 44",
+      "parentUuid": "1a622d24_b15490ca",
+      "revId": "4d82258ff52ee4d8e40e376a19388378411346e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1b697225",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-16T09:49:16Z",
+      "side": 1,
+      "message": "Excellent, thanks guys.",
+      "parentUuid": "fafc7978_7bdcfe12",
+      "revId": "4d82258ff52ee4d8e40e376a19388378411346e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
