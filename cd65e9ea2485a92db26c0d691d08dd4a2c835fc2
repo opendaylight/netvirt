@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_a16ddc34",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-11T16:38:03Z",
+      "side": 1,
+      "message": "for Internal-Router-Based VPNs whose subnets are part of a VXLAN network.",
+      "revId": "cd65e9ea2485a92db26c0d691d08dd4a2c835fc2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_816a5818",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-11T16:38:03Z",
+      "side": 1,
+      "message": "this is superfluous.. please remove this claim !",
+      "revId": "cd65e9ea2485a92db26c0d691d08dd4a2c835fc2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_a13f9c24",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 843,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-11T16:38:03Z",
+      "side": 1,
+      "message": "semantics is a singular, so you must use isOpenstackVniSemanticsEnforced only :)",
+      "revId": "cd65e9ea2485a92db26c0d691d08dd4a2c835fc2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
