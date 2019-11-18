@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_c0f04acb",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-02T11:45:07Z",
+      "side": 0,
+      "message": "I might be better to continue and handle an update of subnetChange - for external subnets.\nEven though, currently the only actual update is just for a routerId (and that\u0027s already handled by RouterDpnChangeListener), for future use it will be good to have it, the externalSubnet model can be change.",
+      "revId": "d8c3777d11e0b0af6fe488f3e937ab06762476ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c0484ace",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
         "patchSetId": 2
