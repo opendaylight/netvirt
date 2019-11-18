@@ -2,6 +2,108 @@
   "comments": [
     {
       "key": {
+        "uuid": "1a622d24_ad15634a",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-17T13:08:34Z",
+      "side": 1,
+      "message": "provider network types for external networks:",
+      "revId": "4d82258ff52ee4d8e40e376a19388378411346e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6d1fcb6c",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-17T13:08:34Z",
+      "side": 1,
+      "message": "this statement kind of jumps out of the moon...  What is the context for this statement?\n\nWhere did we explain about the ODL_VNI_POOL, its need and how its used..Will be good to explain that in this spec.",
+      "revId": "4d82258ff52ee4d8e40e376a19388378411346e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_0d0e173b",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-17T13:08:34Z",
+      "side": 1,
+      "message": "\u0027In line with as discussed above\u0027 can be reframed better with quoting the section :)",
+      "revId": "4d82258ff52ee4d8e40e376a19388378411346e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_08d0c51d",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-17T13:08:34Z",
+      "side": 1,
+      "message": "that is not overlapping with Openstack vni_ranges configuration will be configured by ODL Admin.\n\nIt is not clear from this paragraph under what situation an Internet VPN will own the VNI and under what situation a router will own a VNI (both of these from the ODL_VNI_POOL).\n\nThis ODL_VNI_POOL will be used to carve out a unique VNI per router which will be the VNI that will be used in the datapath for forwarding all traffic from Non-NAPT to NAPT-SWitch for this router.\n\nSimilarly for MPLSOverGRE based external networks, the ODL_VNI_POOL will be used to carve out a unique VNI per Internet VPN (GRE-provider-type) and that VNI will be used in the datapath for forwarding all traffic for SNAT-TO-DNAT and DNAT-TO-DNAT case within the DC.",
+      "revId": "4d82258ff52ee4d8e40e376a19388378411346e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_28c30158",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-17T13:08:34Z",
+      "side": 1,
+      "message": "for a VLAN provider external network, VNIs won\u0027t be used, the respective VLANs will be used instead, as we need to honour Openstack Semantics there.",
+      "revId": "4d82258ff52ee4d8e40e376a19388378411346e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_532d4ea7",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-17T13:08:34Z",
+      "side": 1,
+      "message": "you should setup the metadata for InternetVPN here isn\u0027t it?",
+      "revId": "4d82258ff52ee4d8e40e376a19388378411346e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_53042e17",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 16
