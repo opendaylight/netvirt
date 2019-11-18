@@ -48,6 +48,29 @@
     },
     {
       "key": {
+        "uuid": "da01753e_2078a1f1",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 1486,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-04-19T14:23:20Z",
+      "side": 1,
+      "message": "nit: I think keeping serviceId is fine here, as there is no elan/vni logic in the function, and the ID is used to setServiceId",
+      "range": {
+        "startLine": 1486,
+        "startChar": 72,
+        "endLine": 1486,
+        "endChar": 84
+      },
+      "revId": "78725eea2b3780ea2788f7d4c5ee37a41ca8645a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_60610939",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/org/opendaylight/blueprint/elanmanager.xml",
         "patchSetId": 24
