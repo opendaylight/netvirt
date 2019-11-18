@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "1a622d24_53042e17",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-17T13:08:34Z",
+      "side": 1,
+      "message": "how do you distinguish here between DNAT traffic and SNAT traffic coming into the VXLAN tunnel , if both use only the Internet VPN VNI?",
+      "revId": "4d82258ff52ee4d8e40e376a19388378411346e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_3743b315",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 16
@@ -14,6 +31,24 @@
       "side": 1,
       "message": "We can probably always go to PNAT_TABLE first, even if there is just SNAT.. 25 will lead us to 44",
       "parentUuid": "1a622d24_b15490ca",
+      "revId": "4d82258ff52ee4d8e40e376a19388378411346e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7bdcfe12",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-16T09:41:00Z",
+      "side": 1,
+      "message": "Alon,\n\nYeah we can always got 25 and from there use Floating-IP match if present or miss that table to land us into INBOUND_NAPT_TABLE from there.\n\nThe implmentation will initially use 36, but after service binding lands, the pipeline will change and 36 won\u0027t be used at all.  I didn\u0027t want to block out the implementors for somehting on genius that is yet to land (service bnding on tunnels is in Spec stage).\n\nSo when we change the implementation to use service binding, we will update the spec first, post it for review and then put follow on patches.  If time permits, we will attempt that in Carbon itself.",
+      "parentUuid": "fafc7978_6930b7e8",
       "revId": "4d82258ff52ee4d8e40e376a19388378411346e9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
