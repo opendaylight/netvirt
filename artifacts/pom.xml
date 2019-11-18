@@ -54,28 +54,4 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             </dependency>
         </dependencies>
     </dependencyManagement>
-
-    <profiles>
-        <profile>
-            <id>sfc</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <dependencyManagement>
-                <dependencies>
-                    <dependency>
-                        <groupId>${project.groupId}</groupId>
-                        <artifactId>odl-netvirt-sfc</artifactId>
-                        <version>${project.version}</version>
-                        <classifier>features</classifier>
-                        <type>xml</type>
-                    </dependency>
-                </dependencies>
-            </dependencyManagement>
-        </profile>
-        <profile>
-            <!-- When enabled, this empty profile disables the “sfc” profile above -->
-            <id>no-sfc</id>
-        </profile>
-    </profiles>
 </project>
