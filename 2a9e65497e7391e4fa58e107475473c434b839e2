@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_03f84e7b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done.\nAlso, moved TST deletion below where upon checking on VxLAN type, external tunnel table flow is deleted.",
+      "parentUuid": "fafc7978_e3e38a03",
+      "revId": "2a9e65497e7391e4fa58e107475473c434b839e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_43f1b6cc",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
         "patchSetId": 4
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e3f42a89",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_43f1b6cc",
+      "revId": "2a9e65497e7391e4fa58e107475473c434b839e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_83a1deab",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
         "patchSetId": 4
@@ -47,6 +83,24 @@
       "writtenOn": "2017-01-25T09:43:02Z",
       "side": 1,
       "message": "since you are passing elanInstance as argument to setupRemoteDmacFlow, you can retrieve segmentId there itself.\nAlso use Function like below to retrieve it. \n\n    Function\u003cElanInstance, Optional\u003cLong\u003e\u003e funGetSegmentIdFromElan \u003d (ElanInstance elanInstance) -\u003e {\n        Optional\u003cLong\u003e segmentIdOptional \u003d Optional.absent();\n        if (isVxlan(elanInstance)) {\n            segmentIdOptional \u003d Optional.of(elanInstance.getSegmentationId());\n        }\n        return segmentIdOptional;\n    };",
+      "revId": "2a9e65497e7391e4fa58e107475473c434b839e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e26c049f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "retrieving it once in setupRemoteDmacFlow now, instead of thrice in calling functions.",
+      "parentUuid": "fafc7978_83a1deab",
       "revId": "2a9e65497e7391e4fa58e107475473c434b839e2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
