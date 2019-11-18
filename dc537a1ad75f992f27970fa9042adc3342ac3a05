@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_6dd56fb8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-19T14:39:06Z",
+      "side": 1,
+      "message": "not just for intra-DC L3 forwarding - removes it completely and uses segmentation ID for all use cases.",
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_cddbe3eb",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-19T14:39:06Z",
+      "side": 1,
+      "message": "typo remove double Instead",
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d3fff0a8",
+        "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-22T14:25:04Z",
+      "side": 1,
+      "message": "nit: the file name is \"and-i3\" instead of \"and-l3\"",
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ed497fb8",
+        "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-19T14:39:06Z",
+      "side": 1,
+      "message": "Does anything actually change here? Except the use of segmentation ID as VNI instead of lport/elan?",
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4dc87322",
+        "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-19T14:39:06Z",
+      "side": 1,
+      "message": "Does anything change in regards to VLAN/Flat? Why is this mentioned?",
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2dcb771f",
+        "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-19T14:39:06Z",
+      "side": 1,
+      "message": "This should probably be under the title of the Egress DPN.",
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_8dd28bd0",
+        "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-19T14:39:06Z",
+      "side": 1,
+      "message": "Are you proposing adding two new tables, for L3 and L2 DEMUX? Each as a separate service?\n\nCould you expand more on this proposal? What do these DEMUX tables do?\nWouldn\u0027t it be more symmetric and straightforward to not add any new tables, and simply add matches on VNI segmentation IDs to table\u003d0, and setting of a unique lport for each ID? \nThis is how VLAN provider networks operates, and that leaves the packet traversing the exact same pipeline on ingress and egress DPN.",
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
