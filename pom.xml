@@ -87,19 +87,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 
     <profiles>
         <profile>
-            <id>sfc</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>sfc</module>
-            </modules>
-        </profile>
-        <profile>
-            <!-- When enabled, this empty profile disables the “sfc” profile above -->
-            <id>no-sfc</id>
-        </profile>
-        <profile>
             <id>sonar-jacoco-aggregate</id>
             <activation>
                 <property>

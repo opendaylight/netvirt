@@ -14,7 +14,6 @@ DIRECTORY ORGANIZATION
                  for Network Virtualization.
   +-- net-virt-providers : Mostly contains data-path programming functionality via OpenFlow or potentially
                            other protocols.
-  +-- net-virt-sfc : SFC implementation using the OVSDB project.
 
 - ovsdb-ui : Contains the DLUX implementation for displaying network virtualization
 
