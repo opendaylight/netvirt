@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_5206101e",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 639,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-27T09:59:05Z",
+      "side": 1,
+      "message": "Since subnetId is layer 3 information and a prefis is also layer 3 information,  we can have the subnetId added to prefix-to-interface.\n\nThe only issue am not sure how difficult to do this inside NAT Service today.  Inside VPN Engine, this is easier to add.\n\nVivek",
+      "parentUuid": "fafc7978_c71ec00b",
+      "range": {
+        "startLine": 639,
+        "startChar": 43,
+        "endLine": 639,
+        "endChar": 79
+      },
+      "revId": "5d2c5e5c59aed641982d21689370ca0e639a92a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
