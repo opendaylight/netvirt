@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_0eb5f8ed",
+        "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat.yang",
+        "patchSetId": 9
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "i kept this name just to keep it in sync with external ip and with list internal-to-external-port-map as was earlier in external-interface-info.\nStill want me to change it?\nAnd yes, this is used in SNAT workflow too.",
+      "parentUuid": "3a65312a_2eda7478",
+      "revId": "44aca812b94988d3e775a6a10c979eea5e29bd4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_6eb62c3f",
         "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat.yang",
         "patchSetId": 9
@@ -54,6 +72,42 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_4eced084",
+        "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat.yang",
+        "patchSetId": 9
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "this is the fixed port\u0027s subnetid, not the external one.\nPlease re-read it, the line reads that the last 3 params are for the floating IP port (L2).\nI\u0027ll enclose last 3 in square brackets to make it more readable.",
+      "parentUuid": "3a65312a_6eb62c3f",
+      "revId": "44aca812b94988d3e775a6a10c979eea5e29bd4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_8ada9176",
+        "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat.yang",
+        "patchSetId": 9
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Hi Vivek, all the 3 enclosed parameters belong to the floating-ip-port created in parallel with a floating IP L3 object.",
+      "parentUuid": "3a65312a_4a74f998",
+      "revId": "44aca812b94988d3e775a6a10c979eea5e29bd4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_0e7df86e",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalNetworksChangeListener.java",
         "patchSetId": 9
@@ -71,6 +125,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_4e6d3032",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalNetworksChangeListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_0e7df86e",
+      "revId": "44aca812b94988d3e775a6a10c979eea5e29bd4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_0e27b865",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
         "patchSetId": 9
@@ -82,6 +154,24 @@
       "writtenOn": "2016-11-08T06:40:59Z",
       "side": 1,
       "message": "this should delete the floating-ip-port-info only when it is scheduled for delete right?\n\ni don\u0027t see that condition here and neither in the callers.",
+      "revId": "44aca812b94988d3e775a6a10c979eea5e29bd4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_8e774802",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "please see line 386 below, isDeleted boolean check is there.",
+      "parentUuid": "3a65312a_0e27b865",
       "revId": "44aca812b94988d3e775a6a10c979eea5e29bd4b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
