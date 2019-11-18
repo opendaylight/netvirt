@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_7b3fac87",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 630,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-28T10:09:51Z",
+      "side": 1,
+      "message": "to enable Openstack VNI enforcement semantics on the dataplane altogether.\n\nAlso mention at the end of the para, that if the flag is OFF, the dataplane will continue to run with LportTags - ElanTags (for switching) and Labels (for routing).",
+      "revId": "e070c0e038f5ea9b80bd779eb0c3a6ca2ff3ad50",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
