@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "da01753e_16916799",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 891,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_c04f15bd",
+      "range": {
+        "startLine": 890,
+        "startChar": 104,
+        "endLine": 891,
+        "endChar": 42
+      },
+      "revId": "78725eea2b3780ea2788f7d4c5ee37a41ca8645a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_0073dd15",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 24
@@ -36,6 +60,30 @@
       "writtenOn": "2017-04-19T14:23:20Z",
       "side": 1,
       "message": "nit: I think renaming to tunnelKey or tunnelId or tunnelVni is more correct here - this is always used only for building tunnel",
+      "range": {
+        "startLine": 1442,
+        "startChar": 12,
+        "endLine": 1442,
+        "endChar": 27
+      },
+      "revId": "78725eea2b3780ea2788f7d4c5ee37a41ca8645a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_f6e2e32d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 1442,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "renamed to tunnelKey",
+      "parentUuid": "da01753e_0073dd15",
       "range": {
         "startLine": 1442,
         "startChar": 12,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "da01753e_36d46b46",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 1486,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_2078a1f1",
+      "range": {
+        "startLine": 1486,
+        "startChar": 72,
+        "endLine": 1486,
+        "endChar": 84
+      },
+      "revId": "78725eea2b3780ea2788f7d4c5ee37a41ca8645a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_60610939",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/org/opendaylight/blueprint/elanmanager.xml",
         "patchSetId": 24
@@ -82,6 +154,30 @@
       "writtenOn": "2017-04-19T14:23:20Z",
       "side": 1,
       "message": "remove this, dup line",
+      "range": {
+        "startLine": 38,
+        "startChar": 1,
+        "endLine": 38,
+        "endChar": 39
+      },
+      "revId": "78725eea2b3780ea2788f7d4c5ee37a41ca8645a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_363bcb9d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/org/opendaylight/blueprint/elanmanager.xml",
+        "patchSetId": 24
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_60610939",
       "range": {
         "startLine": 38,
         "startChar": 1,
