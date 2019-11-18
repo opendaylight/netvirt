@@ -37,6 +37,42 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_373e4b2a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "it can ideally be null, TRUE or false.\nBut when a router-gateway is set, snat is automatically set to TRUE, meaning it can only oscillate between TRUE and FALSE.\n\nI can remove unnecessary null checks for .isEnableSnat() if that seems cleaner. Inputs?",
+      "parentUuid": "7a6b29fe_316157d4",
+      "revId": "6dde0a3684f68790ffc73b6eae34e8d3c87e6efd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_4b4a3e28",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_359f6352",
+      "revId": "6dde0a3684f68790ffc73b6eae34e8d3c87e6efd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_115edb12",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
         "patchSetId": 2
@@ -48,6 +84,42 @@
       "writtenOn": "2016-10-05T17:10:56Z",
       "side": 1,
       "message": "wouldn\u0027t this become redundant then?",
+      "revId": "6dde0a3684f68790ffc73b6eae34e8d3c87e6efd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_97163fa6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Please see above comment.",
+      "parentUuid": "7a6b29fe_115edb12",
+      "revId": "6dde0a3684f68790ffc73b6eae34e8d3c87e6efd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_2b47021f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_97163fa6",
       "revId": "6dde0a3684f68790ffc73b6eae34e8d3c87e6efd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -89,6 +161,42 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_571ca7c1",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "it will enter this section if it is false, and proceed if one is false and the other is true.",
+      "parentUuid": "7a6b29fe_719aafc6",
+      "revId": "6dde0a3684f68790ffc73b6eae34e8d3c87e6efd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_8b5456cb",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_95ac778e",
+      "revId": "6dde0a3684f68790ffc73b6eae34e8d3c87e6efd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_d1aaa3d1",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
         "patchSetId": 2
@@ -100,6 +208,42 @@
       "writtenOn": "2016-10-05T17:10:56Z",
       "side": 1,
       "message": "what about the case where orig_ext_gw.ext-fixed-ips are empty but the update has them?",
+      "revId": "6dde0a3684f68790ffc73b6eae34e8d3c87e6efd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ab7dd2e9",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "7a6b29fe_ba81a24f",
+      "revId": "6dde0a3684f68790ffc73b6eae34e8d3c87e6efd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ba81a24f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "will do this in the next review.",
+      "parentUuid": "7a6b29fe_d1aaa3d1",
       "revId": "6dde0a3684f68790ffc73b6eae34e8d3c87e6efd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
