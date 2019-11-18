@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_8af9cdca",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 600,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-12T05:53:51Z",
+      "side": 1,
+      "message": "any reason for changing argument order ?",
+      "revId": "8c280ca61fabd5610df204744e838b463f535d25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_ea0a19d1",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 1331,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-12T05:53:51Z",
+      "side": 1,
+      "message": "use if-else only for building match, other properties in FlowEntity is exactly same.",
+      "revId": "8c280ca61fabd5610df204744e838b463f535d25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_104b5088",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 1331,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-12T11:41:15Z",
+      "side": 1,
+      "message": "why do you use Flow and FlowEntity ? Just go with existing Flow and pass the Match and instruction accordingly.",
+      "parentUuid": "da01753e_7510ce4e",
+      "revId": "8c280ca61fabd5610df204744e838b463f535d25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_ea3179a3",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 1026,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-12T05:53:51Z",
+      "side": 1,
+      "message": "here too. if-else is required only to choose either between lportTag and vni.",
+      "revId": "8c280ca61fabd5610df204744e838b463f535d25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
