@@ -2,6 +2,57 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_8dee00eb",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManagerImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-03T02:32:19Z",
+      "side": 1,
+      "message": "why a copyright change?",
+      "revId": "80e4d7cb84bd07678f6c6a382f7a79082c35b9c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0d3b303b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/ConfigureL3VpnCommand.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-03T05:16:47Z",
+      "side": 1,
+      "message": "this create CLI applies only for network associated VPNs right?",
+      "revId": "80e4d7cb84bd07678f6c6a382f7a79082c35b9c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ed2b4ce9",
+        "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/ConfigureL3VpnCommand.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-03T05:16:47Z",
+      "side": 1,
+      "message": "This CLI applies only for network associated VPNs right?",
+      "revId": "80e4d7cb84bd07678f6c6a382f7a79082c35b9c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_8def20b0",
         "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/ConfigureL3VpnCommand.java",
         "patchSetId": 3
