@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_f2db1219",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 28
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-08T19:53:34Z",
+      "side": 1,
+      "message": "could you explain how do you intend to extract the dest network vni while creating the FIB entry?",
+      "range": {
+        "startLine": 323,
+        "startChar": 22,
+        "endLine": 323,
+        "endChar": 53
+      },
+      "revId": "d75b34e32abe1d6fe2898ee41433917bb98d5125",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_0d4e7796",
         "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
         "patchSetId": 28
