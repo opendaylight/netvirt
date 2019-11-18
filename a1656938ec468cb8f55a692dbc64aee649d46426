@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_b459ba90",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 838,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-16T03:26:30Z",
+      "side": 1,
+      "message": "we should not program the remote rules if localDpnId could not be found for a prefix.  Plesae make the changes to address that.",
+      "revId": "a1656938ec468cb8f55a692dbc64aee649d46426",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_945e3675",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-16T03:26:30Z",
+      "side": 1,
+      "message": "we need not print the future, as the exception printed gives all details.",
+      "revId": "a1656938ec468cb8f55a692dbc64aee649d46426",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f4522267",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1064,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-16T03:26:30Z",
+      "side": 1,
+      "message": "ditto comment here.  use interfaceName directly.",
+      "revId": "a1656938ec468cb8f55a692dbc64aee649d46426",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_344dcac5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1353,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-16T03:26:30Z",
+      "side": 1,
+      "message": "ditto here",
+      "revId": "a1656938ec468cb8f55a692dbc64aee649d46426",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
