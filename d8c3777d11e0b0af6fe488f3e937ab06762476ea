@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_a0eb86da",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronExternalSubnetHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-02T11:45:07Z",
+      "side": 0,
+      "message": "See comment in NeutronSubnetChangeListener",
+      "revId": "d8c3777d11e0b0af6fe488f3e937ab06762476ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c0484ace",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
         "patchSetId": 2
@@ -14,6 +31,24 @@
       "side": 0,
       "message": "Yair, if that changes, let us make this change at that point.\n\nNetworkId for a subnet is not an updatable item ...\n\nhttps://wiki.openstack.org/wiki/Neutron/APIv2-specification",
       "parentUuid": "fafc7978_c0f04acb",
+      "revId": "d8c3777d11e0b0af6fe488f3e937ab06762476ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c0768a05",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-02T11:58:22Z",
+      "side": 0,
+      "message": "Alright, I agree it can be done later on.\nThanks !",
+      "parentUuid": "fafc7978_0016d2a7",
       "revId": "d8c3777d11e0b0af6fe488f3e937ab06762476ea",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
