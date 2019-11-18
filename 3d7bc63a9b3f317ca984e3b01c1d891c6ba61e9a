@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_0ecb3c73",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 19
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_2c8d8f32",
+      "revId": "3d7bc63a9b3f317ca984e3b01c1d891c6ba61e9a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_4c88d322",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 19
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-25T14:08:33Z",
       "side": 1,
       "message": "fix this too.",
+      "revId": "3d7bc63a9b3f317ca984e3b01c1d891c6ba61e9a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_eeab5887",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 19
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_4c88d322",
       "revId": "3d7bc63a9b3f317ca984e3b01c1d891c6ba61e9a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ceb014f7",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 19
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_ec9b8770",
+      "revId": "3d7bc63a9b3f317ca984e3b01c1d891c6ba61e9a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2c946f36",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 19
@@ -64,6 +118,24 @@
       "writtenOn": "2017-01-25T14:08:33Z",
       "side": 1,
       "message": "This feature attempts to realize the use of VXLAN VNI for VXLAN Tenant Traffic flowing on the cloud data-network. It eliminates the presence of LPortTags, ELANTags and MPLS Labels on the wire and instead replaces them with VNIs supplied by the Openstack tenant on his/her VXLAN networks.",
+      "revId": "3d7bc63a9b3f317ca984e3b01c1d891c6ba61e9a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4e7ee4af",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 19
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_2c946f36",
       "revId": "3d7bc63a9b3f317ca984e3b01c1d891c6ba61e9a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ae4af080",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 19
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_cca2039a",
+      "revId": "3d7bc63a9b3f317ca984e3b01c1d891c6ba61e9a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_97705f0c",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 19
@@ -99,6 +189,23 @@
       "side": 1,
       "message": "+1..",
       "parentUuid": "1a622d24_d4313a5b",
+      "revId": "3d7bc63a9b3f317ca984e3b01c1d891c6ba61e9a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d4313a5b",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 19
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Chetan,\nplease create a separate section to list NAT usecases and add to the existing ones if required.\n\nLet us reorder it to be L2 followed by L3 followed by NAT, as is the general sequence of the spec.",
       "revId": "3d7bc63a9b3f317ca984e3b01c1d891c6ba61e9a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
