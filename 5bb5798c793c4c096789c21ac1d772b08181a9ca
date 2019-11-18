@@ -1,0 +1,39 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_d752cd65",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-09-15T07:49:19Z",
+      "side": 1,
+      "message": "where is this used?",
+      "revId": "5bb5798c793c4c096789c21ac1d772b08181a9ca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_571ffd6b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-09-15T09:14:07Z",
+      "side": 1,
+      "message": "No, i meant that this method is not using this variable, and so why we should extract it here?",
+      "parentUuid": "ba1f61a0_f703913f",
+      "revId": "5bb5798c793c4c096789c21ac1d772b08181a9ca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
