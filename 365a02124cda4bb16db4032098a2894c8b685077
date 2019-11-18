@@ -37,6 +37,42 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_dfcf30af",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Good point. :)\nActually, we encountered this issue while we were debugging PS-8 review from the commit below, which does use the dpnId. So I added a PS-9 which has this fix. For the sake of getting this critical bug merged first, raised a a separate review too.\n\nhttps://git.opendaylight.org/gerrit/#/c/46653/8..9/vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+      "parentUuid": "3a65312a_5f48405b",
+      "revId": "365a02124cda4bb16db4032098a2894c8b685077",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_5fefa0b0",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Yes, not a bug now, was raised for Ravit\u0027s fix only.",
+      "parentUuid": "3a65312a_7f9ffc5f",
+      "revId": "365a02124cda4bb16db4032098a2894c8b685077",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_7f4b7c59",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 1
@@ -66,6 +102,42 @@
       "side": 1,
       "message": "Yeah let\u0027s review everything there, since this review basically only introduces refactoring right now.. thx",
       "parentUuid": "3a65312a_9f63f8b0",
+      "revId": "365a02124cda4bb16db4032098a2894c8b685077",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_df3a9035",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 628,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Sure, abandoning this patch as well as the bug.",
+      "parentUuid": "3a65312a_3f7c6420",
+      "revId": "365a02124cda4bb16db4032098a2894c8b685077",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_9f63f8b0",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 628,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Maybe what you say is better, IMO I did so because I see the number of if checks to figure it being ZERO remaining the same, no extra processing once figured in either case. But, one less return statement in the right one.\nOne return for failure case, and one for successful case seemed better to me.\nMaybe in bigger code blocks, it is good to avoid the extra indentation, perhaps not so much here.\n\nI can very well abandon this patch and have the other file changes in my T19 MAC review itself since the dpnId zero issue has anyway been fixed by Ravit on Sat.\n\nWhat do you think?",
+      "parentUuid": "3a65312a_7f4b7c59",
       "revId": "365a02124cda4bb16db4032098a2894c8b685077",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
