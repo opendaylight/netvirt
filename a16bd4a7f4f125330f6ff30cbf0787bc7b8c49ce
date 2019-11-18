@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_b0c5245d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibRpcServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-12T11:17:17Z",
+      "side": 1,
+      "message": "it leads same code is repeated twice. so better to replace with a method. infact, delete also uses SingleTransactionDataBroker",
+      "parentUuid": "da01753e_15c86221",
+      "revId": "a16bd4a7f4f125330f6ff30cbf0787bc7b8c49ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_4af405f2",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 3
@@ -70,6 +88,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_303bf43b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 829,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-12T11:17:17Z",
+      "side": 1,
+      "message": "what about other networks ? IMO, its always better to guard against null.",
+      "parentUuid": "da01753e_952572c4",
+      "revId": "a16bd4a7f4f125330f6ff30cbf0787bc7b8c49ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_2af9c1e9",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 3
@@ -99,6 +135,23 @@
       "side": 1,
       "message": "yes, but I see method is too long. so asked to consider changing method name to isVniEnforced.",
       "parentUuid": "da01753e_d5aa5a18",
+      "revId": "a16bd4a7f4f125330f6ff30cbf0787bc7b8c49ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_aa8db17d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-12T05:04:43Z",
+      "side": 1,
+      "message": "change it to final and boolean type should be okay for it.",
       "revId": "a16bd4a7f4f125330f6ff30cbf0787bc7b8c49ce",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false

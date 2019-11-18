@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_2a82614f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibRpcServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-12T05:04:43Z",
+      "side": 0,
+      "message": "Isn\u0027t LFIB needed for BGP VPNs ?",
+      "revId": "8c280ca61fabd5610df204744e838b463f535d25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
