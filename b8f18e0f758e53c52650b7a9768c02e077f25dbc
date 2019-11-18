@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_194bac5a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 832,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-23T20:16:43Z",
+      "side": 1,
+      "message": "This would throw due to unboxing if there is no segmentation id for the network e.g. flat",
+      "range": {
+        "startLine": 832,
+        "startChar": 87,
+        "endLine": 832,
+        "endChar": 115
+      },
+      "revId": "b8f18e0f758e53c52650b7a9768c02e077f25dbc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e6a9e67c",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
         "patchSetId": 1
