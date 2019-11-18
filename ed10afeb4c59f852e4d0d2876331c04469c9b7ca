@@ -16,6 +16,47 @@
       "revId": "ed10afeb4c59f852e4d0d2876331c04469c9b7ca",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a991f7f2",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-10T15:18:55Z",
+      "side": 1,
+      "message": "A bit off topic (relates to EVPN spec), but I assume MPLS labels will be retained for the IPVPN use case, right? EVPN wouldn\u0027t need those?",
+      "revId": "ed10afeb4c59f852e4d0d2876331c04469c9b7ca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c2a377b0",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-09T09:19:46Z",
+      "side": 1,
+      "message": "Yes please, +1 to this idea.\nAny way to minimize tables and bundle together common functionality to simplify the pipeline is encouraged.",
+      "parentUuid": "1a622d24_4f4150a8",
+      "range": {
+        "startLine": 183,
+        "startChar": 55,
+        "endLine": 183,
+        "endChar": 67
+      },
+      "revId": "ed10afeb4c59f852e4d0d2876331c04469c9b7ca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
