@@ -1,0 +1,124 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_483ec6b9",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronConstants.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-03T07:51:26Z",
+      "side": 1,
+      "message": "group this with the RD_IDPOOL definitions at L19.\n\nOr does checkstyle recommend primitives to go first in a class :)",
+      "revId": "a36dafd58403413e2815c6d7fc2d77ccc9c9c2e6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a8c81275",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronConstants.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-03T08:43:12Z",
+      "side": 1,
+      "message": "move it down.. related elements must be near to each other for readability.",
+      "parentUuid": "fafc7978_4848862d",
+      "revId": "a36dafd58403413e2815c6d7fc2d77ccc9c9c2e6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c8ee3622",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-03T07:51:26Z",
+      "side": 1,
+      "message": ", 2017",
+      "revId": "a36dafd58403413e2815c6d7fc2d77ccc9c9c2e6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_68dd8a70",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-03T07:51:26Z",
+      "side": 1,
+      "message": ", 2017 ?",
+      "revId": "a36dafd58403413e2815c6d7fc2d77ccc9c9c2e6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_48da4679",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-03T07:51:26Z",
+      "side": 1,
+      "message": "why is this specific to vxlan.. It should apply to both vlan and vxlan network ?",
+      "revId": "a36dafd58403413e2815c6d7fc2d77ccc9c9c2e6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a8e7723f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosPolicyChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-03T07:51:26Z",
+      "side": 1,
+      "message": "i hope this file will be moved out of neutronvpn by QOS friends.",
+      "revId": "a36dafd58403413e2815c6d7fc2d77ccc9c9c2e6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_88e42e3c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-03T07:51:26Z",
+      "side": 1,
+      "message": "if you are not touching this file, why a copyright change?",
+      "revId": "a36dafd58403413e2815c6d7fc2d77ccc9c9c2e6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
