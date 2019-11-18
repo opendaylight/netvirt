@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_b0e1c1d2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "This fxn is called upon floatingip delete or floatingip dissociation, the size will never be 0",
+      "parentUuid": "7a6b29fe_f09df95a",
+      "revId": "0f3481e02e86bf4748ba2d888f7f74f18da1eb32",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_50a2ed9a",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2016-10-15T13:39:08Z",
       "side": 1,
       "message": "under what circumstance ip_mapping.size() will be greater than 1 ?\n\nIs this ipmapping structure shared with SNAT that renders the SNATable traffic making the ipmapping size more than 1?\n\nBecause that will eliminate the  else { case altogether and we can always blindly invoke removeRouterPortsOrPortsNode().",
+      "revId": "0f3481e02e86bf4748ba2d888f7f74f18da1eb32",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_10e7d5e5",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "this is not related to snat use case.\nit is the generic use case (which we might support later) where a neutron port has multiple IPs, hence could have multiple ip mappings. In that case, we need to delete a particular mapping and not the entire ports node.",
+      "parentUuid": "7a6b29fe_50a2ed9a",
       "revId": "0f3481e02e86bf4748ba2d888f7f74f18da1eb32",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
