@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_50a2ed9a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-15T13:39:08Z",
+      "side": 1,
+      "message": "under what circumstance ip_mapping.size() will be greater than 1 ?\n\nIs this ipmapping structure shared with SNAT that renders the SNATable traffic making the ipmapping size more than 1?\n\nBecause that will eliminate the  else { case altogether and we can always blindly invoke removeRouterPortsOrPortsNode().",
+      "revId": "0f3481e02e86bf4748ba2d888f7f74f18da1eb32",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
