@@ -52,6 +52,42 @@
       "revId": "5bb5798c793c4c096789c21ac1d772b08181a9ca",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_f703913f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "not sure of that Vivek, have to check ELAN code to ascertain.\nI moved it here so that we retrieve it at one place instead of separately in each of create() and update()",
+      "parentUuid": "ba1f61a0_d752cd65",
+      "revId": "5bb5798c793c4c096789c21ac1d772b08181a9ca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_d2381bd5",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "It is Vivek, see line 236.",
+      "parentUuid": "ba1f61a0_571ffd6b",
+      "revId": "5bb5798c793c4c096789c21ac1d772b08181a9ca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
