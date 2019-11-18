@@ -65,6 +65,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_33dde815",
+        "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-28T04:26:36Z",
+      "side": 1,
+      "message": "It would be good to avoid different names for tables..\n\nThe pipeline.rst must be matched with the table name in NwConstants.java file in Genius [Would be easier ]\n\n  (or) \n\nElse we need to fix the table names in NwConstants.java to reflect what is in pipeline.rst.\n\nIf neither, it certainly leads to ambiguity..\n\nLet me know what you think..",
+      "parentUuid": "1a622d24_33820853",
+      "revId": "d26341c1d1542f6788d2e7805c737e03db3afd24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_93cddc60",
         "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
         "patchSetId": 6
