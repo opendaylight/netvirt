@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_27f7578e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-16T12:53:47Z",
+      "side": 1,
+      "message": "Thanks Tali for catching this.\nYes, when processing PNF vrf entry, all the DPNs are considered \"remote\", which will create only \"remote fib entry\".\nThis change will break it.",
+      "parentUuid": "fafc7978_07ca136e",
+      "revId": "f8de9101fd553acd2a7234d99460f34319a6680d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_8a2f2af6",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 5
@@ -31,6 +49,58 @@
       "side": 1,
       "message": "This change is in the right direction for the bug it attempts to solve.\n\nFor PNF, we can change the approach where createLocalFibEntry can return Pair\u003cvpninterface, returnLocalDpnId\u003e and then withe that pair returned we can decide from vpnInterface name if its a PNF.\n\nThe pair will be constructed inside createLocalFibEntry appropriately and we can work that out in the PNF implementation patches..\n\nlet me know what you think",
       "parentUuid": "fafc7978_27f7578e",
+      "revId": "f8de9101fd553acd2a7234d99460f34319a6680d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ddc9fead",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-16T15:45:44Z",
+      "side": 1,
+      "message": "Yeah sure, I don\u0027t want to block an important fix :)\nWe will work it out in the PNF patches.",
+      "parentUuid": "fafc7978_8a2f2af6",
+      "revId": "f8de9101fd553acd2a7234d99460f34319a6680d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_67f15f95",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 838,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-16T12:53:47Z",
+      "side": 1,
+      "message": "Empty \"local dpn list\" is a valid return value for PNF vrf entries. it isn\u0027t an error in that case",
+      "revId": "f8de9101fd553acd2a7234d99460f34319a6680d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e798af6c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-16T12:53:47Z",
+      "side": 1,
+      "message": "[Just thinking out loud]\nIs there by any chance some kind of utility class/method that can hide this kind of error handling?\nI understand why this is important but it makes the code much less readable (think of the case that we will want the same kind of error handling for the config tx and inv tx also. It will make us cry when we\u0027ll read it).",
       "revId": "f8de9101fd553acd2a7234d99460f34319a6680d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
