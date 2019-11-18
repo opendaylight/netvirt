@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_33820853",
+        "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-27T11:05:37Z",
+      "side": 1,
+      "message": "a. Please refer to pipeline.rst done by Vishal for tables naming - specifically is VLAN_INTERFACE_INGRESS_TABLE actually Classifier Table? LPORT_DISPATCHER is \"Dispatcher Table\"?\n\nb. Could you please note the actual changes to the current pipeline?\nThis illustration of the pipeline after the changes is nice, but requires knowledge of the pipeline before - it\u0027s difficult to understand the actual change from this.",
+      "revId": "d26341c1d1542f6788d2e7805c737e03db3afd24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b3af382b",
+        "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-28T08:28:50Z",
+      "side": 1,
+      "message": "Good point Vivek.\nI agree with Vishal, let\u0027s use the pipeline doc as a means to agree on naming (looks like we\u0027re almost there already), and then correct NwConstants to reflect that.\n\nCould you please comment on the second question I had here? What are the actual changes to the current pipeline proposed by this change? :)\n\nThanks..",
+      "parentUuid": "1a622d24_93cddc60",
+      "revId": "d26341c1d1542f6788d2e7805c737e03db3afd24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_13870c63",
+        "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-27T11:05:37Z",
+      "side": 1,
+      "message": "Same notes as Local DPN section",
+      "revId": "d26341c1d1542f6788d2e7805c737e03db3afd24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_737c8073",
+        "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-27T11:05:37Z",
+      "side": 1,
+      "message": "Vishal, we should probably have a convention for this, as most features will note the same.",
+      "revId": "d26341c1d1542f6788d2e7805c737e03db3afd24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_53818449",
+        "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-27T11:05:37Z",
+      "side": 1,
+      "message": "Are there any datapath testcases that currently test this scenario? I would expect this to affect L3 tests, but \u0027behind the scenes\u0027, so existing tests simply need to pass?",
+      "revId": "d26341c1d1542f6788d2e7805c737e03db3afd24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
