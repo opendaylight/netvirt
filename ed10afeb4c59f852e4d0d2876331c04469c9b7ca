@@ -36,6 +36,52 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_af32a45c",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2017-01-09T08:07:54Z",
+      "side": 1,
+      "message": "replace with \"destination LPortTag, VNI of destination network\"",
+      "range": {
+        "startLine": 163,
+        "startChar": 25,
+        "endLine": 163,
+        "endChar": 38
+      },
+      "revId": "ed10afeb4c59f852e4d0d2876331c04469c9b7ca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4f4150a8",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2017-01-09T08:07:54Z",
+      "side": 1,
+      "message": "replace with \"Internal VxLAN tunnels (OVS--OVS)\". This excludes external (OVS--ToR Switch) tunnels. Btw, function of Internal tunnel table and external tunnel table will be identical now, can\u0027t we combine these two tables?",
+      "range": {
+        "startLine": 183,
+        "startChar": 55,
+        "endLine": 183,
+        "endChar": 67
+      },
+      "revId": "ed10afeb4c59f852e4d0d2876331c04469c9b7ca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_c2a377b0",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 13
