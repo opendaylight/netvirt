@@ -2,6 +2,115 @@
   "comments": [
     {
       "key": {
+        "uuid": "da01753e_c02c5f4d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-11T09:08:31Z",
+      "side": 1,
+      "message": "Commit message for such features need to more descriptive what this patch alters in Dataplane for OpenDaylight L3 Service.",
+      "revId": "4b5fe7d47fcdf8e3ba3fc9d3bd9649657cffcb8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_1b37fae4",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 830,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-11T09:08:31Z",
+      "side": 1,
+      "message": "andInternalVpn",
+      "revId": "4b5fe7d47fcdf8e3ba3fc9d3bd9649657cffcb8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_9b792a96",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 830,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-11T09:08:31Z",
+      "side": 1,
+      "message": "the prefixInfo here represents the VM Port nextHop of the extra-route prefix.  And so that will always have the subnetId filled.",
+      "parentUuid": "da01753e_3622e2b9",
+      "range": {
+        "startLine": 830,
+        "startChar": 91,
+        "endLine": 830,
+        "endChar": 115
+      },
+      "revId": "4b5fe7d47fcdf8e3ba3fc9d3bd9649657cffcb8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_fb267667",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1117,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-11T09:08:31Z",
+      "side": 1,
+      "message": "sneaking in checks like this makes code completely unreadable..\n\nMove this to a separate method and provide proper comments.",
+      "revId": "4b5fe7d47fcdf8e3ba3fc9d3bd9649657cffcb8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_fb5836fc",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1287,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-11T09:08:31Z",
+      "side": 1,
+      "message": "if there is not VNI provided, for NATPrefixes a carved out VNI for InternetVPN should be used here.   The value here cannot be directly VXLAN Network VNI as this would not apply for the InternetVPN use-case.\n\nFor non-NAT prefixes, the above approach is correct.",
+      "revId": "4b5fe7d47fcdf8e3ba3fc9d3bd9649657cffcb8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_db73b2af",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/interfaces/INeutronVpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-11T09:08:31Z",
+      "side": 1,
+      "message": "isOpenstackSemanticsEnforced() would be a better method name.",
+      "revId": "4b5fe7d47fcdf8e3ba3fc9d3bd9649657cffcb8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_a1f16acf",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 1
