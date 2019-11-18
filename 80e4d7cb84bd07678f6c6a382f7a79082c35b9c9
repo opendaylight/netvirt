@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_4dd898ef",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManagerImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "required for the files we touch in the year 2017 from now on, and this is the way it has to be done. (with a comma in between)",
+      "parentUuid": "fafc7978_8dee00eb",
+      "revId": "80e4d7cb84bd07678f6c6a382f7a79082c35b9c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_0d3b303b",
         "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/ConfigureL3VpnCommand.java",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-03T05:16:47Z",
       "side": 1,
       "message": "this create CLI applies only for network associated VPNs right?",
+      "revId": "80e4d7cb84bd07678f6c6a382f7a79082c35b9c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_edc7cc10",
+        "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/ConfigureL3VpnCommand.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Yes, Vivek. That\u0027s why indicated the same in the comment above.",
+      "parentUuid": "fafc7978_0d3b303b",
       "revId": "80e4d7cb84bd07678f6c6a382f7a79082c35b9c9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_cdcc8838",
+        "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/ConfigureL3VpnCommand.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Yes.",
+      "parentUuid": "fafc7978_ed2b4ce9",
+      "revId": "80e4d7cb84bd07678f6c6a382f7a79082c35b9c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_8def20b0",
         "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/ConfigureL3VpnCommand.java",
         "patchSetId": 3
@@ -64,6 +118,24 @@
       "writtenOn": "2017-02-03T05:16:47Z",
       "side": 1,
       "message": "where are you removing elements from networkIdList before check at L255?",
+      "revId": "80e4d7cb84bd07678f6c6a382f7a79082c35b9c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6ddbdced",
+        "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/ConfigureL3VpnCommand.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "L255 check is for 2 cases:\n1. deletion of VPN without any networks assc (check on nidlist null or empty)\n2. deletion of VPN when networks assc are deleted (check on rpc result successful)\n\nI\u0027m adding to nidlist only if subnet has a corresponding network, do not need to remove from the list.",
+      "parentUuid": "fafc7978_8def20b0",
       "revId": "80e4d7cb84bd07678f6c6a382f7a79082c35b9c9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
