@@ -37,6 +37,42 @@
     },
     {
       "key": {
+        "uuid": "da01753e_3aea970f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "have to use it from static reference in ElanUtils, and have to assign it the value from within the constructor, hence can\u0027t keep it as final..",
+      "parentUuid": "da01753e_013bed38",
+      "revId": "2d02d9f49510e02fb98d3af0f4cd07786f19766a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_d1152ee6",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "While moving the config to elan, have already made the change to make the function final in ElanUtils and reuse from there.",
+      "parentUuid": "da01753e_46806246",
+      "revId": "2d02d9f49510e02fb98d3af0f4cd07786f19766a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_817d1dea",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
         "patchSetId": 22
@@ -66,6 +102,42 @@
       "side": 1,
       "message": "Yes, this shouldn\u0027t change. \nI didn\u0027t notice unsetExternalTunnelTable(dpId, elanInfo);",
       "parentUuid": "da01753e_1ad4f345",
+      "revId": "2d02d9f49510e02fb98d3af0f4cd07786f19766a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_b1206a4a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Sure :)",
+      "parentUuid": "da01753e_a6ddce72",
+      "revId": "2d02d9f49510e02fb98d3af0f4cd07786f19766a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_1ad4f345",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "This would mean that we remove table 38 entry only when flag is ON.\nBut we add this table when the flag is off through setExternalTunnelTable() call at line 650. This is to keep existing behaviour intact.\nIf I also make setExternalTableTable() get called only in case when flag is ON, it will affect the table\u003d38 functionality when flag is OFF.\nI guess we have to keep it as is..\nLet me know your thoughts..",
+      "parentUuid": "da01753e_817d1dea",
       "revId": "2d02d9f49510e02fb98d3af0f4cd07786f19766a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
