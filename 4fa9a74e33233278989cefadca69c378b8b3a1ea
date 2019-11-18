@@ -1,0 +1,45 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_c1aeb02d",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 639,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-26T17:02:15Z",
+      "side": 1,
+      "message": "Please make sure Abhinav/Chetan, the implemenation follows verbatim what is put here, including how this value can be accessed by a ODL admin.",
+      "parentUuid": "fafc7978_41a2c0fd",
+      "range": {
+        "startLine": 628,
+        "startChar": 5,
+        "endLine": 639,
+        "endChar": 7
+      },
+      "revId": "4fa9a74e33233278989cefadca69c378b8b3a1ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6165441d",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 711,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-26T17:02:15Z",
+      "side": 1,
+      "message": "Please add that Fib will get to retreive the subnetId from primaryAdjacency of the VPN-Interface.  Feeding the subnetId to this datastore, Fib can retreive the network-id, network-type and network-vni.",
+      "revId": "4fa9a74e33233278989cefadca69c378b8b3a1ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
