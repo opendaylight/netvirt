@@ -1,0 +1,327 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_9e7c9a74",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-25T14:08:33Z",
+      "side": 1,
+      "message": "fix this since you changed the topic offline.\n\nI would also suggest to fix the overall spec file name if you can to align with the topic name too :)",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a0aa18d2",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-25T14:08:33Z",
+      "side": 1,
+      "message": "This feature provides for realization of VNI (Virtual Network Identifier) for all packet \u0027on the wire\u0027 for all VXLAN networks created by the tenant via Openstack Neutron.   In realizing so, it eliminates the usage of LPortTags and ELANTags as VNIs on the wire .  \n\nAs part of implementation of this Spec, the use of MPLS Labels will continue to remain both inside the OVS Datapath and also on the wire, but the usage of such Labels will be restricted only to L3 BGPVPNs managed by the tenant.",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_00afa4e4",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-25T14:08:33Z",
+      "side": 1,
+      "message": "The on the wire realization of VNIs will be done for all the use-cases listed in the spec below.  However, we will continue to retain the use of LPortTags and ELANTags within an OVSDatapath (not on the wire) of the hypervisor, as eliminating them completely is a large redesign and can be pursued step by step later.",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_40b9ac2d",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-25T14:08:33Z",
+      "side": 1,
+      "message": "This Spec is the first step in the",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_20b6283e",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-25T14:08:33Z",
+      "side": 1,
+      "message": "This para can be removed.",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e9788b2d",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-25T14:08:33Z",
+      "side": 1,
+      "message": "We may need to mention here that this spec will not attempt to address or test IPv6 use-cases.",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_499f1760",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-25T14:08:33Z",
+      "side": 1,
+      "message": "Alon/Tali,\n\nCan you please let us know if in your use-case discovering IP Addresses are possible on router VPN?\n\nOur use-case is to allow discovery of IPs only on BGPVPN and that is the why the discovered IP use-case is left off above.",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_49c8b774",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-25T14:08:33Z",
+      "side": 1,
+      "message": "Love this type of explicit documentation of use-case coverage :)",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_898f3f23",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-25T14:08:33Z",
+      "side": 1,
+      "message": "do you tend to see VPN SubnetRoute Handler to be affected?",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_89b61fdb",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-25T14:08:33Z",
+      "side": 1,
+      "message": "can we say Internet VPN and use that term evenly everywhere.",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_69bbfbc4",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-25T14:08:33Z",
+      "side": 1,
+      "message": "by the OpenDaylight Controller Administrator",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c9b027e0",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-25T14:08:33Z",
+      "side": 1,
+      "message": "Openstack neutron \n\nvni_ranges\n\nconfiguration.",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a9b5e3ce",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-25T14:08:33Z",
+      "side": 1,
+      "message": "per Internet VPN",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_89dd7f17",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-25T14:08:33Z",
+      "side": 1,
+      "message": "to an Internet VPN today and this spec doesn\u0027t attempt to address that limitation.",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c9e787e3",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-25T14:08:33Z",
+      "side": 1,
+      "message": "let the RPC always provide you default value as output, if the admin changes it will take the new value.\n\nnew values cannot shrink than the older ones and we should validate that during configuraiton, as that would put us in a difficulty to check for used-vnis logic within ODL unnecessarily.",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_294613c0",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-25T14:08:33Z",
+      "side": 1,
+      "message": "Internet VPN VNI will be carved per Internet VPN from the ODL_VNI_POOL.. \n\nMay be we can name this as opendaylight_vni_ranges.",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_096d0f33",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-25T14:08:33Z",
+      "side": 1,
+      "message": "why is the mac match necessary?  \n\nAn Internet VPN can carry only one external network and within that all elements will have unique ip address and mac-address.",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e9d7ebbd",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-25T14:08:33Z",
+      "side": 1,
+      "message": "mac match question applies here too ?",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_09022f3e",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-25T14:08:33Z",
+      "side": 1,
+      "message": "anything with a low - high is a range.. so please reword this pool to earlier comment.\n\nspecify the defaults right here in the yang.",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
