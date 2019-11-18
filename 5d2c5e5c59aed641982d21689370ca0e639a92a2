@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_c71ec00b",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 639,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-27T08:38:36Z",
+      "side": 1,
+      "message": "How would the FIB manager access the subnet-id? vrf-entry is not always associated with VPN-interface e.g. for NAT entries such as FIP and router GW ips\n\nWould it be possible to add the subnet-id to prefix-to-interface?",
+      "range": {
+        "startLine": 639,
+        "startChar": 43,
+        "endLine": 639,
+        "endChar": 79
+      },
+      "revId": "5d2c5e5c59aed641982d21689370ca0e639a92a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5206101e",
         "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
         "patchSetId": 2
