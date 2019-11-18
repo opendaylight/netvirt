@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_fa595a8f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2016-10-14T14:44:54Z",
+      "side": 1,
+      "message": "Why does this function has to iterate all router ports? The caller has the routerId..",
+      "revId": "01f1accf40e47f561ea0d7199852834d3a909a1a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_7a4d4ac4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2016-10-14T14:44:54Z",
+      "side": 1,
+      "message": "This code block seems identical to a one in clearFromFloatingIpInfo, maybe extract this to function?",
+      "revId": "01f1accf40e47f561ea0d7199852834d3a909a1a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_bac6c214",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2016-10-14T14:44:54Z",
+      "side": 1,
+      "message": "This code block seems identical to a one in clearFromFloatingIpInfo, maybe extract this to function?",
+      "revId": "01f1accf40e47f561ea0d7199852834d3a909a1a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
