@@ -24,7 +24,6 @@ Contents:
    IPv6 L3 North-South support for Flat/VLAN based Provider Networks <ipv6-cvr-north-south>
    L3VPN Dual Stack for VMs <l3vpn-dual-stack-vms>
    Listener Dependency Helper, avoids waiting for dependent IID <listener-dependency-helper>
-   Migrate the SFC classifier from the old to the new netvirt <new-sfc-classifier>
    Netvirt counters <netvirt-statistics-spec>
    Neutron Port Allocation For DHCP Service <neutron-port-for-dhcp-service>
    Policy based path selection for multiple VxLAN tunnels <policy-based-path-selection>

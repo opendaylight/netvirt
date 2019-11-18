@@ -46,26 +46,4 @@
         </dependency>
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>sfc</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>${project.groupId}</groupId>
-                    <artifactId>odl-netvirt-sfc</artifactId>
-                    <version>${project.version}</version>
-                    <type>xml</type>
-                    <classifier>features</classifier>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <!-- When enabled, this empty profile disables the “sfc” profile above -->
-            <id>no-sfc</id>
-        </profile>
-    </profiles>
-
 </project>
