@@ -16,6 +16,24 @@
       "revId": "faa3127af202f3a63883917383387d6f0168d068",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d42c9a9b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Hi Alon,\n\nProvider type and segmentation ID can come only as part of net-create.\nnet-update doesn\u0027t allow us to configure either of these via Openstack: http://docs.openstack.org/cli-reference/neutron.html\n\nFor a user updating it via RESTCONF directly, it is still valid, but since it is not in alignment with Openstack semantics, should be even support an update() for such a (mis)configuration?",
+      "parentUuid": "1a622d24_913eb9d8",
+      "revId": "faa3127af202f3a63883917383387d6f0168d068",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
