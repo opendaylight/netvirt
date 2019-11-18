@@ -50,6 +50,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_41a2c0fd",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 639,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Instead of defining a separate container for odl-vni-ranges, shall we just define another attribute to the existing neutronvpn-config container??\n\n        leaf opendaylight-vni-ranges {\n            type string;\n            default \"70000:99999\";\n        }\n\nThis format will be inline with formatting in ml2_conf.ini(\u003cvni_min\u003e:\u003cvni_max\u003e)\n\nhttps://wiki.openstack.org/wiki/Ml2_conf.ini_File",
+      "range": {
+        "startLine": 628,
+        "startChar": 5,
+        "endLine": 639,
+        "endChar": 7
+      },
+      "revId": "4fa9a74e33233278989cefadca69c378b8b3a1ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_446aceee",
         "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
         "patchSetId": 1
