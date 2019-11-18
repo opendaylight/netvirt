@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_4bcebc84",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnserviceProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-07-05T11:06:43Z",
+      "side": 1,
+      "message": "Please do a null check for vpnManager before accessing the getVpnInstance() method.",
+      "revId": "11d9f7630403f1ce93f8feaff6298a1295f4f0ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_2bcb8873",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnserviceProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-07-05T11:06:43Z",
+      "side": 1,
+      "message": "What is the use of this method ?",
+      "revId": "11d9f7630403f1ce93f8feaff6298a1295f4f0ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
