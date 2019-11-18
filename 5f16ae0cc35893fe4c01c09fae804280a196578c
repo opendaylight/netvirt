@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_693fc9b4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-02T16:17:00Z",
+      "side": 1,
+      "message": "move input to next line.. As much as possible avoid line separating at period \u0027.\u0027",
+      "revId": "5f16ae0cc35893fe4c01c09fae804280a196578c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_49576502",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-02T16:08:10Z",
+      "side": 1,
+      "message": "please keep this inside nvpnmanager itself... Let all subnetmap related management stay there.",
+      "revId": "5f16ae0cc35893fe4c01c09fae804280a196578c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a9453144",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-02T16:17:00Z",
+      "side": 1,
+      "message": "its an error if you already see subnetmap existing..",
+      "revId": "5f16ae0cc35893fe4c01c09fae804280a196578c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4170d9db",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-03T07:17:44Z",
+      "side": 1,
+      "message": "Currently, am ok with a False Positive in ODL :).\n\nSo let us make this ERROR only !",
+      "parentUuid": "fafc7978_1408d490",
+      "revId": "5f16ae0cc35893fe4c01c09fae804280a196578c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a95c111a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-02T16:17:00Z",
+      "side": 1,
+      "message": "recent syncWrite has started showing as deprecated..  I think we should use SingleTransactionBroker here.",
+      "revId": "5f16ae0cc35893fe4c01c09fae804280a196578c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
