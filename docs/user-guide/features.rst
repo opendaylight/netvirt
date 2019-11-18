@@ -124,10 +124,10 @@ Carbon Features
    ,,,,
    DPDK,,,Full,conn-track based SNAT not supported until ovs 2.8
    ,,,,
-   SFC classifier,Datapath,NSH based,WIP,
+   Datapath,NSH based,WIP,
    ,,non-NSH based,WIP,
-   ,Northbound,openstack-sfc,WIP,
-   ,,ODL SFC models,WIP,
+   ,Northbound,WIP,
+   ,,WIP,
    ,,,,
    LBaaS,Octavia implementation,,Partial,"L2 supported, L3 Partially"
    ,ODL implementation,,Future,

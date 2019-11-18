@@ -1,16 +1,14 @@
 services = {
     0: None,
-    1: 'SFC',
-    2: 'ACL',
-    3: 'IN_CTRS',
-    4: 'SFC_CLASS',
-    5: 'DHCP',
-    6: 'QoS',
-    7: 'IPv6',
-    8: 'COE',
-    9: 'L3VPN',
-    10: 'ELAN',
-    11: 'L3VPN6'
+    1: 'ACL',
+    2: 'IN_CTRS',
+    3: 'DHCP',
+    4: 'QoS',
+    5: 'IPv6',
+    6: 'COE',
+    7: 'L3VPN',
+    8: 'ELAN',
+    9: 'L3VPN6'
 }
 
 
