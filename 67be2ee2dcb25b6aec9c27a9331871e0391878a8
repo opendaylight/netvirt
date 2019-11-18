@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "3a65312a_9a5aa94e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-25T06:59:47Z",
+      "side": 1,
+      "message": "The commit message can be more useful :)\n\nYou can put the concise form of \"problem definition and solution approached\" here.",
+      "revId": "67be2ee2dcb25b6aec9c27a9331871e0391878a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_1a4fb993",
+        "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-25T06:59:47Z",
+      "side": 1,
+      "message": "You can mention here that this Local DPN use-case pipeline does not change anything except retaining the fact that \"Output to destination VM port\" will continue to be via a next-hop group. And within that group you will set the mac-address of destination, setup LPortTag into NXMREG6 and send it to EGRESS_LPORT_DISPATCHER_TABLE (220).",
+      "revId": "67be2ee2dcb25b6aec9c27a9331871e0391878a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_7a46ad7d",
         "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
         "patchSetId": 4
