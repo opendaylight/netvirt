@@ -159,6 +159,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_4cb6d5da",
+        "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2016-12-10T09:02:04Z",
+      "side": 1,
+      "message": "I agree that the destination mac should be set on that table, but regarding the second part of that comment - in the current implementation this packet will not get to the ELAN pipeline in the destination OVS for VXLAN provider networks (as it enters the tunnel table), right? This part is probably true for VLAN/Flat provider networks.\n\nJust to make sure I\u0027m not missing something..",
+      "revId": "d26341c1d1542f6788d2e7805c737e03db3afd24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_3d12a1b1",
         "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
         "patchSetId": 6
