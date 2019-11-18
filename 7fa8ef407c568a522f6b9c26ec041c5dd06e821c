@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_f5afab92",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-14T18:13:37Z",
+      "side": 1,
+      "message": "why is this method triggered first of all when an unrelated port is deleted?\n\nThis method should get triggered only on a floatingip-disassociate (or)  nova vm delete (or) floatingip-delete.",
+      "revId": "7fa8ef407c568a522f6b9c26ec041c5dd06e821c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_3578032b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-14T18:13:37Z",
+      "side": 1,
+      "message": "break out here..",
+      "revId": "7fa8ef407c568a522f6b9c26ec041c5dd06e821c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_557bff28",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-14T18:13:37Z",
+      "side": 1,
+      "message": "break out here..",
+      "revId": "7fa8ef407c568a522f6b9c26ec041c5dd06e821c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_95759734",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-14T18:13:37Z",
+      "side": 1,
+      "message": "can this be one big try {} catch {} finally {} ?",
+      "revId": "7fa8ef407c568a522f6b9c26ec041c5dd06e821c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
