@@ -37,6 +37,42 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_56b760d8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Hi Alon,\n\nThis spec will only cater to intra-DC L2 switching and L3 forwarding for routers. We don\u0027t want to bloat up this effort. Let\u0027s have incremental specs for additional things once this is in place.",
+      "parentUuid": "1a622d24_6dd56fb8",
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7cab44d6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_01f3e49e",
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_cddbe3eb",
         "filename": "/COMMIT_MSG",
         "patchSetId": 7
@@ -48,6 +84,24 @@
       "writtenOn": "2016-12-19T14:39:06Z",
       "side": 1,
       "message": "typo remove double Instead",
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_dcba5822",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_cddbe3eb",
       "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -71,6 +125,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_bcb5dc32",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_e1ed08b9",
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_d3fff0a8",
         "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
         "patchSetId": 7
@@ -88,6 +160,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_1c84d05c",
+        "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_d3fff0a8",
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_4defd387",
         "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
         "patchSetId": 7
@@ -99,6 +189,24 @@
       "writtenOn": "2016-12-18T16:17:33Z",
       "side": 1,
       "message": "What about the case where the destination is floating ip? DNAT is performed today at the destination OVS since it is the only OVS containing DNAT fip flows. Would this be changed? Or would the traffic have to traverse the L3 pipeline before reaching the ELAN pipeline?",
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f6ecacf5",
+        "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Hi Tali,\n\nThis spec covers intra-DC VxLAN forwarding usecases.\n\nFor DNAT, we have 3 cases:\n1. VLAN provider networks - not VNI based\n2. Flat provider networks - not VNI based\n3. MPLSoGRE provider networks - will continue to use labels.\n\nSo, DNAT is not affected at all with this feature.",
+      "parentUuid": "1a622d24_4defd387",
       "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -128,6 +236,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_36be24d5",
+        "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "The EGRESS_DISPATCHER_TABLE sends the packet to EGRESS_ACL_TABLE where the LPortTag is used by the ACL service. Hence, the LPort Tag is being set here.",
+      "parentUuid": "1a622d24_adfdc73d",
+      "range": {
+        "startLine": 88,
+        "startChar": 13,
+        "endLine": 88,
+        "endChar": 21
+      },
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_ed497fb8",
         "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
         "patchSetId": 7
@@ -139,6 +271,24 @@
       "writtenOn": "2016-12-19T14:39:06Z",
       "side": 1,
       "message": "Does anything actually change here? Except the use of segmentation ID as VNI instead of lport/elan?",
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_76b41cd1",
+        "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "No, nothing else instead of setting MPLS label or LPort tag as was done earlier.\nNow we will set it as VNI.",
+      "parentUuid": "1a622d24_ed497fb8",
       "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -162,6 +312,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_96b578f0",
+        "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "As indicated in the comment above, since private flat/VLAN networks are not VNI based, their usecases won\u0027t be affected.",
+      "parentUuid": "1a622d24_2df2576f",
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_4dc87322",
         "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
         "patchSetId": 7
@@ -179,6 +347,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_f6bf8ca8",
+        "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "No change for VLAN/flat networks.\nMentioned it just to indicate that there\u0027s no change.",
+      "parentUuid": "1a622d24_4dc87322",
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_2dcb771f",
         "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
         "patchSetId": 7
@@ -190,6 +376,24 @@
       "writtenOn": "2016-12-19T14:39:06Z",
       "side": 1,
       "message": "This should probably be under the title of the Egress DPN.",
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_36e104d1",
+        "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "It is just above \"Egress DPN\" to give a context before egress DPN pipeline is looked upon.",
+      "parentUuid": "1a622d24_2dcb771f",
       "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -254,6 +458,66 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_56892025",
+        "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Good catch Tali, missed changing this when posting this PS based on VNIs and not LPortTags.\nELAN pipeline will not be bypassed.\nMatch on VNI will take place in INTERNAL_TUNNEL_TABLE, from where it will be converted to ELAN tag by L2_VNI_TUN_DEMUX_TABLE and then the packet will be taken to the destination VM by traversing through the ELAN pipeline.",
+      "parentUuid": "1a622d24_8de9eb82",
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_9c974090",
+        "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_81f414f3",
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_368c6435",
+        "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Correct! :)\nPlease see above response on Tali\u0027s comment.",
+      "parentUuid": "1a622d24_0dfddb3a",
+      "range": {
+        "startLine": 107,
+        "startChar": 3,
+        "endLine": 108,
+        "endChar": 93
+      },
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_edf7bf57",
         "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
         "patchSetId": 7
@@ -294,6 +558,48 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_134fbabe",
+        "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "L3_VNI_TUN_DEMUX_TABLE comes into picture with the EVPN feature being worked on in parallel. It converts the L3_VNI to VPN-ID.\nFor us here, it will be a table-miss and will land back to L2_VNI_DEMUX_TABLE where the VNI will be converted to ELAN tag.",
+      "parentUuid": "1a622d24_edf7bf57",
+      "range": {
+        "startLine": 115,
+        "startChar": 41,
+        "endLine": 115,
+        "endChar": 63
+      },
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b63a3432",
+        "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "None of these two tables are introduced by this spec, it just makes use of them.\n\nThe spec for L3Vpn Over Vxlan With Evpn RT5 introduces L3_VNI_TUN_DEMUX_TABLE.\nFurther, EVPN with RT2 is coming up with L2_VNI_TUN_DEMUX_TABLE.\n\nChanges that would be required to just use VNIs instead of VPNIDs/ELANTags (which would potentially lead to not needing any new DEMUX tables) will be a very elaborate effort. Currently, VPN and ELAN services use the VPNID/ELANTags extensively and since removing them is not in the scope of this feature, they will be kept as it is.\nHere we are only taking care of transmitting packets over the wire, which in effect will replace LPortTags/MPLS Labels with VNIs for intra-DC.",
+      "parentUuid": "1a622d24_8dd28bd0",
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_4d96b3f1",
         "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
         "patchSetId": 7
@@ -317,6 +623,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_d3db82eb",
+        "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "In this feature, we are handling using VNIs for router-based cases for VxLAN networks only. Once the same logic is extended for BGPVPN specific usecases for normal L3VPN and NAT MPLS external VPN too, I believe we can take it up to remove the ELAN tag entirely (just a unique ID generated per network instance) from the solution.\nFor now, it will continue to be retained to keep all the other usecases in tact.",
+      "parentUuid": "1a622d24_4d96b3f1",
+      "range": {
+        "startLine": 116,
+        "startChar": 62,
+        "endLine": 116,
+        "endChar": 74
+      },
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_a13af031",
         "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
         "patchSetId": 7
@@ -328,6 +658,24 @@
       "writtenOn": "2016-12-19T18:33:29Z",
       "side": 1,
       "message": "Abhinav,\n\nIn general it will be better to put a para on changes before showing the pipeline.\n\nAs I SUGGESTED, let us please divide this Pipeline changes to have the following subsections:\n\n1.  L2 Switching:\n\n   1.1 Between VMs Within a single DPN:\n\n\u003cWhat is the change if any. If no change, please state that explicitly and show only the pipeline for understanding purposes.\nThis should cover ARP broadcast by the VM on that VPN.  This should also cover IP Unicast between VMs in that DPN\u003e\n\n   1.2 Between VMs on two different DPNs:\n\u003cWhat is the change if any.\u003e\n\n2. L3 Forwarding:\n\n  2.1  Between VMs within a single DPN:\n\u003cWhat is the change if any\u003e\n\n  2.2 Betweeen VMs across two different DPNs.\n\u003cWhat is the change if any\u003e\n\n3. NAT Service:\n   3.1  SNAT from a VM to reach Internet where the VM is in a non-NAPT switch.   Reverse SNAT traffic reaching back the VM.\n\u003cWhat is the change if any\u003e\n\n   3.2  SNAT from a VM to reach Internet where the VM is already in an NAPT switch.  Reverse SNAT traffic reaching back the VM.\n\u003cWhat is the change if any\u003e\n\nDNAT need not be covered, as we donot have a use-case for VNI for DNAT traffic.",
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7c9224a0",
+        "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_a13af031",
       "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
