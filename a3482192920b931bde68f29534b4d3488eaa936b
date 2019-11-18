@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_4a59a5fd",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-12T05:53:51Z",
+      "side": 0,
+      "message": "It still hold good if openStackVniSemanticsEnforced is set to false.",
+      "revId": "a3482192920b931bde68f29534b4d3488eaa936b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

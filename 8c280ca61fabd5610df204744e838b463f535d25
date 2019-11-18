@@ -2,6 +2,91 @@
   "comments": [
     {
       "key": {
+        "uuid": "da01753e_cabe35ff",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-12T05:53:51Z",
+      "side": 1,
+      "message": "change it to public static final boolean.",
+      "revId": "8c280ca61fabd5610df204744e838b463f535d25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_6ac10980",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-12T05:53:51Z",
+      "side": 1,
+      "message": "doesn\u0027t it create cyclic dependency b/w elan and neutronvpn ?",
+      "revId": "8c280ca61fabd5610df204744e838b463f535d25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_ea3cd995",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-12T05:53:51Z",
+      "side": 1,
+      "message": "combine both if\u0027s with single one.",
+      "revId": "8c280ca61fabd5610df204744e838b463f535d25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_0a5f9de6",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-12T05:53:51Z",
+      "side": 1,
+      "message": "why is it changed now ?",
+      "revId": "8c280ca61fabd5610df204744e838b463f535d25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_ea6339af",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-12T05:53:51Z",
+      "side": 1,
+      "message": "the old formatting looks better compared to this one.",
+      "revId": "8c280ca61fabd5610df204744e838b463f535d25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_8af9cdca",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
         "patchSetId": 16
@@ -65,6 +150,23 @@
       "writtenOn": "2017-04-12T05:53:51Z",
       "side": 1,
       "message": "here too. if-else is required only to choose either between lportTag and vni.",
+      "revId": "8c280ca61fabd5610df204744e838b463f535d25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_4adec540",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/interfaces/INeutronVpnManager.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-12T05:53:51Z",
+      "side": 1,
+      "message": "boolean IsOpenstackVniSemanticsEnforced (); ?",
       "revId": "8c280ca61fabd5610df204744e838b463f535d25",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
