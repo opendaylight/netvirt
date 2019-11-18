@@ -36,6 +36,23 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_30e3f106",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2016-10-15T07:54:19Z",
+      "side": 1,
+      "message": "Totally unrelated to your changes, but it pops up very nicely after your refactoring (good job :)).\nThis throws NPE here, as portsIdentifierBuilder is never initialized in this scenario",
+      "revId": "7fa8ef407c568a522f6b9c26ec041c5dd06e821c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_557bff28",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
         "patchSetId": 2
