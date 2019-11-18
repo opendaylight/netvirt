@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_4a7d256e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibRpcServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-12T05:04:43Z",
+      "side": 1,
+      "message": "any specific reason for not using delete method here ?",
+      "revId": "a16bd4a7f4f125330f6ff30cbf0787bc7b8c49ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_4af405f2",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 821,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-12T05:04:43Z",
+      "side": 1,
+      "message": "can\u0027t you check vpnInstanceName.equals(rd) at the start ? so that for bgpvpn, it can immediately return false without checking subnet\u0027s network type.",
+      "revId": "a16bd4a7f4f125330f6ff30cbf0787bc7b8c49ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_8a96ed92",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 826,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-12T05:04:43Z",
+      "side": 1,
+      "message": "change the return type to Optional\u003cLong\u003e",
+      "revId": "a16bd4a7f4f125330f6ff30cbf0787bc7b8c49ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_6a93c9a3",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 829,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-12T05:04:43Z",
+      "side": 1,
+      "message": "can it return null ?",
+      "revId": "a16bd4a7f4f125330f6ff30cbf0787bc7b8c49ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_2af9c1e9",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 834,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-12T05:04:43Z",
+      "side": 1,
+      "message": "can we just change the method name to IsVniEnforced ?",
+      "revId": "a16bd4a7f4f125330f6ff30cbf0787bc7b8c49ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_50367853",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 834,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-12T11:17:17Z",
+      "side": 1,
+      "message": "yes, but I see method is too long. so asked to consider changing method name to isVniEnforced.",
+      "parentUuid": "da01753e_d5aa5a18",
+      "revId": "a16bd4a7f4f125330f6ff30cbf0787bc7b8c49ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
