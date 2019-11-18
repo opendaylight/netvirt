@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_d0043dc8",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "this is not triggered in either of the cases, is refactored upon review comments from PS1",
+      "parentUuid": "7a6b29fe_f5afab92",
+      "revId": "7fa8ef407c568a522f6b9c26ec041c5dd06e821c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_3578032b",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2016-10-14T18:13:37Z",
       "side": 1,
       "message": "break out here..",
+      "revId": "7fa8ef407c568a522f6b9c26ec041c5dd06e821c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_b009c1df",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_3578032b",
       "revId": "7fa8ef407c568a522f6b9c26ec041c5dd06e821c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_f01059aa",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Nice catch Koby, this NPE was seemingly always there!\nCorrected it now.",
+      "parentUuid": "7a6b29fe_30e3f106",
+      "revId": "7fa8ef407c568a522f6b9c26ec041c5dd06e821c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_557bff28",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
         "patchSetId": 2
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_100fd5e2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_557bff28",
+      "revId": "7fa8ef407c568a522f6b9c26ec041c5dd06e821c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_95759734",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
         "patchSetId": 2
@@ -81,6 +153,24 @@
       "writtenOn": "2016-10-14T18:13:37Z",
       "side": 1,
       "message": "can this be one big try {} catch {} finally {} ?",
+      "revId": "7fa8ef407c568a522f6b9c26ec041c5dd06e821c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_f013390b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "done, have to use lockname as variable to unlock separate entities in one finally {} block",
+      "parentUuid": "7a6b29fe_95759734",
       "revId": "7fa8ef407c568a522f6b9c26ec041c5dd06e821c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
