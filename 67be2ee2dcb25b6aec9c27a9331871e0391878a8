@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_1a369903",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Sure Vivek.\nAs of now, I just made the commit message same as Vishal did for Genius Of Tunnels spec.",
+      "parentUuid": "3a65312a_9a5aa94e",
+      "revId": "67be2ee2dcb25b6aec9c27a9331871e0391878a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_1a4fb993",
         "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2016-11-25T06:59:47Z",
       "side": 1,
       "message": "You can mention here that this Local DPN use-case pipeline does not change anything except retaining the fact that \"Output to destination VM port\" will continue to be via a next-hop group. And within that group you will set the mac-address of destination, setup LPortTag into NXMREG6 and send it to EGRESS_LPORT_DISPATCHER_TABLE (220).",
+      "revId": "67be2ee2dcb25b6aec9c27a9331871e0391878a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_550e2235",
+        "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Vivek, I\u0027ve added this to the pipeline.\nI may not be okay to mention groups in the pipeline flow as I\u0027ve done in the next PS. Please review.",
+      "parentUuid": "3a65312a_1a4fb993",
       "revId": "67be2ee2dcb25b6aec9c27a9331871e0391878a8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_9a2109b7",
+        "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_7a46ad7d",
+      "revId": "67be2ee2dcb25b6aec9c27a9331871e0391878a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_ba5fa540",
         "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
         "patchSetId": 4
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_ba2685cc",
+        "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Yes. Checked with Suneelu.\nIt won\u0027t have any effect.",
+      "parentUuid": "3a65312a_ba5fa540",
+      "revId": "67be2ee2dcb25b6aec9c27a9331871e0391878a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_5a49318a",
         "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
         "patchSetId": 4
@@ -81,6 +153,24 @@
       "writtenOn": "2016-11-25T06:59:47Z",
       "side": 1,
       "message": "I don\u0027t think this should be said as a limitation..\n\nIt is a positivity :)",
+      "revId": "67be2ee2dcb25b6aec9c27a9331871e0391878a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_da02610a",
+        "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Sure, done :)",
+      "parentUuid": "3a65312a_5a49318a",
       "revId": "67be2ee2dcb25b6aec9c27a9331871e0391878a8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
