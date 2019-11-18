@@ -159,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_3d12a1b1",
+        "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-12T10:47:39Z",
+      "side": 1,
+      "message": "For VXLAN networks, the packet will enter into the tunnel table for VXLAN (Table 36) on the destination OVS.\n\nTable 36 has flow entries by ELAN (though ELAN is not the only owner of this Table).  That flow entry for ELAN will take this packet directly to the VM, bypassing the ELAN pipeline.\n\nI agree better to make this statement more clear.",
+      "parentUuid": "1a622d24_4cb6d5da",
+      "revId": "d26341c1d1542f6788d2e7805c737e03db3afd24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_4b27d264",
         "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
         "patchSetId": 6
@@ -217,6 +235,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_73e760e5",
+        "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-28T04:26:36Z",
+      "side": 1,
+      "message": "+1",
+      "parentUuid": "1a622d24_737c8073",
+      "revId": "d26341c1d1542f6788d2e7805c737e03db3afd24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_d3d754ec",
         "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
         "patchSetId": 6
@@ -264,6 +300,24 @@
       "writtenOn": "2016-11-27T11:05:37Z",
       "side": 1,
       "message": "Are there any datapath testcases that currently test this scenario? I would expect this to affect L3 tests, but \u0027behind the scenes\u0027, so existing tests simply need to pass?",
+      "revId": "d26341c1d1542f6788d2e7805c737e03db3afd24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_13e26cd5",
+        "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-28T04:26:36Z",
+      "side": 1,
+      "message": "You are correct.\n\nExisting datapath cases for L3 Forwarding MUST PASS after this change ..\n\nThere will not be any new test cases required to check this out.",
+      "parentUuid": "1a622d24_53818449",
       "revId": "d26341c1d1542f6788d2e7805c737e03db3afd24",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
