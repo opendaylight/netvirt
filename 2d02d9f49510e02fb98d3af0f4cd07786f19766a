@@ -1,0 +1,74 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_013bed38",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-18T06:01:44Z",
+      "side": 1,
+      "message": "make it as final.",
+      "revId": "2d02d9f49510e02fb98d3af0f4cd07786f19766a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_46806246",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-19T06:53:58Z",
+      "side": 1,
+      "message": "Okay, But it is better to avoid using static. why can\u0027t make isOpenStackVniSemanticsEnforced as final instance variable in elanUtils and use it ?",
+      "parentUuid": "da01753e_3aea970f",
+      "revId": "2d02d9f49510e02fb98d3af0f4cd07786f19766a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_817d1dea",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-18T06:01:44Z",
+      "side": 1,
+      "message": "change it to isOpenStackVniSemanticsEnforced \u0026\u0026 isVxlanNetworkOrVxlanSegment(elanInfo)",
+      "revId": "2d02d9f49510e02fb98d3af0f4cd07786f19766a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_a6ddce72",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-19T06:53:58Z",
+      "side": 1,
+      "message": "Yes, this shouldn\u0027t change. \nI didn\u0027t notice unsetExternalTunnelTable(dpId, elanInfo);",
+      "parentUuid": "da01753e_1ad4f345",
+      "revId": "2d02d9f49510e02fb98d3af0f4cd07786f19766a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
