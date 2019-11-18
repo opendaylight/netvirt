@@ -37,6 +37,42 @@
     },
     {
       "key": {
+        "uuid": "da01753e_5a5cbbed",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 831,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "this api can be used for all types of networks.\nfor flat/gre, it will return a value of 0.\nfor vlan/vxlan, it will return the vni.\n\nThe current callers call it only after having checked for a vxlan network, and in case of any kind of failures, when the seg id may be absent, an error log is returned.\n\n....\ninstead, would you have me return a vni only in case of vxlan/vlan networks, and java.util.Optional.empty() in case of any failure or presence of flat/gre type of network?",
+      "parentUuid": "da01753e_41733515",
+      "revId": "f931a8edd45a7d4b7ced68ad6299873bbd83ede0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_91e286ff",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 831,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_bda3219d",
+      "revId": "f931a8edd45a7d4b7ced68ad6299873bbd83ede0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_e1a06945",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 10
@@ -66,6 +102,42 @@
       "side": 1,
       "message": "My question is pertinent to makeConnectedRoute() invocation differences between the checkCreateLocalFibEntry and checKDeleteLocalFibENtry...\n\nYou can see that makeConnectedRoute() is invoked in create lifecycle conditionally based on non-VXLAN-enforcement, however in delete lifecycel here, we unconditionally (without VNI-enforcenemtn chec) we attempt to remove the table 21 flow.",
       "parentUuid": "da01753e_da670bb6",
+      "revId": "f931a8edd45a7d4b7ced68ad6299873bbd83ede0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_b1ceaa81",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 1120,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_5db4b5d0",
+      "revId": "f931a8edd45a7d4b7ced68ad6299873bbd83ede0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_da670bb6",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 1120,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "didn\u0027t get you vivek..\nmakeLFibTableEntry() for delete is called at line 1125 only in case of non-vni-enforce case by checking for the condition at line 1121.",
+      "parentUuid": "da01753e_e1a06945",
       "revId": "f931a8edd45a7d4b7ced68ad6299873bbd83ede0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
