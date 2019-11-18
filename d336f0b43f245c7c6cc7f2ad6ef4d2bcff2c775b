@@ -16,6 +16,24 @@
       "revId": "d336f0b43f245c7c6cc7f2ad6ef4d2bcff2c775b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_5b55021c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 1006,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Hi Tali,\n\nNot much difference, but we\u0027d like to continue to have two tables until these features stabilize.\nWe can take up any such refactoring then.",
+      "parentUuid": "fafc7978_fd803748",
+      "revId": "d336f0b43f245c7c6cc7f2ad6ef4d2bcff2c775b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
