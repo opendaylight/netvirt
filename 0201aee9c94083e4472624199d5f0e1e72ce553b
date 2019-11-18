@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_f8fa85bb",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 745,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-27T14:20:52Z",
+      "side": 1,
+      "message": "The nat-prefix is a boolean that  indicates if that prefix is a NAT prefix meaning a floating-ip,( or ) an external-fixed-ip-of-a-router-gateway.",
+      "revId": "0201aee9c94083e4472624199d5f0e1e72ce553b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3801adaf",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 746,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-27T14:20:52Z",
+      "side": 1,
+      "message": "they will be required..\n\nThe VRFEntry corresponding to the NATPrefix entries here may carry  both the MPLSLabel and the InternetVPNVNI because for SNAT-To-DNAT within DC, where the InternetVPN contains an MPLSOverGRE External Network, the VRFEtnry will publish MPLS Label to BGP and the InternetVPN-VNI (aka L3VNI) inside the VRFEntry will be used to carry Intra-DC traffic on the external-segment within the DC.",
+      "revId": "0201aee9c94083e4472624199d5f0e1e72ce553b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
