@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "7a6b29fe_316157d4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-05T17:10:56Z",
+      "side": 1,
+      "message": "Wouldn\u0027t this automatically translate to True?",
+      "revId": "6dde0a3684f68790ffc73b6eae34e8d3c87e6efd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_359f6352",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
         "patchSetId": 2
@@ -48,6 +65,41 @@
       "writtenOn": "2016-10-05T17:10:56Z",
       "side": 1,
       "message": "what if orig_ext_gw.isEnableSnat() was False.. \n\nThis section won\u0027t enter at all right?",
+      "revId": "6dde0a3684f68790ffc73b6eae34e8d3c87e6efd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_95ac778e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-14T18:22:59Z",
+      "side": 1,
+      "message": "Line 160 checks if orig.isEnableSnat() is true and so here it has to remain True right?",
+      "parentUuid": "7a6b29fe_571ca7c1",
+      "revId": "6dde0a3684f68790ffc73b6eae34e8d3c87e6efd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_d1aaa3d1",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-05T17:10:56Z",
+      "side": 1,
+      "message": "what about the case where orig_ext_gw.ext-fixed-ips are empty but the update has them?",
       "revId": "6dde0a3684f68790ffc73b6eae34e8d3c87e6efd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
