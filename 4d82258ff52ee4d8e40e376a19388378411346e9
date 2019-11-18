@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_5149bc2f",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Updated the statement as specified",
+      "parentUuid": "1a622d24_ad15634a",
+      "revId": "4d82258ff52ee4d8e40e376a19388378411346e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_6d1fcb6c",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 16
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-17T13:08:34Z",
       "side": 1,
       "message": "this statement kind of jumps out of the moon...  What is the context for this statement?\n\nWhere did we explain about the ODL_VNI_POOL, its need and how its used..Will be good to explain that in this spec.",
+      "revId": "4d82258ff52ee4d8e40e376a19388378411346e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_51e53c07",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Added seperate Section describing \"ODL_VNI_POOL\"",
+      "parentUuid": "1a622d24_6d1fcb6c",
       "revId": "4d82258ff52ee4d8e40e376a19388378411346e9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_71eaf8db",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Done. Reframed the NAT section",
+      "parentUuid": "1a622d24_0d0e173b",
+      "revId": "4d82258ff52ee4d8e40e376a19388378411346e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_08d0c51d",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 16
@@ -64,6 +118,24 @@
       "writtenOn": "2017-01-17T13:08:34Z",
       "side": 1,
       "message": "that is not overlapping with Openstack vni_ranges configuration will be configured by ODL Admin.\n\nIt is not clear from this paragraph under what situation an Internet VPN will own the VNI and under what situation a router will own a VNI (both of these from the ODL_VNI_POOL).\n\nThis ODL_VNI_POOL will be used to carve out a unique VNI per router which will be the VNI that will be used in the datapath for forwarding all traffic from Non-NAPT to NAPT-SWitch for this router.\n\nSimilarly for MPLSOverGRE based external networks, the ODL_VNI_POOL will be used to carve out a unique VNI per Internet VPN (GRE-provider-type) and that VNI will be used in the datapath for forwarding all traffic for SNAT-TO-DNAT and DNAT-TO-DNAT case within the DC.",
+      "revId": "4d82258ff52ee4d8e40e376a19388378411346e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_31dd2043",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Added a section describing about \"ODL_VNI_POOL\"in detail",
+      "parentUuid": "1a622d24_08d0c51d",
       "revId": "4d82258ff52ee4d8e40e376a19388378411346e9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -98,6 +170,24 @@
       "writtenOn": "2017-01-17T13:08:34Z",
       "side": 1,
       "message": "you should setup the metadata for InternetVPN here isn\u0027t it?",
+      "revId": "4d82258ff52ee4d8e40e376a19388378411346e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f63ba3ce",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "This will be done in table\u003d25 to change metadata from Internet VPN to Internal VPN.\n\ncookie\u003d0x8000004, duration\u003d408145.805s, table\u003d25, n_packets\u003d600, n_bytes\u003d58064, priority\u003d10,ip,nw_dst\u003d172.160.0.100,**eth_dst\u003dfa:16:3e:e6:e3:c6** actions\u003dset_field:10.0.0.5-\u003eip_dst,write_metadata:0x222e0/0xfffffffe,goto_table:27",
+      "parentUuid": "1a622d24_532d4ea7",
       "revId": "4d82258ff52ee4d8e40e376a19388378411346e9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -169,6 +259,42 @@
       "side": 1,
       "message": "Excellent, thanks guys.",
       "parentUuid": "fafc7978_7bdcfe12",
+      "revId": "4d82258ff52ee4d8e40e376a19388378411346e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b15490ca",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "To address this issue(when both DNAT/SNAT configured on same swtich) with the use of same External VPN VNI, it is required to take the DNAT/SNAT traffic for PNAT_TABLE(36-\u003e25) and then if there are no floating IP match, re-direct to 44 for SNAT. Changes described in detail in Section 3.1.1(FIP VM to FIP VM on Different Hypervisors(with one of the Hypervisor also elected as NAPT))",
+      "parentUuid": "1a622d24_53042e17",
+      "revId": "4d82258ff52ee4d8e40e376a19388378411346e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6930b7e8",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Sure, will check on feasibility of this approach(from implementation point of view).",
+      "parentUuid": "fafc7978_3743b315",
       "revId": "4d82258ff52ee4d8e40e376a19388378411346e9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
