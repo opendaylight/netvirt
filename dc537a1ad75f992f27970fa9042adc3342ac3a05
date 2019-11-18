@@ -88,6 +88,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_4defd387",
+        "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-18T16:17:33Z",
+      "side": 1,
+      "message": "What about the case where the destination is floating ip? DNAT is performed today at the destination OVS since it is the only OVS containing DNAT fip flows. Would this be changed? Or would the traffic have to traverse the L3 pipeline before reaching the ELAN pipeline?",
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_ed497fb8",
         "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
         "patchSetId": 7
@@ -99,6 +116,23 @@
       "writtenOn": "2016-12-19T14:39:06Z",
       "side": 1,
       "message": "Does anything actually change here? Except the use of segmentation ID as VNI instead of lport/elan?",
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2df2576f",
+        "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-18T16:17:33Z",
+      "side": 1,
+      "message": "This is true for VxLAN provider network. For private flat/VLAN networks the output port will be the provider port attached to the network and it will traverse the egress table and not routed directly from FIB",
       "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -133,6 +167,23 @@
       "writtenOn": "2016-12-19T14:39:06Z",
       "side": 1,
       "message": "This should probably be under the title of the Egress DPN.",
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_8de9eb82",
+        "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-18T16:17:33Z",
+      "side": 1,
+      "message": "This sentence does not match the actual pipeline described below. Packets from tunnel do not bypass the ELAN pipeline.",
       "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
