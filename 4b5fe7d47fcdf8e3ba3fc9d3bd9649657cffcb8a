@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "da01753e_d64a7682",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibRpcServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-04-09T05:28:05Z",
+      "side": 1,
+      "message": "MDSALUtil is deprecated. AFAIK SingleTransactionDataBroker needs to be used as a replacement\nThis comment relates to all DS access replacements throughout this patch",
+      "revId": "4b5fe7d47fcdf8e3ba3fc9d3bd9649657cffcb8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_1b37fae4",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 1
@@ -30,6 +47,46 @@
       "writtenOn": "2017-04-11T09:08:31Z",
       "side": 1,
       "message": "andInternalVpn",
+      "revId": "4b5fe7d47fcdf8e3ba3fc9d3bd9649657cffcb8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_f6405a58",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 832,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-04-09T05:28:05Z",
+      "side": 1,
+      "message": "I understand the methods below are just place holders for the subnet-op-data-entry read. Would you be able to unify this to a single read in a subsequent patch?",
+      "revId": "4b5fe7d47fcdf8e3ba3fc9d3bd9649657cffcb8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_3622e2b9",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 830,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-04-09T05:28:05Z",
+      "side": 1,
+      "message": "Will the subnet id always be available for extra routes?",
+      "range": {
+        "startLine": 830,
+        "startChar": 91,
+        "endLine": 830,
+        "endChar": 115
+      },
       "revId": "4b5fe7d47fcdf8e3ba3fc9d3bd9649657cffcb8a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
