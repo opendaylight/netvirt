@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "3a65312a_2eda7478",
+        "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat.yang",
+        "patchSetId": 9
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-08T06:40:59Z",
+      "side": 1,
+      "message": "can we please name this as floating-ip-id (or) this carries something related to SNAT too?",
+      "revId": "44aca812b94988d3e775a6a10c979eea5e29bd4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_6eb62c3f",
         "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat.yang",
         "patchSetId": 9
@@ -31,6 +48,40 @@
       "side": 1,
       "message": "Very confusing.. \n\nIf the UUID , subnet UUID represents the UUID of the fixed-port to which this floating port is associated with, please name so..\n\nAlso the mac-address stored here should be that of the floating-ip-port and not that of the fixed-ip-port.",
       "parentUuid": "3a65312a_4eced084",
+      "revId": "44aca812b94988d3e775a6a10c979eea5e29bd4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_0e7df86e",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalNetworksChangeListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-08T06:40:59Z",
+      "side": 1,
+      "message": "can\u0027t we pass the entire intExtPortMap here too?",
+      "revId": "44aca812b94988d3e775a6a10c979eea5e29bd4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_0e27b865",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-08T06:40:59Z",
+      "side": 1,
+      "message": "this should delete the floating-ip-port-info only when it is scheduled for delete right?\n\ni don\u0027t see that condition here and neither in the callers.",
       "revId": "44aca812b94988d3e775a6a10c979eea5e29bd4b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
