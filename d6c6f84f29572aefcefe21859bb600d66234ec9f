@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_d0c86f24",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 12
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_20287a33",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_6021d24c",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 12
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-03T02:05:44Z",
       "side": 1,
       "message": "The above para needs to be corrected.  Please see the commit message.\n\nIn fact you can post the commit message content here too !",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e04b2285",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Sure Vivek, but since this is the title para, I am planning to not make it too lengthy, and instead cover the details on in-scope and out-of-scope content in the problem description and scope headings.",
+      "parentUuid": "1a622d24_6021d24c",
       "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_605f1242",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_a01bea19",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_e0d4c221",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 12
@@ -64,6 +118,24 @@
       "writtenOn": "2017-01-03T02:05:44Z",
       "side": 1,
       "message": "supports the following types of networks:\n\nFlat Networks\nVLAN Networks\nVXLAN Networks\nGre networks.\n\nuse keyword \u0027overlay\u0027 everywhere.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_405ad650",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_e0d4c221",
       "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_402136b3",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_c0d70622",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_20dfda3c",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 12
@@ -98,6 +188,24 @@
       "writtenOn": "2017-01-03T02:05:44Z",
       "side": 1,
       "message": "I donot think this is right para.. We should talk more about basic L2 Switching and Basic L3 Forwarding.\n\nWe should put a disclaimer that BGPVPN will remain unaffected by this change.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_802b4e93",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "We\u0027ve already put a disclaimer above in the title para, should not be required here again..",
+      "parentUuid": "1a622d24_20dfda3c",
       "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_2014fa4c",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_00e29e02",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_60e8b2e2",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 12
@@ -132,6 +258,24 @@
       "writtenOn": "2017-01-03T02:05:44Z",
       "side": 1,
       "message": "handling L2 Broadcast (for both locally generated in the OVS Datapath and remotely recieved packets from another OVS Datapath)",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_600d523e",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "This was already mentioned in the points below, so I believe you intended for me to change the language.\nDone so now.",
+      "parentUuid": "1a622d24_60e8b2e2",
       "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_ab358bdb",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_40e3f604",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_80ed0ef2",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 12
@@ -166,6 +328,24 @@
       "writtenOn": "2017-01-03T02:05:44Z",
       "side": 1,
       "message": "Inter-DC connectivity over external VXLAN tunnels can also be covered here and we can backrefer the EVPN spec as it will pre-date this Spec.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_abbaab20",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "I believe you mean I should refer the EVPN spec to point out that it handles Inter-DC connectivity over external VXLAN tunnels. Done that.",
+      "parentUuid": "1a622d24_80ed0ef2",
       "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -189,6 +369,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_8bb52f33",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_a0f2cacf",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_c0bee6d3",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 12
@@ -200,6 +398,24 @@
       "writtenOn": "2017-01-03T02:05:44Z",
       "side": 1,
       "message": "L3 Forwarding use-cases",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_eb830354",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_c0bee6d3",
       "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -223,6 +439,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_2b7e9b6b",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_20b6bafa",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_00b9fee8",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 12
@@ -234,6 +468,24 @@
       "writtenOn": "2017-01-03T02:05:44Z",
       "side": 1,
       "message": "Fix this line appropriately.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_cb860765",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_00b9fee8",
       "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -257,6 +509,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_0b811f4a",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_e0bb22e3",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_60cf1280",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 12
@@ -268,6 +538,24 @@
       "writtenOn": "2017-01-03T02:05:44Z",
       "side": 1,
       "message": "L2 Unicast frames exchanged within an OVS Datapath.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ebeae30d",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_60cf1280",
       "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -291,6 +579,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_cbed6727",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_a0c92a7a",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_40cad66e",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 12
@@ -302,6 +608,24 @@
       "writtenOn": "2017-01-03T02:05:44Z",
       "side": 1,
       "message": "L2 Broadcast frames transmitted within an OVS Datapath.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_0bf8ffe3",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_40cad66e",
       "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -325,6 +649,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_4bd95782",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_80c4ee5f",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_e0a202ad",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 12
@@ -336,6 +678,24 @@
       "writtenOn": "2017-01-03T02:05:44Z",
       "side": 1,
       "message": "Better to have Unicast as a section and Broadcast as another section at this level.\n\nWithin Unicast you can have a. within hypervisor b. across hypervisor.\n\nWithin Broadcast it will always be across hypervisors only (as within hypervisor will become a subset of that ! ).",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_abc58b3d",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_e0a202ad",
       "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -359,6 +719,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_8bc08f2b",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_c0a546b6",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_00b0def2",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 12
@@ -370,6 +748,24 @@
       "writtenOn": "2017-01-03T02:45:58Z",
       "side": 1,
       "message": "should be 0xffffffff000001",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b0517310",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Checked in the openflow 1.3.2 documentation, only the bits being written are changed, rest of the bits are retained.\nStill, if when we code this, we encounter different behaviour, I\u0027ll the update the spec accordingly.\n\nnew metadata \u003d old metadata \u0026 ~mask | value \u0026 mask",
+      "parentUuid": "1a622d24_00b0def2",
       "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -393,6 +789,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_10594736",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Same as above. Matching here only on the elan tag.",
+      "parentUuid": "1a622d24_6096f24d",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_809b4e71",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 12
@@ -404,6 +818,24 @@
       "writtenOn": "2017-01-03T02:45:58Z",
       "side": 1,
       "message": "should be Table 52.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_50429f3e",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_809b4e71",
       "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -427,6 +859,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_904c3772",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_a0a00aa0",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_40913651",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 12
@@ -438,6 +888,24 @@
       "writtenOn": "2017-01-03T02:45:58Z",
       "side": 1,
       "message": "0xffffffff000001",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d0750f99",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Same as above",
+      "parentUuid": "1a622d24_40913651",
       "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -461,6 +929,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_b0785390",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_e0896227",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_c08c2638",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 12
@@ -472,6 +958,24 @@
       "writtenOn": "2017-01-03T02:45:58Z",
       "side": 1,
       "message": "destination network VNI in the",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_306443e4",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_c08c2638",
       "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -495,6 +999,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_705ebb13",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "since we already have the flows below, illustrating the actions and match criteria, do we need to specify the same again in the table name pipeline as per EVPN spec?\n\nAs of now, the above code block looks good enough with the differing part highlighted.\n\nPlease let me know if I should still change it.",
+      "parentUuid": "1a622d24_2084fa0a",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_00873e10",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 12
@@ -506,6 +1028,24 @@
       "writtenOn": "2017-01-03T02:45:58Z",
       "side": 1,
       "message": "Please mention this:\n\nThis is an example of asymmetric forwarding where the traffic is routed in the source OVS Datapath and it is switched over the wire and then all the way to the destination VM on the destination OVS Datapath.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_90ba7721",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_00873e10",
       "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -529,6 +1069,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_70b51b30",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Have given a hyperlink for the EVPN spec above already now.",
+      "parentUuid": "1a622d24_c093864d",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_209b5a68",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 12
@@ -540,6 +1098,24 @@
       "writtenOn": "2017-01-03T02:45:58Z",
       "side": 1,
       "message": "VXLAN provider networks - VNI based.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_30d9e383",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_209b5a68",
       "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -563,6 +1139,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_70e35b33",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_e0904245",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_607d521c",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 12
@@ -574,6 +1168,24 @@
       "writtenOn": "2017-01-03T02:45:58Z",
       "side": 1,
       "message": "more explanation necessary here ..  If any pipeline change quote it here similar to the above sections.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b0cb331d",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_607d521c",
       "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -597,6 +1209,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_d0d18f58",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Since as per the spec guidelines, we have to mention \u0027none\u0027 if we dont foresee any yang changes at present, so indicated the same.\nWhen we do need to make yang changes, I\u0027ll update the spec with the same.",
+      "parentUuid": "1a622d24_a0776a39",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_80722e47",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 12
@@ -614,6 +1244,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_906d579b",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_80722e47",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_4078162b",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 12
@@ -625,6 +1273,24 @@
       "writtenOn": "2017-01-03T02:45:58Z",
       "side": 1,
       "message": "change the trello card description and any activities within the same.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_10d307d7",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_4078162b",
       "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
