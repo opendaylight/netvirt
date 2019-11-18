@@ -2,6 +2,42 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_8a2f2af6",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-16T14:38:03Z",
+      "side": 1,
+      "message": "This change is in the right direction for the bug it attempts to solve.\n\nFor PNF, we can change the approach where createLocalFibEntry can return Pair\u003cvpninterface, returnLocalDpnId\u003e and then withe that pair returned we can decide from vpnInterface name if its a PNF.\n\nThe pair will be constructed inside createLocalFibEntry appropriately and we can work that out in the PNF implementation patches..\n\nlet me know what you think",
+      "parentUuid": "fafc7978_27f7578e",
+      "revId": "f8de9101fd553acd2a7234d99460f34319a6680d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_aadcae19",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-16T14:38:03Z",
+      "side": 1,
+      "message": "+1.. We can pull this out into a separate method into VPNUtils and use it universally.\n\nAbhinav, can we please attempt that change?",
+      "parentUuid": "fafc7978_e798af6c",
+      "revId": "f8de9101fd553acd2a7234d99460f34319a6680d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_155ec012",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 5
