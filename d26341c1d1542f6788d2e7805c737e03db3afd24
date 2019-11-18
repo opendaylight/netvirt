@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_93cddc60",
+        "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-28T04:57:46Z",
+      "side": 1,
+      "message": "I\u0027d prefer agreeing on terms to use and then revisit NwConstants as well as pipeline doc if needed. For now, this being document, should reflect as captured in pipeline doc.",
+      "parentUuid": "1a622d24_33dde815",
+      "revId": "d26341c1d1542f6788d2e7805c737e03db3afd24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_b3af382b",
         "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
         "patchSetId": 6
@@ -31,6 +49,29 @@
       "side": 1,
       "message": "Good point Vivek.\nI agree with Vishal, let\u0027s use the pipeline doc as a means to agree on naming (looks like we\u0027re almost there already), and then correct NwConstants to reflect that.\n\nCould you please comment on the second question I had here? What are the actual changes to the current pipeline proposed by this change? :)\n\nThanks..",
       "parentUuid": "1a622d24_93cddc60",
+      "revId": "d26341c1d1542f6788d2e7805c737e03db3afd24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f3da5016",
+        "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-28T04:57:46Z",
+      "side": 1,
+      "message": "This will work better as a diagram than text.",
+      "range": {
+        "startLine": 72,
+        "startChar": 0,
+        "endLine": 75,
+        "endChar": 29
+      },
       "revId": "d26341c1d1542f6788d2e7805c737e03db3afd24",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -54,6 +95,29 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_3304c87d",
+        "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-28T04:57:46Z",
+      "side": 1,
+      "message": "Let us go with convention of using None.",
+      "range": {
+        "startLine": 97,
+        "startChar": 0,
+        "endLine": 97,
+        "endChar": 15
+      },
+      "revId": "d26341c1d1542f6788d2e7805c737e03db3afd24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_737c8073",
         "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
         "patchSetId": 6
@@ -71,6 +135,42 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_d3d754ec",
+        "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-28T04:57:46Z",
+      "side": 1,
+      "message": "For no change, just retain \u0027odl-netvirt-openstack\u0027 and nothing else. Descriptive text needed only in case of any changes/additions.",
+      "parentUuid": "1a622d24_73e760e5",
+      "revId": "d26341c1d1542f6788d2e7805c737e03db3afd24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b3d0d8f8",
+        "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-28T04:57:46Z",
+      "side": 1,
+      "message": "I think if nothing changes, just mention \u0027odl-netvirt-openstack\u0027. This will be useful for documentation and testing, esp if later down the line we end up having more features.",
+      "parentUuid": "1a622d24_737c8073",
+      "revId": "d26341c1d1542f6788d2e7805c737e03db3afd24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_53818449",
         "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
         "patchSetId": 6
@@ -82,6 +182,24 @@
       "writtenOn": "2016-11-27T11:05:37Z",
       "side": 1,
       "message": "Are there any datapath testcases that currently test this scenario? I would expect this to affect L3 tests, but \u0027behind the scenes\u0027, so existing tests simply need to pass?",
+      "revId": "d26341c1d1542f6788d2e7805c737e03db3afd24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_1309cc95",
+        "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-28T04:57:46Z",
+      "side": 1,
+      "message": "Call out what additions/tweaks will be needed. Need not be exhaustive, just indicative enough to help CSIT folks and to let reviewers give inputs if more are needed.",
+      "parentUuid": "1a622d24_13e26cd5",
       "revId": "d26341c1d1542f6788d2e7805c737e03db3afd24",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
