@@ -36,6 +36,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_e1ed08b9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-19T18:25:15Z",
+      "side": 1,
+      "message": "VNIs (unique for every VXLAN enabled network) supplied by the tenant using Openstack.",
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_d3fff0a8",
         "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
         "patchSetId": 7
@@ -115,6 +132,23 @@
       "writtenOn": "2016-12-19T14:39:06Z",
       "side": 1,
       "message": "Are you proposing adding two new tables, for L3 and L2 DEMUX? Each as a separate service?\n\nCould you expand more on this proposal? What do these DEMUX tables do?\nWouldn\u0027t it be more symmetric and straightforward to not add any new tables, and simply add matches on VNI segmentation IDs to table\u003d0, and setting of a unique lport for each ID? \nThis is how VLAN provider networks operates, and that leaves the packet traversing the exact same pipeline on ingress and egress DPN.",
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a13af031",
+        "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-19T18:33:29Z",
+      "side": 1,
+      "message": "Abhinav,\n\nIn general it will be better to put a para on changes before showing the pipeline.\n\nAs I SUGGESTED, let us please divide this Pipeline changes to have the following subsections:\n\n1.  L2 Switching:\n\n   1.1 Between VMs Within a single DPN:\n\n\u003cWhat is the change if any. If no change, please state that explicitly and show only the pipeline for understanding purposes.\nThis should cover ARP broadcast by the VM on that VPN.  This should also cover IP Unicast between VMs in that DPN\u003e\n\n   1.2 Between VMs on two different DPNs:\n\u003cWhat is the change if any.\u003e\n\n2. L3 Forwarding:\n\n  2.1  Between VMs within a single DPN:\n\u003cWhat is the change if any\u003e\n\n  2.2 Betweeen VMs across two different DPNs.\n\u003cWhat is the change if any\u003e\n\n3. NAT Service:\n   3.1  SNAT from a VM to reach Internet where the VM is in a non-NAPT switch.   Reverse SNAT traffic reaching back the VM.\n\u003cWhat is the change if any\u003e\n\n   3.2  SNAT from a VM to reach Internet where the VM is already in an NAPT switch.  Reverse SNAT traffic reaching back the VM.\n\u003cWhat is the change if any\u003e\n\nDNAT need not be covered, as we donot have a use-case for VNI for DNAT traffic.",
       "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
