@@ -40,6 +40,24 @@
       "revId": "4fa9a74e33233278989cefadca69c378b8b3a1ea",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_84a836dc",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 711,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-26T19:26:08Z",
+      "side": 1,
+      "message": "how will the fib access the VPN interface name?\n\nFYI - NAT vrf-entries of FIP/router-gw are not associated with any VPN interface (at least for external VLAN/flat networks)",
+      "parentUuid": "fafc7978_6165441d",
+      "revId": "4fa9a74e33233278989cefadca69c378b8b3a1ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
