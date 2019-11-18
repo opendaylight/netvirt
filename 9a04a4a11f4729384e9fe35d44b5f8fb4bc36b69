@@ -55,6 +55,42 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_f001a007",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_d6bd87b2",
+      "revId": "9a04a4a11f4729384e9fe35d44b5f8fb4bc36b69",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_5b0ec28c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "in that case, it will be a EXTERNAL_ADDED usecase, and is already handled under addExternalNetworktoRouter, this function won\u0027t be called as we\u0027ll return earlier.\n\nsnatSettingChanged() is specific to router update case.",
+      "parentUuid": "7a6b29fe_dbead2d6",
+      "revId": "9a04a4a11f4729384e9fe35d44b5f8fb4bc36b69",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_1bc0ca4e",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
         "patchSetId": 1
@@ -102,6 +138,42 @@
       "side": 1,
       "message": "+1 with Andre here.",
       "parentUuid": "7a6b29fe_fb04ee18",
+      "revId": "9a04a4a11f4729384e9fe35d44b5f8fb4bc36b69",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_bb28b6e2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "in that case, it will be a EXTERNAL_ADDED usecase, and is already handled under addExternalNetworktoRouter, this function won\u0027t be called as we\u0027ll return earlier.\n\nexternalFixedIpsChange() is specific to router update case.",
+      "parentUuid": "7a6b29fe_1bc0ca4e",
+      "revId": "9a04a4a11f4729384e9fe35d44b5f8fb4bc36b69",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_4bfee506",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_16e37fd9",
       "revId": "9a04a4a11f4729384e9fe35d44b5f8fb4bc36b69",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
