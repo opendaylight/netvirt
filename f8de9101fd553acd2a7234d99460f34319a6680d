@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_155ec012",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1061,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-16T10:04:06Z",
+      "side": 1,
+      "message": "Looks good in general..\nIsn\u0027t this basically a syncWrite though? Is there no utility for it?",
+      "revId": "f8de9101fd553acd2a7234d99460f34319a6680d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
