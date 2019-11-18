@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_34cbfc73",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_9e7c9a74",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a0aa18d2",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 20
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-25T14:08:33Z",
       "side": 1,
       "message": "This feature provides for realization of VNI (Virtual Network Identifier) for all packet \u0027on the wire\u0027 for all VXLAN networks created by the tenant via Openstack Neutron.   In realizing so, it eliminates the usage of LPortTags and ELANTags as VNIs on the wire .  \n\nAs part of implementation of this Spec, the use of MPLS Labels will continue to remain both inside the OVS Datapath and also on the wire, but the usage of such Labels will be restricted only to L3 BGPVPNs managed by the tenant.",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d4a1d0aa",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Vivek, most of the details here have been captured in the following paragraphs. So, did not add the duplicate part.",
+      "parentUuid": "fafc7978_a0aa18d2",
       "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b4a6ccbf",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_00afa4e4",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_40b9ac2d",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 20
@@ -64,6 +118,24 @@
       "writtenOn": "2017-01-25T14:08:33Z",
       "side": 1,
       "message": "This Spec is the first step in the",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_14acf89f",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_40b9ac2d",
       "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f4b054f6",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Retained it here since the note in bold is more visible in the generated doc than keeping it above in the para introducing the spec",
+      "parentUuid": "fafc7978_20b6283e",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e9788b2d",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 20
@@ -98,6 +188,24 @@
       "writtenOn": "2017-01-25T14:08:33Z",
       "side": 1,
       "message": "We may need to mention here that this spec will not attempt to address or test IPv6 use-cases.",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5495e03e",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e9788b2d",
       "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -149,6 +257,24 @@
       "writtenOn": "2017-01-25T14:08:33Z",
       "side": 1,
       "message": "do you tend to see VPN SubnetRoute Handler to be affected?",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2e5e0046",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "no, hence removed from the list.",
+      "parentUuid": "fafc7978_898f3f23",
       "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
