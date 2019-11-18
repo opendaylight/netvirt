@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_c0484ace",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-02T11:56:47Z",
+      "side": 0,
+      "message": "Yair, if that changes, let us make this change at that point.\n\nNetworkId for a subnet is not an updatable item ...\n\nhttps://wiki.openstack.org/wiki/Neutron/APIv2-specification",
+      "parentUuid": "fafc7978_c0f04acb",
+      "revId": "d8c3777d11e0b0af6fe488f3e937ab06762476ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
