@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_fb0f96df",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "changed to vni",
+      "parentUuid": "da01753e_e79542e5",
+      "revId": "8f84f8b78d121cbf3cc60360112394ad44851f7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_c71d9e75",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 13
@@ -53,6 +71,24 @@
       "writtenOn": "2017-04-10T08:34:57Z",
       "side": 1,
       "message": "change it into vni",
+      "revId": "8f84f8b78d121cbf3cc60360112394ad44851f7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_db1452f7",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 1424,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_07184680",
       "revId": "8f84f8b78d121cbf3cc60360112394ad44851f7b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
