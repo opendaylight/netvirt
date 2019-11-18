@@ -172,6 +172,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_a0f2cacf",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:05:44Z",
+      "side": 1,
+      "message": "Put out of scope:\n\nComplete removal of use of LportTags everywhere in ODL.\nComplete removal of use of ELANTags everywhere in ODL.\nEnforcing L3 BGPVPN forwarding using VNIs",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_c0bee6d3",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 12
