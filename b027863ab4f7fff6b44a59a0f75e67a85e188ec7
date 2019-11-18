@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_8213895b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1164,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_07130bb9",
+      "range": {
+        "startLine": 1158,
+        "startChar": 0,
+        "endLine": 1164,
+        "endChar": 11
+      },
+      "revId": "b027863ab4f7fff6b44a59a0f75e67a85e188ec7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_8726fb14",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 3
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "9a561d44_6210f54e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1578,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a561d44_8726fb14",
+      "range": {
+        "startLine": 1578,
+        "startChar": 32,
+        "endLine": 1578,
+        "endChar": 34
+      },
+      "revId": "b027863ab4f7fff6b44a59a0f75e67a85e188ec7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a561d44_6723e705",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnserviceProvider.java",
         "patchSetId": 3
@@ -59,6 +107,30 @@
       "writtenOn": "2016-07-08T07:41:34Z",
       "side": 1,
       "message": "why is this a warn? Can a user do anything if this happens? In what scenarios can this even be null?",
+      "range": {
+        "startLine": 155,
+        "startChar": 12,
+        "endLine": 155,
+        "endChar": 16
+      },
+      "revId": "b027863ab4f7fff6b44a59a0f75e67a85e188ec7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_420a1122",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnserviceProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Discussed with Vivek, true that this is not required.\nRemoved the redundant null check.",
+      "parentUuid": "9a561d44_6723e705",
       "range": {
         "startLine": 155,
         "startChar": 12,
