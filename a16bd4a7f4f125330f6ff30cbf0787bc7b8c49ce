@@ -37,6 +37,42 @@
     },
     {
       "key": {
+        "uuid": "da01753e_15c86221",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibRpcServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "intention is to avoid having local write/delete functions, and rather use SingleTranscactionDataBroker directly, hence the change..",
+      "parentUuid": "da01753e_4a7d256e",
+      "revId": "a16bd4a7f4f125330f6ff30cbf0787bc7b8c49ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_44a07943",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibRpcServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_b0c5245d",
+      "revId": "a16bd4a7f4f125330f6ff30cbf0787bc7b8c49ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_4af405f2",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 3
@@ -54,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_35ee4689",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 821,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_4af405f2",
+      "revId": "a16bd4a7f4f125330f6ff30cbf0787bc7b8c49ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_8a96ed92",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 3
@@ -65,6 +119,24 @@
       "writtenOn": "2017-04-12T05:04:43Z",
       "side": 1,
       "message": "change the return type to Optional\u003cLong\u003e",
+      "revId": "a16bd4a7f4f125330f6ff30cbf0787bc7b8c49ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_75228eba",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 826,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "changed it to be similar to as is done for ELAN handling of VNIs",
+      "parentUuid": "da01753e_8a96ed92",
       "revId": "a16bd4a7f4f125330f6ff30cbf0787bc7b8c49ce",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -106,6 +178,42 @@
     },
     {
       "key": {
+        "uuid": "da01753e_952572c4",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 829,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "no, it won\u0027t.\nFor VxLAN networks, this will always have a value",
+      "parentUuid": "da01753e_6a93c9a3",
+      "revId": "a16bd4a7f4f125330f6ff30cbf0787bc7b8c49ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_c74bcb57",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 829,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_303bf43b",
+      "revId": "a16bd4a7f4f125330f6ff30cbf0787bc7b8c49ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_2af9c1e9",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 3
@@ -141,6 +249,42 @@
     },
     {
       "key": {
+        "uuid": "da01753e_c762abd7",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 834,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "couldn\u0027t come up with a better name, will discuss with vivek too..leaving as it is for now..",
+      "parentUuid": "da01753e_50367853",
+      "revId": "a16bd4a7f4f125330f6ff30cbf0787bc7b8c49ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_d5aa5a18",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 834,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "that would make it look similar to areOpenStackVniSemanticsEnforced, both having boolean return value, and can mislead as if just the config value is checked to be true/false.\nSince it encompasses 3 checks, IMO would be better to have elements of all three checks in the name :)",
+      "parentUuid": "da01753e_2af9c1e9",
+      "revId": "a16bd4a7f4f125330f6ff30cbf0787bc7b8c49ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_aa8db17d",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 3
@@ -152,6 +296,24 @@
       "writtenOn": "2017-04-12T05:04:43Z",
       "side": 1,
       "message": "change it to final and boolean type should be okay for it.",
+      "revId": "a16bd4a7f4f125330f6ff30cbf0787bc7b8c49ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_3573e6ea",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_aa8db17d",
       "revId": "a16bd4a7f4f125330f6ff30cbf0787bc7b8c49ce",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false

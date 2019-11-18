@@ -16,6 +16,24 @@
       "revId": "8c280ca61fabd5610df204744e838b463f535d25",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_35600632",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibRpcServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 0,
+      "message": "it is, this class is used by NAT predominantly.\nthese comments do not make much sense without related code, hence removed the comment..",
+      "parentUuid": "da01753e_2a82614f",
+      "revId": "8c280ca61fabd5610df204744e838b463f535d25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
