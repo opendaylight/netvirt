@@ -138,6 +138,23 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_66229ea5",
+        "filename": "docs/specs/router-realization-using-lport-tags.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-11-23T19:40:02Z",
+      "side": 1,
+      "message": "As part of tunnel service binding support in Genius for Carbon - shouldn\u0027t these flows be\n\nIngress DPN\n...  \u003d\u003e FIB TABLE (Set Tunnel ID with LPORT TAG) \u003d\u003e EGRESS_LPORT_DISPATCHER_TABLE  \u003d\u003e Output to Tunnel port\n\nEgress DPN \nTABLE 0 \u003d\u003e DISPATCHER TABLE \u003d\u003e TERMINATING SERVICE TABLE \u003d\u003e ...",
+      "revId": "b317b66db086071eca45a6405d4b3aaa458ffd0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_06cc8a34",
         "filename": "docs/specs/router-realization-using-lport-tags.rst",
         "patchSetId": 1
@@ -150,6 +167,24 @@
       "side": 1,
       "message": "For the INGRESS DPN:\nTunnel Port is an underlay port and why do we need to apply ACLs for underlay ports?\n\nDoes OpenDaylight ACL Service cover underlay ports?\n\nFor Overlay ports (VM ports), the ACL Service gets highest priority during binding and so all ingress traffic from the VM will hit ACL Service first before it lands up to L3VPN.\n\nSimilarly for the EGRESS DPN, this Spec discusses about Internal VXLAN Tunnels (not external VXLAN Tunnel as used by EVPN !).\n\nSo the packet will go from Table 0 \u003d\u003e Terminating service table and from there it will be punted to Egress ACL Service table (220) after which it will reach the VM.",
       "parentUuid": "3a65312a_66229ea5",
+      "revId": "b317b66db086071eca45a6405d4b3aaa458ffd0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_4925f5a9",
+        "filename": "docs/specs/router-realization-using-lport-tags.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-11-24T08:38:12Z",
+      "side": 1,
+      "message": "My understanding from genius dev is that they are going to implement tunnel service biding for tunnel ports for Carbon.\nI wonder if the pipeline would be changed to pass through the ingress/egress dispatcher table for underlay traffic, not necessarily for ACL service but for other tunnel service bindings.",
+      "parentUuid": "3a65312a_06cc8a34",
       "revId": "b317b66db086071eca45a6405d4b3aaa458ffd0b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
