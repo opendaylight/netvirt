@@ -16,6 +16,24 @@
       "revId": "e070c0e038f5ea9b80bd779eb0c3a6ca2ff3ad50",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5b70e8db",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 630,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "can\u0027t say that it will enable semantics on the dataplane altogether, right? since bgpvpn is not covered in this feature implementation...\nthat is why i indicated about enforcement of dataplane semantics just for this feature..\nupdated the rest of it based on your comments..",
+      "parentUuid": "fafc7978_7b3fac87",
+      "revId": "e070c0e038f5ea9b80bd779eb0c3a6ca2ff3ad50",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
