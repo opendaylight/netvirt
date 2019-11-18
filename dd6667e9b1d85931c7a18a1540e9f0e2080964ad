@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_5b9c685d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-28T10:35:30Z",
+      "side": 0,
+      "message": "+1.  This will affect CSIT right away.  This yang change has to go hand in hand with NeutronVPN change only..\n\nAbhinav,\nRetain the network-attributes grouping in L138.  Here leave it as netowrk-Id only..\n\nIn the next NeutronVpn based review this subnetMap to use network-attributes (removing network-Id) and in the same review fix all the references in subnetMap appropriately.",
+      "parentUuid": "fafc7978_0849f45f",
+      "revId": "dd6667e9b1d85931c7a18a1540e9f0e2080964ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
