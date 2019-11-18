@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_e6a9e67c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1015,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-23T13:37:52Z",
+      "side": 1,
+      "message": "Intor?",
+      "revId": "b8f18e0f758e53c52650b7a9768c02e077f25dbc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_06ad0a89",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 882,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-23T13:37:52Z",
+      "side": 1,
+      "message": "SetupVxlanRemoteDmacFlow and setupRemoteDmacFlow seem very similar, just with a different tun_id parameter - why not keep buildRemoteDmacFlowEntry supporting both, but simply pass segmentationId if it is VXLAN?\n\nBetter yet, pass a null lportTag for non-VXLAN networks - its not used anyways. And rename lportTag to vni\n\nI think this will remove a lot of the duplication you have across this patch..",
+      "revId": "b8f18e0f758e53c52650b7a9768c02e077f25dbc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
