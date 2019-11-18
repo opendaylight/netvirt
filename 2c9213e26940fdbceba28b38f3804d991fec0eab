@@ -298,6 +298,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b62b772f",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "fafc7978_89b61fdb",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_69bbfbc4",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 20
@@ -315,6 +333,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_16208348",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "fafc7978_69bbfbc4",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c9b027e0",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 20
@@ -326,6 +362,24 @@
       "writtenOn": "2017-01-25T14:08:33Z",
       "side": 1,
       "message": "Openstack neutron \n\nvni_ranges\n\nconfiguration.",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f61cdf15",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "fafc7978_c9b027e0",
       "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -366,6 +420,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_561a0b18",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "fafc7978_89dd7f17",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c9e787e3",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 20
@@ -377,6 +449,24 @@
       "writtenOn": "2017-01-25T14:08:33Z",
       "side": 1,
       "message": "let the RPC always provide you default value as output, if the admin changes it will take the new value.\n\nnew values cannot shrink than the older ones and we should validate that during configuraiton, as that would put us in a difficulty to check for used-vnis logic within ODL unnecessarily.",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b4a08cf5",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Instead of RPC, new container will be defined in NeutronVpn-Config for taking the inputs.\n1) If administrator configure this explicitly, then during first NAT session configuration will take these inputs and create id-pool(poolName: “opendaylight-vni-ranges”) from which VNI will be carved out.\n\n2) If administrator has not configured this, then during first NAT session configuration, id-pool will be created with default range(100000-170000)\n\n3)If administrator tries to configure it post first NAT session configuration(where id-pool is already created with default range), then it is not allowed for any modification(as currently don’t see any support from id-manager to modify the range of existing id-pool(correct me if I’m wrong))",
+      "parentUuid": "fafc7978_c9e787e3",
       "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -400,6 +490,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_11952d40",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Updated pool-name as \"opendaylight_vni_ranges\"",
+      "parentUuid": "fafc7978_294613c0",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_096d0f33",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 20
@@ -411,6 +519,24 @@
       "writtenOn": "2017-01-25T14:08:33Z",
       "side": 1,
       "message": "why is the mac match necessary?  \n\nAn Internet VPN can carry only one external network and within that all elements will have unique ip address and mac-address.",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_14a6b810",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Because the packet can land from external world directly to hypervisor in DNAT cases, better to have the mac-match in addition to ip-match as a security prerogative.",
+      "parentUuid": "fafc7978_096d0f33",
       "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -434,6 +560,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_54afa0e3",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Because the packet can land from external world directly to hypervisor in DNAT cases, better to have the mac-match in addition to ip-match as a security prerogative.",
+      "parentUuid": "fafc7978_e9d7ebbd",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_09022f3e",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 20
@@ -445,6 +589,24 @@
       "writtenOn": "2017-01-25T14:08:33Z",
       "side": 1,
       "message": "anything with a low - high is a range.. so please reword this pool to earlier comment.\n\nspecify the defaults right here in the yang.",
+      "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_71a639c3",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-11-15T20:27:19Z",
+      "side": 1,
+      "message": "Defined low/high default value in yang. Instead of RPC, new Container will be defined in NeutronVPN-config which can be used be administrator to provide the range for the vni pool",
+      "parentUuid": "fafc7978_09022f3e",
       "revId": "2c9213e26940fdbceba28b38f3804d991fec0eab",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
