@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_01f3e49e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-19T18:25:15Z",
+      "side": 1,
+      "message": "Abhinav,\n\nPlease correct this content as discussed..  \n\nWhat we are ensuring by this Spec is to remove use of MPLS Labels,  LPortTags and ELANTags for realizing L2 switching and L3 forwarding on the wire.\n\nIn the nodes themselves, the LportTag will continue to be used when pushing the packet from ELAN/L3VPN pipeline towards the VM as ACLService continues to use LPortTags.\n\nSimiarly ELANTags will continue to be used for handling broadcast packets both within the Node for broadcasts generated within that node and also for broadcasts that land from another node to the current node via INTERNAL VXLAN Tunnels..\n\nAs stressed, the wire will carry VXLAN VNIs as dictated by the tenant\u0027s Openstack configuration.",
+      "parentUuid": "1a622d24_56b760d8",
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_cddbe3eb",
         "filename": "/COMMIT_MSG",
         "patchSetId": 7
@@ -115,6 +133,24 @@
       "writtenOn": "2016-12-19T14:39:06Z",
       "side": 1,
       "message": "This should probably be under the title of the Egress DPN.",
+      "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_81f414f3",
+        "filename": "docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-19T18:15:41Z",
+      "side": 1,
+      "message": "Match on VNI will take place in INTERNAL_TUNNEL_TABLE (TABLE 36) and as part of actions it will setup the ELAN-TAG and then submit the packet to ELAN Pipeline ELAN_DMAC_TABLE (TABLE 51).  \n\nTHE L2_VNI_TUN_DEMUX_TABLE is not involved here !\n\nPlease fix the above statement Abhinav.",
+      "parentUuid": "1a622d24_56892025",
       "revId": "dc537a1ad75f992f27970fa9042adc3342ac3a05",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
