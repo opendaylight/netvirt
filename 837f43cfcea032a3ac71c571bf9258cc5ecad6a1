@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a561d44_b036e501",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-07-05T07:04:42Z",
+      "side": 1,
+      "message": "nitpick: tab to spaces",
+      "range": {
+        "startLine": 73,
+        "startChar": 0,
+        "endLine": 75,
+        "endChar": 2
+      },
+      "revId": "837f43cfcea032a3ac71c571bf9258cc5ecad6a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_d031d90c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-07-05T07:04:42Z",
+      "side": 1,
+      "message": "nitpick: remove this space",
+      "revId": "837f43cfcea032a3ac71c571bf9258cc5ecad6a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_103cf1e1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-07-05T07:04:42Z",
+      "side": 1,
+      "message": "why do we need this? Doesn\u0027t mdsalutil already provide these methods?",
+      "range": {
+        "startLine": 414,
+        "startChar": 0,
+        "endLine": 418,
+        "endChar": 5
+      },
+      "revId": "837f43cfcea032a3ac71c571bf9258cc5ecad6a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_f0405d58",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-07-05T07:04:42Z",
+      "side": 1,
+      "message": "How frequently will this be called? I am not a fan of frequent reads to ConfigDS. Can we use some caching+lazyloading in here? Ideally this should be a utils method and implement caching+lazyloading for all utils.",
+      "range": {
+        "startLine": 420,
+        "startChar": 5,
+        "endLine": 427,
+        "endChar": 5
+      },
+      "revId": "837f43cfcea032a3ac71c571bf9258cc5ecad6a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
