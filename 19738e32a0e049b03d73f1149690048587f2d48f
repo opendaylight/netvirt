@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_d3520266",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 728,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-27T18:13:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_b3dbfe4d",
+      "revId": "19738e32a0e049b03d73f1149690048587f2d48f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
