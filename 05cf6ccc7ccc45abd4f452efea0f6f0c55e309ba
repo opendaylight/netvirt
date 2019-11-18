@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_dd829351",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_7d31e7eb",
+      "revId": "05cf6ccc7ccc45abd4f452efea0f6f0c55e309ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_bd522f11",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-30T10:07:24Z",
       "side": 1,
       "message": "Remove the update line altogether here.",
+      "revId": "05cf6ccc7ccc45abd4f452efea0f6f0c55e309ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1da6db10",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 838,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_bd522f11",
       "revId": "05cf6ccc7ccc45abd4f452efea0f6f0c55e309ba",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
