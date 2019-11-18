@@ -1,0 +1,57 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_5f48405b",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-07T09:23:00Z",
+      "side": 1,
+      "message": "I think I\u0027m missing something here - why is the dpnId required to be non-zero, if it is not used anyways? dpnId is only used for prints and checks here -- where is it actually used? somewhere deep in the process/remove?",
+      "revId": "365a02124cda4bb16db4032098a2894c8b685077",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_7f9ffc5f",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-07T10:16:35Z",
+      "side": 1,
+      "message": "Please keep it as part of that review then.. if it\u0027s currently not used, then it\u0027s not a bug? I assume this review was raised for Ravit\u0027s original fix?",
+      "parentUuid": "3a65312a_dfcf30af",
+      "revId": "365a02124cda4bb16db4032098a2894c8b685077",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_3f7c6420",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 628,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-07T10:16:35Z",
+      "side": 1,
+      "message": "Yeah let\u0027s review everything there, since this review basically only introduces refactoring right now.. thx",
+      "parentUuid": "3a65312a_9f63f8b0",
+      "revId": "365a02124cda4bb16db4032098a2894c8b685077",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
