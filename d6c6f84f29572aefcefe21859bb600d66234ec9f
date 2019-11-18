@@ -594,6 +594,23 @@
       "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4078162b",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:45:58Z",
+      "side": 1,
+      "message": "change the trello card description and any activities within the same.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
