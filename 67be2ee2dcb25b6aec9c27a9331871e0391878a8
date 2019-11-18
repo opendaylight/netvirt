@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_7a46ad7d",
+        "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-25T06:59:47Z",
+      "side": 1,
+      "message": "Here you can explain that in addition to setting Tunnel ID with LPort Tag, the flow rule in L3_FIB_TABLE will continue to set the destination mac-address, so that the packet will go out to the tunnel port as a switched packet, to be taken over the ELAN Pipeline once it enters into the destination OVS.",
+      "revId": "67be2ee2dcb25b6aec9c27a9331871e0391878a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_ba5fa540",
+        "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-25T06:59:47Z",
+      "side": 1,
+      "message": "Did you get clarification on ToR in DC use-case effect of this change?",
+      "revId": "67be2ee2dcb25b6aec9c27a9331871e0391878a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_5a49318a",
+        "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-25T06:59:47Z",
+      "side": 1,
+      "message": "I don\u0027t think this should be said as a limitation..\n\nIt is a positivity :)",
+      "revId": "67be2ee2dcb25b6aec9c27a9331871e0391878a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
