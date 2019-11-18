@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_0d4e7796",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 28
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T03:54:38Z",
+      "side": 1,
+      "message": "A yang change is required to follow up given a vpn-interface, extract its network-type and VNI from within the VRFEntryListener.\n\n Abhinav will update the yang change that will enable the VRFEntryListener to be able to find the dest network VNI to use for VXLAN Networks alone.",
+      "parentUuid": "fafc7978_f2db1219",
+      "range": {
+        "startLine": 323,
+        "startChar": 22,
+        "endLine": 323,
+        "endChar": 53
+      },
+      "revId": "d75b34e32abe1d6fe2898ee41433917bb98d5125",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
