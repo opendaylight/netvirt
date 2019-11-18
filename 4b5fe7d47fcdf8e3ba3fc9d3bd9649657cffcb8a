@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_db9e1256",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_c02c5f4d",
+      "revId": "4b5fe7d47fcdf8e3ba3fc9d3bd9649657cffcb8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_d64a7682",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibRpcServiceImpl.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-04-09T05:28:05Z",
       "side": 1,
       "message": "MDSALUtil is deprecated. AFAIK SingleTransactionDataBroker needs to be used as a replacement\nThis comment relates to all DS access replacements throughout this patch",
+      "revId": "4b5fe7d47fcdf8e3ba3fc9d3bd9649657cffcb8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_9b4f6a92",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibRpcServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Hi Tali,\nPlease see my comment on the review\u0027s homepage.",
+      "parentUuid": "da01753e_d64a7682",
       "revId": "4b5fe7d47fcdf8e3ba3fc9d3bd9649657cffcb8a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_1ba09a8f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 830,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "renaming to InternalRouterVpn",
+      "parentUuid": "da01753e_1b37fae4",
+      "revId": "4b5fe7d47fcdf8e3ba3fc9d3bd9649657cffcb8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_f6405a58",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 1
@@ -64,6 +118,24 @@
       "writtenOn": "2017-04-09T05:28:05Z",
       "side": 1,
       "message": "I understand the methods below are just place holders for the subnet-op-data-entry read. Would you be able to unify this to a single read in a subsequent patch?",
+      "revId": "4b5fe7d47fcdf8e3ba3fc9d3bd9649657cffcb8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_871d56c0",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 832,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Sure!",
+      "parentUuid": "da01753e_f6405a58",
       "revId": "4b5fe7d47fcdf8e3ba3fc9d3bd9649657cffcb8a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -134,6 +206,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_3bd11efc",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1117,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done, moved a collective util for the same to FibUtil",
+      "parentUuid": "da01753e_fb267667",
+      "revId": "4b5fe7d47fcdf8e3ba3fc9d3bd9649657cffcb8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_fb5836fc",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 1
@@ -151,6 +241,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_dbbbb270",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1287,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Decoupled the VNI handling from NAT prefixes now.\nRequesting Chetan/Karthikeyan to look for a possible else case for isNatPrefix \u003d TRUE case.",
+      "parentUuid": "da01753e_fb5836fc",
+      "revId": "4b5fe7d47fcdf8e3ba3fc9d3bd9649657cffcb8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_db73b2af",
         "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/interfaces/INeutronVpnManager.java",
         "patchSetId": 1
@@ -162,6 +270,24 @@
       "writtenOn": "2017-04-11T09:08:31Z",
       "side": 1,
       "message": "isOpenstackSemanticsEnforced() would be a better method name.",
+      "revId": "4b5fe7d47fcdf8e3ba3fc9d3bd9649657cffcb8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_bb04ee7e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/interfaces/INeutronVpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done in parent ELAN review",
+      "parentUuid": "da01753e_db73b2af",
       "revId": "4b5fe7d47fcdf8e3ba3fc9d3bd9649657cffcb8a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -191,6 +317,30 @@
     },
     {
       "key": {
+        "uuid": "da01753e_275bca88",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_a1f16acf",
+      "range": {
+        "startLine": 164,
+        "startChar": 19,
+        "endLine": 164,
+        "endChar": 45
+      },
+      "revId": "4b5fe7d47fcdf8e3ba3fc9d3bd9649657cffcb8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_41e4fe0c",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManagerImpl.java",
         "patchSetId": 1
@@ -202,6 +352,30 @@
       "writtenOn": "2017-04-09T11:04:01Z",
       "side": 1,
       "message": "isOpenStackSemanticsEnforced",
+      "range": {
+        "startLine": 97,
+        "startChar": 19,
+        "endLine": 97,
+        "endChar": 45
+      },
+      "revId": "4b5fe7d47fcdf8e3ba3fc9d3bd9649657cffcb8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_6754b254",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManagerImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_41e4fe0c",
       "range": {
         "startLine": 97,
         "startChar": 19,
