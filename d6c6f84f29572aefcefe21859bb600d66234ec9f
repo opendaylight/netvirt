@@ -1,0 +1,599 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_20287a33",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 12
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:05:44Z",
+      "side": 1,
+      "message": "This Spec is a first step in the direction of enforcing datapath semantics that uses tenant supplied VNI values on VXLAN Type networks created by tenants in Openstack Neutron.\n\nEarlier the datapath semantics for VXLAN traffic from tenants were realized by using either LportTags (or) MPLS Labels being carried as VNI values, even though the networks created by the tenant were of type VXLAN.\n\nPlease note that implementation of Spec DOES NOT COMPLETELY remove usage of LPortTags (or) ElanTags (or) MPLS Labels. \n\nIt retains the use of MPLSLabels for realizing an L3 BGPVPN (regardless of type of networks put into such BGPVPN that may include networks of type VXLAN) both on the wire and within the OVS Datapaths.\n\nIt also retains the use of LPortTags within the OVS Datapath of a hypervisor, for streaming traffic to the right virtual endpoint on that hypervisor (note: not on the wire).\n\nIt retains the use of ELANTags within the OVS Datapath to handle local/remote L2 broadcasts (note: not on the wire) \n\nOn the cloud data network wire, all the VXLAN traffic for basic L2 Switching within a VXLAN network and L3 Forwarding across VXLAN-type networks using Routers will use tenant supplied VNI values for such VXLAN networks. \n\nComplete removal of use of LPortTags and MPLS Labels for VXLAN-type networks has large scale design/pipeline implications and thus need to be attempted as future initiatives via respective specs.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6021d24c",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:05:44Z",
+      "side": 1,
+      "message": "The above para needs to be corrected.  Please see the commit message.\n\nIn fact you can post the commit message content here too !",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a01bea19",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:05:44Z",
+      "side": 1,
+      "message": "The existing L3 BGPVPN control-path and data-path semantics will continue to use L3 Labels on the wire as well as inside the OVS Datapaths of the hypervisor to realize both intra-dc and inter-dc connectivity.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e0d4c221",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:05:44Z",
+      "side": 1,
+      "message": "supports the following types of networks:\n\nFlat Networks\nVLAN Networks\nVXLAN Networks\nGre networks.\n\nuse keyword \u0027overlay\u0027 everywhere.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c0d70622",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:05:44Z",
+      "side": 1,
+      "message": "external network accesses are supported via VLAN-type external networks (or) GRE-type external networks.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_20dfda3c",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:05:44Z",
+      "side": 1,
+      "message": "I donot think this is right para.. We should talk more about basic L2 Switching and Basic L3 Forwarding.\n\nWe should put a disclaimer that BGPVPN will remain unaffected by this change.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_00e29e02",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:05:44Z",
+      "side": 1,
+      "message": "by enforcing the VNI",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_60e8b2e2",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:05:44Z",
+      "side": 1,
+      "message": "handling L2 Broadcast (for both locally generated in the OVS Datapath and remotely recieved packets from another OVS Datapath)",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_40e3f604",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:05:44Z",
+      "side": 1,
+      "message": "please note here that VNI is not going to be used as metadata.  We can state clearly the existing use of LpORTtAG AND elantAG in metadata will remain unaffected.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_80ed0ef2",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:05:44Z",
+      "side": 1,
+      "message": "Inter-DC connectivity over external VXLAN tunnels can also be covered here and we can backrefer the EVPN spec as it will pre-date this Spec.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c0bee6d3",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:05:44Z",
+      "side": 1,
+      "message": "L3 Forwarding use-cases",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_20b6bafa",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:05:44Z",
+      "side": 1,
+      "message": "Routing realized using VNIs for networks attached to a neutron router  (with network having pre-created VMs)",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_00b9fee8",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:05:44Z",
+      "side": 1,
+      "message": "Fix this line appropriately.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e0bb22e3",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:05:44Z",
+      "side": 1,
+      "message": "L2 SWITCHING use-cases",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_60cf1280",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:05:44Z",
+      "side": 1,
+      "message": "L2 Unicast frames exchanged within an OVS Datapath.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a0c92a7a",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:05:44Z",
+      "side": 1,
+      "message": "L2 Unicast frames exchanged over OVS Datapaths that on different hypervisors.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_40cad66e",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:05:44Z",
+      "side": 1,
+      "message": "L2 Broadcast frames transmitted within an OVS Datapath.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_80c4ee5f",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:05:44Z",
+      "side": 1,
+      "message": "L2 Broadcast frames recieved from remote OVS Datapaths.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e0a202ad",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:05:44Z",
+      "side": 1,
+      "message": "Better to have Unicast as a section and Broadcast as another section at this level.\n\nWithin Unicast you can have a. within hypervisor b. across hypervisor.\n\nWithin Broadcast it will always be across hypervisors only (as within hypervisor will become a subset of that ! ).",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c0a546b6",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:05:44Z",
+      "side": 1,
+      "message": "ARP broadcast has side effects regardless of where its generated from ...",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_00b0def2",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:45:58Z",
+      "side": 1,
+      "message": "should be 0xffffffff000001",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6096f24d",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:45:58Z",
+      "side": 1,
+      "message": "again here 0xffffff000001",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_809b4e71",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:45:58Z",
+      "side": 1,
+      "message": "should be Table 52.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a0a00aa0",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:45:58Z",
+      "side": 1,
+      "message": "these flows are incorrect set for ARP broadcast in Ingress OVS.  Please fix the the flow set.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_40913651",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:45:58Z",
+      "side": 1,
+      "message": "0xffffffff000001",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e0896227",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:45:58Z",
+      "side": 1,
+      "message": "Remove the above bunch..",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c08c2638",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:45:58Z",
+      "side": 1,
+      "message": "destination network VNI in the",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2084fa0a",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:45:58Z",
+      "side": 1,
+      "message": "arrange the above lines as per my Spec on EVPN_RT5.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_00873e10",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:45:58Z",
+      "side": 1,
+      "message": "Please mention this:\n\nThis is an example of asymmetric forwarding where the traffic is routed in the source OVS Datapath and it is switched over the wire and then all the way to the destination VM on the destination OVS Datapath.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c093864d",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:45:58Z",
+      "side": 1,
+      "message": "I suggest before NAT Service we add sections for external VXLAN tunnel handling (and its pipeline changes too), since this Spec post-dates EVPN_RT5 spec.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_209b5a68",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:45:58Z",
+      "side": 1,
+      "message": "VXLAN provider networks - VNI based.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e0904245",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:45:58Z",
+      "side": 1,
+      "message": "GRE provider networks - will continue to use MPLS labels.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_607d521c",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:45:58Z",
+      "side": 1,
+      "message": "more explanation necessary here ..  If any pipeline change quote it here similar to the above sections.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a0776a39",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:45:58Z",
+      "side": 1,
+      "message": "are we sure there are no yang changes.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_80722e47",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-03T02:45:58Z",
+      "side": 1,
+      "message": "we have to make sure that we donot accept Networks of VXLAN type if segmentation-id is not set in them..  This is so because, from this spec we are using the segmentation-id representing the VNI on the wire and in the flows.",
+      "revId": "d6c6f84f29572aefcefe21859bb600d66234ec9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
