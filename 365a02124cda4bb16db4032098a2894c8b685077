@@ -37,6 +37,23 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_7f4b7c59",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 628,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-07T09:23:00Z",
+      "side": 1,
+      "message": "Not sure why this refactoring is required - actually makes readability worse in my opinion.. I like null checks that return, then you dont need to indent the rest of the logic",
+      "revId": "365a02124cda4bb16db4032098a2894c8b685077",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_3f7c6420",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 1
