@@ -85,6 +85,23 @@
       "revId": "5f16ae0cc35893fe4c01c09fae804280a196578c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_29a821da",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-02T16:17:00Z",
+      "side": 1,
+      "message": "i am concerned now that you have to handle this null return in all callers .. Can you please do that ?",
+      "revId": "5f16ae0cc35893fe4c01c09fae804280a196578c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
