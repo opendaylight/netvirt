@@ -119,6 +119,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_36ddd615",
+        "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Hi, as of now, I adhered to the naming conventions as per the NwConstants.java class.\nModified it to be as per the pipeline doc guidelines now.",
+      "parentUuid": "1a622d24_93cddc60",
+      "revId": "d26341c1d1542f6788d2e7805c737e03db3afd24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_f3da5016",
         "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
         "patchSetId": 6
@@ -235,6 +253,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_76990e6e",
+        "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_3304c87d",
+      "range": {
+        "startLine": 97,
+        "startChar": 0,
+        "endLine": 97,
+        "endChar": 15
+      },
+      "revId": "d26341c1d1542f6788d2e7805c737e03db3afd24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_737c8073",
         "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
         "patchSetId": 6
@@ -306,6 +348,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_b6a28698",
+        "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_d3d754ec",
+      "revId": "d26341c1d1542f6788d2e7805c737e03db3afd24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_53818449",
         "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
         "patchSetId": 6
@@ -353,6 +413,24 @@
       "side": 1,
       "message": "Call out what additions/tweaks will be needed. Need not be exhaustive, just indicative enough to help CSIT folks and to let reviewers give inputs if more are needed.",
       "parentUuid": "1a622d24_13e26cd5",
+      "revId": "d26341c1d1542f6788d2e7805c737e03db3afd24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f6acfe8e",
+        "filename": "docs/specs/l3-forwarding-for-routers-using-lport-tags.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_1309cc95",
       "revId": "d26341c1d1542f6788d2e7805c737e03db3afd24",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
