@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "7a6b29fe_dbead2d6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-03T11:55:29Z",
+      "side": 1,
+      "message": "If original_ext_gw is null but new_ext_gw !\u003d null and new_ext_gw has enable_snat TRUE, you should return TRUE from this method.",
+      "revId": "9a04a4a11f4729384e9fe35d44b5f8fb4bc36b69",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_9b097a33",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
         "patchSetId": 1
@@ -20,6 +37,23 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_1bc0ca4e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-03T11:55:29Z",
+      "side": 1,
+      "message": "The same comment for snatSettingsChanged() applies here too!",
+      "revId": "9a04a4a11f4729384e9fe35d44b5f8fb4bc36b69",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_fb04ee18",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
         "patchSetId": 1
@@ -32,6 +66,24 @@
       "side": 1,
       "message": "Same comment as above.",
       "parentUuid": "7a6b29fe_bb28b6e2",
+      "revId": "9a04a4a11f4729384e9fe35d44b5f8fb4bc36b69",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_16e37fd9",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-03T14:18:36Z",
+      "side": 1,
+      "message": "+1 with Andre here.",
+      "parentUuid": "7a6b29fe_fb04ee18",
       "revId": "9a04a4a11f4729384e9fe35d44b5f8fb4bc36b69",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
