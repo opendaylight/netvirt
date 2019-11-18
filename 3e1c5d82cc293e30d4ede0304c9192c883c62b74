@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_60ef4988",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 839,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-04-19T14:28:07Z",
+      "side": 1,
+      "message": "You can check for isOpenStackVniSemanticsEnforced first, so we don\u0027t do any unnecessary reads",
+      "range": {
+        "startLine": 839,
+        "startChar": 19,
+        "endLine": 839,
+        "endChar": 50
+      },
+      "revId": "3e1c5d82cc293e30d4ede0304c9192c883c62b74",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_00e11d9a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 845,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-04-19T14:28:07Z",
+      "side": 1,
+      "message": "You can check for isOpenStackVniSemanticsEnforced first, so we don\u0027t do any unnecessary reads",
+      "range": {
+        "startLine": 845,
+        "startChar": 19,
+        "endLine": 845,
+        "endChar": 50
+      },
+      "revId": "3e1c5d82cc293e30d4ede0304c9192c883c62b74",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_40f20570",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1090,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-04-19T14:28:07Z",
+      "side": 1,
+      "message": "remove the comment too if you removed the param!",
+      "range": {
+        "startLine": 1090,
+        "startChar": 53,
+        "endLine": 1090,
+        "endChar": 69
+      },
+      "revId": "3e1c5d82cc293e30d4ede0304c9192c883c62b74",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_a0e93182",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1100,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-04-19T14:28:07Z",
+      "side": 1,
+      "message": "remove the comment too if you removed the param!",
+      "range": {
+        "startLine": 1100,
+        "startChar": 36,
+        "endLine": 1100,
+        "endChar": 53
+      },
+      "revId": "3e1c5d82cc293e30d4ede0304c9192c883c62b74",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
