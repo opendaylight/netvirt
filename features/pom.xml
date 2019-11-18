@@ -29,20 +29,4 @@
         <module>odl-netvirt-openstack</module>
     </modules>
 
-    <profiles>
-        <profile>
-            <id>sfc</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>odl-netvirt-sfc</module>
-            </modules>
-        </profile>
-        <profile>
-            <!-- When enabled, this empty profile disables the “sfc” profile above -->
-            <id>no-sfc</id>
-        </profile>
-    </profiles>
-
 </project>
