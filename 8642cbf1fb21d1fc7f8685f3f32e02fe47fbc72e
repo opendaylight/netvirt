@@ -2,6 +2,24 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_cd5c214e",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 622,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_cd526166",
+      "revId": "8642cbf1fb21d1fc7f8685f3f32e02fe47fbc72e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ad81ddc4",
         "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
         "patchSetId": 3
@@ -13,6 +31,30 @@
       "writtenOn": "2017-02-27T14:06:20Z",
       "side": 1,
       "message": "opendaylight-vni-ranges.",
+      "revId": "8642cbf1fb21d1fc7f8685f3f32e02fe47fbc72e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2d568d2a",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 633,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done, as per Vivek\u0027s comments.",
+      "parentUuid": "fafc7978_0d4909b7",
+      "range": {
+        "startLine": 633,
+        "startChar": 14,
+        "endLine": 633,
+        "endChar": 43
+      },
       "revId": "8642cbf1fb21d1fc7f8685f3f32e02fe47fbc72e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
