@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_8def20b0",
+        "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/ConfigureL3VpnCommand.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-03T05:16:47Z",
+      "side": 1,
+      "message": "where are you removing elements from networkIdList before check at L255?",
+      "revId": "80e4d7cb84bd07678f6c6a382f7a79082c35b9c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
