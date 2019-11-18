@@ -77,6 +77,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_f70c61ef",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_af32a45c",
+      "range": {
+        "startLine": 163,
+        "startChar": 25,
+        "endLine": 163,
+        "endChar": 38
+      },
+      "revId": "ed10afeb4c59f852e4d0d2876331c04469c9b7ca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_4f4150a8",
         "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
         "patchSetId": 13
@@ -112,6 +136,30 @@
       "side": 1,
       "message": "Yes please, +1 to this idea.\nAny way to minimize tables and bundle together common functionality to simplify the pipeline is encouraged.",
       "parentUuid": "1a622d24_4f4150a8",
+      "range": {
+        "startLine": 183,
+        "startChar": 55,
+        "endLine": 183,
+        "endChar": 67
+      },
+      "revId": "ed10afeb4c59f852e4d0d2876331c04469c9b7ca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_3713790e",
+        "filename": "docs/specs/vni-based-l2-switching-and-l3-router-forwarding.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-11T18:10:40Z",
+      "side": 1,
+      "message": "As of now, we are planning to have the functionality in place.\nAny optimizations possible will be taken up later once we have all the usecases working.\nWe can update the spec then and proceed as deems fit.",
+      "parentUuid": "1a622d24_c2a377b0",
       "range": {
         "startLine": 183,
         "startChar": 55,
