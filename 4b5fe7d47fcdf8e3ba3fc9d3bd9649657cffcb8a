@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_a1f16acf",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-04-09T11:04:01Z",
+      "side": 1,
+      "message": "isOpenStackSemanticsEnforced (by the way should we have implied this is for VNIs? something like isOpenStackVniSemanticsEnforced?)",
+      "range": {
+        "startLine": 164,
+        "startChar": 19,
+        "endLine": 164,
+        "endChar": 45
+      },
+      "revId": "4b5fe7d47fcdf8e3ba3fc9d3bd9649657cffcb8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_41e4fe0c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManagerImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-04-09T11:04:01Z",
+      "side": 1,
+      "message": "isOpenStackSemanticsEnforced",
+      "range": {
+        "startLine": 97,
+        "startChar": 19,
+        "endLine": 97,
+        "endChar": 45
+      },
+      "revId": "4b5fe7d47fcdf8e3ba3fc9d3bd9649657cffcb8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
