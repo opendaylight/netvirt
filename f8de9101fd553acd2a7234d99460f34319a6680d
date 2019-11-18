@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_07ca136e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-16T12:26:50Z",
+      "side": 1,
+      "message": "I think that might cause issues with the new PNF subnet-route support since the associated vrf-entries son\u0027t have any local DPN. adding Tomer to provide mre comments on this",
+      "revId": "f8de9101fd553acd2a7234d99460f34319a6680d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_8a2f2af6",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 5
