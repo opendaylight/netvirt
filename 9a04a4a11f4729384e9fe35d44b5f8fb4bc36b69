@@ -1,0 +1,40 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_9b097a33",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 3972
+      },
+      "writtenOn": "2016-10-03T12:55:57Z",
+      "side": 1,
+      "message": "While this method is not currently called in the case Vivek describes, Vivek\u0027s suggestion sounds reasonable to me when just looking at the local logic.  However, if the intent is to only return true if the gateway already existed AND the value changed, then it\u0027s okay as is.",
+      "parentUuid": "7a6b29fe_5b0ec28c",
+      "revId": "9a04a4a11f4729384e9fe35d44b5f8fb4bc36b69",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_fb04ee18",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 3972
+      },
+      "writtenOn": "2016-10-03T12:55:57Z",
+      "side": 1,
+      "message": "Same comment as above.",
+      "parentUuid": "7a6b29fe_bb28b6e2",
+      "revId": "9a04a4a11f4729384e9fe35d44b5f8fb4bc36b69",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
