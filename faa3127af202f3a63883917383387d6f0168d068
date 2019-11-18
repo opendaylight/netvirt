@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_913eb9d8",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-18T11:28:43Z",
+      "side": 1,
+      "message": "You probably want something similar for update()\nIn general I prefer having a common update() function that is called from both add() and update() for these kind of scenarios",
+      "revId": "faa3127af202f3a63883917383387d6f0168d068",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
