@@ -16,6 +16,24 @@
       "revId": "3b76783ee9943e86d93167820e91d1f2b4c6869a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7df1a2a8_5e0d8b44",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclEventListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-11-20T09:07:59Z",
+      "side": 1,
+      "message": "also, updateAceRules() has no effect when aceList is empty, so patch #2 code is completely correct.",
+      "parentUuid": "0e3c4c6d_5e195014",
+      "revId": "3b76783ee9943e86d93167820e91d1f2b4c6869a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
