@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d6f2640b_6c5293d0",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/AlivenessMonitorUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-21T11:57:49Z",
+      "side": 1,
+      "message": "if monitorIds is null, this will throw NPE",
+      "range": {
+        "startLine": 256,
+        "startChar": 51,
+        "endLine": 256,
+        "endChar": 68
+      },
+      "revId": "7fc96a6237648027e2fb63f95174641051c7aefb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
