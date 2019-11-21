@@ -274,7 +274,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             final ReentrantLock lock = lockForUuid(subnetId);
             lock.lock();
             try {
-                LOG.info("createSubnetmapNode: subnet ID {}", subnetId.toString());
+                LOG.info("createSubnetmapNode: subnet ID {}", subnetId);
                 Optional<Subnetmap> sn = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                         LogicalDatastoreType.CONFIGURATION, subnetMapIdentifier);
                 if (sn.isPresent()) {
@@ -385,7 +385,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         Subnetmap subnetmap = null;
         InstanceIdentifier<Subnetmap> id = InstanceIdentifier.builder(Subnetmaps.class).child(Subnetmap.class,
                 new SubnetmapKey(subnetId)).build();
-        LOG.info("updateSubnetmapNodeWithPorts : subnetId {}, subnetMapId {}", subnetId.toString(), id.toString());
+        LOG.info("updateSubnetmapNodeWithPorts : subnetId {}, subnetMapId {}", subnetId, id);
         final ReentrantLock lock = lockForUuid(subnetId);
         lock.lock();
         try {
@@ -406,9 +406,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         subnetId.getValue(), portId.getValue());
                 }
                 if (null != directPortId) {
-                    List<Uuid> directPortList = builder.getDirectPortList();
-                    if (null == directPortList) {
-                        directPortList = new ArrayList<>();
+                    List<Uuid> existingDirectPortList = builder.getDirectPortList();
+                    List<Uuid> directPortList = new ArrayList<>();
+                    if (null != existingDirectPortList) {
+                        directPortList.addAll(existingDirectPortList);
                     }
                     directPortList.add(directPortId);
                     builder.setDirectPortList(directPortList);
@@ -1265,7 +1266,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             List<String> failStrings = associateNetworksToVpn(vpnId, networkList);
             if (!failStrings.isEmpty()) {
                 LOG.error("VPN {} association to networks failed for networks: {}. ",
-                        vpnId.getValue(), failStrings.toString());
+                        vpnId.getValue(), failStrings);
                 throw new Exception(failStrings.toString());
             }
         }
@@ -1390,8 +1391,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             try {
                 LOG.debug("L3VPN add RPC: VpnID {}, name {}, tenantID {}, RDList {}, iRTList {}, eRTList{}, "
                                 + "routerIdList {}, networksList {}", vpn.getId().getValue(), vpn.getName(),
-                        vpn.getTenantId(), vpn.getRouteDistinguisher().toString(), vpn.getImportRT().toString(),
-                        vpn.getExportRT().toString(), rtrIdsList, vpn.getNetworkIds());
+                        vpn.getTenantId(), vpn.getRouteDistinguisher(), vpn.getImportRT(),
+                        vpn.getExportRT(), rtrIdsList, vpn.getNetworkIds());
 
                 List<String> rdList = vpn.getRouteDistinguisher() != null
                         ? new ArrayList<>(vpn.getRouteDistinguisher()) : new ArrayList<>();
@@ -1644,7 +1645,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 return;
             }
             final VpnInstance vpnInstance = VpnHelper.getVpnInstance(dataBroker, vpnId.getValue());
-            LOG.debug("addSubnetToVpn: VpnInstance {}", vpnInstance.toString());
+            LOG.debug("addSubnetToVpn: VpnInstance {}", vpnInstance);
             if (isVpnOfTypeL2(vpnInstance)) {
                 neutronEvpnUtils.updateElanAndVpn(vpnInstance, sn.getNetworkId().getValue(),
                         NeutronEvpnUtils.Operation.ADD);
@@ -2538,7 +2539,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         if (!isExternalNetwork) {
             updateVpnMaps(vpnId, null, null, null, new ArrayList<>(passedNwList));
         }
-        LOG.info("Network(s) {} associated to L3VPN {} successfully", passedNwList.toString(), vpnId.getValue());
+        LOG.info("Network(s) {} associated to L3VPN {} successfully", passedNwList, vpnId.getValue());
         return failedNwList;
     }
 
@@ -2665,7 +2666,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
         clearFromVpnMaps(vpnId, null, new ArrayList<>(passedNwList));
         LOG.info("dissociateNetworksFromVpn: Network(s) {} disassociated from L3VPN {} successfully",
-                passedNwList.toString(), vpnId.getValue());
+                passedNwList, vpnId.getValue());
         return failedNwList;
     }
 
@@ -2733,7 +2734,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         try {
             if (neutronvpnUtils.getVpnMap(vpnId) != null) {
                 LOG.debug("associateNetworks RPC: VpnId {}, networkList {}", vpnId.getValue(),
-                        input.getNetworkId().toString());
+                        input.getNetworkId());
                 List<Uuid> netIds = input.getNetworkId();
                 if (netIds != null && !netIds.isEmpty()) {
                     List<String> failed = associateNetworksToVpn(vpnId, netIds);
@@ -2872,7 +2873,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         try {
             if (neutronvpnUtils.getVpnMap(vpnId) != null) {
                 LOG.debug("dissociateNetworks RPC: VpnId {}, networkList {}", vpnId.getValue(),
-                        input.getNetworkId().toString());
+                        input.getNetworkId());
                 List<Uuid> netIds = input.getNetworkId();
                 if (netIds != null && !netIds.isEmpty()) {
                     List<String> failed = dissociateNetworksFromVpn(vpnId, netIds);
