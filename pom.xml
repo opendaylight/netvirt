@@ -45,6 +45,13 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <url>https://wiki.opendaylight.org/view/OVSDB_Integration:Main</url>
     </scm>
 
+    <properties>
+        <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <maven.install.skip>true</maven.install.skip>
+
+    </properties>
+
     <modules>
         <module>aclservice</module>
         <module>alarm</module>
@@ -65,6 +72,18 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <module>statemanager</module>
         <module>vpnmanager</module>
     </modules>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <!-- Downgrade javadoc plugin, as 3.1.0+ breaks with maven.compiler.release=11 + javadoc:aggregate -->
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>3.0.1</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 
     <profiles>
         <profile>
@@ -118,23 +137,4 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         </profile>
     </profiles>
 
-    <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>
