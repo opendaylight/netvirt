@@ -1,0 +1,8 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+1: Robert Varga <nite@hq.sk>
+Code-Review+2: Abhinav Gupta <abhinav.gupta@ericsson.com>
+Submitted-by: Abhinav Gupta <abhinav.gupta@ericsson.com>
+Submitted-at: Thu, 21 Nov 2019 09:00:43 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/c/netvirt/+/85922
+Project: netvirt
+Branch: refs/heads/master
