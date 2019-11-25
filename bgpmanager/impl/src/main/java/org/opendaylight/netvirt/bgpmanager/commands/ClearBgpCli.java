@@ -64,7 +64,7 @@ public class ClearBgpCli extends OsgiCommandSupport {
             try {
                 InetAddress.getByName(nbr);
             } catch (UnknownHostException e) {
-                session.getConsole().println("Invalid neighbor ip");
+                session.getConsole().println("Invalid neighbor ip :" + nbr);
                 return null;
             }
         }
