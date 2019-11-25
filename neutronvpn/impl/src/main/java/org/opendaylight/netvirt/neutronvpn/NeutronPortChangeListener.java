@@ -680,10 +680,8 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                     LOG.debug("handleNeutronPortCreated: Adding VPN Interface for port {} from network {}", portName,
                             networkId);
                     nvpnManager.createVpnInterface(vpnIdList, port, tx);
-                    if (!routerIds.isEmpty()) {
-                        for (Uuid routerId : routerIds) {
-                            nvpnManager.addToNeutronRouterInterfacesMap(routerId,port.getUuid().getValue());
-                        }
+                    for (Uuid routerId : routerIds) {
+                        nvpnManager.addToNeutronRouterInterfacesMap(routerId,port.getUuid().getValue());
                     }
                 }
             });
