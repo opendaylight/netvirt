@@ -100,7 +100,7 @@ public class Bfd extends OsgiCommandSupport {
                     } else {
                         mintx = Integer.parseInt(minTX);
                         if (mintx < MIN_TX_MIN || mintx > MIN_TX_MAX) {
-                            ps.println("error: value of TX should be between 1000 and 60000");
+                            ps.println("error: value of TX should be between 1000 and 4294000");
                             return null;
                         }
                     }

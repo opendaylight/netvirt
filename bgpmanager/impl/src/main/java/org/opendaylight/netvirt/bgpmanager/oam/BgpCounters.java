@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.bgpmanager.oam;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -48,6 +49,7 @@ public class BgpCounters implements Runnable, AutoCloseable {
     public static final String BGP_EVPN_SUMMARY_FILE = "cmd_bgp_evpn_all_summary.txt";
     public static final String BFD_NBR_DETAIL_FILE = "cmd_bfd_neighbors_details.txt";
 
+
     // BFD related constants
     public static final int LINE = 1; // line where the ip address of neigbor present after "NeighbroAddr"
     public static final int NBR_IP_WORD_INDEX = 1; // word where the ip address is present (count start from 0)
@@ -57,6 +59,8 @@ public class BgpCounters implements Runnable, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(BgpCounters.class);
 
     private final Map<String, String> totalPfxMap = new ConcurrentHashMap<>();
+    private final Map<String, String> ipv4PfxMap = new ConcurrentHashMap<>();
+    private final Map<String, String> ipv6PfxMap = new ConcurrentHashMap<>();
 
     private final String bgpSdncMip;
     private final MetricProvider metricProvider;
@@ -130,10 +134,10 @@ public class BgpCounters implements Runnable, AutoCloseable {
                         sb.append((char) read);
                         break;
                 }
+
             }
 
-            // Enable
-            toRouter.println("en");
+            toRouter.flush();
 
             // Wait for '#'
             while ((read = fromRouter.read()) != '#') {
@@ -143,8 +147,11 @@ public class BgpCounters implements Runnable, AutoCloseable {
                 }
             }
 
+
             // Send the command
             toRouter.println(cmdName);
+            toRouter.flush();
+
 
             // Read all the router's output
             sb = new StringBuilder();
@@ -164,12 +171,18 @@ public class BgpCounters implements Runnable, AutoCloseable {
 
             // Store in the file
             toFile.write(sb.toString().trim());
+            socket.close();
+            toFile.flush();
+            toFile.close();
+            toRouter.flush();
+            toRouter.close();
+            fromRouter.close();
         } catch (UnknownHostException e) {
             LOG.info("Unknown host exception occured while socket creation {} ", bgpSdncMip);
         } catch (SocketTimeoutException e) {
             LOG.info("Socket timeout Exception occured while socket creation");
         } catch (IOException e) {
-            LOG.info("I/O exception occured while socket creation");
+            LOG.error("I/O error ip {} {}",bgpSdncMip, e.getMessage());
         }
     }
 
@@ -279,6 +292,11 @@ public class BgpCounters implements Runnable, AutoCloseable {
                 i = processRouteCount(rd + "_VPNV4", i + 1, inputStrs);
             }
         }
+        long bgpIpv4Pfxs = calculateBgpIpv4Prefixes();
+        LOG.trace("BGP IPV4 Prefixes:{}",bgpIpv4Pfxs);
+        Counter counter = getCounter(BgpConstants.BGP_COUNTER_IPV4_PFX, null, null, null,
+                null, null, "bgp-peer");
+        updateCounter(counter, bgpIpv4Pfxs);
     }
 
     /*
@@ -319,6 +337,11 @@ public class BgpCounters implements Runnable, AutoCloseable {
                 i = processRouteCount(rd + "_VPNV6", i + 1, inputStrs);
             }
         }
+        long bgpIpv6Pfxs = calculateBgpIpv6Prefixes();
+        LOG.trace("BGP IPV6 Prefixes:{}",bgpIpv6Pfxs);
+        Counter counter = getCounter(BgpConstants.BGP_COUNTER_IPV6_PFX, null, null, null,
+                null, null, "bgp-peer");
+        updateCounter(counter, bgpIpv6Pfxs);
     }
 
     private void parseBgpL2vpnEvpnAll() {
@@ -339,6 +362,7 @@ public class BgpCounters implements Runnable, AutoCloseable {
                 String[] result = instr.split(":");
                 String rd = result[1].trim() + "_" + result[2].trim();
                 i = processRouteCount(rd + "_EVPN", i + 1, inputStrs);
+                LOG.trace("BGP Total Prefixes:{}", i);
             }
         }
         /*populate the "BgpTotalPrefixes" counter by combining
@@ -416,7 +440,6 @@ public class BgpCounters implements Runnable, AutoCloseable {
         String bgpRdRouteCountKey = BgpConstants.BGP_COUNTER_RD_ROUTE_COUNT + rd;
         Counter counter = getCounter(BgpConstants.BGP_COUNTER_RD_ROUTE_COUNT, null, null, null,
                 null, rd, "bgp-peer");
-
         for (String str = inputStrs.get(num); str != null && !str.trim().equals("")
                 && num < inputStrs.size();
                 str = inputStrs.get(num)) {
@@ -425,7 +448,13 @@ public class BgpCounters implements Runnable, AutoCloseable {
                 updateCounter(counter, routeCount);
                 return num - 1;
             }
-            routeCount++;
+            else if (rd.contains("VPNV4")) {
+                ipv4PfxMap.put(bgpRdRouteCountKey, Long.toString(++routeCount));
+                updateCounter(counter, routeCount);
+            } else if (rd.contains("VPNV6")) {
+                ipv6PfxMap.put(bgpRdRouteCountKey, Long.toString(++routeCount));
+                updateCounter(counter, routeCount);
+            }
             num++;
             if (num == inputStrs.size()) {
                 break;
@@ -442,6 +471,16 @@ public class BgpCounters implements Runnable, AutoCloseable {
         return num - 1;
     }
 
+    private Long calculateBgpIpv4Prefixes() {
+        return ipv4PfxMap.entrySet().stream()
+                .map(Map.Entry::getValue).mapToLong(Long::parseLong).sum();
+    }
+
+    private Long calculateBgpIpv6Prefixes() {
+        return ipv6PfxMap.entrySet().stream()
+                .map(Map.Entry::getValue).mapToLong(Long::parseLong).sum();
+    }
+
     private Long calculateBgpTotalPrefixes() {
         return totalPfxMap.entrySet().stream()
                 .map(Map.Entry::getValue).mapToLong(Long::parseLong).sum();
@@ -449,6 +488,8 @@ public class BgpCounters implements Runnable, AutoCloseable {
 
     private void resetCounters() {
         totalPfxMap.clear();
+        ipv6PfxMap.clear();
+        ipv4PfxMap.clear();
         resetFile("cmd_ip_bgp_summary.txt");
         resetFile("cmd_bgp_ipv4_unicast_statistics.txt");
         resetFile(BGP_VPNV4_FILE);

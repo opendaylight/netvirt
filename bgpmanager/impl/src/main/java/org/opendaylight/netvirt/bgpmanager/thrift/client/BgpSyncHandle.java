@@ -57,7 +57,7 @@ public class BgpSyncHandle {
         //moment, we just use 8 bytes more than the size of
         //the C struct.
 
-        return 96;
+        return 168;
     }
 
     public int setState(int newState) {

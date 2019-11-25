@@ -12,6 +12,7 @@ import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeLis
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.EvpnRdToNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.rd.to.networks.EvpnRdToNetwork;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -27,7 +28,8 @@ public class EvpnRdNetworkListener extends AsyncDataTreeChangeListenerBase<EvpnR
     private final BgpConfigurationManager bgpConfigManager;
     private final BgpUtil bgpUtil;
 
-    public EvpnRdNetworkListener(DataBroker dataBroker, BgpConfigurationManager bgpConfigManager, BgpUtil bgpUtil) {
+    public EvpnRdNetworkListener(DataBroker dataBroker, BgpConfigurationManager bgpConfigManager, BgpUtil bgpUtil,
+            final IdManagerService idManager) {
         super(EvpnRdToNetwork.class, EvpnRdNetworkListener.class);
         this.broker = dataBroker;
         this.bgpConfigManager = bgpConfigManager;

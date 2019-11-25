@@ -61,6 +61,10 @@ public class VtyshCli extends OsgiCommandSupport {
         "display routing bgp ipv4 vpn summary",
         "display routing bgp ipv4 unicast <ip>",
         "display routing bgp ipv4 unicast <ip/mask>",
+        "display routing bgp bfd neighbors details",
+        "display routing bgp bfd neighbors",
+        "display routing bgp bfd neighbors <ip> details",
+        "display routing bgp bfd global-config",
         "display routing running-config"
     };
 
@@ -102,7 +106,8 @@ public class VtyshCli extends OsgiCommandSupport {
                 try {
                     handleCommand(cmd);
                 } catch (IOException ioe) {
-                    session.getConsole().println("IOException thrown.");
+                    session.getConsole().println("I/O error to" + serverName + ":"
+                            + SERVER_PORT + "occured " + ioe.getMessage());
                 }
                 break;
             default:
@@ -138,10 +143,12 @@ public class VtyshCli extends OsgiCommandSupport {
             socket = new Socket(serverName, SERVER_PORT);
 
         } catch (UnknownHostException ioe) {
-            System.out.println("No host exists: " + ioe.getMessage());
+            System.out.println("No host to " + serverName + ":"
+                                         + SERVER_PORT + "exists: " + ioe.getMessage());
             return;
         } catch (IOException ioe) {
-            System.out.println("I/O error occured " + ioe.getMessage());
+            System.out.println("I/O error to" + serverName + ":"
+                                         + SERVER_PORT + "occured " + ioe.getMessage());
             return;
         }
         try {
@@ -150,7 +157,8 @@ public class VtyshCli extends OsgiCommandSupport {
             inFromSocket = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
         } catch (IOException ioe) {
-            System.out.println("IOException thrown.");
+            System.out.println("I/O error to" + serverName + ":"
+                    + SERVER_PORT + "occured " + ioe.getMessage());
             socket.close();
             return;
         }
@@ -184,7 +192,8 @@ public class VtyshCli extends OsgiCommandSupport {
                 ip = inFromSocket.read();
             } catch (SocketTimeoutException ste) {
                 System.out.println(sb.toString());
-                System.out.println("Read from Socket timed Out while verifying the password.");
+                System.out.println("Socket timeout while verifying the  password in" + serverName + ":"
+                        + SERVER_PORT + "occured " + ste.getMessage());
                 socket.close();
                 return;
             }
@@ -215,7 +224,8 @@ public class VtyshCli extends OsgiCommandSupport {
                 ip = inFromSocket.read();
             } catch (SocketTimeoutException ste) {
                 System.out.println(sb.toString());
-                System.out.println("Read from Socket timed Out while sending the term len command..");
+                System.out.println("Read from socket timeout while sending term len command in" + serverName + ":"
+                        + SERVER_PORT + "occured " + ste.getMessage());
                 socket.close();
                 return;
             }
@@ -235,7 +245,7 @@ public class VtyshCli extends OsgiCommandSupport {
 
         String inputCmd = "show " + command;
         outToSocket.println(inputCmd);
-        StringBuilder output = new StringBuilder();
+        StringBuffer output = new StringBuffer();
         String errorMsg = "";
         while (true) {
             char[] opBuf = new char[100];
@@ -246,6 +256,8 @@ public class VtyshCli extends OsgiCommandSupport {
 
             } catch (SocketTimeoutException ste) {
                 errorMsg = "Read from Socket timed Out while getting the data.";
+                System.out.println("Socket timeout while getting the data in" + serverName + ":"
+                        + SERVER_PORT + "occured " + ste.getMessage());
                 break;
             }
             if (ret == -1) {
@@ -266,7 +278,7 @@ public class VtyshCli extends OsgiCommandSupport {
 
             }
 
-            String outputStr = temp.toString().replaceAll("^\\s", "");
+            String outputStr = temp.toString();
             output.append(outputStr);
             if (output.toString().trim().endsWith(prompt)) {
                 int index = output.toString().lastIndexOf(prompt);
