@@ -294,8 +294,8 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     }
 
     private void handleFloatingIpPortUpdated(@Nullable Port original, Port update) {
-        if ((original == null || NeutronConstants.FLOATING_IP_DEVICE_ID_PENDING.equals(original.getDeviceId())
-                && !NeutronConstants.FLOATING_IP_DEVICE_ID_PENDING.equals(update.getDeviceId()))) {
+        if ((original == null || NeutronConstants.FLOATING_IP_DEVICE_ID_PENDING.equals(original.getDeviceId()))
+                && !NeutronConstants.FLOATING_IP_DEVICE_ID_PENDING.equals(update.getDeviceId())) {
             // populate floating-ip uuid and floating-ip port attributes (uuid, mac and subnet id for the ONLY
             // fixed IP) to be used by NAT, depopulated in NATService once mac is retrieved in the removal path
             addToFloatingIpPortInfo(new Uuid(update.getDeviceId()), update.getUuid(), update.getFixedIps().get(0)
