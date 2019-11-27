@@ -105,14 +105,16 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
         emergencies, alerts, critical, errors, warnings, notifications, informational, debugging
     }
 
+    private final BgpManager bgpManager;
     private final BgpConfigurationManager bgpConfigurationManager;
 
-    public ConfigureBgpCli(BgpConfigurationManager bgpConfigurationManager) {
+    public ConfigureBgpCli(BgpManager bgpManager, BgpConfigurationManager bgpConfigurationManager) {
+        this.bgpManager = bgpManager;
         this.bgpConfigurationManager = bgpConfigurationManager;
     }
 
     @Override
-    protected Object doExecute() {
+    protected Object doExecute() throws Exception {
         if (op == null) {
             session.getConsole().println("Please provide valid operation");
             usage();
@@ -160,12 +162,12 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
         try {
             int time = Integer.parseInt(stalePathTime);
             if (time < 30 || time > 3600) {
-                session.getConsole().println("invalid stale path time valid range [30-3600]");
+                session.getConsole().println("invalid stale path time valid range [30-3600]" + stalePathTime);
                 printGracefulRestartHelp();
                 return false;
             }
         } catch (NumberFormatException e) {
-            session.getConsole().println("invalid stale path time");
+            session.getConsole().println("invalid stale path time" + stalePathTime);
             printGracefulRestartHelp();
             return false;
         }
@@ -177,7 +179,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
         if (!validStalepathTime) {
             return;
         }
-        bgpConfigurationManager.addGracefulRestart(Integer.parseInt(stalePathTime));
+        bgpManager.configureGR(Integer.parseInt(stalePathTime));
     }
 
     private void deleteNeighbor() {
@@ -192,11 +194,11 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
             printDeleteNeighborHelp();
             return;
         }
-        bgpConfigurationManager.delNeighbor(ip);
+        bgpManager.deleteNeighbor(ip);
     }
 
     public long getAsNumber(String nbrIp) {
-        Bgp conf = bgpConfigurationManager.getConfig();
+        Bgp conf = bgpManager.getConfig();
         if (conf == null) {
             return -1;
         }
@@ -213,7 +215,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
     }
 
     private void stopBgp() {
-        Bgp conf = bgpConfigurationManager.getConfig();
+        Bgp conf = bgpManager.getConfig();
         if (conf == null) {
             return;
         }
@@ -223,7 +225,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
                     "error: all BGP congiguration must be deleted before stopping the router instance");
             return;
         }
-        bgpConfigurationManager.stopBgp();
+        bgpManager.stopBgp();
     }
 
     private void usage() {
@@ -265,7 +267,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
     private void startBgp() {
         boolean validRouterId = false;
 
-        if (bgpConfigurationManager.getConfig() != null && bgpConfigurationManager.getConfig().getAsId() != null) {
+        if (bgpManager.getConfig() != null && bgpManager.getConfig().getAsId() != null) {
             session.getConsole().println("bgp is already started please use stop-bgp-server and start again");
             return;
         }
@@ -286,7 +288,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
                 return;
             }
         }
-        bgpConfigurationManager.startBgp(Long.parseLong(asNumber), routerId,
+        bgpManager.startBgp(Long.parseLong(asNumber), routerId,
                 stalePathTime == null ? 0 : Integer.parseInt(stalePathTime), false);
     }
 
@@ -328,12 +330,14 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
             try {
                 long val = Long.parseLong(ebgpMultihops);
                 if (val < 1 || val > 255) {
-                    session.getConsole().println("invalid ebgpMultihops number , valid range [1,255] ");
+                    session.getConsole().println("invalid ebgpMultihops number , valid range [1,255] "
+                            + ebgpMultihops);
                     printAddNeighborHelp();
                     return;
                 }
             } catch (NumberFormatException e) {
-                session.getConsole().println("invalid ebgpMultihops number, valid range [1-255]");
+                session.getConsole().println("invalid ebgpMultihops number, valid range [1-255]"
+                        + ebgpMultihops);
                 printAddNeighborHelp();
                 return;
             }
@@ -362,12 +366,10 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
                 safi = 5;
             } else {
                 session.getConsole().println(
-                        "invalid addressFamily valid values SAFI_IPV4_LABELED_UNICAST | SAFI_MPLS_VPN");
+                        "invalid addressFamily valid values lu/evpn/vpnv4/vpnv6");
                 printAddNeighborHelp();
-                return;
+                return ;
             }
-            bgpConfigurationManager.addAddressFamily(ip, afi, safi);
-
         }
         if (getAsNumber(ip) != -1) {
             session.getConsole().println("neighbor with ip " + ip + " already exists");
@@ -387,12 +389,12 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
     }
 
     protected void addRoute() {
-        bgpConfigurationManager.onUpdatePushRoute(protocol_type.PROTOCOL_EVPN, rd, prefix,
+        bgpConfigurationManager.onUpdatePushRoute(protocol_type.PROTOCOL_L3VPN, rd, prefix,
                 0, nexthop, mac, l3vni, l2vni, null, null);
     }
 
     protected void deleteRoute() {
-        bgpConfigurationManager.onUpdateWithdrawRoute(protocol_type.PROTOCOL_EVPN, rd, prefix,
+        bgpConfigurationManager.onUpdateWithdrawRoute(protocol_type.PROTOCOL_L3VPN, rd, prefix,
                 0, nexthop, mac);
     }
 
@@ -450,7 +452,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
                     "exec configure-bgp -op enable-log --log-file-path <logfile> --log-level <level>");
             return;
         }
-        bgpConfigurationManager.addLogging(logFile, logLevel);
+        bgpManager.setQbgpLog(logFile, logLevel);
     }
 
     private boolean validateAsNumber(String strAsnum) {
@@ -466,7 +468,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
                 return false;
             }
         } catch (NumberFormatException e) {
-            session.getConsole().println("invalid AS Number ");
+            session.getConsole().println("invalid AS Number " + asNumber);
             return false;
         }
         return true;
