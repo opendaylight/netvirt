@@ -12,7 +12,7 @@ import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager;
+import org.opendaylight.netvirt.bgpmanager.BgpManager;
 
 @Command(scope = "odl", name = "bgp-misc",
         description = "Add or delete miscellaneous BGP config options")
@@ -40,10 +40,10 @@ public class Misc extends OsgiCommandSupport {
             multiValued = false)
     private final String spt = null;
 
-    private final BgpConfigurationManager bgpConfigurationManager;
+    private final BgpManager bgpManager;
 
-    public Misc(BgpConfigurationManager bgpConfigurationManager) {
-        this.bgpConfigurationManager = bgpConfigurationManager;
+    public Misc(BgpManager bgpManager) {
+        this.bgpManager = bgpManager;
     }
 
     private Object usage() {
@@ -85,18 +85,18 @@ public class Misc extends OsgiCommandSupport {
         switch (action) {
             case "add":
                 if (spt != null && Commands.isValid(session.getConsole(), spt, Commands.Validators.INT, SP)) {
-                    bgpConfigurationManager.addGracefulRestart(Integer.parseInt(spt));
+                    bgpManager.configureGR(Integer.parseInt(spt));
                 }
                 if (file != null && level != null) {
-                    bgpConfigurationManager.addLogging(file, level);
+                    bgpManager.setQbgpLog(file, level);
                 }
                 break;
             case "del":
                 if (spt != null) {
-                    bgpConfigurationManager.delGracefulRestart();
+                    bgpManager.delGracefulRestart();
                 }
                 if (file != null && level != null) {
-                    bgpConfigurationManager.delLogging();
+                    bgpManager.delLogging();
                 }
                 break;
             default:

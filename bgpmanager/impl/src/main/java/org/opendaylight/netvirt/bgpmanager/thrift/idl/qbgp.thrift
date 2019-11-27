@@ -35,6 +35,9 @@
   * ERR_NOT_ITER when GET_RTS_NEXT is called without
   *    initializing with GET_RTS_INIT
   */
+  
+ const i32 API_CALL_SUCCESS = 0 
+ const i32 API_CALL_FAIL = 1 
 
  const i32 BGP_ERR_FAILED = 1
  const i32 BGP_ERR_ACTIVE = 10
@@ -122,9 +125,9 @@ enum protocol_type {
  }
 
  struct BfdConfigData {
-     1: byte bfdConfigDataVersion,
+     1: i8 bfdConfigDataVersion,
      2: optional i32  bfdRxInterval,
-     3: optional byte bfdFailureThreshold,
+     3: optional i8 bfdFailureThreshold,
      4: optional i32  bfdTxInterval,
      5: optional i32  bfdDebounceDown,
      6: optional i32  bfdDebounceUp,
@@ -237,21 +240,21 @@ enum protocol_type {
 
  service BgpUpdater {
    // 'p_type' is mandatory. indicates the origin of data
-   oneway void onUpdatePushRoute(1:protocol_type p_type, 2:string rd, 3:string prefix,
-                                 4:i32 prefixlen, 5:string nexthop,
+   i32 onUpdatePushRoute(1:protocol_type p_type, 2:string rd, 3:string prefix,
+                                 4:i32 prefixlen, 5:string nexthop, 
                                  6:i64 ethtag, 7:string esi, 8:string macaddress,
                                  9:i32 l3label, 10:i32 l2label,
                                  11:string routermac, 12:af_afi afi),
-   oneway void onUpdateWithdrawRoute(1:protocol_type p_type, 2:string rd, 3:string prefix,
+   i32 onUpdateWithdrawRoute(1:protocol_type p_type, 2:string rd, 3:string prefix,
                                      4:i32 prefixlen, 5:string nexthop,
                                      6:i64 ethtag, 7:string esi, 8:string macaddress,
                                      9:i32 l3label, 10:i32 l2label, 11:af_afi afi),
    // tell them we're open for business
-   oneway void onStartConfigResyncNotification(),
-   // relay to odl a bgp Notification we got from peer
-   oneway void onNotificationSendEvent(1:string prefix,
-                                       2:byte errCode, 3:byte errSubcode),
-   oneway void peerDown(1:string ipAddress, 2:i64 asNumber),
-   oneway void peerUp(1:string ipAddress, 2:i64 asNumber)
+   i32 onStartConfigResyncNotification(),
+   // relay to odl a bgp Notification we got from peer 
+   i32 onNotificationSendEvent(1:string prefix, 
+                                       2:i8 errCode, 3:i8 errSubcode),
+   i32 peerDown(1:string ipAddress, 2:i64 asNumber),
+   i32 peerUp(1:string ipAddress, 2:i64 asNumber)
 
 }
