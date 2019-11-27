@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a6f723dd_0198ae38",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1816,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-11-27T05:04:48Z",
+      "side": 1,
+      "message": "add where the error is coming from",
+      "range": {
+        "startLine": 1816,
+        "startChar": 59,
+        "endLine": 1816,
+        "endChar": 67
+      },
+      "revId": "f4a2040fac979f2386c5a190adeeb901ca38ed26",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
