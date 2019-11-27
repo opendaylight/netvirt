@@ -40,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 public final class BgpRouter {
     private static final Logger LOG = LoggerFactory.getLogger(BgpRouter.class);
 
@@ -47,6 +48,9 @@ public final class BgpRouter {
     private static final int GET_RTS_INIT = 0;
     private static final int GET_RTS_NEXT = 1;
     private static final int CONNECTION_TIMEOUT = 60000;
+    private static String configServerIP = "127.0.0.1";
+    private static int configServerPort = 7644;
+
 
     private enum Optype {
         START, STOP, NBR, VRF, PFX, SRC, MHOP, LOG, AF, GR, MP, VRFMP, EOR, DELAY_EOR, BFD, PEER_STATUS
@@ -63,6 +67,8 @@ public final class BgpRouter {
         List<String> irts;
         List<String> erts;
         long asNumber;
+        int holdTime;
+        int kaTime;
         layer_type thriftLayerType;
         protocol_type thriftProtocolType;
         int ethernetTag;
@@ -70,8 +76,6 @@ public final class BgpRouter {
         String macAddress;
         int l2label;
         int l3label;
-        int holdTime;
-        int kaTime;
         encap_type thriftEncapType;
         String routermac;
         public af_afi afi;
@@ -137,13 +141,13 @@ public final class BgpRouter {
                     + ", safi=" + safi
                     + '}' + '\n';
         }
+
     }
-
-
 
     private final BgpOp bop = new BgpOp();
     private final Supplier<Bgp> bgpConfigSupplier;
     private final BooleanSupplier isBGPEntityOwner;
+
 
     private volatile TTransport transport;
     private volatile BgpConfigurator.Client bgpClient;
@@ -151,8 +155,8 @@ public final class BgpRouter {
     private volatile long startTS;
     private volatile long connectTS;
     private volatile long lastConnectedTS;
-    private final TransactionHistory transactionHistory;
     private volatile boolean configServerUpdated = false;
+    private final TransactionHistory transactionHistory;
 
     private BgpRouter(Supplier<Bgp> bgpConfigSupplier, BooleanSupplier isBGPEntityOwner,
                       TransactionHistory transactionHistory) {
@@ -218,6 +222,7 @@ public final class BgpRouter {
         }
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public synchronized boolean connect(String bgpHost, int bgpPort) {
         String msgPiece = "BGP config server at " + bgpHost + ":" + bgpPort;
 
@@ -261,9 +266,14 @@ public final class BgpRouter {
                             + "msg: {}; Exception :", bgpHost, bgpPort, msgPiece, tte);
                     connectRetry.errorOccured();
                 } else {
-                    //In Case of other exceptions we try only 3 times
-                    connectRetry.errorOccured(60);
+                    LOG.error("Failed connecting to BGP config server at {} : {}. msg: {}; Exception :",
+                            bgpHost, bgpPort, msgPiece, tte);
+                    //In Case of other exceptions we try only 18 times
+                    connectRetry.errorOccured(10);
                 }
+            } catch (Exception e) {
+                LOG.error("Failed connecting to BGP config server at {} : {}. msg: {}; Exception :",
+                        bgpHost, bgpPort, msgPiece, e);
             }
         } while (connectRetry.shouldRetry());
 
@@ -281,8 +291,12 @@ public final class BgpRouter {
         return isConnected;
     }
 
-    private TransactionType getTransactionType(BgpOp op) {
-        return op.add ? TransactionType.ADD : TransactionType.DELETE;
+    public static void setConfigServerIP(String configServerIP) {
+        BgpRouter.configServerIP = configServerIP;
+    }
+
+    public static void setConfigServerPort(int configServerPort) {
+        BgpRouter.configServerPort = configServerPort;
     }
 
     private void dispatch(BgpOp op) throws TException, BgpRouterException {
@@ -295,6 +309,10 @@ public final class BgpRouter {
             reConnect(tte);
             dispatchInternal(op);
         }
+    }
+
+    private TransactionType getTransactionType(BgpOp op) {
+        return op.add ? TransactionType.ADD : TransactionType.DELETE;
     }
 
     private void reConnect(TTransportException tte) {

@@ -12,7 +12,7 @@ import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager;
+import org.opendaylight.netvirt.bgpmanager.BgpManager;
 
 @Command(scope = "odl", name = "bgp-connect",
         description = "Add or delete client connection to BGP Config Server")
@@ -34,10 +34,10 @@ public class Connect extends OsgiCommandSupport {
             multiValued = false)
     String port = null;
 
-    private final BgpConfigurationManager bgpConfigurationManager;
+    private final BgpManager bgpManager;
 
-    public Connect(BgpConfigurationManager bgpConfigurationManager) {
-        this.bgpConfigurationManager = bgpConfigurationManager;
+    public Connect(BgpManager bgpManager) {
+        this.bgpManager = bgpManager;
     }
 
     private Object usage() {
@@ -59,14 +59,14 @@ public class Connect extends OsgiCommandSupport {
                     return null;
                 }
                 // check: already connected?
-                bgpConfigurationManager.startConfig(host, Integer.parseInt(port));
+                bgpManager.startConfig(host, Integer.parseInt(port));
                 break;
             case "del":
                 if (host != null || port != null) {
                     session.getConsole().println("note: option(s) not needed; ignored");
                 }
                 // check: nothing to stop?
-                bgpConfigurationManager.stopConfig();
+                bgpManager.stopConfig();
                 break;
             default:
                 return usage();
