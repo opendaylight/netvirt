@@ -22,15 +22,15 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.AsId;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.GracefulRestart;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Logging;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Multipath;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Neighbors;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Networks;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.VrfMaxpath;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Vrfs;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.AddressFamilies;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.EbgpMultihop;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.UpdateSource;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfs.AddressFamiliesVrf;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.multipathcontainer.Multipath;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.Neighbors;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.neighbors.AddressFamilies;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.neighbors.EbgpMultihop;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.neighbors.UpdateSource;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.networkscontainer.Networks;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfmaxpathcontainer.VrfMaxpath;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfscontainer.Vrfs;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfscontainer.vrfs.AddressFamiliesVrf;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 
 @Command(scope = "odl", name = "bgp-cache",
@@ -175,7 +175,7 @@ public class Cache extends OsgiCommandSupport {
                         LLSTR, logging.getLevel());
             }
 
-            List<Neighbors> neighbors = config.getNeighbors();
+            List<Neighbors> neighbors = config.getNeighborsContainer().getNeighbors();
             if (neighbors != null) {
                 ps.printf("%nNeighbors%n");
                 for (Neighbors nbr : neighbors) {
@@ -212,7 +212,7 @@ public class Cache extends OsgiCommandSupport {
             }
 
             if (listVrfs) {
-                List<Vrfs> vrfs = config.getVrfs();
+                List<Vrfs> vrfs = config.getVrfsContainer().getVrfs();
                 if (vrfs != null) {
                     ps.printf("%nVRFs%n");
                     for (Vrfs vrf : vrfs) {
@@ -234,7 +234,7 @@ public class Cache extends OsgiCommandSupport {
             }
 
             if (listNets) {
-                List<Networks> ln = config.getNetworks();
+                List<Networks> ln = config.getNetworksContainer().getNetworks();
                 if (ln != null) {
                     ps.printf("%nNetworks%n");
                     for (Networks net : ln) {
@@ -248,8 +248,8 @@ public class Cache extends OsgiCommandSupport {
                 }
             }
 
-            List<Multipath> mp = config.getMultipath();
-            List<VrfMaxpath> vrfm = config.getVrfMaxpath();
+            List<Multipath> mp = config.getMultipathContainer().getMultipath();
+            List<VrfMaxpath> vrfm = config.getVrfMaxpathContainer().getVrfMaxpath();
             if (mp != null) {
                 ps.printf("%nMultipath%n");
                 for (Multipath multipath : mp) {

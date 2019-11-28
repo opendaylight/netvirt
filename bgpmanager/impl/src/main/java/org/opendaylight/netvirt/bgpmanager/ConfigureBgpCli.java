@@ -19,7 +19,7 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.protocol_type;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.TcpMd5SignaturePasswordType;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Neighbors;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.Neighbors;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
 @Command(scope = "odl", name = "configure-bgp", description = "")
@@ -202,7 +202,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
         if (conf == null) {
             return -1;
         }
-        List<Neighbors> nbrs = conf.getNeighbors();
+        List<Neighbors> nbrs = conf.getNeighborsContainer().getNeighbors();
         if (nbrs == null) {
             return -1;
         }
@@ -219,7 +219,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
         if (conf == null) {
             return;
         }
-        List<Neighbors> nbrs = conf.getNeighbors();
+        List<Neighbors> nbrs = conf.getNeighborsContainer().getNeighbors();
         if (nbrs != null && nbrs.size() > 0) {
             session.getConsole().println(
                     "error: all BGP congiguration must be deleted before stopping the router instance");

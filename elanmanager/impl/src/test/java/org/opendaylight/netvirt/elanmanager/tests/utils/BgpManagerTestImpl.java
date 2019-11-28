@@ -19,9 +19,10 @@ import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.BgpControlPlaneType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.EncapType;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Networks;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NetworksBuilder;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NetworksKey;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NetworksContainer;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.networkscontainer.Networks;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.networkscontainer.NetworksBuilder;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.networkscontainer.NetworksKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -62,6 +63,7 @@ public abstract class BgpManagerTestImpl implements IBgpManager {
             Ipv4Address nexthop = nh != null ? new Ipv4Address(nh) : null;
             Uint32 label = lbl;
             InstanceIdentifier<Networks> iid = InstanceIdentifier.builder(Bgp.class)
+                    .child(NetworksContainer.class)
                     .child(Networks.class, new NetworksKey(pfx, rd)).build();
             NetworksBuilder networksBuilder = new NetworksBuilder().setRd(rd).setPrefixLen(pfx).setNexthop(nexthop)
                     .setLabel(label).setEthtag(Uint32.ZERO);
@@ -83,6 +85,7 @@ public abstract class BgpManagerTestImpl implements IBgpManager {
 
     public void withdrawPrefix(String rd, String pfx) {
         InstanceIdentifier<Networks> iid = InstanceIdentifier.builder(Bgp.class)
+                .child(NetworksContainer.class)
                 .child(Networks.class, new NetworksKey(pfx, rd)).build();
         try {
             singleTxdataBroker.syncDelete(LogicalDatastoreType.CONFIGURATION, iid);

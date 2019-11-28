@@ -112,130 +112,135 @@ module ebgp {
     }
   }
 
-  list neighbors {
-    key "address";
-    leaf address {
-      type inet:ipv4-address;
-      mandatory "true";
-    }
-    leaf remote-as {
-      type uint32;
-      mandatory "true";
-    }
-    uses tcp-security-option-grouping;
-    container ebgp-multihop {
-      leaf nhops {
-        type uint32;
-      }
-      leaf peer-ip {
-        type leafref {
-          path "/ericsson-bgp:bgp/neighbors/address";
+
+  container neighborsContainer {
+    list neighbors {
+        key "address";
+        leaf address {
+            type inet:ipv4-address;
+            mandatory "true";
         }
-      }
-    }
-    container update-source {
-      leaf source-ip {
-        type inet:ipv4-address;
-      }
-      leaf peer-ip {
-        type leafref {
-          path "/ericsson-bgp:bgp/neighbors/address";
+        leaf remote-as {
+            type uint32;
+            mandatory "true";
         }
-      }
-    }
-    list address-families {
-      key "afi safi";
-      leaf afi {
-        type uint32;
-        mandatory "true";
-      }
-      leaf safi {
-        type uint32;
-        mandatory "true";
-      }
-      leaf peer-ip {
-        type leafref {
-          path "/ericsson-bgp:bgp/neighbors/address";
+        uses tcp-security-option-grouping;
+        container ebgp-multihop {
+            leaf nhops {
+                type uint32;
         }
-      }
-    } //addr-families
-  } // neighbhors
+        leaf peer-ip {
+            type leafref {
+                path "/ericsson-bgp:bgp/neighborsContainer/neighbors/address";
+            }
+        }
+        }
+        container update-source {
+            leaf source-ip {
+                type inet:ipv4-address;
+            }
+            leaf peer-ip {
+                type leafref {
+                    path "/ericsson-bgp:bgp/neighborsContainer/neighbors/address";
+                }
+            }
+        }
+        list address-families {
+            key "afi safi";
+            leaf afi {
+                type uint32;
+                mandatory "true";
+            }
+            leaf safi {
+                type uint32;
+                mandatory "true";
+            }
+            leaf peer-ip {
+                type leafref {
+                path "/ericsson-bgp:bgp/neighborsContainer/neighbors/address";
+                }
+            }
+        } //addr-families
+    } // neighbhors
+  }
 
-  list networks {
-    key "rd prefix-len";
-    leaf rd {
-      type string;
+  container networksContainer {
+    list networks {
+        key "rd prefix-len";
+        leaf rd {
+            type string;
+        }
+        leaf prefix-len {
+            type string;
+        }
+        leaf afi {
+            type uint32;
+        }
+        leaf macaddress {
+            description "Mac address of the advertised host.";
+            type string;
+        }
+        leaf bgp_control_plane_type{
+            description "Specifies the route type";
+            type bgp_control_plane_type;
+            mandatory "true";
+        }
+        leaf nexthop {
+           type inet:ipv4-address;
+        }
+        leaf label {
+            type uint32;
+        }
+        leaf ethtag {
+            description "Ethernet Tag Id to Identify a broadcast domain in an EVPN Instance";
+            type uint32;
+        }
+        leaf esi {
+            description "Ethernet Segment Identifier.";
+            type string;
+        }
+        leaf encap-type {
+            description "Encapsulation types supported as per RFC 5512.";
+            type encap_type;
+        }
+        leaf routermac {
+            description "Gateway Mac Address for the advertised host.";
+            type string;
+        }
+        leaf l3vni {
+            description "VxLAN Identifier.";
+            type uint32;
+        }
+        leaf l2vni {
+            type uint32;
+            description "l2vni for EVPN RT2 route advertisement";
+        }
     }
-    leaf prefix-len {
-      type string;
-    }
-    leaf afi {
-      type uint32;
-    }
-    leaf macaddress {
-      description "Mac address of the advertised host.";
-      type string;
-    }
-    leaf bgp_control_plane_type{
-      description "Specifies the route type";
-      type bgp_control_plane_type;
-      mandatory "true";
-    }
-    leaf nexthop {
-      type inet:ipv4-address;
-    }
-    leaf label {
-      type uint32;
-    }
-    leaf ethtag {
-      description "Ethernet Tag Id to Identify a broadcast domain in an EVPN Instance";
-      type uint32;
-    }
-    leaf esi {
-      description "Ethernet Segment Identifier.";
-      type string;
-    }
-    leaf encap-type {
-      description "Encapsulation types supported as per RFC 5512.";
-      type encap_type;
-    }
-    leaf routermac {
-      description "Gateway Mac Address for the advertised host.";
-      type string;
-    }
-    leaf l3vni {
-      description "VxLAN Identifier.";
-      type uint32;
-    }
+  }// networksContainer
 
-    leaf l2vni {
-      type uint32;
-      description "l2vni for EVPN RT2 route advertisement";
-    }
-
-  } // networks
-
-  list vrfs {
-    key "rd";
-    leaf rd {
-      type string;
-    }
-    list address-families-vrf {
-      key "afi safi";
-      leaf afi {
-        type uint32;
-        mandatory "true";
-      }
-      leaf safi {
-        type uint32;
-        mandatory "true";
-      }
-    }
-    leaf-list import-rts {
-      type string;
-    }
-    leaf-list export-rts {
-      type string;
+  container vrfsContainer {
+    list vrfs {
+        key "rd";
+        leaf rd {
+            type string;
+        }
+        list address-families-vrf {
+            key "afi safi";
+            leaf afi {
+                type uint32;
+                mandatory "true";
+            }
+            leaf safi {
+                type uint32;
+                mandatory "true";
+            }
+        }
+        leaf-list import-rts {
+            type string;
+        }
+        leaf-list export-rts {
+            type string;
+        }
     }
   }
 
@@ -372,27 +377,30 @@ module ebgp {
     default "l3";
   }
 
-  list multipath {
+  container multipathContainer {
+    list multipath {
 
      key "afi safi";
 
      leaf afi {
-       type uint32;
-       mandatory "true";
+        type uint32;
+        mandatory "true";
      }
 
      leaf safi {
-       type uint32;
-       mandatory "true";
+        type uint32;
+        mandatory "true";
      }
 
      leaf multipath-enabled {
        type boolean;
        mandatory "true";
      }
-  } //multipath
+    } //multipath
+  }
 
-  list vrfMaxpath {
+  container vrfMaxpathContainer {
+    list vrfMaxpath {
        key "rd";
 
        leaf rd {
@@ -402,7 +410,8 @@ module ebgp {
        leaf maxpaths {
          type uint16;
        }
-  } //vrfMaxpaths
+    } //vrfMaxpaths
+  }
 
   container dcgw-tep-list {
       list dcgw-tep {
@@ -419,4 +428,19 @@ module ebgp {
   }
 
  } // bgp
+
+ rpc initiate-eor {
+      description "during upgrade, BGPManager waits for EoR trigger from RBU";
+      input {
+        leaf neighbor-ip {
+          type string;
+          default "ALL";
+        }
+      }
+      output {
+        leaf retVal {
+          type uint32;
+        }
+      }
+  }
 }
