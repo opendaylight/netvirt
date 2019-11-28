@@ -24,7 +24,7 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev170119.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
@@ -172,9 +172,9 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
              * Interface is already created for parent NeutronPort. We're updating parent refs
              * and VLAN Information
              */
-            ListenableFuture<Void> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                txn -> txn.merge(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, newIface));
-            ListenableFutures.addErrorLogging(future, LOG,
+            ListenableFuture<Void> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                txn -> txn.merge(interfaceIdentifier, newIface));
+            LoggingFutures.addErrorLogging(future, LOG,
                     "createSubPortInterface: Failed for portName {}, parentName {}", portName, parentName);
             futures.add(future);
             return futures;
