@@ -13,6 +13,8 @@ import static org.opendaylight.netvirt.bgpmanager.oam.BgpConstants.HISTORY_THRES
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.util.concurrent.GlobalEventExecutor;
@@ -42,6 +44,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.PreDestroy;
@@ -91,8 +94,13 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebfd.rev1902
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.BgpControlPlaneType;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.EbgpService;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.EncapType;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.InitiateEorInput;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.InitiateEorOutput;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.InitiateEorOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.TcpMd5SignaturePasswordType;
+//import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.*;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.AsId;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.AsIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.ConfigServer;
@@ -102,33 +110,38 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.GracefulRestartBuilder;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Logging;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.LoggingBuilder;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Multipath;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.MultipathBuilder;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.MultipathKey;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Neighbors;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NeighborsBuilder;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NeighborsKey;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Networks;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NetworksBuilder;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NetworksKey;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.VrfMaxpath;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.VrfMaxpathBuilder;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.VrfMaxpathKey;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Vrfs;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.VrfsBuilder;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.VrfsKey;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.MultipathContainer;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NeighborsContainer;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NetworksContainer;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.VrfMaxpathContainer;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.VrfsContainer;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.dcgw.tep.list.DcgwTep;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.dcgw.tep.list.DcgwTepBuilder;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.dcgw.tep.list.DcgwTepKey;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.AddressFamilies;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.AddressFamiliesBuilder;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.AddressFamiliesKey;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.EbgpMultihop;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.EbgpMultihopBuilder;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.UpdateSource;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.UpdateSourceBuilder;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfs.AddressFamiliesVrf;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfs.AddressFamiliesVrfBuilder;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.multipathcontainer.Multipath;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.multipathcontainer.MultipathBuilder;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.multipathcontainer.MultipathKey;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.Neighbors;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.NeighborsBuilder;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.NeighborsKey;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.neighbors.AddressFamilies;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.neighbors.AddressFamiliesBuilder;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.neighbors.AddressFamiliesKey;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.neighbors.EbgpMultihop;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.neighbors.EbgpMultihopBuilder;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.neighbors.UpdateSource;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.neighbors.UpdateSourceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.networkscontainer.Networks;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.networkscontainer.NetworksBuilder;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.networkscontainer.NetworksKey;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfmaxpathcontainer.VrfMaxpath;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfmaxpathcontainer.VrfMaxpathBuilder;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfmaxpathcontainer.VrfMaxpathKey;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfscontainer.Vrfs;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfscontainer.VrfsBuilder;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfscontainer.VrfsKey;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfscontainer.vrfs.AddressFamiliesVrf;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfscontainer.vrfs.AddressFamiliesVrfBuilder;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.tcp.security.option.grouping.TcpSecurityOption;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.tcp.security.option.grouping.tcp.security.option.TcpMd5SignatureOption;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.tcp.security.option.grouping.tcp.security.option.TcpMd5SignatureOptionBuilder;
@@ -143,6 +156,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
+import org.opendaylight.yangtools.yang.common.RpcError;
+import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
@@ -150,7 +166,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class BgpConfigurationManager {
+public class BgpConfigurationManager implements EbgpService {
     private static final Logger LOG = LoggerFactory.getLogger(BgpConfigurationManager.class);
 
     // to have stale FIB map (RD, Prefix)
@@ -255,6 +271,8 @@ public class BgpConfigurationManager {
     private final EntityOwnershipListenerRegistration entityListenerRegistration;
     private final MetricProvider metricProvider;
     private final TransactionHistory bgpUpdatesHistory;
+
+    private volatile AtomicBoolean eorSupressedDuetoUpgradeFlag = new AtomicBoolean(false);
 
     @Inject
     public BgpConfigurationManager(final DataBroker dataBroker,
@@ -653,7 +671,7 @@ public class BgpConfigurationManager {
                 }
                 LOG.debug("Removing external routes from FIB");
                 deleteExternalFibRoutes();
-                List<Neighbors> nbrs = conf.getNeighbors();
+                List<Neighbors> nbrs = conf.getNeighborsContainer().getNeighbors();
                 if (nbrs != null && nbrs.size() > 0) {
                     LOG.error("Tring to remove the as-id when neighbor config is already present");
                     for (Neighbors nbr : nbrs) {
@@ -886,7 +904,7 @@ public class BgpConfigurationManager {
 
         @Override
         protected InstanceIdentifier<Neighbors> getWildCardPath() {
-            return InstanceIdentifier.create(Bgp.class).child(Neighbors.class);
+            return InstanceIdentifier.create(Bgp.class).child(NeighborsContainer.class).child(Neighbors.class);
         }
 
         @Override
@@ -973,7 +991,8 @@ public class BgpConfigurationManager {
 
         @Override
         protected InstanceIdentifier<EbgpMultihop> getWildCardPath() {
-            return InstanceIdentifier.create(Bgp.class).child(Neighbors.class).child(EbgpMultihop.class);
+            return InstanceIdentifier.create(Bgp.class).child(NeighborsContainer.class).child(Neighbors.class)
+                    .child(EbgpMultihop.class);
         }
 
         @Override
@@ -1047,7 +1066,8 @@ public class BgpConfigurationManager {
 
         @Override
         protected InstanceIdentifier<UpdateSource> getWildCardPath() {
-            return InstanceIdentifier.create(Bgp.class).child(Neighbors.class).child(UpdateSource.class);
+            return InstanceIdentifier.create(Bgp.class).child(NeighborsContainer.class).child(Neighbors.class)
+                    .child(UpdateSource.class);
         }
 
         @Override
@@ -1123,7 +1143,8 @@ public class BgpConfigurationManager {
 
         @Override
         protected InstanceIdentifier<AddressFamilies> getWildCardPath() {
-            return InstanceIdentifier.create(Bgp.class).child(Neighbors.class).child(AddressFamilies.class);
+            return InstanceIdentifier.create(Bgp.class).child(NeighborsContainer.class).child(Neighbors.class)
+                    .child(AddressFamilies.class);
         }
 
         @Override
@@ -1217,7 +1238,7 @@ public class BgpConfigurationManager {
 
         @Override
         protected InstanceIdentifier<Networks> getWildCardPath() {
-            return InstanceIdentifier.create(Bgp.class).child(Networks.class);
+            return InstanceIdentifier.create(Bgp.class).child(NetworksContainer.class).child(Networks.class);
         }
 
         @Override
@@ -1356,7 +1377,7 @@ public class BgpConfigurationManager {
 
         @Override
         protected InstanceIdentifier<Vrfs> getWildCardPath() {
-            return InstanceIdentifier.create(Bgp.class).child(Vrfs.class);
+            return InstanceIdentifier.create(Bgp.class).child(VrfsContainer.class).child(Vrfs.class);
         }
 
         @Override
@@ -1536,7 +1557,7 @@ public class BgpConfigurationManager {
 
         @Override
         protected InstanceIdentifier<Multipath> getWildCardPath() {
-            return InstanceIdentifier.create(Bgp.class).child(Multipath.class);
+            return InstanceIdentifier.create(Bgp.class).child(MultipathContainer.class).child(Multipath.class);
         }
 
         @Override
@@ -1614,7 +1635,7 @@ public class BgpConfigurationManager {
 
         @Override
         protected InstanceIdentifier<VrfMaxpath> getWildCardPath() {
-            return InstanceIdentifier.create(Bgp.class).child(VrfMaxpath.class);
+            return InstanceIdentifier.create(Bgp.class).child(VrfMaxpathContainer.class).child(VrfMaxpath.class);
         }
 
         class VrfMaxPathConfigurator implements Runnable {
@@ -2396,7 +2417,7 @@ public class BgpConfigurationManager {
             }
         }
 
-        List<Neighbors> neighbors = config.getNeighbors();
+        List<Neighbors> neighbors = config.getNeighborsContainer().getNeighbors();
         if (neighbors != null) {
             LOG.error("configuring existing Neighbors present for replay total neighbors {}", neighbors.size());
             boolean neighborConfigReplayResult = replayNbrConfig(neighbors, br);
@@ -2424,7 +2445,7 @@ public class BgpConfigurationManager {
         } catch (Exception e) {
             LOG.error("Replay:addGr() received exception: ", e);
         }
-        List<Vrfs> vrfs = config.getVrfs();
+        List<Vrfs> vrfs = config.getVrfsContainer().getVrfs();
         if (vrfs == null) {
             vrfs = new ArrayList<>();
         }
@@ -2439,7 +2460,7 @@ public class BgpConfigurationManager {
             }
         }
 
-        List<Networks> ln = config.getNetworks();
+        List<Networks> ln = config.getNetworksContainer().getNetworks();
         if (ln != null) {
             for (Networks net : ln) {
                 String rd = net.getRd();
@@ -2472,7 +2493,7 @@ public class BgpConfigurationManager {
         }
 
 
-        List<Multipath> multipaths = config.getMultipath();
+        List<Multipath> multipaths = config.getMultipathContainer().getMultipath();
 
         if (multipaths != null) {
             for (Multipath multipath : multipaths) {
@@ -2492,7 +2513,7 @@ public class BgpConfigurationManager {
                 }
             }
         }
-        List<VrfMaxpath> vrfMaxpaths = config.getVrfMaxpath();
+        List<VrfMaxpath> vrfMaxpaths = config.getVrfMaxpathContainer().getVrfMaxpath();
         if (vrfMaxpaths != null) {
             for (VrfMaxpath vrfMaxpath : vrfMaxpaths) {
                 try {
@@ -2607,7 +2628,7 @@ public class BgpConfigurationManager {
             String nbrIp, long remoteAs, @Nullable final TcpMd5SignaturePasswordType md5Secret) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
         InstanceIdentifier.InstanceIdentifierBuilder<Neighbors> iib =
-                InstanceIdentifier.builder(Bgp.class)
+                InstanceIdentifier.builder(Bgp.class).child(NeighborsContainer.class)
                         .child(Neighbors.class, new NeighborsKey(nbrAddr));
         InstanceIdentifier<Neighbors> iid = iib.build();
         TcpSecurityOption tcpSecOption = null;
@@ -2623,7 +2644,7 @@ public class BgpConfigurationManager {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
         Ipv4Address srcAddr = new Ipv4Address(srcIp);
         InstanceIdentifier.InstanceIdentifierBuilder<UpdateSource> iib =
-                InstanceIdentifier.builder(Bgp.class)
+                InstanceIdentifier.builder(Bgp.class).child(NeighborsContainer.class)
                         .child(Neighbors.class, new NeighborsKey(nbrAddr))
                         .child(UpdateSource.class);
         InstanceIdentifier<UpdateSource> iid = iib.build();
@@ -2635,7 +2656,7 @@ public class BgpConfigurationManager {
     public void addEbgpMultihop(String nbrIp, int hops) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
         InstanceIdentifier.InstanceIdentifierBuilder<EbgpMultihop> iib =
-                InstanceIdentifier.builder(Bgp.class)
+                InstanceIdentifier.builder(Bgp.class).child(NeighborsContainer.class)
                         .child(Neighbors.class, new NeighborsKey(nbrAddr))
                         .child(EbgpMultihop.class);
         InstanceIdentifier<EbgpMultihop> iid = iib.build();
@@ -2647,7 +2668,7 @@ public class BgpConfigurationManager {
     public void addAddressFamily(String nbrIp, int afi, int safi) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
         InstanceIdentifier.InstanceIdentifierBuilder<AddressFamilies> iib =
-                InstanceIdentifier.builder(Bgp.class)
+                InstanceIdentifier.builder(Bgp.class).child(NeighborsContainer.class)
                         .child(Neighbors.class, new NeighborsKey(nbrAddr))
                         .child(AddressFamilies.class, new AddressFamiliesKey((long) afi, (long) safi));
         InstanceIdentifier<AddressFamilies> iid = iib.build();
@@ -2662,6 +2683,7 @@ public class BgpConfigurationManager {
             Ipv4Address nexthop = nh != null ? new Ipv4Address(nh) : null;
             Uint32 label = lbl;
             InstanceIdentifier<Networks> iid = InstanceIdentifier.builder(Bgp.class)
+                    .child(NetworksContainer.class)
                     .child(Networks.class, new NetworksKey(pfx, rd)).build();
             NetworksBuilder networksBuilder = new NetworksBuilder().setRd(rd).setPrefixLen(pfx).setNexthop(nexthop)
                                                 .setLabel(label).setEthtag(BgpConstants.DEFAULT_ETH_TAG);
@@ -2702,6 +2724,7 @@ public class BgpConfigurationManager {
         AddressFamiliesVrf adf = adfBuilder.build();
         adfList.add(adf);
         InstanceIdentifier.InstanceIdentifierBuilder<Vrfs> iib = InstanceIdentifier.builder(Bgp.class)
+                .child(VrfsContainer.class)
                 .child(Vrfs.class, new VrfsKey(rd));
         InstanceIdentifier<Vrfs> iid = iib.build();
         Vrfs dto = new VrfsBuilder().setRd(rd).setImportRts(irts)
@@ -2801,7 +2824,7 @@ public class BgpConfigurationManager {
     public void delNeighbor(String nbrIp) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
         InstanceIdentifier.InstanceIdentifierBuilder<Neighbors> iib =
-                InstanceIdentifier.builder(Bgp.class)
+                InstanceIdentifier.builder(Bgp.class).child(NeighborsContainer.class)
                         .child(Neighbors.class, new NeighborsKey(nbrAddr));
         InstanceIdentifier<Neighbors> iid = iib.build();
         delete(iid);
@@ -2810,7 +2833,7 @@ public class BgpConfigurationManager {
     public void delUpdateSource(String nbrIp) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
         InstanceIdentifier.InstanceIdentifierBuilder<UpdateSource> iib =
-                InstanceIdentifier.builder(Bgp.class)
+                InstanceIdentifier.builder(Bgp.class).child(NeighborsContainer.class)
                         .child(Neighbors.class, new NeighborsKey(nbrAddr))
                         .child(UpdateSource.class);
         InstanceIdentifier<UpdateSource> iid = iib.build();
@@ -2820,7 +2843,7 @@ public class BgpConfigurationManager {
     public void delEbgpMultihop(String nbrIp) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
         InstanceIdentifier.InstanceIdentifierBuilder<EbgpMultihop> iib =
-                InstanceIdentifier.builder(Bgp.class)
+                InstanceIdentifier.builder(Bgp.class).child(NeighborsContainer.class)
                         .child(Neighbors.class, new NeighborsKey(nbrAddr))
                         .child(EbgpMultihop.class);
         InstanceIdentifier<EbgpMultihop> iid = iib.build();
@@ -2830,7 +2853,7 @@ public class BgpConfigurationManager {
     public void delAddressFamily(String nbrIp, int afi, int safi) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
         InstanceIdentifier.InstanceIdentifierBuilder<AddressFamilies> iib =
-                InstanceIdentifier.builder(Bgp.class)
+                InstanceIdentifier.builder(Bgp.class).child(NeighborsContainer.class)
                         .child(Neighbors.class, new NeighborsKey(nbrAddr))
                         .child(AddressFamilies.class, new AddressFamiliesKey((long) afi, (long) safi));
         InstanceIdentifier<AddressFamilies> iid = iib.build();
@@ -2839,7 +2862,7 @@ public class BgpConfigurationManager {
 
     public void delPrefix(String rd, String pfx) {
         InstanceIdentifier.InstanceIdentifierBuilder<Networks> iib =
-                InstanceIdentifier.builder(Bgp.class)
+                InstanceIdentifier.builder(Bgp.class).child(NetworksContainer.class)
                         .child(Networks.class, new NetworksKey(pfx, rd));
         InstanceIdentifier<Networks> iid = iib.build();
         delete(iid);
@@ -2872,15 +2895,17 @@ public class BgpConfigurationManager {
         }
 
         InstanceIdentifier.InstanceIdentifierBuilder<Vrfs> iib =
-                InstanceIdentifier.builder(Bgp.class)
+                InstanceIdentifier.builder(Bgp.class).child(VrfsContainer.class)
                         .child(Vrfs.class, new VrfsKey(rd));
 
         InstanceIdentifier<Vrfs> iid = iib.build();
 
         @SuppressWarnings("static-access")
         InstanceIdentifier<Bgp> iid6 =  iid.builder(Bgp.class).build()
+                .child(MultipathContainer.class)
                 .child(Multipath.class, new MultipathKey(adfBuilder.getAfi(), adfBuilder.getSafi())).create(Bgp.class);
-        InstanceIdentifierBuilder<Vrfs> iib3 = iid6.child(Vrfs.class, new VrfsKey(rd)).builder();
+        InstanceIdentifierBuilder<Vrfs> iib3 =
+                iid6.child(VrfsContainer.class).child(Vrfs.class, new VrfsKey(rd)).builder();
         InstanceIdentifier<Vrfs> iidFinal = iib3.build();
 
         //** update or delete the vrfs with the rest of AddressFamilies already present in the last list
@@ -2918,7 +2943,7 @@ public class BgpConfigurationManager {
 
         InstanceIdentifier.InstanceIdentifierBuilder<Multipath> iib =
                 InstanceIdentifier
-                        .builder(Bgp.class)
+                        .builder(Bgp.class).child(MultipathContainer.class)
                         .child(Multipath.class,
                                 new MultipathKey(Long.valueOf(afi.getValue()), Long.valueOf(safi.getValue())));
 
@@ -2929,7 +2954,7 @@ public class BgpConfigurationManager {
     public void setMultipaths(String rd, int maxpath) {
         InstanceIdentifier.InstanceIdentifierBuilder<VrfMaxpath> iib =
                 InstanceIdentifier
-                        .builder(Bgp.class)
+                        .builder(Bgp.class).child(VrfMaxpathContainer.class)
                         .child(VrfMaxpath.class, new VrfMaxpathKey(rd));
 
         VrfMaxpath dto = new VrfMaxpathBuilder().setRd(rd).setMaxpaths(maxpath).build();
@@ -2938,7 +2963,7 @@ public class BgpConfigurationManager {
 
     public void delMultipaths(String rd) {
         InstanceIdentifier.InstanceIdentifierBuilder<VrfMaxpath> iib =
-                InstanceIdentifier.builder(Bgp.class)
+                InstanceIdentifier.builder(Bgp.class).child(VrfMaxpathContainer.class)
                         .child(VrfMaxpath.class, new VrfMaxpathKey(rd));
         InstanceIdentifier<VrfMaxpath> iid = iib.build();
         delete(iid);
@@ -3242,4 +3267,67 @@ public class BgpConfigurationManager {
         }
         return md5Secret;
     } // private method extractMd5Secret
+
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    @Override
+    public ListenableFuture<RpcResult<InitiateEorOutput>> initiateEor(InitiateEorInput input) {
+        boolean returnError = false;
+        String msg = null;
+        String neighborIp = null;
+        if (!isBGPEntityOwner()) {
+            msg = String.format("RPC triggered in Non-EoS Owner");
+            return Futures.immediateFuture(
+                    RpcResultBuilder.<InitiateEorOutput>failed().withError(RpcError.ErrorType.APPLICATION,
+                            msg).build());
+        }
+        if (input == null) {
+            msg = String.format("BGP invalid input for EoR");
+            LOG.error("Error : {}", msg);
+            returnError = true;
+        } else {
+            neighborIp = input.getNeighborIp();
+        }
+        if (eorSupressedDuetoUpgradeFlag.get() == false) {
+            msg = String.format("EoR triggerd by RBU-RPC call before replay"
+                    + "of BGP configuration (or) BGP not restarted");
+            LOG.error("Error : {}", msg);
+        }
+        if ("ALL".compareToIgnoreCase(neighborIp) == 0) {
+            //send EoR for all the neighbor
+            LOG.error("EoR trigger received to ALL neighbors");
+            final int numberOfEORRetries = 3;
+            RetryOnException eorRetry = new RetryOnException(numberOfEORRetries);
+            do {
+                try {
+                    BgpRouter br = bgpRouter;
+                    br.sendEOR();
+                    LOG.debug("RPC: sendEOR {} successful", br);
+                    break;
+                } catch (Exception e) {
+                    eorRetry.errorOccured();
+                    LOG.error("Replay:sedEOR() received exception:", e);
+                }
+            } while (eorRetry.shouldRetry());
+            eorSupressedDuetoUpgradeFlag.set(false);
+        } else if (InetAddresses.isInetAddress(neighborIp)) {
+            //send EoR for only one neighbor
+            msg = String.format("Inidividual neighbors EoR is not supported");
+            LOG.warn("Error : {}", msg);
+            returnError = true;
+        } else {
+            //error
+            msg = String.format("RPC: initiateEor: Invalid input ");
+            LOG.warn("Error : {}", msg);
+            returnError = true;
+        }
+        if (returnError) {
+            return Futures.immediateFuture(
+                    RpcResultBuilder.<InitiateEorOutput>failed().withError(RpcError.ErrorType.APPLICATION,
+                            msg).build());
+        }
+        InitiateEorOutput initiateEorOutput =
+                new InitiateEorOutputBuilder().setRetVal(0L).build();
+        return Futures.immediateFuture(RpcResultBuilder.<InitiateEorOutput>success()
+                .withResult(initiateEorOutput).build());
+    }
 }

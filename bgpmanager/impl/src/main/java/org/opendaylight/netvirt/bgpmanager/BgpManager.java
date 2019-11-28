@@ -35,9 +35,10 @@ import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.TcpMd5SignaturePasswordType;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Neighbors;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Networks;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NetworksKey;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NetworksContainer;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.Neighbors;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.networkscontainer.Networks;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.networkscontainer.NetworksKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -126,7 +127,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     public  void getAllPeerStatus() {
         List<Neighbors> nbrList = null;
         if (getConfig() != null) {
-            nbrList = getConfig().getNeighbors();
+            nbrList = getConfig().getNeighborsContainer().getNeighbors();
         } else {
             LOG.error("BGP configuration NOT exist");
             return;
@@ -213,7 +214,9 @@ public class BgpManager implements AutoCloseable, IBgpManager {
 
     @Override
     public void withdrawPrefixIfPresent(String rd, String prefix) {
-        InstanceIdentifier<Networks> networksId = InstanceIdentifier.builder(Bgp.class).child(Networks.class,
+        InstanceIdentifier<Networks> networksId = InstanceIdentifier.builder(Bgp.class)
+                .child(NetworksContainer.class)
+                .child(Networks.class,
                 new NetworksKey(rd, prefix)).build();
         try (ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
             Futures.addCallback(tx.read(LogicalDatastoreType.CONFIGURATION, networksId),
@@ -302,7 +305,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
         if (conf == null) {
             return null;
         }
-        List<Neighbors> nbrs = conf.getNeighbors();
+        List<Neighbors> nbrs = conf.getNeighborsContainer().getNeighbors();
         if (nbrs == null) {
             return null;
         }
