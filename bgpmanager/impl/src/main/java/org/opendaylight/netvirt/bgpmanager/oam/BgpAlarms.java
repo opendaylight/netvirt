@@ -14,7 +14,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Neighbors;
+import org.opendaylight.netvirt.bgpmanager.thrift.client.BgpRouterException;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.Neighbors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +65,7 @@ public class BgpAlarms implements Runnable, AutoCloseable {
             bgpMgr.getBgpCounters().fetchCmdOutputs(BgpCounters.BGP_VPNV4_SUMMARY_FILE,
                     "show ip bgp vpnv4 all summary");
             if (bgpMgr.getConfig() != null) {
-                nbrList = bgpMgr.getConfig().getNeighbors();
+            nbrList = bgpMgr.getConfig().getNeighborsContainer().getNeighbors();
             }
             BgpCounters.parseIpBgpVpnv4AllSummary(neighborStatusMap);
 
