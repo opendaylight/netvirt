@@ -21,7 +21,6 @@ import org.opendaylight.serviceutils.tools.mdsal.listener.AbstractClusteredAsync
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
@@ -35,32 +34,23 @@ import org.slf4j.LoggerFactory;
 public class SnatNodeEventListener  extends AbstractClusteredAsyncDataTreeChangeListener<Node> {
     private static final Logger LOG = LoggerFactory.getLogger(SnatNodeEventListener.class);
     private final NatSwitchCache  centralizedSwitchCache;
-    private final NatserviceConfig.NatMode natMode;
 
     @Inject
     public SnatNodeEventListener(final DataBroker dataBroker,
-            final NatSwitchCache centralizedSwitchCache,
-            final NatserviceConfig config) {
+            final NatSwitchCache centralizedSwitchCache) {
 
         super(dataBroker,new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier
                 .create(Nodes.class).child(Node.class)),
                 Executors.newSingleThreadExecutor());
         this.centralizedSwitchCache = centralizedSwitchCache;
-        if (config != null) {
-            this.natMode = config.getNatMode();
-        } else {
-            this.natMode = NatserviceConfig.NatMode.Controller;
-        }
     }
 
     @Override
     public void remove(Node dataObjectModification) {
-        if (natMode == NatserviceConfig.NatMode.Conntrack) {
-            NodeKey nodeKey = dataObjectModification.key();
-            Uint64 dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
-            LOG.info("Dpn removed {}", dpnId);
-            centralizedSwitchCache.removeSwitch(dpnId);
-        }
+        NodeKey nodeKey = dataObjectModification.key();
+        Uint64 dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
+        LOG.info("Dpn removed {}", dpnId);
+        centralizedSwitchCache.removeSwitch(dpnId);
     }
 
     @Override
@@ -71,11 +61,9 @@ public class SnatNodeEventListener  extends AbstractClusteredAsyncDataTreeChange
 
     @Override
     public void add(Node dataObjectModification) {
-        if (natMode == NatserviceConfig.NatMode.Conntrack) {
-            NodeKey nodeKey = dataObjectModification.key();
-            Uint64 dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
-            LOG.info("Dpn added {}", dpnId);
-            centralizedSwitchCache.addSwitch(dpnId);
-        }
+        NodeKey nodeKey = dataObjectModification.key();
+        Uint64 dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
+        LOG.info("Dpn added {}", dpnId);
+        centralizedSwitchCache.addSwitch(dpnId);
     }
 }
