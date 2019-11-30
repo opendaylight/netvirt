@@ -373,14 +373,10 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         return rtrPort.get().getExternalNetworkId();
     }
 
-    private Uint32 getVpnId(Uuid extNwId, Uuid floatingIpExternalId) {
+    private Uuid getVpnUuid(Uuid extNwId, Uuid floatingIpExternalId) {
         Uuid subnetId = NatUtil.getFloatingIpPortSubnetIdFromFloatingIpId(dataBroker, floatingIpExternalId);
         if (subnetId != null) {
-            Uint32 vpnId = NatUtil.getVpnId(dataBroker, subnetId.getValue());
-            if (vpnId != NatConstants.INVALID_ID) {
-                LOG.debug("getVpnId : Got vpnId {} for floatingIpExternalId {}", vpnId, floatingIpExternalId);
-                return vpnId;
-            }
+            return subnetId;
         }
 
         InstanceIdentifier<Networks> nwId = InstanceIdentifier.builder(ExternalNetworks.class).child(Networks.class,
@@ -390,17 +386,21 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
                         LogicalDatastoreType.CONFIGURATION, nwId);
         if (!nw.isPresent()) {
             LOG.error("getVpnId : Unable to read external network for {}", extNwId);
-            return NatConstants.INVALID_ID;
+            return null;
         }
 
         Uuid vpnUuid = nw.get().getVpnid();
         if (vpnUuid == null) {
             LOG.error("getVpnId : Unable to read vpn from External network: {}", extNwId);
-            return NatConstants.INVALID_ID;
+            return null;
         }
+        return vpnUuid;
+    }
 
+    private Uint32 getVpnId(Uuid extNwId, Uuid floatingIpExternalId) {
+        Uuid vpnUuid = getVpnUuid(extNwId, floatingIpExternalId);
         //Get the id using the VPN UUID (also vpn instance name)
-        return NatUtil.getVpnId(dataBroker, vpnUuid.getValue());
+        return vpnUuid != null ? NatUtil.getVpnId(dataBroker, vpnUuid.getValue()) : NatConstants.INVALID_ID;
     }
 
     private void processFloatingIPAdd(final InstanceIdentifier<InternalToExternalPortMap> identifier,
@@ -528,8 +528,13 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             //routerId = associatedVpnId;
         }
 
-        String vpnUuid = NatUtil.getAssociatedVPN(dataBroker, extNwId);
-        VpnInstance vpnInstance = NatUtil.getVpnIdToVpnInstance(dataBroker, vpnUuid);
+        Uuid vpnUuid = getVpnUuid(extNwId, mapping.getExternalId());
+        if (vpnUuid == null) {
+            LOG.error("createNATFlowEntries : No VPN associated with Ext nw {}. Unable to create SNAT table entry "
+                    + "for fixed ip {}", extNwId, mapping.getInternalIp());
+            return;
+        }
+        VpnInstance vpnInstance = NatUtil.getVpnIdToVpnInstance(dataBroker, vpnUuid.getValue());
         if (vpnInstance == null || vpnInstance.getVpnId() == null) {
             LOG.error("createNATFlowEntries : No VPN associated with Ext nw {}. Unable to create SNAT table entry "
                     + "for fixed ip {}", extNwId, mapping.getInternalIp());
@@ -568,8 +573,13 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             //routerId = associatedVpnId;
         }
 
-        String vpnUuid = NatUtil.getAssociatedVPN(dataBroker, externalNetworkId);
-        VpnInstance vpnInstance = NatUtil.getVpnIdToVpnInstance(dataBroker, vpnUuid);
+        Uuid vpnUuid = getVpnUuid(externalNetworkId, mapping.getExternalId());
+        if (vpnUuid == null) {
+            LOG.error("createNATFlowEntries : No VPN associated with Ext nw {}. Unable to create SNAT table entry "
+                    + "for fixed ip {}", externalNetworkId, mapping.getInternalIp());
+            return;
+        }
+        VpnInstance vpnInstance = NatUtil.getVpnIdToVpnInstance(dataBroker, vpnUuid.getValue());
         if (vpnInstance == null || vpnInstance.getVpnId() == null) {
             LOG.error("createNATFlowEntries: No VPN associated with Ext nw {}. Unable to create SNAT table entry"
                     + " for fixed ip {}",externalNetworkId, mapping.getInternalIp());
@@ -667,9 +677,13 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 
         //Delete the DNAT and SNAT table entries
         removeDNATTblEntry(dpnId, internalIp, externalIp, routerId, removeFlowInvTx);
-
-        String vpnUuid = NatUtil.getAssociatedVPN(dataBroker, extNwId);
-        VpnInstance vpnInstance = NatUtil.getVpnIdToVpnInstance(dataBroker, vpnUuid);
+        Uuid vpnUuid = getVpnUuid(extNwId, mapping.getExternalId());
+        if (vpnUuid == null) {
+            LOG.error("removeNATFlowEntries : No VPN associated with Ext nw {}. Unable to remove SNAT table entry "
+                    + "for fixed ip {}", extNwId, mapping.getInternalIp());
+            return;
+        }
+        VpnInstance vpnInstance = NatUtil.getVpnIdToVpnInstance(dataBroker, vpnUuid.getValue());
         if (vpnInstance == null || vpnInstance.getVpnId() == null) {
             LOG.error("removeNATFlowEntries: No VPN associated with Ext nw {}. Unable to create SNAT table entry "
                 + "for fixed ip {}", extNwId, mapping.getInternalIp());
