@@ -1745,6 +1745,7 @@ public final class VpnUtil {
     public boolean isVpnPendingDelete(String rd) {
         VpnInstanceOpDataEntry vpnInstanceOpData = getVpnInstanceOpData(rd);
         boolean isVpnPendingDelete = false;
+        LOG.info("NETVIRT1637- primary rd {} vpn-instance op {} ", rd, vpnInstanceOpData);
         if (vpnInstanceOpData == null
                 || vpnInstanceOpData.getVpnState() == VpnInstanceOpDataEntry.VpnState.PendingDelete) {
             isVpnPendingDelete = true;

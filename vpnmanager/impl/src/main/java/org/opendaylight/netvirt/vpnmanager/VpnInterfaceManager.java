@@ -1733,11 +1733,14 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
-                //Ignore
+                LOG.error("updateVpnInstanceChange: NETVIRT1637 - exception cought for interface {}", interfaceName);
             }
         }
+        LOG.info("updateVpnInstanceChange: NETVIRT1637 - Processed Remove for update on VPNInterface"
+                        + " {} old vpn {} to newVpn(s) {}", interfaceName, oldVpnList, newVpnList);
         for (String newVpnName : newVpnList) {
             String primaryRd = vpnUtil.getPrimaryRd(newVpnName);
+            LOG.info("NETVIRT1637 - interface {} primary rd {}", interfaceName, primaryRd);
             if (!vpnUtil.isVpnPendingDelete(primaryRd)) {
                 LOG.info("updateVpnInstanceChange: VPN Interface update event - intfName {} "
                         + "onto vpnName {} ", interfaceName, newVpnName);
@@ -1764,6 +1767,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             + "VPN instance {}", interfaceName, newAdjs, original.getVpnInstanceNames());
                     updateVpnInstanceAdjChange(original, update, interfaceName, futures);
                 }
+            } else {
+                LOG.info("updateVpnInstanceChange:  NETVIRT1637 - VPN Interface {} vpn {} is in pending delete ",
+                        interfaceName, newVpnName);
             }
         }
     }
