@@ -1733,7 +1733,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
-                //Ignore
+                LOG.error("updateVpnInstanceChange: InterruptedException caught for interface {}", interfaceName, e);
             }
         }
         for (String newVpnName : newVpnList) {
@@ -1764,6 +1764,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             + "VPN instance {}", interfaceName, newAdjs, original.getVpnInstanceNames());
                     updateVpnInstanceAdjChange(original, update, interfaceName, futures);
                 }
+            } else {
+                LOG.info("updateVpnInstanceChange: failed to Add for update on VPNInterface {} from oldVpn(s) {} to "
+                                + "newVpn {} as the new vpn does not exist in oper DS or it is in PENDING_DELETE state",
+                        interfaceName, oldVpnListCopy, newVpnName);
             }
         }
     }
