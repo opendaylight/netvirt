@@ -1729,13 +1729,13 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             isOldVpnRemoveCallExecuted = true;
         }
         //Wait for previous interface bindings to be removed
-        if (isOldVpnRemoveCallExecuted && !newVpnList.isEmpty()) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                //Ignore
-            }
-        }
+//        if (isOldVpnRemoveCallExecuted && !newVpnList.isEmpty()) {
+//            try {
+//                Thread.sleep(2000);
+//            } catch (InterruptedException e) {
+//                //Ignore
+//            }
+//        }
         for (String newVpnName : newVpnList) {
             String primaryRd = vpnUtil.getPrimaryRd(newVpnName);
             if (!vpnUtil.isVpnPendingDelete(primaryRd)) {
