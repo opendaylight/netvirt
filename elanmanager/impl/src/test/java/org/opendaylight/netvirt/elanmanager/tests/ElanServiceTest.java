@@ -300,11 +300,8 @@ public class ElanServiceTest extends  ElanServiceTestBase {
         addElanInterface(ExpectedObjects.ELAN1, interfaceInfo, DPN2IP1);
 
         // Read and Compare DMAC flow in DPN1 for MAC1 of DPN2
-        String flowId = ElanUtils.getKnownDynamicmacFlowRef((short)51,
-                DPN1_ID,
-                DPN2_ID,
-                interfaceInfo.getMacAddress().toString(),
-                actualElanInstances.getElanTag());
+        String flowId = ElanUtils.getKnownDynamicmacFlowRef(actualElanInstances.getElanTag(),
+                interfaceInfo.getMacAddress());
 
         InstanceIdentifier<Flow> flowInstanceIidDst = getFlowIid(NwConstants.ELAN_DMAC_TABLE,
                 new FlowId(flowId), DPN1_ID);
