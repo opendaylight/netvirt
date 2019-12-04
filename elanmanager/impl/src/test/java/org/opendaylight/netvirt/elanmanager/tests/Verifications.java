@@ -389,11 +389,7 @@ public class Verifications {
                 .child(ElanInstance.class, new ElanInstanceKey(ExpectedObjects.ELAN1)).build();
         ElanInstance actualElanInstances = singleTxdataBroker.syncRead(CONFIGURATION, elanInstanceIid);
         FlowId flowId = new FlowId(
-                ElanUtils.getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE,
-                        srcDpnId,
-                        dpnId,
-                        dpnMac,
-                        actualElanInstances.getElanTag()));
+                ElanUtils.getKnownDynamicmacFlowRef(actualElanInstances.getElanTag(), dpnMac));
         InstanceIdentifier<Flow> flowInstanceIidDst = getFlowIid(NwConstants.ELAN_DMAC_TABLE, flowId, srcDpnId);
         if (createFlag) {
             awaitForData(LogicalDatastoreType.CONFIGURATION, flowInstanceIidDst);
