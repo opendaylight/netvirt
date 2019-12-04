@@ -155,8 +155,7 @@ public class UpgradeStateListener extends AbstractClusteredSyncDataTreeChangeLis
                     routerName);
             return;
         }
-        Routers extRouters = routerData.get();
-        Uuid networkId = extRouters.getNetworkId();
+        Uuid networkId = routerData.get().getNetworkId();
         if (networkId == null) {
             LOG.error("hndlTepDelForSnatInEachRtr : SNAT -> Ignoring Re-election  with Napt {} for router {}"
                     + "as external network configuraton is missing", primaryNaptDpnId, routerName);
@@ -194,12 +193,11 @@ public class UpgradeStateListener extends AbstractClusteredSyncDataTreeChangeLis
             //Re-elect the other available switch as the NAPT switch and program the NAT flows.
             ProviderTypes extNwProvType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker,
                     routerName, networkId);
-            String externalVpnName = NatUtil.getAssociatedVPN(dataBroker,extRouters.getNetworkId());
             if (extNwProvType == null) {
                 return;
             }
-            NatUtil.removeSNATFromDPN(dataBroker, mdsalManager, idManager, naptSwitchHA, primaryNaptDpnId, extRouters,
-                    routerId, routerVpnId, externalVpnName, extNwProvType, confTx);
+            NatUtil.removeSNATFromDPN(dataBroker, mdsalManager, idManager, naptSwitchHA, primaryNaptDpnId, routerName,
+                    routerId, routerVpnId, networkId, extNwProvType, confTx);
 
         } else {
             LOG.info("hndlTepDelForSnatInEachRtr : SNAT is not enabled for router {} to handle addDPN event {}",

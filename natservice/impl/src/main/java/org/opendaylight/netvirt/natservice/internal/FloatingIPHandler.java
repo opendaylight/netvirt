@@ -18,13 +18,12 @@ import org.opendaylight.yangtools.yang.common.Uint64;
 public interface FloatingIPHandler {
 
     void onAddFloatingIp(Uint64 dpnId, String routerUuid, Uint32 routerId, Uuid networkId, String interfaceName,
-                         InternalToExternalPortMap mapping, String vrfId,
-                         TypedReadWriteTransaction<Configuration> confTx);
+                         InternalToExternalPortMap mapping, TypedReadWriteTransaction<Configuration> confTx);
 
     void onRemoveFloatingIp(Uint64 dpnId, String routerUuid, Uint32 routerId, Uuid networkId,
-                            InternalToExternalPortMap mapping, Uint32 label, String vrfId,
+                            InternalToExternalPortMap mapping, Uint32 label,
                             TypedReadWriteTransaction<Configuration> confTx);
 
-    void cleanupFibEntries(Uint64 dpnId, String vpnName, String externalIp, Uint32 label, String vrfId,
-                            TypedReadWriteTransaction<Configuration> confTx, ProviderTypes provType);
+    void cleanupFibEntries(Uint64 dpnId, String vpnName, String externalIp, Uint32 label,
+                           TypedReadWriteTransaction<Configuration> confTx, ProviderTypes provType);
 }

@@ -174,8 +174,8 @@ public class NatVpnMapsChangeListener extends AsyncDataTreeChangeListenerBase<Vp
                 }
                 Uint32 routerId = NatUtil.getVpnId(dataBroker, routerName);
                 txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
-                    tx -> externalRoutersListener.changeLocalVpnIdToBgpVpnId(routerName, routerId, extNetwork,
-                        vpnName, tx, extNwProvType)).get();
+                    tx -> externalRoutersListener.changeLocalVpnIdToBgpVpnId(routerName, routerId, vpnName, tx,
+                                extNwProvType)).get();
             } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Error changling local VPN identifier to BGP VPN identifier", e);
             }
@@ -212,8 +212,8 @@ public class NatVpnMapsChangeListener extends AsyncDataTreeChangeListenerBase<Vp
                 }
                 Uint32 routerId = NatUtil.getVpnId(dataBroker, routerName);
                 txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
-                    tx -> externalRoutersListener.changeBgpVpnIdToLocalVpnId(routerName, routerId, extNetwork,
-                        vpnName, tx, extNwProvType)).get();
+                    tx -> externalRoutersListener.changeBgpVpnIdToLocalVpnId(routerName, routerId, vpnName, tx,
+                                extNwProvType)).get();
             } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Error changing BGP VPN identifier to local VPN identifier", e);
             }

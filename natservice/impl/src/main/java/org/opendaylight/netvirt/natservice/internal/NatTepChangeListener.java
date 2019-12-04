@@ -447,10 +447,9 @@ public class NatTepChangeListener extends
                             + "associated to the router {}", routerVpnId, routerName);
                 }
                 //Re-elect the other available switch as the NAPT switch and program the NAT flows.
-                String externalVpnName = NatUtil.getAssociatedVPN(dataBroker,
-                        routerData.get().getNetworkId());
-                NatUtil.removeSNATFromDPN(dataBroker, mdsalManager, idManager, naptSwitchHA, dpnId,
-                        routerData.get(), routerId, routerVpnId, externalVpnName, extNwProvType, confTx);
+                NatUtil
+                    .removeSNATFromDPN(dataBroker, mdsalManager, idManager, naptSwitchHA, dpnId,
+                        routerName, routerId, routerVpnId, networkId, extNwProvType, confTx);
             } else {
                 LOG.info(
                     "hndlTepDelForSnatInEachRtr : SNAT is not enabled for router {} to handle addDPN event {}",

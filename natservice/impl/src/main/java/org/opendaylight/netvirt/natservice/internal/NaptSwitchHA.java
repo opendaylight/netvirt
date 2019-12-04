@@ -141,21 +141,20 @@ public class NaptSwitchHA {
         this.natOverVxlanUtil = natOverVxlanUtil;
     }
 
-    protected void removeSnatFlowsInOldNaptSwitch(Routers extRouter, Uint32 routerId, Uint64 naptSwitch,
+    protected void removeSnatFlowsInOldNaptSwitch(String routerName, Uint32 routerId, Uint64 naptSwitch,
                                                   @Nullable Map<String, Uint32> externalIpmap, String externalVpnName,
                                                   TypedReadWriteTransaction<Configuration> confTx)
             throws ExecutionException, InterruptedException {
 
         //remove SNAT flows in old NAPT SWITCH
-        String routerName = extRouter.getRouterName();
-        Uuid networkId = NatUtil.getNetworkIdFromRouterName(dataBroker, routerName);
-        String vpnName = getExtNetworkVpnName(routerName, networkId);
+        Uuid extNetworkId = NatUtil.getNetworkIdFromRouterName(dataBroker, routerName);
+        String vpnName = getExtNetworkVpnName(routerName, extNetworkId);
         if (vpnName == null) {
             LOG.error("removeSnatFlowsInOldNaptSwitch : Vpn is not associated to externalN/w of router {}",
                 routerName);
             return;
         }
-        ProviderTypes extNwProvType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerName, networkId);
+        ProviderTypes extNwProvType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerName, extNetworkId);
         if (extNwProvType == null) {
             LOG.error("removeSnatFlowsInOldNaptSwitch : Unable to retrieve the External Network Provider Type "
                 + "for Router {}", routerName);
@@ -234,7 +233,6 @@ public class NaptSwitchHA {
         // Remove the NAPT_PFIB_TABLE(47) flow entry forwards the packet to Fib Table for outbound traffic
         // matching on the vpn ID.
         boolean switchSharedByRouters = false;
-        Uuid extNetworkId = extRouter.getNetworkId();
         if (extNetworkId != null && !NatUtil.checkForRoutersWithSameExtNetAndNaptSwitch(
             dataBroker, extNetworkId, routerName, naptSwitch)) {
             List<String> routerNamesAssociated = getRouterIdsForExtNetwork(extNetworkId);
@@ -372,22 +370,21 @@ public class NaptSwitchHA {
         return routerUuidsAsString;
     }
 
-    public boolean isNaptSwitchDown(Routers extRouter, Uint32 routerId, Uint64 dpnId, Uint64 naptSwitch,
+    public boolean isNaptSwitchDown(String routerName, Uint32 routerId, Uint64 dpnId, Uint64 naptSwitch,
                                     Uint32 routerVpnId, Collection<String> externalIpCache,
                                     TypedReadWriteTransaction<Configuration> confTx)
             throws ExecutionException, InterruptedException {
-        return isNaptSwitchDown(extRouter, routerId, dpnId, naptSwitch, routerVpnId, externalIpCache, true,
+        return isNaptSwitchDown(routerName, routerId, dpnId, naptSwitch, routerVpnId, externalIpCache, true,
                 confTx);
     }
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public boolean isNaptSwitchDown(Routers extRouter, Uint32 routerId, Uint64 dpnId, Uint64 naptSwitch,
+    public boolean isNaptSwitchDown(String routerName, Uint32 routerId, Uint64 dpnId, Uint64 naptSwitch,
                                     Uint32 routerVpnId, Collection<String> externalIpCache, boolean isClearBgpRts,
                                     TypedReadWriteTransaction<Configuration> confTx)
             throws ExecutionException, InterruptedException {
         externalIpsCache = externalIpCache;
-        String routerName = extRouter.getRouterName();
         if (!naptSwitch.equals(dpnId)) {
             LOG.debug("isNaptSwitchDown : DpnId {} is not a naptSwitch {} for Router {}",
                     dpnId, naptSwitch, routerName);
@@ -398,7 +395,7 @@ public class NaptSwitchHA {
             LOG.error("isNaptSwitchDown : Invalid routerId returned for routerName {}", routerName);
             return true;
         }
-        Uuid networkId = extRouter.getNetworkId();
+        Uuid networkId = NatUtil.getNetworkIdFromRouterName(dataBroker, routerName);
         String vpnName = getExtNetworkVpnName(routerName, networkId);
         //elect a new NaptSwitch
         naptSwitch = naptSwitchSelector.selectNewNAPTSwitch(routerName, Arrays.asList(naptSwitch));
@@ -921,13 +918,7 @@ public class NaptSwitchHA {
 
         if (vpnName != null) {
             //NAPT PFIB point to FIB table for outbound traffic
-            org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
-                .instance.to.vpn.id.VpnInstance vpnInstance = NatUtil.getVpnIdToVpnInstance(dataBroker, vpnName);
-            if (vpnInstance == null) {
-                LOG.error("NAT Service : installNaptPfibEntry vpnInstance not found for {}", vpnName);
-                return;
-            }
-            Uint32 vpnId = vpnInstance.getVpnId();
+            Uint32 vpnId = NatUtil.getVpnId(dataBroker, vpnName);
             if (vpnName.equals(networkId.getValue())) {
                 // below condition valid only for flat/vlan use-case
                 boolean shouldInstallNaptPfibWithExtNetworkVpnId = true;
@@ -961,7 +952,7 @@ public class NaptSwitchHA {
             }
             //Install Fib entries for ExternalIps & program 36 -> 44
             Collection<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
-            String rd = vpnInstance.getVrfId();
+            String rd = NatUtil.getVpnRd(dataBroker, vpnName);
             for (String externalIp : externalIps) {
                 removeFibEntry(rd, externalIp);
                 LOG.debug("installSnatFlows : advToBgpAndInstallFibAndTsFlows in naptswitch id {} "

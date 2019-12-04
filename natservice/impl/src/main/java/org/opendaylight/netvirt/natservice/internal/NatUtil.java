@@ -762,7 +762,7 @@ public final class NatUtil {
 
     @Nullable
     static Uuid getVpnForRouter(DataBroker broker, String routerId) {
-        Preconditions.checkNotNull(routerId, "getVpnForRouter: routerId not found!");
+        Preconditions.checkNotNull(routerId, "dissociateRouter: routerId not found!");
         InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
         Optional<VpnMaps> optionalVpnMaps =
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
@@ -2276,7 +2276,7 @@ public final class NatUtil {
                 LOG.debug("handleSNATForDPN : Removing primary flows from old napt switch {} for router {}",
                     naptId, routerName);
                 try {
-                    naptSwitchHA.removeSnatFlowsInOldNaptSwitch(extRouters, routerId, naptId, null,
+                    naptSwitchHA.removeSnatFlowsInOldNaptSwitch(routerName, routerId, naptId, null,
                         externalVpnName, confTx);
                 } catch (Exception e) {
                     LOG.error("Exception while removing SnatFlows form OldNaptSwitch {}", naptId, e);
@@ -2319,7 +2319,7 @@ public final class NatUtil {
     @SuppressWarnings("checkstyle:IllegalCatch")
     public static void removeSNATFromDPN(DataBroker dataBroker, IMdsalApiManager mdsalManager,
             IdManagerService idManager, NaptSwitchHA naptSwitchHA, Uint64 dpnId,
-            Routers extRouter, Uint32 routerId, Uint32 routerVpnId, String externalVpnName,
+            String routerName, Uint32 routerId, Uint32 routerVpnId, Uuid extNetworkId,
             ProviderTypes extNwProvType, TypedReadWriteTransaction<Configuration> confTx)
                     throws ExecutionException, InterruptedException {
         //irrespective of naptswitch or non-naptswitch, SNAT default miss entry need to be removed
@@ -2328,7 +2328,6 @@ public final class NatUtil {
         if (extNwProvType == null) {
             return;
         }
-        String routerName = extRouter.getRouterName();
         //Get the external IP labels other than VXLAN provider type. Since label is not applicable for VXLAN
         Map<String, Uint32> externalIpLabel;
         if (extNwProvType == ProviderTypes.VXLAN) {
@@ -2343,7 +2342,7 @@ public final class NatUtil {
         }
         Collection<String> externalIpCache = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
         boolean naptStatus =
-            naptSwitchHA.isNaptSwitchDown(extRouter, routerId, dpnId, naptSwitch, routerVpnId,
+            naptSwitchHA.isNaptSwitchDown(routerName, routerId, dpnId, naptSwitch, routerVpnId,
                     externalIpCache, confTx);
         if (!naptStatus) {
             LOG.debug("removeSNATFromDPN: Switch with DpnId {} is not naptSwitch for router {}",
@@ -2393,7 +2392,8 @@ public final class NatUtil {
             LOG.debug("removeSNATFromDPN : Removed default SNAT miss entry flow for dpnID {} with routerName {}",
                 dpnId, routerName);
         } else {
-            naptSwitchHA.removeSnatFlowsInOldNaptSwitch(extRouter, routerId, naptSwitch,
+            String externalVpnName = NatUtil.getAssociatedVPN(dataBroker, extNetworkId);
+            naptSwitchHA.removeSnatFlowsInOldNaptSwitch(routerName, routerId, naptSwitch,
                     externalIpLabel, externalVpnName, confTx);
             //remove table 26 flow ppointing to table46
             FlowEntity flowEntity = null;
@@ -2777,8 +2777,7 @@ public final class NatUtil {
     private static Port getNeutronPort(DataBroker broker, String ifaceName) {
         InstanceIdentifier<Port>
             portsIdentifier = InstanceIdentifier.create(Neutron.class)
-            .child(
-                org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports.class)
+            .child(org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports.class)
             .child(Port.class, new PortKey(new Uuid(ifaceName)));
         Optional<Port> portsOptional;
         try {
@@ -2793,43 +2792,6 @@ public final class NatUtil {
             return null;
         }
         return portsOptional.get();
-    }
-
-    public static org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
-        .instance.to.vpn.id.VpnInstance getVpnIdToVpnInstance(DataBroker broker, String vpnName) {
-        if (vpnName == null) {
-            return null;
-        }
-
-        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911
-            .vpn.instance.to.vpn.id.VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
-        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911
-            .vpn.instance.to.vpn.id.VpnInstance> vpnInstance = Optional.absent();
-        try {
-            vpnInstance = SingleTransactionDataBroker.syncReadOptional(broker, LogicalDatastoreType.CONFIGURATION, id);
-        } catch (ReadFailedException e) {
-            LOG.error("Failed to read VpnInstance {}", vpnInstance, e);
-        }
-        if (vpnInstance.isPresent()) {
-            return vpnInstance.get();
-        } else {
-            return null;
-        }
-    }
-
-    public static Uint32 getExternalVpnIdForExtNetwork(DataBroker broker, Uuid externalNwUuid) {
-        //Get the VPN ID from the ExternalNetworks model
-        if (externalNwUuid == null) {
-            LOG.error("getExternalVpnIdForExtNetwork : externalNwUuid is null");
-            return null;
-        }
-        Uuid vpnUuid = getVpnIdfromNetworkId(broker, externalNwUuid);
-        if (vpnUuid == null) {
-            LOG.error("NAT Service : vpnUuid is null");
-            return null;
-        }
-        Uint32 vpnId = getVpnId(broker, vpnUuid.getValue());
-        return vpnId;
     }
 
     static ReentrantLock lockForNat(final Uint64 dataPath) {
