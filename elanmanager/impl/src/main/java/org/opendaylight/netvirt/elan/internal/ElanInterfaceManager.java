@@ -520,8 +520,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                             continue;
                         }
                         for (MacEntry mac : macs.getMacEntry()) {
-                            removeTheMacFlowInTheDPN(dpId, elanTag, currentDpId, mac, confTx);
-                            removeEtreeMacFlowInTheDPN(dpId, elanTag, currentDpId, mac, confTx);
+                            removeTheMacFlowInTheDPN(dpId, elanTag, mac, confTx);
+                            removeEtreeMacFlowInTheDPN(dpId, elanTag, mac, confTx);
                         }
                     }
                 }
@@ -529,22 +529,20 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         }), LOG, "Error deleting remote MACs in DPN {}", dpId);
     }
 
-    private void removeEtreeMacFlowInTheDPN(Uint64 dpId, Uint32 elanTag, Uint64 currentDpId, MacEntry mac,
+    private void removeEtreeMacFlowInTheDPN(Uint64 dpId, Uint32 elanTag, MacEntry mac,
             TypedReadWriteTransaction<Configuration> confTx) throws ExecutionException, InterruptedException {
         EtreeLeafTagName etreeLeafTag = elanEtreeUtils.getEtreeLeafTagByElanTag(elanTag.longValue());
         if (etreeLeafTag != null) {
-            removeTheMacFlowInTheDPN(dpId, etreeLeafTag.getEtreeLeafTag().getValue(),
-                currentDpId, mac, confTx);
+            removeTheMacFlowInTheDPN(dpId, etreeLeafTag.getEtreeLeafTag().getValue(), mac, confTx);
         }
     }
 
-    private void removeTheMacFlowInTheDPN(Uint64 dpId, Uint32 elanTag, Uint64 currentDpId, MacEntry mac,
+    private void removeTheMacFlowInTheDPN(Uint64 dpId, Uint32 elanTag, MacEntry mac,
             TypedReadWriteTransaction<Configuration> confTx) throws ExecutionException, InterruptedException {
         mdsalManager
                 .removeFlow(confTx, dpId,
                         MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE,
-                                ElanUtils.getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, currentDpId,
-                                        mac.getMacAddress().getValue(), elanTag)));
+                                ElanUtils.getKnownDynamicmacFlowRef(elanTag, mac.getMacAddress().getValue())));
     }
 
     /*
