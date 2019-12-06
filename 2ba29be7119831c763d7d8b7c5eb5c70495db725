@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e3559030_7fd9e98f",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1736,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-12-06T07:11:41Z",
+      "side": 1,
+      "message": "print error",
+      "range": {
+        "startLine": 1736,
+        "startChar": 107,
+        "endLine": 1736,
+        "endChar": 110
+      },
+      "revId": "2ba29be7119831c763d7d8b7c5eb5c70495db725",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff5bc42a_0f7b0e90",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1769,
+      "author": {
+        "id": 8584
+      },
+      "writtenOn": "2019-12-06T07:11:41Z",
+      "side": 1,
+      "message": "PENDING_DELETE state",
+      "range": {
+        "startLine": 1769,
+        "startChar": 103,
+        "endLine": 1769,
+        "endChar": 107
+      },
+      "revId": "2ba29be7119831c763d7d8b7c5eb5c70495db725",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
