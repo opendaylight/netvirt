@@ -158,17 +158,15 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
             InstanceIdentifier<NetworkMap>  networkMapIdentifier = NeutronvpnUtils.buildNetworkMapIdentifier(networkId);
             Optional<NetworkMap> optionalNetworkMap = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                     LogicalDatastoreType.CONFIGURATION, networkMapIdentifier);
-            NetworkMapBuilder nwMapBuilder = null;
+            NetworkMapBuilder nwMapBuilder;
             if (optionalNetworkMap.isPresent()) {
                 nwMapBuilder = new NetworkMapBuilder(optionalNetworkMap.get());
             } else {
                 nwMapBuilder = new NetworkMapBuilder().withKey(new NetworkMapKey(networkId)).setNetworkId(networkId);
                 LOG.debug("Adding a new network node in NetworkMaps DS for network {}", networkId.getValue());
             }
-            List<Uuid> subnetIdList = nwMapBuilder.getSubnetIdList();
-            if (subnetIdList == null) {
-                subnetIdList = new ArrayList<>();
-            }
+            List<Uuid> subnetIdList = nwMapBuilder.getSubnetIdList() != null
+                    ? new ArrayList<>(nwMapBuilder.getSubnetIdList()) : new ArrayList<>();
             subnetIdList.add(subnetId);
             nwMapBuilder.setSubnetIdList(subnetIdList);
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, networkMapIdentifier, nwMapBuilder
@@ -190,7 +188,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
                     LogicalDatastoreType.CONFIGURATION, networkMapIdentifier);
             if (optionalNetworkMap.isPresent()) {
                 NetworkMapBuilder nwMapBuilder = new NetworkMapBuilder(optionalNetworkMap.get());
-                List<Uuid> subnetIdList = nwMapBuilder.getSubnetIdList();
+                List<Uuid> subnetIdList = new ArrayList<>(nwMapBuilder.getSubnetIdList());
                 if (subnetIdList.remove(subnetId)) {
                     if (subnetIdList.isEmpty()) {
                         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, networkMapIdentifier);
