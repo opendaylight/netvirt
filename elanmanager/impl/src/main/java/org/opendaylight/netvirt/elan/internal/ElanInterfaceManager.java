@@ -1049,8 +1049,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             TypedWriteTransaction<Configuration> writeFlowGroupTx) {
         int ifTag = interfaceInfo.getInterfaceTag();
         Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_FILTER_EQUALS_TABLE,
-                getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, ifTag, "group"), 9, elanInfo.getElanInstanceName(), 0,
-                0, Uint64.valueOf(ElanConstants.COOKIE_ELAN_FILTER_EQUALS.toJava().add(BigInteger.valueOf(ifTag))),
+                getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, ifTag, "group"), 11, elanInfo.getElanInstanceName(),
+                0, 0, Uint64.valueOf(ElanConstants.COOKIE_ELAN_FILTER_EQUALS.toJava().add(BigInteger.valueOf(ifTag))),
                 ElanUtils.getTunnelIdMatchForFilterEqualsLPortTag(ifTag),
                 elanUtils.getInstructionsInPortForOutGroup(interfaceInfo.getInterfaceName()));
 
@@ -1059,7 +1059,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 interfaceInfo.getDpId(), interfaceInfo.getPortName());
 
         Flow flowEntry = MDSALUtil.buildFlowNew(NwConstants.ELAN_FILTER_EQUALS_TABLE,
-                getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, ifTag, "drop"), 10, elanInfo.getElanInstanceName(), 0,
+                getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, ifTag, "drop"), 12, elanInfo.getElanInstanceName(), 0,
                 0, Uint64.valueOf(ElanConstants.COOKIE_ELAN_FILTER_EQUALS.toJava().add(BigInteger.valueOf(ifTag))),
                 getMatchesForFilterEqualsLPortTag(ifTag), MDSALUtil.buildInstructionsDrop());
 
@@ -1076,10 +1076,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
         mdsalManager.removeFlow(flowTx, interfaceInfo.getDpId(), flow);
 
-        Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.ELAN_FILTER_EQUALS_TABLE,
-            getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, ifTag, "drop"), 10, elanInfo.getElanInstanceName(), 0,
-            0, Uint64.valueOf(ElanConstants.COOKIE_ELAN_FILTER_EQUALS.toJava().add(BigInteger.valueOf(ifTag))),
-            getMatchesForFilterEqualsLPortTag(ifTag), MDSALUtil.buildInstructionsDrop());
+        Flow flowEntity = MDSALUtil.buildFlow(NwConstants.ELAN_FILTER_EQUALS_TABLE,
+            getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, ifTag, "drop"));
 
         mdsalManager.removeFlow(flowTx, interfaceInfo.getDpId(), flowEntity);
     }
