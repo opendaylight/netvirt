@@ -203,7 +203,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
         return "MAC-" + macAddress + " ELAN_TAG-" + elanTag.toString();
     }
 
-    private static String getElanMacDPNKey(Uint32 elanTag, String macAddress, Uint64 dpnId) {
+    public static String getElanMacDPNKey(Uint32 elanTag, String macAddress, Uint64 dpnId) {
         return "MAC-" + macAddress + " ELAN_TAG-" + elanTag.toString() + "DPN_ID-" + dpnId.toString();
     }
 

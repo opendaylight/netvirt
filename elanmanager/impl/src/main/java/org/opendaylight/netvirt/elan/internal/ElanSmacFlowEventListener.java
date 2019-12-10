@@ -18,12 +18,15 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
@@ -41,6 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.Node
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SwitchFlowRemoved;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -115,8 +119,8 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
                 LOG.info("Deleting the Mac-Entry:{} present on ElanInstance:{}", macEntry, elanInstanceName);
                 if (macEntry != null && interfaceInfo != null) {
                     ListenableFuture<Void> result = txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
-                        tx -> elanUtils.deleteMacFlows(elanInstanceCache.get(elanInstanceName).orNull(),
-                                interfaceInfo, macEntry, tx));
+                        tx -> deleteSmacAndDmacFlows(elanInstanceCache.get(elanInstanceName).orNull(),
+                                interfaceInfo, srcMacAddress, tx));
                     elanFutures.add(result);
                     addCallBack(result, srcMacAddress);
                 }
@@ -158,6 +162,21 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
                 LOG.debug("Error {} while removing macEntry {} from Operational Datastore", error, srcMacAddress);
             }
         }, MoreExecutors.directExecutor());
+    }
+
+    private void deleteSmacAndDmacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, String macAddress,
+                                        TypedReadWriteTransaction<Datastore.Configuration> deleteFlowTx) {
+        if (elanInfo == null || interfaceInfo == null) {
+            return;
+        }
+        synchronized (ElanPacketInHandler.getElanMacDPNKey(elanInfo.getElanTag(), macAddress,
+                interfaceInfo.getDpId())) {
+            try {
+                elanUtils.deleteMacFlows(elanInfo, interfaceInfo, macAddress, /* alsoDeleteSMAC */ true, deleteFlowTx);
+            } catch (ExecutionException | InterruptedException e) {
+                LOG.debug("Failed to delete mac flows for mac address {}, elan instance {}", macAddress, elanInfo, e);
+            }
+        }
     }
 
     @Override
