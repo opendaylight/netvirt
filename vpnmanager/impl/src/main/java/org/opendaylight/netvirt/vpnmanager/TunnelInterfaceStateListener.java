@@ -16,6 +16,7 @@ import com.google.common.base.Strings;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -39,6 +40,7 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
@@ -94,6 +96,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
     private final VpnSubnetRouteHandler vpnSubnetRouteHandler;
     private final JobCoordinator jobCoordinator;
     private final VpnUtil vpnUtil;
+    private static final int RETRY_COUNT = 3;
 
     protected enum UpdateRouteAction {
         ADVERTISE_ROUTE, WITHDRAW_ROUTE
@@ -417,6 +420,24 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                     }
                 }
             }
+            /*
+             * Program the BGP routes of all the VPNs which have footprint on the source DPN.
+             *
+             * DC-GW LB groups are programmed in DJC Jobs, so DJC with same key is used here to make sure
+             * groups are programmed first, then only BGP routes are programmed.
+             */
+            jobCoordinator.enqueueJob(FibHelper.getJobKeyForDcGwLoadBalancingGroup(srcDpnId), () -> {
+                listVpnName.forEach(vpnName -> {
+                    Uint32 vpnId = vpnUtil.getVpnId(vpnName);
+                    final String vrfId = vpnIdRdMap.get(vpnId);
+                    if ((tunnelAction == TunnelAction.TUNNEL_EP_ADD)
+                            && (tunTypeVal == VpnConstants.ITMTunnelLocType.External.getValue())) {
+                        fibManager.populateExternalRoutesOnDpn(srcDpnId, vpnId, vrfId,
+                                srcTepIp, destTepIp);
+                    }
+                });
+                return Collections.emptyList();
+            },RETRY_COUNT);
         } catch (RuntimeException e) {
             LOG.error("handleTunnelEventForDpn: Unable to handle the tunnel event for srcDpnId {} srcTepIp {}"
                     + " remoteDpnId {} destTepIp {}", srcDpnId, srcTepIp, remoteDpnId, destTepIp, e);

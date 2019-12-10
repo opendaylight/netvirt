@@ -60,6 +60,7 @@ import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldVlanVid;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.L3VPNTransportTypes;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev170119.L2vlan;
@@ -151,7 +152,6 @@ public class NexthopManager implements AutoCloseable {
     private static final long WAIT_TIME_TO_ACQUIRE_LOCK = 3000L;
     private static final int SELECT_GROUP_WEIGHT = 1;
     private static final int RETRY_COUNT = 6;
-    private static final String NEXTHOPMANAGER_JOB_KEY_PREFIX = "NextHopManager";
 
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
@@ -1072,7 +1072,7 @@ public class NexthopManager implements AutoCloseable {
 
     public void createDcGwLoadBalancingGroup(Uint64 dpnId, String destinationIp,
                                              Class<? extends TunnelTypeBase> tunnelType) {
-        jobCoordinator.enqueueJob(getJobKey(dpnId), () -> {
+        jobCoordinator.enqueueJob(FibHelper.getJobKeyForDcGwLoadBalancingGroup(dpnId), () -> {
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, operationalTx -> {
                 synchronized (getDcGateWaySyncKey(destinationIp)) {
@@ -1112,10 +1112,6 @@ public class NexthopManager implements AutoCloseable {
             }));
             return futures;
         }, RETRY_COUNT);
-    }
-
-    private String getJobKey(Uint64 dpnId) {
-        return new StringBuilder().append(NEXTHOPMANAGER_JOB_KEY_PREFIX).append(dpnId).toString();
     }
 
     private String getDcGateWaySyncKey(String destinationIp) {
@@ -1177,7 +1173,7 @@ public class NexthopManager implements AutoCloseable {
      */
     public void removeDcGwLoadBalancingGroup(Uint64 dpnId,
             String destinationIp) {
-        jobCoordinator.enqueueJob(getJobKey(dpnId), () -> {
+        jobCoordinator.enqueueJob(FibHelper.getJobKeyForDcGwLoadBalancingGroup(dpnId), () -> {
             List<String> availableDcGws = fibUtil.getL3VpnDcGateWays();
             if (availableDcGws.contains(destinationIp)) {
                 availableDcGws.remove(destinationIp);
@@ -1222,7 +1218,7 @@ public class NexthopManager implements AutoCloseable {
      */
     public void updateDcGwLoadBalancingGroup(Uint64 dpnId, String destinationIp,
             boolean isTunnelUp, Class<? extends TunnelTypeBase> tunnelType) {
-        jobCoordinator.enqueueJob(getJobKey(dpnId), () -> {
+        jobCoordinator.enqueueJob(FibHelper.getJobKeyForDcGwLoadBalancingGroup(dpnId), () -> {
             List<String> availableDcGws = fibUtil.getL3VpnDcGateWays();
             if (availableDcGws.contains(destinationIp)) {
                 availableDcGws.remove(destinationIp);
