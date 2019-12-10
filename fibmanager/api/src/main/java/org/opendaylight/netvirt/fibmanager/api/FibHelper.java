@@ -35,6 +35,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public final class FibHelper {
     private FibHelper() {
@@ -280,5 +281,9 @@ public final class FibHelper {
             bb = bb.setBit(lenghBitsIp - i);
         }
         return bb;
+    }
+
+    public static String getJobKeyForDcGwLoadBalancingGroup(Uint64 dpnId) {
+        return new StringBuilder().append("NextHopManager").append(dpnId).toString();
     }
 }
