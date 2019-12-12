@@ -7,10 +7,12 @@
  */
 package org.opendaylight.netvirt.bgpmanager;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import java.util.Collections;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -45,10 +47,28 @@ public class FibDSWriter {
     private final SingleTransactionDataBroker singleTxDB;
     private final BgpUtil bgpUtil;
 
+    private final Map<String,ArrayList<String>> fibMap = new HashMap<>();
+
     @Inject
     public FibDSWriter(final DataBroker dataBroker, final BgpUtil bgpUtil) {
         this.bgpUtil = bgpUtil;
         this.singleTxDB = new SingleTransactionDataBroker(dataBroker);
+    }
+
+    public synchronized void clearFibMap() {
+        fibMap.clear();
+    }
+
+    public synchronized void addEntryToFibMap(String rd, String prefix, String nextHop) {
+        ArrayList<String> temp = new ArrayList<String>();
+        if ((fibMap.get(appendrdtoprefix(rd, prefix)) != null)) {
+            temp.addAll(fibMap.get(appendrdtoprefix(rd, prefix)));
+        }
+        temp.add(nextHop);
+        fibMap.put(appendrdtoprefix(rd, prefix),temp);
+        LOG.debug("addEntryToFibMap rd {} prefix {} nexthop {}",
+                rd, prefix, nextHop);
+
     }
 
     public synchronized void addFibEntryToDS(String rd, String prefix, List<String> nextHopList,
@@ -78,6 +98,10 @@ public class FibDSWriter {
         buildVpnEncapSpecificInfo(vrfEntryBuilder, encapType, label, l3vni,
                 gatewayMacAddress, nextHopList);
         bgpUtil.update(vrfEntryId, vrfEntryBuilder.build());
+    }
+
+    private String appendrdtoprefix(String rd, String prefix) {
+        return rd + "/" + prefix;
     }
 
     public void addMacEntryToDS(String rd, String macAddress, String prefix,
@@ -175,33 +199,31 @@ public class FibDSWriter {
         }
         LOG.debug("Removing fib entry with destination prefix {} from vrf table for rd {} and nextHop {}",
                 prefix, rd, nextHop);
-        try {
-            InstanceIdentifier<VrfEntry> vrfEntryId =
-                    InstanceIdentifier.builder(FibEntries.class)
-                    .child(VrfTables.class, new VrfTablesKey(rd))
-                    .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
-            Optional<VrfEntry> existingVrfEntry =
-                    singleTxDB.syncReadOptional(LogicalDatastoreType.CONFIGURATION, vrfEntryId);
-            List<RoutePaths> routePaths =
-                    existingVrfEntry.toJavaUtil().map(VrfEntry::getRoutePaths).orElse(Collections.emptyList());
-            if (routePaths.size() == 1) {
-                if (routePaths.get(0).getNexthopAddress().equals(nextHop)) {
-                    bgpUtil.delete(vrfEntryId);
-                }
+
+
+        InstanceIdentifier<VrfEntry> vrfEntryId =
+                InstanceIdentifier.builder(FibEntries.class)
+                        .child(VrfTables.class, new VrfTablesKey(rd))
+                        .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
+
+        LOG.debug("removeOrUpdateFibEntryFromDS rd {} prefix {} NH {}",
+                rd, prefix, nextHop);
+
+        if (fibMap.get(appendrdtoprefix(rd,prefix)) != null) { //Key is there
+            // If nexthop is there, delete it from List
+            List<String> list = fibMap.get(appendrdtoprefix(rd,prefix));
+            list.remove(nextHop);
+            if (list.isEmpty()) {
+                fibMap.remove(appendrdtoprefix(rd, prefix));
+                bgpUtil.delete(vrfEntryId);
             } else {
-                routePaths.stream()
-                    .map(RoutePaths::getNexthopAddress)
-                    .filter(nextHopAddress -> nextHopAddress.equals(nextHop))
-                    .findFirst()
-                    .ifPresent(nh -> {
-                        InstanceIdentifier<RoutePaths> routePathId =
-                                FibHelper.buildRoutePathId(rd, prefix, nextHop);
-                        bgpUtil.delete(routePathId);
-                    });
+                InstanceIdentifier<RoutePaths> routePathId =
+                        FibHelper.buildRoutePathId(rd, prefix, nextHop);
+                bgpUtil.delete(routePathId);
             }
-        } catch (ReadFailedException e) {
-            LOG.error("Error while reading vrfEntry for rd {}, prefix {}", rd, prefix);
-            return;
+        } else {
+            LOG.error("Invalid Delete from Quagga, RD {} Prefix {} Nexthop {}  ",
+                    rd,prefix,nextHop);
         }
     }
 
