@@ -12,7 +12,9 @@ import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import javax.annotation.PostConstruct;
@@ -265,8 +267,15 @@ public class BgpUtil implements AutoCloseable {
     }
 
     public String getVpnNameFromRd(String rd) {
-        VpnInstanceOpDataEntry vpnInstanceOpData = getVpnInstanceOpData(rd);
-        return vpnInstanceOpData != null ? vpnInstanceOpData.getVpnInstanceName() : null;
+        final Map<String, String> rdtoVpnMap = new HashMap<>();
+        if (rdtoVpnMap.get(rd) != null) {
+            return rdtoVpnMap.get(rd);
+        } else {
+            VpnInstanceOpDataEntry vpnInstanceOpData = getVpnInstanceOpData(rd);
+            String vpnName = vpnInstanceOpData != null ? vpnInstanceOpData.getVpnInstanceName() : null;
+            rdtoVpnMap.put(rd, vpnName);
+            return vpnName;
+        }
     }
 
     /** get the vrf with the RouterDistinguisher pass in param.

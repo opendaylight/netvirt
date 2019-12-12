@@ -264,6 +264,9 @@ public class BgpConfigurationManager implements EbgpService {
     // map<rd, map<tep-ip, map<mac, l2vni>>>
     private final Map<String, Map<String, Map<String, Uint32>>> rt2TepMap = new ConcurrentHashMap<>();
 
+    //map<rd+prefix/plen, list (nexthop)>
+    private final Map<String,List> fibMap = new HashMap<>();
+
     private final List<AutoCloseable> listeners = new ArrayList<>();
 
     private final EntityOwnershipUtils entityOwnershipUtils;
