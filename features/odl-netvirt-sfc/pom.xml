@@ -17,7 +17,7 @@
 
     <groupId>org.opendaylight.netvirt</groupId>
     <artifactId>odl-netvirt-sfc</artifactId>
-    <version>0.8.3-SNAPSHOT</version>
+    <version>0.8.3</version>
     <name>OpenDaylight :: NetVirt :: SFC</name>
     <packaging>feature</packaging>
     <modelVersion>4.0.0</modelVersion>
@@ -33,14 +33,14 @@
         <dependency>
             <groupId>org.opendaylight.sfc</groupId>
             <artifactId>odl-sfc-genius</artifactId>
-            <version>0.9.3-SNAPSHOT</version>
+            <version>0.9.3</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.sfc</groupId>
             <artifactId>odl-sfc-openflow-renderer</artifactId>
-            <version>0.9.3-SNAPSHOT</version>
+            <version>0.9.3</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
