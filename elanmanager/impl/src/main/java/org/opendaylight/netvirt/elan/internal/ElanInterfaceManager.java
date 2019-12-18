@@ -672,15 +672,12 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             TypedWriteTransaction<Configuration> writeFlowGroupTx) {
         ElanDpnInterfacesList elanDpnInterfacesList = elanUtils
                 .getElanDpnInterfacesList(elanInstance.getElanInstanceName());
-        List<DpnInterfaces> dpnInterfaceLists = null;
+        List<DpnInterfaces> dpnInterfaceLists = new ArrayList<>();
         if (elanDpnInterfacesList != null) {
             dpnInterfaceLists = elanDpnInterfacesList.getDpnInterfaces();
         }
-        if (dpnInterfaceLists == null) {
-            dpnInterfaceLists = new ArrayList<>();
-        }
+        Uint64 dstDpId = interfaceInfo.getDpId();
         for (DpnInterfaces dpnInterfaces : dpnInterfaceLists) {
-            Uint64 dstDpId = interfaceInfo.getDpId();
             if (Objects.equals(dpnInterfaces.getDpId(), dstDpId)) {
                 continue;
             }

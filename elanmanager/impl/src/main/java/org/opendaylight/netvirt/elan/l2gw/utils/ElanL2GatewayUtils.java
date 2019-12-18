@@ -315,15 +315,13 @@ public class ElanL2GatewayUtils {
         String elanName = elan.getElanInstanceName();
         List<ListenableFuture<Void>> fts = new ArrayList<>();
         Collection<LocalUcastMacs> l2gwDeviceLocalMacs = l2gwDevice.getUcastLocalMacs();
-        if (!l2gwDeviceLocalMacs.isEmpty()) {
-            for (LocalUcastMacs localUcastMac : l2gwDeviceLocalMacs) {
-                fts.addAll(elanDmacUtils.installDmacFlowsToExternalRemoteMacInBatch(dpnId, l2gwDevice.getHwvtepNodeId(),
-                        elan.getElanTag().toJava(), ElanUtils.getVxlanSegmentationId(elan).longValue(),
-                        localUcastMac.getMacEntryKey().getValue(), elanName, interfaceName));
-            }
-            LOG.debug("Installing L2gw device [{}] local macs [size: {}] in dpn [{}] for elan [{}]",
-                    l2gwDevice.getHwvtepNodeId(), l2gwDeviceLocalMacs.size(), dpnId, elanName);
+        for (LocalUcastMacs localUcastMac : l2gwDeviceLocalMacs) {
+            fts.addAll(elanDmacUtils.installDmacFlowsToExternalRemoteMacInBatch(dpnId, l2gwDevice.getHwvtepNodeId(),
+                    elan.getElanTag().toJava(), ElanUtils.getVxlanSegmentationId(elan).longValue(),
+                    localUcastMac.getMacEntryKey().getValue(), elanName, interfaceName));
         }
+        LOG.debug("Installing L2gw device [{}] local macs [size: {}] in dpn [{}] for elan [{}]",
+                l2gwDevice.getHwvtepNodeId(), l2gwDeviceLocalMacs.size(), dpnId, elanName);
         return fts;
     }
 
