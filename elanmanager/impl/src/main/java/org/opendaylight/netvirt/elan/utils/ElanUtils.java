@@ -83,6 +83,7 @@ import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.infrautils.utils.concurrent.NamedLocks;
 import org.opendaylight.infrautils.utils.concurrent.NamedSimpleReentrantLock.Acquired;
+import org.opendaylight.netvirt.elan.EgressActionMissingException;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
 import org.opendaylight.netvirt.elan.internal.ElanGroupCache;
@@ -957,9 +958,14 @@ public class ElanUtils {
         // networks, 0 otherwise
         long lportTagOrVni = !isOpenstackVniSemanticsEnforced() ? lportTag : isVxlanNetworkOrVxlanSegment(elanInstance)
                 ? getVxlanSegmentationId(elanInstance).longValue() : 0;
-        flowEntity = buildRemoteDmacFlowEntry(srcDpId, destDpId, lportTagOrVni, elanTag, macAddress, displayName,
-                elanInstance);
-        mdsalManager.addFlow(writeFlowGroupTx, srcDpId, flowEntity);
+        try {
+            flowEntity = buildRemoteDmacFlowEntry(srcDpId, destDpId, lportTagOrVni, elanTag, macAddress, displayName,
+                    elanInstance);
+            mdsalManager.addFlow(writeFlowGroupTx, srcDpId, flowEntity);
+        } catch (EgressActionMissingException e) {
+            LOG.error("setupRemoteDmacFlow: Failed to build remote DMAC flow for interface {} for elan {} on dpn {}"
+                    + " due to error {}", interfaceName, elanInstance.getElanInstanceName(), srcDpId, e.getMessage());
+        }
         setupEtreeRemoteDmacFlow(srcDpId, destDpId, lportTagOrVni, elanTag, macAddress, displayName, interfaceName,
                 writeFlowGroupTx, elanInstance);
     }
@@ -976,9 +982,15 @@ public class ElanUtils {
                 LOG.warn("Interface {} seems like it belongs to Etree but etreeTagName from elanTag {} is null.",
                         interfaceName, elanTag);
             } else {
-                flowEntity = buildRemoteDmacFlowEntry(srcDpId, destDpId, lportTagOrVni,
-                        etreeTagName.getEtreeLeafTag().getValue(), macAddress, displayName, elanInstance);
-                mdsalManager.addFlow(writeFlowGroupTx, srcDpId, flowEntity);
+                try {
+                    flowEntity = buildRemoteDmacFlowEntry(srcDpId, destDpId, lportTagOrVni,
+                            etreeTagName.getEtreeLeafTag().getValue(), macAddress, displayName, elanInstance);
+                    mdsalManager.addFlow(writeFlowGroupTx, srcDpId, flowEntity);
+                } catch (EgressActionMissingException e) {
+                    LOG.error("setupEtreeRemoteDmacFlow: Failed to bulid DMAC flow for interface {} for elan {}"
+                                    + " on dpn {} due to error {}", interfaceName, elanInstance.getElanInstanceName(),
+                            srcDpId, e.getMessage());
+                }
             }
         }
     }
@@ -1007,17 +1019,17 @@ public class ElanUtils {
      */
     @SuppressWarnings("checkstyle:IllegalCatch")
     public Flow buildRemoteDmacFlowEntry(Uint64 srcDpId, Uint64 destDpId, long lportTagOrVni, Uint32 elanTag,
-            String macAddress, String displayName, ElanInstance elanInstance) {
+            String macAddress, String displayName, ElanInstance elanInstance) throws EgressActionMissingException {
         List<MatchInfo> mkMatches = new ArrayList<>();
         mkMatches.add(new MatchMetadata(ElanHelper.getElanMetadataLabel(elanTag.longValue()),
             MetaDataUtil.METADATA_MASK_SERVICE));
         mkMatches.add(new MatchEthernetDestination(new MacAddress(macAddress)));
 
         List<Instruction> mkInstructions = new ArrayList<>();
+        List<Action> actions = null;
 
         // List of Action for the provided Source and Destination DPIDs
         try {
-            List<Action> actions = null;
             if (isVxlanNetworkOrVxlanSegment(elanInstance)) {
                 actions = elanItmUtils.getInternalTunnelItmEgressAction(srcDpId, destDpId, lportTagOrVni);
             } else if (isVlan(elanInstance) || isFlat(elanInstance)) {
@@ -1032,7 +1044,15 @@ public class ElanUtils {
         } catch (Exception e) {
             LOG.error("Could not get egress actions to add to flow for srcDpId {}, destDpId {}, lportTag/VNI {}",
                     srcDpId,  destDpId, lportTagOrVni, e);
+            throw new EgressActionMissingException(String.format("Could not get egress actions to add to flow for"
+                    + " srcDpId=%s, destDpId=%s, lportTag=%s", srcDpId, destDpId, lportTagOrVni), e);
         }
+
+        if (actions == null || actions.isEmpty()) {
+            throw new EgressActionMissingException(String.format("Found empty Egress Actions for srcDpId=%s,"
+                    + " destDpId=%s, lportTag=%s", srcDpId, destDpId, lportTagOrVni));
+        }
+        mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));
 
         Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE,
                 getKnownDynamicmacFlowRef(elanTag, macAddress),
