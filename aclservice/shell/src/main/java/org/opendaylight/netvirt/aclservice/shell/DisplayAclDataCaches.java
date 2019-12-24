@@ -8,9 +8,16 @@
 
 package org.opendaylight.netvirt.aclservice.shell;
 
+import static java.util.stream.Collectors.joining;
+
 import java.util.Collection;
+import java.util.Formatter;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.SortedSet;
+import java.util.stream.Collectors;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
@@ -18,52 +25,62 @@ import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.api.utils.AclDataCache;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIp;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.AceIpVersion;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv4;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv6;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionIngress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
+import org.opendaylight.yangtools.yang.common.Uint8;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 @Command(scope = "aclservice", name = "display-acl-data-cache", description = " ")
 public class DisplayAclDataCaches extends OsgiCommandSupport {
     private static final Logger LOG = LoggerFactory.getLogger(DisplayAclDataCaches.class);
     private AclDataCache aclDataCache;
     private AclInterfaceCache aclInterfaceCache;
-    private static final String KEY_TAB = "   %-8s";
-    private static final String ACL_INT_TAB = "   %-4s  %-4s  %-4s  %-4s %-4s  %-6s  %-20s  %-20s %-4s";
-    private static final String ACL_INT_TAB_FOR = KEY_TAB + ACL_INT_TAB;
-    private static final String ACL_INT_HEAD = String.format(ACL_INT_TAB_FOR, "UUID", "PortSecurityEnabled",
-            "InterfaceId", "LPortTag", "DpId", "ElanId", "SecurityGroups", "AllowedAddressPairs", "SubnetInfo",
-            "MarkedForDelete")
-            + "\n   -------------------------------------------------------------------------------------------------";
-    private static final String REM_ID_TAB = "   %-20s  ";
-    private static final String REM_ID_TAB_FOR = KEY_TAB + REM_ID_TAB;
-    private static final String REM_ID_HEAD = String.format(REM_ID_TAB_FOR, "Remote-ACL-ID", "ACL-ID")
-            + "\n   -------------------------------------------------------------------------";
-    private static final String ACL_DATA_TAB_FOR = "   %-8s %-8s  %n";
-    private static final String ACL_DATA_HEAD = String.format(ACL_DATA_TAB_FOR, "ACL-ID", "ACL-TAG")
-            + "\n   -------------------------------------------------------------------------";
-    private static final String ACL_HEAD = String.format(ACL_DATA_TAB_FOR, "ACL-ID", "ACL")
-            + "\n   -------------------------------------------------------------------------";
-    private final String exeCmdStr = "exec display-acl-data-cache -op ";
+
+    private static final String UUID_TAB = "%-40s";
+    private static final String DELIMITER = String.format("%-40s", "");
+    private  static final String ACL_TAG_HEADER_LINE = "-----------------------------------------------";
+    private static final String ACL_TAG_HEADERS = String.format("%-40s%-40s", "ACL Id", "ACL Tag");
+    private static final String ACL_TAG_DATA_FORMAT_STRING = "%-40s%-40s";
+    private static final String HEADER_LINE =
+            "----------------------------------------------------------------------------------";
+    private static final String REMOTE_ACL_ID_HEADERS = String.format("%-40s%-40s", "Remote ACL Id", "ACL Id");
+    private static final String ACL_INTERFACE_MAP_HEADERS = String.format("%-40s%-40s", "ACL Id", "Interface Id");
+    private static final String ACL_HEADER = String.format("%-8s", "ACL Id: ");
+    private static final String ACE_DATA_FOR = "%-37s%-10s%-6s%-7s%-25s";
+    private static final String ACL_ENTRIES_HEADERS = String.format(ACE_DATA_FOR, "ACE ID", "Direction", "Proto",
+            "IP Ver", "IP Prefix/RemoteGroupId");
+    private static final String ACL_INTERFACE_FORMAT_STRING = "%-37s %-12s %-10s %-15s %-7s %-6s %-6s";
+    private static final String ACL_ENTRIES_HEADER_LINE =
+            "--------------------------------------------------------------------------------------";
+    private static final String ACE_ENTRIES_FORMAT_STRING = "%-37s%-10s%-6s%-7s%-40s";
+
+    private final String exeCmdStr = "display-acl-data-cache -op ";
     private final String opSelections =
             "[ aclInterface | ingressRemoteAclId | egressRemoteAclId | aclTag | aclInterfaceCache | acl ]";
     private final String opSelStr = exeCmdStr + opSelections;
 
-
-    @Option(name = "-op", aliases = { "--option",
-            "--op" }, description = opSelections, required = false, multiValued = false)
+    @Option(name = "-op", aliases = {"--option",
+            "--op"}, description = opSelections, required = false, multiValued = false)
     private String op;
 
-    @Option(name = "--uuid", description = "uuid for aclInterface/ingressRemoteAclId/egressRemoteAclId",
-            required = false, multiValued = false)
-    private String uuidStr;
-
-
     @Option(name = "--all", description = "display the complete selected map", required = false, multiValued = false)
-    private String all ;
+    private String all;
 
     @Option(name = "--key", description = "key for aclTag/aclInterfaceCache/acl", required = false,
             multiValued = false)
@@ -77,6 +94,25 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
         this.aclInterfaceCache = aclInterfaceCache;
     }
 
+    private Map<String, String> protoMap = new HashMap<String, String>() {
+        {
+            put("1", "ICMP");
+            put("6", "TCP");
+            put("17", "UDP");
+        }
+    };
+
+    private Map<String, String> opToKeyIdMap = new HashMap<String, String>() {
+        {
+            put("aclInterface", "aclInterfaceUuid");
+            put("ingressRemoteAclId", "remoteAclUuid");
+            put("egressRemoteAclId", "remoteAclUuid");
+            put("aclTag", "aclUuid");
+            put("aclInterfaceCache", "aclInterfaceUuid");
+            put("acl", "aclUuid");
+        }
+    };
+
     @Override
     protected Object doExecute() {
         if (aclDataCache == null) {
@@ -86,8 +122,8 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
 
         if (op == null) {
             session.getConsole().println("Please provide valid option");
-            usage();
-            session.getConsole().println(opSelStr);
+            session.getConsole().println();
+            session.getConsole().println("Usage: " + opSelStr);
             return null;
         }
         switch (op) {
@@ -110,197 +146,142 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
                 getAclMap();
                 break;
             default:
-                session.getConsole().println("invalid operation");
-                usage();
-                session.getConsole().println(opSelStr);
+                session.getConsole().println("Invalid operation");
+                session.getConsole().println();
+                session.getConsole().println("Usage: " + opSelStr);
         }
         return null;
     }
 
-    void usage() {
-        session.getConsole().println("usage:");
-    }
-
-    void printAclInterfaceMapHelp() {
-        session.getConsole().println("invalid input");
-        usage();
-        session.getConsole().println(
-                exeCmdStr + "aclInterface --all show | --uuid <uuid>");
-    }
-
-    void printRemoteAclIdMapHelp() {
-        session.getConsole().println("invalid input");
-        usage();
-        session.getConsole().println(
-                exeCmdStr + "remoteAclId --all show | --uuid <uuid>");
-    }
-
-    void printAclTagMapHelp() {
-        session.getConsole().println("invalid input");
-        usage();
-        session.getConsole().println(
-                exeCmdStr + "aclTag --all show | --key <ACL-ID>");
-    }
-
-    void printAclInterfaceCacheHelp() {
-        session.getConsole().println("invalid input");
-        usage();
-        session.getConsole().println(
-                exeCmdStr + "aclInterfaceCache --all show | --key <key>");
-    }
-
-    void printAclMapHelp() {
-        session.getConsole().println("invalid input");
-        usage();
-        session.getConsole().println(exeCmdStr + "acl --all show | --key <key>");
+    private void printHelp() {
+        session.getConsole().println("Invalid input");
+        session.getConsole().println();
+        session.getConsole().println("Usage: " + exeCmdStr + op + " --all show | --key <"
+                                            + opToKeyIdMap.get(op) + ">");
     }
 
     private boolean validateAll() {
         return "show".equalsIgnoreCase(all);
     }
 
+    private void printHeader(String headerString, String headerLine) {
+        session.getConsole().println();
+        session.getConsole().println(headerString);
+        session.getConsole().println(headerLine);
+    }
+
     protected void getAclInterfaceMap() {
-        if (all == null && uuidStr == null) {
-            printAclInterfaceMapHelp();
+        if (all == null && key == null) {
+            printHelp();
         } else if (all == null) {
             Uuid uuid;
             try {
-                uuid = Uuid.getDefaultInstance(uuidStr);
+                uuid = Uuid.getDefaultInstance(key);
             } catch (IllegalArgumentException e) {
-                session.getConsole().println("Invalid uuid" + e.getMessage());
-                log.error("Invalid uuid", e);
+                session.getConsole().println("Invalid uuid. " + e.getMessage());
+                LOG.error("Invalid uuid", e);
                 return;
             }
             Collection<AclInterface> aclInterfaceList = aclDataCache.getInterfaceList(uuid);
-            if (aclInterfaceList == null || aclInterfaceList.isEmpty()) {
-                session.getConsole().println("UUID not matched");
-            } else {
-                session.getConsole().println(ACL_INT_HEAD);
-                session.getConsole().print(String.format(KEY_TAB, uuid.toString()));
-                for (AclInterface aclInterface : aclInterfaceList) {
-                    session.getConsole().println(String.format(ACL_INT_TAB,
-                            aclInterface.isPortSecurityEnabled(), aclInterface.getInterfaceId(),
-                            aclInterface.getLPortTag(), aclInterface.getDpId(), aclInterface.getElanId(),
-                            aclInterface.getSecurityGroups(), aclInterface.getAllowedAddressPairs(),
-                            aclInterface.getSubnetInfo(), aclInterface.isMarkedForDelete()));
-                }
-            }
-        } else if (uuidStr == null) {
+            printHeader(ACL_INTERFACE_MAP_HEADERS, HEADER_LINE);
+            session.getConsole().print(String.format(UUID_TAB, uuid.getValue()));
+            printAclInterfaceMap(aclInterfaceList);
+        } else if (key == null) {
             if (!validateAll()) {
-                printAclInterfaceMapHelp();
+                printHelp();
                 return;
             }
-            Map<Uuid, Collection<AclInterface>> map = aclDataCache.getAclInterfaceMap();
-
-            if (map.isEmpty()) {
+            Map<Uuid, Collection<AclInterface>> aclInterfaceMap = aclDataCache.getAclInterfaceMap();
+            if (aclInterfaceMap.isEmpty()) {
                 session.getConsole().println("No data found");
             } else {
-                session.getConsole().println(ACL_INT_HEAD);
-                for (Entry<Uuid, Collection<AclInterface>> entry: map.entrySet()) {
-                    session.getConsole().print(String.format(KEY_TAB, entry.getKey().toString()));
-                    for (AclInterface aclInterface: entry.getValue()) {
-                        session.getConsole().println(String.format(ACL_INT_TAB,
-                                aclInterface.isPortSecurityEnabled(), aclInterface.getInterfaceId(),
-                                aclInterface.getLPortTag(), aclInterface.getDpId(), aclInterface.getElanId(),
-                                aclInterface.getSecurityGroups(), aclInterface.getAllowedAddressPairs(),
-                                aclInterface.getSubnetInfo(), aclInterface.isMarkedForDelete()));
-                    }
-                }
+                printHeader(ACL_INTERFACE_MAP_HEADERS, HEADER_LINE);
+                aclInterfaceMap.forEach((uuid, aclInterfaceList) -> {
+                    session.getConsole().print(String.format(UUID_TAB, uuid.getValue()));
+                    printAclInterfaceMap(aclInterfaceList);
+                });
             }
         }
     }
 
     protected void getRemoteAclIdMap(Class<? extends DirectionBase> direction) {
-        if (all == null && uuidStr == null) {
-            printRemoteAclIdMapHelp();
+        if (all == null && key == null) {
+            printHelp();
         } else if (all == null) {
             Uuid uuidRef;
             try {
-                uuidRef = Uuid.getDefaultInstance(uuidStr);
+                uuidRef = Uuid.getDefaultInstance(key);
             } catch (IllegalArgumentException e) {
                 session.getConsole().println("Invalid uuid" + e.getMessage());
-                log.error("Invalid uuid", e);
+                LOG.error("Invalid uuid", e);
                 return;
             }
             Collection<Uuid> remoteUuidLst = aclDataCache.getRemoteAcl(uuidRef, direction);
-            if (remoteUuidLst == null || remoteUuidLst.isEmpty()) {
-                session.getConsole().println("UUID not matched");
-            } else {
-                session.getConsole().println(REM_ID_HEAD);
-                session.getConsole().print(String.format(KEY_TAB, uuidRef.getValue()));
-                boolean first = true;
-                for (Uuid uuid : remoteUuidLst) {
-                    if (first) {
-                        session.getConsole().println(String.format(REM_ID_TAB, uuid.getValue()));
-                        first = false;
-                    } else {
-                        session.getConsole().println(String.format(REM_ID_TAB_FOR, "", uuid.getValue()));
-                    }
-                }
-            }
-        } else if (uuidStr == null) {
+            printHeader(REMOTE_ACL_ID_HEADERS, HEADER_LINE);
+            session.getConsole().print(String.format(UUID_TAB, uuidRef.getValue()));
+            printRemoteAcl(remoteUuidLst);
+        } else if (key == null) {
             if (!validateAll()) {
-                printRemoteAclIdMapHelp();
+                printHelp();
                 return;
             }
 
-            Map<Uuid, Collection<Uuid>> map =
-                    DirectionEgress.class.equals(direction) ? aclDataCache.getEgressRemoteAclIdMap()
-                            : aclDataCache.getIngressRemoteAclIdMap();
+            Map<Uuid, Collection<Uuid>> map = DirectionEgress.class.equals(direction)
+                    ? aclDataCache.getEgressRemoteAclIdMap() : aclDataCache.getIngressRemoteAclIdMap();
             if (map.isEmpty()) {
                 session.getConsole().println("No data found");
             } else {
-                session.getConsole().println(REM_ID_HEAD);
-                for (Entry<Uuid, Collection<Uuid>> entry: map.entrySet()) {
-                    session.getConsole().print(String.format(KEY_TAB, entry.getKey().getValue()));
-                    if (entry.getValue() == null || entry.getValue().isEmpty()) {
-                        session.getConsole().println(String.format(REM_ID_TAB, ""));
-                    } else {
-                        boolean first = true;
-                        for (Uuid uuid : entry.getValue()) {
-                            if (first) {
-                                session.getConsole().println(String.format(REM_ID_TAB, uuid.getValue()));
-                                first = false;
-                            } else {
-                                session.getConsole().println(String.format(REM_ID_TAB_FOR, "", uuid.getValue()));
-                            }
-                        }
-                    }
-                }
+                printHeader(REMOTE_ACL_ID_HEADERS, HEADER_LINE);
+                map.forEach((uuid, remoteUuidList) -> {
+                    session.getConsole().print(String.format(UUID_TAB, uuid.getValue()));
+                    printRemoteAcl(remoteUuidList);
+                    session.getConsole().println();
+                });
             }
+        }
+    }
+
+    private void printRemoteAcl(Collection<Uuid> remoteUuidLst) {
+        if (remoteUuidLst == null || remoteUuidLst.isEmpty()) {
+            session.getConsole().println("No data found ");
+        } else {
+            List<String> uuids = remoteUuidLst.stream().map(Uuid::getValue).collect(Collectors.toList());
+            String joined = uuids.stream().collect(joining("\n" + DELIMITER, "", ""));
+            session.getConsole().println(joined);
         }
     }
 
     protected void getAclTagMap() {
         if (all == null && key == null) {
-            printAclTagMapHelp();
+            printHelp();
         } else if (all == null) {
             Integer val = aclDataCache.getAclTag(key);
             if (val == null) {
                 session.getConsole().println("No data found");
                 return;
             }
-            session.getConsole().print(ACL_DATA_HEAD);
-            session.getConsole().println(String.format(ACL_DATA_TAB_FOR, key, val));
+            printHeader(ACL_TAG_HEADERS, ACL_TAG_HEADER_LINE);
+            session.getConsole().println(String.format(ACL_TAG_DATA_FORMAT_STRING, key, val));
         } else if (key == null) {
             if (!validateAll()) {
-                printAclTagMapHelp();
+                printHelp();
                 return;
             }
             Map<String, Integer> map = aclDataCache.getAclTagMap();
             if (map.isEmpty()) {
                 session.getConsole().println("No data found");
             } else {
-                session.getConsole().print(ACL_DATA_HEAD);
+                printHeader(ACL_TAG_HEADERS, ACL_TAG_HEADER_LINE);
                 map.entrySet().stream().sorted(Map.Entry.comparingByValue()).forEach(entry -> session.getConsole()
-                        .println(String.format(ACL_DATA_TAB_FOR, entry.getKey(), entry.getValue())));
+                        .println(String.format(ACL_TAG_DATA_FORMAT_STRING, entry.getKey(), entry.getValue())));
             }
         }
     }
 
+
     protected void getAclInterfaceCache() {
         if (all == null && key == null) {
-            printAclInterfaceCacheHelp();
+            printHelp();
             return;
         }
         if (all == null && key != null) {
@@ -309,58 +290,202 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
                 session.getConsole().println("No data found");
                 return;
             }
-            session.getConsole().println(ACL_INT_HEAD);
-            session.getConsole().println(String.format(ACL_INT_TAB_FOR, key,
-                    aclInterface.isPortSecurityEnabled(), aclInterface.getInterfaceId(),
-                    aclInterface.getLPortTag(), aclInterface.getDpId(), aclInterface.getElanId(),
-                    aclInterface.getSecurityGroups(), aclInterface.getAllowedAddressPairs(),
-                    aclInterface.getSubnetInfo(), aclInterface.isMarkedForDelete()));
-
+            printAclInterfaceHeader();
+            printAclInterface(aclInterface);
         } else if (key == null) {
             if (!validateAll()) {
-                printAclInterfaceCacheHelp();
+                printHelp();
                 return;
             }
             Collection<Entry<String, AclInterface>> entries = aclInterfaceCache.entries();
             if (entries.isEmpty()) {
                 session.getConsole().println("No data found");
-            } else {
-                session.getConsole().println(ACL_INT_HEAD);
-                for (Map.Entry<String, AclInterface> entry : entries) {
-                    AclInterface aclInterface = entry.getValue();
-                    session.getConsole().println(String.format(ACL_INT_TAB_FOR, entry.getKey(),
-                            aclInterface.isPortSecurityEnabled(), aclInterface.getInterfaceId(),
-                            aclInterface.getLPortTag(), aclInterface.getDpId(), aclInterface.getElanId(),
-                            aclInterface.getSecurityGroups(), aclInterface.getAllowedAddressPairs(),
-                            aclInterface.getSubnetInfo(), aclInterface.isMarkedForDelete()));
+                return;
+            }
+            printAclInterfaceCache(entries);
+        }
+    }
+
+    private void printAclInterfaceMap(Collection<AclInterface> aclInterfaceList) {
+        if (aclInterfaceList == null || aclInterfaceList.isEmpty()) {
+            session.getConsole().println("No data found");
+        } else {
+            List<String> uuids = aclInterfaceList.stream().map(AclInterface::getInterfaceId)
+                    .collect(Collectors.toList());
+            String joined = uuids.stream().collect(joining("\n" + DELIMITER, "", ""));
+            session.getConsole().println(joined);
+            session.getConsole().println();
+        }
+    }
+
+    @SuppressWarnings("checkstyle:RegexpSinglelineJava")
+    private void printAclInterfaceCache(Collection<Entry<String, AclInterface>> entries) {
+        printAclInterfaceHeader();
+
+        for (Map.Entry<String, AclInterface> entry : entries) {
+            AclInterface aclInterface = entry.getValue();
+            printAclInterface(aclInterface);
+        }
+    }
+
+    private void printAclInterface(AclInterface aclInterface) {
+        session.getConsole().println(String.format(ACL_INTERFACE_FORMAT_STRING, aclInterface.getInterfaceId(),
+                aclInterface.getInterfaceType(), aclInterface.isPortSecurityEnabled(), aclInterface.getDpId(),
+                aclInterface.getLPortTag(), aclInterface.getElanId(), aclInterface.isMarkedForDelete()));
+        List<AllowedAddressPairs> aaps = aclInterface.getAllowedAddressPairs();
+        if (aaps == null || aaps.isEmpty()) {
+            session.getConsole().println("--");
+        } else {
+            for (AllowedAddressPairs aap : aaps) {
+                IpPrefixOrAddress ipPrefixOrAddress = aap.getIpAddress();
+                IpPrefix ipPrefix = ipPrefixOrAddress.getIpPrefix();
+                String ipAddrStr = "";
+                if (ipPrefix != null) {
+                    if (ipPrefix.getIpv4Prefix() != null) {
+                        ipAddrStr = ipPrefix.getIpv4Prefix().getValue();
+                    } else {
+                        ipAddrStr = ipPrefix.getIpv6Prefix().getValue();
+                    }
+                } else {
+                    IpAddress ipAddress = ipPrefixOrAddress.getIpAddress();
+                    if (ipAddress != null) {
+                        if (ipAddress.getIpv4Address() != null) {
+                            ipAddrStr = ipAddress.getIpv4Address().getValue();
+                        } else {
+                            ipAddrStr = ipAddress.getIpv6Address().getValue();
+                        }
+                    }
                 }
+                String macAddrStr = aap.getMacAddress().getValue();
+                session.getConsole().println(ipAddrStr + ", " + macAddrStr);
             }
         }
+
+        List<Uuid> sgsUuid = aclInterface.getSecurityGroups();
+        if (sgsUuid == null || sgsUuid.isEmpty()) {
+            session.getConsole().println("--");
+        } else {
+            for (Uuid sgUuid : sgsUuid) {
+                session.getConsole().println(sgUuid.getValue());
+            }
+        }
+        SortedSet<Integer> ingressRemoteAclTags = aclInterface.getIngressRemoteAclTags();
+        if (ingressRemoteAclTags == null || ingressRemoteAclTags.isEmpty()) {
+            session.getConsole().println("--");
+        } else {
+            session.getConsole().println(ingressRemoteAclTags);
+        }
+        SortedSet<Integer> egressRemoteAclTags = aclInterface.getEgressRemoteAclTags();
+        if (egressRemoteAclTags == null || egressRemoteAclTags.isEmpty()) {
+            session.getConsole().println("--");
+        } else {
+            session.getConsole().println(egressRemoteAclTags);
+        }
+        session.getConsole().println();
+    }
+
+    private void printAclInterfaceHeader() {
+        session.getConsole().println();
+        StringBuilder sb = new StringBuilder();
+        Formatter fmt = new Formatter(sb);
+        session.getConsole().println(fmt.format(ACL_INTERFACE_FORMAT_STRING, "InterfaceId", "Type",
+                "SGEnabled", "DpId", "LPort", "ElanId", "Marked"));
+        sb.setLength(0);
+        session.getConsole().println(fmt.format("%-55s", "AllowedAddressPairs"));
+        sb.setLength(0);
+        session.getConsole().println(fmt.format("%-55s", "SecurityGroups"));
+        sb.setLength(0);
+        session.getConsole().println(fmt.format("%-55s", "IngressRemoteAclTags"));
+        sb.setLength(0);
+        session.getConsole().println(fmt.format("%-55s", "EgressRemoteAclTags"));
+        sb.setLength(0);
+        session.getConsole().println(fmt
+            .format("----------------------------------------------------------------------------------------------"));
+        sb.setLength(0);
+        fmt.close();
     }
 
     protected void getAclMap() {
         if (all == null && key == null) {
-            printAclMapHelp();
+            printHelp();
         } else if (all == null) {
             Acl acl = aclDataCache.getAcl(key);
             if (acl == null) {
                 session.getConsole().println("No data found");
                 return;
             }
-            session.getConsole().print(ACL_HEAD);
-            session.getConsole().printf(ACL_DATA_TAB_FOR, key, acl);
+            printAcl(key, acl);
         } else if (key == null) {
             if (!validateAll()) {
-                printAclMapHelp();
+                printHelp();
                 return;
             }
             Map<String, Acl> map = aclDataCache.getAclMap();
             if (map.isEmpty()) {
                 session.getConsole().println("No data found");
             } else {
-                session.getConsole().print(ACL_HEAD);
-                map.forEach((string, acl) -> session.getConsole().printf(ACL_DATA_TAB_FOR, string, acl));
+                map.forEach(this::printAcl);
             }
         }
+    }
+
+    private void printAcl(String aclId, Acl acl) {
+        session.getConsole().println();
+        session.getConsole().println(ACL_HEADER + String.format("%-32s  ", aclId));
+        if (null != acl.getAccessListEntries() && null != acl.getAccessListEntries().getAce()) {
+            printHeader(ACL_ENTRIES_HEADERS, ACL_ENTRIES_HEADER_LINE);
+            List<Ace> aceList = acl.getAccessListEntries().getAce();
+            for (Ace ace : aceList) {
+                LOG.info("ace data: {}", ace);
+                SecurityRuleAttr aceAttr = getAccessListAttributes(ace);
+                Class<? extends DirectionBase> aceAttrDirection = aceAttr.getDirection();
+                AceIp aceIp = (AceIp) ace.getMatches().getAceType();
+                AceIpVersion ipVersion = aceIp.getAceIpVersion();
+                Uint8 protoNum = aceIp.getProtocol();
+                String protocol = "Any";
+                if (null != protoNum) {
+                    protocol = protoMap.get(protoNum.toString());
+                    protocol = (protocol == null) ? protoNum.toString() : protocol;
+                }
+                String ipVer = "";
+                String direction = DirectionEgress.class.equals(aceAttrDirection) ? "Egress" : "Ingress";
+                String ipPrefix = " -- ";
+                if (null != ipVersion && ipVersion instanceof AceIpv4) {
+                    ipVer = "IPv4";
+                    Ipv4Prefix srcNetwork = ((AceIpv4) ipVersion).getSourceIpv4Network();
+                    if (null != srcNetwork) {
+                        ipPrefix = srcNetwork.getValue();
+                    }
+                } else if (null != ipVersion && ipVersion instanceof AceIpv6) {
+                    ipVer = "IPv6";
+                    Ipv6Prefix srcNetwork = ((AceIpv6) ipVersion).getSourceIpv6Network();
+                    if (null != srcNetwork) {
+                        ipPrefix = srcNetwork.getValue();
+                    }
+                }
+                String remoteGroupId = "-";
+                if (aceAttr.getRemoteGroupId() != null) {
+                    remoteGroupId = aceAttr.getRemoteGroupId().getValue();
+                    ipPrefix = "-";
+                }
+                String prefixAndRemoteId = ipPrefix + " / " + remoteGroupId;
+                session.getConsole().print(String.format(ACE_ENTRIES_FORMAT_STRING, ace.key().getRuleName(),
+                        direction, protocol, ipVer, prefixAndRemoteId));
+            }
+        }
+        session.getConsole().println();
+    }
+
+    public SecurityRuleAttr getAccessListAttributes(Ace ace) {
+        if (ace == null) {
+            LOG.error("Ace is Null");
+            return null;
+        }
+        SecurityRuleAttr aceAttributes = ace.augmentation(SecurityRuleAttr.class);
+        if (aceAttributes == null) {
+            LOG.error("Ace is null");
+            return null;
+        }
+        return aceAttributes;
     }
 }
