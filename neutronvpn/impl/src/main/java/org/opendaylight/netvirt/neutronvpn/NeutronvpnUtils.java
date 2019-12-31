@@ -243,12 +243,13 @@ public class NeutronvpnUtils {
     @Nullable
     protected Uuid getVpnForNetwork(Uuid network) {
         Optional<VpnMaps> optionalVpnMaps = read(LogicalDatastoreType.CONFIGURATION, VPN_MAPS_IID);
-        if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().nonnullVpnMap() != null) {
-            for (VpnMap vpnMap : new ArrayList<>(optionalVpnMaps.get().nonnullVpnMap())) {
-                List<Uuid> netIds = vpnMap.getNetworkIds();
-                if (netIds != null && netIds.contains(network)) {
-                    return vpnMap.getVpnId();
-                }
+        if (!optionalVpnMaps.isPresent()) {
+            return null;
+        }
+        for (VpnMap vpnMap : new ArrayList<>(optionalVpnMaps.get().nonnullVpnMap())) {
+            List<Uuid> netIds = vpnMap.getNetworkIds();
+            if (netIds != null && netIds.contains(network)) {
+                return vpnMap.getVpnId();
             }
         }
         LOG.debug("getVpnForNetwork: Failed for network {} as no VPN present in VPNMaps DS", network.getValue());
@@ -287,27 +288,28 @@ public class NeutronvpnUtils {
         }
 
         Optional<VpnMaps> optionalVpnMaps = read(LogicalDatastoreType.CONFIGURATION, VPN_MAPS_IID);
-        if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().nonnullVpnMap() != null) {
-            for (VpnMap vpnMap : new ArrayList<>(optionalVpnMaps.get().nonnullVpnMap())) {
-                List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.vpnmap
+        if (!optionalVpnMaps.isPresent()) {
+            return null;
+        }
+        for (VpnMap vpnMap : new ArrayList<>(optionalVpnMaps.get().nonnullVpnMap())) {
+            List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.vpnmap
                     .RouterIds> routerIdsList = vpnMap.getRouterIds();
-                if (routerIdsList == null || routerIdsList.isEmpty()) {
-                    continue;
-                }
-                // Skip router vpnId fetching from internet BGP-VPN
-                if (hasExternalNetwork(vpnMap.getNetworkIds())) {
-                    continue;
-                }
-                // FIXME: NETVIRT-1503: this check can be replaced by a ReadOnlyTransaction.exists()
-                if (routerIdsList.stream().anyMatch(routerIds -> routerId.equals(routerIds.getRouterId()))) {
-                    if (externalVpn) {
-                        if (!routerId.equals(vpnMap.getVpnId())) {
-                            return vpnMap.getVpnId();
-                        }
-                    } else {
-                        if (routerId.equals(vpnMap.getVpnId())) {
-                            return vpnMap.getVpnId();
-                        }
+            if (routerIdsList == null || routerIdsList.isEmpty()) {
+                continue;
+            }
+            // Skip router vpnId fetching from internet BGP-VPN
+            if (hasExternalNetwork(vpnMap.getNetworkIds())) {
+                continue;
+            }
+            // FIXME: NETVIRT-1503: this check can be replaced by a ReadOnlyTransaction.exists()
+            if (routerIdsList.stream().anyMatch(routerIds -> routerId.equals(routerIds.getRouterId()))) {
+                if (externalVpn) {
+                    if (!routerId.equals(vpnMap.getVpnId())) {
+                        return vpnMap.getVpnId();
+                    }
+                } else {
+                    if (routerId.equals(vpnMap.getVpnId())) {
+                        return vpnMap.getVpnId();
                     }
                 }
             }
