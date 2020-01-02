@@ -29,6 +29,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
 import org.opendaylight.genius.testutils.interfacemanager.TunnelInterfaceDetails;
 import org.opendaylight.mdsal.binding.testutils.AssertDataObjects;
+import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
@@ -198,7 +199,7 @@ public class Verifications {
             for (Uint64 otherDpn : otherDpns) {
                 GetEgressActionsForInterfaceInput getEgressActInput = new GetEgressActionsForInterfaceInputBuilder()
                         .setIntfName(extnIntfs.get(dpnId + ":" + otherDpn).getInterfaceInfo().getInterfaceName())
-                        .setTunnelKey(elanInfo.getElanTag()).build();
+                        .setTunnelKey(elanInfo.getElanTag().longValue() + ElanConstants.ELAN_TAG_ADDEND).build();
                 List<Action> actionsList =
                         odlInterfaceRpcService.getEgressActionsForInterface(getEgressActInput).get().getResult()
                                 .getAction();
