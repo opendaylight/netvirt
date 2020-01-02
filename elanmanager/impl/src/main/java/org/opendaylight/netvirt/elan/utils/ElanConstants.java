@@ -27,6 +27,7 @@ public interface ElanConstants {
     int STATIC_MAC_TIMEOUT = 0;
     int ELAN_TAG_LENGTH = 16;
     int INTERFACE_TAG_LENGTH = 20;
+    int ELAN_TAG_ADDEND = 270000;
     Uint64 INVALID_DPN = Uint64.valueOf(0L);
     Uint64 COOKIE_ELAN_BASE_SMAC = Uint64.valueOf("8500000", 16).intern();
     Uint64 COOKIE_ELAN_LEARNED_SMAC = Uint64.valueOf("8600000", 16).intern();
