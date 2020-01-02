@@ -445,8 +445,11 @@ public class ElanL2GatewayMulticastUtils {
                 if (!Objects.equals(dpnInterface.getDpId(), dpnId) && dpnInterface.getInterfaces() != null
                         && !dpnInterface.getInterfaces().isEmpty()) {
                     try {
+                        // Adding 270000 to avoid collision between LPort and elan for broadcast group actions
                         List<Action> listActionInfo = elanItmUtils.getInternalTunnelItmEgressAction(dpnId,
-                                dpnInterface.getDpId(), elanTagOrVni);
+                                dpnInterface.getDpId(), elanTagOrVni + ElanConstants.ELAN_TAG_ADDEND);
+                        LOG.trace("configuring broadcast group for elan {} for source DPN {} and destination DPN {} "
+                                + "with actions {}", elanTagOrVni, dpnId, dpnInterface.getDpId(), listActionInfo);
                         if (listActionInfo.isEmpty()) {
                             continue;
                         }
