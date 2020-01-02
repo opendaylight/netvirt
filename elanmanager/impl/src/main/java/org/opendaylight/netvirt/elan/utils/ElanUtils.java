@@ -1249,8 +1249,9 @@ public class ElanUtils {
 
     public static List<MatchInfo> getTunnelMatchesForServiceId(Uint32 elanTag) {
         List<MatchInfo> mkMatches = new ArrayList<>();
-        // Matching metadata
-        mkMatches.add(new MatchTunnelId(Uint64.valueOf(elanTag.longValue())));
+
+        // Adding 270000 to avoid collision between LPort and elan tag for broadcast
+        mkMatches.add(new MatchTunnelId(Uint64.valueOf(elanTag.longValue() + ElanConstants.ELAN_TAG_ADDEND)));
 
         return mkMatches;
     }

@@ -366,9 +366,11 @@ public class ElanL2GatewayMulticastUtils {
         ElanDpnInterfacesList elanDpns = elanUtils.getElanDpnInterfacesList(elanInfo.getElanInstanceName());
 
         if (isVxlanNetworkOrVxlanSegment(elanInfo)) {
+            // Adding 270000 to avoid collision between LPort and elan for broadcast group actions
             listBucketInfo.addAll(getRemoteBCGroupTunnelBuckets(elanDpns, dpnId, bucketId,
                     elanUtils.isOpenstackVniSemanticsEnforced()
-                            ? ElanUtils.getVxlanSegmentationId(elanInfo).longValue() : elanTag));
+                            ? ElanUtils.getVxlanSegmentationId(elanInfo).longValue() : elanTag
+                            + ElanConstants.ELAN_TAG_ADDEND));
         }
         listBucketInfo.addAll(getRemoteBCGroupExternalPortBuckets(elanDpns, dpnInterfaces, dpnId,
                 getNextAvailableBucketId(listBucketInfo.size())));
@@ -447,6 +449,8 @@ public class ElanL2GatewayMulticastUtils {
                     try {
                         List<Action> listActionInfo = elanItmUtils.getInternalTunnelItmEgressAction(dpnId,
                                 dpnInterface.getDpId(), elanTagOrVni);
+                        LOG.trace("configuring broadcast group for elan {} for source DPN {} and destination DPN {} "
+                                + "with actions {}", elanTagOrVni, dpnId, dpnInterface.getDpId(), listActionInfo);
                         if (listActionInfo.isEmpty()) {
                             continue;
                         }
