@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ebfb40a_271d0b45",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-01-03T07:16:07Z",
+      "side": 1,
+      "message": "this changes behavior by not printing the debug at the end -- I am pretty sure that is not what the intent is",
+      "range": {
+        "startLine": 247,
+        "startChar": 12,
+        "endLine": 247,
+        "endChar": 24
+      },
+      "revId": "3b3ced5aa006089778adc1a9749efc1e0e00a9b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
