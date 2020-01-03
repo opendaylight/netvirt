@@ -767,7 +767,7 @@ public final class NatUtil {
         Optional<VpnMaps> optionalVpnMaps =
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
                         LogicalDatastoreType.CONFIGURATION, vpnMapsIdentifier);
-        if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().getVpnMap() != null) {
+        if (optionalVpnMaps.isPresent()) {
             for (VpnMap vpnMap : optionalVpnMaps.get().nonnullVpnMap()) {
                 if (routerId.equals(vpnMap.getVpnId().getValue())) {
                     continue;

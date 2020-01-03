@@ -243,7 +243,7 @@ public class NeutronvpnUtils {
     @Nullable
     protected Uuid getVpnForNetwork(Uuid network) {
         Optional<VpnMaps> optionalVpnMaps = read(LogicalDatastoreType.CONFIGURATION, VPN_MAPS_IID);
-        if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().nonnullVpnMap() != null) {
+        if (optionalVpnMaps.isPresent()) {
             for (VpnMap vpnMap : new ArrayList<>(optionalVpnMaps.get().nonnullVpnMap())) {
                 List<Uuid> netIds = vpnMap.getNetworkIds();
                 if (netIds != null && netIds.contains(network)) {
@@ -287,7 +287,7 @@ public class NeutronvpnUtils {
         }
 
         Optional<VpnMaps> optionalVpnMaps = read(LogicalDatastoreType.CONFIGURATION, VPN_MAPS_IID);
-        if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().nonnullVpnMap() != null) {
+        if (optionalVpnMaps.isPresent()) {
             for (VpnMap vpnMap : new ArrayList<>(optionalVpnMaps.get().nonnullVpnMap())) {
                 List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.vpnmap
                     .RouterIds> routerIdsList = vpnMap.getRouterIds();
