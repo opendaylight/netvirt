@@ -1126,6 +1126,8 @@ public class ElanUtils {
         Uint64 srcdpId = interfaceInfo.getDpId();
         Uint32 elanTag = elanInfo.getElanTag();
         if (deleteSmac) {
+            LOG.debug("Deleting SMAC flow with id {}", getKnownDynamicmacFlowRef(
+                    NwConstants.ELAN_SMAC_TABLE, srcdpId, ifTag, macAddress, elanTag));
             mdsalManager
                     .removeFlow(flowTx, srcdpId,
                             MDSALUtil.buildFlow(NwConstants.ELAN_SMAC_TABLE, getKnownDynamicmacFlowRef(
@@ -1160,6 +1162,11 @@ public class ElanUtils {
         Uint32 elanTag = elanInstanceAdded.getElanTag();
         if (elanTag == null || elanTag.longValue() == 0L) {
             elanTag = retrieveNewElanTag(idManager, elanInstanceName);
+        }
+        if (elanTag.longValue() == 0L) {
+            LOG.error("ELAN tag creation failed for elan instance {}. Not updating the ELAN DS. "
+                    + "Recreate network for recovery", elanInstanceName);
+            return null;
         }
         Elan elanInfo = new ElanBuilder().setName(elanInstanceName).setElanInterfaces(elanInterfaces)
                 .withKey(new ElanKey(elanInstanceName)).build();
