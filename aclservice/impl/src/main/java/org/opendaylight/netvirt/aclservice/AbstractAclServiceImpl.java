@@ -738,7 +738,9 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             // delete and add flows in ACL dispatcher table for all applicable
             // ports
             for (AclInterface portBefore : portsBefore) {
-                programAclDispatcherTable(deleteFlowEntries, portBefore, NwConstants.DEL_FLOW);
+                if (portBefore.getDpId() != null) {
+                    programAclDispatcherTable(deleteFlowEntries, portBefore, NwConstants.DEL_FLOW);
+                }
             }
             for (AclInterface port : interfaceList) {
                 programAclDispatcherTable(addFlowEntries, port, NwConstants.ADD_FLOW);
