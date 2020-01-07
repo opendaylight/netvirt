@@ -8,6 +8,8 @@
 package org.opendaylight.netvirt.aclservice.listeners;
 
 import com.google.common.collect.ImmutableSet;
+
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -145,12 +147,26 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
 
     private void updateAceRules(Collection<AclInterface> interfaceList, String aclName, List<Ace> aceList,
             AclServiceManager.Action action) {
+<<<<<<< HEAD   (2a5da7 Bump odlparent/yangtools/mdsal to 5.0.4/3.0.7/4.0.8)
         if (null != aceList && !aceList.isEmpty()) {
             LOG.trace("update ace rules - action: {} , ace rules: {}", action.name(), aceList);
             for (AclInterface port : interfaceList) {
                 for (Ace aceRule : aceList) {
                     aclServiceManager.notifyAce(port, action, aclName, aceRule);
                 }
+=======
+        LOG.trace("update ace rules - action: {} , ace rules: {}", action.name(), aceList);
+        for (AclInterface port : interfaceList) {
+            BigInteger dpId = port.getDpId();
+            Long elanId = port.getElanId();
+            if (dpId != null && elanId != null) {
+                for (Ace aceRule : aceList) {
+                    aclServiceManager.notifyAce(port, action, aclName, aceRule);
+                }
+            } else {
+                LOG.debug("Skip update ACE rules as DP ID or ELAN ID for interface {} is not present. "
+                        + "DP Id: {} ELAN ID: {}", port.getInterfaceId(), dpId, elanId);
+>>>>>>> CHANGE (5144c1 NETVIRT-1643: Added checkes to resolve NPE)
             }
         }
     }

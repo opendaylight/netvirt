@@ -677,16 +677,27 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         List<FlowEntity> addFlowEntries = new ArrayList<>();
         List<FlowEntity> deleteFlowEntries = new ArrayList<>();
         if (!remoteAclsAdded.isEmpty() || !remoteAclsDeleted.isEmpty()) {
-            // delete and add flows in ACL dispatcher table for all applicable
-            // ports
+            // delete and add flows in ACL dispatcher table for all applicable ports
             for (AclInterface portBefore : portsBefore) {
-                programAclDispatcherTable(deleteFlowEntries, portBefore, NwConstants.DEL_FLOW);
+                if (portBefore.getDpId() != null) {
+                    programAclDispatcherTable(deleteFlowEntries, portBefore, NwConstants.DEL_FLOW);
+                } else {
+                    LOG.debug("Skip ACL dispatcher table update as DP ID for interface {} is not present.",
+                            portBefore.getInterfaceId());
+                }
             }
             for (AclInterface port : interfaceList) {
                 programAclDispatcherTable(addFlowEntries, port, NwConstants.ADD_FLOW);
             }
         }
-        Set<BigInteger> dpns = interfaceList.stream().map(AclInterface::getDpId).collect(Collectors.toSet());
+        Set<BigInteger> dpns = interfaceList.stream().filter(port -> {
+            if (port.getDpId() == null) {
+                LOG.debug("Skip remote ACL table update as DP ID for interface {} is not present.",
+                        port.getInterfaceId());
+                return false;
+            }
+            return true;
+        }).map(AclInterface::getDpId).collect(Collectors.toSet());
 
         programRemoteAclTable(deleteFlowEntries, aclName, remoteAclsDeleted, dpns, NwConstants.DEL_FLOW);
         programRemoteAclTable(addFlowEntries, aclName, remoteAclsAdded, dpns, NwConstants.ADD_FLOW);
