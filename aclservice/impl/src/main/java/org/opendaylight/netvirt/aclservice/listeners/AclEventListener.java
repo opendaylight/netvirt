@@ -8,6 +8,8 @@
 package org.opendaylight.netvirt.aclservice.listeners;
 
 import com.google.common.collect.ImmutableSet;
+
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -147,8 +149,15 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
             AclServiceManager.Action action) {
         LOG.trace("update ace rules - action: {} , ace rules: {}", action.name(), aceList);
         for (AclInterface port : interfaceList) {
-            for (Ace aceRule : aceList) {
-                aclServiceManager.notifyAce(port, action, aclName, aceRule);
+            BigInteger dpId = port.getDpId();
+            Long elanId = port.getElanId();
+            if (dpId != null && elanId != null) {
+                for (Ace aceRule : aceList) {
+                    aclServiceManager.notifyAce(port, action, aclName, aceRule);
+                }
+            } else {
+                LOG.debug("Skip update ACE rules as DP ID or ELAN ID for interface {} is not present. "
+                        + "DP Id: {} ELAN ID: {}", port.getInterfaceId(), dpId, elanId);
             }
         }
     }
