@@ -26,6 +26,7 @@ public class BgpAlarms implements Runnable, AutoCloseable {
     private final BgpJMXAlarmAgent alarmAgent = new BgpJMXAlarmAgent();
     private final BgpConfigurationManager bgpMgr;
     private final Map<String, BgpAlarmStatus> neighborsRaisedAlarmStatusMap = new ConcurrentHashMap<>();
+    private volatile List<Neighbors> nbrList = null;
 
     public BgpAlarms(BgpConfigurationManager bgpManager) {
         bgpMgr = Objects.requireNonNull(bgpManager);
@@ -53,7 +54,6 @@ public class BgpAlarms implements Runnable, AutoCloseable {
 
     @Override
     public void run() {
-        List<Neighbors> nbrList = null;
         LOG.debug("Fetching neighbor status' from BGP");
         BgpCounters.resetFile(BgpCounters.BGP_VPNV4_SUMMARY_FILE);
         BgpCounters.resetFile(BgpCounters.BGP_VPNV6_SUMMARY_FILE);
