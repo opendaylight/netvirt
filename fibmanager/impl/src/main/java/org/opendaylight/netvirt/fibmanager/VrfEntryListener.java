@@ -1419,7 +1419,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             .read(FibUtil.getVpnInterfaceOpDataEntryIdentifier(ifName, vpnName)).get();
                     if (opVpnInterface.isPresent()) {
                         Uint32 associatedVpnId = fibUtil.getVpnId(vpnName);
-                        if (Objects.equals(vpnId, associatedVpnId)) {
+                        if (!Objects.equals(vpnId, associatedVpnId)) {
                             LOG.warn("Prefixes {} are associated with different vpn instance with id {} rather than {}",
                                     vrfEntry.getDestPrefix(), associatedVpnId, vpnId);
                             LOG.warn("Not proceeding with Cleanup op data for prefix {}", vrfEntry.getDestPrefix());
