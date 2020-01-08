@@ -61,6 +61,7 @@ import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.infrautils.metrics.MetricProvider;
@@ -200,6 +201,7 @@ public class BgpConfigurationManager implements EbgpService {
     private static final String UPD_WARN = "Update operation not supported; Config store updated;"
             + " restore with another Update if needed.";
     private static long bgp_as_num = 0;
+    private static List<Neighbors> nbrList = new ArrayList<>();
     private int bgpKaTime = 0;
     private int bgpHoldTime = 0;
     private int bgpGrRestartTime = 0;
@@ -874,12 +876,21 @@ public class BgpConfigurationManager implements EbgpService {
 
         @Override
         protected void add(InstanceIdentifier<Neighbors> iid, Neighbors val) {
+            if (nbrList != null && !nbrList.contains(val)) {
+                LOG.trace("Adding nbr {} to nbrlist", val.getAddress().getValue());
+                nbrList.add(val);
+            }
             if (!isBGPEntityOwner()) {
                 return;
             }
             LOG.debug("received add Neighbors config val {}", val.getAddress().getValue());
             synchronized (BgpConfigurationManager.this) {
                 String peerIp = val.getAddress().getValue();
+                String sourceIp = (val.getUpdateSource() == null) ? null :
+                                    val.getUpdateSource().getSourceIp().getValue();
+                int nhops = (val.getEbgpMultihop() == null) ? 0 :
+                                    val.getEbgpMultihop().getNhops().intValue();
+                List<AddressFamilies> afs = val.getAddressFamilies();
                 long as = val.getRemoteAs().toJava();
                 final String md5Secret = extractMd5Secret(val);
                 BgpRouter br = getClient(YANG_OBJ);
@@ -891,6 +902,19 @@ public class BgpConfigurationManager implements EbgpService {
                 try {
                     //itmProvider.buildTunnelsToDCGW(new IpAddress(peerIp.toCharArray()));
                     br.addNeighbor(peerIp, as, md5Secret);
+                    if (nhops != 0) {
+                        br.addEbgpMultihop(peerIp, nhops);
+                    }
+                    if (sourceIp != null) {
+                        br.addUpdateSource(peerIp, sourceIp);
+                    }
+                    if (afs != null) {
+                        for (AddressFamilies af : afs) {
+                            af_afi afi = af_afi.findByValue(af.getAfi().intValue());
+                            af_safi safi = af_safi.findByValue(af.getSafi().intValue());
+                            br.addAddressFamily(af.getPeerIp().getValue(), afi, safi);
+                        }
+                    }
 
                 } catch (TException | BgpRouterException e) {
                     LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
@@ -910,6 +934,10 @@ public class BgpConfigurationManager implements EbgpService {
 
         @Override
         protected void remove(InstanceIdentifier<Neighbors> iid, Neighbors val) {
+            if (nbrList != null && nbrList.contains(val)) {
+                LOG.trace("Removing nbr {} from nbr list", val.getAddress().getValue());
+                nbrList.remove(val);
+            }
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -1820,7 +1848,13 @@ public class BgpConfigurationManager implements EbgpService {
     public long getStalePathtime(int defValue, AsId asId) {
         long spt = 0;
         try {
-            spt = getConfig().getGracefulRestart().getStalepathTime().toJava();
+            InstanceIdentifier<GracefulRestart> id =
+                    InstanceIdentifier.create(Bgp.class).child(GracefulRestart.class);
+            Optional<GracefulRestart> gracefulRestartOptional = MDSALUtil.read(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, id);
+            if (gracefulRestartOptional.isPresent()) {
+                spt = gracefulRestartOptional.get().getStalepathTime().toJava();
+            }
         } catch (NullPointerException e) {
             try {
                 spt = asId.getStalepathTime().toJava();
@@ -3193,6 +3227,10 @@ public class BgpConfigurationManager implements EbgpService {
 
     public int getTotalCleared() {
         return totalCleared;
+    }
+
+    public static List<Neighbors> getNbrList() {
+        return nbrList;
     }
 
     public BgpCounters getBgpCounters() {
