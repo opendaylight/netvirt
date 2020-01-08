@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e43774e6_2f6df54d",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 741,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2020-01-08T10:01:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1397d11a_d923c276",
+      "range": {
+        "startLine": 741,
+        "startChar": 20,
+        "endLine": 741,
+        "endChar": 32
+      },
+      "revId": "9898e00927304b412dddfa0bffe7d89fd430b7c2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "876ad2c7_5ace1a00",
         "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
         "patchSetId": 3
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "e9362e34_61212952",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 752,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2020-01-08T10:01:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "876ad2c7_5ace1a00",
+      "range": {
+        "startLine": 752,
+        "startChar": 61,
+        "endLine": 752,
+        "endChar": 62
+      },
+      "revId": "9898e00927304b412dddfa0bffe7d89fd430b7c2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4fc06bd4_d054b773",
         "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
         "patchSetId": 3
@@ -59,6 +107,30 @@
       "writtenOn": "2020-01-08T09:43:47Z",
       "side": 1,
       "message": "dpId variable can be avoided like below:\nif(port.getDpId() \u003d\u003d null)",
+      "range": {
+        "startLine": 754,
+        "startChar": 16,
+        "endLine": 754,
+        "endChar": 28
+      },
+      "revId": "9898e00927304b412dddfa0bffe7d89fd430b7c2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5e75ff4f_5644adb2",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 754,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2020-01-08T10:01:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4fc06bd4_d054b773",
       "range": {
         "startLine": 754,
         "startChar": 16,
