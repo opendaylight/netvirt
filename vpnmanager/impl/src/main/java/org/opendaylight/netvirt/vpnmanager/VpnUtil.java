@@ -1557,7 +1557,9 @@ public final class VpnUtil {
         } else {
             LOG.trace("Removing used rds {} from available rds {} vpnid {} . prefix is {} , vpname- {}, dpnId- {}",
                     usedRds, availableRds, vpnId, prefix, vpnName, dpnId);
-            availableRds.removeAll(usedRds);
+            if (usedRds != null || !usedRds.isEmpty()) {
+                availableRds.removeAll(usedRds);
+            }
             if (availableRds.isEmpty()) {
                 LOG.error("No rd available from VpnInstance to allocate for prefix {}", prefix);
                 return java.util.Optional.empty();
