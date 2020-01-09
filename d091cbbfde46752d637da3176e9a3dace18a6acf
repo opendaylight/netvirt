@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "46bd015b_d4e107bc",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 675,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2020-01-09T09:38:35Z",
+      "side": 1,
+      "message": "This creates a new ArrayList for every call, even if it’s not needed. It also results in a null dpnInterfaceLists if elanDpnInterfacesList.getDpnInterfaces() returns null. Please leave the code as is.\n\n(Pulling out dstDpId is fine, thanks for that!)",
+      "revId": "d091cbbfde46752d637da3176e9a3dace18a6acf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
