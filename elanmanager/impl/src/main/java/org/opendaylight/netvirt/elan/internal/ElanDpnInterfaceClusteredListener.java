@@ -44,6 +44,7 @@ public class ElanDpnInterfaceClusteredListener
         extends AsyncClusteredDataTreeChangeListenerBase<DpnInterfaces, ElanDpnInterfaceClusteredListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanDpnInterfaceClusteredListener.class);
+    private static final Logger EVENT_LOGGER = LoggerFactory.getLogger("NetvirtEventLogger");
 
     private final DataBroker broker;
     private final EntityOwnershipUtils entityOwnershipUtils;
@@ -153,7 +154,7 @@ public class ElanDpnInterfaceClusteredListener
     @Override
     public void add(InstanceIdentifier<DpnInterfaces> identifier, final DpnInterfaces dpnInterfaces) {
         final String elanName = getElanName(identifier);
-
+        EVENT_LOGGER.debug("ELAN-DpnInterface, ADD DPN {} Instance {}", dpnInterfaces.getDpId(), elanName);
         jobCoordinator.enqueueJob(elanName + ":l2gw", () -> {
             elanInstanceDpnsCache.add(getElanName(identifier), dpnInterfaces);
             if (entityOwnershipUtils.isEntityOwner(HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,

@@ -637,6 +637,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 if (!elanInterfaces.contains(elanInterfaceAdded)) {
                     elanInterfaces.add(elanInterfaceAdded);
                 }
+                LOG.error("ELAN tag for instance {} is not created. Adding it to unprocessed list."
+                        + " Recreate the network if this message is seen multiple times", elanInstanceName);
                 unProcessedElanInterfaces.put(elanInstanceName, elanInterfaces);
                 return;
             }

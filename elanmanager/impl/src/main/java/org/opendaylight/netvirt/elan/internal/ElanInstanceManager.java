@@ -114,8 +114,9 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
                     operTx -> LoggingFutures.addErrorLogging(
                         txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                             confTx -> ElanUtils.updateOperationalDataStore(idManager, update, new ArrayList<>(), confTx,
-                                operTx)), LOG, "Error updating ELAN tag in ELAN instance")), LOG,
-                    "Error updating ELAN tag in ELAN instance");
+                                operTx)), LOG, "Error updating ELAN tag in ELAN instance for config "
+                                    + "transaction")), LOG,
+                    "Error updating ELAN tag in ELAN instance for operational transaction");
             } else {
                 jobCoordinator.enqueueJob(elanName, () -> elanInterfaceManager.handleunprocessedElanInterfaces(update),
                     ElanConstants.JOB_MAX_RETRIES);
@@ -132,9 +133,9 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
             if (elanInfo == null) {
                 LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                     confTx -> ElanUtils.updateOperationalDataStore(idManager, elanInstanceAdded, new ArrayList<>(),
-                        confTx, operTx)), LOG, "Error adding an ELAN instance");
+                        confTx, operTx)), LOG, "Error adding an ELAN instance for config transaction");
             }
-        }), LOG, "Error adding an ELAN instance");
+        }), LOG, "Error adding an ELAN instance for operational transaction");
     }
 
     @Override
