@@ -63,7 +63,7 @@ public class ElanEvpnFlowUtils {
         Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE,
                 ElanUtils.getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, evpnDmacFlow.getDpId(),
                         evpnDmacFlow.getNexthopIP(), evpnDmacFlow.getDstMacAddress(), evpnDmacFlow.getElanTag(), false),
-                20, evpnDmacFlow.getElanName(), 0, 0,
+                ElanConstants.ELAN_MAC_PRIORITY, evpnDmacFlow.getElanName(), 0, 0,
                 Uint64.valueOf(ElanConstants.COOKIE_ELAN_KNOWN_DMAC.toJava()
                     .add(BigInteger.valueOf(evpnDmacFlow.getElanTag()))),
                 mkMatches, mkInstructions);

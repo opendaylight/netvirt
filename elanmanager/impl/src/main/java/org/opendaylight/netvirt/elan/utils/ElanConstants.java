@@ -48,4 +48,5 @@ public interface ElanConstants {
     TopologyId OVSDB_TOPOLOGY_ID = new TopologyId(new Uri("ovsdb:1"));
     String OVSDB_BRIDGE_URI_PREFIX = "bridge";
     Class<? extends NxmNxReg> ELAN_REG_ID = NxmNxReg7.class;
+    int ELAN_MAC_PRIORITY = 25;
 }
