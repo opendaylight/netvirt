@@ -80,6 +80,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.mdsalutil.packet.ARP;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
+import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.infrautils.utils.concurrent.NamedLocks;
 import org.opendaylight.infrautils.utils.concurrent.NamedSimpleReentrantLock.Acquired;
@@ -102,7 +103,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.ta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.TableKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlowInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlowInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.RemoveFlowInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.RemoveFlowInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowCookie;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowModFlags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.Instructions;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.InstructionsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.Match;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.MatchBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.GoToTableCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.go.to.table._case.GoToTableBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
@@ -146,10 +161,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.Group;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.GroupKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.ethernet.match.fields.EthernetSourceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.EthernetMatchBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.MetadataBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInstanceBuilder;
@@ -250,6 +269,7 @@ public class ElanUtils {
     private final ElanInterfaceCache elanInterfaceCache;
     private final IITMProvider iitmProvider;
     private final ElanGroupCache elanGroupCache;
+    private final SalFlowService salFlowService;
 
     private static final Function<Bucket, Bucket> TO_BUCKET_WITHOUT_ID = (bucket) -> new BucketBuilder(bucket)
             .setBucketId(new BucketId(0L))
@@ -276,7 +296,8 @@ public class ElanUtils {
     public ElanUtils(DataBroker dataBroker, IMdsalApiManager mdsalManager,
             OdlInterfaceRpcService interfaceManagerRpcService, ItmRpcService itmRpcService, ElanConfig elanConfig,
             IInterfaceManager interfaceManager, ElanEtreeUtils elanEtreeUtils, ElanItmUtils elanItmUtils,
-            ElanInterfaceCache elanInterfaceCache, IITMProvider iitmProvider, ElanGroupCache elanGroupCache) {
+            ElanInterfaceCache elanInterfaceCache, IITMProvider iitmProvider, ElanGroupCache elanGroupCache,
+            SalFlowService salFlowService) {
         this.broker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.mdsalManager = mdsalManager;
@@ -289,6 +310,7 @@ public class ElanUtils {
         this.elanInterfaceCache = elanInterfaceCache;
         this.iitmProvider = iitmProvider;
         this.elanGroupCache = elanGroupCache;
+        this.salFlowService = salFlowService;
     }
 
     public final Boolean isOpenstackVniSemanticsEnforced() {
@@ -650,8 +672,13 @@ public class ElanUtils {
     private void setupKnownSmacFlow(ElanInstance elanInfo, InterfaceInfo interfaceInfo, long macTimeout,
             String macAddress, IMdsalApiManager mdsalApiManager,
             TypedWriteTransaction<Configuration> writeFlowGroupTx) {
-        FlowEntity flowEntity = buildKnownSmacFlow(elanInfo, interfaceInfo, macTimeout, macAddress);
-        mdsalApiManager.addFlow(writeFlowGroupTx, flowEntity);
+        if (macTimeout != 0) { //Learnt MACs
+            AddFlowInput flow = buildSmacAddFlowInput(elanInfo, interfaceInfo, macTimeout, macAddress);
+            JdkFutures.addErrorLogging(salFlowService.addFlow(flow), LOG, "Known SMAC flow add failed.");
+        } else {
+            FlowEntity flowEntity = buildKnownSmacFlow(elanInfo, interfaceInfo, macTimeout, macAddress);
+            mdsalApiManager.addFlow(writeFlowGroupTx, flowEntity);
+        }
         LOG.debug("Known Smac flow entry created for elan Name:{}, logical Interface port:{} and mac address:{}",
                 elanInfo.getElanInstanceName(), elanInfo.getDescription(), macAddress);
     }
@@ -683,6 +710,56 @@ public class ElanUtils {
             // If Mac timeout is 0, the flow won't be deleted automatically, so no need to get notified
             .setSendFlowRemFlag(macTimeout != 0)
             .build();
+    }
+
+    private AddFlowInput buildSmacAddFlowInput(ElanInstance elanInfo, InterfaceInfo interfaceInfo, long macTimeout,
+                                               String macAddress) {
+        int lportTag = interfaceInfo.getInterfaceTag();
+        Uint64 dpId = interfaceInfo.getDpId();
+        Uint32 elanTag = getElanTag(elanInfo, interfaceInfo);
+        NodeRef node = new NodeRef(InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, new NodeKey(new NodeId("openflow:" + dpId))).build());
+        Match match = getMatchForSmacTable(elanInfo, lportTag, macAddress);
+        List<Instruction> instructionList = new ArrayList<>();
+        instructionList.add(new InstructionBuilder()
+                .setInstruction(new GoToTableCaseBuilder().setGoToTable(new GoToTableBuilder()
+                        .setTableId(NwConstants.ELAN_DMAC_TABLE).build()).build()).build());
+        Instructions instructions = new InstructionsBuilder().setInstruction(instructionList).build();
+        AddFlowInput flow = new AddFlowInputBuilder()
+                .setTableId(NwConstants.ELAN_SMAC_TABLE).setPriority(25)
+                .setFlowName(elanInfo.getDescription())
+                .setIdleTimeout((int) macTimeout)
+                .setHardTimeout(0)
+                .setCookie(new FlowCookie(ElanConstants.COOKIE_ELAN_KNOWN_SMAC.toJava()
+                        .add(BigInteger.valueOf(elanTag.longValue()))))
+                .setMatch(match)
+                .setNode(node)
+                .setStrict(true)
+                .setFlags(new FlowModFlags(false, false, false, false, true))
+                .setInstructions(instructions).build();
+        return flow;
+    }
+
+    private RemoveFlowInput buildSmacRemoveFlowInput(ElanInstance elanInfo, InterfaceInfo interfaceInfo,
+                                                     String macAddress) {
+        int lportTag = interfaceInfo.getInterfaceTag();
+        Uint64 dpId = interfaceInfo.getDpId();
+        NodeRef node = new NodeRef(InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, new NodeKey(new NodeId("openflow:" + dpId))).build());
+        Match match = getMatchForSmacTable(elanInfo, lportTag, macAddress);
+        RemoveFlowInput flow = new RemoveFlowInputBuilder().setTableId(NwConstants.ELAN_SMAC_TABLE)
+                .setPriority(25).setMatch(match).setNode(node).build();
+        return flow;
+    }
+
+    private Match getMatchForSmacTable(ElanInstance elanInfo, int lportTag, String macAddress) {
+        return new MatchBuilder()
+                .setMetadata(new MetadataBuilder()
+                        .setMetadata(ElanHelper.getElanMetadataLabel(elanInfo.getElanTag().longValue(), lportTag))
+                        .setMetadataMask(ElanHelper.getElanMetadataMask()).build())
+                .setEthernetMatch(new EthernetMatchBuilder()
+                        .setEthernetSource(new EthernetSourceBuilder().setAddress(new MacAddress(macAddress)).build())
+                        .build()).build();
     }
 
     private Uint32 getElanTag(ElanInstance elanInfo, InterfaceInfo interfaceInfo) {
@@ -1052,9 +1129,14 @@ public class ElanUtils {
             return;
         }
         String macAddress = macEntry.getMacAddress().getValue();
-        try (Acquired lock = lockElanMacDPN(elanInfo.getElanTag().toJava(),
-                macAddress, interfaceInfo.getDpId())) {
-            deleteMacFlows(elanInfo, interfaceInfo, macAddress, /* alsoDeleteSMAC */ true, flowTx);
+        try (Acquired lock = lockElanMacDPN(elanInfo.getElanTag().toJava(), macAddress, interfaceInfo.getDpId())) {
+            boolean isStaticMac = macEntry.isIsStaticAddress();
+            deleteMacFlows(elanInfo, interfaceInfo, macAddress, /* alsoDeleteSMAC */ isStaticMac, flowTx);
+            if (!isStaticMac) {
+                //Learnt T50 entries are not in FRM. Delete directly from switch
+                RemoveFlowInput flow = buildSmacRemoveFlowInput(elanInfo, interfaceInfo, macAddress);
+                JdkFutures.addErrorLogging(salFlowService.removeFlow(flow), LOG, "Failed to delete MAC flows.");
+            }
         }
     }
 
@@ -1105,16 +1187,6 @@ public class ElanUtils {
                     elanInstanceName, interfaceInfo.getPortName(), macAddress, dstDpId);
         }
         return isFlowsRemovedInSrcDpn;
-    }
-
-    public void deleteSmacFlowOnly(ElanInstance elanInfo, InterfaceInfo interfaceInfo, String macAddress,
-                                   TypedReadWriteTransaction<Configuration> flowTx) throws ExecutionException,
-            InterruptedException {
-        Uint64 srcdpId = interfaceInfo.getDpId();
-        Uint32 elanTag = elanInfo.getElanTag();
-        LOG.debug("Deleting SMAC flow with id {}", getKnownDynamicmacFlowRef(elanTag, macAddress));
-        mdsalManager.removeFlow(flowTx, srcdpId,
-                MDSALUtil.buildFlow(NwConstants.ELAN_SMAC_TABLE, getKnownDynamicmacFlowRef(elanTag, macAddress)));
     }
 
     private void deleteSmacAndDmacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, String macAddress,
@@ -1683,6 +1755,24 @@ public class ElanUtils {
                         .NodeId("openflow:" + dpnId);
         Node nodeDpn = new NodeBuilder().setId(nodeId).withKey(new NodeKey(nodeId)).build();
         return nodeDpn;
+    }
+
+    private InstanceIdentifier<Flow> getFlowId(short tableId, String flowId, Uint64 dpnId) {
+        FlowKey flowKey = new FlowKey(new FlowId(flowId));
+        Node nodeDpn = buildDpnNode(dpnId);
+        return InstanceIdentifier.builder(Nodes.class)
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node.class,
+                        nodeDpn.key()).augmentation(FlowCapableNode.class)
+                .child(Table.class, new TableKey(tableId)).child(Flow.class, flowKey).build();
+    }
+
+    public boolean isFlowExists(short tableId, String flowId, Uint64 dpnId) {
+        InstanceIdentifier<Flow> flowIdentifer = getFlowId(tableId, flowId, dpnId);
+        Optional<Flow> flow = read(broker, LogicalDatastoreType.CONFIGURATION, flowIdentifer);
+        if (flow.isPresent()) {
+            return true;
+        }
+        return false;
     }
 
     public void syncUpdateGroup(Uint64 dpnId, Group newGroup, long delayTime,

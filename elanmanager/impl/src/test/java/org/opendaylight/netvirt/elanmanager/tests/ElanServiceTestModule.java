@@ -50,6 +50,7 @@ import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.ovsdb.utils.mdsal.utils.ControllerMdsalUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
@@ -132,6 +133,7 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
         bind(IVpnManager.class).toInstance(ivpnManager);
         bind(IBgpManager.class).toInstance(ibgpManager);
         bind(IElanService.class).to(ElanServiceProvider.class);
+        bind(SalFlowService.class).toInstance(mock(SalFlowService.class));
 
         ControllerMdsalUtils mdsalUtils = new ControllerMdsalUtils(dataBroker);
         bind(ControllerMdsalUtils.class).toInstance(mdsalUtils);
