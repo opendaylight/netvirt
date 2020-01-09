@@ -1161,6 +1161,11 @@ public class ElanUtils {
         if (elanTag == null || elanTag.longValue() == 0L) {
             elanTag = retrieveNewElanTag(idManager, elanInstanceName);
         }
+        if (elanTag.longValue() == 0L) {
+            LOG.error("ELAN tag creation failed for elan instance {}. Not updating the ELAN DS. "
+                    + "Recreate network for recovery", elanInstanceName);
+            return null;
+        }
         Elan elanInfo = new ElanBuilder().setName(elanInstanceName).setElanInterfaces(elanInterfaces)
                 .withKey(new ElanKey(elanInstanceName)).build();
 
