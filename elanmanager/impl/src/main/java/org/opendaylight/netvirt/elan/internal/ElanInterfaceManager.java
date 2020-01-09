@@ -677,8 +677,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         if (dpnInterfaceLists == null) {
             dpnInterfaceLists = new ArrayList<>();
         }
+        Uint64 dstDpId = interfaceInfo.getDpId();
         for (DpnInterfaces dpnInterfaces : dpnInterfaceLists) {
-            Uint64 dstDpId = interfaceInfo.getDpId();
             if (Objects.equals(dpnInterfaces.getDpId(), dstDpId)) {
                 continue;
             }

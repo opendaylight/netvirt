@@ -952,12 +952,11 @@ public class ElanUtils {
                     macAddress, interfaceName, elanInstance.getElanInstanceName());
             return;
         }
-        Flow flowEntity;
         // if openstack-vni-semantics are enforced, segmentation ID is passed as network VNI for VxLAN based provider
         // networks, 0 otherwise
         long lportTagOrVni = !isOpenstackVniSemanticsEnforced() ? lportTag : isVxlanNetworkOrVxlanSegment(elanInstance)
                 ? getVxlanSegmentationId(elanInstance).longValue() : 0;
-        flowEntity = buildRemoteDmacFlowEntry(srcDpId, destDpId, lportTagOrVni, elanTag, macAddress, displayName,
+        Flow flowEntity = buildRemoteDmacFlowEntry(srcDpId, destDpId, lportTagOrVni, elanTag, macAddress, displayName,
                 elanInstance);
         mdsalManager.addFlow(writeFlowGroupTx, srcDpId, flowEntity);
         setupEtreeRemoteDmacFlow(srcDpId, destDpId, lportTagOrVni, elanTag, macAddress, displayName, interfaceName,
