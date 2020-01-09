@@ -177,7 +177,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                     long macTimeStamp = oldMacEntry.getControllerLearnedForwardingEntryTimestamp().longValue();
                     if (System.currentTimeMillis() > macTimeStamp + 1000) {
                         InstanceIdentifier<MacEntry> macEntryId = ElanUtils
-                                .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName,
+                                .getInterfaceMacEntriesIdentifierOperationalDataPath(oldMacEntry.getInterface(),
                                         physAddress);
                         tx.delete(macEntryId);
                     } else {
