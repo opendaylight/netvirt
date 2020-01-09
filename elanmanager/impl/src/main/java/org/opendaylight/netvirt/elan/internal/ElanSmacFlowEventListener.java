@@ -45,6 +45,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.Node
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SwitchFlowRemoved;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
@@ -107,11 +110,28 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
                 return;
             }
             String interfaceName = existingInterfaceInfo.get().getInterfaceName();
-            PhysAddress physAddress = new PhysAddress(srcMacAddress);
             if (interfaceName == null) {
                 LOG.error("LPort record not found for tag {}", portTag);
                 return;
             }
+
+            //Check if T50 already exists for neutron MAC. Don't proceed if it is present
+            NodeRef nodeRef = flowRemoved.getNode();
+            NodeId nodeId = nodeRef.getValue().firstKeyOf(Node.class).getId();
+            String[] node =  nodeId.getValue().split(":");
+            if (node.length < 2) {
+                LOG.error("ElanSmacFlowEventListener: Unexpected nodeId {}", nodeId.getValue());
+                return;
+            }
+            Uint64 dpId = Uint64.valueOf(node[1]);
+            boolean isSmacFlowPresent = elanUtils.isFlowExists(NwConstants.ELAN_SMAC_TABLE,
+                    ElanUtils.getKnownDynamicmacFlowRef(elanTag, srcMacAddress), dpId);
+            if (isSmacFlowPresent) {
+                LOG.error("ElanSmacFlowEventListener: Event received for NeutronMac. Skipping");
+                return;
+            }
+
+            PhysAddress physAddress = new PhysAddress(srcMacAddress);
             jobCoordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(interfaceName), () -> {
                 List<ListenableFuture<Void>> elanFutures = new ArrayList<>();
                 MacEntry macEntry = elanUtils.getInterfaceMacEntriesOperationalDataPath(interfaceName, physAddress);
@@ -126,9 +146,8 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
                         MacEntry macEntryOfElanForwarding = elanUtils.getMacEntryForElanInstance(elanTagInfo.getName(),
                                 physAddress).orNull();
                         if (macEntryOfElanForwarding != null) {
-                            String macAddress = macEntryOfElanForwarding.getMacAddress().getValue();
-                            elanUtils.deleteSmacFlowOnly(elanInstanceCache.get(elanInstanceName).orNull(),
-                                    interfaceInfo, macAddress, tx);
+                            //Remove flow of src flow entry only for MAC movement
+                            //SMAC flow is not stored in inventory config for learnt MAC entries
                         } else {
                             deleteSmacAndDmacFlows(elanInstanceCache.get(elanInstanceName).orNull(), interfaceInfo,
                                     srcMacAddress, tx);
@@ -185,7 +204,7 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
         }
         try (NamedSimpleReentrantLock.Acquired lock = elanUtils.lockElanMacDPN(elanInfo.getElanTag().toJava(),
                 macAddress, interfaceInfo.getDpId())) {
-            elanUtils.deleteMacFlows(elanInfo, interfaceInfo, macAddress, /* alsoDeleteSMAC */ true, deleteFlowTx);
+            elanUtils.deleteMacFlows(elanInfo, interfaceInfo, macAddress, /* alsoDeleteSMAC */ false, deleteFlowTx);
         }
     }
 
