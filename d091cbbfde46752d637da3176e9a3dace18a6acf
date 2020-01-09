@@ -16,6 +16,24 @@
       "revId": "d091cbbfde46752d637da3176e9a3dace18a6acf",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28acadde_d14cfd17",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 675,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2020-01-09T10:50:58Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "46bd015b_d4e107bc",
+      "revId": "d091cbbfde46752d637da3176e9a3dace18a6acf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
