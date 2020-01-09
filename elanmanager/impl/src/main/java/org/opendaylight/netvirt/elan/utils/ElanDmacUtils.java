@@ -92,7 +92,7 @@ public class ElanDmacUtils {
         return MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE,
                 ElanUtils.getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, extDeviceNodeId, dstMacAddress,
                         elanTag, false),
-                20, /* prio */
+                ElanConstants.ELAN_MAC_PRIORITY, /* prio */
                 displayName, 0, /* idleTimeout */
                 0, /* hardTimeout */
                 Uint64.valueOf(ElanConstants.COOKIE_ELAN_KNOWN_DMAC.toJava().add(BigInteger.valueOf(elanTag))),
@@ -176,7 +176,7 @@ public class ElanDmacUtils {
                 ElanUtils.getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpnId, extDeviceNodeId, dstMacAddress,
                         elanTag, true);
 
-        return MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE, flowId, 20, /* prio */
+        return MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE, flowId, ElanConstants.ELAN_MAC_PRIORITY, /* prio */
                 "Drop", 0, /* idleTimeout */
                 0, /* hardTimeout */
                 Uint64.valueOf(ElanConstants.COOKIE_ELAN_KNOWN_DMAC.toJava().add(BigInteger.valueOf(elanTag))),

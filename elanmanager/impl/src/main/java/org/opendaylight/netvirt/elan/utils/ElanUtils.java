@@ -672,7 +672,7 @@ public class ElanUtils {
             .setDpnId(dpId)
             .setTableId(NwConstants.ELAN_SMAC_TABLE)
             .setFlowId(getKnownDynamicmacFlowRef(elanTag, macAddress))
-            .setPriority(20)
+            .setPriority(ElanConstants.ELAN_MAC_PRIORITY)
             .setFlowName(elanInfo.getDescription())
             .setIdleTimeOut((int) macTimeout)
             .setHardTimeOut(0)
@@ -936,7 +936,7 @@ public class ElanUtils {
         List<Action> actions = getEgressActionsForInterface(ifName, /* tunnelKey */ null);
         mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));
         Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE,
-                getKnownDynamicmacFlowRef(elanTag, macAddress), 20,
+                getKnownDynamicmacFlowRef(elanTag, macAddress), ElanConstants.ELAN_MAC_PRIORITY,
                 elanInfo.getElanInstanceName(), 0, 0,
                 Uint64.valueOf(ElanConstants.COOKIE_ELAN_KNOWN_DMAC.longValue() + elanTag.longValue()),
                 mkMatches, mkInstructions);
@@ -1035,7 +1035,7 @@ public class ElanUtils {
 
         Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE,
                 getKnownDynamicmacFlowRef(elanTag, macAddress),
-                20, /* prio */
+                ElanConstants.ELAN_MAC_PRIORITY, /* prio */
                 displayName, 0, /* idleTimeout */
                 0, /* hardTimeout */
                 Uint64.valueOf(ElanConstants.COOKIE_ELAN_KNOWN_DMAC.longValue() + elanTag.longValue()),
@@ -1502,7 +1502,8 @@ public class ElanUtils {
 
         instructions.add(new InstructionApplyActions(actions));
         String flowId = getKnownDynamicmacFlowRef(elanTag, dstMacAddress);
-        return MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_DMAC_TABLE, flowId, 20, displayName, 0, 0,
+        return MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_DMAC_TABLE, flowId, ElanConstants.ELAN_MAC_PRIORITY,
+                displayName, 0, 0,
                 Uint64.valueOf(ElanConstants.COOKIE_ELAN_KNOWN_DMAC.longValue() + elanTag.longValue()),
                 matches, instructions);
     }

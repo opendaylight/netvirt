@@ -152,7 +152,7 @@ class ExpectedObjects {
                     metadataMask = ElanHelper.getElanMetadataMask()
                 ]
             ]
-            priority = 20
+            priority = 25
             strict = true
             tableId = 50 as short
         ]
@@ -215,7 +215,7 @@ class ExpectedObjects {
                     metadataMask = MetaDataUtil.METADATA_MASK_SERVICE
                 ]
             ]
-            priority = 20
+            priority = 25
             strict = true
             tableId = 51 as short
         ]
@@ -289,7 +289,7 @@ class ExpectedObjects {
                          metadataMask = MetaDataUtil.METADATA_MASK_SERVICE
                 ]
             ]
-            priority = 20
+            priority = 25
             strict = true
             tableId = 51 as short
         ]
