@@ -1074,6 +1074,33 @@ public final class AclServiceUtils {
         return skipDelete;
     }
 
+    public boolean doesRemoteAclIdExistsInAcls(List<Uuid> aclIds, Uuid remoteAclId,
+            Class<? extends DirectionBase> direction) {
+        if (aclIds == null) {
+            return false;
+        }
+        for (Uuid aclId : aclIds) {
+            Acl acl = this.aclDataUtil.getAcl(aclId.getValue());
+            if (null == acl) {
+                LOG.warn("ACL {} not found in cache.", aclId.getValue());
+                continue;
+            }
+            AccessListEntries accessListEntries = acl.getAccessListEntries();
+            if (accessListEntries != null && accessListEntries.getAce() != null) {
+                for (Ace ace : accessListEntries.getAce()) {
+                    SecurityRuleAttr aceAttr = AclServiceUtils.getAccessListAttributes(ace);
+                    if (aceAttr != null && aceAttr.getDirection().equals(direction)
+                            && doesAceHaveRemoteGroupId(aceAttr)) {
+                        if (aceAttr.getRemoteGroupId().equals(remoteAclId)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     public static InstanceIdentifier<AclPortsByIp> aclPortsByIpPath(String aclName) {
         return InstanceIdentifier.builder(AclPortsLookup.class)
                 .child(AclPortsByIp.class, new AclPortsByIpKey(aclName)).build();

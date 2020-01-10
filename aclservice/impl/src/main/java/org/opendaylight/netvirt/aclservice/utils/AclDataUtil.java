@@ -96,6 +96,27 @@ public class AclDataUtil implements AclDataCache {
         return interfaceMap != null ? interfaceMap.values() : Collections.emptySet();
     }
 
+    @SuppressWarnings("checkstyle:JavadocParagraph")
+    /**
+     * Gets set of ACL interfaces per ACL (in a map) for the specified remote ACL IDs.
+     *
+     * @param remoteAclIdList List of remote ACL Ids
+     * @param direction the direction
+     * @return set of ACL interfaces per ACL (in a map) for the specified remote ACL IDs.
+     *         Format: ConcurrentMap<<Remote-ACL-ID>, Map<<ACL-ID>, Set<AclInterface>>>
+     */
+    public ConcurrentMap<Uuid, Map<String, Set<AclInterface>>> getRemoteAclInterfaces(List<Uuid> remoteAclIdList,
+            Class<? extends DirectionBase> direction) {
+        ConcurrentMap<Uuid, Map<String, Set<AclInterface>>> mapOfAclWithInterfacesList = new ConcurrentHashMap<>();
+        for (Uuid remoteAclId : remoteAclIdList) {
+            Map<String, Set<AclInterface>> mapOfAclWithInterfaces = getRemoteAclInterfaces(remoteAclId, direction);
+            if (mapOfAclWithInterfaces != null) {
+                mapOfAclWithInterfacesList.put(remoteAclId, mapOfAclWithInterfaces);
+            }
+        }
+        return mapOfAclWithInterfacesList;
+    }
+
     /**
      * Gets the set of ACL interfaces per ACL (in a map) which has specified
      * remote ACL ID.
