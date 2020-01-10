@@ -674,31 +674,36 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         if (elanDpnInterfacesList != null) {
             dpnInterfaceLists = elanDpnInterfacesList.getDpnInterfaces();
         }
-        if (dpnInterfaceLists == null) {
-            dpnInterfaceLists = new ArrayList<>();
-        }
-        for (DpnInterfaces dpnInterfaces : dpnInterfaceLists) {
+        if (dpnInterfaceLists != null && !dpnInterfaceLists.isEmpty()) {
             Uint64 dstDpId = interfaceInfo.getDpId();
+            processRemoteDmacFlowForInterface(dstDpId, elanInstance, dpnInterfaceLists, writeFlowGroupTx);
+        }
+    }
+
+    private void processRemoteDmacFlowForInterface(Uint64 dstDpId, ElanInstance elanInstance,
+             List<DpnInterfaces> dpnInterfaceLists, TypedWriteTransaction<Configuration> writeFlowGroupTx) {
+        for (DpnInterfaces dpnInterfaces : dpnInterfaceLists) {
             if (Objects.equals(dpnInterfaces.getDpId(), dstDpId)) {
                 continue;
             }
             List<String> remoteElanInterfaces = dpnInterfaces.getInterfaces();
+            if (remoteElanInterfaces == null || remoteElanInterfaces.isEmpty()) {
+                continue;
+            }
             for (String remoteIf : remoteElanInterfaces) {
                 ElanInterfaceMac elanIfMac = elanUtils.getElanInterfaceMacByInterfaceName(remoteIf);
                 InterfaceInfo remoteInterface = interfaceManager.getInterfaceInfo(remoteIf);
                 if (elanIfMac == null || remoteInterface == null) {
                     continue;
                 }
-                List<MacEntry> remoteMacEntries = elanIfMac.getMacEntry();
-                if (remoteMacEntries != null) {
-                    for (MacEntry macEntry : remoteMacEntries) {
-                        String macAddress = macEntry.getMacAddress().getValue();
-                        LOG.info("Programming remote dmac {} on the newly added DPN {} for elan {}", macAddress,
-                                dstDpId, elanInstance.getElanInstanceName());
-                        elanUtils.setupRemoteDmacFlow(dstDpId, remoteInterface.getDpId(),
-                                remoteInterface.getInterfaceTag(), elanInstance.getElanTag(), macAddress,
-                                elanInstance.getElanInstanceName(), writeFlowGroupTx, remoteIf, elanInstance);
-                    }
+                List<MacEntry> remoteMacEntries = elanIfMac.nonnullMacEntry();
+                for (MacEntry macEntry : remoteMacEntries) {
+                    String macAddress = macEntry.getMacAddress().getValue();
+                    LOG.info("Programming remote dmac {} on the newly added DPN {} for elan {}", macAddress,
+                            dstDpId, elanInstance.getElanInstanceName());
+                    elanUtils.setupRemoteDmacFlow(dstDpId, remoteInterface.getDpId(),
+                            remoteInterface.getInterfaceTag(), elanInstance.getElanTag(), macAddress,
+                            elanInstance.getElanInstanceName(), writeFlowGroupTx, remoteIf, elanInstance);
                 }
             }
         }
