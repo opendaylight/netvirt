@@ -248,7 +248,9 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + remoteEgressFlowsPort3(ip2, prefix)
         + tcpEgressFlowPort2WithRemoteIpSg
         + tcpIngressFlowPort1WithMultipleSG
+        + remoteEgressFlowsPort3(ip1, prefix)
     }
+
     protected def tcpEgressFlowPort2WithRemoteIpSg() {
         val theFlowId1 ="TCP_DESTINATION_80_65535Egress_123_987_85cc3048-abc3-43cc-89b3-377341426a21"
         #[

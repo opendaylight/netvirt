@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -136,7 +137,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             }
             programAclWithAllowedAddress(flowEntries, port, port.getAllowedAddressPairs(),
                     Action.ADD, NwConstants.ADD_FLOW);
-            updateRemoteAclFilterTable(flowEntries, port, NwConstants.ADD_FLOW);
+            updateRemoteAclFilterTable(port, NwConstants.ADD_FLOW);
         }
         programFlows(AclConstants.ACL_JOB_KEY_PREFIX + portId, flowEntries, NwConstants.ADD_FLOW);
         return true;
@@ -224,13 +225,11 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         if (!deletedAaps.isEmpty()) {
             programAclWithAllowedAddress(deleteFlowEntries, portBefore, deletedAaps, Action.UPDATE,
                     NwConstants.DEL_FLOW);
-            updateRemoteAclFilterTable(deleteFlowEntries, portBefore, portBefore.getSecurityGroups(), deletedAaps,
-                    NwConstants.DEL_FLOW);
+            updateRemoteAclFilterTable(portBefore, portBefore.getSecurityGroups(), deletedAaps, NwConstants.DEL_FLOW);
         }
         if (!addedAaps.isEmpty()) {
             programAclWithAllowedAddress(addFlowEntries, portAfter, addedAaps, Action.UPDATE, NwConstants.ADD_FLOW);
-            updateRemoteAclFilterTable(addFlowEntries, portAfter, portAfter.getSecurityGroups(), addedAaps,
-                    NwConstants.ADD_FLOW);
+            updateRemoteAclFilterTable(portAfter, portAfter.getSecurityGroups(), addedAaps, NwConstants.ADD_FLOW);
         }
         if (portAfter.getSubnetInfo() != null && portBefore.getSubnetInfo() == null) {
             programBroadcastRules(addFlowEntries, portAfter, Action.UPDATE, NwConstants.ADD_FLOW);
@@ -273,7 +272,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             int addOrRemove) {
         int operationForAclRules = addOrRemove == NwConstants.DEL_FLOW ? NwConstants.MOD_FLOW : addOrRemove;
         programAclRules(flowEntries, port, aclList, operationForAclRules);
-        updateRemoteAclFilterTable(flowEntries, port, aclList, port.getAllowedAddressPairs(), addOrRemove);
+        updateRemoteAclFilterTable(port, aclList, port.getAllowedAddressPairs(), addOrRemove);
         programAclDispatcherTable(flowEntries, port, addOrRemove);
     }
 
@@ -532,7 +531,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         } else {
             programAclWithAllowedAddress(flowEntries, port, port.getAllowedAddressPairs(),
                     Action.REMOVE, NwConstants.DEL_FLOW);
-            updateRemoteAclFilterTable(flowEntries, port, NwConstants.DEL_FLOW);
+            updateRemoteAclFilterTable(port, NwConstants.DEL_FLOW);
         }
         programFlows(AclConstants.ACL_JOB_KEY_PREFIX + port.getInterfaceId(), flowEntries, NwConstants.DEL_FLOW);
         return true;
@@ -760,8 +759,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         programRemoteAclTable(deleteFlowEntries, aclName, remoteAclsDeleted, dpns, NwConstants.DEL_FLOW);
         programRemoteAclTable(addFlowEntries, aclName, remoteAclsAdded, dpns, NwConstants.ADD_FLOW);
 
-        programFlows(aclName, deleteFlowEntries, NwConstants.DEL_FLOW);
-        programFlows(aclName, addFlowEntries, NwConstants.ADD_FLOW);
+        programFlows(AclConstants.ACL_JOB_KEY_PREFIX + aclName, deleteFlowEntries, NwConstants.DEL_FLOW);
+        programFlows(AclConstants.ACL_JOB_KEY_PREFIX + aclName, addFlowEntries, NwConstants.ADD_FLOW);
     }
 
     private void programRemoteAclTable(List<FlowEntity> flowEntries, String aclName, Set<Uuid> remoteAclIds,
@@ -807,13 +806,12 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         }
     }
 
-    private void updateRemoteAclFilterTable(List<FlowEntity> flowEntries, AclInterface port, int addOrRemove) {
-        updateRemoteAclFilterTable(flowEntries, port, port.getSecurityGroups(), port.getAllowedAddressPairs(),
-                addOrRemove);
+    private void updateRemoteAclFilterTable(AclInterface port, int addOrRemove) {
+        updateRemoteAclFilterTable(port, port.getSecurityGroups(), port.getAllowedAddressPairs(), addOrRemove);
     }
 
-    private void updateRemoteAclFilterTable(List<FlowEntity> flowEntries, AclInterface port, List<Uuid> aclList,
-            List<AllowedAddressPairs> aaps, int addOrRemove) {
+    private void updateRemoteAclFilterTable(AclInterface port, List<Uuid> aclList, List<AllowedAddressPairs> aaps,
+            int addOrRemove) {
         if (aclList == null) {
             LOG.debug("Port {} without SGs", port.getInterfaceId());
             return;
@@ -821,32 +819,42 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         String portId = port.getInterfaceId();
         LOG.trace("updateRemoteAclFilterTable for portId={}, aclList={}, aaps={}, addOrRemove={}", portId, aclList,
                 aaps, addOrRemove);
+
+        ConcurrentMap<Uuid, Map<String, Set<AclInterface>>> mapOfAclWithInterfacesList =
+                aclDataUtil.getRemoteAclInterfaces(aclList, this.direction);
         for (Uuid aclId : aclList) {
+            Map<String, Set<AclInterface>> mapAclWithPortSet = mapOfAclWithInterfacesList.get(aclId);
             if (aclDataUtil.getRemoteAcl(aclId, this.direction) != null) {
                 Integer aclTag = aclServiceUtils.getAclTag(aclId);
-                if (addOrRemove == NwConstants.ADD_FLOW) {
-                    syncRemoteAclTable(flowEntries, portId, aclId, aclTag, aaps, addOrRemove);
-                }
-                else if (addOrRemove == NwConstants.DEL_FLOW) {
-                    jobCoordinator.enqueueJob(aclId.getValue(), () -> {
-                        List<FlowEntity> remoteTableFlowEntries = new ArrayList<>();
-                        syncRemoteAclTable(remoteTableFlowEntries, portId, aclId, aclTag, aaps, addOrRemove);
-                        programFlows(AclConstants.ACL_JOB_KEY_PREFIX + aclId.getValue(),
-                                remoteTableFlowEntries, NwConstants.DEL_FLOW);
-                        return Collections.emptyList();
-                    });
-                }
+                jobCoordinator.enqueueJob(aclId.getValue().intern(), () -> {
+                    List<FlowEntity> flowEntries = new ArrayList<>();
+                    syncRemoteAclTable(flowEntries, portId, aclId, aclTag, aaps, mapAclWithPortSet, addOrRemove);
+                    programFlows(AclConstants.ACL_JOB_KEY_PREFIX + aclId.getValue(), flowEntries, addOrRemove);
+                    return Collections.emptyList();
+                });
             }
         }
         Set<Uuid> remoteAclIds = aclServiceUtils.getRemoteAclIdsByDirection(aclList, direction);
         for (Uuid remoteAclId : remoteAclIds) {
-            syncRemoteAclTableFromOtherDpns(flowEntries, port, remoteAclId, addOrRemove);
+            List<Uuid> aclIds = new ArrayList<Uuid>(port.getSecurityGroups());
+            aclIds.removeAll(aclList);
+            if (addOrRemove == NwConstants.DEL_FLOW && aclServiceUtils.doesRemoteAclIdExistsInAcls(aclIds, remoteAclId,
+                    this.direction)) {
+                LOG.debug("Skipping delete as remoteAclId {} is used with other ACE configured with port {}",
+                        remoteAclId, portId);
+                return;
+            }
+            jobCoordinator.enqueueJob(remoteAclId.getValue().intern(), () -> {
+                List<FlowEntity> flowEntries = new ArrayList<>();
+                syncRemoteAclTableFromOtherDpns(flowEntries, port, remoteAclId, addOrRemove);
+                programFlows(AclConstants.ACL_JOB_KEY_PREFIX + remoteAclId.getValue(), flowEntries, addOrRemove);
+                return Collections.emptyList();
+            });
         }
     }
 
     private void syncRemoteAclTable(List<FlowEntity> flowEntries, String portId, Uuid acl, Integer aclTag,
-            List<AllowedAddressPairs> aaps, int addOrRemove) {
-        Map<String, Set<AclInterface>> mapAclWithPortSet = aclDataUtil.getRemoteAclInterfaces(acl, this.direction);
+            List<AllowedAddressPairs> aaps, Map<String, Set<AclInterface>> mapAclWithPortSet, int addOrRemove) {
         Set<BigInteger> dpns = collectDpns(mapAclWithPortSet);
         for (AllowedAddressPairs aap : aaps) {
             if (!AclServiceUtils.isNotIpAllNetwork(aap)) {
