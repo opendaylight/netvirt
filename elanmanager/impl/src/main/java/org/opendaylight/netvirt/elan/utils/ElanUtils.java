@@ -718,7 +718,8 @@ public class ElanUtils {
         Uint64 dpId = interfaceInfo.getDpId();
         int lportTag = interfaceInfo.getInterfaceTag();
         Flow flow = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE,
-                getIntTunnelTableFlowRef(NwConstants.INTERNAL_TUNNEL_TABLE, lportTag), 5,
+                getIntTunnelTableFlowRef(NwConstants.INTERNAL_TUNNEL_TABLE, lportTag, "lportTag"),
+                ElanConstants.INTERNAL_TUNNEL_TABLE_PRIORITY_LPORTTAG,
                 String.format("%s:%d", "ITM Flow Entry ", lportTag), 0, 0,
                 Uint64.valueOf(ITMConstants.COOKIE_ITM.longValue() + lportTag),
                 getTunnelIdMatchForFilterEqualsLPortTag(lportTag),
@@ -728,18 +729,29 @@ public class ElanUtils {
                 interfaceInfo.getPortName());
     }
 
+    public void removeTermFlowForLport(Uint64 dpId, int lportTag,
+                                       TypedReadWriteTransaction<Configuration> deleteFlowTx)
+            throws ExecutionException, InterruptedException {
+        Flow flow = MDSALUtil.buildFlow(NwConstants.INTERNAL_TUNNEL_TABLE,
+                getIntTunnelTableFlowRef(NwConstants.INTERNAL_TUNNEL_TABLE, lportTag, "lportTag"));
+        mdsalManager.removeFlow(deleteFlowTx, dpId, flow);
+    }
+
     /**
      * Constructs the FlowName for flows installed in the Internal Tunnel Table,
      * consisting in tableId + elanTag.
      *
      * @param tableId
      *            table Id
-     * @param elanTag
-     *            elan Tag
+     * @param lportTag
+     *            lport Tag
+     * @param flowName
+     *            flow Name
      * @return the Internal tunnel
      */
-    public static String getIntTunnelTableFlowRef(short tableId, int elanTag) {
-        return new StringBuilder().append(tableId).append(elanTag).toString();
+    public static String getIntTunnelTableFlowRef(short tableId, int lportTag, String flowName) {
+        return new StringBuilder().append(tableId).append(NwConstants.FLOWID_SEPARATOR).append(lportTag)
+                .append(NwConstants.FLOWID_SEPARATOR).append(flowName).toString();
     }
 
     /**

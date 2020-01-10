@@ -301,7 +301,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                         LOG.debug("deleting the elan: {} present on dpId: {}", elanInfo.getElanInstanceName(),
                             holder.dpId);
                         if (!elanUtils.isOpenstackVniSemanticsEnforced()) {
-                            removeDefaultTermFlow(holder.dpId, elanInfo.getElanTag().toJava());
+                            removeTermFlowForElanTag(holder.dpId, elanInfo.getElanTag().toJava(), flowTx);
                         }
                         removeUnknownDmacFlow(holder.dpId, elanInfo, flowTx, elanInfo.getElanTag().toJava());
                         removeEtreeUnknownDmacFlow(holder.dpId, elanInfo, flowTx);
@@ -452,7 +452,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                             }
                         }
                     }
-                    removeDefaultTermFlow(interfaceInfo.getDpId(), interfaceInfo.getInterfaceTag());
+                    elanUtils.removeTermFlowForLport(interfaceInfo.getDpId(), interfaceInfo.getInterfaceTag(), flowTx);
                     removeFilterEqualsTable(elanInfo, interfaceInfo, flowTx);
                 } else if (existingElanInterfaceMac.isPresent()) {
                     // Interface does not exist in ConfigDS, so lets remove everything
@@ -1325,17 +1325,20 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         List<? extends MatchInfoBase> listMatchInfoBase;
         List<InstructionInfo> instructionInfos;
         Uint32 serviceId;
+        String flowRef;
         if (!elanUtils.isOpenstackVniSemanticsEnforced()) {
             serviceId = elanTag;
             listMatchInfoBase = ElanUtils.getTunnelMatchesForServiceId(elanTag);
             instructionInfos = getInstructionsForOutGroup(ElanUtils.getElanLocalBCGId(elanTag.longValue()));
+            flowRef = getFlowRef(NwConstants.INTERNAL_TUNNEL_TABLE, serviceId.longValue(), "elanTag");
         } else {
             serviceId = ElanUtils.getVxlanSegmentationId(elanInfo);
             listMatchInfoBase = buildMatchesForVni(Uint64.valueOf(serviceId));
             instructionInfos = getInstructionsIntOrExtTunnelTable(elanTag);
+            flowRef = getFlowRef(NwConstants.INTERNAL_TUNNEL_TABLE, serviceId.longValue());
         }
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INTERNAL_TUNNEL_TABLE,
-                getFlowRef(NwConstants.INTERNAL_TUNNEL_TABLE, serviceId.longValue()), 5,
+                flowRef, ElanConstants.INTERNAL_TUNNEL_TABLE_PRIORITY_ELANTAG,
                 String.format("%s:%s", "ITM Flow Entry ", elanTag.toString()), 0, 0,
                 Uint64.valueOf(ITMConstants.COOKIE_ITM.toJava().add(BigInteger.valueOf(elanTag.longValue()))),
                 listMatchInfoBase, instructionInfos);
@@ -1418,8 +1421,11 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         }
     }
 
-    private void removeDefaultTermFlow(Uint64 dpId, long elanTag) {
-        elanUtils.removeTerminatingServiceAction(dpId, (int) elanTag);
+    private void removeTermFlowForElanTag(Uint64 dpId, long elanTag, TypedReadWriteTransaction<Configuration> tx)
+            throws ExecutionException, InterruptedException {
+        Flow flowEntity = MDSALUtil.buildFlow(NwConstants.INTERNAL_TUNNEL_TABLE,
+                getFlowRef(NwConstants.INTERNAL_TUNNEL_TABLE, elanTag, "elanTag"));
+        mdsalManager.removeFlow(tx, dpId, flowEntity);
     }
 
     private void bindService(ElanInstance elanInfo, ElanInterface elanInterface, int lportTag,
