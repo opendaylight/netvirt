@@ -126,6 +126,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
             boolean isSgChanged = isSecurityGroupsChanged(sgsBefore, aclInPortAfter.getSecurityGroups());
             AclInterface aclInterfaceAfter =
                     addOrUpdateAclInterfaceCache(interfaceId, aclInPortAfter, isSgChanged, interfaceState);
+            updateCacheWithAddedAcls(aclInterfaceBefore, aclInterfaceAfter);
 
             if (aclClusterUtil.isEntityOwner()) {
                 // Handle bind/unbind service irrespective of interface state (up/down)
@@ -160,15 +161,10 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
     }
 
     private void updateCacheWithAclChange(AclInterface aclInterfaceBefore, AclInterface aclInterfaceAfter) {
-        List<Uuid> addedAcls = AclServiceUtils.getUpdatedAclList(aclInterfaceAfter.getSecurityGroups(),
-                aclInterfaceBefore.getSecurityGroups());
         List<Uuid> deletedAcls = AclServiceUtils.getUpdatedAclList(aclInterfaceBefore.getSecurityGroups(),
                 aclInterfaceAfter.getSecurityGroups());
         if (!deletedAcls.isEmpty()) {
             aclDataUtil.removeAclInterfaceMap(deletedAcls, aclInterfaceAfter);
-        }
-        if (!addedAcls.isEmpty()) {
-            aclDataUtil.addOrUpdateAclInterfaceMap(addedAcls, aclInterfaceAfter);
         }
         List<AllowedAddressPairs> addedAap = AclServiceUtils.getUpdatedAllowedAddressPairs(aclInterfaceAfter
                 .getAllowedAddressPairs(), aclInterfaceBefore.getAllowedAddressPairs());
@@ -177,6 +173,15 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
         if (!deletedAap.isEmpty() || !addedAap.isEmpty()) {
             LOG.debug("Update cache with new AAP = {}", aclInterfaceAfter.getInterfaceId());
             aclDataUtil.addOrUpdateAclInterfaceMap(aclInterfaceAfter.getSecurityGroups(), aclInterfaceAfter);
+        }
+    }
+
+    private void updateCacheWithAddedAcls(AclInterface aclInterfaceBefore, AclInterface aclInterfaceAfter) {
+        List<Uuid> addedAcls = AclServiceUtils.getUpdatedAclList(aclInterfaceAfter.getSecurityGroups(),
+                aclInterfaceBefore.getSecurityGroups());
+        if (addedAcls != null && !addedAcls.isEmpty()) {
+            LOG.debug("Update cache by adding interface={}", aclInterfaceAfter.getInterfaceId());
+            aclDataUtil.addOrUpdateAclInterfaceMap(addedAcls, aclInterfaceAfter);
         }
     }
 
