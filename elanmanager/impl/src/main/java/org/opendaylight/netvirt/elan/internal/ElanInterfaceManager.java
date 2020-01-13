@@ -118,8 +118,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanForwardingTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan._interface.forwarding.entries.ElanInterfaceMac;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan._interface.forwarding.entries.ElanInterfaceMacBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan._interface.forwarding.entries.ElanInterfaceMacKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfacesBuilder;
@@ -806,8 +804,6 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             // terminating service table flow entry
             // call bindservice of interfacemanager to create ingress table flow
             // enty.
-            // Add interface to the ElanInterfaceForwardingEntires Container
-            createElanInterfaceTablesList(interfaceName, operTx);
         }));
         futures.forEach(ElanUtils::waitForTransactionToComplete);
         futures.add(
@@ -1551,22 +1547,6 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         DpnInterfaces dpnInterface = new DpnInterfacesBuilder().setDpId(dpId).setInterfaces(interfaceNames)
                 .withKey(new DpnInterfacesKey(dpId)).build();
         return dpnInterface;
-    }
-
-    private static void createElanInterfaceTablesList(String interfaceName, TypedReadWriteTransaction<Operational> tx)
-            throws ExecutionException, InterruptedException {
-        InstanceIdentifier<ElanInterfaceMac> elanInterfaceMacTables = ElanUtils
-                .getElanInterfaceMacEntriesOperationalDataPath(interfaceName);
-        Optional<ElanInterfaceMac> interfaceMacTables = tx.read(elanInterfaceMacTables).get();
-        // Adding new Elan Interface Port to the operational DataStore without
-        // Static-Mac Entries..
-        if (!interfaceMacTables.isPresent()) {
-            ElanInterfaceMac elanInterfaceMacTable = new ElanInterfaceMacBuilder().setElanInterface(interfaceName)
-                    .withKey(new ElanInterfaceMacKey(interfaceName)).build();
-            tx.put(ElanUtils.getElanInterfaceMacEntriesOperationalDataPath(interfaceName), elanInterfaceMacTable,
-                    CREATE_MISSING_PARENTS);
-            LOG.trace("Created interface MAC table for interface: {}", interfaceName);
-        }
     }
 
     private static void createElanStateList(String elanInstanceName, String interfaceName,
