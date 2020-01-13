@@ -22,6 +22,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
+import org.opendaylight.netvirt.elan.EgressActionMissingException;
 import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
@@ -77,17 +78,19 @@ public class ElanDmacUtils {
      */
     @SuppressWarnings("checkstyle:IllegalCatch")
     public Flow buildDmacFlowForExternalRemoteMac(Uint64 dpId, String extDeviceNodeId, long elanTag,
-            Long vni, String dstMacAddress, String displayName) {
-        List<MatchInfo> mkMatches =
-                ElanUtils.buildMatchesForElanTagShFlagAndDstMac(elanTag, /* shFlag */ false, dstMacAddress);
-        List<Instruction> mkInstructions = new ArrayList<>();
+            Long vni, String dstMacAddress, String displayName) throws EgressActionMissingException {
+        List<Action> actions;
         try {
-            List<Action> actions =
-                    elanItmUtils.getExternalTunnelItmEgressAction(dpId, new NodeId(extDeviceNodeId), vni);
-            mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));
+            actions = elanItmUtils.getExternalTunnelItmEgressAction(dpId, new NodeId(extDeviceNodeId), vni);
         } catch (Exception e) {
             LOG.error("Could not get Egress Actions for DpId {} externalNode {}", dpId, extDeviceNodeId, e);
+            throw new EgressActionMissingException(String.format("Could not get Egress Actions for Dpid=%S,"
+                    + " externalNode=%s", dpId, extDeviceNodeId), e);
         }
+        List<Instruction> mkInstructions = new ArrayList<>();
+        mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));
+        List<MatchInfo> mkMatches =
+                ElanUtils.buildMatchesForElanTagShFlagAndDstMac(elanTag, /* shFlag */ false, dstMacAddress);
 
         return MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE,
                 ElanUtils.getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, extDeviceNodeId, dstMacAddress,
@@ -185,7 +188,7 @@ public class ElanDmacUtils {
 
     private ListenableFuture<Void> buildEtreeDmacFlowForExternalRemoteMacWithBatch(
             Uint64 dpnId, String extDeviceNodeId, Long vni, String macAddress, String displayName,
-            @Nullable String interfaceName, EtreeLeafTagName etreeLeafTag) {
+            @Nullable String interfaceName, EtreeLeafTagName etreeLeafTag) throws EgressActionMissingException {
 
         boolean isRoot;
         if (interfaceName == null) {
@@ -210,7 +213,7 @@ public class ElanDmacUtils {
             Flow dropFlow = buildDmacFlowDropIfPacketComingFromTunnel(dpnId, extDeviceNodeId,
                     etreeLeafTag.getEtreeLeafTag().getValue().toJava(), macAddress);
             return ResourceBatchingManager.getInstance().put(ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY,
-                    ElanUtils.getFlowIid(dropFlow, dpnId),dropFlow);
+                    ElanUtils.getFlowIid(dropFlow, dpnId), dropFlow);
         }
         return Futures.immediateFuture(null);
     }
@@ -219,15 +222,19 @@ public class ElanDmacUtils {
             Uint64 dpnId, String extDeviceNodeId, Long elanTag, Long vni, String macAddress, String displayName,
             @Nullable String interfaceName) {
 
-        Flow flow = buildDmacFlowForExternalRemoteMac(dpnId, extDeviceNodeId, elanTag, vni, macAddress,
-                displayName);
+        List<ListenableFuture<Void>> result = new ArrayList<>();
+        try {
+            Flow flow = buildDmacFlowForExternalRemoteMac(dpnId, extDeviceNodeId, elanTag, vni, macAddress,
+                    displayName);
+            result.add(ResourceBatchingManager.getInstance().put(
+                    ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY, ElanUtils.getFlowIid(flow, dpnId), flow));
+        } catch (EgressActionMissingException e) {
+            LOG.error("installDmacFlowsToExternalRemoteMacInBatch: Failed to build DMAC flow for interface {}"
+                    + " elanTag {} on dpn {} due to error {}", interfaceName, elanTag, dpnId, e.getMessage());
+        }
         Flow dropFlow = buildDmacFlowDropIfPacketComingFromTunnel(dpnId, extDeviceNodeId, elanTag, macAddress);
-        List<ListenableFuture<Void>> result = Lists.newArrayList(
-                ResourceBatchingManager.getInstance().put(
-                    ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY, ElanUtils.getFlowIid(flow, dpnId), flow),
-                ResourceBatchingManager.getInstance().put(
-                    ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY, ElanUtils.getFlowIid(dropFlow, dpnId),
-                        dropFlow));
+        result.add(ResourceBatchingManager.getInstance().put(ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY,
+                ElanUtils.getFlowIid(dropFlow, dpnId), dropFlow));
         result.addAll(installEtreeDmacFlowsToExternalRemoteMacInBatch(
                 dpnId, extDeviceNodeId, elanTag, vni, macAddress, displayName, interfaceName));
         return result;
@@ -239,11 +246,17 @@ public class ElanDmacUtils {
 
         EtreeLeafTagName etreeLeafTag = elanEtreeUtils.getEtreeLeafTagByElanTag(elanTag);
         if (etreeLeafTag != null) {
-            return Lists.newArrayList(
-                buildEtreeDmacFlowDropIfPacketComingFromTunnelwithBatch(
-                        dpnId, extDeviceNodeId, macAddress, etreeLeafTag),
-                buildEtreeDmacFlowForExternalRemoteMacWithBatch(
-                        dpnId, extDeviceNodeId, vni, macAddress, displayName, interfaceName, etreeLeafTag));
+            try {
+                return Lists.newArrayList(
+                        buildEtreeDmacFlowDropIfPacketComingFromTunnelwithBatch(
+                                dpnId, extDeviceNodeId, macAddress, etreeLeafTag),
+                        buildEtreeDmacFlowForExternalRemoteMacWithBatch(
+                                dpnId, extDeviceNodeId, vni, macAddress, displayName, interfaceName, etreeLeafTag));
+            } catch (EgressActionMissingException e) {
+                LOG.error("installEtreeDmacFlowsToExternalRemoteMacInBatch: Failed to build DMAC flow for interface {}"
+                                + " for elanTag {} on dpn {} for externalNode {} due to error {}",
+                        interfaceName, elanTag, dpnId, extDeviceNodeId, e.getMessage());
+            }
         }
         return Collections.emptyList();
     }

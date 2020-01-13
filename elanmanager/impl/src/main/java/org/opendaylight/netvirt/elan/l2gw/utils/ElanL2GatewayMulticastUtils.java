@@ -390,10 +390,17 @@ public class ElanL2GatewayMulticastUtils {
             }
             List<Action> listActionInfo = elanItmUtils.buildTunnelItmEgressActions(interfaceName,
                     ElanUtils.getVxlanSegmentationId(elanInfo).longValue(), true);
+            if (listActionInfo.isEmpty()) {
+                LOG.debug("Retrieved empty egress action for interface {} for elan {} on DPN {}",
+                        interfaceName, elanInfo.getElanInstanceName(), dpnId);
+                continue;
+            }
             listBucketInfo.add(MDSALUtil.buildBucket(listActionInfo, MDSALUtil.GROUP_WEIGHT, bucketId,
                     MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
             bucketId++;
         }
+        LOG.debug("Configured RemoteBCGroupBucketsOfElanL2GwDevices {} for DPN {} of ELAN {}",
+                listBucketInfo, dpnId, elanInfo.getElanInstanceName());
         return listBucketInfo;
     }
 
