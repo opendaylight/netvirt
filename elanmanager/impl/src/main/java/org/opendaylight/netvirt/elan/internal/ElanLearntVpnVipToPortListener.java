@@ -22,7 +22,6 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.Datastore.Operational;
@@ -77,7 +76,9 @@ public class ElanLearntVpnVipToPortListener extends
     @Override
     @PostConstruct
     public void init() {
+        /* ELAN will learn the MAC by itself using ElanPacketInHandler class.
         registerListener(LogicalDatastoreType.OPERATIONAL, broker);
+         */
     }
 
     @Override
