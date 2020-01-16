@@ -126,10 +126,11 @@ public class BgpManager implements AutoCloseable, IBgpManager {
 
     public  void getAllPeerStatus() {
         List<Neighbors> nbrList = null;
-        if (getConfig() != null) {
-            nbrList = getConfig().getNeighborsContainer().getNeighbors();
+        Bgp bgp = getConfig();
+        if (bgp != null && bgp.getNeighborsContainer() != null) {
+            nbrList = bgp.getNeighborsContainer().getNeighbors();
         } else {
-            LOG.error("BGP configuration NOT exist");
+            LOG.error("BGP Neighbor configuration NOT exist");
             return;
         }
         if (nbrList == null) {
@@ -305,7 +306,8 @@ public class BgpManager implements AutoCloseable, IBgpManager {
         if (conf == null) {
             return null;
         }
-        List<Neighbors> nbrs = conf.getNeighborsContainer().getNeighbors();
+        List<Neighbors> nbrs = conf.getNeighborsContainer() == null ? null
+                : conf.getNeighborsContainer().getNeighbors();
         if (nbrs == null) {
             return null;
         }

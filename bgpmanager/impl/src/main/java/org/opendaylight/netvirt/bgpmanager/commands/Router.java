@@ -113,7 +113,8 @@ public class Router extends OsgiCommandSupport {
                     session.getConsole().println("error : no BGP configs present");
                     break;
                 }
-                List<Neighbors> nbrs = conf.getNeighborsContainer().getNeighbors();
+                List<Neighbors> nbrs = conf.getNeighborsContainer() == null ? null
+                        : conf.getNeighborsContainer().getNeighbors();
                 if (nbrs != null && nbrs.size() > 0) {
                     session.getConsole().println("error: all BGP congiguration must be deleted "
                             + "before stopping the router instance");
