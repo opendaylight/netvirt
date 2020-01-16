@@ -175,7 +175,8 @@ public class Cache extends OsgiCommandSupport {
                         LLSTR, logging.getLevel());
             }
 
-            List<Neighbors> neighbors = config.getNeighborsContainer().getNeighbors();
+            List<Neighbors> neighbors = (config.getNeighborsContainer() ==  null) ? null
+                    : config.getNeighborsContainer().getNeighbors();
             if (neighbors != null) {
                 ps.printf("%nNeighbors%n");
                 for (Neighbors nbr : neighbors) {
@@ -212,7 +213,7 @@ public class Cache extends OsgiCommandSupport {
             }
 
             if (listVrfs) {
-                List<Vrfs> vrfs = config.getVrfsContainer().getVrfs();
+                List<Vrfs> vrfs = (config.getVrfsContainer() == null) ? null : config.getVrfsContainer().getVrfs();
                 if (vrfs != null) {
                     ps.printf("%nVRFs%n");
                     for (Vrfs vrf : vrfs) {
@@ -234,7 +235,8 @@ public class Cache extends OsgiCommandSupport {
             }
 
             if (listNets) {
-                List<Networks> ln = config.getNetworksContainer().getNetworks();
+                List<Networks> ln = (config.getNetworksContainer() == null) ? null
+                        : config.getNetworksContainer().getNetworks();
                 if (ln != null) {
                     ps.printf("%nNetworks%n");
                     for (Networks net : ln) {
@@ -248,8 +250,10 @@ public class Cache extends OsgiCommandSupport {
                 }
             }
 
-            List<Multipath> mp = config.getMultipathContainer().getMultipath();
-            List<VrfMaxpath> vrfm = config.getVrfMaxpathContainer().getVrfMaxpath();
+            List<Multipath> mp = config.getMultipathContainer() == null ? null
+                    : config.getMultipathContainer().getMultipath();
+            List<VrfMaxpath> vrfm = config.getVrfMaxpathContainer() == null ? null
+                    : config.getVrfMaxpathContainer().getVrfMaxpath();
             if (mp != null) {
                 ps.printf("%nMultipath%n");
                 for (Multipath multipath : mp) {

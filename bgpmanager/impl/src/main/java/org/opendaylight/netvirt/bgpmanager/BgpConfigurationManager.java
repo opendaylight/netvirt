@@ -671,7 +671,8 @@ public class BgpConfigurationManager implements EbgpService {
                 }
                 LOG.debug("Removing external routes from FIB");
                 deleteExternalFibRoutes();
-                List<Neighbors> nbrs = conf.getNeighborsContainer().getNeighbors();
+                List<Neighbors> nbrs = conf.getNeighborsContainer() == null ? null
+                        : conf.getNeighborsContainer().getNeighbors();
                 if (nbrs != null && nbrs.size() > 0) {
                     LOG.error("Tring to remove the as-id when neighbor config is already present");
                     for (Neighbors nbr : nbrs) {
@@ -2420,7 +2421,8 @@ public class BgpConfigurationManager implements EbgpService {
             }
         }
 
-        List<Neighbors> neighbors = config.getNeighborsContainer().getNeighbors();
+        List<Neighbors> neighbors = config.getNeighborsContainer() == null ? null
+                : config.getNeighborsContainer().getNeighbors();
         if (neighbors != null) {
             LOG.error("configuring existing Neighbors present for replay total neighbors {}", neighbors.size());
             boolean neighborConfigReplayResult = replayNbrConfig(neighbors, br);
@@ -2448,7 +2450,8 @@ public class BgpConfigurationManager implements EbgpService {
         } catch (Exception e) {
             LOG.error("Replay:addGr() received exception: ", e);
         }
-        List<Vrfs> vrfs = config.getVrfsContainer().getVrfs();
+        List<Vrfs> vrfs = config.getVrfsContainer() == null ? null
+                : config.getVrfsContainer().getVrfs();
         if (vrfs == null) {
             vrfs = new ArrayList<>();
         }
@@ -2463,7 +2466,9 @@ public class BgpConfigurationManager implements EbgpService {
             }
         }
 
-        List<Networks> ln = config.getNetworksContainer().getNetworks();
+
+        List<Networks> ln = config.getNetworksContainer() == null ? null
+                : config.getNetworksContainer().getNetworks();
         if (ln != null) {
             for (Networks net : ln) {
                 String rd = net.getRd();
@@ -2496,7 +2501,8 @@ public class BgpConfigurationManager implements EbgpService {
         }
 
 
-        List<Multipath> multipaths = config.getMultipathContainer().getMultipath();
+        List<Multipath> multipaths = config.getMultipathContainer() == null ? null
+                : config.getMultipathContainer().getMultipath();
 
         if (multipaths != null) {
             for (Multipath multipath : multipaths) {
@@ -2516,7 +2522,8 @@ public class BgpConfigurationManager implements EbgpService {
                 }
             }
         }
-        List<VrfMaxpath> vrfMaxpaths = config.getVrfMaxpathContainer().getVrfMaxpath();
+        List<VrfMaxpath> vrfMaxpaths = config.getVrfMaxpathContainer() == null ? null
+                : config.getVrfMaxpathContainer().getVrfMaxpath();
         if (vrfMaxpaths != null) {
             for (VrfMaxpath vrfMaxpath : vrfMaxpaths) {
                 try {
