@@ -111,12 +111,14 @@ public class BgpThriftService {
 
                     @Override
                     public void deleteContext(ServerContext serverContext, TProtocol input, TProtocol output) {
-                        LOG.info("Bgp thrift server delete context event");
-                        if (oldThriftClientContext == serverContext) {
-                            LOG.info("Bgp thrift server cleanup old context");
-                            oldThriftClientContext = null;
-                        } else {
-                            LOG.info("Bgp thrift server cleanup context");
+                        synchronized (this) {
+                            LOG.info("Bgp thrift server delete context event");
+                            if (oldThriftClientContext == serverContext) {
+                                LOG.info("Bgp thrift server cleanup old context");
+                                oldThriftClientContext = null;
+                            } else {
+                                LOG.info("Bgp thrift server cleanup context");
+                            }
                         }
                     }
 
