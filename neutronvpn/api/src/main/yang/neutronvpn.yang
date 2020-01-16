@@ -234,6 +234,7 @@ module neutronvpn {
     /* container for DHCP Configuration */
     container dhcp-config {
         list configs {
+            key "lease-duration default-domain";
             leaf lease-duration {
                 type    int32;
                 description "default lease duration for dhcp lease.

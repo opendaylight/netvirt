@@ -2,11 +2,6 @@ module fib-rpc {
     namespace "urn:opendaylight:netvirt:fib:rpc";
     prefix "fib-rpc";
 
-    import ietf-inet-types {
-        prefix inet;
-        revision-date "2013-07-15";
-    }
-
     import opendaylight-flow-types {
         prefix offlow;
         revision-date "2013-10-26";

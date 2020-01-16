@@ -3,11 +3,11 @@ module qosalert-config {
     namespace "urn:opendaylight:netvirt:qosalert:config";
     prefix "qosalert";
 
+    description "This YANG module defines QoS alert configuration.";
+
     revision "2017-03-01" {
         description "Initial revision of qosalert model";
     }
-
-    description "This YANG module defines QoS alert configuration.";
 
     container qosalert-config {
 
