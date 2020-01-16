@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2e09728b_6acfe92e",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1564,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2020-01-16T09:11:40Z",
+      "side": 0,
+      "message": "can u pls check whether the DS is updated in some other place",
+      "revId": "fb4c34b64b6b5737d187e5296da9f83fdbca13e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
