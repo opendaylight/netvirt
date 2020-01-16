@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.Neighbors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,9 +33,9 @@ public class BgpAlarms implements Runnable, AutoCloseable {
 
     public void init() {
         alarmAgent.registerMbean();
-
-        if (bgpMgr.getConfig() != null) {
-            List<Neighbors> nbrs = bgpMgr.getConfig().getNeighborsContainer().getNeighbors();
+        Bgp bgp = bgpMgr.getConfig();
+        if (bgp != null && bgp.getNeighborsContainer() != null) {
+            List<Neighbors> nbrs = bgp.getNeighborsContainer().getNeighbors();
             if (nbrs != null) {
                 for (Neighbors nbr : nbrs) {
                     LOG.trace("Clearing Neighbor DOWN alarm at the startup for Neighbor {}",
