@@ -1914,16 +1914,17 @@ public class BgpConfigurationManager implements EbgpService {
     }
 
     private void doRouteSync() {
-        LOG.error("Starting BGP route sync");
-        try {
-            bgpRouter.initRibSync(bgpSyncHandle);
-        } catch (BgpRouterException e) {
-            LOG.error("Route sync aborted, exception when initializing", e);
-            return;
-        }
-        while (bgpSyncHandle.getState() != BgpSyncHandle.DONE) {
-            for (af_afi afi : af_afi.values()) {
+        for (af_afi afi : af_afi.values()) {
+            try {
+                bgpRouter.initRibSync(bgpSyncHandle);
+            } catch (BgpRouterException e) {
+                LOG.error("Route sync aborted, exception when initializing", e);
+                return;
+            }
+            LOG.error("Starting BGP route sync for afi {}", afi.getValue());
+            while (bgpSyncHandle.getState() != BgpSyncHandle.DONE) {
                 Routes routes = null;
+                int noUpdates = 0;
                 try {
                     routes = bgpRouter.doRibSync(bgpSyncHandle, afi);
                 } catch (TException | BgpRouterException e) {
@@ -1932,6 +1933,7 @@ public class BgpConfigurationManager implements EbgpService {
                 }
                 Iterator<Update> updates = routes.getUpdatesIterator();
                 while (updates.hasNext()) {
+                    noUpdates++;
                     Update update = updates.next();
                     String rd = update.getRd();
                     String nexthop = update.getNexthop();
@@ -1959,13 +1961,14 @@ public class BgpConfigurationManager implements EbgpService {
                            update.getRoutermac(),
                            afi);
                 }
+                LOG.error("No of updates for afi {} is {}", afi.getValue(), noUpdates);
             }
         }
         try {
             LOG.error("Ending BGP route-sync");
             bgpRouter.endRibSync(bgpSyncHandle);
         } catch (BgpRouterException e) {
-            // Ignored?
+            LOG.error("Route sync aborted, exception when ending", e);
         }
     }
 
