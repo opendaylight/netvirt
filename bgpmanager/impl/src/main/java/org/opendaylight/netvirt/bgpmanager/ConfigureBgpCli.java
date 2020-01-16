@@ -202,7 +202,8 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
         if (conf == null) {
             return -1;
         }
-        List<Neighbors> nbrs = conf.getNeighborsContainer().getNeighbors();
+        List<Neighbors> nbrs = conf.getNeighborsContainer() == null ? null
+                : conf.getNeighborsContainer().getNeighbors();
         if (nbrs == null) {
             return -1;
         }
@@ -219,7 +220,8 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
         if (conf == null) {
             return;
         }
-        List<Neighbors> nbrs = conf.getNeighborsContainer().getNeighbors();
+        List<Neighbors> nbrs = conf.getNeighborsContainer() == null ? null
+                : conf.getNeighborsContainer().getNeighbors();
         if (nbrs != null && nbrs.size() > 0) {
             session.getConsole().println(
                     "error: all BGP congiguration must be deleted before stopping the router instance");
