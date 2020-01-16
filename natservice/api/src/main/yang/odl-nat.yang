@@ -3,7 +3,6 @@ module odl-nat {
     prefix odl-nat;
 
     import ietf-yang-types { prefix "yang"; /*revision-date 2013-07-15; */}
-    import ietf-inet-types { prefix "inet"; }
 
     revision "2016-01-11" {
         description "NAT Manager module";

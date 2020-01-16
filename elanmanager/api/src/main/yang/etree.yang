@@ -8,8 +8,6 @@ module etree {
 
     import hwvtep {prefix hwvtep;}
 
-    import network-topology {prefix "topo"; revision-date "2013-10-21"; }
-
     revision "2016-06-14" {
         description "etree module";
     }
