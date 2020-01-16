@@ -3,7 +3,6 @@ module acl-live-statistics {
     prefix "acl-stats";
 
     import ietf-interfaces {prefix if;}
-    import aclservice {prefix aclservice; revision-date "2016-06-08";}
 
     description "YANG model describes RPC to retrieve ACL live statistics.";
 
