@@ -374,10 +374,6 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     }
 
     private Uuid getVpnUuid(Uuid extNwId, Uuid floatingIpExternalId) {
-        Uuid subnetId = NatUtil.getFloatingIpPortSubnetIdFromFloatingIpId(dataBroker, floatingIpExternalId);
-        if (subnetId != null) {
-            return subnetId;
-        }
 
         InstanceIdentifier<Networks> nwId = InstanceIdentifier.builder(ExternalNetworks.class).child(Networks.class,
                 new NetworksKey(extNwId)).build();
@@ -387,6 +383,15 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         if (!nw.isPresent()) {
             LOG.error("getVpnId : Unable to read external network for {}", extNwId);
             return null;
+        }
+
+        ProviderTypes providerType = nw.get().getProviderNetworkType();
+        if (providerType == ProviderTypes.FLAT || providerType == ProviderTypes.VLAN) {
+            Uuid subnetId = NatUtil
+                .getFloatingIpPortSubnetIdFromFloatingIpId(dataBroker, floatingIpExternalId);
+            if (subnetId != null) {
+                return subnetId;
+            }
         }
 
         Uuid vpnUuid = nw.get().getVpnid();
@@ -529,6 +534,8 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         }
 
         Uuid vpnUuid = getVpnUuid(extNwId, mapping.getExternalId());
+
+        LOG.trace("createNATFlowEntries : vpnUuid {} for External Network {}", vpnUuid, extNwId);
         if (vpnUuid == null) {
             LOG.error("createNATFlowEntries : No VPN associated with Ext nw {}. Unable to create SNAT table entry "
                     + "for fixed ip {}", extNwId, mapping.getInternalIp());
@@ -574,14 +581,15 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         }
 
         Uuid vpnUuid = getVpnUuid(externalNetworkId, mapping.getExternalId());
+        LOG.trace("createNATFlowEntries : vpnUuid {} for External Network {}", vpnUuid, externalNetworkId);
         if (vpnUuid == null) {
-            LOG.error("createNATFlowEntries : No VPN associated with Ext nw {}. Unable to create SNAT table entry "
-                    + "for fixed ip {}", externalNetworkId, mapping.getInternalIp());
+            LOG.error("createNATFlowEntries : No vpnUuid associated with Ext nw {}. Unable to create SNAT table entry"
+                    + " for fixed ip {}", externalNetworkId, mapping.getInternalIp());
             return;
         }
         VpnInstance vpnInstance = NatUtil.getVpnIdToVpnInstance(dataBroker, vpnUuid.getValue());
         if (vpnInstance == null || vpnInstance.getVpnId() == null) {
-            LOG.error("createNATFlowEntries: No VPN associated with Ext nw {}. Unable to create SNAT table entry"
+            LOG.error("createNATFlowEntries: VpnInstance associated with Ext nw {}. Unable to create SNAT table entry"
                     + " for fixed ip {}",externalNetworkId, mapping.getInternalIp());
             return;
         }
