@@ -16,6 +16,24 @@
       "revId": "fb4c34b64b6b5737d187e5296da9f83fdbca13e2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ef5ce71_0f5e6291",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1564,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2020-01-17T07:03:00Z",
+      "side": 0,
+      "message": "Yes, in update in ElanInterfaceManager",
+      "parentUuid": "2e09728b_6acfe92e",
+      "revId": "fb4c34b64b6b5737d187e5296da9f83fdbca13e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
