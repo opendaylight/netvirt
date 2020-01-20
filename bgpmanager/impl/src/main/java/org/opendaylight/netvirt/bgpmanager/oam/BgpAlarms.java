@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.thrift.TException;
 import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager;
+import org.opendaylight.netvirt.bgpmanager.thrift.client.BgpRouterException;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.netvirt.bgpmanager.thrift.client.BgpRouterException;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.Neighbors;
