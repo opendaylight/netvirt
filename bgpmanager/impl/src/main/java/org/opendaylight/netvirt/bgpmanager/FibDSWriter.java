@@ -46,8 +46,7 @@ public class FibDSWriter {
     private static final Logger LOG = LoggerFactory.getLogger(FibDSWriter.class);
     private final SingleTransactionDataBroker singleTxDB;
     private final BgpUtil bgpUtil;
-
-    private final Map<String,ArrayList<String>> fibMap = new HashMap<>();
+    private final Map<String, ArrayList<String>> fibMap = new HashMap<>();
 
     @Inject
     public FibDSWriter(final DataBroker dataBroker, final BgpUtil bgpUtil) {
@@ -86,6 +85,18 @@ public class FibDSWriter {
                 return;
             }
             LOG.debug("Created vrfEntry for {} nexthop {} label {}", prefix, nextHop, label);
+        }
+
+        LOG.debug("addFibEntryToDS rd {} prefix {} NH {}",
+                rd, prefix, nextHopList.get(0));
+
+        ArrayList<String> temp = new ArrayList<String>();
+        if ((fibMap.get(appendrdtoprefix(rd, prefix)) != null)) {
+            temp.addAll(fibMap.get(appendrdtoprefix(rd, prefix)));
+        }
+        if (!temp.contains(nextHopList.get(0))) {
+            temp.addAll(nextHopList);
+            fibMap.put(appendrdtoprefix(rd, prefix), temp);
         }
 
         // Looking for existing prefix in MDSAL database
