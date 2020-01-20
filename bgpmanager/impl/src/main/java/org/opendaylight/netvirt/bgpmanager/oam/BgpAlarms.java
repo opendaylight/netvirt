@@ -13,7 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.thrift.TException;
 import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager;
+import org.opendaylight.netvirt.bgpmanager.thrift.client.BgpRouterException;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.Neighbors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,7 @@ public class BgpAlarms implements Runnable, AutoCloseable {
     private final BgpJMXAlarmAgent alarmAgent = new BgpJMXAlarmAgent();
     private final BgpConfigurationManager bgpMgr;
     private final Map<String, BgpAlarmStatus> neighborsRaisedAlarmStatusMap = new ConcurrentHashMap<>();
+    private volatile List<Neighbors> nbrList = null;
 
     public BgpAlarms(BgpConfigurationManager bgpManager) {
         bgpMgr = Objects.requireNonNull(bgpManager);
@@ -52,7 +55,6 @@ public class BgpAlarms implements Runnable, AutoCloseable {
 
     @Override
     public void run() {
-        List<Neighbors> nbrList = null;
         LOG.debug("Fetching neighbor status' from BGP");
         BgpCounters.resetFile(BgpCounters.BGP_VPNV4_SUMMARY_FILE);
         BgpCounters.resetFile(BgpCounters.BGP_VPNV6_SUMMARY_FILE);
@@ -88,39 +90,48 @@ public class BgpAlarms implements Runnable, AutoCloseable {
             return;
         }
 
-        for (Neighbors nbr : nbrs) {
-            boolean alarmToRaise = true;
-            if (nbrStatusMap != null && nbrStatusMap.containsKey(nbr.getAddress().getValue())) {
-                String nbrshipStatus = nbrStatusMap.get(nbr.getAddress().getValue());
-                LOG.trace("nbr {} status {}",
-                        nbr.getAddress().getValue(),
-                        nbrshipStatus);
-                try {
-                    Integer.parseInt(nbrshipStatus);
-                    alarmToRaise = false;
-                } catch (NumberFormatException e) {
-                    LOG.trace("Exception thrown in parsing the integers.", e);
-                }
-
-                final BgpAlarmStatus alarmStatus = neighborsRaisedAlarmStatusMap.get(nbr.getAddress().getValue());
-                if (alarmToRaise) {
-                    if (alarmStatus == null || alarmStatus != BgpAlarmStatus.RAISED) {
-                        LOG.trace("alarm raised for {}.", nbr.getAddress().getValue());
-                        raiseBgpNbrDownAlarm(nbr.getAddress().getValue());
-                    } else {
-                        LOG.trace("alarm raised already for {}", nbr.getAddress().getValue());
-                    }
+        LOG.debug("Fetching neighbor status' from BGP, #of neighbors: {}", nbrList.size());
+        for (Neighbors nbr : nbrList) {
+            boolean alarmToRaise = false;
+            try {
+                LOG.trace("nbr {} checking status, AS num: {}", nbr.getAddress().getValue(), nbr.getRemoteAs());
+                bgpMgr.getPeerStatus(nbr.getAddress().getValue(), nbr.getRemoteAs().longValue());
+                LOG.trace("nbr {} status is: PEER UP", nbr.getAddress().getValue());
+            } catch (BgpRouterException bre) {
+                if (bre.getErrorCode() == BgpRouterException.BGP_PEER_DOWN) {
+                    LOG.error("nbr {} status is: DOWN", nbr.getAddress().getValue());
+                    alarmToRaise = true;
+                } else if (bre.getErrorCode() == BgpRouterException.BGP_PEER_NOTCONFIGURED) {
+                    LOG.info("nbr {} status is: NOT CONFIGURED", nbr.getAddress().getValue());
+                } else if (bre.getErrorCode() == BgpRouterException.BGP_PEER_UNKNOWN) {
+                    LOG.info("nbr {} status is: Unknown", nbr.getAddress().getValue());
                 } else {
-                    if (alarmStatus == null || alarmStatus != BgpAlarmStatus.CLEARED) {
-                        clearBgpNbrDownAlarm(nbr.getAddress().getValue());
-                        LOG.trace("alarm cleared for {}", nbr.getAddress().getValue());
-                    } else {
-                        LOG.trace("alarm cleared already for {}", nbr.getAddress().getValue());
-                    }
+                    LOG.info("nbr {} status is: Unknown, invalid BgpRouterException: ",
+                        nbr.getAddress().getValue(), bre);
+                }
+            } catch (TException tae) {
+                LOG.error("nbr {} status is: Unknown, received TException: ", nbr.getAddress().getValue(), tae);
+            }
+
+            final BgpAlarmStatus alarmStatus = neighborsRaisedAlarmStatusMap.get(nbr.getAddress().getValue());
+            if (alarmToRaise) {
+                if (alarmStatus == null || alarmStatus != BgpAlarmStatus.RAISED) {
+                    LOG.trace("alarm raised for {}.", nbr.getAddress().getValue());
+                    raiseBgpNbrDownAlarm(nbr.getAddress().getValue());
+                } else {
+                    LOG.trace("alarm raised already for {}", nbr.getAddress().getValue());
+                }
+            } else {
+                if (alarmStatus == null || alarmStatus != BgpAlarmStatus.CLEARED) {
+                    clearBgpNbrDownAlarm(nbr.getAddress().getValue());
+                    LOG.trace("alarm cleared for {}", nbr.getAddress().getValue());
+                } else {
+                    LOG.trace("alarm cleared already for {}", nbr.getAddress().getValue());
                 }
             }
         }
     }
+
 
     private void raiseBgpNbrDownAlarm(String nbrIp) {
 

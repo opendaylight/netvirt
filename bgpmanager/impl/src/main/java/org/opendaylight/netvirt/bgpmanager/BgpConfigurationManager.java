@@ -491,6 +491,8 @@ public class BgpConfigurationManager implements EbgpService {
                     //disconnect the CONFIG SERVER port (which was )opened during I was Owner
                     bgpRouter.disconnect();
                 }
+                stopBgpCountersTask();
+                stopBgpAlarmsTask();
             }
         });
     }
@@ -3017,6 +3019,7 @@ public class BgpConfigurationManager implements EbgpService {
         totalStaledCount = 0;
         try {
             staledFibEntriesMap.clear();
+            fibDSWriter.clearFibMap();
             InstanceIdentifier<FibEntries> id = InstanceIdentifier.create(FibEntries.class);
 
             Optional<FibEntries> fibEntries = SingleTransactionDataBroker.syncReadOptional(dataBroker,
@@ -3037,9 +3040,15 @@ public class BgpConfigurationManager implements EbgpService {
                         //Create MAP from staleVrfTables.
                         vrfEntry.getRoutePaths()
                                 .forEach(
-                                    routePath -> staleFibEntMap.put(
-                                            appendNextHopToPrefix(vrfEntry.getDestPrefix(),
-                                                    routePath.getNexthopAddress()), routePath.getLabel()));
+                                    routePath -> {
+                                        staleFibEntMap.put(
+                                                appendNextHopToPrefix(vrfEntry.getDestPrefix(),
+                                                        routePath.getNexthopAddress()), routePath.getLabel());
+                                        fibDSWriter.addEntryToFibMap(
+                                                vrfTable.getRouteDistinguisher(),  vrfEntry.getDestPrefix(),
+                                                routePath.getNexthopAddress());
+
+                                    });
                     }
                     staledFibEntriesMap.put(vrfTable.getRouteDistinguisher(), staleFibEntMap);
                 }
