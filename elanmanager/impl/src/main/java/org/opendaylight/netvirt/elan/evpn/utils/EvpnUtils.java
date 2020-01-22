@@ -405,7 +405,7 @@ public class EvpnUtils {
         List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionWriteMetadata(ElanUtils.getElanMetadataLabel(elanTag.longValue(), false),
                 ElanHelper.getElanMetadataMask()));
-        mkInstructions.add(new InstructionGotoTable(NwConstants.ELAN_DMAC_TABLE));
+        mkInstructions.add(new InstructionGotoTable(NwConstants.ELAN_REMOTE_DMAC_TABLE));
         return mkInstructions;
     }
 

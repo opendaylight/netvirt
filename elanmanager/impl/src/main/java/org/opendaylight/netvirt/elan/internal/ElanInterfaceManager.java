@@ -520,7 +520,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                             continue;
                         }
                         for (MacEntry mac : macs.getMacEntry()) {
-                            removeTheMacFlowInTheDPN(dpId, elanTag, mac, confTx);
+                            removeRemoteDmacFlowInTheDPN(dpId, elanTag, mac, confTx);
                             removeEtreeMacFlowInTheDPN(dpId, elanTag, mac, confTx);
                         }
                     }
@@ -533,15 +533,15 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             TypedReadWriteTransaction<Configuration> confTx) throws ExecutionException, InterruptedException {
         EtreeLeafTagName etreeLeafTag = elanEtreeUtils.getEtreeLeafTagByElanTag(elanTag.longValue());
         if (etreeLeafTag != null) {
-            removeTheMacFlowInTheDPN(dpId, etreeLeafTag.getEtreeLeafTag().getValue(), mac, confTx);
+            removeRemoteDmacFlowInTheDPN(dpId, etreeLeafTag.getEtreeLeafTag().getValue(), mac, confTx);
         }
     }
 
-    private void removeTheMacFlowInTheDPN(Uint64 dpId, Uint32 elanTag, MacEntry mac,
+    private void removeRemoteDmacFlowInTheDPN(Uint64 dpId, Uint32 elanTag, MacEntry mac,
             TypedReadWriteTransaction<Configuration> confTx) throws ExecutionException, InterruptedException {
         mdsalManager
                 .removeFlow(confTx, dpId,
-                        MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE,
+                        MDSALUtil.buildFlow(NwConstants.ELAN_REMOTE_DMAC_TABLE,
                                 ElanUtils.getKnownDynamicmacFlowRef(elanTag, mac.getMacAddress().getValue())));
     }
 
@@ -1108,7 +1108,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     /**
      * Builds the list of instructions to be installed in the INTERNAL_TUNNEL_TABLE (36) / EXTERNAL_TUNNEL_TABLE (38)
-     * which so far consists of writing the elanTag in metadata and send the packet to ELAN_DMAC_TABLE.
+     * which so far consists of writing the elanTag in metadata and send the packet to ELAN_LOCAL_DMAC_TABLE.
      *
      * @param elanTag
      *            elanTag to be written in metadata when flow is selected
@@ -1121,7 +1121,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         /* applicable for EXTERNAL_TUNNEL_TABLE only
         * TODO: We should point to SMAC or DMAC depending on a configuration property to enable mac learning
         */
-        mkInstructions.add(new InstructionGotoTable(NwConstants.ELAN_DMAC_TABLE));
+        mkInstructions.add(new InstructionGotoTable(NwConstants.ELAN_LOCAL_DMAC_TABLE));
         return mkInstructions;
     }
 

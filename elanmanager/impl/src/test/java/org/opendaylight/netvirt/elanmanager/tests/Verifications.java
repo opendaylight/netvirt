@@ -353,14 +353,14 @@ public class Verifications {
         String torNodeId = torNodeIid.firstKeyOf(Node.class).getNodeId().getValue();
         ElanInstance actualElanInstances = singleTxdataBroker.syncRead(CONFIGURATION, ELAN_IID);
         FlowId flowId = new FlowId(
-                ElanUtils.getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE,
+                ElanUtils.getKnownDynamicmacFlowRef(NwConstants.ELAN_REMOTE_DMAC_TABLE,
                         srcDpnId,
                         torNodeId,
                         mac,
                         actualElanInstances.getElanTag().toJava(),
                         false));
 
-        InstanceIdentifier<Flow> flowIid = getFlowIid(NwConstants.ELAN_DMAC_TABLE, flowId, srcDpnId);
+        InstanceIdentifier<Flow> flowIid = getFlowIid(NwConstants.ELAN_REMOTE_DMAC_TABLE, flowId, srcDpnId);
 
         if (checkForExists) {
             awaitForData(LogicalDatastoreType.CONFIGURATION, flowIid);
@@ -390,7 +390,7 @@ public class Verifications {
         ElanInstance actualElanInstances = singleTxdataBroker.syncRead(CONFIGURATION, elanInstanceIid);
         FlowId flowId = new FlowId(
                 ElanUtils.getKnownDynamicmacFlowRef(actualElanInstances.getElanTag(), dpnMac));
-        InstanceIdentifier<Flow> flowInstanceIidDst = getFlowIid(NwConstants.ELAN_DMAC_TABLE, flowId, srcDpnId);
+        InstanceIdentifier<Flow> flowInstanceIidDst = getFlowIid(NwConstants.ELAN_REMOTE_DMAC_TABLE, flowId, srcDpnId);
         if (createFlag) {
             awaitForData(LogicalDatastoreType.CONFIGURATION, flowInstanceIidDst);
         } else {
