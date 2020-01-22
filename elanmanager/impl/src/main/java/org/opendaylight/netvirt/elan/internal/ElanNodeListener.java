@@ -56,6 +56,7 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchArpOp;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
@@ -201,9 +202,10 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
         List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionApplyActions(listActionInfo));
 
-        String flowId = dpId.toString() + NwConstants.ELAN_DMAC_TABLE + "lldp" + ElanConstants.LLDP_ETH_TYPE + dstMac;
-        FlowEntity lldpFlow = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_DMAC_TABLE, flowId, 16, flowName, 0, 0,
-                ElanConstants.COOKIE_ELAN_KNOWN_DMAC, mkMatches, mkInstructions);
+        String flowId = dpId.toString() + NwConstants.ELAN_LOCAL_DMAC_TABLE + "lldp"
+                + ElanConstants.LLDP_ETH_TYPE + dstMac;
+        FlowEntity lldpFlow = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_LOCAL_DMAC_TABLE, flowId,
+                16, flowName, 0, 0, ElanConstants.COOKIE_ELAN_KNOWN_DMAC, mkMatches, mkInstructions);
 
         mdsalManager.addFlow(tx, lldpFlow);
     }
@@ -224,7 +226,7 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
 
         List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionApplyActions(actionsInfos));
-        mkInstructions.add(new InstructionGotoTable(NwConstants.ELAN_DMAC_TABLE));
+        mkInstructions.add(new InstructionGotoTable(NwConstants.ELAN_LOCAL_DMAC_TABLE));
 
         List<MatchInfo> mkMatches = new ArrayList<>();
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_SMAC_TABLE,
@@ -255,7 +257,7 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
         List<MatchInfoBase> mkMatches = new ArrayList<>();
         mkMatches.add(new NxMatchRegister(NxmNxReg4.class, LEARN_MATCH_REG4_VALUE));
         List<InstructionInfo> mkInstructions = new ArrayList<>();
-        mkInstructions.add(new InstructionGotoTable(NwConstants.ELAN_DMAC_TABLE));
+        mkInstructions.add(new InstructionGotoTable(NwConstants.ELAN_LOCAL_DMAC_TABLE));
         String flowRef = new StringBuilder().append(NwConstants.ELAN_SMAC_TABLE).append(NwConstants.FLOWID_SEPARATOR)
                 .append(LEARN_MATCH_REG4_VALUE).toString();
         FlowEntity flowEntity =
@@ -267,16 +269,41 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
     }
 
     private void setupTableMissDmacFlow(TypedWriteTransaction<Configuration> tx, Uint64 dpId) {
+        setupTableMissLocalDmacFlow(tx, dpId);
+        setupTableMissRemoteDmacFlow(tx, dpId);
+    }
+
+    private void setupTableMissLocalDmacFlow(TypedWriteTransaction<Configuration> tx, Uint64 dpId) {
+        //default flows for miss entries in local DMAC table
         List<MatchInfo> mkMatches = new ArrayList<>();
-
         List<InstructionInfo> mkInstructions = new ArrayList<>();
-        mkInstructions.add(new InstructionGotoTable(NwConstants.ELAN_UNKNOWN_DMAC_TABLE));
+        mkInstructions.add(new InstructionGotoTable(NwConstants.ELAN_REMOTE_DMAC_TABLE));
+        FlowEntity localDmacFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_LOCAL_DMAC_TABLE,
+                getTableMissFlowRef(NwConstants.ELAN_LOCAL_DMAC_TABLE), 0, "ELAN local dMac Table Miss Flow",
+                0, 0, ElanConstants.COOKIE_ELAN_KNOWN_DMAC, mkMatches, mkInstructions);
+        mdsalManager.addFlow(tx, localDmacFlowEntity);
 
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_DMAC_TABLE,
-                getTableMissFlowRef(NwConstants.ELAN_DMAC_TABLE), 0, "ELAN dMac Table Miss Flow", 0, 0,
-                ElanConstants.COOKIE_ELAN_KNOWN_DMAC, mkMatches, mkInstructions);
+        //create flow with shflag match and action to goto unknown DMAC table
+        Uint64 shFlagSet = Uint64.valueOf(BigInteger.ONE);
+        List<MatchInfoBase> shMatches = new ArrayList<>();
+        shMatches.add(new MatchMetadata(shFlagSet, MetaDataUtil.METADATA_MASK_SH_FLAG));
+        List<InstructionInfo> shInstructions = new ArrayList<>();
+        shInstructions.add(new InstructionGotoTable(NwConstants.ELAN_UNKNOWN_DMAC_TABLE));
+        FlowEntity shLocalDmacFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_LOCAL_DMAC_TABLE,
+                getTableMissFlowRefForSHCheck(NwConstants.ELAN_LOCAL_DMAC_TABLE), 15,
+                "EELAN local dMac Table Miss Flow with SH flag", 0, 0,
+                ElanConstants.COOKIE_ELAN_KNOWN_DMAC, shMatches, shInstructions);
+        mdsalManager.addFlow(tx, shLocalDmacFlowEntity);
+    }
 
-        mdsalManager.addFlow(tx, flowEntity);
+    private void setupTableMissRemoteDmacFlow(TypedWriteTransaction<Configuration> tx, Uint64 dpId) {
+        List<MatchInfo> remoteMkMatches = new ArrayList<>();
+        List<InstructionInfo> remoteMkInstructions = new ArrayList<>();
+        remoteMkInstructions.add(new InstructionGotoTable(NwConstants.ELAN_UNKNOWN_DMAC_TABLE));
+        FlowEntity remoteUnknownFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_REMOTE_DMAC_TABLE,
+                getTableMissFlowRef(NwConstants.ELAN_REMOTE_DMAC_TABLE), 0, "ELAN remote dMac Table Miss Flow", 0, 0,
+                ElanConstants.COOKIE_ELAN_KNOWN_DMAC, remoteMkMatches, remoteMkInstructions);
+        mdsalManager.addFlow(tx, remoteUnknownFlowEntity);
     }
 
     private void setupExternalL2vniTableMissFlow(TypedWriteTransaction<Configuration> tx, Uint64 dpnId) {
@@ -306,9 +333,9 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
         List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionApplyActions(listActionInfo));
 
-        String flowId = dpId.toString() + NwConstants.ELAN_DMAC_TABLE + "l2control"
+        String flowId = dpId.toString() + NwConstants.ELAN_LOCAL_DMAC_TABLE + "l2control"
                 + ElanConstants.L2_CONTROL_PACKETS_DMAC + ElanConstants.L2_CONTROL_PACKETS_DMAC_MASK;
-        FlowEntity flow = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_DMAC_TABLE, flowId, 15,
+        FlowEntity flow = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_LOCAL_DMAC_TABLE, flowId, 15,
                 "L2 control packets dMac Table Flow", 0, 0, ElanConstants.COOKIE_ELAN_KNOWN_DMAC, mkMatches,
                 mkInstructions);
 
@@ -317,6 +344,10 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
 
     private static String getTableMissFlowRef(long tableId) {
         return String.valueOf(tableId);
+    }
+
+    private String getTableMissFlowRefForSHCheck(long tableId) {
+        return new StringBuffer().append(tableId).append("SH").toString();
     }
 
     @Override
