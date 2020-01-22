@@ -89,10 +89,10 @@ public class ElanDmacUtils {
             LOG.error("Could not get Egress Actions for DpId {} externalNode {}", dpId, extDeviceNodeId, e);
         }
 
-        return MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE,
-                ElanUtils.getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, extDeviceNodeId, dstMacAddress,
-                        elanTag, false),
-                20, /* prio */
+        return MDSALUtil.buildFlowNew(NwConstants.ELAN_REMOTE_DMAC_TABLE,
+                ElanUtils.getKnownDynamicmacFlowRef(NwConstants.ELAN_REMOTE_DMAC_TABLE, dpId,
+                        extDeviceNodeId, dstMacAddress, elanTag, false),
+                ElanConstants.ELAN_DMAC_PRIORITY, /* prio */
                 displayName, 0, /* idleTimeout */
                 0, /* hardTimeout */
                 Uint64.valueOf(ElanConstants.COOKIE_ELAN_KNOWN_DMAC.toJava().add(BigInteger.valueOf(elanTag))),
@@ -137,9 +137,12 @@ public class ElanDmacUtils {
     private static ListenableFuture<Void> removeTheDropFlow(
             long elanTag, Uint64 dpId, String extDeviceNodeId, String macToRemove) {
         String flowId =
-                ElanUtils.getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, extDeviceNodeId, macToRemove,
-                        elanTag, true);
-        Flow flowToRemove = new FlowBuilder().setId(new FlowId(flowId)).setTableId(NwConstants.ELAN_DMAC_TABLE).build();
+                ElanUtils.getKnownDynamicmacFlowRef(NwConstants.ELAN_REMOTE_DMAC_TABLE, dpId, extDeviceNodeId,
+                        macToRemove, elanTag, true);
+        Flow flowToRemove = new FlowBuilder()
+                .setId(new FlowId(flowId))
+                .setTableId(NwConstants.ELAN_REMOTE_DMAC_TABLE)
+                .build();
         return ResourceBatchingManager.getInstance().delete(
                 ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY, ElanUtils.getFlowIid(flowToRemove, dpId));
     }
@@ -147,40 +150,14 @@ public class ElanDmacUtils {
     private static ListenableFuture<Void> removeFlowThatSendsThePacketOnAnExternalTunnel(long elanTag, Uint64 dpId,
             String extDeviceNodeId, String macToRemove) {
         String flowId =
-                ElanUtils.getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, extDeviceNodeId, macToRemove,
-                        elanTag, false);
-        Flow flowToRemove = new FlowBuilder().setId(new FlowId(flowId)).setTableId(NwConstants.ELAN_DMAC_TABLE).build();
+                ElanUtils.getKnownDynamicmacFlowRef(NwConstants.ELAN_REMOTE_DMAC_TABLE, dpId,
+                        extDeviceNodeId, macToRemove, elanTag, false);
+        Flow flowToRemove = new FlowBuilder()
+                .setId(new FlowId(flowId))
+                .setTableId(NwConstants.ELAN_REMOTE_DMAC_TABLE)
+                .build();
         return ResourceBatchingManager.getInstance().delete(
                 ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY, ElanUtils.getFlowIid(flowToRemove, dpId));
-    }
-
-    /**
-     * Builds the flow that drops the packet if it came through an external
-     * tunnel, that is, if the Split-Horizon flag is set.
-     *
-     * @param dpnId
-     *            DPN whose DMAC table is going to be modified
-     * @param extDeviceNodeId
-     *            Hwvtep node where the mac is attached to
-     * @param elanTag
-     *            ElanId to which the MAC is being added to
-     * @param dstMacAddress
-     *            The mac address to be programmed
-     */
-    private static Flow buildDmacFlowDropIfPacketComingFromTunnel(Uint64 dpnId, String extDeviceNodeId,
-            Long elanTag, String dstMacAddress) {
-        List<MatchInfo> mkMatches =
-                ElanUtils.buildMatchesForElanTagShFlagAndDstMac(elanTag, SH_FLAG_SET, dstMacAddress);
-        List<Instruction> mkInstructions = MDSALUtil.buildInstructionsDrop();
-        String flowId =
-                ElanUtils.getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpnId, extDeviceNodeId, dstMacAddress,
-                        elanTag, true);
-
-        return MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE, flowId, 20, /* prio */
-                "Drop", 0, /* idleTimeout */
-                0, /* hardTimeout */
-                Uint64.valueOf(ElanConstants.COOKIE_ELAN_KNOWN_DMAC.toJava().add(BigInteger.valueOf(elanTag))),
-                mkMatches, mkInstructions);
     }
 
     private ListenableFuture<Void> buildEtreeDmacFlowForExternalRemoteMacWithBatch(
@@ -204,30 +181,15 @@ public class ElanDmacUtils {
         return Futures.immediateFuture(null);
     }
 
-    private static ListenableFuture<Void> buildEtreeDmacFlowDropIfPacketComingFromTunnelwithBatch(
-            Uint64 dpnId, String extDeviceNodeId, String macAddress, EtreeLeafTagName etreeLeafTag) {
-        if (etreeLeafTag != null) {
-            Flow dropFlow = buildDmacFlowDropIfPacketComingFromTunnel(dpnId, extDeviceNodeId,
-                    etreeLeafTag.getEtreeLeafTag().getValue().toJava(), macAddress);
-            return ResourceBatchingManager.getInstance().put(ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY,
-                    ElanUtils.getFlowIid(dropFlow, dpnId),dropFlow);
-        }
-        return Futures.immediateFuture(null);
-    }
-
     public List<ListenableFuture<Void>> installDmacFlowsToExternalRemoteMacInBatch(
             Uint64 dpnId, String extDeviceNodeId, Long elanTag, Long vni, String macAddress, String displayName,
             @Nullable String interfaceName) {
 
         Flow flow = buildDmacFlowForExternalRemoteMac(dpnId, extDeviceNodeId, elanTag, vni, macAddress,
                 displayName);
-        Flow dropFlow = buildDmacFlowDropIfPacketComingFromTunnel(dpnId, extDeviceNodeId, elanTag, macAddress);
         List<ListenableFuture<Void>> result = Lists.newArrayList(
                 ResourceBatchingManager.getInstance().put(
-                    ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY, ElanUtils.getFlowIid(flow, dpnId), flow),
-                ResourceBatchingManager.getInstance().put(
-                    ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY, ElanUtils.getFlowIid(dropFlow, dpnId),
-                        dropFlow));
+                    ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY, ElanUtils.getFlowIid(flow, dpnId), flow));
         result.addAll(installEtreeDmacFlowsToExternalRemoteMacInBatch(
                 dpnId, extDeviceNodeId, elanTag, vni, macAddress, displayName, interfaceName));
         return result;
@@ -240,8 +202,6 @@ public class ElanDmacUtils {
         EtreeLeafTagName etreeLeafTag = elanEtreeUtils.getEtreeLeafTagByElanTag(elanTag);
         if (etreeLeafTag != null) {
             return Lists.newArrayList(
-                buildEtreeDmacFlowDropIfPacketComingFromTunnelwithBatch(
-                        dpnId, extDeviceNodeId, macAddress, etreeLeafTag),
                 buildEtreeDmacFlowForExternalRemoteMacWithBatch(
                         dpnId, extDeviceNodeId, vni, macAddress, displayName, interfaceName, etreeLeafTag));
         }

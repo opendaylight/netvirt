@@ -272,7 +272,7 @@ public class ElanServiceTest extends  ElanServiceTestBase {
                 .append(actualElanInstances.getElanTag())
                 .append(interfaceInfo.getMacAddress())
                 .toString();
-        InstanceIdentifier<Flow> flowInstanceIidDst = getFlowIid(NwConstants.ELAN_DMAC_TABLE,
+        InstanceIdentifier<Flow> flowInstanceIidDst = getFlowIid(NwConstants.ELAN_LOCAL_DMAC_TABLE,
                 new FlowId(flowId), DPN1_ID);
         awaitForData(LogicalDatastoreType.CONFIGURATION, flowInstanceIidDst);
 
@@ -303,7 +303,7 @@ public class ElanServiceTest extends  ElanServiceTestBase {
         String flowId = ElanUtils.getKnownDynamicmacFlowRef(actualElanInstances.getElanTag(),
                 interfaceInfo.getMacAddress());
 
-        InstanceIdentifier<Flow> flowInstanceIidDst = getFlowIid(NwConstants.ELAN_DMAC_TABLE,
+        InstanceIdentifier<Flow> flowInstanceIidDst = getFlowIid(NwConstants.ELAN_REMOTE_DMAC_TABLE,
                 new FlowId(flowId), DPN1_ID);
         awaitForData(LogicalDatastoreType.CONFIGURATION, flowInstanceIidDst);
 
