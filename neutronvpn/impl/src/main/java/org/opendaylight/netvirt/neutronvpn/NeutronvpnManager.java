@@ -41,6 +41,7 @@ import java.util.function.Consumer;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -1755,17 +1756,19 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 LOG.debug("withdrawing subnet IP {} from vpn-interface {}", sn.getSubnetIp(), portId.getValue());
                 final Port port = neutronvpnUtils.getNeutronPort(portId);
                 jobCoordinator.enqueueJob("PORT-" + portId.getValue(),
-                    () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                            CONFIGURATION, tx -> {
-                            if (port != null) {
-                                withdrawPortIpFromVpnIface(vpnId, internetId, port, sn, tx);
-                            } else {
-                                LOG.warn(
-                                        "Cannot proceed with withdrawPortIpFromVpnIface for port {} in subnet {} since "
-                                                + "port is absent in Neutron config DS", portId.getValue(),
-                                        subnet.getValue());
-                            }
-                        })));
+                    () -> {
+                        WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
+                        if (port != null) {
+                            withdrawPortIpFromVpnIface(vpnId, internetId, port, sn, tx);
+                        } else {
+                            LOG.warn(
+                                    "Cannot proceed with withdrawPortIpFromVpnIface for port {} in subnet {} since "
+                                            + "port is absent in Neutron config DS", portId.getValue(),
+                                    subnet.getValue());
+                        }
+                        LOG.trace("withdrawPortIPFromVpnInterface was successful");
+                        tx.submit().checkedGet();
+                    });
             }
         }
         //update subnet-vpn association
