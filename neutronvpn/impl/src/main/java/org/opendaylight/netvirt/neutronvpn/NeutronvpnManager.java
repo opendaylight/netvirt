@@ -1765,6 +1765,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                                 + "port is absent in Neutron config DS", portId.getValue(),
                                         subnet.getValue());
                             }
+                            LOG.trace("WithdrawPortIpFromIface submit done successfully");
                         })));
             }
         }
