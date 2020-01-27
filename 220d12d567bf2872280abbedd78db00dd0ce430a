@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "62237a42_85cd0c27",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2020-01-27T06:12:26Z",
+      "side": 1,
+      "message": "Please DO NOT mention the downstream review details here. Please provide more details w.r.t problem statement and how we are solving the issue with this patch.",
+      "range": {
+        "startLine": 9,
+        "startChar": 7,
+        "endLine": 10,
+        "endChar": 29
+      },
+      "revId": "220d12d567bf2872280abbedd78db00dd0ce430a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
