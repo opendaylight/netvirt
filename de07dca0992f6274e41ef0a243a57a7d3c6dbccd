@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "712ec8c7_3d78c733",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibManagerImpl.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2020-01-28T05:44:34Z",
+      "side": 1,
+      "message": "This GENIUS util is not existing in the master code. please check and do the right util to solve the compilation issue.",
+      "range": {
+        "startLine": 162,
+        "startChar": 36,
+        "endLine": 162,
+        "endChar": 53
+      },
+      "revId": "de07dca0992f6274e41ef0a243a57a7d3c6dbccd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
