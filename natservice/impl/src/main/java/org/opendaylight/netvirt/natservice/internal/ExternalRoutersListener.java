@@ -1013,6 +1013,24 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             LOG.error("handleSnatReverseTraffic : networkId is null for the router ID {}", routerId);
             return;
         }
+        Collection<Uuid> externalSubnetList = NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps());
+        // FLAT/VLAN case having external-subnet as VPN
+        String externalSubnetVpn = null;
+        if (externalSubnetList != null && !externalSubnetList.isEmpty()) {
+            for (Uuid externalSubnetId : externalSubnetList) {
+                Optional<Subnets> externalSubnet = NatUtil
+                    .getOptionalExternalSubnets(dataBroker, externalSubnetId);
+                // externalSubnet data model will exist for FLAT/VLAN external netowrk UCs.
+                if (externalSubnet.isPresent()) {
+                    externalSubnetVpn = externalSubnetId.getValue();
+                    advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE,
+                        externalSubnetVpn, routerId, routerName,
+                        externalIp, networkId, router, confTx);
+                }
+            }
+            return;
+        }
+        // VXVLAN/GRE case having Internet-VPN
         final String vpnName = NatUtil.getAssociatedVPN(dataBroker, networkId);
         if (vpnName == null) {
             LOG.error("handleSnatReverseTraffic : No VPN associated with ext nw {} to handle add external ip "
