@@ -424,8 +424,8 @@ Step 5 : Create VPN-Interface and Local Adjacency
            ]
        }
 
-    its a list, user can define more than one adjacency on a
-    vpn\_interface
+its a list, user can define more than one adjacency on a
+vpn\_interface
 
 Above steps can be carried out in a single step as following
 
