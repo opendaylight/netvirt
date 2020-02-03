@@ -896,6 +896,19 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                             interfaceIdentifier);
             if (!optionalInf.isPresent()) {
                 wrtConfigTxn.put(interfaceIdentifier, inf);
+            } else if (isInterfaceUpdated(inf, optionalInf.get())) {
+               /*
+                Case where an update DTCN wasn't received by this class due to node going down
+                upon cluster reboot or any other unknown reason
+                In such a case, updates contained in the missed DTCN won't be processed and have to be handled
+                explicitly
+                Update of subports (vlanId, splithorizon tag) is handled here
+                Update of portSecurity (PortSecurityEnabled, SecurityGroups, AllowedAddressPairs) add is handled
+                Update of portSecurity update/removed is not handled
+                Update of parentrefs is not handled as parentrefs updation is handled by IFM Oxygen onwards
+                */
+                wrtConfigTxn.put(interfaceIdentifier, inf);
+                LOG.error("Interface {} is already present and is updated", infName);
             } else {
                 LOG.warn("Interface {} is already present", infName);
             }
@@ -903,6 +916,27 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             LOG.error("failed to create interface {}", infName, e);
         }
         return infName;
+    }
+
+    // Not for generic use. For a special case where update DTCN isn't received
+    private static boolean isInterfaceUpdated(Interface newInterface, Interface oldInterface) {
+        if (newInterface.augmentation(SplitHorizon.class) != null) {
+            if (oldInterface.augmentation(SplitHorizon.class) == null) {
+                return true;
+            }
+            if (!newInterface.augmentation(SplitHorizon.class).equals(oldInterface
+                    .augmentation(SplitHorizon.class))) {
+                return true;
+            }
+        }
+        if (!newInterface.augmentation(IfL2vlan.class).equals(oldInterface.augmentation(IfL2vlan.class))) {
+            return true;
+        }
+        if (newInterface.augmentation(InterfaceAcl.class) != null && oldInterface
+                .augmentation(InterfaceAcl.class) == null) {
+            return true;
+        }
+        return false;
     }
 
     private Interface createInterface(Port port) {
