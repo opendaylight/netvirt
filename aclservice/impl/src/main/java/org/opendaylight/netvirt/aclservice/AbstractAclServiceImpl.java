@@ -844,12 +844,9 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                         remoteAclId, portId);
                 return;
             }
-            jobCoordinator.enqueueJob(remoteAclId.getValue().intern(), () -> {
-                List<FlowEntity> flowEntries = new ArrayList<>();
-                syncRemoteAclTableFromOtherDpns(flowEntries, port, remoteAclId, addOrRemove);
-                programFlows(AclConstants.ACL_JOB_KEY_PREFIX + remoteAclId.getValue(), flowEntries, addOrRemove);
-                return Collections.emptyList();
-            });
+            List<FlowEntity> flowEntries = new ArrayList<>();
+            syncRemoteAclTableFromOtherDpns(flowEntries, port, remoteAclId, addOrRemove);
+            programFlows(AclConstants.ACL_JOB_KEY_PREFIX + remoteAclId.getValue(), flowEntries, addOrRemove);
         }
     }
 
