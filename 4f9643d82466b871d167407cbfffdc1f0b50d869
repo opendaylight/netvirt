@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ed0f7761_58cf68ea",
+        "filename": "ipv6service/impl/src/main/resources/initial/netvirt-ipv6service-config.xml",
+        "patchSetId": 17
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2020-02-03T11:37:17Z",
+      "side": 1,
+      "message": "Please do not make \"switch\" mode as default. We cam make this default once all the CSIT jobs are moved to OVS 2.12. Till that point please keep controller mode and trigger the CSIT job and see the result",
+      "revId": "4f9643d82466b871d167407cbfffdc1f0b50d869",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
