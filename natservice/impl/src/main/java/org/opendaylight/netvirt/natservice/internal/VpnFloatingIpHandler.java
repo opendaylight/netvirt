@@ -369,7 +369,16 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                 removeLFibTableEntry(dpnId, label, confTx);
                 RemoveVpnLabelInput labelInput = new RemoveVpnLabelInputBuilder()
                         .setVpnName(vpnName).setIpPrefix(externalIp).build();
-                return vpnService.removeVpnLabel(labelInput);
+                Future<RpcResult<Void>> labelFuture1 = vpnService.removeVpnLabel(labelInput);
+                if (labelFuture1.get() == null || !labelFuture1.get().isSuccessful()) {
+                    String errMsg = String.format(
+                            "VpnFloatingIpHandler: RPC call to remove VPN label on dpn %s "
+                                    + "for prefix %s failed for vpn %s - %s",
+                            dpnId, externalIp, vpnName, result.getErrors());
+                    LOG.error(errMsg);
+                    return Futures.immediateFailedFuture(new RuntimeException(errMsg));
+                }
+                return JdkFutureAdapters.listenInPoolThread(labelFuture1);
             } else {
                 String errMsg = String.format("onRemoveFloatingIp :RPC call to remove custom FIB entries "
                         + "on dpn %s for prefix %s Failed - %s", dpnId, externalIp, result.getErrors());

@@ -230,7 +230,7 @@ public class LearntVpnVipToPortEventProcessor
                     String rd = vpnUtil.getVpnRd(vpnInstName);
                     Uint32 label = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME,
                         VpnUtil.getNextHopLabelKey(rd != null ? rd : vpnInstName, ip));
-                    if (label.longValue() == 0) {
+                    if (label.longValue() == VpnConstants.INVALID_LABEL) {
                         LOG.error("Unable to fetch label from Id Manager. Bailing out of adding MIP adjacency {}"
                                 + " to vpn interface {} for vpn {}", ip, vpnInterface, vpnInstName);
                         return;

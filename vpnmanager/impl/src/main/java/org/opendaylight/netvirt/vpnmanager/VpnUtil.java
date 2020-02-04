@@ -245,6 +245,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.s
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.SubnetKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.RpcError;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
@@ -539,30 +540,36 @@ public final class VpnUtil {
         AllocateIdInput getIdInput = new AllocateIdInputBuilder().setPoolName(poolName).setIdKey(idKey).build();
         try {
             Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
-            RpcResult<AllocateIdOutput> rpcResult = result.get();
-            if (rpcResult.isSuccessful()) {
-                return rpcResult.getResult().getIdValue();
-            } else {
-                LOG.error("getUniqueId: RPC Call to Get Unique Id from pool {} with key {} returned with Errors {}",
-                        poolName, idKey, rpcResult.getErrors());
+            Collection<RpcError> rpcErrors = null;
+            if (result != null && result.get() != null) {
+                RpcResult<AllocateIdOutput> rpcResult = result.get();
+                if (rpcResult.isSuccessful()) {
+                    return rpcResult.getResult().getIdValue().intValue();
+                }
+                rpcErrors = rpcResult.getErrors();
             }
+            LOG.error("getUniqueId: RPC Call to Get Unique Id from pool {} with key {} returned with Errors {}",
+                    poolName, idKey, rpcErrors != null ? rpcErrors : "RpcResult is null");
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("getUniqueId: Exception when getting Unique Id from pool {} for key {}", poolName, idKey, e);
         }
         return Uint32.ZERO;
     }
 
-    void releaseId(String poolName, String idKey) {
+    public Integer releaseId(String poolName, String idKey) {
         ReleaseIdInput idInput = new ReleaseIdInputBuilder().setPoolName(poolName).setIdKey(idKey).build();
         try {
-            RpcResult<ReleaseIdOutput> rpcResult = idManager.releaseId(idInput).get();
-            if (!rpcResult.isSuccessful()) {
-                LOG.error("releaseId: RPC Call to release Id for key {} from pool {} returned with Errors {}",
-                        idKey, poolName, rpcResult.getErrors());
+            if (result == null || result.get() == null || !result.get().isSuccessful()) {
+                LOG.error("releaseId: RPC Call to release Id from pool {} with key {} returned with Errors {}",
+                        poolName, idKey,
+                        (result != null && result.get() != null) ? result.get().getErrors() : "RpcResult is null");
+            } else {
+                return result.get().getResult().getIdValues().get(0).intValue();
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("releaseId: Exception when releasing Id for key {} from pool {}", idKey, poolName, e);
         }
+        return VpnConstants.INVALID_IDMAN_ID;
     }
 
     public static String getNextHopLabelKey(String rd, String prefix) {
