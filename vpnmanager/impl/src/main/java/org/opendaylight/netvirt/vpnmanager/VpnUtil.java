@@ -87,11 +87,7 @@ import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.netvirt.vpnmanager.iplearn.model.MacEntry;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
@@ -221,6 +217,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.VpnAfConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.VpnInstances;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances.VpnInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances.VpnInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkAttributes.NetworkType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortData;
@@ -2247,15 +2247,15 @@ public final class VpnUtil {
         }
     }
 
-    Set<org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTarget>
-        getRtListForVpn(String vpnName) {
-        Set<org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets
+    Set<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.af.config
+            .vpntargets.VpnTarget> getRtListForVpn(String vpnName) {
+        Set<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.af.config.vpntargets
                 .VpnTarget> rtList = new HashSet<>();
         InstanceIdentifier<VpnInstance> vpnInstanceId = InstanceIdentifier.builder(VpnInstances.class)
                 .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
         Optional<VpnInstance> vpnInstanceOptional = read(LogicalDatastoreType.CONFIGURATION, vpnInstanceId);
         if (vpnInstanceOptional.isPresent()) {
-            org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.VpnTargets
+            org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.af.config.VpnTargets
                     vpnTargets = vpnInstanceOptional.get().getIpv4Family().getVpnTargets();
             if (vpnTargets != null && vpnTargets.getVpnTarget() != null) {
                 rtList.addAll(vpnTargets.getVpnTarget());
@@ -2289,10 +2289,10 @@ public final class VpnUtil {
                 .child(RouteTarget.class, new RouteTargetKey(rt, rtType)).build();
     }
 
-    Set<RouteTarget> getRouteTargetSet(Set<org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815
-            .vpn.af.config.vpntargets.VpnTarget> vpnTargets) {
+    Set<RouteTarget> getRouteTargetSet(Set<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn
+            .rev200204.vpn.af.config.vpntargets.VpnTarget> vpnTargets) {
         Set<RouteTarget> routeTargetSet = new HashSet<>();
-        for (org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets
+        for (org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.af.config.vpntargets
                 .VpnTarget rt : vpnTargets) {
             String rtValue = rt.getVrfRTValue();
             switch (rt.getVrfRTType()) {
