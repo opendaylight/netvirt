@@ -237,7 +237,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         String vpnInstanceName = value.getVpnInstanceName();
 
         Uint32 vpnId = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME, vpnInstanceName);
-        if (vpnId.longValue() == 0) {
+        if (vpnId.longValue() == VpnConstants.INVALID_IDMAN_ID) {
             LOG.error("{} addVpnInstance: Unable to fetch label from Id Manager. Bailing out of adding operational"
                     + " data for Vpn Instance {}", LOGGING_PREFIX_ADD, value.getVpnInstanceName());
             return;

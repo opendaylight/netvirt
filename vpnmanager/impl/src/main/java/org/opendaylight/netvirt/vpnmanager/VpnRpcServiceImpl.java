@@ -92,7 +92,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         String rd = vpnUtil.getVpnRd(vpnName);
         Uint32 label = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME,
             VpnUtil.getNextHopLabelKey(rd != null ? rd : vpnName, ipPrefix));
-        if (label == null || label.longValue() == 0) {
+        if (label == null || label.longValue() == VpnConstants.INVALID_LABEL) {
             futureResult.set(RpcResultBuilder.<GenerateVpnLabelOutput>failed().withError(ErrorType.APPLICATION,
                     formatAndLog(LOG::error, "Could not retrieve the label for prefix {} in VPN {}", ipPrefix,
                             vpnName)).build());
@@ -111,8 +111,16 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         String vpnName = input.getVpnName();
         String ipPrefix = input.getIpPrefix();
         String rd = vpnUtil.getVpnRd(vpnName);
-        vpnUtil.releaseId(VpnConstants.VPN_IDPOOL_NAME,
-            VpnUtil.getNextHopLabelKey(rd != null ? rd : vpnName, ipPrefix));
+        Integer releasedId = vpnUtil.releaseId(idManager, VpnConstants.VPN_IDPOOL_NAME,
+                vpnUtil.getNextHopLabelKey(rd != null ? rd : vpnName, ipPrefix));
+        if (releasedId == VpnConstants.INVALID_IDMAN_ID) {
+            String message = "removeVpnLabel: Failed to remove Vpn Label for vpn " + vpnName + "ipPrefix " + ipPrefix
+                    + "rd " + rd;
+            LOG.error(message);
+            // TODO: Change RPC Yang to return output and thus propagate RPC error and use properly in fxn usages
+            futureResult.set(RpcResultBuilder.<Void>failed().build());
+            return futureResult;
+        }
         return RpcResultBuilder.success(new RemoveVpnLabelOutputBuilder().build()).buildFuture();
     }
 
@@ -155,13 +163,15 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             return result;
         }
 
-        if (label == null || label.longValue() == 0) {
+        if (label == null || label.longValue() == VpnConstants.INVALID_LABEL) {
             label = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME,
                 VpnUtil.getNextHopLabelKey(vpnInstanceName, destination));
-            if (label.longValue() == 0) {
+            if (label.longValue() == VpnConstants.INVALID_LABEL) {
                 String message = "Unable to retrieve a new Label for the new Route";
                 result.set(RpcResultBuilder.<AddStaticRouteOutput>failed().withError(RpcError.ErrorType.APPLICATION,
                     message).build());
+                LOG.error("addStaticRoute: Unable to retrieve label for static route with destination {}, vpninstance"
+                        + " {}, nexthop", destination, vpnInstanceName, nexthop);
                 return result;
             }
         }
