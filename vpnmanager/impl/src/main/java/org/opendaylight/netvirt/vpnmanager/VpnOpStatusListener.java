@@ -315,8 +315,12 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
          */
         @Override
         public void onSuccess(Void ignored) {
-            vpnUtil.releaseId(VpnConstants.VPN_IDPOOL_NAME, vpnName);
+            Integer releaseId = VpnUtil.releaseId(idManager, VpnConstants.VPN_IDPOOL_NAME, vpnName);
             log.info("onSuccess: VpnId for VpnName {} is released to IdManager successfully.", vpnName);
+            if (releaseId == VpnConstants.INVALID_IDMAN_ID) {
+                LOG.error("VpnOpStatusListener: onSuccess: Failed to release ID for vpn {}, vpn id pool {}", vpnName,
+                        VpnConstants.VPN_IDPOOL_NAME);
+            }
         }
 
         /**

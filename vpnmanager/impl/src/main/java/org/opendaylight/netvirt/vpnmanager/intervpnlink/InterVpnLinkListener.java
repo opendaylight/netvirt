@@ -231,9 +231,10 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             List<Uint64> firstDpnList = ivpnLinkLocator.selectSuitableDpns(add);
             if (firstDpnList != null && !firstDpnList.isEmpty()) {
                 List<Uint64> secondDpnList = firstDpnList;
-
-                Long firstVpnLportTag = allocateVpnLinkLportTag(key.getName() + vpn1Name);
-                Long secondVpnLportTag = allocateVpnLinkLportTag(key.getName() + vpn2Name);
+                Long firstVpnLportTag = (long) vpnUtil.getUniqueId(idManager,
+                        VpnConstants.PSEUDO_LPORT_TAG_ID_POOL_NAME, key.getName() + vpn1Name);
+                Long secondVpnLportTag = (long) vpnUtil.getUniqueId(idManager,
+                        VpnConstants.PSEUDO_LPORT_TAG_ID_POOL_NAME, key.getName() + vpn2Name);
                 FirstEndpointState firstEndPointState =
                         new FirstEndpointStateBuilder().setVpnUuid(vpn1Uuid).setDpId(firstDpnList)
                                 .setLportTag(firstVpnLportTag).build();
@@ -267,8 +268,10 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             } else {
                 // If there is no connection to DPNs, the InterVpnLink is created and the InterVpnLinkState is also
                 // created with the corresponding LPortTags but no DPN is assigned since there is no DPN operative.
-                Long firstVpnLportTag = allocateVpnLinkLportTag(key.getName() + vpn1Name);
-                Long secondVpnLportTag = allocateVpnLinkLportTag(key.getName() + vpn2Name);
+                Long firstVpnLportTag = (long) vpnUtil.getUniqueId(idManager,
+                        VpnConstants.PSEUDO_LPORT_TAG_ID_POOL_NAME, key.getName() + vpn1Name);
+                Long secondVpnLportTag = (long) vpnUtil.getUniqueId(idManager,
+                        VpnConstants.PSEUDO_LPORT_TAG_ID_POOL_NAME, key.getName() + vpn2Name);
                 FirstEndpointState firstEndPointState =
                         new FirstEndpointStateBuilder().setVpnUuid(vpn1Uuid).setLportTag(firstVpnLportTag)
                                 .setDpId(Collections.emptyList()).build();
@@ -354,9 +357,18 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         InterVpnLinkKey key = del.key();
         Uuid firstEndpointVpnUuid = del.getFirstEndpoint().getVpnUuid();
         Uuid secondEndpointVpnUuid = del.getSecondEndpoint().getVpnUuid();
-        releaseVpnLinkLPortTag(key.getName() + firstEndpointVpnUuid.getValue());
-        releaseVpnLinkLPortTag(key.getName() + secondEndpointVpnUuid.getValue());
-
+        int firstReleasedId = vpnUtil.releaseId(idManager, VpnConstants.PSEUDO_LPORT_TAG_ID_POOL_NAME,
+                key.getName() + firstEndpointVpnUuid.getValue());
+        if (firstReleasedId == VpnConstants.INVALID_IDMAN_ID) {
+            LOG.error("InterVpnLinkListener remove: Unable to release first ID for key {}",
+                    key.getName() + firstEndpointVpnUuid.getValue());
+        }
+        int secondReleasedId = vpnUtil.releaseId(idManager, VpnConstants.PSEUDO_LPORT_TAG_ID_POOL_NAME,
+                key.getName() + secondEndpointVpnUuid.getValue());
+        if (secondReleasedId == VpnConstants.INVALID_IDMAN_ID) {
+            LOG.error("InterVpnLinkListener remove: Unable to release second ID for key {}",
+                    key.getName() + secondEndpointVpnUuid.getValue());
+        }
         // Routes with nextHop pointing to an end-point of the inter-vpn-link are populated into FIB table.
         // The action in that case is a nx_resubmit to LPortDispatcher table. This is done in FibManager.
         // At this point. we need to check if is there any entry in FIB table pointing to LPortDispatcher table.
@@ -410,14 +422,6 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         cleanUpInterVPNRoutes(interVpnLinkName, vrfEntries, isVpnFirstEndPoint);
     }
 
-
-    private void releaseVpnLinkLPortTag(String idKey) {
-        ReleaseIdInput releaseIdInput =
-            new ReleaseIdInputBuilder().setPoolName(VpnConstants.PSEUDO_LPORT_TAG_ID_POOL_NAME).setIdKey(idKey).build();
-
-        JdkFutures.addErrorLogging(idManager.releaseId(releaseIdInput), LOG, "Release Id");
-    }
-
     @Override
     protected void update(InstanceIdentifier<InterVpnLink> identifier, InterVpnLink original, InterVpnLink update) {
 
@@ -435,25 +439,6 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         jobCoordinator.enqueueJob(specificJobKey, new InterVpnLinkCleanedCheckerTask(dataBroker, original,
                 interVpnLinkUtil, vpnUtil));
         jobCoordinator.enqueueJob(specificJobKey, new InterVpnLinkCreatorTask(dataBroker, update));
-    }
-
-    private Long allocateVpnLinkLportTag(String idKey) {
-        AllocateIdInput getIdInput =
-            new AllocateIdInputBuilder().setPoolName(VpnConstants.PSEUDO_LPORT_TAG_ID_POOL_NAME)
-                .setIdKey(idKey)
-                .build();
-        try {
-            Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
-            RpcResult<AllocateIdOutput> rpcResult = result.get();
-            if (rpcResult.isSuccessful()) {
-                return rpcResult.getResult().getIdValue().toJava();
-            } else {
-                LOG.warn("RPC Call to Get Unique Id returned with Errors {}", rpcResult.getErrors());
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.warn("Exception when getting Unique Id", e);
-        }
-        return INVALID_ID;
     }
 
     protected void setInError(final InstanceIdentifier<InterVpnLinkState> vpnLinkStateIid,

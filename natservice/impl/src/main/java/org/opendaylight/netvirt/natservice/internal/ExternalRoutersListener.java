@@ -11,10 +11,8 @@ import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CR
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.*;
+
 import java.math.BigInteger;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -2303,7 +2301,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     }
 
     protected void delFibTsAndReverseTraffic(final Uint64 dpnId, String routerName, Uint32 routerId, String extIp,
-                                             String vpnName, Uuid extNetworkId, Uint32 tempLabel,
+                                             final String vpnName, Uuid extNetworkId, Uint32 tempLabel,
                                              String gwMacAddress, boolean switchOver,
                                              TypedReadWriteTransaction<Configuration> removeFlowInvTx)
             throws ExecutionException, InterruptedException {
@@ -2370,14 +2368,24 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             NatUtil.removePreDnatToSnatTableEntry(removeFlowInvTx, mdsalManager, dpnId);
         }
         if (!switchOver) {
-            ListenableFuture<RpcResult<RemoveVpnLabelOutput>> labelFuture =
-                Futures.transformAsync(future, result -> {
+            ListenableFuture<RpcResult<Void>> labelFuture =
+                Futures.transformAsync(JdkFutureAdapters.listenInPoolThread(future),
+                        (AsyncFunction<RpcResult<Void>, RpcResult<Void>>) result -> {
                     //Release label
                     if (result.isSuccessful() && label != null && label.toJava() > 0) {
                         NatUtil.removePreDnatToSnatTableEntry(removeFlowInvTx, mdsalManager, dpnId);
                         RemoveVpnLabelInput labelInput = new RemoveVpnLabelInputBuilder()
                             .setVpnName(externalVpn).setIpPrefix(externalIp).build();
-                        return vpnService.removeVpnLabel(labelInput);
+                        Future<RpcResult<Void>> labelFuture1 = vpnService.removeVpnLabel(labelInput);
+                        if (labelFuture1.get() == null || !labelFuture1.get().isSuccessful()) {
+                            String errMsg = String.format(
+                                    "ExternalRoutersListener: RPC call to remove VPN label "
+                                            + "on dpn %s for prefix %s failed for vpn %s - %s",
+                                    dpnId, externalIp, vpnName, result.getErrors());
+                            LOG.error(errMsg);
+                            return Futures.immediateFailedFuture(new RuntimeException(errMsg));
+                        }
+                        return JdkFutureAdapters.listenInPoolThread(labelFuture1);
                     } else {
                         String errMsg =
                             String.format("RPC call to remove custom FIB entries on dpn %s for "
@@ -2475,13 +2483,23 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             NatUtil.removePreDnatToSnatTableEntry(removeFlowInvTx, mdsalManager, dpnId);
         }
         if (!switchOver) {
-            ListenableFuture<RpcResult<RemoveVpnLabelOutput>> labelFuture =
-                    Futures.transformAsync(future, result -> {
+            ListenableFuture<RpcResult<Void>> labelFuture =
+                    Futures.transformAsync(JdkFutureAdapters.listenInPoolThread(future),
+                            (AsyncFunction<RpcResult<Void>, RpcResult<Void>>) result -> {
                         //Release label
                         if (result.isSuccessful()) {
                             RemoveVpnLabelInput labelInput = new RemoveVpnLabelInputBuilder()
                                     .setVpnName(vpnName).setIpPrefix(externalIp).build();
-                            return vpnService.removeVpnLabel(labelInput);
+                            Future<RpcResult<Void>> labelFuture1 = vpnService.removeVpnLabel(labelInput);
+                            if (labelFuture1.get() == null || !labelFuture1.get().isSuccessful()) {
+                                String errMsg = String.format(
+                                        "RPC call to remove VPN label on dpn %s for prefix %s "
+                                                + "failed for vpn %s - %s", dpnId, externalIp, vpnName,
+                                        result.getErrors());
+                                LOG.error(errMsg);
+                                return Futures.immediateFailedFuture(new RuntimeException(errMsg));
+                            }
+                            return JdkFutureAdapters.listenInPoolThread(labelFuture1);
                         } else {
                             String errMsg =
                                     String.format("RPC call to remove custom FIB entries on dpn %s for "
