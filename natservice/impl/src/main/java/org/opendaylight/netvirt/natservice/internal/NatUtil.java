@@ -16,6 +16,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
+import com.google.common.util.concurrent.CheckedFuture;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -37,6 +38,7 @@ import org.apache.commons.net.util.SubnetUtils;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -269,6 +271,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.re
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbNodeAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.OpenvswitchOtherConfigs;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -2956,5 +2959,33 @@ public final class NatUtil {
             dpnID = Uint64.valueOf(dpnKey.split(NatConstants.COLON_SEPARATOR)[1]).toString();
         }
         return dpnID;
+    }
+
+    // TODO this can be removed once MDSAL Util provides this functionality
+    public static boolean dsEntryExists(
+        final DataBroker dataBroker, final LogicalDatastoreType store,
+        final InstanceIdentifier<? extends DataObject> path) {
+        int trialNo = 0;
+        ReadOnlyTransaction transaction = dataBroker.newReadOnlyTransaction();
+        do {
+            try {
+                CheckedFuture<Boolean, ReadFailedException> result = transaction.exists(store, path);
+                transaction.close();
+                return result.checkedGet().booleanValue();
+            } catch (ReadFailedException e) {
+                if (trialNo == 0) {
+                    LOG.error("mdsal Read failed exception retrying the read after sleep for {}", path);
+                }
+                try {
+                    transaction.close();
+                    Thread.sleep(NatConstants.MDSAL_READ_SLEEP_INTERVAL_MS);
+                    transaction = dataBroker.newReadOnlyTransaction();
+                } catch (InterruptedException e1) {
+                    LOG.error("Sleep interrupted for path {}", path);
+                }
+            }
+        } while (trialNo++ < NatConstants.MDSAL_MAX_READ_TRIALS);
+        LOG.error("All read trials exceeded for path {}", path);
+        return false;
     }
 }

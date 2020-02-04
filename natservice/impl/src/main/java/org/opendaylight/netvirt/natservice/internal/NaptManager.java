@@ -549,12 +549,16 @@ public class NaptManager {
     }
 
     protected void removeFromSnatIpPortDS(Uint32 segmentId, String internalIp) {
+
         InstanceIdentifier<IpPort> intIp = InstanceIdentifier.builder(SnatintIpPortMap.class)
             .child(IntipPortMap.class, new IntipPortMapKey(segmentId))
             .child(IpPort.class, new IpPortKey(internalIp)).build();
         // remove from SnatIpPortDS
+        Boolean isEntryExists = NatUtil.dsEntryExists(dataBroker, LogicalDatastoreType.CONFIGURATION, intIp);
         LOG.debug("removeFromSnatIpPortDS : Removing SnatIpPort from datastore : {}", intIp);
-        MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, intIp);
+        if (isEntryExists) {
+            MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, intIp);
+        }
     }
 
     protected void removeFromIpPortMapDS(Uint32 segmentId, String internalIpPort, NAPTEntryEvent.Protocol protocol) {
