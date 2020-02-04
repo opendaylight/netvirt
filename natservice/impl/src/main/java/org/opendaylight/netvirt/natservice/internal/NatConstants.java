@@ -51,6 +51,8 @@ public interface NatConstants {
     int NAT_DJC_MAX_RETRIES = 3;
     int DEFAULT_VPN_INTERNAL_TUNNEL_TABLE_PRIORITY = 8;
     String NETWORK_ROUTER_INTERFACE = "network:router_interface";
+    int MDSAL_MAX_READ_TRIALS = Integer.getInteger("mdsalutil.max.tries", 5);
+    int MDSAL_READ_SLEEP_INTERVAL_MS = Integer.getInteger("mdsalutil.sleep.between.mdsal.reads", 1000);
     // Flow Actions
     int ADD_FLOW = 0;
     int DEL_FLOW = 1;
