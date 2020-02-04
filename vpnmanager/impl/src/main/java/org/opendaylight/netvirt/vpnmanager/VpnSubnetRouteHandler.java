@@ -832,6 +832,11 @@ public class VpnSubnetRouteHandler {
                 l3vni = subOpBuilder.getL3vni();
             } else {
                 label = subOpBuilder.getLabel();
+                if (label.longValue() == VpnConstants.INVALID_LABEL) {
+                    LOG.error("publishSubnetRouteToBgp: Label not found for rd {}, subnetIp {}",
+                            subOpBuilder.getVrfId(), subOpBuilder.getSubnetCidr());
+                    return;
+                }
             }
             bgpManager.advertisePrefix(subOpBuilder.getVrfId(), null /*macAddress*/, subOpBuilder.getSubnetCidr(),
                     Arrays.asList(nextHopIp), encapType,  label, l3vni,
@@ -900,13 +905,6 @@ public class VpnSubnetRouteHandler {
         return true;
     }
 
-    private Uint32 getLabel(String rd, String subnetIp) {
-        Uint32 label = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME, VpnUtil.getNextHopLabelKey(rd, subnetIp));
-        LOG.trace("{} getLabel: Allocated subnetroute label {} for rd {} prefix {}", LOGGING_PREFIX, label, rd,
-                subnetIp);
-        return label;
-    }
-
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private boolean deleteSubnetRouteFromFib(String rd, String subnetIp, String vpnName, boolean isBgpVpn) {
@@ -964,7 +962,13 @@ public class VpnSubnetRouteHandler {
             if (VpnUtil.isL3VpnOverVxLan(subOpBuilder.getL3vni())) {
                 l3vni = subOpBuilder.getL3vni();
             } else {
-                label = getLabel(rd, subnetIp);
+                label = vpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
+                        vpnUtil.getNextHopLabelKey(rd, subnetIp));
+                if (label.longValue() == VpnConstants.INVALID_LABEL) {
+                    LOG.error("electNewDpnForSubnetRoute: Unable to retrieve label for rd {}, subnetIp {}", rd,
+                            subnetIp);
+                    return;
+                }
                 subOpBuilder.setLabel(label);
             }
             isRouteAdvertised = addSubnetRouteToFib(rd, subnetIp, null /* nhDpnId */, null /* nhTepIp */,
@@ -1031,7 +1035,13 @@ public class VpnSubnetRouteHandler {
             if (VpnUtil.isL3VpnOverVxLan(subOpBuilder.getL3vni())) {
                 l3vni = subOpBuilder.getL3vni();
             } else {
-                label = getLabel(rd, subnetIp);
+                label = vpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
+                        vpnUtil.getNextHopLabelKey(rd, subnetIp));
+                if (label.longValue() == VpnConstants.INVALID_LABEL) {
+                    LOG.error("electNewDpnForSubnetRoute: Unable to retrieve label for rd {}, subnetIp {}", rd,
+                            subnetIp);
+                    return;
+                }
                 subOpBuilder.setLabel(label);
             }
             //update the VRF entry for the subnetroute.

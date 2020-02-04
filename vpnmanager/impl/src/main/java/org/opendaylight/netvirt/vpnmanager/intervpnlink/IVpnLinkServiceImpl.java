@@ -135,6 +135,10 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
                       prefix, nextHopList, vpnName, dstVpnName, dstVpnRd);
             String key = dstVpnRd + VpnConstants.SEPARATOR + prefix;
             Uint32 leakedLabel = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME, key);
+            if (leakedLabel.longValue() == VpnConstants.INVALID_LABEL) {
+                LOG.error("leakRoute: Unable to retrieve leakedlabel for key {}", key);
+                return;
+            }
             String leakedNexthop = interVpnLink.getEndpointIpAddr(vpnName);
             fibManager.addOrUpdateFibEntry(dstVpnRd, null /*macAddress*/, prefix,
                                            Collections.singletonList(leakedNexthop), VrfEntry.EncapType.Mplsgre,
@@ -445,6 +449,11 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
 
         Uint32 label = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME,
                                 VpnUtil.getNextHopLabelKey(vpnId, destination));
+        if (label.longValue() == VpnConstants.INVALID_LABEL) {
+            LOG.error("handleStaticRoute: Failed to retrieve label for vpn {}, destination {}, rd {}", vpnId,
+                    destination, vpnRd);
+            return;
+        }
 
         try {
             interVpnLinkUtil.handleStaticRoute(ivpnLink, vpnId, destination, routeNextHop, label);
