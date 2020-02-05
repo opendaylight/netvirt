@@ -125,13 +125,24 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
                                 rds.parallelStream().forEach(rd -> bgpManager.deleteVrf(
                                         rd, false, AddressFamily.L2VPN));
                             }
-                            if (update.isIpv4Configured()) {
-                                rds.parallelStream().forEach(rd -> bgpManager.deleteVrf(
-                                        rd, false, AddressFamily.IPV4));
+                            if (update.getIpAddressFamilyConfigured()
+                                    == VpnInstanceOpDataEntry.IpAddressFamilyConfigured.Ipv4) {
+                                rds.parallelStream().forEach(rd -> bgpManager.deleteVrf(rd, false,
+                                        AddressFamily.IPV4));
                             }
-                            if (update.isIpv6Configured()) {
-                                rds.parallelStream().forEach(rd -> bgpManager.deleteVrf(
-                                        rd, false, AddressFamily.IPV6));
+                            if (update.getIpAddressFamilyConfigured()
+                                    == VpnInstanceOpDataEntry.IpAddressFamilyConfigured.Ipv6) {
+                                rds.parallelStream().forEach(rd -> bgpManager.deleteVrf(rd, false,
+                                        AddressFamily.IPV6));
+                            }
+                            if (update.getIpAddressFamilyConfigured()
+                                    == VpnInstanceOpDataEntry.IpAddressFamilyConfigured.Ipv4AndIpv6) {
+                                rds.parallelStream()
+                                        .forEach(rd -> bgpManager.deleteVrf(rd, false,
+                                                AddressFamily.IPV4));
+                                rds.parallelStream()
+                                        .forEach(rd -> bgpManager.deleteVrf(rd, false,
+                                                AddressFamily.IPV6));
                             }
                         }
                         InstanceIdentifier<Vpn> vpnToExtraroute =
@@ -259,30 +270,44 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
                     try {
                         List<String> importRTList = rd.equals(primaryRd) ? irtList : emptyList();
                         LOG.info("VpnOpStatusListener.update: updating BGPVPN for vpn {} with RD {}"
-                                + " Type is {}, IPv4 is {}, IPv6 is {}, iRT {}", vpnName, primaryRd, update.getType(),
-                                update.isIpv4Configured(), update.isIpv6Configured(), importRTList);
+                                        + " Type is {}, IP type is {}, iRT {}", vpnName, primaryRd, update.getType(),
+                                update.getIpAddressFamilyConfigured(), importRTList);
                         if (update.getType() == VpnInstanceOpDataEntry.Type.L2) {
                             bgpManager.addVrf(rd, importRTList, ertList, AddressFamily.L2VPN);
                         }
-                        if (!original.isIpv4Configured() && update.isIpv4Configured()) {
-                            bgpManager.addVrf(rd, importRTList, ertList, AddressFamily.IPV4);
-                        } else if (original.isIpv4Configured() && !update.isIpv4Configured()) {
-                            bgpManager.deleteVrf(rd, false, AddressFamily.IPV4);
-                        }
-                        if (!original.isIpv6Configured() && update.isIpv6Configured()) {
-                            bgpManager.addVrf(rd, importRTList, ertList, AddressFamily.IPV6);
-                        } else if (original.isIpv6Configured() && !update.isIpv6Configured()) {
-                            bgpManager.deleteVrf(rd, false, AddressFamily.IPV6);
+                        int ipValue = VpnUtil.getIpFamilyValueToRemove(original,update);
+                        switch (ipValue) {
+                            case 4:
+                                bgpManager.deleteVrf(rd, false, AddressFamily.IPV4);
+                                break;
+                            case 6:
+                                bgpManager.deleteVrf(rd, false, AddressFamily.IPV6);
+                                break;
+                            case 10:
+                                bgpManager.deleteVrf(rd, false, AddressFamily.IPV4);
+                                bgpManager.deleteVrf(rd, false, AddressFamily.IPV6);
+                                break;
+                            default:
+                                break;
                         }
                         /* Update vrf entry with newly added RD list. VPN does not support for
                          * deleting existing RDs
                          */
                         if (original.getRd().size() != update.getRd().size()) {
-                            if (update.isIpv4Configured()) {
-                                bgpManager.addVrf(rd, importRTList, ertList, AddressFamily.IPV4);
-                            }
-                            if (update.isIpv6Configured()) {
-                                bgpManager.addVrf(rd, importRTList, ertList, AddressFamily.IPV6);
+                            ipValue = VpnUtil.getIpFamilyValueToAdd(original,update);
+                            switch (ipValue) {
+                                case 4:
+                                    bgpManager.addVrf(rd, importRTList, ertList, AddressFamily.IPV4);
+                                    break;
+                                case 6:
+                                    bgpManager.addVrf(rd, importRTList, ertList, AddressFamily.IPV6);
+                                    break;
+                                case 10:
+                                    bgpManager.addVrf(rd, importRTList, ertList, AddressFamily.IPV4);
+                                    bgpManager.addVrf(rd, importRTList, ertList, AddressFamily.IPV6);
+                                    break;
+                                default:
+                                    break;
                             }
                         }
                     } catch (RuntimeException e) {

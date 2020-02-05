@@ -234,7 +234,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.snatint.ip.port.map.intip.port.map.IpPortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.snatint.ip.port.map.intip.port.map.ip.port.IntIpProtoType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.snatint.ip.port.map.intip.port.map.ip.port.IntIpProtoTypeKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances.VpnInstanceKey;
@@ -2131,9 +2130,8 @@ public final class NatUtil {
 
     @NonNull
     public static List<String> getListOfRdsFromVpnInstance(VpnInstance vpnInstance) {
-        VpnAfConfig vpnConfig = vpnInstance.getIpv4Family();
-        return vpnConfig.getRouteDistinguisher() != null ? new ArrayList<>(
-                vpnConfig.getRouteDistinguisher()) : new ArrayList<>();
+        return vpnInstance.getRouteDistinguisher() != null ? new ArrayList<>(
+                vpnInstance.getRouteDistinguisher()) : new ArrayList<>();
     }
 
     public static String validateAndAddNetworkMask(String ipAddress) {

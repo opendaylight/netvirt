@@ -321,17 +321,22 @@ module odl-l3vpn {
                   default "active";
                }
            }
-           leaf ipv4-configured {
-              type boolean;
-              description
-                 "This VPN Instance handles IPv4 traffic";
-              default false;
-           }
-           leaf ipv6-configured {
-              type boolean;
-              description
-                 "This VPN Instance handles IPv6 traffic";
-              default false;
+           leaf ip-address-family-configured {
+               type enumeration {
+                   enum "undefined" {
+                       value "0";
+                   }
+                   enum "ipv4" {
+                       value "4";
+                   }
+                   enum "ipv6" {
+                       value "6";
+                   }
+                   enum "ipv4-and-ipv6" {
+                       value "10";
+                   }
+               }
+               default "undefined";
            }
            leaf bgpvpn-type {
               type enumeration {

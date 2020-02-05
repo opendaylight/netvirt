@@ -84,8 +84,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.VpnInstances;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances.vpn.instance.Ipv4Family;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances.vpn.instance.Ipv4FamilyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapBuilder;
@@ -125,7 +123,6 @@ public class VpnSubnetRouteHandlerTest {
     DPNTEPsInfo dpntePsInfo = null;
     TunnelEndPoints tunlEndPts = null;
     IpAddress ipAddress = null;
-    Ipv4Family ipv4Family = null;
     String idKey = null;
     AllocateIdOutput allocateIdOutput = null;
     AllocateIdInput allocateIdInput = null;
@@ -305,11 +302,10 @@ public class VpnSubnetRouteHandlerTest {
         tunlEndPts =
             new TunnelEndPointsBuilder().setInterfaceName(interfaceName).setIpAddress(ipAddress).build();
         tunnelEndPoints.add(tunlEndPts);
-        ipv4Family = new Ipv4FamilyBuilder().setRouteDistinguisher(routeDistinguishers).build();
         vpnInstnce = new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances
             .VpnInstanceBuilder().withKey(new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn
                 .rev200204.vpn.instances.VpnInstanceKey(interfaceName)).setVpnInstanceName(interfaceName)
-            .setIpv4Family(ipv4Family).build();
+                .setRouteDistinguisher(routeDistinguishers).build();
         networks = new NetworksBuilder().setId(portId).withKey(new NetworksKey(portId)).build();
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();
         doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();

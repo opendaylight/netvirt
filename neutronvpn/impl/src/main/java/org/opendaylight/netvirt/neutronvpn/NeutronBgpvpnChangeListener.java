@@ -96,7 +96,6 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
         LOG.trace("Adding Bgpvpn : key: {}, value={}", identifier, input);
         String vpnName = input.getUuid().getValue();
         if (isBgpvpnTypeL3(input.getType())) {
-            VpnInstance.Type vpnInstanceType = VpnInstance.Type.L3;
             // handle route-target(s)
             List<String> inputRouteList = input.getRouteTargets();
             List<String> inputImportRouteList = input.getImportTargets();
@@ -157,7 +156,7 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
                     try {
                         nvpnManager.createVpn(input.getUuid(), input.getName(), input.getTenantId(), rd,
                                 importRouteTargets, exportRouteTargets, routersList, networkList,
-                                vpnInstanceType, 0 /*l3vni*/);
+                                false /*isL2Vpn*/, 0 /*l3vni*/);
                     } catch (Exception e) {
                         LOG.error("Creation of BGPVPN {} failed", vpnName, e);
                     }
