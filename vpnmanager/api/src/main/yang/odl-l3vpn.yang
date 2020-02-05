@@ -10,69 +10,18 @@ module odl-l3vpn {
         prefix nvpn;
         revision-date "2015-06-02";
     }
-
+    import l3vpn-instances-interfaces {
+        prefix nvpn-l3vpn;
+        revision-date "2020-02-04";
+    }
     revision "2013-09-11" {
         description "L3 VPN Service module";
-    }
-
-    grouping adjacency-list{
-        list adjacency{
-            key "ip_address";
-            leaf-list next-hop-ip-list { type string; }
-            leaf ip_address {type string;}
-            leaf adjacency_type {
-                description "The type of adjacency";
-                type enumeration {
-                    enum "primary-adjacency" {
-                        value 1;
-                        description
-                            "Primary adjacency type.";
-                    }
-                    enum "learnt-ip" {
-                        value 2;
-                        description
-                            "Learnt ip adjacency type.";
-                    }
-                    enum "extra-route" {
-                        value 3;
-                        description
-                            "Extra route adjacency type.";
-                    }
-                }
-                default "extra-route";
-            }
-            leaf mac_address {type string;} /* optional */
-            leaf subnet_id {type yang:uuid;} /* optional */
-            leaf subnet_gateway_ip {type string;}  /* optional */
-            leaf phys-network-func {
-                type boolean;
-                default false;
-                description "Value of True indicates this is an adjacency of a device in a provider network";
-            }
-            uses adjacency-op-data;
-        }
-    }
-
-    grouping adjacency-op-data{
-        leaf label { type uint32; config "false"; } /* optional */
-        leaf subnet_gateway_mac_address {type string; config "false";} /* optional */
-        leaf vrf-id { type string; config "false"; }
-        leaf marked_for_deletion {
-            config "false";
-            type boolean;
-            description "This flag if true suggest this adjancency has been marked for deletion";
-        }
     }
 
     grouping vpn-route-list{
         leaf-list route-entry-id{
             type uint32;
         }
-    }
-
-    augment "/l3vpn:vpn-interfaces/l3vpn:vpn-interface" {
-        ext:augment-identifier "adjacencies";
-        uses adjacency-list;
     }
 
     /* Operational DS containers for reverse lookups*/
@@ -256,7 +205,7 @@ module odl-l3vpn {
 
     augment "/odl-l3vpn:vpn-interface-op-data/odl-l3vpn:vpn-interface-op-data-entry" {
         ext:augment-identifier "adjacencies-op";
-        uses adjacency-list;
+        uses nvpn-l3vpn:adjacency-list;
     }
 
     container vpn-instance-op-data {
