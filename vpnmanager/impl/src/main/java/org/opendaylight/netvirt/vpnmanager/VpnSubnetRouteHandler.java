@@ -74,8 +74,8 @@ public class VpnSubnetRouteHandler {
 
     @Inject
     public VpnSubnetRouteHandler(final DataBroker dataBroker, final SubnetOpDpnManager subnetOpDpnManager,
-            final IBgpManager bgpManager, final VpnOpDataSyncer vpnOpDataSyncer, final VpnNodeListener vpnNodeListener,
-            final IFibManager fibManager, VpnUtil vpnUtil) {
+                                 final IBgpManager bgpManager, final VpnOpDataSyncer vpnOpDataSyncer, final VpnNodeListener vpnNodeListener,
+                                 final IFibManager fibManager, VpnUtil vpnUtil) {
         this.dataBroker = dataBroker;
         this.subOpDpnManager = subnetOpDpnManager;
         this.bgpManager = bgpManager;
@@ -225,7 +225,7 @@ public class VpnSubnetRouteHandler {
                         } catch (Exception e) {
                             LOG.error("{} onSubnetAddedToVpn: Unable to obtain dpnId for interface {},"
                                             + " subnetroute inclusion for this interface for subnet {} subnetIp {} "
-                                    + "vpn {} failed with exception", LOGGING_PREFIX, port.getValue(),
+                                            + "vpn {} failed with exception", LOGGING_PREFIX, port.getValue(),
                                     subnetId.getValue(), subnetIp, vpnName, e);
                             continue;
                         }
@@ -325,11 +325,11 @@ public class VpnSubnetRouteHandler {
                             + " vpnName {} rd {} TaskState {}", LOGGING_PREFIX, subnetId.getValue(),
                     optionalSubs.get().getSubnetCidr(), optionalSubs.get().getVpnName(),
                     optionalSubs.get().getVrfId(), optionalSubs.get().getRouteAdvState());
-                /* If subnet is deleted (or if its removed from VPN), the ports that are DOWN on that subnet
-                 * will continue to be stale in portOpData DS, as subDpnList used for portOpData removal will
-                 * contain only ports that are UP. So here we explicitly cleanup the ports of the subnet by
-                 * going through the list of ports on the subnet
-                 */
+            /* If subnet is deleted (or if its removed from VPN), the ports that are DOWN on that subnet
+             * will continue to be stale in portOpData DS, as subDpnList used for portOpData removal will
+             * contain only ports that are UP. So here we explicitly cleanup the ports of the subnet by
+             * going through the list of ports on the subnet
+             */
             InstanceIdentifier<Subnetmap> subMapid =
                     InstanceIdentifier.builder(Subnetmaps.class).child(Subnetmap.class,
                             new SubnetmapKey(subnetId)).build();
@@ -832,6 +832,11 @@ public class VpnSubnetRouteHandler {
                 l3vni = subOpBuilder.getL3vni();
             } else {
                 label = subOpBuilder.getLabel();
+                if (label.longValue() == VpnConstants.INVALID_LABEL) {
+                    LOG.error("publishSubnetRouteToBgp: Label not found for rd {}, subnetIp {}",
+                            subOpBuilder.getVrfId(), subOpBuilder.getSubnetCidr());
+                    return;
+                }
             }
             bgpManager.advertisePrefix(subOpBuilder.getVrfId(), null /*macAddress*/, subOpBuilder.getSubnetCidr(),
                     Arrays.asList(nextHopIp), encapType,  label, l3vni,
@@ -839,7 +844,7 @@ public class VpnSubnetRouteHandler {
             subOpBuilder.setLastAdvState(subOpBuilder.getRouteAdvState()).setRouteAdvState(TaskState.Advertised);
         } catch (Exception e) {
             LOG.error("{} publishSubnetRouteToBgp: Subnet route not advertised for subnet {} subnetIp {} vpn {} rd {}"
-                    + " with dpnid {}", LOGGING_PREFIX, subOpBuilder.getSubnetId().getValue(),
+                            + " with dpnid {}", LOGGING_PREFIX, subOpBuilder.getSubnetId().getValue(),
                     subOpBuilder.getSubnetCidr(), subOpBuilder.getVpnName(), subOpBuilder.getVrfId(), nextHopIp, e);
         }
     }
@@ -955,7 +960,7 @@ public class VpnSubnetRouteHandler {
         String networkName = networkId != null ? networkId.getValue() : null;
 
         LOG.info("{} electNewDpnForSubnetRoute: Handling subnet {} subnetIp {} vpn {} rd {} TaskState {}"
-                + " lastTaskState {}", LOGGING_PREFIX, subnetId.getValue(), subnetIp, subOpBuilder.getVpnName(),
+                        + " lastTaskState {}", LOGGING_PREFIX, subnetId.getValue(), subnetIp, subOpBuilder.getVpnName(),
                 subOpBuilder.getVrfId(), subOpBuilder.getRouteAdvState(), subOpBuilder.getLastAdvState());
         if (!isBgpVpn) {
             // Non-BGPVPN as it stands here represents use-case of External Subnets of VLAN-Provider-Network
@@ -973,8 +978,8 @@ public class VpnSubnetRouteHandler {
                 subOpBuilder.setRouteAdvState(TaskState.Advertised);
             } else {
                 LOG.error("{} electNewDpnForSubnetRoute: Unable to find TepIp for subnet {} subnetip {} vpnName {}"
-                    + " rd {}, attempt next dpn", LOGGING_PREFIX, subnetId.getValue(), subnetIp,
-                    vpnName, rd);
+                                + " rd {}, attempt next dpn", LOGGING_PREFIX, subnetId.getValue(), subnetIp,
+                        vpnName, rd);
                 subOpBuilder.setRouteAdvState(TaskState.PendingAdvertise);
             }
             return;
@@ -1010,7 +1015,7 @@ public class VpnSubnetRouteHandler {
             //If no alternate Dpn is selected as nextHopDpn, withdraw the subnetroute if it had a nextHop already.
             if (isRouteAdvertised(subOpBuilder) && oldDpnId != null) {
                 LOG.info("{} electNewDpnForSubnetRoute: No alternate DPN available for subnet {} subnetIp {} vpn {}"
-                        + " rd {} Prefix withdrawn from BGP", LOGGING_PREFIX, subnetId.getValue(), subnetIp, vpnName,
+                                + " rd {} Prefix withdrawn from BGP", LOGGING_PREFIX, subnetId.getValue(), subnetIp, vpnName,
                         rd);
                 // Withdraw route from BGP for this subnet
                 boolean routeWithdrawn = deleteSubnetRouteFromFib(rd, subnetIp, vpnName, isBgpVpn);
@@ -1020,8 +1025,8 @@ public class VpnSubnetRouteHandler {
                     subOpBuilder.setRouteAdvState(TaskState.Withdrawn);
                 } else {
                     LOG.error("{} electNewDpnForSubnetRoute: Withdrawing NextHopDPN {} for subnet {} subnetIp {}"
-                        + " vpn {} rd {} from BGP failed", LOGGING_PREFIX, oldDpnId, subnetId.getValue(),
-                        subnetIp, vpnName, rd);
+                                    + " vpn {} rd {} from BGP failed", LOGGING_PREFIX, oldDpnId, subnetId.getValue(),
+                            subnetIp, vpnName, rd);
                     subOpBuilder.setRouteAdvState(TaskState.PendingWithdraw);
                 }
             }

@@ -70,8 +70,8 @@ public class VpnRpcServiceImpl implements VpnRpcService {
 
     @Inject
     public VpnRpcServiceImpl(final DataBroker dataBroker,
-            final IFibManager fibManager, IBgpManager bgpManager, final IVpnManager vpnManager,
-            final InterVpnLinkCache interVpnLinkCache, VpnUtil vpnUtil, InterVpnLinkUtil interVpnLinkUtil) {
+                             final IFibManager fibManager, IBgpManager bgpManager, final IVpnManager vpnManager,
+                             final InterVpnLinkCache interVpnLinkCache, VpnUtil vpnUtil, InterVpnLinkUtil interVpnLinkUtil) {
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.fibManager = fibManager;
         this.bgpManager = bgpManager;
@@ -91,7 +91,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         SettableFuture<RpcResult<GenerateVpnLabelOutput>> futureResult = SettableFuture.create();
         String rd = vpnUtil.getVpnRd(vpnName);
         Uint32 label = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME,
-            VpnUtil.getNextHopLabelKey(rd != null ? rd : vpnName, ipPrefix));
+                VpnUtil.getNextHopLabelKey(rd != null ? rd : vpnName, ipPrefix));
         if (label == null || label.longValue() == 0) {
             futureResult.set(RpcResultBuilder.<GenerateVpnLabelOutput>failed().withError(ErrorType.APPLICATION,
                     formatAndLog(LOG::error, "Could not retrieve the label for prefix {} in VPN {}", ipPrefix,
@@ -112,7 +112,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         String ipPrefix = input.getIpPrefix();
         String rd = vpnUtil.getVpnRd(vpnName);
         vpnUtil.releaseId(VpnConstants.VPN_IDPOOL_NAME,
-            VpnUtil.getNextHopLabelKey(rd != null ? rd : vpnName, ipPrefix));
+                VpnUtil.getNextHopLabelKey(rd != null ? rd : vpnName, ipPrefix));
         return RpcResultBuilder.success(new RemoveVpnLabelOutputBuilder().build()).buildFuture();
     }
 
@@ -147,7 +147,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         String nexthop = input.getNexthop();
         Uint32 label = input.getLabel();
         LOG.info("Adding static route for Vpn {} with destination {}, nexthop {} and label {}",
-            vpnInstanceName, destination, nexthop, label);
+                vpnInstanceName, destination, nexthop, label);
 
         Collection<RpcError> rpcErrors = validateAddStaticRouteInput(input);
         if (!rpcErrors.isEmpty()) {
@@ -157,11 +157,13 @@ public class VpnRpcServiceImpl implements VpnRpcService {
 
         if (label == null || label.longValue() == 0) {
             label = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME,
-                VpnUtil.getNextHopLabelKey(vpnInstanceName, destination));
+                    VpnUtil.getNextHopLabelKey(vpnInstanceName, destination));
             if (label.longValue() == 0) {
                 String message = "Unable to retrieve a new Label for the new Route";
                 result.set(RpcResultBuilder.<AddStaticRouteOutput>failed().withError(RpcError.ErrorType.APPLICATION,
-                    message).build());
+                        message).build());
+                LOG.error("addStaticRoute: Unable to retrieve label for static route with destination {}, vpninstance"
+                        + " {}, nexthop", destination, vpnInstanceName, nexthop);
                 return result;
             }
         }
@@ -173,7 +175,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         if (vpnRd == null) {
             String message = "Could not find Route-Distinguisher for VpnName " + vpnInstanceName;
             result.set(RpcResultBuilder.<AddStaticRouteOutput>failed().withError(RpcError.ErrorType.APPLICATION,
-                message).build());
+                    message).build());
             return result;
         }
 
@@ -191,14 +193,14 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         } else {
             try {
                 txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
-                    confTx -> vpnManager.addExtraRoute(vpnInstanceName, destination, nexthop, vpnRd,
-                            null /* routerId */, vpnOpEntry.getL3vni(),
-                            RouteOrigin.STATIC, null /* intfName */,
-                        null /*Adjacency*/, encapType, new HashSet<>() /*prefixListForRefreshFib*/,confTx)).get();
+                        confTx -> vpnManager.addExtraRoute(vpnInstanceName, destination, nexthop, vpnRd,
+                                null /* routerId */, vpnOpEntry.getL3vni(),
+                                RouteOrigin.STATIC, null /* intfName */,
+                                null /*Adjacency*/, encapType, new HashSet<>() /*prefixListForRefreshFib*/,confTx)).get();
             } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Error adding static route {}", input, e);
                 result.set(RpcResultBuilder.<AddStaticRouteOutput>failed().withError(ErrorType.APPLICATION,
-                    "Error adding static route " + input, e).build());
+                        "Error adding static route " + input, e).build());
                 return result;
             }
         }
@@ -237,7 +239,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         String vpnInstanceName = input.getVpnInstanceName();
         String nexthop = input.getNexthop();
         LOG.info("Removing static route with destination={}, nexthop={} in VPN={}",
-            destination, nexthop, vpnInstanceName);
+                destination, nexthop, vpnInstanceName);
         Collection<RpcError> rpcErrors = validateRemoveStaticRouteInput(input);
         if (!rpcErrors.isEmpty()) {
             result.set(RpcResultBuilder.<RemoveStaticRouteOutput>failed().withRpcErrors(rpcErrors).build());
