@@ -523,26 +523,6 @@ module odl-l3vpn {
         leaf rd { type string; }
     }
 
-    notification add-dpn-event {
-        container add-event-data {
-           uses dpn-in-vpn-event;
-        }
-    }
-
-    notification remove-dpn-event {
-        container remove-event-data {
-           uses dpn-in-vpn-event;
-        }
-    }
-
-    notification add-interface-to-dpn-on-vpn-event {
-        container add-interface-event-data {
-           uses dpn-in-vpn-event;
-           leaf interface-name { type string; }
-           leaf vpn-id { type uint32; }
-        }
-    }
-
     notification remove-interface-from-dpn-on-vpn-event {
         container remove-interface-event-data {
            uses dpn-in-vpn-event;
@@ -709,6 +689,25 @@ module odl-l3vpn {
                 list associated-vpn {
                     key "name";
                     leaf name  { type string; }
+                }
+            }
+        }
+    }
+
+    container dpn-to-vpn-list {
+        config false;
+        list dpn-list {
+            key dpnId;
+            leaf dpnId {
+                type uint64;
+            }
+            list vpn-instances {
+                key vpn-instance-name;
+                leaf vpn-instance-name {
+                    type string;
+                }
+                leaf vrf-id {
+                    type string;
                 }
             }
         }

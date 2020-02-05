@@ -13,10 +13,7 @@ import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.MoreExecutors;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -35,22 +32,6 @@ import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEvent;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEventBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddInterfaceToDpnOnVpnEvent;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddInterfaceToDpnOnVpnEventBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RemoveDpnEvent;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RemoveDpnEventBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RemoveInterfaceFromDpnOnVpnEvent;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RemoveInterfaceFromDpnOnVpnEventBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.add._interface.to.dpn.on.vpn.event.AddInterfaceEventData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.add._interface.to.dpn.on.vpn.event.AddInterfaceEventDataBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.add.dpn.event.AddEventData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.add.dpn.event.AddEventDataBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.remove._interface.from.dpn.on.vpn.event.RemoveInterfaceEventData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.remove._interface.from.dpn.on.vpn.event.RemoveInterfaceEventDataBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.remove.dpn.event.RemoveEventData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.remove.dpn.event.RemoveEventDataBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListBuilder;
@@ -78,11 +59,13 @@ public class VpnFootprintService implements IVpnFootprintService {
     private final NotificationPublishService notificationPublishService;
     private final IInterfaceManager interfaceManager;
     private final VpnUtil vpnUtil;
+    private final DpnInVpnChangeHandler dpnInVpnHandler;
 
     @Inject
     public VpnFootprintService(final DataBroker dataBroker, final IFibManager fibManager,
             final NotificationPublishService notificationPublishService, final VpnOpDataSyncer vpnOpDataSyncer,
-            final IInterfaceManager interfaceManager, VpnUtil vpnUtil) {
+            final IInterfaceManager interfaceManager, VpnUtil vpnUtil,
+            final DpnInVpnChangeHandler dpnInVpnChangeHandler) {
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.fibManager = fibManager;
@@ -90,6 +73,7 @@ public class VpnFootprintService implements IVpnFootprintService {
         this.notificationPublishService = notificationPublishService;
         this.interfaceManager = interfaceManager;
         this.vpnUtil = vpnUtil;
+        this.dpnInVpnHandler = dpnInVpnChangeHandler;
     }
 
     @Override
@@ -111,14 +95,12 @@ public class VpnFootprintService implements IVpnFootprintService {
                 }
                 if (interfaceName != null) {
                     createOrUpdateVpnToDpnListForInterfaceName(vpnId, primaryRd, dpId, interfaceName, vpnName);
-                    publishInterfaceAddedToVpnNotification(interfaceName, dpId, vpnName, vpnId);
                 } else {
                     createOrUpdateVpnToDpnListForIPAddress(vpnId, primaryRd, dpId, ipAddressSourceValuePair, vpnName);
                 }
             } else {
                 if (interfaceName != null) {
                     removeOrUpdateVpnToDpnListForInterfaceName(vpnId, primaryRd, dpId, interfaceName, vpnName);
-                    publishInterfaceRemovedFromVpnNotification(interfaceName, dpId, vpnName, vpnId);
                 } else {
                     removeOrUpdateVpnToDpnListForIpAddress(vpnId, primaryRd, dpId, ipAddressSourceValuePair, vpnName);
                 }
@@ -393,102 +375,6 @@ public class VpnFootprintService implements IVpnFootprintService {
         }
     }
 
-    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
-            justification = "https://github.com/spotbugs/spotbugs/issues/811")
-    private void publishAddNotification(final Uint64 dpnId, final String vpnName, final String rd) {
-        LOG.debug("publishAddNotification: Sending notification for add dpn {} in vpn {} rd {} event ", dpnId, vpnName,
-                rd);
-        AddEventData data = new AddEventDataBuilder().setVpnName(vpnName).setRd(rd).setDpnId(dpnId).build();
-        AddDpnEvent event = new AddDpnEventBuilder().setAddEventData(data).build();
-        final ListenableFuture<?> eventFuture = notificationPublishService.offerNotification(event);
-        Futures.addCallback(eventFuture, new FutureCallback<Object>() {
-            @Override
-            public void onFailure(Throwable error) {
-                LOG.error("publishAddNotification: Error in notifying listeners for add dpn {} in vpn {} rd {} event ",
-                        dpnId, vpnName, rd, error);
-            }
-
-            @Override
-            public void onSuccess(Object arg) {
-                LOG.info("publishAddNotification: Successful in notifying listeners for add dpn {} in vpn {} rd {}"
-                        + " event ", dpnId, vpnName, rd);
-            }
-        }, MoreExecutors.directExecutor());
-    }
-
-    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
-               justification = "https://github.com/spotbugs/spotbugs/issues/811")
-    private void publishRemoveNotification(final Uint64 dpnId, final String vpnName, final String rd) {
-        LOG.debug("publishRemoveNotification: Sending notification for remove dpn {} in vpn {} rd {} event ", dpnId,
-                vpnName, rd);
-        RemoveEventData data = new RemoveEventDataBuilder().setVpnName(vpnName).setRd(rd).setDpnId(dpnId).build();
-        RemoveDpnEvent event = new RemoveDpnEventBuilder().setRemoveEventData(data).build();
-        final ListenableFuture<?> eventFuture = notificationPublishService.offerNotification(event);
-        Futures.addCallback(eventFuture, new FutureCallback<Object>() {
-            @Override
-            public void onFailure(Throwable error) {
-                LOG.error("publishRemoveNotification: Error in notifying listeners for remove dpn {} in vpn {} rd {}"
-                        + " event ", dpnId, vpnName, rd, error);
-            }
-
-            @Override
-            public void onSuccess(Object arg) {
-                LOG.info("publishRemoveNotification: Successful in notifying listeners for remove dpn {} in vpn {}"
-                        + " rd {} event ", dpnId, vpnName, rd);
-            }
-        }, MoreExecutors.directExecutor());
-    }
-
-    private void publishInterfaceAddedToVpnNotification(String interfaceName, Uint64 dpnId, String vpnName,
-            Uint32 vpnId) {
-        LOG.debug("publishInterfaceAddedToVpnNotification: Sending notification for addition of interface {} on dpn {}"
-                + " for vpn {}", interfaceName, dpnId, vpnName);
-        AddInterfaceEventData data = new AddInterfaceEventDataBuilder().setInterfaceName(interfaceName).setVpnId(vpnId)
-                .setDpnId(dpnId).build();
-        AddInterfaceToDpnOnVpnEvent event = new AddInterfaceToDpnOnVpnEventBuilder().setAddInterfaceEventData(data)
-                .build();
-        final ListenableFuture<?> eventFuture = notificationPublishService.offerNotification(event);
-        Futures.addCallback(eventFuture, new FutureCallback<Object>() {
-            @Override
-            public void onFailure(Throwable error) {
-                LOG.warn("publishInterfaceAddedToVpnNotification: Error in notifying listeners for add interface {}"
-                        + " on dpn {} in vpn {} event ", interfaceName, dpnId, vpnName, error);
-            }
-
-            @Override
-            public void onSuccess(Object arg) {
-                LOG.trace("publishInterfaceAddedToVpnNotification: Successful in notifying listeners for add"
-                        + " interface {} on dpn {} in vpn {} event ", interfaceName, dpnId, vpnName);
-            }
-        }, MoreExecutors.directExecutor());
-    }
-
-    private void publishInterfaceRemovedFromVpnNotification(String interfaceName, Uint64 dpnId, String vpnName,
-            Uint32 vpnId) {
-        LOG.debug("publishInterfaceAddedToVpnNotification: Sending notification for removal of interface {}"
-                + " from dpn {} for vpn {}", interfaceName, dpnId, vpnName);
-        RemoveInterfaceEventData data = new RemoveInterfaceEventDataBuilder().setInterfaceName(interfaceName)
-                .setVpnId(vpnId).setDpnId(dpnId).build();
-        RemoveInterfaceFromDpnOnVpnEvent event = new RemoveInterfaceFromDpnOnVpnEventBuilder()
-                .setRemoveInterfaceEventData(data).build();
-        final ListenableFuture<?> eventFuture = notificationPublishService.offerNotification(event);
-        Futures.addCallback(eventFuture, new FutureCallback<Object>() {
-            @Override
-            public void onFailure(Throwable error) {
-                LOG.warn(
-                        "publishInterfaceAddedToVpnNotification: Error in notifying listeners"
-                                + " for removing interface {} from dpn {} in vpn {} event ",
-                        interfaceName, dpnId, vpnName, error);
-            }
-
-            @Override
-            public void onSuccess(Object arg) {
-                LOG.trace("publishInterfaceAddedToVpnNotification: Successful in notifying listeners for removing"
-                        + " interface {} from dpn {} in vpn {} event ", interfaceName, dpnId, vpnName);
-            }
-        }, MoreExecutors.directExecutor());
-    }
-
     /**
      * JobCallback class is used as a future callback for main and rollback workers
      * to handle success and failure.
@@ -514,10 +400,10 @@ public class VpnFootprintService implements IVpnFootprintService {
         @Override
         public void onSuccess(List<Void> voids) {
             if (entered) {
-                publishAddNotification(dpnId, vpnName, rd);
+                dpnInVpnHandler.onVpnAddedToDpn(vpnName, rd, dpnId);
                 log.info("onSuccess: FootPrint established for vpn {} rd {} on dpn {}", vpnName, rd, dpnId);
             } else {
-                publishRemoveNotification(dpnId, vpnName, rd);
+                dpnInVpnHandler.onVpnRemovedFromDpn(vpnName, rd, dpnId);
                 log.info("onSuccess: FootPrint cleared for vpn {} rd {} on dpn {}", vpnName, rd, dpnId);
             }
         }

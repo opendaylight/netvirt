@@ -33,6 +33,8 @@
              interface="org.opendaylight.infrautils.caches.CacheProvider"/>
   <reference id="metricProvider"
              interface="org.opendaylight.infrautils.metrics.MetricProvider" />
+  <reference id="tombstonedNodeManager"
+             interface="org.opendaylight.genius.cloudscaler.api.TombstonedNodeManager"/>
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
@@ -50,10 +52,6 @@
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService"/>
   <odl:rpc-service id="ipv6NdUtilService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.util.rev170210.Ipv6NdUtilService"/>
-
-  <service ref="dpnInVpnChangeListener" odl:type="default"
-           interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.OdlL3vpnListener" />
-  <odl:notification-listener ref="dpnInVpnChangeListener" />
 
   <service ref="vpnFootprintService"
            interface="org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService" />
