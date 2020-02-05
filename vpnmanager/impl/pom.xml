@@ -105,7 +105,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <groupId>org.opendaylight.serviceutils</groupId>
             <artifactId>upgrade</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.opendaylight.genius</groupId>
+            <artifactId>cloudscaler-api</artifactId>
+            <version>${genius.version}</version>
+        </dependency>
         <!-- Testing dependencies -->
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
