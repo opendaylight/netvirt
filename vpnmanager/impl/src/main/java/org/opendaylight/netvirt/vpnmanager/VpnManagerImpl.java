@@ -159,14 +159,16 @@ public class VpnManagerImpl implements IVpnManager {
 
     private void createIdPool() {
         CreateIdPoolInput createPool = new CreateIdPoolInputBuilder()
-            .setPoolName(VpnConstants.VPN_IDPOOL_NAME)
-            .setLow(VpnConstants.VPN_IDPOOL_LOW)
-            .setHigh(VpnConstants.VPN_IDPOOL_HIGH)
-            .build();
+                .setPoolName(VpnConstants.VPN_IDPOOL_NAME)
+                .setLow(VpnConstants.VPN_IDPOOL_LOW)
+                .setHigh(VpnConstants.VPN_IDPOOL_HIGH)
+                .build();
         try {
             Future<RpcResult<CreateIdPoolOutput>> result = idManager.createIdPool(createPool);
             if (result != null && result.get().isSuccessful()) {
                 LOG.info("Created IdPool for VPN Service");
+            } else {
+                LOG.error("createIdPool: Unable to create ID pool for VPNService");
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed to create idPool for VPN Service", e);
@@ -174,19 +176,21 @@ public class VpnManagerImpl implements IVpnManager {
 
         // Now an IdPool for InterVpnLink endpoint's pseudo ports
         CreateIdPoolInput createPseudoLporTagPool =
-            new CreateIdPoolInputBuilder().setPoolName(VpnConstants.PSEUDO_LPORT_TAG_ID_POOL_NAME)
-                .setLow(VpnConstants.LOWER_PSEUDO_LPORT_TAG)
-                .setHigh(VpnConstants.UPPER_PSEUDO_LPORT_TAG)
-                .build();
+                new CreateIdPoolInputBuilder().setPoolName(VpnConstants.PSEUDO_LPORT_TAG_ID_POOL_NAME)
+                        .setLow(VpnConstants.LOWER_PSEUDO_LPORT_TAG)
+                        .setHigh(VpnConstants.UPPER_PSEUDO_LPORT_TAG)
+                        .build();
         try {
             Future<RpcResult<CreateIdPoolOutput>> result = idManager.createIdPool(createPseudoLporTagPool);
-            if (result.get().isSuccessful()) {
+            if (result != null && result.get().isSuccessful()) {
                 LOG.debug("Created IdPool for Pseudo Port tags");
             } else {
-                Collection<RpcError> errors = result.get().getErrors();
                 StringBuilder errMsg = new StringBuilder();
-                for (RpcError err : errors) {
-                    errMsg.append(err.getMessage()).append("\n");
+                if (result != null && result.get() != null) {
+                    Collection<RpcError> errors = result.get().getErrors();
+                    for (RpcError err : errors) {
+                        errMsg.append(err.getMessage()).append("\n");
+                    }
                 }
                 LOG.error("IdPool creation for PseudoPort tags failed. Reasons: {}", errMsg);
             }
@@ -197,9 +201,9 @@ public class VpnManagerImpl implements IVpnManager {
 
     @Override
     public void addExtraRoute(String vpnName, String destination, String nextHop, String rd, @Nullable String routerID,
-        Uint32 l3vni, RouteOrigin origin, @Nullable String intfName, @Nullable Adjacency operationalAdj,
-        VrfEntry.EncapType encapType, Set<String> prefixListForRefreshFib,
-        @NonNull TypedWriteTransaction<Configuration> confTx) {
+                              Uint32 l3vni, RouteOrigin origin, @Nullable String intfName, @Nullable Adjacency operationalAdj,
+                              VrfEntry.EncapType encapType, Set<String> prefixListForRefreshFib,
+                              @NonNull TypedWriteTransaction<Configuration> confTx) {
         //add extra route to vpn mapping; advertise with nexthop as tunnel ip
         vpnUtil.syncUpdate(LogicalDatastoreType.OPERATIONAL,
                 VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName, rd != null ? rd : routerID,
@@ -212,7 +216,7 @@ public class VpnManagerImpl implements IVpnManager {
             String nextHopIp = InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, dpnId);
             if (nextHopIp == null || nextHopIp.isEmpty()) {
                 LOG.error("addExtraRoute: NextHop for interface {} is null / empty."
-                        + " Failed advertising extra route for rd {} prefix {} dpn {}", intfName, rd, destination,
+                                + " Failed advertising extra route for rd {} prefix {} dpn {}", intfName, rd, destination,
                         dpnId);
                 return;
             }
@@ -272,7 +276,7 @@ public class VpnManagerImpl implements IVpnManager {
             String nextHopIp = InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, dpnId);
             if (nextHopIp == null || nextHopIp.isEmpty()) {
                 LOG.error("delExtraRoute: NextHop for interface {} is null / empty."
-                        + " Failed advertising extra route for rd {} prefix {} dpn {}", intfName, rd, destination,
+                                + " Failed advertising extra route for rd {} prefix {} dpn {}", intfName, rd, destination,
                         dpnId);
             }
             tunnelIp = nextHopIp;
@@ -280,7 +284,7 @@ public class VpnManagerImpl implements IVpnManager {
         if (rd != null) {
             String primaryRd = vpnUtil.getVpnRd(vpnName);
             removePrefixFromBGP(vpnName, primaryRd, rd, intfName, destination,
-                                nextHop, tunnelIp, dpnId, confTx, operTx);
+                    nextHop, tunnelIp, dpnId, confTx, operTx);
             LOG.info("delExtraRoute: Removed extra route {} from interface {} for rd {}", destination, intfName, rd);
         } else {
             // add FIB route directly
@@ -342,18 +346,18 @@ public class VpnManagerImpl implements IVpnManager {
 
     @Override
     public void addSubnetMacIntoVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
-            Uint64 dpnId, TypedWriteTransaction<Configuration> confTx)
+                                            Uint64 dpnId, TypedWriteTransaction<Configuration> confTx)
             throws ExecutionException, InterruptedException {
         setupSubnetMacInVpnInstance(vpnName, subnetVpnName, srcMacAddress, dpnId,
-            (vpnId, dpId, subnetVpnId) -> addGwMac(srcMacAddress, confTx, vpnId, dpId, subnetVpnId));
+                (vpnId, dpId, subnetVpnId) -> addGwMac(srcMacAddress, confTx, vpnId, dpId, subnetVpnId));
     }
 
     @Override
     public void removeSubnetMacFromVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
-            Uint64 dpnId, TypedReadWriteTransaction<Configuration> confTx)
+                                               Uint64 dpnId, TypedReadWriteTransaction<Configuration> confTx)
             throws ExecutionException, InterruptedException {
         setupSubnetMacInVpnInstance(vpnName, subnetVpnName, srcMacAddress, dpnId,
-            (vpnId, dpId, subnetVpnId) -> removeGwMac(srcMacAddress, confTx, vpnId, dpId, subnetVpnId));
+                (vpnId, dpId, subnetVpnId) -> removeGwMac(srcMacAddress, confTx, vpnId, dpId, subnetVpnId));
     }
 
     @FunctionalInterface
@@ -362,7 +366,7 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     private void setupSubnetMacInVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
-            Uint64 dpnId, VpnInstanceSubnetMacSetupMethod consumer)
+                                             Uint64 dpnId, VpnInstanceSubnetMacSetupMethod consumer)
             throws ExecutionException, InterruptedException {
         if (vpnName == null) {
             LOG.warn("Cannot setup subnet MAC {} on DPN {}, null vpnName", srcMacAddress, dpnId);
@@ -382,7 +386,7 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     private void addGwMac(String srcMacAddress, TypedWriteTransaction<Configuration> tx, Uint32 vpnId, Uint64 dpId,
-        Uint32 subnetVpnId) {
+                          Uint32 subnetVpnId) {
         FlowEntity flowEntity = vpnUtil.buildL3vpnGatewayFlow(dpId, srcMacAddress, vpnId, subnetVpnId);
         mdsalManager.addFlow(tx, flowEntity);
     }
@@ -391,40 +395,40 @@ public class VpnManagerImpl implements IVpnManager {
     @SuppressWarnings("checkstyle:IllegalCatch")
     @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     private void removeGwMac(String srcMacAddress, TypedReadWriteTransaction<Configuration> tx, Uint32 vpnId,
-            Uint64 dpId, Uint32 subnetVpnId) throws ExecutionException, InterruptedException {
+                             Uint64 dpId, Uint32 subnetVpnId) throws ExecutionException, InterruptedException {
         mdsalManager.removeFlow(tx, dpId,
-            VpnUtil.getL3VpnGatewayFlowRef(NwConstants.L3_GW_MAC_TABLE, dpId, vpnId, srcMacAddress, subnetVpnId),
-            NwConstants.L3_GW_MAC_TABLE);
+                VpnUtil.getL3VpnGatewayFlowRef(NwConstants.L3_GW_MAC_TABLE, dpId, vpnId, srcMacAddress, subnetVpnId),
+                NwConstants.L3_GW_MAC_TABLE);
     }
 
     @Override
     public void addRouterGwMacFlow(String routerName, String routerGwMac, Uint64 dpnId, Uuid extNetworkId,
-            String subnetVpnName, TypedWriteTransaction<Configuration> confTx)
+                                   String subnetVpnName, TypedWriteTransaction<Configuration> confTx)
             throws ExecutionException, InterruptedException {
         setupRouterGwMacFlow(routerName, routerGwMac, dpnId, extNetworkId,
-            vpnId -> addSubnetMacIntoVpnInstance(vpnId, subnetVpnName, routerGwMac, dpnId, confTx), "Installing");
+                vpnId -> addSubnetMacIntoVpnInstance(vpnId, subnetVpnName, routerGwMac, dpnId, confTx), "Installing");
     }
 
     @Override
     public void removeRouterGwMacFlow(String routerName, String routerGwMac, Uint64 dpnId, Uuid extNetworkId,
-            String subnetVpnName, TypedReadWriteTransaction<Configuration> confTx)
+                                      String subnetVpnName, TypedReadWriteTransaction<Configuration> confTx)
             throws ExecutionException, InterruptedException {
         setupRouterGwMacFlow(routerName, routerGwMac, dpnId, extNetworkId,
-            vpnId -> removeSubnetMacFromVpnInstance(vpnId, subnetVpnName, routerGwMac, dpnId, confTx), "Removing");
+                vpnId -> removeSubnetMacFromVpnInstance(vpnId, subnetVpnName, routerGwMac, dpnId, confTx), "Removing");
     }
 
     private void setupRouterGwMacFlow(String routerName, String routerGwMac, Uint64 dpnId, Uuid extNetworkId,
-            InterruptibleCheckedConsumer<String, ExecutionException> consumer, String operation)
+                                      InterruptibleCheckedConsumer<String, ExecutionException> consumer, String operation)
             throws ExecutionException, InterruptedException {
         if (routerGwMac == null) {
             LOG.warn("Failed to handle router GW flow in GW-MAC table. MAC address is missing for router-id {}",
-                routerName);
+                    routerName);
             return;
         }
 
         if (dpnId == null || Uint64.ZERO.equals(dpnId)) {
             LOG.info("setupRouterGwMacFlow: DPN id is missing for router-id {}",
-                routerName);
+                    routerName);
             return;
         }
 
@@ -440,7 +444,7 @@ public class VpnManagerImpl implements IVpnManager {
 
     @Override
     public void addArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
-            Uint64 dpnId, Uuid extNetworkId) {
+                                                         Uint64 dpnId, Uuid extNetworkId) {
 
         if (dpnId == null || Uint64.ZERO.equals(dpnId)) {
             LOG.warn("Failed to install arp responder flows for router {}. DPN id is missing.", id);
@@ -469,7 +473,7 @@ public class VpnManagerImpl implements IVpnManager {
                 dpnId, extNetworkId.getValue());
 
         InstanceIdentifier<DpnInterfaces> dpnInterfacesIid =
-                            elanService.getElanDpnInterfaceOperationalDataPath(extNetworkId.getValue(), dpnId);
+                elanService.getElanDpnInterfaceOperationalDataPath(extNetworkId.getValue(), dpnId);
 
         eventCallbacks.onAddOrUpdate(LogicalDatastoreType.OPERATIONAL, dpnInterfacesIid, (unused, alsoUnused) -> {
             LOG.info("Reattempting write of arp responder for external interfaces for external network {}",
@@ -511,7 +515,7 @@ public class VpnManagerImpl implements IVpnManager {
 
     @Override
     public void addArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
-            Uint64 dpnId, String extInterfaceName, int lportTag) {
+                                                         Uint64 dpnId, String extInterfaceName, int lportTag) {
         if (fixedIps == null || fixedIps.isEmpty()) {
             LOG.debug("No external IPs defined for {}", id);
             return;
@@ -530,7 +534,7 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     private void doAddArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
-            Uint64 dpnId, String extInterfaceName) {
+                                                            Uint64 dpnId, String extInterfaceName) {
         Interface extInterfaceState = InterfaceUtils.getInterfaceStateFromOperDS(dataBroker, extInterfaceName);
         if (extInterfaceState == null) {
             LOG.debug("No interface state found for interface {}. Delaying responder flows for {}", extInterfaceName,
@@ -556,7 +560,7 @@ public class VpnManagerImpl implements IVpnManager {
 
     @Override
     public void removeArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
-            Uint64 dpnId, Uuid extNetworkId) {
+                                                            Uint64 dpnId, Uuid extNetworkId) {
 
         if (dpnId == null || Uint64.ZERO.equals(dpnId)) {
             LOG.warn("Failed to remove arp responder flows for router {}. DPN id is missing.", id);
@@ -595,7 +599,7 @@ public class VpnManagerImpl implements IVpnManager {
 
     @Override
     public void removeArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps,
-            Uint64 dpnId, String extInterfaceName, int lportTag) {
+                                                            Uint64 dpnId, String extInterfaceName, int lportTag) {
         if (fixedIps == null || fixedIps.isEmpty()) {
             LOG.debug("No external IPs defined for {}", id);
             return;
@@ -614,7 +618,7 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     private void installArpResponderFlowsToExternalNetworkIp(String macAddress, Uint64 dpnId,
-            String extInterfaceName, int lportTag, String fixedIp) {
+                                                             String extInterfaceName, int lportTag, String fixedIp) {
         // reset the split-horizon bit to allow traffic to be sent back to the
         // provider port
         List<Instruction> instructions = new ArrayList<>();
@@ -631,7 +635,7 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     private void removeArpResponderFlowsToExternalNetworkIp(Uint64 dpnId, Integer lportTag, String fixedIp,
-            String extInterfaceName) {
+                                                            String extInterfaceName) {
         ArpResponderInput arpInput = new ArpReponderInputBuilder()
                 .setDpId(dpnId.toJava()).setInterfaceName(extInterfaceName)
                 .setSpa(fixedIp).setLportTag(lportTag).buildForRemoveFlow();
@@ -666,7 +670,7 @@ public class VpnManagerImpl implements IVpnManager {
 
     @Override
     public VpnPortipToPort getNeutronPortFromVpnPortFixedIp(TypedReadTransaction<Configuration> confTx, String vpnName,
-        String fixedIp) {
+                                                            String fixedIp) {
         return VpnUtil.getNeutronPortFromVpnPortFixedIp(confTx, vpnName, fixedIp);
     }
 
@@ -760,7 +764,7 @@ public class VpnManagerImpl implements IVpnManager {
                         List<AssociatedVpn> multipleAssociatedVpn = associatedSubnet.getAssociatedVpn();
                         if (multipleAssociatedVpn != null && multipleAssociatedVpn.size() > 1) {
                             LOG.error("doesExistingVpnsHaveConflictingSubnet: There is an indirect complete  overlap"
-                                    + " for subnet CIDR {} for rt {} rtType {}", subnetCidr, routerTarget.getRt(),
+                                            + " for subnet CIDR {} for rt {} rtType {}", subnetCidr, routerTarget.getRt(),
                                     routerTarget.getRtType());
                             return true;
                         }
@@ -791,7 +795,7 @@ public class VpnManagerImpl implements IVpnManager {
                             for (AssociatedSubnet associatedSubnet : indirectRts.get().getAssociatedSubnet()) {
                                 if (VpnUtil.areSubnetsOverlapping(associatedSubnet.getCidr(), subnetCidr)) {
                                     LOG.error("doesExistingVpnsHaveConflictingSubnet: There is an indirect overlap for"
-                                            + " subnet CIDR {} for rt {} rtType {}", subnetCidr, routerTarget.getRt(),
+                                                    + " subnet CIDR {} for rt {} rtType {}", subnetCidr, routerTarget.getRt(),
                                             routerTarget.getRtType());
                                     return true;
                                 }
@@ -799,7 +803,7 @@ public class VpnManagerImpl implements IVpnManager {
                         }
                     } catch (ReadFailedException e) {
                         LOG.error("doesExistingVpnsHaveConflictingSubnet: Failed to read route targets to subnet"
-                                + "association for rt {} type {} subnet-cidr {}", routerTarget.getRt(),
+                                        + "association for rt {} type {} subnet-cidr {}", routerTarget.getRt(),
                                 RouteTarget.RtType.ERT, subnetCidr);
                         return true; //Fail subnet association to avoid further damage to the data-stores
                     }
@@ -819,7 +823,7 @@ public class VpnManagerImpl implements IVpnManager {
         if (isAssociationRemoved) {
             //Remove RT-Subnet-Vpn Association
             Optional<AssociatedSubnet> associatedSubnet =
-                tx.read(VpnUtil.getAssociatedSubnetIdentifier(rt, rtType, cidr)).get();
+                    tx.read(VpnUtil.getAssociatedSubnetIdentifier(rt, rtType, cidr)).get();
             boolean deleteParent = false;
             if (associatedSubnet.isPresent()) {
                 List<AssociatedVpn> associatedVpns = new ArrayList<>(associatedSubnet.get().nonnullAssociatedVpn());
@@ -855,7 +859,7 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     private void deleteParentForSubnetToVpnAssociation(String rt, RouteTarget.RtType rtType,
-                                                String cidr, TypedReadWriteTransaction<Operational> tx)
+                                                       String cidr, TypedReadWriteTransaction<Operational> tx)
             throws InterruptedException, ExecutionException {
         //Check if you need to delete rtVal+rtType or just the subnetCidr
         InstanceIdentifier<RouteTarget> rtIdentifier = InstanceIdentifier
@@ -891,7 +895,7 @@ public class VpnManagerImpl implements IVpnManager {
 
     @Override
     public boolean checkForOverlappingSubnets(Uuid network, List<Subnetmap> subnetmapList, Uuid vpn,
-                                       Set<VpnTarget> routeTargets, List<String> failedNwList) {
+                                              Set<VpnTarget> routeTargets, List<String> failedNwList) {
         for (Subnetmap subnetmap : subnetmapList) {
             //Check if any other subnet that is already part of a different vpn with same rt, has overlapping CIDR
             if (checkExistingSubnetWithSameRoutTargets(routeTargets, vpn, subnetmap, failedNwList)) {
@@ -902,7 +906,7 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     private boolean checkExistingSubnetWithSameRoutTargets(Set<VpnTarget> routeTargets, Uuid vpn, Subnetmap subnetmap,
-                                                   List<String> failedNwList) {
+                                                           List<String> failedNwList) {
         String cidr = String.valueOf(subnetmap.getSubnetIp());
         boolean subnetExistsWithSameRt = doesExistingVpnsHaveConflictingSubnet(routeTargets, cidr);
         if (subnetExistsWithSameRt) {
