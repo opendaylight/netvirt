@@ -194,63 +194,6 @@ module l3vpn {
 
   }
 
-
-
-  /*
-   * Binding Interfaces to a VPN Instance.
-   */
-
-  container vpn-interfaces {
-    description
-      "VPN is enabled on interfaces.";
-
-    list vpn-interface  {
-      key "name";
-      max-elements "unbounded";
-      min-elements "0";
-      leaf name {
-        type leafref {
-          path "/if:interfaces/if:interface/if:name";
-        }
-      }
-      list vpn-instance-names {
-        key "vpn-name";
-        leaf vpn-name {
-            type string {
-                length "1..40";
-            }
-        }
-        leaf associated-subnet-type {
-          type enumeration {
-             enum V4Subnet {
-                value "0";
-                description "V4 Router Internal VPN";
-             }
-             enum V6Subnet {
-                value "1";
-                description "V6 Router Internal VPN";
-             }
-             enum V6InternetVPN {
-                value "2";
-                description "BGPVPN Internet";
-             }
-             enum V4AndV6Subnets {
-                value "3";
-                description "BGPVPN dual stack or V6/V4 Router or undefined";
-             }
-          }
-        }
-      }
-      leaf dpn-id {
-        type uint64;
-      }
-      leaf router-interface {
-          type boolean;
-      }
-      uses nvpn:network-attributes;
-    }
-  }
-
   container vrfInfo {
     description
       "Display the information of the vrf.

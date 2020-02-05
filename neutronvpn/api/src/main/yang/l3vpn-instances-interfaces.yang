@@ -524,4 +524,110 @@ module l3vpn-instances-interfaces {
             }
         }
     }
+
+    augment "/vpn-interfaces/vpn-interface" {
+        ext:augment-identifier "adjacencies";
+        uses adjacency-list;
+    }
+
+    grouping adjacency-list{
+        list adjacency{
+            key "ip_address";
+            leaf-list next-hop-ip-list { type string; }
+            leaf ip_address {type string;}
+            leaf adjacency_type {
+                description "The type of adjacency";
+                type enumeration {
+                    enum "primary-adjacency" {
+                        value 1;
+                        description "Primary adjacency type.";
+                    }
+                    enum "learnt-ip" {
+                        value 2;
+                        description "Learnt ip adjacency type.";
+                    }
+                    enum "extra-route" {
+                        value 3;
+                        description "Extra route adjacency type.";
+                    }
+                }
+                default "extra-route";
+            }
+            leaf mac_address {type string;} /* optional */
+            leaf subnet_id {type yang:uuid;} /* optional */
+            leaf subnet_gateway_ip {type string;}  /* optional */
+            leaf phys-network-func {
+                type boolean;
+                default false;
+                description "Value of True indicates this is an adjacency of a device in a provider network";
+            }
+            uses adjacency-op-data;
+        }
+    }
+
+    grouping adjacency-op-data{
+        leaf label { type uint32; config "false"; } /* optional */
+        leaf subnet_gateway_mac_address {type string; config "false";} /* optional */
+        leaf vrf-id { type string; config "false"; }
+        leaf marked_for_deletion {
+            config "false";
+            type boolean;
+            description "This flag if true suggest this adjancency has been marked for deletion";
+        }
+    }
+
+
+    /*
+     * Binding Interfaces to a VPN Instance.
+     */
+
+    container vpn-interfaces {
+        description "VPN is enabled on interfaces.";
+
+        list vpn-interface  {
+            key "name";
+            max-elements "unbounded";
+            min-elements "0";
+            leaf name {
+                type leafref {
+                    path "/if:interfaces/if:interface/if:name";
+                }
+            }
+            list vpn-instance-names {
+                key "vpn-name";
+                leaf vpn-name {
+                    type string {
+                        length "1..40";
+                    }
+                }
+                leaf associated-subnet-type {
+                    type enumeration {
+                        enum V4Subnet {
+                            value "0";
+                            description "V4 Router Internal VPN";
+                        }
+                        enum V6Subnet {
+                            value "1";
+                            description "V6 Router Internal VPN";
+                        }
+                        enum V6InternetVPN {
+                            value "2";
+                            description "BGPVPN Internet";
+                        }
+                        enum V4AndV6Subnets {
+                            value "3";
+                            description "BGPVPN dual stack or V6/V4 Router or undefined";
+                        }
+                    }
+                }
+            }
+            leaf dpn-id {
+                type uint64;
+            }
+            leaf router-interface {
+                type boolean;
+            }
+            uses nvpn:network-attributes;
+        }
+    }
 }
