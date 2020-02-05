@@ -45,24 +45,4 @@ module etree {
         }
     }
 
-    container etree-logical-switches {
-        description "logical switch entity in a L2GW device which belongs to the etree network";
-        list etree-logical-switch  {
-            key "name";
-            max-elements "unbounded";
-            min-elements "0";
-            leaf name {
-                type leafref {
-                    path "/hwvtep:hwvtep-global-attributes/hwvtep:logical-switches/hwvtep:hwvtep-node-name";
-                }
-            }
-            leaf switch-interfaces-type {
-                type enumeration {
-                    enum leaf;
-                    enum root;
-                }
-                description "The type of the etree interfaces behind the logical switch. Leaves or Roots.";
-            }
-        }
-    }
 }
