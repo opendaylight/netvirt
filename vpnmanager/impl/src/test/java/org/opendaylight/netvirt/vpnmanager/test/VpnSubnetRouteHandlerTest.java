@@ -30,7 +30,9 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.cloudscaler.api.TombstonedNodeManager;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.SubnetOpDpnManager;
@@ -54,6 +56,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.DpnEndpoints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfoBuilder;
@@ -184,6 +187,12 @@ public class VpnSubnetRouteHandlerTest {
     VpnNodeListener vpnNodeListener;
     @Mock
     IFibManager fibManager;
+    @Mock
+    TombstonedNodeManager tombstonedNodeManager;
+    @Mock
+    OdlInterfaceRpcService ifaceMgrRpcService;
+    @Mock
+    JobCoordinator jobCoordinator;
 
     private @Inject VpnUtil vpnUtil;
 
@@ -208,8 +217,9 @@ public class VpnSubnetRouteHandlerTest {
     public void setUp() throws Exception {
         setupMocks();
 
-        vpnSubnetRouteHandler = new VpnSubnetRouteHandler(dataBroker, subnetOpDpnManager, bgpManager, vpnOpDataSyncer,
-                vpnNodeListener, fibManager, vpnUtil);
+        vpnSubnetRouteHandler = new VpnSubnetRouteHandler(dataBroker, subnetOpDpnManager, bgpManager,
+                vpnOpDataSyncer, vpnNodeListener, fibManager, vpnUtil, ifaceMgrRpcService,
+                tombstonedNodeManager, jobCoordinator);
         final Future<RpcResult<AllocateIdOutput>> idOutputOptional =
             RpcResultBuilder.success(allocateIdOutput).buildFuture();
 

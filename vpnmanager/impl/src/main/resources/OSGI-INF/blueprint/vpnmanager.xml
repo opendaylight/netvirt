@@ -33,6 +33,8 @@
              interface="org.opendaylight.infrautils.caches.CacheProvider"/>
   <reference id="metricProvider"
              interface="org.opendaylight.infrautils.metrics.MetricProvider" />
+  <reference id="tombstonedNodeManager"
+             interface="org.opendaylight.genius.cloudscaler.api.TombstonedNodeManager"/>
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
