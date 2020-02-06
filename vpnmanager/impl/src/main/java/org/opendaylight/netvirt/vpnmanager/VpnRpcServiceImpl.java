@@ -162,6 +162,8 @@ public class VpnRpcServiceImpl implements VpnRpcService {
                 String message = "Unable to retrieve a new Label for the new Route";
                 result.set(RpcResultBuilder.<AddStaticRouteOutput>failed().withError(RpcError.ErrorType.APPLICATION,
                     message).build());
+                LOG.error("addStaticRoute: Unable to retrieve label for static route with destination {}, vpninstance"
+                        + " {}, nexthop", destination, vpnInstanceName, nexthop);
                 return result;
             }
         }

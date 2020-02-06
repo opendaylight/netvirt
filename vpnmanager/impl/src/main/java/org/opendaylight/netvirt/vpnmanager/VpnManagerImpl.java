@@ -167,6 +167,8 @@ public class VpnManagerImpl implements IVpnManager {
             Future<RpcResult<CreateIdPoolOutput>> result = idManager.createIdPool(createPool);
             if (result != null && result.get().isSuccessful()) {
                 LOG.info("Created IdPool for VPN Service");
+            } else {
+                LOG.error("createIdPool: Unable to create ID pool for VPNService");
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed to create idPool for VPN Service", e);
@@ -183,10 +185,12 @@ public class VpnManagerImpl implements IVpnManager {
             if (result.get().isSuccessful()) {
                 LOG.debug("Created IdPool for Pseudo Port tags");
             } else {
-                Collection<RpcError> errors = result.get().getErrors();
                 StringBuilder errMsg = new StringBuilder();
-                for (RpcError err : errors) {
-                    errMsg.append(err.getMessage()).append("\n");
+                if (result != null && result.get() != null) {
+                    Collection<RpcError> errors = result.get().getErrors();
+                    for (RpcError err : errors) {
+                        errMsg.append(err.getMessage()).append("\n");
+                    }
                 }
                 LOG.error("IdPool creation for PseudoPort tags failed. Reasons: {}", errMsg);
             }
