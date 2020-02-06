@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a3d6583_08a118dd",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2020-02-06T10:11:28Z",
+      "side": 1,
+      "message": "Hi Karthik,\n\nThis file is changed to DpnInVpnChangeHandler in oxygen code in our downstream repo. That review has not landed in this community code.\n\nFirst you need to upstream that code and then land this one on top of that.",
+      "range": {
+        "startLine": 49,
+        "startChar": 13,
+        "endLine": 49,
+        "endChar": 35
+      },
+      "revId": "92810fc1309d1e30c78145f1c6fac2e26fc04741",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
