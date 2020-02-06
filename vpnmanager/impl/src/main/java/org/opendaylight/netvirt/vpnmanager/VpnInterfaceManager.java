@@ -2165,7 +2165,13 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
                 Uint32 label = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME,
                         VpnUtil.getNextHopLabelKey(primaryRd, prefix));
-
+                if (label.longValue() == VpnConstants.INVALID_LABEL) {
+                    LOG.error(
+                            "createFibEntryForRouterInterface: Unable to retrieve label for vpn pool {}, "
+                                    + "vpninterface {}, vpn {}, rd {}",
+                            VpnConstants.VPN_IDPOOL_NAME, interfaceName, vpnName, primaryRd);
+                    return;
+                }
                 RouterInterface routerInt = new RouterInterfaceBuilder().setUuid(vpnName)
                         .setIpAddress(primaryInterfaceIp).setMacAddress(macAddress).build();
                 fibManager.addFibEntryForRouterInterface(primaryRd, prefix,
