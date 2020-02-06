@@ -92,7 +92,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         String rd = vpnUtil.getVpnRd(vpnName);
         Uint32 label = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME,
             VpnUtil.getNextHopLabelKey(rd != null ? rd : vpnName, ipPrefix));
-        if (label == null || label.longValue() == 0) {
+        if (label == null || label.longValue() == VpnConstants.INVALID_LABEL) {
             futureResult.set(RpcResultBuilder.<GenerateVpnLabelOutput>failed().withError(ErrorType.APPLICATION,
                     formatAndLog(LOG::error, "Could not retrieve the label for prefix {} in VPN {}", ipPrefix,
                             vpnName)).build());
@@ -155,13 +155,15 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             return result;
         }
 
-        if (label == null || label.longValue() == 0) {
+        if (label == null || label.longValue() == VpnConstants.INVALID_LABEL) {
             label = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME,
                 VpnUtil.getNextHopLabelKey(vpnInstanceName, destination));
-            if (label.longValue() == 0) {
+            if (label.longValue() == VpnConstants.INVALID_LABEL) {
                 String message = "Unable to retrieve a new Label for the new Route";
                 result.set(RpcResultBuilder.<AddStaticRouteOutput>failed().withError(RpcError.ErrorType.APPLICATION,
                     message).build());
+                LOG.error("addStaticRoute: Unable to retrieve label for static route with destination {}, vpninstance"
+                        + " {}, nexthop {}", destination, vpnInstanceName, nexthop);
                 return result;
             }
         }

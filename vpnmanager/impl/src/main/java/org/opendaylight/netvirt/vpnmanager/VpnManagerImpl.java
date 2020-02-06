@@ -167,6 +167,8 @@ public class VpnManagerImpl implements IVpnManager {
             Future<RpcResult<CreateIdPoolOutput>> result = idManager.createIdPool(createPool);
             if (result != null && result.get().isSuccessful()) {
                 LOG.info("Created IdPool for VPN Service");
+            } else {
+                LOG.error("createIdPool: Unable to create ID pool for VPNService");
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed to create idPool for VPN Service", e);
@@ -180,13 +182,15 @@ public class VpnManagerImpl implements IVpnManager {
                 .build();
         try {
             Future<RpcResult<CreateIdPoolOutput>> result = idManager.createIdPool(createPseudoLporTagPool);
-            if (result.get().isSuccessful()) {
+            if (result != null && result.get().isSuccessful()) {
                 LOG.debug("Created IdPool for Pseudo Port tags");
             } else {
-                Collection<RpcError> errors = result.get().getErrors();
                 StringBuilder errMsg = new StringBuilder();
-                for (RpcError err : errors) {
-                    errMsg.append(err.getMessage()).append("\n");
+                if (result != null && result.get() != null) {
+                    Collection<RpcError> errors = result.get().getErrors();
+                    for (RpcError err : errors) {
+                        errMsg.append(err.getMessage()).append("\n");
+                    }
                 }
                 LOG.error("IdPool creation for PseudoPort tags failed. Reasons: {}", errMsg);
             }
@@ -236,7 +240,7 @@ public class VpnManagerImpl implements IVpnManager {
             String dstVpnRd = vpnUtil.getVpnRd(dstVpnUuid);
             Uint32 newLabel = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME,
                     VpnUtil.getNextHopLabelKey(dstVpnRd, destination));
-            if (newLabel.longValue() == 0) {
+            if (newLabel.longValue() == VpnConstants.INVALID_LABEL) {
                 LOG.error("addExtraRoute: Unable to fetch label from Id Manager. Bailing out of adding intervpnlink"
                         + " route for destination {}", destination);
                 return;
