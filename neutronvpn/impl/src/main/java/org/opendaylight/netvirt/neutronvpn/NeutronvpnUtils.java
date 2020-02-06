@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -53,6 +54,7 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
+import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
@@ -1153,19 +1155,21 @@ public class NeutronvpnUtils {
         return Optional.absent();
     }
 
-    protected void releaseRDId(String poolName, String idKey) {
+    protected Integer releaseId(String poolName, String idKey) {
         ReleaseIdInput idInput = new ReleaseIdInputBuilder().setPoolName(poolName).setIdKey(idKey).build();
         try {
-            RpcResult<ReleaseIdOutput> rpcResult = idManager.releaseId(idInput).get();
-            if (!rpcResult.isSuccessful()) {
-                LOG.error("RPC Call to Get Unique Id returned with errors for poolname {} and ID Key {}: {}",
-                        poolName, idKey, rpcResult.getErrors());
+            Future<RpcResult<ReleaseIdOutput>> result = idManager.releaseId(idInput);
+            if (result == null || result.get() == null || !result.get().isSuccessful()) {
+                LOG.error("releaseId: RPC Call to release Id from pool {} with key {} returned with Errors {}",
+                        poolName, idKey, (result != null && result.get() != null) ? result.get().getErrors() :
+                                "RpcResult is null");
             } else {
-                LOG.info("ID {} for RD released successfully", idKey);
+                return result.get().getResult().getIdValues().get(0).intValue();
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Exception when trying to release ID for poolname {} and ID Key {}", poolName, idKey, e);
+            LOG.error("releaseId: Exception when releasing Id for key {} from pool {}", idKey, poolName, e);
         }
+        return NeutronConstants.INVALID_ID;
     }
 
     protected static IpAddress getIpv6LinkLocalAddressFromMac(MacAddress mac) {
