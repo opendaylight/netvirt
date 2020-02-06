@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.neutronvpn;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -29,12 +30,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.bgpvpns.rev150903.BgpvpnTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.bgpvpns.rev150903.BgpvpnTypeL3;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.bgpvpns.rev150903.bgpvpns.attributes.Bgpvpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.bgpvpns.rev150903.bgpvpns.attributes.bgpvpns.Bgpvpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.RpcError;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -173,12 +176,25 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
     @Override
     protected void remove(InstanceIdentifier<Bgpvpn> identifier, Bgpvpn input) {
         LOG.trace("Removing Bgpvpn : key: {}, value={}", identifier, input);
+        Uuid vpnId = input.getUuid();
         if (isBgpvpnTypeL3(input.getType())) {
+            VpnMap vpnMap = neutronvpnUtils.getVpnMap(vpnId);
+            if (vpnMap == null) {
+                LOG.error("Failed to handle BGPVPN Remove for VPN {} as that VPN is not configured"
+                        + " yet as a VPN Instance", vpnId.getValue());
+                return;
+            }
             nvpnManager.removeVpn(input.getUuid());
             // Release RD Id in pool
-            neutronvpnUtils.releaseRDId(NeutronConstants.RD_IDPOOL_NAME, input.getUuid().toString());
+            List<String> rd = input.getRouteDistinguishers();
+            if (rd == null || rd.isEmpty()) {
+                int releasedId = neutronvpnUtils.releaseId(NeutronConstants.RD_IDPOOL_NAME, vpnId.getValue());
+                if (releasedId == NeutronConstants.INVALID_ID) {
+                    LOG.error("NeutronBgpvpnChangeListener remove: Unable to release ID for key {}", vpnId.getValue());
+                }
+            }
         } else {
-            LOG.warn("BGPVPN type for VPN {} is not L3", input.getUuid().getValue());
+            LOG.warn("BGPVPN type for VPN {} is not L3", vpnId.getValue());
         }
     }
 
@@ -325,11 +341,19 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
                 .setHigh(new BigInteger(NeutronConstants.RD_IDPOOL_SIZE).longValue()).build();
         try {
             Future<RpcResult<CreateIdPoolOutput>> result = idManager.createIdPool(createPool);
-            if (result != null && result.get().isSuccessful()) {
+            Collection<RpcError> rpcErrors = null;
+            if (result != null && result.get() != null) {
+                RpcResult<CreateIdPoolOutput> rpcResult = result.get();
                 LOG.info("Created IdPool for Bgpvpn RD");
-            } else {
+                if (rpcResult.isSuccessful()) {
+                    LOG.info("Created IdPool for Bgpvpn RD");
+                    return;
+                }
+                rpcErrors = rpcResult.getErrors();
                 LOG.error("Failed to create ID pool for BGPVPN RD, result future returned {}", result);
             }
+            LOG.error("createIdPool: Failed to create ID pool for BGPVPN RD, the call returned with RPC errors {}",
+                    rpcErrors != null ? rpcErrors : "RpcResult is null");
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed to create idPool for Bgpvpn RD", e);
         }
