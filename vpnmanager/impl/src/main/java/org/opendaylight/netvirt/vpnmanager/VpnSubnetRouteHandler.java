@@ -832,6 +832,11 @@ public class VpnSubnetRouteHandler {
                 l3vni = subOpBuilder.getL3vni();
             } else {
                 label = subOpBuilder.getLabel();
+                if (label.longValue() == VpnConstants.INVALID_LABEL) {
+                    LOG.error("publishSubnetRouteToBgp: Label not found for rd {}, subnetIp {}",
+                            subOpBuilder.getVrfId(), subOpBuilder.getSubnetCidr());
+                    return;
+                }
             }
             bgpManager.advertisePrefix(subOpBuilder.getVrfId(), null /*macAddress*/, subOpBuilder.getSubnetCidr(),
                     Arrays.asList(nextHopIp), encapType,  label, l3vni,

@@ -11,10 +11,8 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.netvirt.natservice.internal.NatUtil.buildfloatingIpIdToPortMappingIdentifier;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.*;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -369,7 +367,16 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                 removeLFibTableEntry(dpnId, label, confTx);
                 RemoveVpnLabelInput labelInput = new RemoveVpnLabelInputBuilder()
                         .setVpnName(vpnName).setIpPrefix(externalIp).build();
-                return vpnService.removeVpnLabel(labelInput);
+                Future<RpcResult<RemoveVpnLabelOutput>> labelFuture1 = vpnService.removeVpnLabel(labelInput);
+                if (labelFuture1.get() == null || !labelFuture1.get().isSuccessful()) {
+                    String errMsg = String.format(
+                            "VpnFloatingIpHandler: RPC call to remove VPN label on dpn %s "
+                                    + "for prefix %s failed for vpn %s - %s",
+                            dpnId, externalIp, vpnName, result.getErrors());
+                    LOG.error(errMsg);
+                    return Futures.immediateFailedFuture(new RuntimeException(errMsg));
+                }
+                return JdkFutureAdapters.listenInPoolThread(labelFuture1);
             } else {
                 String errMsg = String.format("onRemoveFloatingIp :RPC call to remove custom FIB entries "
                         + "on dpn %s for prefix %s Failed - %s", dpnId, externalIp, result.getErrors());
