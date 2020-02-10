@@ -22,6 +22,29 @@
       "revId": "1db4b74c12a8cfd8d1dae29f93c92fd51b2390e2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0598d1e8_171878c7",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2020-02-10T17:36:08Z",
+      "side": 1,
+      "message": "Looks like more lines are added to this file than downstream changes. Please check if any additional unwanted lines are added.",
+      "range": {
+        "startLine": 17,
+        "startChar": 17,
+        "endLine": 17,
+        "endChar": 24
+      },
+      "revId": "1db4b74c12a8cfd8d1dae29f93c92fd51b2390e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
