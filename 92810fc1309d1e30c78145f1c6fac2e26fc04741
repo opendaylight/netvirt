@@ -22,6 +22,30 @@
       "revId": "92810fc1309d1e30c78145f1c6fac2e26fc04741",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d842c964_a47d445b",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2020-02-10T05:27:27Z",
+      "side": 1,
+      "message": "Thanks Hanamanth for notifying this change. I have verified the downstream commit list in which this file name and other content has been modified after this commit only. In that case can we go ahead with the same order in upstream as well.",
+      "parentUuid": "7a3d6583_08a118dd",
+      "range": {
+        "startLine": 49,
+        "startChar": 13,
+        "endLine": 49,
+        "endChar": 35
+      },
+      "revId": "92810fc1309d1e30c78145f1c6fac2e26fc04741",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
