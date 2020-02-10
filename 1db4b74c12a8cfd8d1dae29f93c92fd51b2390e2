@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9e62686a_d3640691",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2020-02-10T16:37:38Z",
+      "side": 1,
+      "message": "This code needs to be removed, as its not being used anymore.",
+      "range": {
+        "startLine": 207,
+        "startChar": 16,
+        "endLine": 207,
+        "endChar": 43
+      },
+      "revId": "1db4b74c12a8cfd8d1dae29f93c92fd51b2390e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
