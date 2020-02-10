@@ -53,10 +53,6 @@
   <odl:rpc-service id="ipv6NdUtilService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.util.rev170210.Ipv6NdUtilService"/>
 
-  <service ref="dpnInVpnChangeListener" odl:type="default"
-           interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.OdlL3vpnListener" />
-  <odl:notification-listener ref="dpnInVpnChangeListener" />
-
   <service ref="vpnFootprintService"
            interface="org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService" />
 

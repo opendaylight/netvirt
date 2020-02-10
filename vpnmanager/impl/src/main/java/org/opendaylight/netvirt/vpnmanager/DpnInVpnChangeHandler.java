@@ -27,17 +27,10 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEvent;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddInterfaceToDpnOnVpnEvent;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.OdlL3vpnListener;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RemoveDpnEvent;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RemoveInterfaceFromDpnOnVpnEvent;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.add.dpn.event.AddEventData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.to.vpn.list.DpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.to.vpn.list.dpn.list.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.to.vpn.list.dpn.list.VpnInstancesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.to.vpn.list.dpn.list.VpnInstancesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.remove.dpn.event.RemoveEventData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -46,54 +39,43 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class DpnInVpnChangeListener implements OdlL3vpnListener {
-    private static final Logger LOG = LoggerFactory.getLogger(DpnInVpnChangeListener.class);
+public class DpnInVpnChangeHandler {
+    private static final Logger LOG = LoggerFactory.getLogger(DpnInVpnChangeHandler.class);
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
 
     @Inject
-    public DpnInVpnChangeListener(DataBroker dataBroker) {
+    public DpnInVpnChangeHandler(DataBroker dataBroker) {
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
     }
 
-    @Override
-    public void onAddDpnEvent(AddDpnEvent notification) {
-        AddEventData event = notification.getAddEventData();
-        final String rd = event.getRd();
-        final String vpnName = event.getVpnName();
-        Uint64 dpnId = event.getDpnId();
-
-        LOG.trace("Add Dpn Event notification received for rd {} VpnName {} DpnId {}", rd , vpnName, dpnId);
+    public void onVpnAddedToDpn(String vpnName, String primaryRd, Uint64 dpnId) {
+        LOG.trace("onVpnAddedToDpn; Add Dpn Event notification received for rd {} VpnName {} DpnId {}", primaryRd ,
+                vpnName, dpnId);
         synchronized (dpnId.toString().intern()) {
             /*DpnToVpnList contains list of VPNs having footprint on a given DPN*/
             InstanceIdentifier<VpnInstances> id = VpnUtil.getDpnToVpnListVpnInstanceIdentifier(dpnId, vpnName);
             VpnInstancesBuilder vpnInstancesBuilder =
-                    new VpnInstancesBuilder().setVpnInstanceName(vpnName).setVrfId(rd);
+                    new VpnInstancesBuilder().setVpnInstanceName(vpnName).setVrfId(primaryRd);
             try {
                 txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL,
                     tx -> tx.put(id, vpnInstancesBuilder.build(), true)).get();
             } catch (InterruptedException | ExecutionException e) {
-                LOG.error("onAddDpnEvent: Error updating dpnToVpnList for dpn {} vpn {} ", dpnId, vpnName, e);
+                LOG.error("onVpnAddedToDpn: Error updating dpnToVpnList for dpn {} vpn {} ", dpnId, vpnName, e);
                 throw new RuntimeException(e.getMessage(), e);
             }
         }
     }
 
-    @Override
-    public void onRemoveDpnEvent(RemoveDpnEvent notification) {
-
-        RemoveEventData eventData = notification.getRemoveEventData();
-        final String rd = eventData.getRd();
-        final String vpnName = eventData.getVpnName();
-        Uint64 dpnId = eventData.getDpnId();
-
-        LOG.trace("Remove Dpn Event notification received for rd {} VpnName {} DpnId {}", rd, vpnName, dpnId);
+    public void onVpnRemovedFromDpn(String vpnName, String primaryRd, Uint64 dpnId) {
+        LOG.trace("onVpnRemovedFromDpn: Remove Dpn Event notification received for rd {} VpnName {} DpnId {}",
+                primaryRd, vpnName, dpnId);
         // FIXME: separate out to somehow?
         final ReentrantLock lock = JvmGlobalLocks.getLockForString(vpnName);
         lock.lock();
         try {
-            InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(rd);
+            InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(primaryRd);
             Optional<VpnInstanceOpDataEntry> vpnOpValue =
                     SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
             if (vpnOpValue.isPresent()) {
@@ -109,7 +91,7 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
                 if (flushDpnsOnVpn) {
                     try {
                         txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL,
-                            tx -> deleteDpn(vpnToDpnList, rd, tx)).get();
+                            tx -> deleteDpn(vpnToDpnList, primaryRd, tx)).get();
                     } catch (InterruptedException | ExecutionException e) {
                         LOG.error("Error removing dpnToVpnList for vpn {} ", vpnName);
                         throw new RuntimeException(e.getMessage(), e);
@@ -117,8 +99,8 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
                 }
             }
         } catch (ReadFailedException e) {
-            LOG.error("onRemoveDpnEvent: Failed to read VpnInstanceOpDataEntry DS for rd {} vpn {} dpn {}",
-                    rd, vpnName, dpnId);
+            LOG.error("onVpnRemovedFromDpn: Failed to read VpnInstanceOpDataEntry DS for rd {} vpn {} dpn {}",
+                    primaryRd, vpnName, dpnId);
         }
 
         try {
@@ -127,7 +109,8 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
                 InstanceIdentifier<DpnList> id = VpnUtil.getDpnToVpnListIdentifier(dpnId);
                 Optional<DpnList> dpnListOptional =
                         SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
-                VpnInstances vpnInstance = new VpnInstancesBuilder().setVpnInstanceName(vpnName).setVrfId(rd).build();
+                VpnInstances vpnInstance = new VpnInstancesBuilder().setVpnInstanceName(vpnName)
+                        .setVrfId(primaryRd).build();
 
                 if (dpnListOptional.isPresent()) {
                     List<VpnInstances> vpnInstanceList = dpnListOptional.get().getVpnInstances();
@@ -144,30 +127,23 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
                             }
                         }
                     } catch (InterruptedException | ExecutionException e) {
-                        LOG.error("onRemoveDpnEvent: Error deleting entry in dpnToVpnList for dpn {} ", dpnId, e);
+                        LOG.error("onVpnRemovedFromDpn: Error deleting entry in dpnToVpnList for dpn {} ", dpnId, e);
                     }
 
                 }
             }
         } catch (ReadFailedException e) {
-            LOG.error("onRemoveDpnEvent: Failed to read DpnList DS for rd {} vpn {} dpn {}", rd, vpnName, dpnId);
+            LOG.error("onVpnRemovedFromDpn: Failed to read data store for rd {} vpn {} dpn {}", primaryRd, vpnName,
+                    dpnId);
         }
     }
 
-    protected void deleteDpn(Collection<VpnToDpnList> vpnToDpnList, String rd, TypedWriteTransaction<Operational> tx) {
+    protected void deleteDpn(Collection<VpnToDpnList> vpnToDpnList, String primaryRd,
+                             TypedWriteTransaction<Operational> tx) {
         for (final VpnToDpnList curDpn : vpnToDpnList) {
-            InstanceIdentifier<VpnToDpnList> vpnToDpnId = VpnHelper.getVpnToDpnListIdentifier(rd,
-                                                                        curDpn.getDpnId());
+            InstanceIdentifier<VpnToDpnList> vpnToDpnId = VpnHelper.getVpnToDpnListIdentifier(primaryRd,
+                    curDpn.getDpnId());
             tx.delete(vpnToDpnId);
         }
     }
-
-    @Override
-    public void onAddInterfaceToDpnOnVpnEvent(AddInterfaceToDpnOnVpnEvent notification) {
-    }
-
-    @Override
-    public void onRemoveInterfaceFromDpnOnVpnEvent(RemoveInterfaceFromDpnOnVpnEvent notification) {
-    }
 }
-
