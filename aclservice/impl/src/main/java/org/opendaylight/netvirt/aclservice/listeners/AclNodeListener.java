@@ -87,20 +87,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
 
     @Override
     public void registerListener() {
-        this.aclServiceUtils.createRemoteAclIdPool();
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
-    }
-
-    @Override
-    public  void deregisterListener() {
-        super.deregisterListener();
-        this.aclServiceUtils.deleteRemoteAclIdPool();
-    }
-
-    @Override
-    public void close() {
-        super.close();
-        this.aclServiceUtils.deleteRemoteAclIdPool();
     }
 
     @Override

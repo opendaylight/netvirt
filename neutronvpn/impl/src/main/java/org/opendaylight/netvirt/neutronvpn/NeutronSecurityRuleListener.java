@@ -66,13 +66,13 @@ public class NeutronSecurityRuleListener
     private static final ImmutableBiMap<Class<? extends DirectionBase>,
         Class<?extends org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase>>
         DIRECTION_MAP = ImmutableBiMap.of(
-            DirectionEgress.class, NeutronSecurityRuleConstants.DIRECTION_EGRESS,
-            DirectionIngress.class, NeutronSecurityRuleConstants.DIRECTION_INGRESS);
+            DirectionEgress.class, NeutronSecurityGroupConstants.DIRECTION_EGRESS,
+            DirectionIngress.class, NeutronSecurityGroupConstants.DIRECTION_INGRESS);
     private static final ImmutableBiMap<Class<? extends ProtocolBase>, Short> PROTOCOL_MAP = ImmutableBiMap.of(
-            ProtocolIcmp.class, NeutronSecurityRuleConstants.PROTOCOL_ICMP,
-            ProtocolTcp.class, NeutronSecurityRuleConstants.PROTOCOL_TCP,
-            ProtocolUdp.class, NeutronSecurityRuleConstants.PROTOCOL_UDP,
-            ProtocolIcmpV6.class, NeutronSecurityRuleConstants.PROTOCOL_ICMPV6);
+            ProtocolIcmp.class, NeutronSecurityGroupConstants.PROTOCOL_ICMP,
+            ProtocolTcp.class, NeutronSecurityGroupConstants.PROTOCOL_TCP,
+            ProtocolUdp.class, NeutronSecurityGroupConstants.PROTOCOL_UDP,
+            ProtocolIcmpV6.class, NeutronSecurityGroupConstants.PROTOCOL_ICMPV6);
 
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
@@ -110,7 +110,7 @@ public class NeutronSecurityRuleListener
             jobCoordinator.enqueueJob(jobKey,
                 () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                     tx -> tx.put(identifier, ace, CREATE_MISSING_PARENTS))),
-                    NeutronSecurityRuleConstants.DJC_MAX_RETRIES);
+                    NeutronSecurityGroupConstants.DJC_MAX_RETRIES);
         } catch (Exception ex) {
             LOG.error("Exception occured while adding acl for security rule: {}. ", securityRule, ex);
         }
@@ -120,7 +120,7 @@ public class NeutronSecurityRuleListener
         return InstanceIdentifier
                 .builder(AccessLists.class)
                 .child(Acl.class,
-                        new AclKey(securityRule.getSecurityGroupId().getValue(), NeutronSecurityRuleConstants.ACLTYPE))
+                        new AclKey(securityRule.getSecurityGroupId().getValue(), NeutronSecurityGroupConstants.ACLTYPE))
                 .child(AccessListEntries.class)
                 .child(Ace.class,
                         new AceKey(securityRule.getUuid().getValue()))
@@ -177,19 +177,19 @@ public class NeutronSecurityRuleListener
     }
 
     private AceIpBuilder handleEtherType(SecurityRule securityRule, AceIpBuilder aceIpBuilder) {
-        if (NeutronSecurityRuleConstants.ETHERTYPE_IPV4.equals(securityRule.getEthertype())) {
+        if (NeutronSecurityGroupConstants.ETHERTYPE_IPV4.equals(securityRule.getEthertype())) {
             AceIpv4Builder aceIpv4Builder = new AceIpv4Builder();
             aceIpv4Builder.setSourceIpv4Network(new Ipv4Prefix(
-                NeutronSecurityRuleConstants.IPV4_ALL_NETWORK));
+                NeutronSecurityGroupConstants.IPV4_ALL_NETWORK));
             aceIpv4Builder.setDestinationIpv4Network(new Ipv4Prefix(
-                NeutronSecurityRuleConstants.IPV4_ALL_NETWORK));
+                NeutronSecurityGroupConstants.IPV4_ALL_NETWORK));
             aceIpBuilder.setAceIpVersion(aceIpv4Builder.build());
         } else {
             AceIpv6Builder aceIpv6Builder = new AceIpv6Builder();
             aceIpv6Builder.setSourceIpv6Network(new Ipv6Prefix(
-                NeutronSecurityRuleConstants.IPV6_ALL_NETWORK));
+                NeutronSecurityGroupConstants.IPV6_ALL_NETWORK));
             aceIpv6Builder.setDestinationIpv6Network(new Ipv6Prefix(
-                NeutronSecurityRuleConstants.IPV6_ALL_NETWORK));
+                NeutronSecurityGroupConstants.IPV6_ALL_NETWORK));
             aceIpBuilder.setAceIpVersion(aceIpv6Builder.build());
 
         }
@@ -241,7 +241,7 @@ public class NeutronSecurityRuleListener
             jobCoordinator.enqueueJob(jobKey,
                 () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                     tx -> tx.merge(identifier, ace, CREATE_MISSING_PARENTS))),
-                    NeutronSecurityRuleConstants.DJC_MAX_RETRIES);
+                    NeutronSecurityGroupConstants.DJC_MAX_RETRIES);
         } catch (Exception ex) {
             /*
             If there are out of sequence events where-in Sg-Rule delete could occur after SecurityGroup delete.

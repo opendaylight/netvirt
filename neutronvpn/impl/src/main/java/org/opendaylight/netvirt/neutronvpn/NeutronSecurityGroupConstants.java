@@ -22,7 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionV4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionV6;
 
-public interface NeutronSecurityRuleConstants {
+public interface NeutronSecurityGroupConstants {
     Class<DirectionEgress> DIRECTION_EGRESS = DirectionEgress.class;
     Class<DirectionIngress> DIRECTION_INGRESS = DirectionIngress.class;
 
@@ -36,6 +36,11 @@ public interface NeutronSecurityRuleConstants {
 
     String IPV4_ALL_NETWORK = "0.0.0.0/0";
     String IPV6_ALL_NETWORK = "::/0";
+
+    String ACL_TAG_POOL_NAME = "ACL-TAG-POOL";
+    long ACL_TAG_POOL_START = 1L;
+    long ACL_TAG_POOL_END = 10000L;
+    int INVALID_ACL_TAG = -1;
 
     // default acp type
     Class<? extends AclBase> ACLTYPE = Ipv4Acl.class;
