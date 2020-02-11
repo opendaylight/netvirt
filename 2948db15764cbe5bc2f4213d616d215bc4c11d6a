@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "00b993c5_ff6b4767",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2020-02-11T09:56:54Z",
+      "side": 1,
+      "message": "Can you please update the commit message with more details like why we are moving the yang file from vpn-layer to neutron-vpn layer.",
+      "revId": "2948db15764cbe5bc2f4213d616d215bc4c11d6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
