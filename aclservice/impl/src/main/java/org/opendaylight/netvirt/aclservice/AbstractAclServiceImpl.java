@@ -775,6 +775,10 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                             .filter(AclServiceUtils::isNotIpAllNetwork).collect(Collectors.toSet());
 
             Integer aclTag = aclServiceUtils.getAclTag(remoteAclId);
+            if (aclTag == null || aclTag == AclConstants.INVALID_ACL_TAG) {
+                LOG.error("aclTag={} is null or invalid for remoteAclId={}", aclTag, remoteAclId);
+                continue;
+            }
             if (addOrRemove == NwConstants.ADD_FLOW) {
                 for (BigInteger dpn : dpns) {
                     for (AllowedAddressPairs aap : aaps) {
@@ -826,6 +830,10 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             Map<String, Set<AclInterface>> mapAclWithPortSet = mapOfAclWithInterfacesList.get(aclId);
             if (aclDataUtil.getRemoteAcl(aclId, this.direction) != null) {
                 Integer aclTag = aclServiceUtils.getAclTag(aclId);
+                if (aclTag == null || aclTag == AclConstants.INVALID_ACL_TAG) {
+                    LOG.error("aclTag={} is null or invalid for aclId={}", aclTag, aclId);
+                    continue;
+                }
                 jobCoordinator.enqueueJob(aclId.getValue().intern(), () -> {
                     List<FlowEntity> flowEntries = new ArrayList<>();
                     syncRemoteAclTable(flowEntries, portId, aclId, aclTag, aaps, mapAclWithPortSet, addOrRemove);
@@ -875,6 +883,10 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
         if (!aclInterfaces.isEmpty() && isFirstPortInDpnWithRemoteAclId(port, remoteAclId)) {
             Integer aclTag = aclServiceUtils.getAclTag(remoteAclId);
+            if (aclTag == null || aclTag == AclConstants.INVALID_ACL_TAG) {
+                LOG.error("aclTag={} is null or invalid for remoteAclId={}", aclTag, remoteAclId);
+                return;
+            }
             for (AclInterface aclInterface : aclInterfaces) {
                 if (port.getInterfaceId().equals(aclInterface.getInterfaceId())) {
                     continue;

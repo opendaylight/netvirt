@@ -104,9 +104,6 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
 
         updateRemoteAclCache(AclServiceUtils.getAceListFromAcl(acl), aclName, AclServiceManager.Action.REMOVE);
         if (aclClusterUtil.isEntityOwner()) {
-            if (aclTag != null) {
-                this.aclServiceUtils.releaseAclTag(aclName);
-            }
             // Handle Rule deletion If SG Remove event is received before SG Rule delete event
             List<Ace> aceList = AclServiceUtils.aceList(acl);
             if (!aceList.isEmpty()) {
@@ -168,7 +165,7 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
         this.aclDataUtil.addAcl(acl);
 
         String aclName = acl.getAclName();
-        Integer aclTag = this.aclServiceUtils.allocateAclTag(aclName);
+        Integer aclTag = AclServiceUtils.getAclTag(acl);
         if (aclTag != null && aclTag != AclConstants.INVALID_ACL_TAG) {
             this.aclDataUtil.addAclTag(aclName, aclTag);
         }
@@ -202,7 +199,7 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
         String aclName = aclAfter.getAclName();
         Integer aclTag = this.aclDataUtil.getAclTag(aclName);
         if (aclTag == null) {
-            aclTag = this.aclServiceUtils.allocateAclTag(aclName);
+            aclTag = AclServiceUtils.getAclTag(aclAfter);
             if (aclTag != null && aclTag != AclConstants.INVALID_ACL_TAG) {
                 this.aclDataUtil.addAclTag(aclName, aclTag);
             }
