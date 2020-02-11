@@ -25,6 +25,7 @@ import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.stats.TestOdlDirectStatisticsService;
 import org.opendaylight.netvirt.aclservice.utils.AclClusterUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
+import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.OpendaylightDirectStatisticsService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
@@ -65,7 +66,7 @@ public class AclServiceTestModule extends AbstractModule {
     protected void configure() {
         bind(DataBroker.class).toInstance(DataBrokerTestModule.dataBroker());
         bind(AclserviceConfig.class).toInstance(aclServiceConfig());
-
+        bind(AclDataUtil.class).toInstance(aclDataUtil());
         bind(AclClusterUtil.class).toInstance(() -> true);
 
         TestIMdsalApiManager singleton = TestIMdsalApiManager.newInstance();
@@ -86,6 +87,13 @@ public class AclServiceTestModule extends AbstractModule {
         AclserviceConfig aclServiceConfig = mock(AclserviceConfig.class);
         Mockito.when(aclServiceConfig.getSecurityGroupMode()).thenReturn(securityGroupMode);
         return aclServiceConfig;
+    }
+
+    private AclDataUtil aclDataUtil() {
+        AclDataUtil aclDataUtil = new AclDataUtil();
+        aclDataUtil.addAclTag("85cc3048-abc3-43cc-89b3-377341426ac5", 2);
+        aclDataUtil.addAclTag("85cc3048-abc3-43cc-89b3-377341426ac8", 4);
+        return aclDataUtil;
     }
 
     private abstract static class TestIdManagerService implements IdManagerService {

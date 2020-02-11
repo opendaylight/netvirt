@@ -785,9 +785,9 @@ public class NeutronvpnUtils {
             Subnet subnet = getNeutronSubnet(subnetId);
             if (subnet != null) {
                 Class<? extends IpVersionBase> ipVersion =
-                        NeutronSecurityRuleConstants.IP_VERSION_MAP.get(subnet.getIpVersion());
+                        NeutronSecurityGroupConstants.IP_VERSION_MAP.get(subnet.getIpVersion());
                 Class<? extends Dhcpv6Base> raMode = subnet.getIpv6RaMode() == null ? null
-                        : NeutronSecurityRuleConstants.RA_MODE_MAP.get(subnet.getIpv6RaMode());
+                        : NeutronSecurityGroupConstants.RA_MODE_MAP.get(subnet.getIpv6RaMode());
                 SubnetInfo subnetInfo = new SubnetInfoBuilder().withKey(new SubnetInfoKey(subnetId))
                         .setIpVersion(ipVersion).setIpPrefix(new IpPrefixOrAddress(subnet.getCidr()))
                         .setIpv6RaMode(raMode).setGatewayIp(subnet.getGatewayIp()).build();
