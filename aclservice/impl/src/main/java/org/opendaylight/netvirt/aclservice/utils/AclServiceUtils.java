@@ -29,8 +29,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
@@ -89,19 +87,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.DeleteIdPoolInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.DeleteIdPoolInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.DeleteIdPoolOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeEgress;
@@ -116,6 +101,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.AclPortsLookup;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.AclserviceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
@@ -142,7 +128,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.serviceutils.srm.types.rev1
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
-import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -156,17 +141,15 @@ public final class AclServiceUtils {
     private final ManagedNewTransactionRunner txRunner;
     private final AclDataUtil aclDataUtil;
     private final AclserviceConfig config;
-    private final IdManagerService idManager;
     private final JobCoordinator jobCoordinator;
 
     @Inject
     public AclServiceUtils(DataBroker dataBroker, AclDataUtil aclDataUtil, AclserviceConfig config,
-            IdManagerService idManager, JobCoordinator jobCoordinator) {
+            JobCoordinator jobCoordinator) {
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.aclDataUtil = aclDataUtil;
         this.config = config;
-        this.idManager = idManager;
         this.jobCoordinator = jobCoordinator;
     }
 
@@ -744,79 +727,29 @@ public final class AclServiceUtils {
         }
     }
 
-    public static Integer allocateId(IdManagerService idManager, String poolName, String idKey, Integer defaultId) {
-        AllocateIdInput getIdInput = new AllocateIdInputBuilder().setPoolName(poolName).setIdKey(idKey).build();
-        try {
-            Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
-            RpcResult<AllocateIdOutput> rpcResult = result.get();
-            if (rpcResult.isSuccessful()) {
-                Integer allocatedId = rpcResult.getResult().getIdValue().intValue();
-                LOG.debug("Allocated ACL ID: {} with key: {} into pool: {}", allocatedId, idKey, poolName);
-                return allocatedId;
-            } else {
-                LOG.error("RPC Call to Get Unique Id for key {} from pool {} returned with Errors {}",
-                        idKey, poolName, rpcResult.getErrors());
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Exception when getting Unique Id for key {} from pool {} ", idKey, poolName, e);
-        }
-        return defaultId;
-    }
-
-    public static void releaseId(IdManagerService idManager, String poolName, String idKey) {
-        ReleaseIdInput idInput = new ReleaseIdInputBuilder().setPoolName(poolName).setIdKey(idKey).build();
-        try {
-            RpcResult<ReleaseIdOutput> rpcResult = idManager.releaseId(idInput).get();
-            if (!rpcResult.isSuccessful()) {
-                LOG.error("RPC Call to release Id with Key {} from pool {} returned with Errors {}",
-                        idKey, poolName, rpcResult.getErrors());
-            } else {
-                LOG.debug("Released ACL ID with key: {} from pool: {}", idKey, poolName);
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Exception when releasing Id for key {} from pool {} ", idKey, poolName, e);
-        }
-    }
-
     /**
-     * Gets the ACL tag from cache. If not found in cache, tries to allocate and
-     * return the value.
-     *
-     * @param aclId the acl id
+     * Gets ACL tag from Acl.
+     * @param acl Acl object
      * @return the acl tag
      */
-    @Nullable
-    public Integer getAclTag(final Uuid aclId) {
-        String aclName = aclId.getValue();
-        Integer aclTag = this.aclDataUtil.getAclTag(aclName);
-        if (aclTag == null) {
-            LOG.debug("ACL tag not found in cache for ACL={}, trying to allocate again.", aclName);
-            aclTag = allocateAclTag(aclName);
-            if (aclTag != null && aclTag != AclConstants.INVALID_ACL_TAG) {
-                this.aclDataUtil.addAclTag(aclName, aclTag);
-            }
+    public static Integer getAclTag(Acl acl) {
+        Integer aclTag = null;
+        AclserviceAugmentation aclserviceAugmentation = acl.augmentation(AclserviceAugmentation.class);
+        if (aclserviceAugmentation != null) {
+            aclTag = aclserviceAugmentation.getAclTag().intValue();
         }
         return aclTag;
     }
 
     /**
-     * Allocate ACL tag.
+     * Gets the ACL tag from cache.
      *
-     * @param aclName the ACL name
-     * @return the integer
+     * @param aclId the acl id
+     * @return the acl tag
      */
-    public Integer allocateAclTag(String aclName) {
-        return AclServiceUtils.allocateId(this.idManager, AclConstants.ACL_TAG_POOL_NAME, aclName,
-                                          AclConstants.INVALID_ACL_TAG);
-    }
-
-    /**
-     * Release ACL tag.
-     *
-     * @param aclName the ACL name
-     */
-    public void releaseAclTag(String aclName) {
-        AclServiceUtils.releaseId(this.idManager, AclConstants.ACL_TAG_POOL_NAME, aclName);
+    public Integer getAclTag(final Uuid aclId) {
+        String aclName = aclId.getValue();
+        return this.aclDataUtil.getAclTag(aclName);
     }
 
     /**
@@ -839,58 +772,6 @@ public final class AclServiceUtils {
     public static boolean isOfInterest(InterfaceAcl aclInterface) {
         return aclInterface != null && (aclInterface.isPortSecurityEnabled()
                 || aclInterface.getInterfaceType() == InterfaceAcl.InterfaceType.DhcpService);
-    }
-
-    /**
-     * Creates the id pool for ACL tag.
-     *
-     * @param poolName the pool name
-     */
-    private void createIdPoolForAclTag(String poolName) {
-        CreateIdPoolInput createPool = new CreateIdPoolInputBuilder()
-                .setPoolName(poolName).setLow(AclConstants.ACL_TAG_POOL_START)
-                .setHigh(AclConstants.ACL_TAG_POOL_END).build();
-        try {
-            Future<RpcResult<CreateIdPoolOutput>> result = this.idManager.createIdPool(createPool);
-            if (result != null && result.get().isSuccessful()) {
-                LOG.debug("Created IdPool for {}", poolName);
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Failed to create ID pool [{}] for remote ACL ids", poolName, e);
-            throw new RuntimeException("Failed to create ID pool [{}] for remote ACL ids", e);
-        }
-    }
-
-    /**
-     * Delete id pool.
-     *
-     * @param poolName the pool name
-     */
-    public void deleteIdPool(String poolName) {
-        DeleteIdPoolInput deletePool = new DeleteIdPoolInputBuilder().setPoolName(poolName).build();
-        try {
-            Future<RpcResult<DeleteIdPoolOutput>> result = this.idManager.deleteIdPool(deletePool);
-            if (result != null && result.get().isSuccessful()) {
-                LOG.debug("Deleted IdPool for {}", poolName);
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Failed to delete ID pool [{}]", poolName, e);
-            throw new RuntimeException("Failed to delete ID pool [" + poolName + "]", e);
-        }
-    }
-
-    /**
-     * Creates remote the acl id pools.
-     */
-    public void createRemoteAclIdPool() {
-        createIdPoolForAclTag(AclConstants.ACL_TAG_POOL_NAME);
-    }
-
-    /**
-     * Delete remote the acl id pools.
-     */
-    public void deleteRemoteAclIdPool() {
-        deleteIdPool(AclConstants.ACL_TAG_POOL_NAME);
     }
 
     public static List<? extends MatchInfoBase> buildIpAndSrcServiceMatch(Integer aclTag, AllowedAddressPairs aap) {

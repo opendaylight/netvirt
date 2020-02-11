@@ -80,6 +80,15 @@ module aclservice {
         }
     }
 
+    augment "/ietf-acl:access-lists/ietf-acl:acl" {
+        description "ACL augmentation to add unique id parameter";
+        ext:augment-identifier "aclservice-augmentation";
+        leaf acl-tag {
+            type uint16;
+            description "Unique tag for ACL.";
+        }
+    }
+
     augment "/ietf-acl:access-lists/ietf-acl:acl/ietf-acl:access-list-entries/ietf-acl:ace" {
         description "Security Rule Attributes";
         ext:augment-identifier "security-rule-attr";
