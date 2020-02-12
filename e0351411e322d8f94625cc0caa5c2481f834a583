@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3456f254_d2966472",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnManagerImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 8298
+      },
+      "writtenOn": "2020-02-12T10:53:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "10190e7d_96ca9b3f",
+      "revId": "e0351411e322d8f94625cc0caa5c2481f834a583",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bc3feba2_27c8e28e",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnRpcServiceImpl.java",
         "patchSetId": 5
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "d9e377f9_f83a3f56",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnRpcServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 8298
+      },
+      "writtenOn": "2020-02-12T10:53:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bc3feba2_27c8e28e",
+      "range": {
+        "startLine": 158,
+        "startChar": 50,
+        "endLine": 158,
+        "endChar": 51
+      },
+      "revId": "e0351411e322d8f94625cc0caa5c2481f834a583",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a3800740_0bd77461",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnRpcServiceImpl.java",
         "patchSetId": 5
@@ -53,6 +95,30 @@
       "writtenOn": "2020-02-12T08:42:14Z",
       "side": 1,
       "message": "can you please change it to \"VpnConstants.INVALID_LABEL\" in all the places",
+      "range": {
+        "startLine": 161,
+        "startChar": 37,
+        "endLine": 161,
+        "endChar": 38
+      },
+      "revId": "e0351411e322d8f94625cc0caa5c2481f834a583",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "529c099c_42593fb0",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnRpcServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 8298
+      },
+      "writtenOn": "2020-02-12T10:53:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a3800740_0bd77461",
       "range": {
         "startLine": 161,
         "startChar": 37,
