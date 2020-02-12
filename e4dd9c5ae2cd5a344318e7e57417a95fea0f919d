@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "19de0686_f5751e13",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2020-02-12T05:58:26Z",
+      "side": 1,
+      "message": "Add RD {} print logic here",
+      "revId": "e4dd9c5ae2cd5a344318e7e57417a95fea0f919d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
