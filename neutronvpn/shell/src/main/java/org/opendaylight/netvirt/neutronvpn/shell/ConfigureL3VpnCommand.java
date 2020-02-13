@@ -15,7 +15,7 @@ import java.util.concurrent.Future;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.binding.api.RpcConsumerRegistry;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.AssociateNetworksInputBuilder;
@@ -39,15 +39,15 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigureL3VpnCommand.class);
 
     private INeutronVpnManager neutronVpnManager;
-    private RpcProviderRegistry rpcProviderRegistry;
+    private RpcConsumerRegistry rpcConsumerRegistry;
     private NeutronvpnService neutronvpnService;
 
     public void setNeutronVpnManager(INeutronVpnManager neutronVpnManager) {
         this.neutronVpnManager = neutronVpnManager;
     }
 
-    public void setRpcProviderRegistry(RpcProviderRegistry rpcProviderRegistry) {
-        this.rpcProviderRegistry = rpcProviderRegistry;
+    public void setRpcConsumerRegistry(RpcConsumerRegistry rpcConsumerRegistry) {
+        this.rpcConsumerRegistry = rpcConsumerRegistry;
     }
 
     @Option(name = "-op", aliases = {"--operation"}, description = "create-l3-vpn/delete-l3-vpn",
@@ -81,8 +81,8 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
-        if (rpcProviderRegistry != null) {
-            neutronvpnService = rpcProviderRegistry.getRpcService(NeutronvpnService.class);
+        if (rpcConsumerRegistry != null) {
+            neutronvpnService = rpcConsumerRegistry.getRpcService(NeutronvpnService.class);
             if (neutronvpnService != null) {
                 if (op != null) {
                     switch (op) {
