@@ -12,7 +12,7 @@
     interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
     odl:type="default" />
   <reference id="rpcProviderRegistry"
-    interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry" />
+    interface="org.opendaylight.controller.sal.binding.api.RpcProviderService" />
   <reference id="notificationService"
     interface="org.opendaylight.controller.md.sal.binding.api.NotificationService" />
   <reference id="iInterfaceManager"

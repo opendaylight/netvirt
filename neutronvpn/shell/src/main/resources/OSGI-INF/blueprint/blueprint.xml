@@ -12,7 +12,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <reference id="neutronVpnManagerRef"
                interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager"
                availability="optional"/>
-    <reference id="rpcRegistryRef" interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry"
+    <reference id="rpcRegistryRef" interface="org.opendaylight.mdsal.binding.api.RpcConsumerRegistry"
                availability="optional"/>
     <reference id="dataBrokerRef" interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
                availability="optional"/>
