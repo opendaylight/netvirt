@@ -2497,7 +2497,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     passedNwList.add(nw);
                     continue;
                 }
-                if (vpnManager.checkForOverlappingSubnets(nw, subnetmapList, vpnId, routeTargets, failedNwList)) {
+                List<String> overlappingSubnetErrors = NeutronvpnUtils.checkForOverlappingSubnets(nw, subnetmapList,
+                        vpnId, routeTargets);
+                if (!overlappingSubnetErrors.isEmpty()) {
+                    LOG.error("associateNetworksToVpn: associate network {} to vpn {} failed as {}", nw.getValue(),
+                            vpnId.getValue(), overlappingSubnetErrors.toString());
                     continue;
                 }
                 for (Subnetmap subnetmap : subnetmapList) {
