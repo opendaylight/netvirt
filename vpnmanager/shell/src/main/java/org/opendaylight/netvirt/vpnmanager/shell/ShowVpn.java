@@ -26,7 +26,6 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInterfaceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances.VpnInstance;
@@ -116,12 +115,9 @@ public class ShowVpn extends OsgiCommandSupport {
                     operCount = vpnNameToOperInterfaceMap.get(vpnInstance.getVpnInstanceName());
                     totalOperCount = totalOperCount + operCount;
                 }
-                VpnAfConfig addrFamily = vpnInstance.getIpv4Family() != null ? vpnInstance.getIpv4Family() :
-                    vpnInstance.getIpv6Family();
-
                 session.getConsole().println(
                         String.format("%-32s  %-10s  %-10s  %-10s", vpnInstance.getVpnInstanceName(),
-                                addrFamily.getRouteDistinguisher(), configCount, operCount));
+                                vpnInstance.getRouteDistinguisher(), configCount, operCount));
             }
             session.getConsole().println("-----------------------------------------------------------------------");
             session.getConsole().println(
