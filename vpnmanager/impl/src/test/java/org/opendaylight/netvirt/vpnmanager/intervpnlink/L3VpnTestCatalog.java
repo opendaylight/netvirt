@@ -15,15 +15,13 @@ import java.util.stream.Collectors;
 import org.opendaylight.netvirt.vpnmanager.VpnOperDsUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.af.config.VpnTargets;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.af.config.VpnTargetsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.af.config.vpntargets.VpnTarget;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.af.config.vpntargets.VpnTargetBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.af.config.vpntargets.VpnTargetKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances.VpnInstanceBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances.vpn.instance.Ipv4Family;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances.vpn.instance.Ipv4FamilyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances.vpn.instance.VpnTargets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances.vpn.instance.VpnTargetsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances.vpn.instance.vpntargets.VpnTarget;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances.vpn.instance.vpntargets.VpnTargetBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances.vpn.instance.vpntargets.VpnTargetKey;
 
 /**
  * Gathers a collections of 'fake' L3VPN objects that can be used in JUnits.
@@ -68,12 +66,11 @@ public final class L3VpnTestCatalog {
     static L3VpnComposite build(String vpnName, String vpnRd, long vpnTag, List<String> irts, List<String> erts) {
         Objects.nonNull(irts);
         Objects.nonNull(erts);
-        Ipv4Family vpnIpv4Cfg = new Ipv4FamilyBuilder().setVpnTargets(makeVpnTargets(irts, erts)).build();
         VpnInstance vpnInst =
-            new VpnInstanceBuilder().setVpnInstanceName(vpnName).setIpv4Family(vpnIpv4Cfg).build();
+                new VpnInstanceBuilder().setVpnInstanceName(vpnName).setVpnTargets(makeVpnTargets(irts, erts)).build();
         VpnInstanceOpDataEntry vpnOpData =
-            new VpnInstanceOpDataEntryBuilder().setVpnId(vpnTag).setVpnInstanceName(vpnName).setVrfId(vpnRd)
-                                               .setVpnTargets(VpnOperDsUtils.makeVpnTargets(irts, erts)).build();
+                new VpnInstanceOpDataEntryBuilder().setVpnId(vpnTag).setVpnInstanceName(vpnName).setVrfId(vpnRd)
+                        .setVpnTargets(VpnOperDsUtils.makeVpnTargets(irts, erts)).build();
         return new L3VpnComposite(vpnInst, vpnOpData);
     }
 
