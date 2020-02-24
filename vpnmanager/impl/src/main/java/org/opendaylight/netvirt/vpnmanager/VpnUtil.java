@@ -209,7 +209,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.AdjacenciesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.adjacency.list.Adjacency;
@@ -465,10 +464,8 @@ public final class VpnUtil {
 
     @NonNull
     static List<String> getListOfRdsFromVpnInstance(VpnInstance vpnInstance) {
-        VpnAfConfig vpnConfig = vpnInstance.getIpv4Family();
-        LOG.trace("vpnConfig {}", vpnConfig);
-        return vpnConfig.getRouteDistinguisher() != null && vpnConfig.getRouteDistinguisher() != null
-            ? vpnConfig.getRouteDistinguisher() : emptyList();
+        return vpnInstance.getRouteDistinguisher() != null ? new ArrayList<>(
+                vpnInstance.getRouteDistinguisher()) : new ArrayList<>();
     }
 
     @Nullable
@@ -2266,24 +2263,71 @@ public final class VpnUtil {
         }
     }
 
-    Set<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.af.config
-            .vpntargets.VpnTarget> getRtListForVpn(String vpnName) {
-        Set<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.af.config.vpntargets
-                .VpnTarget> rtList = new HashSet<>();
-        InstanceIdentifier<VpnInstance> vpnInstanceId = InstanceIdentifier.builder(VpnInstances.class)
-                .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
-        Optional<VpnInstance> vpnInstanceOptional = read(LogicalDatastoreType.CONFIGURATION, vpnInstanceId);
-        if (vpnInstanceOptional.isPresent()) {
-            org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.af.config.VpnTargets
-                    vpnTargets = vpnInstanceOptional.get().getIpv4Family().getVpnTargets();
-            if (vpnTargets != null && vpnTargets.getVpnTarget() != null) {
-                rtList.addAll(vpnTargets.getVpnTarget());
+    static Set<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances.vpn
+            .instance.vpntargets.VpnTarget> getRtListForVpn(DataBroker dataBroker, String vpnName) {
+        Set<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances.vpn
+                .instance.vpntargets.VpnTarget> rtList = new HashSet<>();
+        try {
+            InstanceIdentifier<VpnInstance> vpnInstanceId = InstanceIdentifier.builder(VpnInstances.class)
+                    .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
+            Optional<VpnInstance> vpnInstanceOptional = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, vpnInstanceId);
+            if (vpnInstanceOptional.isPresent()) {
+                org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances
+                        .vpn.instance.VpnTargets vpnTargets = vpnInstanceOptional.get().getVpnTargets();
+                if (vpnTargets != null && vpnTargets.getVpnTarget() != null) {
+                    rtList.addAll(vpnTargets.getVpnTarget());
+                }
+            } else {
+                LOG.error("getRtListForVpn: Vpn Instance {} not present in config DS", vpnName);
             }
-        }
-        else {
-            LOG.error("getRtListForVpn: Vpn Instance {} not present in config DS", vpnName);
+        } catch (ReadFailedException e) {
+            LOG.error("getRtListForVpn: Read failed for Vpn Instance {}", vpnName);
         }
         return rtList;
+    }
+
+    /*
+    if (update == 0) {
+    removedFamily = original
+    4 removed = 4
+    6 removed = 6
+    10 removed
+    } else if (update < original) {
+    removedFamily = original - update
+    10 was there 4 removed = 6
+    10 was there 6 removed  = 4
+    } else {
+   return;
+    }
+    */
+    public static int getIpFamilyValueToRemove(VpnInstanceOpDataEntry original, VpnInstanceOpDataEntry update) {
+        int originalValue = original.getIpAddressFamilyConfigured().getIntValue();
+        int updatedValue = update.getIpAddressFamilyConfigured().getIntValue();
+
+        if (originalValue == updatedValue) {
+            return 0;
+        }
+        int removedFamily;
+        if (updatedValue == 0) {
+            removedFamily = originalValue;
+        } else if (updatedValue < originalValue) {
+            removedFamily = originalValue - updatedValue;
+        } else {
+            return 0;
+        }
+        return removedFamily;
+    }
+
+    public static int getIpFamilyValueToAdd(VpnInstanceOpDataEntry original, VpnInstanceOpDataEntry update) {
+        int originalValue = original.getIpAddressFamilyConfigured().getIntValue();
+        int updatedValue = update.getIpAddressFamilyConfigured().getIntValue();
+
+        if (originalValue != updatedValue) {
+            return updatedValue;
+        } else {
+            return originalValue;
+        }
     }
 
     static InstanceIdentifier<AssociatedVpn> getAssociatedSubnetAndVpnIdentifier(String rt, RouteTarget.RtType rtType,
@@ -2309,10 +2353,10 @@ public final class VpnUtil {
     }
 
     Set<RouteTarget> getRouteTargetSet(Set<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn
-            .rev200204.vpn.af.config.vpntargets.VpnTarget> vpnTargets) {
+            .rev200204.vpn.instances.vpn.instance.vpntargets.VpnTarget> vpnTargets) {
         Set<RouteTarget> routeTargetSet = new HashSet<>();
-        for (org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.af.config.vpntargets
-                .VpnTarget rt : vpnTargets) {
+        for (org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances.vpn
+                .instance.vpntargets.VpnTarget rt : vpnTargets) {
             String rtValue = rt.getVrfRTValue();
             switch (rt.getVrfRTType()) {
                 case ImportExtcommunity: {
