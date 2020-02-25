@@ -143,6 +143,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.getl3vpn.output.L3vpnInstancesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.RouterInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.RouterInterfacesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.RouterInterfacesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.router.interfaces.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.router.interfaces.InterfacesBuilder;
@@ -1929,13 +1930,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                     routerInterfacesId.child(Interfaces.class, new InterfacesKey(interfaceName)), routerInterface);
             } else {
-                // TODO Shouldn't we be doing something with builder and interfaces?
-                //          RouterInterfacesBuilder builder = new RouterInterfacesBuilder().setRouterId(routerId);
-                //          List<Interfaces> interfaces = new ArrayList<>();
-                //          interfaces.add(routerInterface);
-
-                SingleTransactionDataBroker.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                    routerInterfacesId.child(Interfaces.class, new InterfacesKey(interfaceName)), routerInterface);
+                RouterInterfacesBuilder builder = new RouterInterfacesBuilder().setRouterId(routerId);
+                List<Interfaces> interfaces = new ArrayList<>();
+                interfaces.add(routerInterface);
+                SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    routerInterfacesId, builder.setInterfaces(interfaces).build());
             }
         } catch (ReadFailedException | TransactionCommitFailedException e) {
             LOG.error("Error reading router interfaces for {}", routerInterfacesId, e);
