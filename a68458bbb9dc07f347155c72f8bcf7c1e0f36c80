@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0e95c295_3b649456",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1919,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2020-02-27T09:41:05Z",
+      "side": 1,
+      "message": "Do this call need to be done for everry af_afi or only one call is enough ??\n\nWhat is BgpRouterException exception is thrown for the first afi value and we return without processing further afi\u0027s in this case",
+      "range": {
+        "startLine": 1919,
+        "startChar": 16,
+        "endLine": 1919,
+        "endChar": 53
+      },
+      "revId": "a68458bbb9dc07f347155c72f8bcf7c1e0f36c80",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
