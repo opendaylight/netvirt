@@ -22,6 +22,30 @@
       "revId": "a68458bbb9dc07f347155c72f8bcf7c1e0f36c80",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "527aac28_5fee237d",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1919,
+      "author": {
+        "id": 8616
+      },
+      "writtenOn": "2020-02-27T11:16:14Z",
+      "side": 1,
+      "message": "Discussed with team here, Can be go ahead on this logic migrated from downstream for now, if any changes to this logic in future will be migrating and merge to upstream.",
+      "parentUuid": "0e95c295_3b649456",
+      "range": {
+        "startLine": 1919,
+        "startChar": 16,
+        "endLine": 1919,
+        "endChar": 53
+      },
+      "revId": "a68458bbb9dc07f347155c72f8bcf7c1e0f36c80",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
