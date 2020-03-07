@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.elanmanager.tests.utils;
 
 import java.math.BigInteger;
-
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 
 public final class InterfaceHelper {

@@ -8,10 +8,8 @@
 package org.opendaylight.netvirt.aclservice.recovery;
 
 import java.util.Queue;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.serviceutils.srm.RecoverableListener;
 import org.opendaylight.serviceutils.srm.ServiceRecoveryInterface;

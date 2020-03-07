@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import java.math.BigInteger;
-
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;

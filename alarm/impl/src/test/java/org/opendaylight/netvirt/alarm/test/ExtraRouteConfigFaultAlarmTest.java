@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.alarm.test;
 
 import static org.junit.Assert.assertEquals;
@@ -13,16 +12,13 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 
-
 @RunWith(MockitoJUnitRunner.class)
-
 public class ExtraRouteConfigFaultAlarmTest {
 
     private final NeutronvpnAlarmsTest neutronvpnAlarmTest = new NeutronvpnAlarmsTest();

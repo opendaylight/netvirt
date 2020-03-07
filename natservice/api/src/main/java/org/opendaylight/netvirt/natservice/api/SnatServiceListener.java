@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.natservice.api;
 
 import java.math.BigInteger;
-
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;

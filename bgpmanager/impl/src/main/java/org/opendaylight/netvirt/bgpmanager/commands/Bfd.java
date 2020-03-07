@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.bgpmanager.commands;
 
 import static org.opendaylight.netvirt.bgpmanager.oam.BgpConstants.MAX_DETECT_MULT;
@@ -16,7 +15,6 @@ import static org.opendaylight.netvirt.bgpmanager.oam.BgpConstants.MIN_TX_MAX;
 import static org.opendaylight.netvirt.bgpmanager.oam.BgpConstants.MIN_TX_MIN;
 
 import java.io.PrintStream;
-
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;

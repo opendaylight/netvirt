@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import java.math.BigInteger;
-
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;

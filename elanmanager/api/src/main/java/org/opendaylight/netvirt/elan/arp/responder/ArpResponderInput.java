@@ -8,11 +8,9 @@
 package org.opendaylight.netvirt.elan.arp.responder;
 
 import com.google.common.base.Strings;
-
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 
 public final class ArpResponderInput {
