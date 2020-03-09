@@ -149,7 +149,9 @@ public class NexthopManager implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NexthopManager.class);
     private static final String NEXTHOP_ID_POOL_NAME = "nextHopPointerPool";
     private static final long WAIT_TIME_FOR_SYNC_INSTALL = Long.getLong("wait.time.sync.install", 300L);
-    private static final long WAIT_TIME_TO_ACQUIRE_LOCK = 3000L;
+    //  We set the total wait time for lock to be obtained at 9 seconds since GC pauses can be upto 8 seconds
+    //in scale setups.
+    private static final long WAIT_TIME_TO_ACQUIRE_LOCK = 9000L;
     private static final int SELECT_GROUP_WEIGHT = 1;
     private static final int RETRY_COUNT = 6;
 

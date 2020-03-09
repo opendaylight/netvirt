@@ -1316,8 +1316,10 @@ public final class VpnUtil {
     }
 
     void lockSubnet(String subnetId) {
+        //  We set the total wait time for lock to be obtained at 9 seconds since GC pauses can be upto 8 seconds
+        //in scale setups.
         TryLockInput input =
-            new TryLockInputBuilder().setLockName(subnetId).setTime(3000L).setTimeUnit(TimeUnits.Milliseconds).build();
+            new TryLockInputBuilder().setLockName(subnetId).setTime(9000L).setTimeUnit(TimeUnits.Milliseconds).build();
         Future<RpcResult<TryLockOutput>> result = lockManager.tryLock(input);
         try {
             if (result != null && result.get().isSuccessful()) {
