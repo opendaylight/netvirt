@@ -15,6 +15,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <reference id="rpcRegistryRef" interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry"
                availability="optional"/>
     <reference id="dataBrokerRef" interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
+	    availability="optional"/>
+    <reference id="schemaServiceRef"
+               interface="org.opendaylight.controller.sal.core.api.model.SchemaService"
+               availability="optional"/>
+    <reference id="bindingNormalizedNodeSerializerRef"
+               interface="org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer"
                availability="optional"/>
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
 
@@ -59,6 +65,14 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
                 <property name="dataBroker" ref="dataBrokerRef"/>
             </action>
         </command>
+
+	<command>
+            <action class="org.opendaylight.netvirt.neutronvpn.shell.ClearOperDS">
+                <property name="dataBroker" ref="dataBrokerRef"/>
+                <property name="schemaService" ref="schemaServiceRef"/>
+                <property name="bindingNormalizedNodeSerializer" ref="bindingNormalizedNodeSerializerRef"/>
+            </action>
+       </command>
 
     </command-bundle>
 
