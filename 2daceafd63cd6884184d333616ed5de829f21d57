@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8bc56c28_cebf8b88",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2020-03-09T08:08:37Z",
+      "side": 1,
+      "message": "rdtoVpnMap is initialzed to new Hashmap() at line 269. do u see this line 270 check valid ?? also, every thime this API called ,rdtoVpnMap is initial to new MAp and entry is added(the earlier entries will get varnished). Please recheck on this",
+      "range": {
+        "startLine": 270,
+        "startChar": 0,
+        "endLine": 272,
+        "endChar": 10
+      },
+      "revId": "2daceafd63cd6884184d333616ed5de829f21d57",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
