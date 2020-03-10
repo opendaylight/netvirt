@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.neutronvpn.shell;
 
 import static org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker.syncReadOptional;
 import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.CONFIGURATION;
-import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.OPERATIONAL;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,9 +18,6 @@ import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPortKey;
@@ -45,7 +41,6 @@ public class ShowVpnIpToPort extends OsgiCommandSupport {
 
     private DataBroker dataBroker;
     private List<VpnPortipToPort> vpnPortipToPortList = new ArrayList<>();
-    private List<LearntVpnVipToPort> vpnVipToPortList = new ArrayList<>();
 
     public void setDataBroker(DataBroker broker) {
         this.dataBroker = broker;
@@ -56,7 +51,6 @@ public class ShowVpnIpToPort extends OsgiCommandSupport {
     protected Object doExecute() throws Exception {
         if (vpnName == null && portFixedIp == null) {
             getNeutronVpnPort();
-            getLearntVpnVipPort();
             System.out.println(vpnPortipToPortList.size() + " Entries are present: ");
             System.out.println("-----------------------------------------------------------------------");
             System.out.println(String.format("             %s   %24s   %20s   %32s", "VpnName", "IPAddress",
@@ -67,12 +61,6 @@ public class ShowVpnIpToPort extends OsgiCommandSupport {
                         vpnPortipToPort.getPortFixedip(),
                         vpnPortipToPort.getMacAddress(),
                         vpnPortipToPort.getPortName()));
-            }
-            for (LearntVpnVipToPort learntVpnVipToPort : vpnVipToPortList) {
-                System.out.println(String.format("* %-32s  %-16s  %-16s  %-32s", learntVpnVipToPort.getVpnName(),
-                        learntVpnVipToPort.getPortFixedip(),
-                        learntVpnVipToPort.getMacAddress(),
-                        learntVpnVipToPort.getPortName()));
             }
             System.out.println("\n * prefixed entries are Learned.");
             System.out.println("\n" + getshowVpnCLIHelp());
@@ -89,23 +77,6 @@ public class ShowVpnIpToPort extends OsgiCommandSupport {
                 System.out.println("\n----------"
                     + "---------------------------------------------------------------------------------");
                 System.out.println("VpnName:   " + data.getVpnName() + "\nIPAddress: " + data.getPortFixedip()
-                    + "\nMacAddress: " + data.getMacAddress() + "\nPort: " + data.getPortName());
-                System.out.println("\n----------"
-                    + "---------------------------------------------------------------------------------");
-            } else {
-                InstanceIdentifier<LearntVpnVipToPort> learntId =
-                    InstanceIdentifier.builder(LearntVpnVipToPortData.class)
-                        .child(LearntVpnVipToPort.class, new LearntVpnVipToPortKey(portFixedIp, vpnName)).build();
-                Optional<LearntVpnVipToPort> learntVpnVipToPortData =
-                        syncReadOptional(dataBroker, OPERATIONAL, learntId);
-                if (!learntVpnVipToPortData.isPresent()) {
-                    System.out.println("Data not available");
-                    return null;
-                }
-                LearntVpnVipToPort data = learntVpnVipToPortData.get();
-                System.out.println("\n----------"
-                    + "---------------------------------------------------------------------------------");
-                System.out.println("VpnName: * " + data.getVpnName() + "\nIPAddress: " + data.getPortFixedip()
                     + "\nMacAddress: " + data.getMacAddress() + "\nPort: " + data.getPortName());
                 System.out.println("\n----------"
                     + "---------------------------------------------------------------------------------");
@@ -126,20 +97,6 @@ public class ShowVpnIpToPort extends OsgiCommandSupport {
         } else {
             vpnPortipToPortList
                     = new ArrayList<VpnPortipToPort>(optionalNeutronVpnPort.get().getVpnPortipToPort().values());
-        }
-    }
-
-    @SuppressWarnings("checkstyle:RegexpSinglelineJava")
-    private void getLearntVpnVipPort() throws ExecutionException, InterruptedException {
-        InstanceIdentifier<LearntVpnVipToPortData> learntVpnVipPortDataIdentifier = InstanceIdentifier
-                .builder(LearntVpnVipToPortData.class).build();
-        Optional<LearntVpnVipToPortData> optionalLearntVpnPort = syncReadOptional(dataBroker, OPERATIONAL,
-                learntVpnVipPortDataIdentifier);
-        if (!optionalLearntVpnPort.isPresent()) {
-            System.out.println("No LearntVpnVipToPortData discovered.");
-        } else {
-            vpnVipToPortList = new ArrayList<LearntVpnVipToPort>(optionalLearntVpnPort.get()
-                    .getLearntVpnVipToPort().values());
         }
     }
 
