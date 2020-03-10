@@ -205,8 +205,11 @@ module neutronvpn {
             leaf port-fixedip { type string;}
             leaf port-name { type string;}
             leaf mac-address { type string;}
+            leaf gateway-ip-address { type string;}
             leaf subnet-ip { type boolean;}
             leaf learnt-ip { type boolean; default false;}
+            leaf creation-time { type string;}
+            leaf dpnId { type uint64;}
         }
     }
 
