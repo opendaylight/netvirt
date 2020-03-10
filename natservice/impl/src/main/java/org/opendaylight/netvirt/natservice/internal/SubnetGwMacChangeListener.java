@@ -22,14 +22,14 @@ import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeL
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class SubnetGwMacChangeListener extends AbstractAsyncDataTreeChangeListener<LearntVpnVipToPort> {
+public class SubnetGwMacChangeListener extends AbstractAsyncDataTreeChangeListener<VpnPortipToPort> {
     private static final Logger LOG = LoggerFactory.getLogger(SubnetGwMacChangeListener.class);
 
     private final DataBroker broker;
@@ -39,8 +39,8 @@ public class SubnetGwMacChangeListener extends AbstractAsyncDataTreeChangeListen
     @Inject
     public SubnetGwMacChangeListener(final DataBroker broker, final INeutronVpnManager nvpnManager,
                                      final ExternalNetworkGroupInstaller extNetworkInstaller) {
-        super(broker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(LearntVpnVipToPortData.class)
-                .child(LearntVpnVipToPort.class),
+        super(broker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(NeutronVpnPortipPortData.class)
+                .child(VpnPortipToPort.class),
                 Executors.newListeningSingleThreadExecutor("SubnetGwMacChangeListener", LOG));
         this.broker = broker;
         this.nvpnManager = nvpnManager;
@@ -59,21 +59,29 @@ public class SubnetGwMacChangeListener extends AbstractAsyncDataTreeChangeListen
     }
 
     @Override
-    public void remove(InstanceIdentifier<LearntVpnVipToPort> key, LearntVpnVipToPort learntVpnVipToPort) {
+    public void remove(InstanceIdentifier<VpnPortipToPort> key, VpnPortipToPort vpnPortipToPort) {
     }
 
     @Override
-    public void update(InstanceIdentifier<LearntVpnVipToPort> key, LearntVpnVipToPort origLearntVpnVipToPort,
-                          LearntVpnVipToPort updatedLearntVpnVipToPort) {
+    public void update(InstanceIdentifier<VpnPortipToPort> key, VpnPortipToPort origLearntVpnVipToPort,
+                       VpnPortipToPort updatedLearntVpnVipToPort) {
+        if (!updatedLearntVpnVipToPort.isLearntIp()) {
+            return;
+        }
         handleSubnetGwIpChange(updatedLearntVpnVipToPort);
     }
 
     @Override
-    public void add(InstanceIdentifier<LearntVpnVipToPort> key, LearntVpnVipToPort learntVpnVipToPort) {
+    public void add(InstanceIdentifier<VpnPortipToPort> key, VpnPortipToPort learntVpnVipToPort) {
+        if (!learntVpnVipToPort.isLearntIp()) {
+            return;
+        }
+        LOG.info("ADD: Learnt IP {} discovered for VPN {} MAC {}", learntVpnVipToPort.getPortFixedip(),
+                learntVpnVipToPort.getMacAddress(), learntVpnVipToPort.getVpnName());
         handleSubnetGwIpChange(learntVpnVipToPort);
     }
 
-    private void handleSubnetGwIpChange(LearntVpnVipToPort learntVpnVipToPort) {
+    private void handleSubnetGwIpChange(VpnPortipToPort learntVpnVipToPort) {
         String macAddress = learntVpnVipToPort.getMacAddress();
         if (macAddress == null) {
             LOG.error("handleSubnetGwIpChange : Mac address is null for LearntVpnVipToPort for vpn {} prefix {}",
