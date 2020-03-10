@@ -613,6 +613,7 @@ module odl-l3vpn {
             leaf port-name { type string; }
             leaf mac-address { type string; }
             leaf creation-time { type string; }
+            leaf dpn-id { type uint64; }
         }
     }
 
@@ -657,20 +658,25 @@ module odl-l3vpn {
 
     typedef learnt-vpn-vip-to-port-event-action {
          type enumeration {
-             enum add {
+             enum add-mip-adjacency {
                  value "0";
                  description
                  "Event to add a learnt vip to CSC FIB";
              }
-             enum delete {
+             enum delete-mip-adjacency {
                  value "1";
                  description
                  "Event to remove a learnt vip from CSC FIB";
              }
+             enum start-aliveness-monitor {
+                 value "2";
+                 description
+                 "Event to start Aliveness Monitor Task for learnt vip";
+             }
          }
          description
           "This value represents the action of an event on learnt-vpn-vip-to-port.
-           The possible actions supported are only ADD, DELETE";
+           The possible actions supported are only ADD, DELETE, START-ALIVENESS-MONITOR";
     }
 
     container learnt-vpn-vip-to-port-event-data {
@@ -711,6 +717,30 @@ module odl-l3vpn {
                     leaf name  { type string; }
                 }
             }
+        }
+    }
+
+    container dpn-to-mac-entry-data {
+       config false;
+       list dpn-to-mac-entry {
+           key dpnId;
+           leaf dpnId { type uint64; }
+           list mac-entry-info {
+               leaf vpn-name { type string; }
+               leaf port-fixed-ip { type string; }
+               leaf port-name { type string; }
+               leaf mac-address { type string; }
+               leaf creation-time { type string; }
+           }
+       }
+    }
+
+    container port-name-learnt-ip-map {
+        list learnt-ip {
+            key "vpn-name port-name";
+            leaf vpn-name { type string; }
+            leaf port-name { type string; }
+            leaf learnt-ip { type string; }
         }
     }
 }
