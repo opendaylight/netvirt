@@ -45,8 +45,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntryKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,11 +83,13 @@ public class ElanLearntVpnVipToPortListener extends
 
        // ELAN will learn the MAC by itself using ElanPacketInHandler class.
         //registerListener(LogicalDatastoreType.OPERATIONAL, broker);
-
     }
 
     @Override
     public void remove(InstanceIdentifier<LearntVpnVipToPort> key, LearntVpnVipToPort dataObjectModification) {
+            if (!dataObjectModification.isLearntIp()) {
+            return;
+        }
         String macAddress = dataObjectModification.getMacAddress();
         String interfaceName = dataObjectModification.getPortName();
         LOG.trace("Removing mac address {} from interface {} ", macAddress, interfaceName);
@@ -102,6 +104,9 @@ public class ElanLearntVpnVipToPortListener extends
 
     @Override
     public void add(InstanceIdentifier<LearntVpnVipToPort> key, LearntVpnVipToPort dataObjectModification) {
+     if (!dataObjectModification.isLearntIp()) {
+            return;
+        }
         String macAddress = dataObjectModification.getMacAddress();
         String interfaceName = dataObjectModification.getPortName();
         LOG.trace("Adding mac address {} to interface {} ", macAddress, interfaceName);
@@ -199,7 +204,5 @@ public class ElanLearntVpnVipToPortListener extends
     private static String buildJobKey(String mac, String interfaceName) {
         return "ENTERPRISEMACJOB" + mac + interfaceName;
     }
-
-
 }
 */
