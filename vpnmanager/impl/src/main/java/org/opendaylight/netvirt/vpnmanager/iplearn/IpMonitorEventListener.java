@@ -58,7 +58,7 @@ public class IpMonitorEventListener implements AlivenessMonitorListener {
             if (vpnVipToPort != null && macEntry.getCreatedTime().equals(vpnVipToPort.getCreationTime())) {
                 String jobKey = VpnUtil.buildIpMonitorJobKey(macEntry.getIpAddress().getHostAddress(),
                         macEntry.getVpnName());
-                jobCoordinator.enqueueJob(jobKey, new IpMonitorStopTask(macEntry, Boolean.TRUE, vpnUtil,
+                jobCoordinator.enqueueJob(jobKey, new IpMonitorStopTask(macEntry, dataBroker, Boolean.TRUE, vpnUtil,
                         alivenessMonitorUtils));
             }
 

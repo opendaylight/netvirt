@@ -165,13 +165,20 @@ public class IpMonitoringHandler
                     return;
                 }
                 String vpnName =  value.getVpnName();
+                String learntIp = srcInetAddr.getHostAddress();
+                LearntVpnVipToPort vpnVipToPort = vpnUtil.getLearntVpnVipToPort(vpnName, learntIp);
+                if (vpnVipToPort != null && !vpnVipToPort.getCreationTime().equals(value.getCreationTime())) {
+                    LOG.warn("The MIP {} over vpn {} has been learnt again and processed. "
+                            + "Ignoring this remove event.", learntIp, vpnName);
+                    return;
+                }
                 MacAddress srcMacAddress = MacAddress.getDefaultInstance(value.getMacAddress());
                 String interfaceName =  value.getPortName();
                 MacEntry macEntry = new MacEntry(vpnName, srcMacAddress, srcInetAddr, interfaceName,
                         value.getCreationTime());
 
                 jobCoordinator.enqueueJob(VpnUtil.buildIpMonitorJobKey(srcInetAddr.toString(), vpnName),
-                        new IpMonitorStopTask(macEntry, Boolean.FALSE, vpnUtil, alivenessMonitorUtils));
+                        new IpMonitorStopTask(macEntry, dataBroker, Boolean.FALSE, vpnUtil, alivenessMonitorUtils));
             } catch (UnknownHostException e) {
                 LOG.error("Error in deserializing packet {} with exception", value, e);
             }
