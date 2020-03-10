@@ -9,6 +9,9 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
+import com.google.common.util.concurrent.ListenableFuture;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,11 +47,22 @@ import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
+import org.opendaylight.netvirt.vpnmanager.iplearn.AlivenessMonitorUtils;
+import org.opendaylight.netvirt.vpnmanager.iplearn.model.MacEntry;
 import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.AlivenessMonitorService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.MonitorPauseInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.MonitorPauseOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.MonitorUnpauseInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.MonitorUnpauseOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.to.mac.entry.data.dpn.to.mac.entry.MacEntryInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.config.rev161130.VpnConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,10 +79,14 @@ public class VpnNodeListener extends AbstractAsyncDataTreeChangeListener<Node> {
     private final JobCoordinator jobCoordinator;
     private final List<Uint64> connectedDpnIds;
     private final VpnConfig vpnConfig;
+    private final AlivenessMonitorService alivenessMonitorService;
+    private final AlivenessMonitorUtils alivenessMonitorUtils;
+    private final VpnUtil vpnUtil;
 
     @Inject
     public VpnNodeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager, JobCoordinator jobCoordinator,
-                           VpnConfig vpnConfig) {
+                           VpnConfig vpnConfig, AlivenessMonitorService alivenessMonitorService,
+                           AlivenessMonitorUtils alivenessMonitorUtils, VpnUtil vpnUtil) {
         super(dataBroker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(Nodes.class).child(Node.class),
                 Executors.newListeningSingleThreadExecutor("VpnNodeListener", LOG));
         this.broker = dataBroker;
@@ -77,6 +95,9 @@ public class VpnNodeListener extends AbstractAsyncDataTreeChangeListener<Node> {
         this.jobCoordinator = jobCoordinator;
         this.connectedDpnIds = new CopyOnWriteArrayList<>();
         this.vpnConfig = vpnConfig;
+        this.alivenessMonitorService = alivenessMonitorService;
+        this.alivenessMonitorUtils = alivenessMonitorUtils;
+        this.vpnUtil = vpnUtil;
         start();
     }
 
@@ -104,6 +125,7 @@ public class VpnNodeListener extends AbstractAsyncDataTreeChangeListener<Node> {
     public void remove(InstanceIdentifier<Node> identifier, Node del) {
         Uint64 dpId = MDSALUtil.getDpnIdFromNodeName(del.getId());
         connectedDpnIds.remove(dpId);
+        processNodeDisConnect(dpId);
     }
 
     @Override
@@ -125,7 +147,16 @@ public class VpnNodeListener extends AbstractAsyncDataTreeChangeListener<Node> {
                 createTableMissForVpnGwFlow(tx, dpId);
                 createL3GwMacArpFlows(tx, dpId);
                 programTableMissForVpnVniDemuxTable(tx, dpId, NwConstants.ADD_FLOW);
+                resumeArpMonitoringForMipsOnDpn(dpId);
             })), 3);
+    }
+
+    private void processNodeDisConnect(Uint64 dpId) {
+        jobCoordinator.enqueueJob("VPNNODE-" + dpId.toString(), () -> {
+            List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
+            pauseArpMonitoringForMipsOnDpn(dpId);
+            return futures;
+        });
     }
 
     private void makeTableMissFlow(TypedReadWriteTransaction<Configuration> confTx, Uint64 dpnId, int addOrRemove)
@@ -305,5 +336,89 @@ public class VpnNodeListener extends AbstractAsyncDataTreeChangeListener<Node> {
     private String getSubnetRouteTableMissFlowRef(Uint64 dpnId, short tableId, int etherType, int tableMiss) {
         return FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId + NwConstants.FLOWID_SEPARATOR + etherType
                 + NwConstants.FLOWID_SEPARATOR + tableMiss + FLOWID_PREFIX;
+    }
+
+    private void pauseArpMonitoringForMipsOnDpn(Uint64 dpnId) {
+        try {
+            List<MacEntryInfo> macEntries = vpnUtil.getDpnToMacEntryInfo(broker, dpnId);
+            if (macEntries.isEmpty()) {
+                LOG.trace("No MIP-IPs on Dpn {} ", dpnId);
+                return;
+            }
+
+            for (MacEntryInfo entry: macEntries) {
+                MacEntry macEntry = getMacEntry(entry);
+                java.util.Optional<Uint32> monitorIdOptional = alivenessMonitorUtils
+                        .getMonitorIdFromInterface(macEntry);
+                if (!monitorIdOptional.isPresent()) {
+                    LOG.error("MonitorId is unavailable for interface {} IP {} mac-addr {}",
+                            macEntry.getInterfaceName(), macEntry.getIpAddress(), macEntry.getMacAddress());
+                    return;
+                }
+                MonitorPauseInputBuilder input = new MonitorPauseInputBuilder().setMonitorId(monitorIdOptional.get());
+
+                ListenableFuture<RpcResult<MonitorPauseOutput>> result = alivenessMonitorService
+                        .monitorPause(input.build());
+                if (!result.get().isSuccessful()) {
+                    LOG.warn("RPC Call to Pause alivenessMonitor for monitorId {}, IP {}, Interface {} returned with "
+                                    + "Errors {}", result.get().getErrors(), monitorIdOptional.get(),
+                            macEntry.getIpAddress(), macEntry.getInterfaceName());
+                }
+                LOG.trace("AlivenessMonitor paused successfully for IP {}, monitor-id {}, on DPN {} ",
+                        entry.getPortFixedIp(), monitorIdOptional.get(), dpnId);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("VpnNodeListener: Error in pauseArpMonitoringForMipsOnDpn for Dpn {} with exception", dpnId, e);
+        }
+    }
+
+    private void resumeArpMonitoringForMipsOnDpn(Uint64 dpnId) {
+        try {
+            List<MacEntryInfo> macEntries = vpnUtil.getDpnToMacEntryInfo(broker, dpnId);
+            if (macEntries.isEmpty()) {
+                LOG.trace("No MIP-IPs on Dpn {} ", dpnId);
+                return;
+            }
+            for (MacEntryInfo entry: macEntries) {
+                MacEntry macEntry = getMacEntry(entry);
+                java.util.Optional<Uint32> monitorIdOptional = alivenessMonitorUtils.getMonitorIdFromInterface(
+                        macEntry);
+                if (!monitorIdOptional.isPresent()) {
+                    LOG.error("MonitorId is unavailable for interface {} IP {} mac-addr {}",
+                            macEntry.getInterfaceName(), macEntry.getIpAddress(), macEntry.getMacAddress());
+                    return;
+                }
+                MonitorUnpauseInputBuilder input =
+                        new MonitorUnpauseInputBuilder().setMonitorId(monitorIdOptional.get());
+                ListenableFuture<RpcResult<MonitorUnpauseOutput>> result = alivenessMonitorService
+                        .monitorUnpause(input.build());
+                if (!result.get().isSuccessful()) {
+                    LOG.warn("RPC Call to resume alivenessMonitor for monitorId {}, IP {}, Interface {} returned with"
+                                    + "Errors {}", result.get().getErrors(), monitorIdOptional.get(),
+                            macEntry.getIpAddress(), macEntry.getInterfaceName());
+                }
+                LOG.trace("AlivenessMonitor resumed successfully for IP {}, monitor-id {}, on DPN {} ",
+                        entry.getPortFixedIp(), monitorIdOptional.get(), dpnId);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("VpnNodeListener: Error in resumeArpMonitoringForMipsOnDpn for Dpn {} with exception", dpnId, e);
+        }
+    }
+
+    private MacEntry getMacEntry(MacEntryInfo entry) {
+        InetAddress srcInetAddr = null;
+        String portFixedIp = null;
+        try {
+            portFixedIp = entry.getPortFixedIp();
+            srcInetAddr = InetAddress.getByName(portFixedIp);
+        } catch (UnknownHostException e) {
+            LOG.error("Error in getMacEntry for IP {} with exception", portFixedIp, e);
+        }
+        String vpnName = entry.getVpnName();
+        String creationTime = entry.getCreationTime();
+        String interfaceName = entry.getPortName();
+        MacAddress srcMacAddress = MacAddress.getDefaultInstance(entry.getMacAddress());
+        MacEntry macEntry = new MacEntry(vpnName, srcMacAddress, srcInetAddr, interfaceName, creationTime);
+        return macEntry;
     }
 }
