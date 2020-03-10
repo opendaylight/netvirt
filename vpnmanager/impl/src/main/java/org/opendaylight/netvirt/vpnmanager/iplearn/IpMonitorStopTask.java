@@ -19,7 +19,7 @@ import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.iplearn.model.MacEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +33,8 @@ public class IpMonitorStopTask implements Callable<List<? extends ListenableFutu
     private final VpnUtil vpnUtil;
     private final ManagedNewTransactionRunner txRunner;
 
-    public IpMonitorStopTask(MacEntry macEntry, DataBroker dataBroker, boolean removeMipAdjAndLearntIp, VpnUtil vpnUtil,
-                             AlivenessMonitorUtils alivenessMonitorUtils) {
+    public IpMonitorStopTask(MacEntry macEntry, DataBroker dataBroker, AlivenessMonitorUtils alivenessMonitorUtils,
+                             boolean removeMipAdjAndLearntIp, VpnUtil vpnUtil) {
         this.macEntry = macEntry;
         this.dataBroker = dataBroker;
         this.alivenessMonitorUtils = alivenessMonitorUtils;
@@ -57,25 +57,21 @@ public class IpMonitorStopTask implements Callable<List<? extends ListenableFutu
         String learntIp = macEntry.getIpAddress().getHostAddress();
         if (this.isRemoveMipAdjAndLearntIp) {
             String vpnName =  macEntry.getVpnName();
-            LearntVpnVipToPort vpnVipToPort = vpnUtil.getLearntVpnVipToPort(vpnName, learntIp);
+            VpnPortipToPort vpnVipToPort = vpnUtil.getNeutronPortFromVpnPortFixedIp(vpnName, learntIp);
             if (vpnVipToPort != null && !Objects.equals(vpnVipToPort.getCreationTime(), macEntry.getCreatedTime())) {
                 LOG.warn("The MIP {} over vpn {} has been learnt again and processed. "
                         + "Ignoring this remove event.", learntIp, vpnName);
                 return futures;
             }
-            vpnUtil.removeLearntVpnVipToPort(macEntry.getVpnName(),
-                    macEntry.getIpAddress().getHostAddress(), null);
-            vpnUtil.removeVpnPortFixedIpToPort(dataBroker, macEntry.getVpnName(),
-                    macEntry.getIpAddress().getHostAddress(), null);
+            VpnUtil.removeVpnPortFixedIpToPort(dataBroker, vpnName, learntIp, /*writeConfigTxn*/null);
+            VpnUtil.removePortNameLearntIpMap(dataBroker, vpnName, macEntry.getInterfaceName(),
+                    /*writeConfigTxn*/null);
 
             ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                     Datastore.CONFIGURATION, tx -> vpnUtil.removeMipAdjacency(macEntry.getVpnName(),
                             macEntry.getInterfaceName(), macEntry.getIpAddress().getHostAddress(), tx)),
                     LOG, "ArpMonitorStopTask: Error writing to datastore for Vpn {} IP  {}",
                     macEntry.getVpnName(), macEntry.getIpAddress().getHostAddress());
-        } else {
-            // Delete only MIP adjacency
-            vpnUtil.removeMipAdjacency(macEntry.getInterfaceName(), learntIp);
         }
         return futures;
     }

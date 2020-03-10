@@ -139,7 +139,7 @@ public class IpMonitoringHandler extends AbstractClusteredAsyncDataTreeChangeLis
                 Optional<Uint32> monitorProfileId = getMonitorProfileId(value.getPortFixedip());
                 if (monitorProfileId.isPresent()) {
                     jobCoordinator.enqueueJob(VpnUtil.buildIpMonitorJobKey(srcInetAddr.toString(), vpnName),
-                            new IpMonitorStartTask(macEntry, monitorProfileId.get().toJava(), alivenessMonitorUtils));
+                            new IpMonitorStartTask(macEntry, monitorProfileId.get(), alivenessMonitorUtils));
                 }
             } catch (UnknownHostException e) {
                 LOG.error("Error in deserializing packet {} with exception", value, e);
@@ -170,7 +170,7 @@ public class IpMonitoringHandler extends AbstractClusteredAsyncDataTreeChangeLis
                         value.getCreationTime());
 
                 jobCoordinator.enqueueJob(VpnUtil.buildIpMonitorJobKey(srcInetAddr.toString(), vpnName),
-                        new IpMonitorStopTask(macEntry, dataBroker, Boolean.FALSE, vpnUtil, alivenessMonitorUtils));
+                        new IpMonitorStopTask(macEntry, dataBroker, alivenessMonitorUtils, Boolean.FALSE, vpnUtil));
             } catch (UnknownHostException e) {
                 LOG.error("Error in deserializing packet {} with exception", value, e);
             }
