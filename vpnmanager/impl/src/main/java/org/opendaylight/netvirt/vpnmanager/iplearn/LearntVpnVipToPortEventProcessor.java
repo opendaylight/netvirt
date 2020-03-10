@@ -9,16 +9,16 @@ package org.opendaylight.netvirt.vpnmanager.iplearn;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
+
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -29,8 +29,6 @@ import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
-import org.opendaylight.genius.mdsalutil.NWUtil;
-import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.mdsal.eos.binding.api.Entity;
@@ -39,10 +37,12 @@ import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
 import org.opendaylight.mdsal.eos.common.api.CandidateAlreadyRegisteredException;
 import org.opendaylight.netvirt.vpnmanager.VpnConstants;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
+import org.opendaylight.netvirt.vpnmanager.iplearn.model.MacEntry;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortEventAction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortEventData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.event.data.LearntVpnVipToPortEvent;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.op.data.PortOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.adjacency.list.Adjacency.AdjacencyType;
@@ -51,6 +51,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.re
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.interfaces.VpnInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.config.rev161130.VpnConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
@@ -68,10 +69,16 @@ public class LearntVpnVipToPortEventProcessor
     private final EntityOwnershipUtils entityOwnershipUtils;
     private EntityOwnershipCandidateRegistration candidateRegistration;
     private final VpnUtil vpnUtil;
+    private final VpnConfig vpnConfig;
+    private final NeutronVpnPortIpListener vpnPortIpListener;
+    private final AlivenessMonitorUtils alivenessMonitorUtils;
+
 
     @Inject
     public LearntVpnVipToPortEventProcessor(final DataBroker dataBroker, IInterfaceManager interfaceManager,
-            EntityOwnershipService entityOwnershipService, final JobCoordinator jobCoordinator, VpnUtil vpnUtil) {
+            EntityOwnershipService entityOwnershipService, final JobCoordinator jobCoordinator, VpnUtil vpnUtil,
+                                            VpnConfig vpnConfig, NeutronVpnPortIpListener neutronVpnPortIpListener,
+                                            AlivenessMonitorUtils alivenessMonitorUtils) {
         super(LearntVpnVipToPortEvent.class, LearntVpnVipToPortEventProcessor.class);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
@@ -79,6 +86,9 @@ public class LearntVpnVipToPortEventProcessor
         this.jobCoordinator = jobCoordinator;
         this.entityOwnershipUtils = new EntityOwnershipUtils(entityOwnershipService);
         this.vpnUtil = vpnUtil;
+        this.vpnConfig = vpnConfig;
+        this.vpnPortIpListener = neutronVpnPortIpListener;
+        this.alivenessMonitorUtils = alivenessMonitorUtils;
     }
 
     @PostConstruct
@@ -123,21 +133,35 @@ public class LearntVpnVipToPortEventProcessor
     protected void add(InstanceIdentifier<LearntVpnVipToPortEvent> identifier, LearntVpnVipToPortEvent value) {
         // AFTER PROCESSING THE EVENT, REMOVE THE EVENT FROM THE QUEUE
         entityOwnershipUtils.runOnlyInOwnerNode(VpnConstants.IP_MONITORING_ENTITY, VpnConstants.IP_MONITORING_ENTITY,
-            jobCoordinator, "LearntVpnVipToPortEvent-Handler", () -> {
+                jobCoordinator, "LearntVpnVipToPortEvent-Handler", () -> {
                 try {
                     String vpnName = value.getVpnName();
                     String ipAddress = value.getSrcFixedip();
-                    if (value.getEventAction() == LearntVpnVipToPortEventAction.Add) {
-                        jobCoordinator.enqueueJob(VpnUtil.buildIpMonitorJobKey(ipAddress, vpnName),
-                                new AddMipAdjacencyWorker(value));
-                    }
-                    if (value.getEventAction() == LearntVpnVipToPortEventAction.Delete) {
-                        jobCoordinator.enqueueJob(VpnUtil.buildIpMonitorJobKey(ipAddress, vpnName),
-                                new DeleteMipAdjacencyWorker(value));
+                    switch (value.getEventAction()) {
+                        case AddMipAdjacency: {
+                            jobCoordinator.enqueueJob(VpnUtil.buildJobKey(ipAddress, vpnName),
+                                    new AddMipAdjacencyWorker(value));
+                        }
+                        break;
+
+                        case DeleteMipAdjacency: {
+                            jobCoordinator.enqueueJob(VpnUtil.buildJobKey(ipAddress, vpnName),
+                                    new DeleteMipAdjacencyWorker(value));
+                        }
+                        break;
+
+                        case StartAlivenessMonitor: {
+                            jobCoordinator.enqueueJob(VpnUtil.buildJobKey(ipAddress, vpnName),
+                                    new AlivenessMonitorStartWorker(value));
+                        }
+                        break;
+
+                        default:
+                            break;
                     }
                 } finally {
                     // remove the processed event
-                    vpnUtil.removeLearntVpnVipToPortEvent(value.getLearntVpnVipEventId(), null);
+                    vpnUtil.removeLearntVpnVipToPortEvent(value.getLearntVpnVipEventId(),/*writeOperTxn*/ null);
                 }
             });
     }
@@ -165,135 +189,19 @@ public class LearntVpnVipToPortEventProcessor
 
         @Override
         public List<ListenableFuture<Void>> call() {
+            PortOpDataEntry portOpDataEntry = vpnUtil.getPortOpDataEntry(interfaceName);
+            if (portOpDataEntry == null) {
+                LOG.error("PortOpData for port {} is unavailable, MipAdjacency not added", interfaceName);
+                return Collections.emptyList();
+            }
+            addMipAdjacency(vpnName, interfaceName, srcIpAddress, macAddress, destIpAddress);
             return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                                                                        Datastore.OPERATIONAL, operTx -> {
-                    addMipAdjacency(vpnName, interfaceName, srcIpAddress, macAddress, destIpAddress);
-                    vpnUtil.createVpnPortFixedIpToPort(vpnName, srcIpAddress,
-                            interfaceName, Boolean.TRUE, macAddress, null);
-                    vpnUtil.createLearntVpnVipToPort(vpnName, srcIpAddress, interfaceName, macAddress, operTx);
+                    Datastore.CONFIGURATION, writeConfigTxn -> {
+                    vpnUtil.createVpnPortFixedIpToPort(vpnName, srcIpAddress, interfaceName, Boolean.TRUE, macAddress,
+                            portOpDataEntry.getDpnId(), writeConfigTxn);
+                    VpnUtil.createPortNameLearntIpMap(dataBroker, vpnName, interfaceName, srcIpAddress,
+                                writeConfigTxn);
                 }));
-        }
-
-        private void addMipAdjacency(String vpnInstName, String vpnInterface, String srcPrefix, String mipMacAddress,
-                                     String dstPrefix) {
-            LOG.trace("Adding {} adjacency to VPN Interface {} ", srcPrefix, vpnInterface);
-            InstanceIdentifier<VpnInterface> vpnIfId = VpnUtil.getVpnInterfaceIdentifier(vpnInterface);
-            // FIXME: separate out to somehow?
-            final ReentrantLock lock = JvmGlobalLocks.getLockForString(vpnInterface);
-            lock.lock();
-            try {
-                Optional<VpnInterface> optVpnInterface = SingleTransactionDataBroker.syncReadOptional(dataBroker,
-                    LogicalDatastoreType.CONFIGURATION, vpnIfId);
-                if (!optVpnInterface.isPresent()) {
-                    LOG.error("Config VpnInterface not found for interface={}", interfaceName);
-                    return;
-                }
-                Adjacencies configAdjacencies = optVpnInterface.get().augmentation(Adjacencies.class);
-                List<Adjacency> adjacencyList = configAdjacencies == null ? new ArrayList<>()
-                        : new ArrayList<>(configAdjacencies.getAdjacency());
-
-                String ip = VpnUtil.getIpPrefix(srcPrefix);
-                AdjacencyBuilder newAdjBuilder;
-                if (interfaceManager.isExternalInterface(vpnInterface)) {
-                    String subnetId = getSubnetId(vpnInstName, dstPrefix);
-                    if (subnetId == null) {
-                        LOG.trace("Can't find corresponding subnet for src IP {}, src MAC {}, dst IP {},"
-                                + "  in VPN {}", srcPrefix, mipMacAddress, dstPrefix, vpnInstName);
-                        return;
-                    }
-                    newAdjBuilder = new AdjacencyBuilder().setIpAddress(ip).withKey(new AdjacencyKey(ip))
-                            .setAdjacencyType(AdjacencyType.PrimaryAdjacency).setMacAddress(mipMacAddress)
-                            .setSubnetId(new Uuid(subnetId)).setPhysNetworkFunc(true);
-                } else {
-                    String nextHopIp = null;
-                    String nextHopMacAddress = null;
-                    for (Adjacency adjacency : adjacencyList) {
-                        if (adjacency.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
-                            if (adjacency.getIpAddress().equals(ip)) {
-                                LOG.error("The MIP {} is already present as a primary adjacency for interface {}."
-                                        + "Skipping adjacency addition.", ip, interfaceName);
-                                return;
-                            } else if (NWUtil.getEtherTypeFromIpPrefix(ip) == NWUtil
-                                    .getEtherTypeFromIpPrefix(adjacency.getIpAddress())) {
-                                nextHopIp = adjacency.getIpAddress().split("/")[0];
-                                nextHopMacAddress = adjacency.getMacAddress();
-                                break;
-                            }
-                        }
-                    }
-                    if (nextHopIp == null) {
-                        LOG.error("Next Hop IP not found for MIP={}, interface={}, vpnName {}. Skipping adjacency "
-                                + "addition.", ip, interfaceName, vpnName);
-                        return;
-                    }
-
-                    String rd = vpnUtil.getVpnRd(vpnInstName);
-                    Uint32 label = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME,
-                        VpnUtil.getNextHopLabelKey(rd != null ? rd : vpnInstName, ip));
-                    if (label.longValue() == VpnConstants.INVALID_LABEL) {
-                        LOG.error("Unable to fetch label from Id Manager. Bailing out of adding MIP adjacency {}"
-                                + " to vpn interface {} for vpn {}", ip, vpnInterface, vpnInstName);
-                        return;
-                    }
-                    newAdjBuilder = new AdjacencyBuilder().setIpAddress(ip).withKey(new AdjacencyKey(ip))
-                            .setNextHopIpList(Collections.singletonList(nextHopIp))
-                            .setAdjacencyType(AdjacencyType.LearntIp);
-                    if (mipMacAddress != null && !mipMacAddress.equalsIgnoreCase(nextHopMacAddress)) {
-                        newAdjBuilder.setMacAddress(mipMacAddress);
-                    }
-                }
-                adjacencyList.add(newAdjBuilder.build());
-                Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(adjacencyList);
-                VpnInterface newVpnIntf = new VpnInterfaceBuilder(optVpnInterface.get())
-                        .addAugmentation(Adjacencies.class, aug).build();
-                SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIfId,
-                    newVpnIntf, VpnUtil.SINGLE_TRANSACTION_BROKER_NO_RETRY);
-                LOG.debug(" Successfully stored subnetroute Adjacency into VpnInterface {}", vpnInterface);
-            } catch (ReadFailedException e) {
-                LOG.error("addMipAdjacency: Failed to read data store for interface {} vpn {} ip {} mac {}",
-                        vpnInterface, vpnInstName, srcPrefix, mipMacAddress);
-            } catch (TransactionCommitFailedException e) {
-                LOG.error("addMipAdjacency: Failed to commit to data store for interface {} vpn {} ip {} mac {}",
-                        vpnInterface, vpnInstName, srcPrefix, mipMacAddress);
-            } finally {
-                lock.unlock();
-            }
-        }
-
-        @Nullable
-        private String getSubnetId(String vpnInstName, String ip) {
-            // Check if this IP belongs to a router_interface
-            VpnPortipToPort vpnPortipToPort =
-                    vpnUtil.getNeutronPortFromVpnPortFixedIp(vpnInstName, ip);
-            if (vpnPortipToPort != null && vpnPortipToPort.isSubnetIp()) {
-                List<Adjacency> adjacencies =
-                    vpnUtil.getAdjacenciesForVpnInterfaceFromConfig(vpnPortipToPort.getPortName());
-                if (adjacencies != null) {
-                    for (Adjacency adjacency : adjacencies) {
-                        if (adjacency.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
-                            return adjacency.getSubnetId().getValue();
-                        }
-                    }
-                }
-            }
-
-            // Check if this IP belongs to a router_gateway
-            List<Uuid> routerIds = vpnUtil.getExternalNetworkRouterIds(new Uuid(vpnInstName));
-            for (Uuid routerId : routerIds) {
-                Uuid subnetId = vpnUtil.getSubnetFromExternalRouterByIp(routerId, ip);
-                if (subnetId != null) {
-                    return subnetId.getValue();
-                }
-            }
-
-            // Check if this IP belongs to  external network
-            String extSubnetId = vpnUtil.getAssociatedExternalSubnet(ip);
-            if (extSubnetId != null) {
-                LOG.info("The IP belongs to extenal subnet {} ", extSubnetId);
-                return extSubnetId;
-            }
-
-            return null;
         }
     }
 
@@ -310,12 +218,176 @@ public class LearntVpnVipToPortEventProcessor
 
         @Override
         public List<ListenableFuture<Void>> call() {
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
-            vpnUtil.removeMipAdjAndLearntIp(vpnName, interfaceName,  ipAddress);
-            return futures;
+            PortOpDataEntry portOpDataEntry = vpnUtil.getPortOpDataEntry(interfaceName);
+            if (portOpDataEntry == null) {
+                LOG.error("PortOpData for port {} is unavailable, MipAdjacency not added", interfaceName);
+                return Collections.emptyList();
+            }
+            return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                    Datastore.CONFIGURATION, writeConfigTxn -> {
+                    vpnUtil.removeMipAdjacency(interfaceName, ipAddress, vpnName, writeConfigTxn);
+                    vpnUtil.removeVpnPortFixedIpToPort(dataBroker, vpnName, ipAddress, writeConfigTxn);
+                    vpnUtil.removePortNameLearntIpMap(dataBroker, vpnName, interfaceName, writeConfigTxn);
+                }));
         }
-
     }
 
-}
+    private class AlivenessMonitorStartWorker implements Callable<List<ListenableFuture<Void>>> {
+        String vpnName;
+        String interfaceName;
+        String srcIpAddress;
+        String destIpAddress;
+        String macAddress;
 
+        AlivenessMonitorStartWorker(LearntVpnVipToPortEvent event) {
+            this.vpnName = event.getVpnName();
+            this.interfaceName = event.getPortName();
+            this.srcIpAddress = event.getSrcFixedip();
+            this.macAddress = event.getMacAddress();
+            this.destIpAddress = event.getDestFixedip();
+        }
+
+        @Override
+        public List<ListenableFuture<Void>> call() throws Exception {
+            addMipAdjacency(vpnName, interfaceName, srcIpAddress, macAddress, destIpAddress);
+            VpnPortipToPort vpnVipToPort = vpnUtil.getVpnPortipToPort(vpnName, srcIpAddress);
+            InetAddress srcInetAddr = InetAddress.getByName(srcIpAddress);
+            MacAddress srcMacAddress = MacAddress.getDefaultInstance(vpnVipToPort.getMacAddress());
+            MacEntry macEntry = new MacEntry(vpnName, srcMacAddress, srcInetAddr, interfaceName,
+                    vpnVipToPort.getCreationTime());
+            vpnUtil.addOrUpdateDpnToMacEntry(dataBroker, vpnVipToPort.getDpnId(), macEntry);
+            Optional<Uint32> arpMonitorProfileId = vpnPortIpListener.getMonitorProfileId(srcIpAddress);
+            jobCoordinator.enqueueJob(VpnUtil.buildJobKey(srcInetAddr.toString(), vpnName),
+                    new IpMonitorStartTask(macEntry, arpMonitorProfileId.get(), alivenessMonitorUtils));
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            return futures;
+        }
+    }
+
+    void addMipAdjacency(String vpnInstName, String vpnInterface, String srcPrefix, String mipMacAddress,
+                                 String dstPrefix) {
+        LOG.trace("Adding {} adjacency to VPN Interface {} ", srcPrefix, vpnInterface);
+        InstanceIdentifier<VpnInterface> vpnIfId = VpnUtil.getVpnInterfaceIdentifier(vpnInterface);
+        InstanceIdentifier<Adjacencies> path = vpnIfId.augmentation(Adjacencies.class);
+        try {
+            synchronized (vpnInterface.intern()) {
+                Optional<Adjacencies> adjacencies = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, path);
+                String nextHopIpAddr = null;
+                String nextHopMacAddress = null;
+                String ip = srcPrefix;
+                if (interfaceManager.isExternalInterface(vpnInterface)) {
+                    String subnetId = getSubnetId(vpnInstName, dstPrefix);
+                    if (subnetId == null) {
+                        LOG.trace("Can't find corresponding subnet for src IP {}, src MAC {}, dst IP {},"
+                                + "  in VPN {}", srcPrefix, mipMacAddress, dstPrefix, vpnInstName);
+                        return;
+                    }
+                    ip = VpnUtil.getIpPrefix(ip);
+                    AdjacencyBuilder newAdjBuilder = new AdjacencyBuilder().setIpAddress(ip)
+                            .withKey(new AdjacencyKey(ip)).setAdjacencyType(AdjacencyType.PrimaryAdjacency)
+                            .setMacAddress(mipMacAddress).setSubnetId(new Uuid(subnetId)).setPhysNetworkFunc(true);
+
+                    List<Adjacency> adjacencyList = adjacencies.isPresent()
+                            ? adjacencies.get().getAdjacency() : new ArrayList<>();
+
+                    adjacencyList.add(newAdjBuilder.build());
+
+                    Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(adjacencyList);
+                    Optional<VpnInterface> optionalVpnInterface = SingleTransactionDataBroker.syncReadOptional(
+                            dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIfId);
+                    VpnInterface newVpnIntf;
+                    if (optionalVpnInterface.isPresent()) {
+                        newVpnIntf =
+                                new VpnInterfaceBuilder(optionalVpnInterface.get())
+                                        .addAugmentation(Adjacencies.class, aug)
+                                        .build();
+                        SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                                vpnIfId, newVpnIntf, VpnUtil.SINGLE_TRANSACTION_BROKER_NO_RETRY);
+                    }
+                    LOG.debug(" Successfully stored subnetroute Adjacency into VpnInterface {}", vpnInterface);
+                    return;
+                }
+
+                if (adjacencies.isPresent()) {
+                    List<Adjacency> adjacencyList = adjacencies.get().getAdjacency();
+                    ip = VpnUtil.getIpPrefix(ip);
+                    for (Adjacency adjacs : adjacencyList) {
+                        if (adjacs.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
+                            if (adjacs.getIpAddress().equals(ip)) {
+                                LOG.error("The MIP {} is already present as a primary adjacency for interface {}"
+                                        + "vpn {} Skipping adjacency addition.", ip, vpnInterface, vpnInstName);
+                                return;
+                            }
+                            nextHopIpAddr = adjacs.getIpAddress();
+                            nextHopMacAddress = adjacs.getMacAddress();
+                            break;
+                        }
+                    }
+                    if (nextHopIpAddr != null) {
+                        String rd = vpnUtil.getVpnRd(vpnInstName);
+                        Uint32 label = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME,
+                                        VpnUtil.getNextHopLabelKey(rd != null ? rd : vpnInstName, ip));
+                        if (label == null || label.longValue() == 0) {
+                            LOG.error("Unable to fetch label from Id Manager. Bailing out of adding MIP"
+                                            + " adjacency {} to vpn interface {} for vpn {}", ip, vpnInterface,
+                                    vpnInstName);
+                            return;
+                        }
+                        String nextHopIp = nextHopIpAddr.split("/")[0];
+                        AdjacencyBuilder newAdjBuilder =
+                                new AdjacencyBuilder().setIpAddress(ip).withKey(new AdjacencyKey(ip))
+                                        .setNextHopIpList(Collections.singletonList(nextHopIp))
+                                        .setAdjacencyType(AdjacencyType.LearntIp);
+                        if (mipMacAddress != null && !mipMacAddress.equalsIgnoreCase(nextHopMacAddress)) {
+                            newAdjBuilder.setMacAddress(mipMacAddress);
+                        }
+                        adjacencyList.add(newAdjBuilder.build());
+                        Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(adjacencyList);
+                        Optional<VpnInterface> optionalVpnInterface =
+                                SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                                        LogicalDatastoreType.CONFIGURATION, vpnIfId);
+                        VpnInterface newVpnIntf;
+                        if (optionalVpnInterface.isPresent()) {
+                            newVpnIntf =
+                                    new VpnInterfaceBuilder(optionalVpnInterface.get())
+                                            .addAugmentation(Adjacencies.class, aug).build();
+                            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                                    vpnIfId, newVpnIntf, VpnUtil.SINGLE_TRANSACTION_BROKER_NO_RETRY);
+                        }
+                        LOG.debug(" Successfully stored subnetroute Adjacency into VpnInterface {}", vpnInterface);
+                    }
+                }
+            }
+        } catch (ReadFailedException e) {
+            LOG.error("addMipAdjacency: Failed to read data store for interface {} vpn {} ip {} mac {}",
+                    vpnInterface, vpnInstName, srcPrefix, mipMacAddress);
+        } catch (TransactionCommitFailedException e) {
+            LOG.error("addMipAdjacency: Failed to commit to data store for interface {} vpn {} ip {} mac {}",
+                    vpnInterface, vpnInstName, srcPrefix, mipMacAddress);
+        }
+    }
+
+    private String getSubnetId(String vpnInstName, String ip) {
+        // Check if this IP belongs to a router_interface
+        VpnPortipToPort vpnPortipToPort = vpnUtil.getNeutronPortFromVpnPortFixedIp(vpnInstName, ip);
+        if (vpnPortipToPort != null && vpnPortipToPort.isSubnetIp()) {
+            List<Adjacency> adjacecnyList = vpnUtil.getAdjacenciesForVpnInterfaceFromConfig(
+                    vpnPortipToPort.getPortName());
+            for (Adjacency adjacency : adjacecnyList) {
+                if (adjacency.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
+                    return adjacency.getSubnetId().getValue();
+                }
+            }
+        }
+        // Check if this IP belongs to a router_gateway
+        List<Uuid> routerIds = vpnUtil.getExternalNetworkRouterIds(new Uuid(vpnInstName));
+        for (Uuid routerId : routerIds) {
+            Uuid subnetId = vpnUtil.getSubnetFromExternalRouterByIp(routerId, ip);
+            if (subnetId != null) {
+                return subnetId.getValue();
+            }
+        }
+        return null;
+    }
+}
