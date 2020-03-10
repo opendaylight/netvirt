@@ -897,4 +897,20 @@ public class FibUtil {
         }
         return false;
     }
+
+    public static boolean checkFibEntryExist(DataBroker broker, String rd, String prefix, String nextHopIp) {
+        InstanceIdentifier<VrfEntry> vrfEntryId =
+                InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd))
+                        .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
+        Optional<VrfEntry> entry = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        if (entry.isPresent()) {
+            List<RoutePaths> paths = entry.get().getRoutePaths();
+            for (RoutePaths path: paths) {
+                if (path.getNexthopAddress().equals(nextHopIp)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

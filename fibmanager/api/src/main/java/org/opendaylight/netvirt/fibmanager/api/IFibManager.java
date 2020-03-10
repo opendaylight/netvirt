@@ -13,6 +13,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import java.util.List;
 
 import org.eclipse.jdt.annotation.Nullable;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
@@ -80,6 +81,8 @@ public interface IFibManager {
     void removeInterVPNLinkRouteFlows(String interVpnLinkName,
                                       boolean isVpnFirstEndPoint,
                                       VrfEntry vrfEntry);
+
+    boolean checkFibEntryExist(DataBroker broker, String rd, String prefix, String nextHopIp);
 
     void programDcGwLoadBalancingGroup(Uint64 dpnId,
             String destinationIp, int addRemoveOrUpdate, boolean isTunnelUp,

@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
@@ -199,6 +200,11 @@ public class FibManagerImpl implements IFibManager {
                                               : interVpnLink.getSecondEndpointVpnUuid().get();
 
         vrfEntryListener.removeInterVPNLinkRouteFlows(interVpnLink, vpnName, vrfEntry);
+    }
+
+    @Override
+    public boolean checkFibEntryExist(DataBroker broker, String rd, String prefix, String nextHopIp) {
+        return fibUtil.checkFibEntryExist(broker, rd, prefix, nextHopIp);
     }
 
     @Override

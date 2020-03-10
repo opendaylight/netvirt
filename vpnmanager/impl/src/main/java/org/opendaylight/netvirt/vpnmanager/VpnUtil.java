@@ -966,8 +966,8 @@ public final class VpnUtil {
                 new LearntVpnVipToPortKey(fixedIp, vpnName)).build();
     }
 
-    void removeLearntVpnVipToPort(String vpnName, String fixedIp,
-                                  @Nullable TypedWriteTransaction<Operational> writeOperTxn) {
+    public void removeLearntVpnVipToPort(String vpnName, String fixedIp,
+                                         @Nullable TypedWriteTransaction<Operational> writeOperTxn) {
         final InstanceIdentifier<LearntVpnVipToPort> id = buildLearntVpnVipToPortIdentifier(vpnName, fixedIp);
         final ReentrantLock lock = lockFor(vpnName, fixedIp);
         lock.lock();
@@ -984,7 +984,7 @@ public final class VpnUtil {
         }
     }
 
-    protected static void removeVpnPortFixedIpToPort(DataBroker broker, String vpnName, String fixedIp,
+    public static void removeVpnPortFixedIpToPort(DataBroker broker, String vpnName, String fixedIp,
                                                      @Nullable TypedWriteTransaction<Configuration> writeConfigTxn) {
         final InstanceIdentifier<VpnPortipToPort> id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
         final ReentrantLock lock = lockFor(vpnName, fixedIp);
@@ -1069,6 +1069,23 @@ public final class VpnUtil {
             lock.unlock();
         }
         VpnUtil.removeVpnPortFixedIpToPort(dataBroker, vpnName, prefix, null);
+    }
+
+    public void removeMipAdjacency(String vpnName, String vpnInterface, String prefix,
+                                          WriteTransaction writeConfigTxn) {
+        String ip = VpnUtil.getIpPrefix(prefix);
+        LOG.trace("Removing {} adjacency from Old VPN Interface {} ", ip, vpnInterface);
+        InstanceIdentifier<VpnInterface> vpnIfId = VpnUtil.getVpnInterfaceIdentifier(vpnInterface);
+        InstanceIdentifier<Adjacencies> path = vpnIfId.augmentation(Adjacencies.class);
+        //TODO: Remove synchronized?
+
+        Optional<Adjacencies> adjacencies = read(LogicalDatastoreType.OPERATIONAL, path);
+        if (adjacencies.isPresent()) {
+            InstanceIdentifier<Adjacency> adjacencyIdentifier = getAdjacencyIdentifier(vpnInterface, prefix);
+            writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, adjacencyIdentifier);
+            LOG.error("removeMipAdjacency: Successfully Deleted Adjacency {} from interface {} vpn {}", ip,
+                    vpnInterface, vpnName);
+        }
     }
 
     public void removeMipAdjacency(String vpnInterface, String ipAddress) {
