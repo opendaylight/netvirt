@@ -17,7 +17,7 @@ import org.opendaylight.netvirt.vpnmanager.iplearn.model.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.AlivenessMonitorListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.LivenessState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.MonitorEvent;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,15 +54,13 @@ public class IpMonitorEventListener implements AlivenessMonitorListener {
         if (livenessState.equals(LivenessState.Down)) {
             String vpnName = macEntry.getVpnName();
             String learntIp = macEntry.getIpAddress().getHostAddress();
-            LearntVpnVipToPort vpnVipToPort = vpnUtil.getLearntVpnVipToPort(vpnName, learntIp);
+            VpnPortipToPort vpnVipToPort = vpnUtil.getNeutronPortFromVpnPortFixedIp(vpnName, learntIp);
             if (vpnVipToPort != null && macEntry.getCreatedTime().equals(vpnVipToPort.getCreationTime())) {
                 String jobKey = VpnUtil.buildIpMonitorJobKey(macEntry.getIpAddress().getHostAddress(),
                         macEntry.getVpnName());
-                jobCoordinator.enqueueJob(jobKey, new IpMonitorStopTask(macEntry, dataBroker, Boolean.TRUE, vpnUtil,
-                        alivenessMonitorUtils));
+                jobCoordinator.enqueueJob(jobKey, new IpMonitorStopTask(macEntry, dataBroker, alivenessMonitorUtils,
+                        Boolean.TRUE, vpnUtil));
             }
-
         }
     }
-
 }

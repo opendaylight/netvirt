@@ -28,7 +28,6 @@ import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NeutronRouterDpns;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
@@ -55,6 +54,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.re
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.interfaces.VpnInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.ExternalGatewayInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.external_gateway_info.ExternalFixedIps;
@@ -792,12 +792,13 @@ public class NeutronvpnNatManager implements AutoCloseable {
                             adjacency.getIpAddress(), infName, extSubnetId);
                         String extNetVpnName = extNetId.getValue();
                         String learnedSrcIp = adjacency.getIpAddress().split("/")[0];
-                        InstanceIdentifier<LearntVpnVipToPort> id =
-                            NeutronvpnUtils.buildLearntVpnVipToPortIdentifier(extNetVpnName, learnedSrcIp);
-                        Optional<LearntVpnVipToPort> optionalLearntVpnVipToPort = SingleTransactionDataBroker
+                        InstanceIdentifier<VpnPortipToPort> id =
+                            NeutronvpnUtils.buildVpnPortipToPortIdentifier(extNetVpnName, learnedSrcIp);
+                        Optional<VpnPortipToPort> optionalLearntVpnVipToPort = SingleTransactionDataBroker
                             .syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
                         if (optionalLearntVpnVipToPort.isPresent()) {
-                            neutronvpnUtils.removeLearntVpnVipToPort(extNetVpnName, learnedSrcIp);
+                            neutronvpnUtils.removeVpnPortFixedIpToPort(extNetVpnName, learnedSrcIp,
+                                    /*writeConfigTxn*/ null);
                             LOG.trace("Removed Learnt Entry for fixedIP {} for port {}",
                                 adjacency.getIpAddress(), infName);
                         }

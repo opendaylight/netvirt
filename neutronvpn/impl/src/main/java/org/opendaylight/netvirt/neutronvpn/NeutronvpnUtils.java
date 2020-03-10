@@ -34,7 +34,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.locks.ReentrantLock;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
@@ -50,7 +49,6 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
@@ -86,12 +84,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntriesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NeutronRouterDpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
@@ -913,25 +908,6 @@ public class NeutronvpnUtils {
         }
     }
 
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void removeLearntVpnVipToPort(String vpnName, String fixedIp) {
-        InstanceIdentifier<LearntVpnVipToPort> id = NeutronvpnUtils.buildLearntVpnVipToPortIdentifier(vpnName, fixedIp);
-        // FIXME: can we use 'id' as the lock name?
-        final ReentrantLock lock = JvmGlobalLocks.getLockForString(vpnName + fixedIp);
-        lock.lock();
-        try {
-            MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
-            LOG.trace("Neutron router port with fixedIp: {}, vpn {} removed from LearntVpnPortipToPort DS", fixedIp,
-                    vpnName);
-        } catch (Exception e) {
-            LOG.error("Failure while removing LearntVpnPortFixedIpToPort map for vpn {} - fixedIP {}",
-                vpnName, fixedIp, e);
-        } finally {
-            lock.unlock();
-        }
-    }
-
     public void addToNetworkCache(Network network) {
         networkMap.put(network.getUuid(), network);
     }
@@ -1008,13 +984,6 @@ public class NeutronvpnUtils {
         InstanceIdentifier<VpnPortipToPort> id =
             InstanceIdentifier.builder(NeutronVpnPortipPortData.class)
                 .child(VpnPortipToPort.class, new VpnPortipToPortKey(fixedIp, vpnName)).build();
-        return id;
-    }
-
-    static InstanceIdentifier<LearntVpnVipToPort> buildLearntVpnVipToPortIdentifier(String vpnName, String fixedIp) {
-        InstanceIdentifier<LearntVpnVipToPort> id =
-            InstanceIdentifier.builder(LearntVpnVipToPortData.class)
-                .child(LearntVpnVipToPort.class, new LearntVpnVipToPortKey(fixedIp, vpnName)).build();
         return id;
     }
 
