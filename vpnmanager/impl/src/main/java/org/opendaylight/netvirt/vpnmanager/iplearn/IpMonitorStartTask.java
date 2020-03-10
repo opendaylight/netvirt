@@ -12,13 +12,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.opendaylight.netvirt.vpnmanager.iplearn.model.MacEntry;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class IpMonitorStartTask implements Callable<List<ListenableFuture<Void>>> {
     private final MacEntry macEntry;
-    private final Long arpMonitorProfileId;
+    private final Uint32 arpMonitorProfileId;
     private final AlivenessMonitorUtils alivenessMonitorUtils;
 
-    public IpMonitorStartTask(MacEntry macEntry, Long profileId, AlivenessMonitorUtils alivenessMonitorUtils) {
+    public IpMonitorStartTask(MacEntry macEntry, Uint32 profileId, AlivenessMonitorUtils alivenessMonitorUtils) {
         this.macEntry = macEntry;
         this.arpMonitorProfileId = profileId;
         this.alivenessMonitorUtils = alivenessMonitorUtils;

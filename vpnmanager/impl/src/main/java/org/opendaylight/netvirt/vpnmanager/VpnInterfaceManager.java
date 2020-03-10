@@ -93,7 +93,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NeutronRouterDpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
@@ -1452,13 +1451,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         }
                     }
                     String ip = nextHop.getIpAddress().split("/")[0];
-                    LearntVpnVipToPort vpnVipToPort = vpnUtil.getLearntVpnVipToPort(vpnName, ip);
-                    if (vpnVipToPort != null && vpnVipToPort.getPortName().equals(interfaceName)) {
-                        vpnUtil.removeLearntVpnVipToPort(vpnName, ip, null);
-                        LOG.info("removeAdjacenciesFromVpn: VpnInterfaceManager removed LearntVpnVipToPort entry"
-                                 + " for Interface {} ip {} on dpn {} for vpn {}",
-                                vpnVipToPort.getPortName(), ip, dpnId, vpnName);
-                    }
                     // Remove the MIP-IP from VpnPortIpToPort.
                     if (isNonPrimaryAdjIp) {
                         VpnPortipToPort persistedIp = vpnUtil.getVpnPortipToPort(vpnName, ip);
@@ -1469,6 +1461,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                     "removeAdjacenciesFromVpn: Learnt-IP: {} interface {} of vpn {} removed "
                                             + "from VpnPortipToPort",
                                     persistedIp.getPortFixedip(), persistedIp.getPortName(), vpnName);
+                            vpnUtil.removePortNameLearntIpMap(dataBroker, vpnName, interfaceName,
+                                    /*writeConfigTxn*/ null);
                         }
                     }
                     VpnPortipToPort vpnPortipToPort = vpnUtil.getNeutronPortFromVpnPortFixedIp(vpnName, ip);
