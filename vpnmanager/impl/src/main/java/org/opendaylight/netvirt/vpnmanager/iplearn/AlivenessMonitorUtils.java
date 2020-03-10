@@ -81,7 +81,7 @@ public final class AlivenessMonitorUtils {
         this.vpnConfig = vpnConfig;
     }
 
-    void startIpMonitoring(MacEntry macEntry, Long ipMonitorProfileId) {
+    void startIpMonitoring(MacEntry macEntry, Uint32 ipMonitorProfileId) {
         if (interfaceManager.isExternalInterface(macEntry.getInterfaceName())) {
             LOG.debug("IP monitoring is currently not supported through external interfaces,"
                     + "skipping IP monitoring from interface {} for IP {} (last known MAC {})",
@@ -108,7 +108,7 @@ public final class AlivenessMonitorUtils {
                 LOG.error("startIpMonitoring: Error while allocating Profile Id for IP={}", targetIp);
                 return;
             }
-            ipMonitorProfileId = profileIdOptional.get().toJava();
+            ipMonitorProfileId = profileIdOptional.get();
         }
 
         final PhysAddress gatewayMac = new PhysAddress(gatewayMacOptional.get());
