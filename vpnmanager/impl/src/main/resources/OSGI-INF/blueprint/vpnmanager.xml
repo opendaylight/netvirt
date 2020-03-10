@@ -18,9 +18,6 @@
              interface="org.opendaylight.netvirt.elanmanager.api.IElanService" />
   <reference id="iFibManager"
              interface="org.opendaylight.netvirt.fibmanager.api.IFibManager" />
-  <reference id="iNeutronVpnManager"
-             interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager"
-             availability="optional" />
   <reference id="entityOwnershipService"
              interface="org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService" />
   <reference id="jobCoordinator"

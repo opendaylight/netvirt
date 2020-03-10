@@ -49,17 +49,19 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
     private final SubnetOpDpnManager subOpDpnManager;
     private final INeutronVpnManager neutronVpnManager;
     private final JobCoordinator jobCoordinator;
+    private final PortCache portCache;
 
     @Inject
     public SubnetRouteInterfaceStateChangeListener(final DataBroker dataBroker,
             final VpnSubnetRouteHandler vpnSubnetRouteHandler, final SubnetOpDpnManager subnetOpDpnManager,
-            final INeutronVpnManager neutronVpnService, final JobCoordinator jobCoordinator) {
+            final INeutronVpnManager neutronVpnService, final JobCoordinator jobCoordinator, PortCache portCache) {
         super(Interface.class, SubnetRouteInterfaceStateChangeListener.class);
         this.dataBroker = dataBroker;
         this.vpnSubnetRouteHandler = vpnSubnetRouteHandler;
         this.subOpDpnManager = subnetOpDpnManager;
         this.neutronVpnManager = neutronVpnService;
         this.jobCoordinator = jobCoordinator;
+        this.portCache = portCache;
     }
 
     @PostConstruct
@@ -292,11 +294,16 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
         }
         LOG.trace("SubnetRouteInterfaceListener : Received Port {} event for {} that is not part of subnetRoute",
                 intrf.getOperStatus(), intrf.getName());
-        Port port = neutronVpnManager.getNeutronPort(intrf.getName());
-        if (port == null) {
+        Optional<Port> port = Optional.absent();
+        try {
+            port = portCache.get(intrf.getName());
+        } catch (ReadFailedException e) {
+            LOG.warn("getSubnetId: Error reading Port for interface {}", intrf.getName(), e);
+        }
+        if (!port.isPresent()) {
             return listSubnetIds;
         }
-        List<FixedIps> portIps = port.getFixedIps();
+        List<FixedIps> portIps = port.get().getFixedIps();
         if (portIps != null) {
             for (FixedIps portIp : portIps) {
                 listSubnetIds.add(portIp.getSubnetId());
