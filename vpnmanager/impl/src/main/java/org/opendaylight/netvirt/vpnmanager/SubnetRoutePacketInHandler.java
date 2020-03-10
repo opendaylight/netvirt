@@ -220,16 +220,6 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             return;
         }
 
-        if (vpnUtil.getLearntVpnVipToPort(vpnIdVpnInstanceName, dstIpStr) != null) {
-            Counter counter = packetInCounter.label(CounterUtility.subnet_route_packet_failed.toString())
-                    .label(srcIpStr + "." + dstIpStr);
-            counter.increment();
-            LOG.info("{} onPacketReceived: IP Packet received with Target IP {} source Ip {} vpnId {}"
-                    + " is an already discovered IPAddress, ignoring subnet route processing",
-                    LOGGING_PREFIX, dstIpStr, srcIp, vpnId);
-            return;
-        }
-
         long elanTag = MetaDataUtil.getElanTagFromMetadata(metadata);
         if (elanTag == 0L) {
             Counter counter = packetInCounter.label(CounterUtility.subnet_route_packet_failed.toString())

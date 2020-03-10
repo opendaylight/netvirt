@@ -38,12 +38,14 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.re
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortEventAction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.name.learnt.ip.map.LearntIp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.interfaces.vpn._interface.VpnInstanceNames;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
@@ -172,6 +174,7 @@ public class InterfaceStateChangeListener
                                                             ifIndex, false, writeConfigTxn, writeOperTxn, writeInvTxn,
                                                             intrf, vpnName, prefixes);
                                                     mapOfRdAndPrefixesForRefreshFib.put(primaryRd, prefixes);
+                                                    startArpMonitorTaskForMips(vpnIf, vpnName);
                                                 }
                                             }
 
@@ -386,9 +389,9 @@ public class InterfaceStateChangeListener
                     if (adj.getAdjacencyType() != Adjacency.AdjacencyType.PrimaryAdjacency) {
                         String ipAddress = adj.getIpAddress();
                         String prefix = ipAddress.split("/")[0];
-                        LearntVpnVipToPort vpnVipToPort = vpnUtil.getLearntVpnVipToPort(vpnName, prefix);
+                        VpnPortipToPort vpnVipToPort = vpnUtil.getVpnPortipToPort(vpnName, prefix);
                         if (vpnVipToPort != null && vpnVipToPort.getPortName().equals(interfaceName)) {
-                            vpnUtil.removeMipAdjacency(vpnName, interfaceName, ipAddress, null);
+                            vpnUtil.removeMipAdjacency(interfaceName, ipAddress, vpnName, null);
                         } else {
                             LOG.debug("IP {} could be extra-route or learnt-ip on different interface"
                                     + "than oper-vpn-interface {}", ipAddress, interfaceName);
@@ -460,6 +463,23 @@ public class InterfaceStateChangeListener
         @Override
         public void onFailure(Throwable throwable) {
             LOG.debug("write Tx config operation failedTunnelEndPointChangeListener", throwable);
+        }
+    }
+
+    private void startArpMonitorTaskForMips(VpnInterface vpnInterface, String vpnName) {
+        String interfaceName = vpnInterface.getName();
+        LearntIp learntIpPortIdMap = vpnUtil.getPortNameLearntIpMap(vpnName, interfaceName);
+        if (learntIpPortIdMap == null) {
+            return;
+        }
+        String learntIpAddr = learntIpPortIdMap.getLearntIp();
+        VpnPortipToPort vpnVipToPort = vpnUtil.getVpnPortipToPort(vpnName, learntIpAddr);
+        if (vpnVipToPort != null && vpnVipToPort.isLearntIp()) {
+            synchronized ((vpnName + learntIpAddr).intern()) {
+                vpnUtil.createLearntVpnVipToPortEvent(vpnName, learntIpAddr, learntIpAddr, interfaceName,
+                        vpnVipToPort.getMacAddress(), LearntVpnVipToPortEventAction.StartAlivenessMonitor,
+                        null);
+            }
         }
     }
 }
