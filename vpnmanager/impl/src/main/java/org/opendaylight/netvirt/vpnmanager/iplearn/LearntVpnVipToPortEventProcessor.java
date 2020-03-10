@@ -51,6 +51,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.re
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.interfaces.VpnInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.config.rev161130.VpnConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
@@ -68,10 +69,17 @@ public class LearntVpnVipToPortEventProcessor
     private final EntityOwnershipUtils entityOwnershipUtils;
     private EntityOwnershipCandidateRegistration candidateRegistration;
     private final VpnUtil vpnUtil;
+    private final PortCache portCache;
+    private final SubnetCache subnetCache;
+    private final VpnConfig vpnConfig;
+    private final NeutronVpnPortIpListener vpnPortIpListener;
+
 
     @Inject
     public LearntVpnVipToPortEventProcessor(final DataBroker dataBroker, IInterfaceManager interfaceManager,
-            EntityOwnershipService entityOwnershipService, final JobCoordinator jobCoordinator, VpnUtil vpnUtil) {
+            EntityOwnershipService entityOwnershipService, final JobCoordinator jobCoordinator, VpnUtil vpnUtil,
+                                            PortCache portCache, SubnetCache subnetCache,VpnConfig vpnConfig,
+                                            NeutronVpnPortIpListener neutronVpnPortIpListener) {
         super(LearntVpnVipToPortEvent.class, LearntVpnVipToPortEventProcessor.class);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
@@ -79,6 +87,10 @@ public class LearntVpnVipToPortEventProcessor
         this.jobCoordinator = jobCoordinator;
         this.entityOwnershipUtils = new EntityOwnershipUtils(entityOwnershipService);
         this.vpnUtil = vpnUtil;
+        this.portCache = portCache;
+        this.subnetCache = subnetCache;
+        this.vpnConfig = vpnConfig;
+        this.vpnPortIpListener = neutronVpnPortIpListener;
     }
 
     @PostConstruct
