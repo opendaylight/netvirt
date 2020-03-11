@@ -157,7 +157,8 @@ public final class NatEvpnUtil {
 
             fibManager.addOrUpdateFibEntry(rd, null /*macAddress*/, prefix,
                     Collections.singletonList(nextHopIp), VrfEntry.EncapType.Vxlan, NatConstants.DEFAULT_LABEL_VALUE,
-                l3Vni, gwMacAddress, null /* parent-vpn-rd */, origin, writeTx);
+                l3Vni, gwMacAddress, null /* parent-vpn-rd */, origin, null,
+                    null, writeTx);
             /* Publish to Bgp only if its an INTERNET VPN */
             if (rd != null && !rd.equalsIgnoreCase(vpnName)) {
                 bgpManager.advertisePrefix(rd, null /*macAddress*/, prefix, Collections.singletonList(nextHopIp),
