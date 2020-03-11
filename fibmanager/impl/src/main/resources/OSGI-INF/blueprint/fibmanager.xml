@@ -22,6 +22,8 @@
              interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
   <reference id="iITMProvider"
              interface="org.opendaylight.genius.itm.api.IITMProvider" />
+  <reference id="metricProvider"
+             interface="org.opendaylight.infrautils.metrics.MetricProvider"/>
   <reference id="dataTreeEventCallbackRegistrar"
              interface="org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar"/>
   <reference id="upgradeState"

@@ -39,6 +39,10 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
+import org.opendaylight.infrautils.metrics.Counter;
+import org.opendaylight.infrautils.metrics.Labeled;
+import org.opendaylight.infrautils.metrics.MetricDescriptor;
+import org.opendaylight.infrautils.metrics.MetricProvider;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -134,12 +138,20 @@ public class FibUtil {
     private final DataBroker dataBroker;
     private final IdManagerService idManager;
     private final IITMProvider iitmProvider;
+    private final MetricProvider metricProvider;
+    private final Labeled<Labeled<Labeled<Counter>>> fibCounter;
+    private Counter counter;
 
     @Inject
-    public FibUtil(DataBroker dataBroker, IdManagerService idManager, IITMProvider iitmProvider) {
+    public FibUtil(DataBroker dataBroker, IdManagerService idManager, IITMProvider iitmProvider,
+                   MetricProvider metricProvider) {
         this.dataBroker = dataBroker;
         this.idManager = idManager;
         this.iitmProvider = iitmProvider;
+        this.metricProvider = metricProvider;
+        fibCounter = metricProvider.newCounter(MetricDescriptor.builder().anchor(this)
+                .project("netvirt").module("fibmanager")
+                .id("fibutil").build(), "entitytype", "action","name");
     }
 
     static InstanceIdentifier<Adjacency> getAdjacencyIdentifierOp(String vpnInterfaceName,
@@ -316,7 +328,8 @@ public class FibUtil {
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void addOrUpdateFibEntry(String rd, String macAddress, String prefix, List<String> nextHopList,
             VrfEntry.EncapType encapType, Uint32 label, Uint32 l3vni, String gwMacAddress, String parentVpnRd,
-            RouteOrigin origin, TypedWriteTransaction<Configuration> writeConfigTxn) {
+            RouteOrigin origin, String vpnInterfaceName, String eventSource,
+                                    TypedWriteTransaction<Configuration> writeConfigTxn) {
         if (rd == null || rd.isEmpty()) {
             LOG.error("Prefix {} not associated with vpn", prefix);
             return;
@@ -329,14 +342,18 @@ public class FibUtil {
                 InstanceIdentifier.builder(FibEntries.class)
                     .child(VrfTables.class, new VrfTablesKey(rd))
                     .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
-
+            counter = fibCounter.label("addOrUpdateFibEntry.create").label("rd.prefix")
+                    .label(rd + "." + prefix);
+            counter.increment();
             writeFibEntryToDs(vrfEntryId, prefix, nextHopList, label, l3vni, encapType, origin, macAddress,
                     gwMacAddress, parentVpnRd, writeConfigTxn);
             LOG.info("addOrUpdateFibEntry: Created/Updated vrfEntry for rd {} prefix {} nexthop {} label {} l3vni {}"
-                    + " origin {} encapType {}", rd, prefix, nextHopList, label, l3vni, origin, encapType);
+                    + " origin {} encapType {} interfaceName {} source {}", rd, prefix, nextHopList, label, l3vni,
+                    origin, encapType, vpnInterfaceName, eventSource);
         } catch (Exception e) {
             LOG.error("addOrUpdateFibEntry: rd {} prefix {} nexthop {} label {} l3vni {} origin {} encapType {}"
-                    + " error ", rd, prefix, nextHopList, label, l3vni, origin, encapType, e);
+                    + " interfaceName {} source {} error ", rd, prefix, nextHopList, label, l3vni, origin, encapType,
+                    vpnInterfaceName, eventSource, e);
         }
     }
 
@@ -409,7 +426,7 @@ public class FibUtil {
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void removeFibEntry(String rd, String prefix, String eventSource,
+    public void removeFibEntry(String rd, String prefix, String vpnInterfaceName, String eventSource,
                                TypedWriteTransaction<Configuration> writeConfigTxn) {
 
         if (rd == null || rd.isEmpty()) {
@@ -419,6 +436,10 @@ public class FibUtil {
         try {
             LOG.debug("removeFibEntry: Removing fib entry with destination prefix {} from vrf table for rd {}",
                     prefix, rd);
+
+            counter = fibCounter.label("removeFibEntry").label("rd.prefix")
+                    .label(rd + "." + prefix);
+            counter.increment();
 
             InstanceIdentifier.InstanceIdentifierBuilder<VrfEntry> idBuilder =
                     InstanceIdentifier.builder(FibEntries.class)
@@ -430,8 +451,8 @@ public class FibUtil {
             } else {
                 MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
             }
-            LOG.error("removeFibEntry: Removed Fib Entry rd {} prefix {} source {} ",
-                    rd, prefix, eventSource);
+            LOG.error("removeFibEntry: Removed Fib Entry rd {} prefix {} interfaceName {} source {} ",
+                    rd, prefix, vpnInterfaceName, eventSource);
         } catch (RuntimeException e) {
             if (e.getCause() instanceof ModifiedNodeDoesNotExistException) {
                 LOG.warn("removeFibEntry: Fib Entry prefix {} rd {} source {} is already deleted from the "
@@ -452,7 +473,8 @@ public class FibUtil {
      *                        If null or empty, then the whole VrfEntry is removed
      */
     public void removeOrUpdateFibEntry(String rd, String prefix, String nextHopToRemove,
-            TypedWriteTransaction<Configuration> writeConfigTxn) {
+                                       String vpnInterfaceName, String eventSource,
+                                       TypedWriteTransaction<Configuration> writeConfigTxn) {
         LOG.debug("Removing fib entry with destination prefix {} from vrf table for rd {} nextHop {}", prefix, rd,
                 nextHopToRemove);
 
@@ -490,18 +512,24 @@ public class FibUtil {
                 } else {
                     MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
                 }
+                counter = fibCounter.label("removeOrUpdateFibEntry.delete")
+                        .label("rd.prefix").label(rd + "." + prefix);
+                counter.increment();
                 LOG.info("Removed Fib Entry rd {} prefix {} nextHop {}", rd, prefix, nextHopToRemove);
             } else {
                 InstanceIdentifier<RoutePaths> routePathsId =
                         FibHelper.buildRoutePathId(rd, prefix, routePath.getNexthopAddress());
                 // Remove route
                 MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, routePathsId);
-                LOG.info("Removed Route Path rd {} prefix {}, nextHop {}, label {}", rd, prefix,
-                        routePath.getNexthopAddress(), routePath.getLabel());
+                counter = fibCounter.label("removeOrUpdateFibEntry.delete")
+                        .label("rd.prefix").label(rd + "." + prefix);
+                counter.increment();
+                LOG.info("Removed Route Path rd {} prefix {}, nextHop {}, label {} interfaceName {} source {}",
+                        rd, prefix, routePath.getNexthopAddress(), routePath.getLabel(), vpnInterfaceName, eventSource);
             }
         } else {
-            LOG.warn("Could not find VrfEntry for Route-Distinguisher {} prefix {} nexthop {}", rd, prefix,
-                    nextHopToRemove);
+            LOG.warn("Could not find VrfEntry for Route-Distinguisher {} prefix {} nexthop {} interfaceName {} "
+                    + "source {}", rd, prefix, nextHopToRemove, vpnInterfaceName, eventSource);
         }
     }
 
@@ -509,7 +537,8 @@ public class FibUtil {
      * Adds or removes nextHop from routePath based on the flag nextHopAdd.
      */
     public void updateRoutePathForFibEntry(String rd, String prefix, String nextHop, Uint32 label,
-            boolean nextHopAdd, TypedWriteTransaction<Configuration> writeConfigTxn) {
+            boolean nextHopAdd,  String vpnInterfaceName, String eventSource,
+                                           TypedWriteTransaction<Configuration> writeConfigTxn) {
 
         LOG.debug("Updating fib entry for prefix {} with nextHop {} for rd {}.", prefix, nextHop, rd);
 
@@ -526,7 +555,11 @@ public class FibUtil {
                 } else {
                     MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routePathId, routePaths);
                 }
-                LOG.debug("Added routepath with nextHop {} for prefix {} and label {}.", nextHop, prefix, label);
+                counter = fibCounter.label("updateFibEntry.put").label("rd.prefix")
+                        .label(rd + "." + prefix);
+                counter.increment();
+                LOG.debug("Added routepath with nextHop {} for prefix {} label {} interfaceName {} source {}.",
+                        nextHop, prefix, label, vpnInterfaceName, eventSource);
             } else {
                 Optional<RoutePaths> routePath;
                 try {
@@ -547,7 +580,11 @@ public class FibUtil {
                 } else {
                     MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, routePathId);
                 }
-                LOG.info("Removed routepath with nextHop {} for prefix {} and rd {}.", nextHop, prefix, rd);
+                counter = fibCounter.label("updateFibEntry.put").label("rd.prefix")
+                        .label(rd + "." + prefix);
+                counter.increment();
+                LOG.info("Removed routepath with nextHop {} for prefix {} rd {} interfaceName {} source {} .",
+                        nextHop, prefix, rd, vpnInterfaceName,eventSource);
             }
         } finally {
             lock.unlock();
