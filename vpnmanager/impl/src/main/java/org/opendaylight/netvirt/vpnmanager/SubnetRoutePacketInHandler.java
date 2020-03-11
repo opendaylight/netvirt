@@ -13,6 +13,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
@@ -51,19 +52,24 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.util.rev170210.Ipv6NdUtilService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagName;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.SubnetOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIpsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.interfaces.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
@@ -161,7 +167,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                     return;
                 }
                 handleIpPackets(srcIpBytes, dstIpBytes, NWUtil.toStringIpAddress(srcIpBytes),
-                        NWUtil.toStringIpAddress(dstIpBytes), srcMac, metadata);
+                        NWUtil.toStringIpAddress(dstIpBytes), srcMac, pkt, metadata);
 
             } catch (InterruptedException | ExecutionException | BufferException ex) {
                 // Failed to handle packet
@@ -183,12 +189,35 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     }
 
     private void handleIpPackets(byte[] srcIp, byte[] dstIp, String srcIpStr, String dstIpStr, String srcMac,
-            Uint64 metadata)
+                                 Packet pkt, Uint64 metadata)
             throws UnknownHostException, InterruptedException, ExecutionException {
         Uint32 vpnId = Uint32.valueOf(MetaDataUtil.getVpnIdFromMetadata(metadata));
 
         LOG.info("{} onPacketReceived: Processing IP Packet received with Source IP {} and Target IP {}"
                 + " and vpnId {}", LOGGING_PREFIX, srcIpStr, dstIpStr, vpnId);
+
+        long elanTag = getElanTagFromSubnetRouteMetadata(metadata);
+        if (elanTag == 0) {
+            LOG.error("{} onPacketReceived: elanTag value from metadata found to be 0, for IPv4 "
+                            + " Packet received with Target IP {} src Ip {}  vpnId {}", LOGGING_PREFIX,
+                    dstIpStr, srcIp, vpnId);
+            Counter counter = packetInCounter.label(CounterUtility.subnet_route_packet_failed.name())
+                    .label(srcIpStr + "." + dstIpStr);
+            counter.increment();
+            return;
+        }
+        if (pkt instanceof IPv4)  {
+            IPv4 ipv4 = (IPv4) pkt;
+            Uint64 dpnId = getTargetDpnForPacketOut(dataBroker, elanTag, ipv4.getDestinationAddress());
+            if (Objects.equals(dpnId, Uint64.ZERO)) {
+                LOG.error("{} onPacketReceived: Could not retrieve dpnID for elanTag {} destIp {}",
+                        LOGGING_PREFIX, elanTag, dstIpStr);
+                Counter counter = packetInCounter.label(CounterUtility.subnet_route_packet_failed.name())
+                        .label(srcIpStr + "." + dstIpStr);
+                counter.increment();
+                return;
+            }
+        }
 
         Optional<VpnIds> vpnIdsOptional = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                 LogicalDatastoreType.CONFIGURATION, VpnUtil.getVpnIdToVpnInstanceIdentifier(vpnId));
@@ -223,17 +252,6 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             counter.increment();
             LOG.info("{} onPacketReceived: IP Packet received with Target IP {} source Ip {} vpnId {}"
                     + " is an already discovered IPAddress, ignoring subnet route processing",
-                    LOGGING_PREFIX, dstIpStr, srcIp, vpnId);
-            return;
-        }
-
-        long elanTag = MetaDataUtil.getElanTagFromMetadata(metadata);
-        if (elanTag == 0L) {
-            Counter counter = packetInCounter.label(CounterUtility.subnet_route_packet_failed.toString())
-                    .label(srcIpStr + "." + dstIpStr);
-            counter.increment();
-            LOG.error("{} onPacketReceived: elanTag value from metadata found to be 0, for IP "
-                    + " Packet received with Target IP {} src Ip {} vpnId {}",
                     LOGGING_PREFIX, dstIpStr, srcIp, vpnId);
             return;
         }
@@ -446,7 +464,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     private SubnetOpDataEntry getTargetSubnetForPacketOut(long elanTag, String ipAddress) {
         ElanTagName elanInfo = vpnUtil.getElanInfoByElanTag(elanTag);
         if (elanInfo == null) {
-            LOG.error("{} getTargetDpnForPacketOut: Unable to retrieve ElanInfo for elanTag {}", LOGGING_PREFIX,
+            LOG.error("{} getTargetSubnetForPacketOut: Unable to retrieve ElanInfo for elanTag {}", LOGGING_PREFIX,
                     elanTag);
             return null;
         }
@@ -455,12 +473,12 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                     LogicalDatastoreType.CONFIGURATION, VpnUtil.buildNetworkMapIdentifier(new Uuid(
                             elanInfo.getName())));
             if (!optionalNetworkMap.isPresent()) {
-                LOG.debug("{} getTargetDpnForPacketOut: No network map found for elan info {}", LOGGING_PREFIX,
+                LOG.debug("{} getTargetSubnetForPacketOut: No network map found for elan info {}", LOGGING_PREFIX,
                         elanInfo.getName());
                 return null;
             }
             List<Uuid> subnetList = optionalNetworkMap.get().getSubnetIdList();
-            LOG.debug("{} getTargetDpnForPacketOut: Obtained subnetList as {} for network {}", LOGGING_PREFIX,
+            LOG.debug("{} getTargetSubnetForPacketOut: Obtained subnetList as {} for network {}", LOGGING_PREFIX,
                     subnetList, elanInfo.getName());
             if (subnetList != null) {
                 for (Uuid subnetId : subnetList) {
@@ -479,11 +497,11 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                     }
                     SubnetOpDataEntry subOpEntry = optionalSubs.get();
                     if (subOpEntry.getNhDpnId() != null) {
-                        LOG.trace("{} getTargetDpnForPacketOut: Viewing Subnet {}", LOGGING_PREFIX,
-                            subnetId.getValue());
+                        LOG.trace("{} getTargetSubnetForPacketOut: Viewing Subnet {}", LOGGING_PREFIX,
+                                subnetId.getValue());
                         IpPrefix cidr = IpPrefixBuilder.getDefaultInstance(subOpEntry.getSubnetCidr());
                         boolean match = NWUtil.isIpAddressInRange(IpAddressBuilder.getDefaultInstance(ipAddress), cidr);
-                        LOG.trace("{} getTargetDpnForPacketOut: Viewing Subnet {} matching {}", LOGGING_PREFIX,
+                        LOG.trace("{} getTargetSubnetForPacketOut: Viewing Subnet {} matching {}", LOGGING_PREFIX,
                             subnetId.getValue(), match);
                         if (match) {
                             return subOpEntry;
@@ -496,6 +514,64 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                     elanInfo.getName());
         }
         return null;
+    }
+
+    private Uint64 getTargetDpnForPacketOut(DataBroker broker, long elanTag, int ipAddress) {
+        Uint64 dpnid = Uint64.ZERO;
+        ElanTagName elanInfo = vpnUtil.getElanInfoByElanTag(elanTag);
+        if (elanInfo == null) {
+            LOG.error("{} getTargetDpnForPacketOut: Unable to retrieve ElanInfo for elanTag {}",
+                    LOGGING_PREFIX, elanTag);
+            return dpnid;
+        }
+        try {
+            InstanceIdentifier<NetworkMap> networkId = InstanceIdentifier.builder(NetworkMaps.class)
+                    .child(NetworkMap.class, new NetworkMapKey(new Uuid(elanInfo.getName()))).build();
+            Optional<NetworkMap> optionalNetworkMap = SingleTransactionDataBroker.syncReadOptional(broker,
+                    LogicalDatastoreType.CONFIGURATION, networkId);
+
+            if (optionalNetworkMap.isPresent()) {
+                List<Uuid> subnetList = optionalNetworkMap.get().getSubnetIdList();
+                LOG.trace("{} getTargetDpnForPacketOut: Obtained subnetList as {} for network {}", LOGGING_PREFIX,
+                        subnetList, networkId);
+                for (Uuid subnetId : subnetList) {
+                    InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier = InstanceIdentifier
+                            .builder(SubnetOpData.class).child(SubnetOpDataEntry.class,
+                                    new SubnetOpDataEntryKey(subnetId)).build();
+                    Optional<SubnetOpDataEntry> optionalSubs = SingleTransactionDataBroker.syncReadOptional(broker,
+                            LogicalDatastoreType.OPERATIONAL, subOpIdentifier);
+                    if (!optionalSubs.isPresent()) {
+                        LOG.error("{} getTargetDpnForPacketOut: Unable to fetch subnetOp data for subnet {}."
+                                        + " Unable to handle subnet route packet from targetIP {} elanTag {}",
+                                LOGGING_PREFIX, subnetId.getValue(), ipAddress, elanTag);
+                        continue;
+                    }
+                    SubnetOpDataEntry subOpEntry = optionalSubs.get();
+                    if (subOpEntry.getNhDpnId() != null) {
+                        LOG.trace("{} getTargetDpnForPacketOut: Viewing Subnet {}", LOGGING_PREFIX,
+                                subnetId.getValue());
+                        boolean match = NWUtil.isIpInSubnet(ipAddress, subOpEntry.getSubnetCidr());
+                        LOG.trace("{} getTargetDpnForPacketOut: Viewing Subnet {} matching {}", LOGGING_PREFIX,
+                                subnetId.getValue(), match);
+                        if (match) {
+                            dpnid = subOpEntry.getNhDpnId();
+                            return dpnid;
+                        }
+                    }
+                }
+            } else {
+                LOG.warn("getTargetDpnForPacketOut: NetworkMap not present for {} elanTag {}", elanInfo.getName(),
+                        elanTag);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("getTargetDpnForPacketOut: Read failed for with exception : ", e);
+        }
+        return dpnid;
+    }
+
+    public static long getElanTagFromSubnetRouteMetadata(Uint64 metadata) {
+        return ((metadata.toJava().and(MetaDataUtil.METADATA_MASK_ELAN_SUBNET_ROUTE.toJava()))
+                .shiftRight(24)).longValue();
     }
 
     public boolean isTunnel(String interfaceName) {

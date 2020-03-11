@@ -290,6 +290,7 @@ public final class NatUtil {
     private static final String OTHER_CONFIG_PARAMETERS_DELIMITER = ",";
     private static final String OTHER_CONFIG_KEY_VALUE_DELIMITER = ":";
     private static final String PROVIDER_MAPPINGS = "provider_mappings";
+    private static final String FIB_EVENT_SOURCE_NAT_STATE = "natEvent";
 
     private NatUtil() {
 
@@ -857,7 +858,8 @@ public final class NatUtil {
 
             fibManager.addOrUpdateFibEntry(rd, macAddress, prefix,
                     Collections.singletonList(nextHopIp), VrfEntry.EncapType.Mplsgre, label, l3vni /*l3vni*/,
-                    null /*gatewayMacAddress*/, parentVpnRd, origin, null /*writeTxn*/);
+                    null /*gatewayMacAddress*/, parentVpnRd, origin, null,
+                    FIB_EVENT_SOURCE_NAT_STATE, null /*writeTxn*/);
             if (rd != null && !rd.equalsIgnoreCase(vpnName)) {
             /* Publish to Bgp only if its an INTERNET VPN */
                 bgpManager.advertisePrefix(rd, null /*macAddress*/, prefix, Collections.singletonList(nextHopIp),
@@ -1016,7 +1018,7 @@ public final class NatUtil {
                                            String rd, String prefix, String vpnName) {
         try {
             LOG.debug("removePrefixFromBGP: Removing Fib entry rd {} prefix {}", rd, prefix);
-            fibManager.removeFibEntry(rd, prefix, null, null);
+            fibManager.removeFibEntry(rd, prefix, null, null, null);
             if (rd != null && !rd.equalsIgnoreCase(vpnName)) {
                 bgpManager.withdrawPrefix(rd, prefix);
             }

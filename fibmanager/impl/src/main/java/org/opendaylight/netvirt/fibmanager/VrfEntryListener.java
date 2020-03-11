@@ -63,6 +63,10 @@ import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.genius.utils.batching.SubTransaction;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.metrics.Counter;
+import org.opendaylight.infrautils.metrics.Labeled;
+import org.opendaylight.infrautils.metrics.MetricDescriptor;
+import org.opendaylight.infrautils.metrics.MetricProvider;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
@@ -154,6 +158,7 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
     private final IElanService elanManager;
     private final FibUtil fibUtil;
     private final InterVpnLinkCache interVpnLinkCache;
+    private final Labeled<Labeled<Counter>> vrfCounter;
     private final List<AutoCloseable> closeables = new CopyOnWriteArrayList<>();
     private final UpgradeState upgradeState;
     private final DataTreeEventCallbackRegistrar eventCallbacks;
@@ -168,6 +173,7 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
                             final JobCoordinator jobCoordinator,
                             final FibUtil fibUtil,
                             final InterVpnLinkCache interVpnLinkCache,
+                            MetricProvider metricProvider,
                             final UpgradeState upgradeState,
                             final DataTreeEventCallbackRegistrar eventCallbacks) {
         super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(FibEntries.class)
@@ -185,6 +191,9 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
         this.jobCoordinator = jobCoordinator;
         this.fibUtil = fibUtil;
         this.interVpnLinkCache = interVpnLinkCache;
+        vrfCounter =  metricProvider.newCounter(MetricDescriptor.builder().anchor(this)
+                .project(FibCounterUtils.getProject()).module(FibCounterUtils.getModule())
+                .id(FibCounterUtils.getVrfCounterId()).build(), "action","vrfaddorremove");
         this.upgradeState = upgradeState;
         this.eventCallbacks = eventCallbacks;
     }
@@ -298,7 +307,9 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
                     rd, update.getDestPrefix(), update.getRoutePaths());
             return;
         }
-
+        Counter counter = vrfCounter.label(FibCounterUtils.vrfentry_update.toString())
+                .label(rd + "." + update.getDestPrefix());
+        counter.increment();
         if (RouteOrigin.value(update.getOrigin()) == RouteOrigin.STATIC) {
             List<RoutePaths> originalRoutePath = new ArrayList<RoutePaths>(original.nonnullRoutePaths().values());
             List<RoutePaths> updateRoutePath = new ArrayList<RoutePaths>(update.nonnullRoutePaths().values());
@@ -400,7 +411,11 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
         }
         final Uint32 vpnId = vpnInstance.getVpnId();
         final String rd = vrfTableKey.getRouteDistinguisher();
+        final String vpnName = vpnInstance.getVpnInstanceName();
         SubnetRoute subnetRoute = vrfEntry.augmentation(SubnetRoute.class);
+        Counter counter = vrfCounter.label(FibCounterUtils.vrfentry_add.toString())
+                .label(rd + "." + vrfEntry.getDestPrefix() + "." + vpnName);
+        counter.increment();
         if (subnetRoute != null) {
             final long elanTag = subnetRoute.getElantag().toJava();
             LOG.trace("SUBNETROUTE: createFibEntries: SubnetRoute augmented vrfentry found for rd {} prefix {}"
@@ -1539,6 +1554,10 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
         final java.util.Optional<Uint32> optionalLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);
         List<String> nextHopAddressList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
         String vpnName = fibUtil.getVpnNameFromId(vpnInstance.getVpnId());
+        String destPrefix = vrfEntry.getDestPrefix();
+        Counter counter = vrfCounter.label(FibCounterUtils.vrfentry_remove.toString())
+                .label(rd + "." + destPrefix + "." + vpnName);
+        counter.increment();
         if (subnetRoute != null) {
             long elanTag = subnetRoute.getElantag().toJava();
             LOG.trace("SUBNETROUTE: deleteFibEntries: SubnetRoute augmented vrfentry found for rd {} prefix {}"

@@ -349,7 +349,7 @@ public final class InterVpnLinkUtil {
         fibManager.addOrUpdateFibEntry(vpnRd, null /*macAddress*/, destination,
                 Collections.singletonList(nexthop), VrfEntry.EncapType.Mplsgre, label,
                 Uint32.ZERO/*l3vni*/, null /*gatewayMacAddress*/, null /*parentVpnRd*/,
-                RouteOrigin.STATIC, null /*writeTxn*/);
+                RouteOrigin.STATIC, null, null, null /*writeTxn*/);
 
         // Now advertise to BGP. The nexthop that must be advertised to BGP are the IPs of the DPN where the
         // VPN's endpoint have been instantiated

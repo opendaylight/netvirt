@@ -142,7 +142,8 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
             fibManager.addOrUpdateFibEntry(dstVpnRd, null /*macAddress*/, prefix,
                                            Collections.singletonList(leakedNexthop), VrfEntry.EncapType.Mplsgre,
                                            leakedLabel, Uint32.ZERO /*l3vni*/, null /*gatewayMacAddress*/,
-                                           null /*parentVpnRd*/, RouteOrigin.INTERVPN, null /*writeConfigTxn*/);
+                                           null /*parentVpnRd*/, RouteOrigin.INTERVPN,
+                    null, null, null /*writeConfigTxn*/);
 
             List<String> ivlNexthops =
                 interVpnLink.getEndpointDpnsByVpnName(dstVpnName).stream()
@@ -157,7 +158,8 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
             }
         } else {
             LOG.debug("Removing leaked route to {} from VPN {}", prefix, dstVpnName);
-            fibManager.removeFibEntry(dstVpnRd, prefix, null, null /*writeConfigTxn*/);
+            fibManager.removeFibEntry(dstVpnRd, prefix, null,
+                    null, null /*writeConfigTxn*/);
             bgpManager.withdrawPrefix(dstVpnRd, prefix);
         }
     }
