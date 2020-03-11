@@ -256,7 +256,8 @@ public class VpnRpcServiceImpl implements VpnRpcService {
 
         Optional<InterVpnLinkDataComposite> optVpnLink = interVpnLinkCache.getInterVpnLinkByEndpoint(nexthop);
         if (optVpnLink.isPresent()) {
-            fibManager.removeOrUpdateFibEntry(vpnRd, destination, nexthop, /*writeTx*/ null);
+            fibManager.removeOrUpdateFibEntry(vpnRd, destination, nexthop, null, null,
+                    /*writeTx*/ null);
             bgpManager.withdrawPrefix(vpnRd, destination);
         } else {
             vpnManager.delExtraRoute(vpnInstanceName, destination,

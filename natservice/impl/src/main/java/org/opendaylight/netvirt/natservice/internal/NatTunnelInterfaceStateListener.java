@@ -526,7 +526,7 @@ public class NatTunnelInterfaceStateListener extends AbstractAsyncDataTreeChange
         for (String externalIp : externalIps) {
             String rd = NatUtil.getVpnRd(dataBroker, externalVpnName);
             LOG.debug("hndlTepAddOnNaptSwitch : Removing Fib entry rd {} prefix {}", rd, externalIp);
-            fibManager.removeFibEntry(rd, externalIp, null, null);
+            fibManager.removeFibEntry(rd, externalIp, null, null, null);
         }
 
         /*
