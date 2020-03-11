@@ -1685,86 +1685,85 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
     }
 
-    protected void removeSubnetFromVpn(final Uuid vpnId, Uuid subnet, @Nullable Uuid internetVpnId) {
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings("DLS_DEAD_LOCAL_STORE")
+    protected void removeSubnetFromVpn(final Uuid vpnId, Subnetmap subnetmap, @Nullable Uuid internetVpnId) {
         Preconditions.checkArgument(vpnId != null || internetVpnId != null,
                 "removeSubnetFromVpn: at least one VPN must be not null");
-        LOG.debug("Removing subnet {} from vpn {}/{}", subnet.getValue(),
+        Uuid subnetId = subnetmap.getId();
+        LOG.debug("Removing subnet {} from vpn {}/{}", subnetId.getValue(),
                   vpnId, internetVpnId);
-        Subnetmap sn = neutronvpnUtils.getSubnetmap(subnet);
-        if (sn == null) {
-            LOG.error("removeSubnetFromVpn: Subnetmap for subnet {} not found", subnet.getValue());
-            return;
-        }
+        Subnetmap sn = neutronvpnUtils.getSubnetmap(subnetId);
+        LOG.error("removeSubnetFromVpn: Subnetmap for subnet {} not found", subnetId.getValue());
         VpnMap vpnMap = null;
         VpnInstance vpnInstance = null;
         if (vpnId != null) {
             vpnMap = neutronvpnUtils.getVpnMap(vpnId);
             if (vpnMap == null) {
                 LOG.error("No vpnMap for vpnId {}, cannot remove subnet {} from VPN",
-                        vpnId.getValue(), subnet.getValue());
+                        vpnId.getValue(), subnetId.getValue());
                 return;
             }
             vpnInstance = VpnHelper.getVpnInstance(dataBroker, vpnId.getValue());
         }
         if (internetVpnId == null) {
-            internetVpnId = sn.getInternetVpnId();
+            internetVpnId = subnetmap.getInternetVpnId();
         }
         if (internetVpnId != null) {
             vpnMap = neutronvpnUtils.getVpnMap(internetVpnId);
             if (vpnMap == null) {
                 LOG.error("No vpnMap for vpnId {}, cannot remove subnet {}"
                         + " from Internet VPN",
-                        internetVpnId.getValue(), subnet.getValue());
+                        internetVpnId.getValue(), subnetId.getValue());
                 return;
             }
         }
         if (vpnInstance != null && isVpnOfTypeL2(vpnInstance)) {
-            neutronEvpnUtils.updateElanAndVpn(vpnInstance, sn.getNetworkId().getValue(),
+            neutronEvpnUtils.updateElanAndVpn(vpnInstance, subnetmap.getNetworkId().getValue(),
                     NeutronEvpnUtils.Operation.DELETE);
         }
         boolean subnetVpnAssociation = false;
-        if (vpnId != null && sn.getVpnId() != null
-            && sn.getVpnId().getValue().equals(vpnId.getValue())) {
+        if (vpnId != null && subnetmap.getVpnId() != null
+            && subnetmap.getVpnId().getValue().equals(vpnId.getValue())) {
             subnetVpnAssociation = true;
-        } else if (internetVpnId != null && sn.getInternetVpnId() != null
-            && sn.getInternetVpnId().getValue().matches(internetVpnId.getValue())) {
+        } else if (internetVpnId != null && subnetmap.getInternetVpnId() != null
+            && subnetmap.getInternetVpnId().getValue().matches(internetVpnId.getValue())) {
             subnetVpnAssociation = true;
         }
         if (subnetVpnAssociation == false) {
             LOG.error("Removing subnet : Subnetmap is not in VPN {}/{}, owns {} and {}",
-                      vpnId, internetVpnId, sn.getVpnId(), sn.getInternetVpnId());
+                      vpnId, internetVpnId, subnetmap.getVpnId(), subnetmap.getInternetVpnId());
             return;
         }
         // Check if there are ports on this subnet; remove corresponding vpn-interfaces
-        List<Uuid> portList = sn.getPortList();
+        List<Uuid> portList = subnetmap.getPortList();
         final Uuid internetId = internetVpnId;
         if (portList != null) {
             for (final Uuid portId : portList) {
-                LOG.debug("withdrawing subnet IP {} from vpn-interface {}", sn.getSubnetIp(), portId.getValue());
+                LOG.debug("withdrawing subnet IP {} from vpn-interface {}", subnetmap.getSubnetIp(), portId.getValue());
                 final Port port = neutronvpnUtils.getNeutronPort(portId);
                 jobCoordinator.enqueueJob("PORT-" + portId.getValue(), () -> {
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
                     ListenableFuture<Void> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                         CONFIGURATION, tx -> {
                             if (port != null) {
-                                withdrawPortIpFromVpnIface(vpnId, internetId, port, sn, tx);
+                                withdrawPortIpFromVpnIface(vpnId, internetId, port, subnetmap, tx);
                             } else {
                                 LOG.warn("Cannot proceed with withdrawPortIpFromVpnIface for port {} in subnet {} since"
                                                 + " port is absent in Neutron config DS", portId.getValue(),
-                                        subnet.getValue());
+                                        subnetId.getValue());
                             }
                         });
                     ListenableFutures.addErrorLogging(future, LOG,
                             "removeSubnetFromVpn: Exception while processing deletion of VPN interfaces for port {}"
                                     + " belonging to subnet {} and vpnId {}",
-                            portId.getValue(), subnet.getValue(), vpnId.getValue());
+                            portId.getValue(), subnetId.getValue(), vpnId.getValue());
                     futures.add(future);
                     return futures;
                 });
             }
         }
         //update subnet-vpn association
-        removeFromSubnetNode(subnet, null, null, vpnId, null);
+        removeFromSubnetNode(subnetId, null, null, vpnId, null);
     }
 
     protected void updateVpnInternetForSubnet(Subnetmap sm, Uuid vpn, boolean isBeingAssociated) {
@@ -2611,6 +2610,14 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             IpVersionChoice ipVersion = IpVersionChoice.UNDEFINED;
             for (Uuid subnet : networkSubnets) {
                 Subnetmap subnetmap = neutronvpnUtils.getSubnetmap(subnet);
+                if (subnetmap == null) {
+                    failedNwList.add(String.format("subnetmap %s not found for network %s",
+                            subnet.getValue(), nw.getValue()));
+                    LOG.error("dissociateNetworksFromVpn: Subnetmap for subnet {} not found when "
+                            + "dissociating network {} from VPN {}", subnet.getValue(), nw.getValue(),
+                            vpnId.getValue());
+                    continue;
+                }
                 IpVersionChoice ipVers = NeutronvpnUtils.getIpVersionFromString(subnetmap.getSubnetIp());
                 if (!ipVersion.isIpVersionChosen(ipVers)) {
                     ipVersion = ipVersion.addVersion(ipVers);
@@ -2618,7 +2625,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 if (!NeutronvpnUtils.getIsExternal(network)) {
                     LOG.debug("dissociateNetworksFromVpn: Withdraw subnet {} from VPN {}", subnet.getValue(),
                             vpnId.getValue());
-                    removeSubnetFromVpn(vpnId, subnet, null);
+                    removeSubnetFromVpn(vpnId, subnetmap, null);
                     Set<VpnTarget> routeTargets = vpnManager.getRtListForVpn(vpnId.getValue());
                     vpnManager.removeRouteTargetsToSubnetAssociation(routeTargets, subnetmap.getSubnetIp(),
                             vpnId.getValue());
@@ -2940,13 +2947,25 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         if (vpnId != null) {
             // remove existing external vpn interfaces
             for (Uuid subnetId : routerSubnetIds) {
-                removeSubnetFromVpn(vpnId, subnetId, internetVpnId);
+                Subnetmap subnetmap = neutronvpnUtils.getSubnetmap(subnetId);
+                if (subnetmap != null) {
+                    removeSubnetFromVpn(vpnId, subnetmap, internetVpnId);
+                } else {
+                    LOG.error("handleNeutronRouterDeleted: Subnetmap for subnet {} not found when deleting router {}",
+                            subnetId, routerId.getValue());
+                }
             }
             clearFromVpnMaps(vpnId, routerId, null);
         } else {
             // remove existing internal vpn interfaces
             for (Uuid subnetId : routerSubnetIds) {
-                removeSubnetFromVpn(routerId, subnetId, internetVpnId);
+                Subnetmap subnetmap = neutronvpnUtils.getSubnetmap(subnetId);
+                if (subnetmap != null) {
+                    removeSubnetFromVpn(routerId, subnetmap, internetVpnId);
+                } else {
+                    LOG.error("handleNeutronRouterDeleted: Subnetmap for subnet {} not found when deleting router {}",
+                            subnetId, routerId.getValue());
+                }
             }
         }
         // delete entire vpnMaps node for internal VPN
