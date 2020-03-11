@@ -216,6 +216,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     protected void add(final InstanceIdentifier<VrfEntry> identifier, final VrfEntry vrfEntry) {
         Preconditions.checkNotNull(vrfEntry, "VrfEntry should not be null or empty.");
         String rd = identifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
+        FibUtil.updateFibEventCache(rd, vrfEntry.getDestPrefix(), "vrfEntryAddEventDTCN");
         LOG.debug("ADD: Adding Fib Entry rd {} prefix {} route-paths {}",
                 rd, vrfEntry.getDestPrefix(), vrfEntry.getRoutePaths());
         addFibEntries(identifier, vrfEntry, rd);
@@ -254,6 +255,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     protected void remove(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry) {
         Preconditions.checkNotNull(vrfEntry, "VrfEntry should not be null or empty.");
         String rd = identifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
+        FibUtil.updateFibEventCache(rd, vrfEntry.getDestPrefix(), "vrfEntryRemoveEventDTCN");
         LOG.debug("REMOVE: Removing Fib Entry rd {} prefix {} route-paths {}",
                 rd, vrfEntry.getDestPrefix(), vrfEntry.getRoutePaths());
         removeFibEntries(identifier, vrfEntry, rd);
@@ -295,6 +297,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     protected void update(InstanceIdentifier<VrfEntry> identifier, VrfEntry original, VrfEntry update) {
         Preconditions.checkNotNull(update, "VrfEntry should not be null or empty.");
         final String rd = identifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
+        FibUtil.updateFibEventCache(rd, update.getDestPrefix(), "vrfEntryUpdateEventDTCN");
         LOG.debug("UPDATE: Updating Fib Entries to rd {} prefix {} route-paths {} origin {} old-origin {}", rd,
                 update.getDestPrefix(), update.getRoutePaths(), update.getOrigin(), original.getOrigin());
         // Handle BGP Routes first

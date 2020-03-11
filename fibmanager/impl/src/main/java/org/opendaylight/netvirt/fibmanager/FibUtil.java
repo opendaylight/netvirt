@@ -14,10 +14,14 @@ import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CR
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.net.InetAddresses;
 import java.net.InetAddress;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -25,6 +29,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -127,6 +133,10 @@ import org.slf4j.LoggerFactory;
 public class FibUtil {
     private static final Logger LOG = LoggerFactory.getLogger(FibUtil.class);
     private static final String FLOWID_PREFIX = "L3.";
+    private static final int RD_IP_PAIR_EVENT_CACHE_SIZE = 10;
+    private static final int NUM_OF_RD_IP_PAIR_IN_CACHE = 2000;
+    private static Cache<Pair<String, String>, Cache<String, String>> fibEventMap =
+            CacheBuilder.newBuilder().maximumSize(NUM_OF_RD_IP_PAIR_IN_CACHE).build();
 
     private final DataBroker dataBroker;
     private final IdManagerService idManager;
@@ -912,5 +922,31 @@ public class FibUtil {
             }
         }
         return false;
+    }
+
+    static void updateFibEventCache(String rd, String ipAddr, String event) {
+        String currTime = new SimpleDateFormat("MM/dd/yyyy h:mm:ss.SSS").format(new Date());
+        if (getCache(rd, ipAddr) == null) {
+            createCache(rd, ipAddr);
+        }
+        getCache(rd, ipAddr).put(event, currTime);
+    }
+
+    private static Cache<String, String> getCache(String rd, String ipAddress) {
+        Pair<String, String> rdIpPair = new ImmutablePair<>(rd, ipAddress);
+        return fibEventMap.getIfPresent(rdIpPair);
+    }
+
+    private static Cache<String, String> getEventTimeStampMapCache() {
+        return CacheBuilder.newBuilder().maximumSize(RD_IP_PAIR_EVENT_CACHE_SIZE).build();
+    }
+
+    private static void createCache(String rd, String ipAddress) {
+        Pair<String, String> rdIpPair = new ImmutablePair<>(rd, ipAddress);
+        fibEventMap.put(rdIpPair, getEventTimeStampMapCache());
+    }
+
+    static Cache<Pair<String, String>, Cache<String, String>> getFibEventMap() {
+        return fibEventMap;
     }
 }

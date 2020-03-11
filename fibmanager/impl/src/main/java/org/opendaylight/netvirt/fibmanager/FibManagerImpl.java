@@ -9,12 +9,14 @@ package org.opendaylight.netvirt.fibmanager;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.cache.Cache;
 import com.google.common.util.concurrent.FutureCallback;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.infra.Datastore.Configuration;
@@ -218,5 +220,9 @@ public class FibManagerImpl implements IFibManager {
     @Override
     public void refreshVrfEntry(String rd, String prefix) {
         vrfEntryListener.refreshFibTables(rd, prefix);
+    }
+
+    public Cache<Pair<String, String>, Cache<String, String>> getFibEventMap() {
+        return FibUtil.getFibEventMap();
     }
 }

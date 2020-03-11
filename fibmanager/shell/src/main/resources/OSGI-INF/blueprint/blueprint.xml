@@ -30,6 +30,12 @@
       </action>
     </command>
 
+    <command>
+      <action class="org.opendaylight.netvirt.fibmanager.shell.ShowVrfEventCache">
+        <property name="fibManager" ref="fibManagerRef" />
+      </action>
+    </command>
+
   </command-bundle>
 
 </blueprint>

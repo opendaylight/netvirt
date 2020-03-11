@@ -8,10 +8,12 @@
 
 package org.opendaylight.netvirt.fibmanager.api;
 
+import com.google.common.cache.Cache;
 import com.google.common.util.concurrent.FutureCallback;
 
 import java.util.List;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -89,4 +91,6 @@ public interface IFibManager {
                                        Class<? extends TunnelTypeBase> tunnelType);
 
     void refreshVrfEntry(String rd, String prefix);
+
+    Cache<Pair<String, String>, Cache<String, String>> getFibEventMap();
 }
