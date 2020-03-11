@@ -260,7 +260,6 @@ public final class VpnUtil {
 
     public static final int SINGLE_TRANSACTION_BROKER_NO_RETRY = 1;
     private static Boolean arpLearningEnabled = Boolean.TRUE;
-
     private final DataBroker dataBroker;
     private final IdManagerService idManager;
     private final IFibManager fibManager;
@@ -833,7 +832,8 @@ public final class VpnUtil {
         };
 
     @Deprecated
-    private <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
+    private <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType,
+                                                           InstanceIdentifier<T> path) {
         try {
             return SingleTransactionDataBroker.syncReadOptional(dataBroker, datastoreType, path);
         } catch (InterruptedException | ExecutionException e) {

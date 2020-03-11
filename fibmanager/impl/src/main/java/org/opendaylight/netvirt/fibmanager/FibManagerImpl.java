@@ -140,9 +140,10 @@ public class FibManagerImpl implements IFibManager {
     public void addOrUpdateFibEntry(String rd, String macAddress, String prefix,
             List<String> nextHopList, VrfEntry.EncapType encapType, Uint32 label,
             Uint32 l3vni, String gwMacAddress, String parentVpnRd, RouteOrigin origin,
-            TypedWriteTransaction<Configuration> writeConfigTxn) {
+                                    String vpnInterfaceName, String eventSource,
+                                    TypedWriteTransaction<Configuration> writeConfigTxn) {
         fibUtil.addOrUpdateFibEntry(rd, macAddress, prefix, nextHopList , encapType, label, l3vni, gwMacAddress,
-                parentVpnRd, origin, writeConfigTxn);
+                parentVpnRd, origin,  vpnInterfaceName, eventSource, writeConfigTxn);
     }
 
     @Override
@@ -154,20 +155,23 @@ public class FibManagerImpl implements IFibManager {
 
     @Override
     public void removeOrUpdateFibEntry(String rd, String prefix,
-            String nextHopToRemove, TypedWriteTransaction<Configuration> writeConfigTxn) {
-        fibUtil.removeOrUpdateFibEntry(rd, prefix, nextHopToRemove, writeConfigTxn);
+                                       String nextHopToRemove, String vpnInterfaceName, String eventSource,
+                                       TypedWriteTransaction<Configuration> writeConfigTxn) {
+        fibUtil.removeOrUpdateFibEntry(rd, prefix, nextHopToRemove,  vpnInterfaceName, eventSource, writeConfigTxn);
     }
 
     @Override
-    public void removeFibEntry(String rd, String prefix, String eventSource,
+    public void removeFibEntry(String rd, String prefix,  String vpnInterfaceName, String eventSource,
                                TypedWriteTransaction<Configuration> writeConfigTxn) {
-        fibUtil.removeFibEntry(rd, prefix, eventSource, writeConfigTxn);
+        fibUtil.removeFibEntry(rd, prefix, vpnInterfaceName, eventSource, writeConfigTxn);
     }
 
     @Override
     public void updateRoutePathForFibEntry(String rd, String prefix, String nextHop,
-            Uint32 label, boolean nextHopAdd, TypedWriteTransaction<Configuration> writeConfigTxn) {
-        fibUtil.updateRoutePathForFibEntry(rd, prefix, nextHop, label, nextHopAdd, writeConfigTxn);
+            Uint32 label, boolean nextHopAdd, String vpnInterfaceName, String eventSource,
+                TypedWriteTransaction<Configuration> writeConfigTxn) {
+        fibUtil.updateRoutePathForFibEntry(rd, prefix, nextHop, label, nextHopAdd, vpnInterfaceName,
+                eventSource, writeConfigTxn);
     }
 
     @Override

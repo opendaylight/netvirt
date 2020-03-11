@@ -257,7 +257,7 @@ public class VpnManagerImpl implements IVpnManager {
                             .setL3vni(l3vni.longValue())
                             .setPrimaryRd(primaryRd).setVpnName(vpnName).setDpnId(dpnId)
                             .setEncapType(encapType).setRd(rd).setRouteOrigin(origin);
-                    L3vpnRegistry.getRegisteredPopulator(encapType).populateFib(input, confTx);
+                    L3vpnRegistry.getRegisteredPopulator(encapType).populateFib(input, intfName, null, confTx);
                 }
             }
         }
@@ -286,7 +286,7 @@ public class VpnManagerImpl implements IVpnManager {
             LOG.info("delExtraRoute: Removed extra route {} from interface {} for rd {}", destination, intfName, rd);
         } else {
             // add FIB route directly
-            fibManager.removeOrUpdateFibEntry(routerID, destination, tunnelIp, confTx);
+            fibManager.removeOrUpdateFibEntry(routerID, destination, tunnelIp, intfName, null, confTx);
             LOG.info("delExtraRoute: Removed extra route {} from interface {} for rd {}", destination, intfName,
                     routerID);
         }
@@ -308,7 +308,8 @@ public class VpnManagerImpl implements IVpnManager {
                     nextHop, nextHopTunnelIp, operTx)) {
                 return;
             }
-            fibManager.removeOrUpdateFibEntry(primaryRd, prefix, nextHopTunnelIp, confTx);
+            fibManager.removeOrUpdateFibEntry(primaryRd, prefix, nextHopTunnelIp, vpnInterfaceName,
+                    null, confTx);
             if (VpnUtil.isEligibleForBgp(extraRouteRd, vpnName, dpnId, null /*networkName*/)) {
                 // TODO: Might be needed to include nextHop here
                 bgpManager.withdrawPrefix(extraRouteRd, prefix);
