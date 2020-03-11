@@ -13,7 +13,8 @@ import org.opendaylight.netvirt.vpnmanager.populator.input.L3vpnInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.adjacency.list.Adjacency;
 
 public interface VpnPopulator {
-    void populateFib(L3vpnInput input, TypedWriteTransaction<Configuration> writeCfgTxn);
+    void populateFib(L3vpnInput input, String vpnInterface, String source,
+                     TypedWriteTransaction<Configuration> writeCfgTxn);
 
     Adjacency createOperationalAdjacency(L3vpnInput input);
 }

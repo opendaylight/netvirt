@@ -73,7 +73,8 @@ public abstract class L3vpnPopulator implements VpnPopulator {
     }
 
     @Override
-    public void populateFib(L3vpnInput input, TypedWriteTransaction<Configuration> writeCfgTxn) {
+    public void populateFib(L3vpnInput input, String vpnInterface, String source,
+                            TypedWriteTransaction<Configuration> writeCfgTxn) {
 
     }
 
@@ -219,14 +220,15 @@ public abstract class L3vpnPopulator implements VpnPopulator {
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void addPrefixToBGP(String rd, String primaryRd, @Nullable String macAddress, String prefix,
                                   String nextHopIp, VrfEntry.EncapType encapType, Uint32 label, Uint32 l3vni,
-                                  String gatewayMac, RouteOrigin origin,
+                                  String gatewayMac, RouteOrigin origin, String vpnInterface, String source,
                                   TypedWriteTransaction<Configuration> writeConfigTxn) {
         try {
             List<String> nextHopList = Collections.singletonList(nextHopIp);
             LOG.info("ADD: addPrefixToBGP: Adding Fib entry rd {} prefix {} nextHop {} label {} gwMac {}", rd, prefix,
                     nextHopList, label, gatewayMac);
             fibManager.addOrUpdateFibEntry(primaryRd, macAddress, prefix, nextHopList,
-                    encapType, label, l3vni, gatewayMac, null /*parentVpnRd*/, origin, writeConfigTxn);
+                    encapType, label, l3vni, gatewayMac, null /*parentVpnRd*/, origin,
+                    vpnInterface, source, writeConfigTxn);
             LOG.info("ADD: addPrefixToBGP: Added Fib entry rd {} prefix {} nextHop {} label {} gwMac {}", rd, prefix,
                     nextHopList, label, gatewayMac);
             // Advertise the prefix to BGP only if nexthop ip is available
@@ -238,8 +240,8 @@ public abstract class L3vpnPopulator implements VpnPopulator {
                         + " gwMac {} is not advertised to BGP", rd, prefix, nextHopList, label, gatewayMac);
             }
         } catch (Exception e) {
-            LOG.error("addPrefixToBGP: Add prefix {} with rd {} nextHop {} label {} gwMac {} failed", prefix, rd,
-                    nextHopIp, label, gatewayMac, e);
+            LOG.error("addPrefixToBGP: Add prefix {} with rd {} nextHop {} label {} gwMac {} interface {} source {}"
+                    + " failed", prefix, rd, nextHopIp, label, gatewayMac, vpnInterface, source, e);
         }
     }
 }

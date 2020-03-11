@@ -140,7 +140,10 @@ public class TunnelEndPointChangeListener
                                                             vpnInterfaceManager.processVpnInterfaceAdjacencies(dpnId,
                                                                 lPortTag, vpnName, primaryRd, vpnInterfaceName, vpnId,
                                                                 writeConfigTxn, writeOperTxn, writeInvTxn,
-                                                                interfaceState, prefixesForRefreshFib)
+                                                                interfaceState, prefixesForRefreshFib,
+                                                                    vpnInterfaceManager
+                                                                            .FIB_EVENT_SOURCE_CONFIG_VPN_INTERFACE,
+                                                                    new ArrayList<String>())
                                                     )))));
                                 Futures.addCallback(writeConfigFuture, new FutureCallback<Void>() {
                                     @Override

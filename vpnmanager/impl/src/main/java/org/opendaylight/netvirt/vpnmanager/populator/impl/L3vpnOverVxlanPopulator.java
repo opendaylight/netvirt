@@ -53,7 +53,8 @@ public class L3vpnOverVxlanPopulator extends L3vpnPopulator {
     }
 
     @Override
-    public void populateFib(L3vpnInput input, TypedWriteTransaction<Configuration> writeConfigTxn) {
+    public void populateFib(L3vpnInput input, String vpnInterface, String source,
+                            TypedWriteTransaction<Configuration> writeConfigTxn) {
         if (input.getRouteOrigin() == RouteOrigin.CONNECTED) {
             LOG.info("populateFib : Found SubnetRoute for subnet {} rd {}", input.getSubnetIp(), input.getPrimaryRd());
             addSubnetRouteFibEntry(input);
@@ -67,7 +68,7 @@ public class L3vpnOverVxlanPopulator extends L3vpnPopulator {
             Objects.requireNonNull(input.getRouteOrigin(), "populateFib: RouteOrigin is mandatory");
             addPrefixToBGP(rd, primaryRd, nextHop.getMacAddress(), nextHop.getIpAddress(), input.getNextHopIp(),
                     input.getEncapType(), Uint32.ZERO /*label*/, Uint32.valueOf(input.getL3vni()),
-                    input.getGatewayMac(), input.getRouteOrigin(), writeConfigTxn);
+                    input.getGatewayMac(), input.getRouteOrigin(), vpnInterface, source, writeConfigTxn);
         } else {
             LOG.error("Internal VPN for L3 Over VxLAN is not supported. Aborting.");
             return;
