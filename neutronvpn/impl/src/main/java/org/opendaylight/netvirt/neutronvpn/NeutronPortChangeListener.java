@@ -415,20 +415,23 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
              *  cleanup of router interface flows*/
             nvpnManager.deleteVpnInterface(routerPort.getUuid().getValue(),
                                            null /* vpn-id */, null /* wrtConfigTxn*/);
-            final Uuid internetVpnId = vpnInstanceInternetUuid;
             // update RouterInterfaces map
             ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                 confTx -> {
                     IpVersionChoice ipVersion = IpVersionChoice.UNDEFINED;
                     for (FixedIps portIP : portIps) {
                         Subnetmap sn = neutronvpnUtils.getSubnetmap(portIP.getSubnetId());
+                        if (null == sn) {
+                            LOG.error("Subnetmap for subnet {} not found", portIP.getSubnetId().getValue());
+                            continue;
+                        }
                         // router Port have either IPv4 or IPv6, never both
                         ipVersion = neutronvpnUtils.getIpVersionFromString(sn.getSubnetIp());
                         String ipValue = portIP.getIpAddress().stringValue();
                         neutronvpnUtils.removeVpnPortFixedIpToPort(vpnId.getValue(), ipValue, confTx);
                         // NOTE:  Please donot change the order of calls to removeSubnetFromVpn and
                         // and updateSubnetNodeWithFixedIP
-                        nvpnManager.removeSubnetFromVpn(vpnId, portIP.getSubnetId(), internetVpnId);
+                        nvpnManager.removeSubnetFromVpn(vpnId, sn, sn.getInternetVpnId());
                         nvpnManager.updateSubnetNodeWithFixedIp(portIP.getSubnetId(), null, null,
                             null, null, null);
                     }
