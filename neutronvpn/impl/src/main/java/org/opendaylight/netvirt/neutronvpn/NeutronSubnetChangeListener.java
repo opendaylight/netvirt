@@ -99,14 +99,14 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
         Uuid networkId = input.getNetworkId();
         Uuid subnetId = input.getUuid();
         Network network = neutronvpnUtils.getNeutronNetwork(networkId);
+        handleNeutronSubnetDeleted(subnetId, networkId, input.getCidr().stringValue());
         if (network == null || !NeutronvpnUtils.isNetworkTypeSupported(network)) {
             LOG.warn("neutron vpn received a subnet remove() for a network without a provider extension augmentation "
                             + "or with an unsupported network type for the subnet {} which is part of network {}",
                     subnetId.getValue(), network);
-            return;
+        } else {
+            externalSubnetHandler.handleExternalSubnetRemoved(network, subnetId);
         }
-        handleNeutronSubnetDeleted(subnetId, networkId, input.getCidr().stringValue());
-        externalSubnetHandler.handleExternalSubnetRemoved(network, subnetId);
         neutronvpnUtils.removeFromSubnetCache(input);
     }
 
@@ -136,7 +136,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
                     vpnId.getValue());
             Subnetmap subnetmap = neutronvpnUtils.getSubnetmap(subnetId);
             if (subnetmap != null) {
-                nvpnManager.removeSubnetFromVpn(vpnId, subnetId, null /* internet-vpn-id */);
+                nvpnManager.removeSubnetFromVpn(vpnId, subnetmap, null /* internet-vpn-id */);
             } else {
                 LOG.error("Subnetmap for subnet {} not found", subnetId.getValue());
             }
