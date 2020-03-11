@@ -32,7 +32,12 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.metrics.Counter;
+import org.opendaylight.infrautils.metrics.Labeled;
+import org.opendaylight.infrautils.metrics.MetricDescriptor;
+import org.opendaylight.infrautils.metrics.MetricProvider;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev170119.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
@@ -61,6 +66,11 @@ public class InterfaceStateChangeListener
     private final VpnUtil vpnUtil;
     private final JobCoordinator jobCoordinator;
     private final IFibManager fibManager;
+    private static final String FIB_EVENT_SOURCE_INTERFACE_STATE = "interfaceStateEvent";
+    private final MetricProvider metricProvider;
+    private final Labeled<Labeled<Labeled<Counter>>> intfCounter;
+    private Counter counter;
+    private final IVpnManager vpnManager;
 
     Table<OperStatus, OperStatus, IntfTransitionState> stateTable = HashBasedTable.create();
 
@@ -86,7 +96,8 @@ public class InterfaceStateChangeListener
 
     @Inject
     public InterfaceStateChangeListener(final DataBroker dataBroker, final VpnInterfaceManager vpnInterfaceManager,
-            final VpnUtil vpnUtil, final JobCoordinator jobCoordinator, final IFibManager fibManager) {
+            final VpnUtil vpnUtil, final JobCoordinator jobCoordinator, final IFibManager fibManager,
+                                        final IVpnManager vpnManager, MetricProvider metricProvider) {
         super(Interface.class, InterfaceStateChangeListener.class);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
@@ -94,6 +105,12 @@ public class InterfaceStateChangeListener
         this.vpnUtil = vpnUtil;
         this.jobCoordinator = jobCoordinator;
         this.fibManager = fibManager;
+        this.metricProvider = metricProvider;
+        this.vpnManager = vpnManager;
+        intfCounter =  metricProvider.newCounter(MetricDescriptor.builder().anchor(this)
+                .project("netvirt").module("vpnmanager")
+                .id("interfacestate").build(), "entitytype", "action",
+                "name");
         initialize();
     }
 
@@ -123,8 +140,12 @@ public class InterfaceStateChangeListener
             if (L2vlan.class.equals(intrf.getType())) {
                 LOG.info("VPN Interface add event - intfName {} from InterfaceStateChangeListener",
                                 intrf.getName());
+                counter = intfCounter.label("interfaceState.add").label("interface")
+                        .label(intrf.getName());
+                counter.increment();
                 jobCoordinator.enqueueJob("VPNINTERFACE-" + intrf.getName(), () -> {
                     List<ListenableFuture<Void>> futures = new ArrayList<>(3);
+                    List<String> ipAddressList = new ArrayList<String>();
                     futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, writeInvTxn -> {
                         //map of prefix and vpn name used, as entry in prefix-to-interface datastore
                         // is prerequisite for refresh Fib to avoid race condition leading to missing remote next hop
@@ -142,6 +163,10 @@ public class InterfaceStateChangeListener
                                                     vpnIf.nonnullVpnInstanceNames()) {
                                                 String vpnName = vpnInterfaceVpnInstance.getVpnName();
                                                 String primaryRd = vpnUtil.getPrimaryRd(vpnName);
+                                                counter = intfCounter.label("interfaceState.add.djc")
+                                                        .label("rd.interface").label(primaryRd + "."
+                                                                + vpnIf.getName());
+                                                counter.increment();
                                                 if (!vpnInterfaceManager.isVpnInstanceReady(vpnName)) {
                                                     LOG.info("VPN Interface add event - intfName {} onto vpnName {} "
                                                             + "running oper-driven, VpnInstance not ready, holding"
@@ -170,7 +195,8 @@ public class InterfaceStateChangeListener
                                                     Set<String> prefixes = new HashSet<>();
                                                     vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnIf, primaryRd,
                                                             ifIndex, false, writeConfigTxn, writeOperTxn, writeInvTxn,
-                                                            intrf, vpnName, prefixes);
+                                                            intrf, vpnName, prefixes, FIB_EVENT_SOURCE_INTERFACE_STATE,
+                                                            ipAddressList);
                                                     mapOfRdAndPrefixesForRefreshFib.put(primaryRd, prefixes);
                                                 }
                                             }
@@ -185,8 +211,8 @@ public class InterfaceStateChangeListener
                                 MoreExecutors.directExecutor());
                         futures.add(configFuture);
                         //TODO: Allow immediateFailedFuture from writeCfgTxn to cancel writeInvTxn as well.
-                        Futures.addCallback(configFuture, new PostVpnInterfaceThreadWorker(intrf.getName(), true,
-                                "Operational"), MoreExecutors.directExecutor());
+                        Futures.addCallback(configFuture, new PostVpnInterfaceThreadWorker(intrf.getName(),
+                                ipAddressList,true, "Operational"), MoreExecutors.directExecutor());
                     }));
                     return futures;
                 });
@@ -206,6 +232,9 @@ public class InterfaceStateChangeListener
             if (L2vlan.class.equals(intrf.getType())) {
                 LOG.info("VPN Interface remove event - intfName {} from InterfaceStateChangeListener",
                                 intrf.getName());
+                counter = intfCounter.label("interfaceState.remove").label("interface")
+                        .label(intrf.getName());
+                counter.increment();
                 try {
                     dpId = InterfaceUtils.getDpIdFromInterface(intrf);
                 } catch (Exception e) {
@@ -215,6 +244,7 @@ public class InterfaceStateChangeListener
                 final Uint64 inputDpId = dpId;
                 jobCoordinator.enqueueJob("VPNINTERFACE-" + ifName, () -> {
                     List<ListenableFuture<Void>> futures = new ArrayList<>(3);
+                    List<String> ipAddressList = new ArrayList<String>();
                     ListenableFuture<Void> configFuture =
                         txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                             writeConfigTxn -> futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL,
@@ -238,6 +268,11 @@ public class InterfaceStateChangeListener
                                             }
                                             handleMipAdjRemoval(cfgVpnInterface, vpnName);
                                             final VpnInterfaceOpDataEntry vpnInterface = optVpnInterface.get();
+                                            String rd = vpnManager.getVpnRd(dataBroker, vpnInterface.getVpnInstanceName());
+                                            counter = intfCounter.label("interfaceState.remove.djc")
+                                                    .label("rd.interface")
+                                                    .label(rd + "." + vpnInterface.getName());
+                                            counter.increment();
                                             String gwMac = intrf.getPhysAddress() != null ? intrf.getPhysAddress()
                                                 .getValue() : vpnInterface.getGatewayMacAddress();
                                             Uint64 dpnId = inputDpId;
@@ -248,12 +283,13 @@ public class InterfaceStateChangeListener
                                             LOG.info("VPN Interface remove event - intfName {} onto vpnName {}"
                                                 + " running oper-driver", vpnInterface.getName(), vpnName);
                                             vpnInterfaceManager.processVpnInterfaceDown(dpnId, ifName, ifIndex, gwMac,
-                                                vpnInterface, false, writeConfigTxn, writeOperTxn, writeInvTxn);
+                                                vpnInterface, false, FIB_EVENT_SOURCE_INTERFACE_STATE,
+                                                    ipAddressList, writeConfigTxn, writeOperTxn, writeInvTxn);
                                         }
                                     })))));
                     futures.add(configFuture);
-                    Futures.addCallback(configFuture, new PostVpnInterfaceThreadWorker(intrf.getName(), false,
-                            "Operational"), MoreExecutors.directExecutor());
+                    Futures.addCallback(configFuture, new PostVpnInterfaceThreadWorker(intrf.getName(), ipAddressList,
+                            false, "Operational"), MoreExecutors.directExecutor());
                     return futures;
                 }, DJC_MAX_RETRIES);
             }
@@ -275,6 +311,9 @@ public class InterfaceStateChangeListener
             if (L2vlan.class.equals(update.getType())) {
                 LOG.info("VPN Interface update event - intfName {} from InterfaceStateChangeListener",
                         update.getName());
+                counter = intfCounter.label("interfaceState.update").label("interface")
+                        .label(update.getName());
+                counter.increment();
                 jobCoordinator.enqueueJob("VPNINTERFACE-" + ifName, () -> {
                     List<ListenableFuture<Void>> futures = new ArrayList<>(3);
                     futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, writeOperTxn -> {
@@ -297,6 +336,7 @@ public class InterfaceStateChangeListener
                                                         ifName, e);
                                                     return;
                                                 }
+                                                List<String> ipAddressList = new ArrayList<String>();
                                                 IntfTransitionState state = getTransitionState(
                                                         original.getOperStatus(), update.getOperStatus());
                                                 if (state.equals(IntfTransitionState.STATE_IGNORE)) {
@@ -315,6 +355,11 @@ public class InterfaceStateChangeListener
                                                             vpnIf.getVpnInstanceNames()) {
                                                         String vpnName = vpnInterfaceVpnInstance.getVpnName();
                                                         String primaryRd = vpnUtil.getPrimaryRd(vpnName);
+                                                        counter = intfCounter
+                                                                .label("interfaceState.update.state.up")
+                                                                .label("rd.interface")
+                                                                .label(primaryRd + "." + vpnIf.getName());
+                                                        counter.increment();
                                                         Set<String> prefixes = new HashSet<>();
                                                         if (!vpnInterfaceManager.isVpnInstanceReady(vpnName)) {
                                                             LOG.error("VPN Interface update event - intfName {} "
@@ -326,10 +371,17 @@ public class InterfaceStateChangeListener
                                                                 + "{}, as vpnInstance {} with primaryRd {} is "
                                                                 + "already marked for deletion ",
                                                                 vpnIf.getName(), vpnName, primaryRd);
+                                                            counter = intfCounter
+                                                                    .label("interfaceState.update.state.up")
+                                                                    .label("ignore.vpn." +
+                                                                            "marked.del.rd.interface")
+                                                                    .label(primaryRd + "." + vpnIf.getName());
+                                                            counter.increment();
                                                         } else {
                                                             vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnIf,
                                                                 primaryRd, ifIndex, true, writeConfigTxn,
-                                                                writeOperTxn, writeInvTxn, update, vpnName, prefixes);
+                                                                writeOperTxn, writeInvTxn, update, vpnName, prefixes,
+                                                                    FIB_EVENT_SOURCE_INTERFACE_STATE, ipAddressList);
                                                             mapOfRdAndPrefixesForRefreshFib.put(primaryRd, prefixes);
                                                         }
                                                     }
@@ -338,6 +390,12 @@ public class InterfaceStateChangeListener
                                                     for (VpnInstanceNames vpnInterfaceVpnInstance :
                                                             vpnIf.getVpnInstanceNames()) {
                                                         String vpnName = vpnInterfaceVpnInstance.getVpnName();
+                                                        String primaryRd = vpnUtil.getPrimaryRd(vpnName);
+                                                        counter = intfCounter
+                                                                .label("interfaceState.update.state.down")
+                                                                .label("rd.interface")
+                                                                .label(primaryRd + "." + vpnIf.getName());
+                                                        counter.increment();
                                                         LOG.info("VPN Interface update event - intfName {} "
                                                             + " onto vpnName {} running oper-driven DOWN",
                                                             vpnIf.getName(), vpnName);
@@ -350,6 +408,7 @@ public class InterfaceStateChangeListener
                                                             vpnInterfaceManager.processVpnInterfaceDown(dpnId,
                                                                 vpnIf.getName(), ifIndex, update.getPhysAddress()
                                                                 .getValue(), vpnOpInterface, true,
+                                                                    FIB_EVENT_SOURCE_INTERFACE_STATE, ipAddressList,
                                                                 writeConfigTxn, writeOperTxn, writeInvTxn);
                                                         } else {
                                                             LOG.error("InterfaceStateChangeListener Update DOWN - "
@@ -403,30 +462,35 @@ public class InterfaceStateChangeListener
         private final String interfaceName;
         private final boolean add;
         private final String txnDestination;
+        List<String> ipPrefixList;
 
-        PostVpnInterfaceThreadWorker(String interfaceName, boolean add, String transactionDest) {
+        PostVpnInterfaceThreadWorker(String interfaceName, List<String> ipAddrList,
+                                     boolean add, String transactionDest) {
             this.interfaceName = interfaceName;
             this.add = add;
             this.txnDestination = transactionDest;
+            this.ipPrefixList = ipAddrList;
         }
 
         @Override
         public void onSuccess(Void voidObj) {
             if (add) {
-                LOG.debug("InterfaceStateChangeListener: VrfEntries for {} stored into destination {} successfully",
-                        interfaceName, txnDestination);
+                LOG.debug("InterfaceStateChangeListener: VrfEntries for {} ipPrefixList {} stored into destination"
+                        + " {} successfully", interfaceName, ipPrefixList, txnDestination);
             } else {
-                LOG.debug("InterfaceStateChangeListener:  VrfEntries for {} removed successfully", interfaceName);
+                LOG.debug("InterfaceStateChangeListener:  VrfEntries for {} ipPrefixList {} removed successfully",
+                        ipPrefixList, interfaceName);
             }
         }
 
         @Override
         public void onFailure(Throwable throwable) {
             if (add) {
-                LOG.error("InterfaceStateChangeListener: VrfEntries for {} failed to store into destination {}",
-                        interfaceName, txnDestination, throwable);
+                LOG.error("InterfaceStateChangeListener: VrfEntries for {} ipPrefixList {} failed to store into"
+                        + " destination {} with exception: {}", interfaceName, ipPrefixList, txnDestination, throwable);
             } else {
-                LOG.error("InterfaceStateChangeListener: VrfEntries for {} removal failed", interfaceName, throwable);
+                LOG.error("InterfaceStateChangeListener: VrfEntries for {} ipPrefixList {} removal failed with "
+                        + "exception: {}", interfaceName, ipPrefixList, throwable);
                 vpnUtil.unsetScheduledToRemoveForVpnInterface(interfaceName);
             }
         }
