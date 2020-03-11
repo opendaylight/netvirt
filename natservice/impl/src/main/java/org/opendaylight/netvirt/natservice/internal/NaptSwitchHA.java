@@ -443,7 +443,8 @@ public class NaptSwitchHA {
                             String rd = NatUtil.getVpnRd(dataBroker, vpnName);
                             for (String externalIp : externalIpsCache) {
                                 LOG.debug("isNaptSwitchDown : Removing Fib entry rd {} prefix {}", rd, externalIp);
-                                fibManager.removeFibEntry(rd, externalIp, null, null);
+                                fibManager.removeFibEntry(rd, externalIp, null, null,
+                                        null);
                             }
                         }
                     } else {
@@ -1066,7 +1067,7 @@ public class NaptSwitchHA {
         }
         if (ent.isPresent()) {
             LOG.debug("removeFibEntry : Removing Fib entry rd {} prefix {}", rd, prefix);
-            fibManager.removeFibEntry(rd, prefix, null, null);
+            fibManager.removeFibEntry(rd, prefix, null, null, null);
         }
     }
 
