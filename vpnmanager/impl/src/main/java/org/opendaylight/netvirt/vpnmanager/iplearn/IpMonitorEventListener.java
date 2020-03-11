@@ -55,11 +55,20 @@ public class IpMonitorEventListener implements AlivenessMonitorListener {
             String vpnName = macEntry.getVpnName();
             String learntIp = macEntry.getIpAddress().getHostAddress();
             LearntVpnVipToPort vpnVipToPort = vpnUtil.getLearntVpnVipToPort(vpnName, learntIp);
-            if (vpnVipToPort != null && macEntry.getCreatedTime().equals(vpnVipToPort.getCreationTime())) {
-                String jobKey = VpnUtil.buildIpMonitorJobKey(macEntry.getIpAddress().getHostAddress(),
-                        macEntry.getVpnName());
-                jobCoordinator.enqueueJob(jobKey, new IpMonitorStopTask(macEntry, dataBroker, Boolean.TRUE, vpnUtil,
-                        alivenessMonitorUtils));
+            if (vpnVipToPort != null) {
+                if (macEntry.getCreatedTime().equals(vpnVipToPort.getCreationTime())) {
+                    String jobKey = VpnUtil.buildIpMonitorJobKey(macEntry.getIpAddress().getHostAddress(),
+                            macEntry.getVpnName());
+                    jobCoordinator.enqueueJob(jobKey, new IpMonitorStopTask(macEntry, dataBroker, Boolean.TRUE, vpnUtil,
+                            alivenessMonitorUtils));
+                } else {
+                    LOG.error("onMonitorEvent: VpnPortIpPort creationTime {} mis-match with macEntry creationTime {}"
+                                    + "for VpnName {} learntIp {}", vpnVipToPort.getCreationTime(),
+                            macEntry.getCreatedTime(), vpnName, learntIp);
+                }
+            } else {
+                LOG.error("onMonitorEvent: VpnPortIpPort is missing for VpnName {} learntIp {} monitorId {}",
+                        vpnName, learntIp, monitorId);
             }
 
         }
