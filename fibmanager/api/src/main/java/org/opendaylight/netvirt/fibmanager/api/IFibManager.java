@@ -56,20 +56,21 @@ public interface IFibManager {
 
     void addOrUpdateFibEntry(String rd, @Nullable String macAddress, String prefix, List<String> nextHopList,
                              VrfEntry.EncapType encapType, Uint32 label, Uint32 l3vni, @Nullable String gwMacAddress,
-                             @Nullable String parentVpnRd, RouteOrigin origin,
-                             @Nullable TypedWriteTransaction<Configuration> writeConfigTxn);
+                             @Nullable String parentVpnRd, RouteOrigin origin,  String vpnInterfaceName,
+                             String eventSource, @Nullable TypedWriteTransaction<Configuration> writeConfigTxn);
 
     void addFibEntryForRouterInterface(String rd, String prefix,
                                        RouterInterface routerInterface, Uint32 label,
                                        TypedWriteTransaction<Configuration> writeConfigTxn);
 
-    void removeOrUpdateFibEntry(String rd, String prefix, String nextHopToRemove,
-                                TypedWriteTransaction<Configuration> writeConfigTxn);
+    void removeOrUpdateFibEntry(String rd, String prefix, String nextHopToRemove, String vpnInterfaceName,
+                                String eventSource, TypedWriteTransaction<Configuration> writeConfigTxn);
 
-    void removeFibEntry(String rd, String prefix, String eventSource,
+    void removeFibEntry(String rd, String prefix, String vpnInterfaceName, String eventSource,
                         @Nullable TypedWriteTransaction<Configuration> writeConfigTxn);
 
-    void updateRoutePathForFibEntry(String rd, String prefix, String nextHop, Uint32 label, boolean nextHopAdd,
+    void updateRoutePathForFibEntry(String rd, String prefix, String nextHop,
+                                    Uint32 label, boolean nextHopAdd, String vpnInterfaceName, String eventSource,
                                     TypedWriteTransaction<Configuration> writeConfigTxn);
 
     void addVrfTable(String rd, WriteTransaction writeConfigTxn);
