@@ -13,6 +13,10 @@ import com.google.common.base.Optional;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -26,6 +30,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig.NatMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
@@ -54,6 +59,8 @@ public class ExternalNetworksChangeListener
     private final OdlInterfaceRpcService interfaceManager;
     private final JobCoordinator coordinator;
     private final NatMode natMode;
+    private final Map<String, ConcurrentLinkedQueue<PendingExternalNetworks>>
+            pendingExternalNetworks = new ConcurrentHashMap<>();
 
     @Inject
     public ExternalNetworksChangeListener(final DataBroker dataBroker, final FloatingIPListener floatingIpListener,
@@ -116,6 +123,9 @@ public class ExternalNetworksChangeListener
 
             LOG.debug("remove : successful deletion of data in napt-switches container");
         }
+        if (networks.getVpnid() != null) {
+            removePendingExternalNetworks(networks.getVpnid().getValue(), networks);
+        }
     }
 
     @Override
@@ -124,9 +134,17 @@ public class ExternalNetworksChangeListener
         Uuid originalVpn = original.getVpnid();
         Uuid updatedVpn = update.getVpnid();
         if (originalVpn == null && updatedVpn != null) {
+            VpnInstance vpnInstance = NatUtil.getVpnIdToVpnInstance(dataBroker, updatedVpn.getValue());
+            if (vpnInstance == null || vpnInstance.getVpnId() == null) {
+                LOG.error("createNATFlowEntries: VPN ID Not Available for VpnInstance {}. Adding to "
+                        + "UnprocessedUpdatedExternalnetwork queue", updatedVpn);
+                addToPendingExternalNetworks(identifier, update);
+                return;
+            }
             //external network is dis-associated from L3VPN instance
             associateExternalNetworkWithVPN(update);
         } else if (originalVpn != null && updatedVpn == null) {
+            removePendingExternalNetworks(originalVpn.getValue(), original);
             //external network is associated with vpn
             disassociateExternalNetworkFromVPN(update, originalVpn.getValue());
             //Remove the SNAT entries
@@ -300,6 +318,110 @@ public class ExternalNetworksChangeListener
                     }
                 }
             }
+        }
+    }
+
+    private void addToPendingExternalNetworks(InstanceIdentifier<Networks> identifier, Networks network) {
+        synchronized (network.getVpnid().getValue().intern()) {
+            ConcurrentLinkedQueue<PendingExternalNetworks> unProcessedExternalNetwork
+                    = pendingExternalNetworks.get(network.getVpnid().getValue());
+            if (unProcessedExternalNetwork == null) {
+                unProcessedExternalNetwork = new ConcurrentLinkedQueue<>();
+            }
+            unProcessedExternalNetwork.add(new PendingExternalNetworks(identifier, network));
+            pendingExternalNetworks.put(network.getVpnid().getValue(), unProcessedExternalNetwork);
+            LOG.debug("addToPendingExternalNetworks: Saved unhandled external network {} for vpn Instance {} ",
+                    network, network.getVpnid().getValue());
+        }
+    }
+
+    public void removePendingExternalNetworks(String vpnInstanceName, Networks network) {
+        synchronized (vpnInstanceName.intern()) {
+            if (network != null) {
+                if (pendingExternalNetworks.get(vpnInstanceName) != null) {
+                    pendingExternalNetworks.get(vpnInstanceName).remove(network);
+                }
+            } else {
+                pendingExternalNetworks.remove(vpnInstanceName);
+            }
+        }
+    }
+
+
+    public void processPendingExternalNetworks(String vpnInstanceName) {
+        synchronized (vpnInstanceName.intern()) {
+            ConcurrentLinkedQueue<PendingExternalNetworks> externalNetworkData =
+                    pendingExternalNetworks.get(vpnInstanceName);
+            if (externalNetworkData != null) {
+                while (!externalNetworkData.isEmpty()) {
+                    PendingExternalNetworks savedInstance = externalNetworkData.poll();
+                    String currVpnId = savedInstance.getNetwork().getVpnid().getValue();
+                    if (!currVpnId.equals(vpnInstanceName)) {
+                        continue;
+                    }
+                    associateExternalNetworkWithVPN(savedInstance.getNetwork());
+                    LOG.debug("processPendingExternalNetworks: Handled PendingExternalNetworks {} for VPN {}",
+                            savedInstance.getNetwork(), vpnInstanceName);
+                }
+            } else {
+                LOG.debug("processPendingExternalNetworks: No ExternalNetworks in queue for VPN {}",
+                        vpnInstanceName);
+            }
+        }
+    }
+
+    private static class PendingExternalNetworks {
+        private final InstanceIdentifier<Networks> identifier;
+        private final Networks network;
+
+        PendingExternalNetworks(InstanceIdentifier<Networks> identifier, Networks network) {
+            this.identifier = identifier;
+            this.network = network;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((identifier == null) ? 0 : identifier.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            PendingExternalNetworks other = (PendingExternalNetworks) obj;
+            if (identifier == null) {
+                if (other.identifier != null) {
+                    return false;
+                }
+            } else if (!identifier.equals(other.identifier)) {
+                return false;
+            }
+            if (network == null) {
+                if (other.network != null) {
+                    return false;
+                }
+            } else if ((other.network == null) || !(network.getId().equals(other.network.getId()))) {
+                return false;
+            }
+            return true;
+        }
+
+        public InstanceIdentifier<Networks> getIdentifier() {
+            return identifier;
+        }
+
+        public Networks getNetwork() {
+            return network;
         }
     }
 }

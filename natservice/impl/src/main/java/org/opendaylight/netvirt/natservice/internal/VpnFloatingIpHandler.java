@@ -216,11 +216,6 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                 if (NatUtil.isOpenStackVniSemanticsEnforcedForGreAndVxlan(elanService, provType)) {
                     l3vni = natOverVxlanUtil.getInternetVpnVni(vpnName, l3vni);
                 }
-                String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
-                //Inform BGP
-                NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd,
-                    fibExternalIp, nextHopIp, networkId.getValue(), floatingIpPortMacAddress,
-                        label, l3vni, RouteOrigin.STATIC, dpnId);
 
                 List<Instruction> instructions = new ArrayList<>();
                 List<ActionInfo> actionsInfos = new ArrayList<>();
@@ -239,17 +234,21 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                         makeLFibTableEntry(dpnId, label, floatingIpPortMacAddress, NwConstants.PDNAT_TABLE,
                             innerConfTx);
                     }), LOG, "Error adding tunnel or FIB table entries");
-
+                String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
                 CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName)
                         .setSourceDpid(dpnId).setInstruction(customInstructions)
                         .setIpAddress(fibExternalIp).setServiceId(label)
                         .setIpAddressSource(CreateFibEntryInput.IpAddressSource.FloatingIP)
                         .setInstruction(customInstructions).build();
-                //Future<RpcResult<java.lang.Void>> createFibEntry(CreateFibEntryInput input);
-                ListenableFuture<RpcResult<CreateFibEntryOutput>> future1 = fibService.createFibEntry(input);
                 LOG.debug("onAddFloatingIp : Add Floating Ip {} , found associated to fixed port {}",
                         externalIp, interfaceName);
                 String networkVpnName =  NatUtil.getAssociatedVPN(dataBroker, networkId);
+                //Future<RpcResult<java.lang.Void>> createFibEntry(CreateFibEntryInput input);
+                Future<RpcResult<Void>> future1 = fibService.createFibEntry(input);
+                //Inform BGP
+                NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, subnetId,
+                        fibExternalIp, nextHopIp, networkId.getValue(), floatingIpPortMacAddress,
+                        label, l3vni, RouteOrigin.STATIC, dpnId);
                 txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
                     vpnManager.addSubnetMacIntoVpnInstance(networkVpnName, subnetVpnName,
                             floatingIpPortMacAddress, dpnId, tx);

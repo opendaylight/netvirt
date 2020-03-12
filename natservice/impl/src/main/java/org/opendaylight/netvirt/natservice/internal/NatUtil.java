@@ -2860,9 +2860,11 @@ public final class NatUtil {
         for (String internalIp : fixedIps) {
             LOG.debug("removeSnatEntriesForPort: Internal Ip retrieved for interface {} is {} in router with Id {}",
                 interfaceName, internalIp, routerId);
+            Boolean portListNotNull = false;
             for (ProtocolTypes protocol : protocolTypesList) {
                 List<Uint16> portList = NatUtil.getInternalIpPortListInfo(dataBroker, routerId, internalIp, protocol);
-                if (portList != null) {
+                if (!portList.isEmpty()) {
+                    portListNotNull = true;
                     for (Uint16 portnum : portList) {
                         //build and remove the flow in outbound table
                         removeNatFlow(mdsalManager, naptSwitch, NwConstants.OUTBOUND_NAPT_TABLE,
@@ -2902,7 +2904,9 @@ public final class NatUtil {
             // delete the entry from SnatIntIpPortMap DS
             LOG.debug("removeSnatEntriesForPort: Removing InternalIp :{} of router {} from snatint-ip-port-map",
                 internalIp, routerId);
-            naptManager.removeFromSnatIpPortDS(routerId, internalIp);
+            if (portListNotNull) {
+                naptManager.removeFromSnatIpPortDS(routerId, internalIp);
+            }
         }
     }
 
