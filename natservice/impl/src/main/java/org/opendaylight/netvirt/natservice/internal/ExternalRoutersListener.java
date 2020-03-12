@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.annotation.PostConstruct;
@@ -182,6 +184,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     private final IInterfaceManager interfaceManager;
     private final NatOverVxlanUtil natOverVxlanUtil;
     private final int snatPuntTimeout;
+    private final Map<String, ConcurrentLinkedQueue<ExternalRoutersListener.PendingExternalRouters>>
+            pendingExternalRouters = new ConcurrentHashMap<>();
 
     @Inject
     public ExternalRoutersListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -260,33 +264,40 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         String routerName = routers.getRouterName();
         LOG.info("add : external router event for {}", routerName);
         Uint32 routerId = NatUtil.getVpnId(dataBroker, routerName);
+        if (routerId == NatConstants.INVALID_ID) {
+            LOG.error("routerId is null for router {}, adding to pending external routers list", routerName);
+            addToPendingExternalRouters(identifier, routers);
+            return;
+        }
+        configureExternalRouter(identifier, routers, routerId);
+    }
+
+    protected void configureExternalRouter(InstanceIdentifier<Routers> identifier, Routers routers, long routerId) {
+        String routerName = routers.getRouterName();
         NatUtil.createRouterIdsConfigDS(dataBroker, routerId, routerName);
         Uuid bgpVpnUuid = NatUtil.getVpnForRouter(dataBroker, routerName);
-        try {
-            if (routers.isEnableSnat()) {
-                coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + routers.key(),
-                    () -> Collections.singletonList(
-                        txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, confTx -> {
+        if (!routers.isEnableSnat()) {
+            LOG.info("add : SNAT is disabled for external router {} ", routerName);
+            return;
+        }
+        coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + routers.getKey(),
+                () -> Collections.singletonList(NatUtil.waitForTransactionToComplete(
+                        txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeFlowInvTx -> {
                             LOG.info("add : Installing NAT default route on all dpns part of router {}", routerName);
-                            Uint32 bgpVpnId = NatConstants.INVALID_ID;
+                            long bgpVpnId = NatConstants.INVALID_ID;
                             if (bgpVpnUuid != null) {
                                 bgpVpnId = NatUtil.getVpnId(dataBroker, bgpVpnUuid.getValue());
                             }
-                            addOrDelDefFibRouteToSNAT(routerName, routerId, bgpVpnId, bgpVpnUuid, true, confTx);
+                            addOrDelDefFibRouteToSNAT(routerName, routerId, bgpVpnId, bgpVpnUuid, true, writeFlowInvTx);
                             // Allocate Primary Napt Switch for this router
-                            Uint64 primarySwitchId = getPrimaryNaptSwitch(routerName);
-                            if (primarySwitchId != null && !primarySwitchId.equals(Uint64.ZERO)) {
-                                handleEnableSnat(routers, routerId, primarySwitchId, bgpVpnId, confTx);
+                            BigInteger primarySwitchId = getPrimaryNaptSwitch(routerName);
+                            if (primarySwitchId != null && !primarySwitchId.equals(BigInteger.ZERO)) {
+                                handleEnableSnat(routers, routerId, primarySwitchId, bgpVpnId, writeFlowInvTx);
                             }
-                        }
-                    )), NatConstants.NAT_DJC_MAX_RETRIES);
-            } else {
-                LOG.info("add : SNAT is disabled for external router {} ", routerName);
-            }
-        } catch (Exception ex) {
-            LOG.error("add : Exception while Installing NAT flows on all dpns as part of router {}",
-                    routerName, ex);
-        }
+                        }))
+                ), NatConstants.NAT_DJC_MAX_RETRIES
+        );
+
     }
 
     public void handleEnableSnat(Routers routers, Uint32 routerId, Uint64 primarySwitchId, Uint32 bgpVpnId,
@@ -1763,6 +1774,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         }
 
         String routerName = router.getRouterName();
+        // flush out if there any pending jobs on ext-router removal
+        removePendingExternalRouters(routerName);
         coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + router.key(),
             () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
                 LOG.info("remove : Removing default NAT route from FIB on all dpns part of router {} ",
@@ -3011,10 +3024,100 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         for (Uuid externalSubnetId : externalSubnetIdsForRouter) {
             Uint32 subnetVpnId = NatUtil.getVpnId(dataBroker, externalSubnetId.getValue());
             if (subnetVpnId != NatConstants.INVALID_ID) {
-                LOG.debug("installNaptPfibEntriesForExternalSubnets : called for dpnId {} "
-                    + "and vpnId {}", dpnId, subnetVpnId);
+                LOG.debug("installNaptPfibEntriesForExternalSubnets : called for dpnId {} and vpnId {}",
+                        dpnId, subnetVpnId);
                 installNaptPfibEntry(dpnId, subnetVpnId, writeFlowInvTx);
             }
+        }
+    }
+    private void addToPendingExternalRouters(InstanceIdentifier<Routers> identifier, Routers router) {
+        synchronized (router.getRouterName().intern()) {
+            ConcurrentLinkedQueue<ExternalRoutersListener.PendingExternalRouters> unProcessedExternalRouter
+                    = pendingExternalRouters.get(router.getRouterName());
+            if (unProcessedExternalRouter == null) {
+                unProcessedExternalRouter = new ConcurrentLinkedQueue<>();
+            }
+            unProcessedExternalRouter.add(new ExternalRoutersListener.PendingExternalRouters(identifier, router));
+            pendingExternalRouters.put(router.getRouterName(), unProcessedExternalRouter);
+            LOG.debug("addToPendingExternalRouters: Saved unhandled external router {} for vpn Instance {}"
+                    + " due to missing routerid", router, router.getRouterName());
+        }
+    }
+
+    public void removePendingExternalRouters(String routerName) {
+        synchronized (routerName.intern()) {
+            pendingExternalRouters.remove(routerName);
+        }
+    }
+
+    public void processPendingExternalRouters(String routerName, Long routerId) {
+        synchronized (routerName.intern()) {
+            ConcurrentLinkedQueue<ExternalRoutersListener.PendingExternalRouters> externalRouterData =
+                    pendingExternalRouters.get(routerName);
+            if (externalRouterData != null && !externalRouterData.isEmpty()) {
+                ExternalRoutersListener.PendingExternalRouters savedInstance = externalRouterData.poll();
+                LOG.debug("processPendingExternalRouters: Handled PendingExternalRouters {} awaiting for router id {}",
+                        routerName, routerId);
+                configureExternalRouter(savedInstance.getIdentifier(), savedInstance.getRouter(), routerId);
+            } else {
+                LOG.debug("processPendingExternalRouters: No External Router in queue for routerName {}, routerId {}",
+                        routerName, routerId);
+            }
+        }
+    }
+
+    private static class PendingExternalRouters {
+        private final InstanceIdentifier<Routers> identifier;
+        private final Routers router;
+
+        PendingExternalRouters(InstanceIdentifier<Routers> identifier, Routers router) {
+            this.identifier = identifier;
+            this.router = router;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((identifier == null) ? 0 : identifier.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            ExternalRoutersListener.PendingExternalRouters other = (ExternalRoutersListener.PendingExternalRouters) obj;
+            if (identifier == null) {
+                if (other.identifier != null) {
+                    return false;
+                }
+            } else if (!identifier.equals(other.identifier)) {
+                return false;
+            }
+            if (router == null) {
+                if (other.router != null) {
+                    return false;
+                }
+            } else if ((other.router == null) || !(router.getRouterName().equals(other.router.getRouterName()))) {
+                return false;
+            }
+            return true;
+        }
+
+        public InstanceIdentifier<Routers> getIdentifier() {
+            return identifier;
+        }
+
+        public Routers getRouter() {
+            return router;
         }
     }
 }

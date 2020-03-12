@@ -16,6 +16,9 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -88,6 +91,8 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     private final JobCoordinator coordinator;
     private final CentralizedSwitchScheduler centralizedSwitchScheduler;
     private final NatSwitchCache natSwitchCache;
+    private final Map<String, ConcurrentLinkedQueue<FloatingIPListener.PendingFloatingIPs>>
+            pendingFloatingIPs = new ConcurrentHashMap<>();
 
     @Inject
     public FloatingIPListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -137,6 +142,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     @Override
     protected void remove(InstanceIdentifier<InternalToExternalPortMap> identifier, InternalToExternalPortMap mapping) {
         LOG.trace("FloatingIPListener remove ip mapping method - kkey: {} value: {}",mapping.key(), mapping);
+        this.removePendingFloatingIPs(mapping.getExternalId().getValue());
         processFloatingIPDel(identifier, mapping);
     }
 
@@ -151,14 +157,6 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     private FlowEntity buildPreDNATFlowEntity(Uint64 dpId, InternalToExternalPortMap mapping, Uint32 routerId,
                                               Uint32 associatedVpn) {
         String externalIp = mapping.getExternalIp();
-        Uuid floatingIpId = mapping.getExternalId();
-        //Get the FIP MAC address for DNAT
-        String floatingIpPortMacAddress = NatUtil.getFloatingIpPortMacFromFloatingIpId(dataBroker, floatingIpId);
-        if (floatingIpPortMacAddress == null) {
-            LOG.error("buildPreDNATFlowEntity : Unable to retrieve floatingIpPortMacAddress from floating IP UUID {} "
-                    + "for floating IP {}", floatingIpId, externalIp);
-            return null;
-        }
         LOG.debug("buildPreDNATFlowEntity : Bulding DNAT Flow entity for ip {} ", externalIp);
         Uint32 segmentId = associatedVpn == NatConstants.INVALID_ID ? routerId : associatedVpn;
         LOG.debug("buildPreDNATFlowEntity : Segment id {} in build preDNAT Flow", segmentId);
@@ -167,11 +165,17 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         matches.add(MatchEthernetType.IPV4);
 
         matches.add(new MatchIpv4Destination(externalIp, "32"));
+        Uuid floatingIpId = mapping.getExternalId();
+        //Get the FIP MAC address for DNAT
+        String floatingIpPortMacAddress = NatUtil.getFloatingIpPortMacFromFloatingIpId(dataBroker, floatingIpId);
+        if (floatingIpPortMacAddress == null) {
+            LOG.error("buildPreDNATFlowEntity : Unable to retrieve floatingIpPortMacAddress from floating IP UUID {} "
+                    + "for floating IP {}", floatingIpId, externalIp);
+            return null;
+        }
         //Match Destination Floating IP MAC Address on table = 25 (PDNAT_TABLE)
         matches.add(new MatchEthernetDestination(new MacAddress(floatingIpPortMacAddress)));
 
-//        matches.add(new MatchMetadata(
-//                BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
         List<ActionInfo> actionsInfos = new ArrayList<>();
         String internalIp = mapping.getInternalIp();
         actionsInfos.add(new ActionSetDestinationIp(internalIp, "32"));
@@ -312,7 +316,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         FlowEntity preFlowEntity = buildPreDNATFlowEntity(dpnId, mapping, routerId, associatedVpnId);
         if (preFlowEntity == null) {
             LOG.error("createDNATTblEntry : Flow entity received as NULL. "
-                    + "Cannot proceed with installation of Pre-DNAT flow table {} --> table {} on DpnId {}",
+                            + "Cannot proceed with installation of Pre-DNAT flow table {} --> table {} on DpnId {}",
                     NwConstants.PDNAT_TABLE, NwConstants.DNAT_TABLE, dpnId);
         } else {
             mdsalManager.addFlow(confTx, preFlowEntity);
@@ -412,6 +416,14 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
                                       final InternalToExternalPortMap mapping) {
         LOG.trace("processFloatingIPAdd key: {}, value: {}", mapping.key(), mapping);
 
+        Uuid floatingIpId = mapping.getExternalId();
+        String floatingIpPortMacAddress = NatUtil.getFloatingIpPortMacFromFloatingIpId(dataBroker, floatingIpId);
+        if (floatingIpPortMacAddress == null) {
+            LOG.error("floatingIpPortMacAddress is null for floatingIpId {}, adding it to "
+                    + "pendingFloatingIPs queue", floatingIpId);
+            addToPendingFloatingIPs(identifier, mapping);
+            return;
+        }
         final String routerId = identifier.firstKeyOf(RouterPorts.class).getRouterId();
         final PortsKey pKey = identifier.firstKeyOf(Ports.class);
         String interfaceName = pKey.getPortName();
@@ -419,7 +431,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         InstanceIdentifier<RouterPorts> portIid = identifier.firstIdentifierOf(RouterPorts.class);
         coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + mapping.key(), () -> Collections.singletonList(
                 txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
-                    tx -> createNATFlowEntries(interfaceName, mapping, portIid, routerId, null, tx))),
+                        tx -> createNATFlowEntries(interfaceName, mapping, portIid, routerId, null, tx))),
                 NatConstants.NAT_DJC_MAX_RETRIES);
     }
 
@@ -916,6 +928,104 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
                         + "with vpn-id {}", dpnId, routerName, routerId);
                 defaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, routerId, confTx);
             }
+        }
+    }
+    private void addToPendingFloatingIPs(InstanceIdentifier<InternalToExternalPortMap> identifier,
+                                         InternalToExternalPortMap mapping) {
+        if (mapping != null) {
+            String floatingIpId = mapping.getExternalId().getValue();
+            synchronized (floatingIpId.intern()) {
+                ConcurrentLinkedQueue<FloatingIPListener.PendingFloatingIPs> unProcessedFloatingIP
+                        = pendingFloatingIPs.get(floatingIpId);
+                if (unProcessedFloatingIP == null) {
+                    unProcessedFloatingIP = new ConcurrentLinkedQueue<>();
+                }
+                unProcessedFloatingIP.add(new FloatingIPListener.PendingFloatingIPs(identifier, mapping));
+                pendingFloatingIPs.put(floatingIpId, unProcessedFloatingIP);
+                LOG.debug("addToPendingFloatingIPs: Saved unhandled FloatingIP {} ", floatingIpId);
+            }
+        } else {
+            LOG.error("InternalToExternalPortMap is null");
+        }
+    }
+
+    public void removePendingFloatingIPs(String floatingIpId) {
+        if (floatingIpId != null) {
+            synchronized (floatingIpId.intern()) {
+                pendingFloatingIPs.remove(floatingIpId);
+            }
+        }
+    }
+
+
+    public void processPendingFloatingIPs(String floatingIP) {
+        synchronized (floatingIP.intern()) {
+            ConcurrentLinkedQueue<FloatingIPListener.PendingFloatingIPs> floatingIPData =
+                    pendingFloatingIPs.get(floatingIP);
+            if (floatingIPData != null && !floatingIPData.isEmpty()) {
+                FloatingIPListener.PendingFloatingIPs savedInstance = floatingIPData.poll();
+                processFloatingIPAdd(savedInstance.getIdentifier(), savedInstance.getMapping());
+                LOG.debug("processPendingFloatingIPs: Handled PendingFloatingIP {}", floatingIP);
+            } else {
+                LOG.debug("processPendingFloatingIPs: No entry in queue for FloatingIP {}",
+                        floatingIP);
+            }
+        }
+    }
+
+    private static class PendingFloatingIPs {
+        private final InstanceIdentifier<InternalToExternalPortMap> identifier;
+        private final InternalToExternalPortMap mapping;
+
+        PendingFloatingIPs(InstanceIdentifier<InternalToExternalPortMap> identifier,
+                           InternalToExternalPortMap mapping) {
+            this.identifier = identifier;
+            this.mapping = mapping;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((identifier == null) ? 0 : identifier.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            FloatingIPListener.PendingFloatingIPs other = (FloatingIPListener.PendingFloatingIPs) obj;
+            if (identifier == null) {
+                if (other.identifier != null) {
+                    return false;
+                }
+            } else if (!identifier.equals(other.identifier)) {
+                return false;
+            }
+            if (mapping == null) {
+                if (other.mapping != null) {
+                    return false;
+                }
+            } else if ((other.mapping == null) || !(mapping.getExternalIp().equals(other.mapping.getExternalIp()))) {
+                return false;
+            }
+            return true;
+        }
+
+        public InstanceIdentifier<InternalToExternalPortMap> getIdentifier() {
+            return identifier;
+        }
+
+        public InternalToExternalPortMap getMapping() {
+            return mapping;
         }
     }
 }
