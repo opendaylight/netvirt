@@ -22,7 +22,7 @@ public interface FibConstants {
     String VPN_IDPOOL_NAME = "vpnservices";
     String SEPARATOR = ".";
     String DEFAULT_NEXTHOP_IP = "0.0.0.0";
-    long INVALID_GROUP_ID = -1;
+    long INVALID_GROUP_ID = 0;
     int DEFAULT_VPN_INTERNAL_TUNNEL_TABLE_PRIORITY = 8;
 
     Map<Integer, Class<? extends NxmNxReg>> NXM_REG_MAPPING = ImmutableMap.of(0, NxmNxReg0.class, 1, NxmNxReg1.class);

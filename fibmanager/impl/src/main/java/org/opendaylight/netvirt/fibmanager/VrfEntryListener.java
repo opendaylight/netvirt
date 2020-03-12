@@ -1390,12 +1390,22 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                 boolean lriRemoved = deleteLabelRouteInfo(lri, vpnInstanceName, tx);
                                 if (lriRemoved) {
                                     String parentRd = lri.getParentVpnRd();
-                                    fibUtil.releaseId(FibConstants.VPN_IDPOOL_NAME, FibUtil.getNextHopLabelKey(
-                                            parentRd, vrfEntry.getDestPrefix()));
+                                    int releasedLabel = FibUtil.releaseId(idManager, FibConstants.VPN_IDPOOL_NAME,
+                                            FibUtil.getNextHopLabelKey(parentRd, vrfEntry.getDestPrefix()));
+                                    if (releasedLabel == FibConstants.INVALID_ID) {
+                                        LOG.error("CleanupVpnInterfaceWorker: Unable to release label for key {}",
+                                                FibUtil.getNextHopLabelKey(parentRd, vrfEntry.getDestPrefix()));
+                                        // not returning here and allowing the cleanup to go through
+                                    }
                                 }
                             } else {
-                                fibUtil.releaseId(FibConstants.VPN_IDPOOL_NAME, FibUtil.getNextHopLabelKey(
-                                        rd, vrfEntry.getDestPrefix()));
+                                int releasedLabel = FibUtil.releaseId(idManager, FibConstants.VPN_IDPOOL_NAME,
+                                        FibUtil.getNextHopLabelKey(rd, vrfEntry.getDestPrefix()));
+                                if (releasedLabel == FibConstants.INVALID_ID) {
+                                    LOG.error("CleanupVpnInterfaceWorker: Unable to release label for key {}",
+                                            FibUtil.getNextHopLabelKey(rd, vrfEntry.getDestPrefix()));
+                                    // not returning here and allowing the cleanup to go through
+                                }
                             }
                         } finally {
                             lock.unlock();
@@ -1559,14 +1569,24 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         boolean lriRemoved = this.deleteLabelRouteInfo(lri, vpnInstanceName, null);
                         if (lriRemoved) {
                             String parentRd = lri.getParentVpnRd();
-                            fibUtil.releaseId(FibConstants.VPN_IDPOOL_NAME, FibUtil.getNextHopLabelKey(
-                                    parentRd, vrfEntry.getDestPrefix()));
+                            int releasedLabel = FibUtil.releaseId(idManager, FibConstants.VPN_IDPOOL_NAME,
+                                    FibUtil.getNextHopLabelKey(parentRd, vrfEntry.getDestPrefix()));
+                            if (releasedLabel == FibConstants.INVALID_ID) {
+                                LOG.error("deleteFibEntries: Unable to release label for key {}",
+                                        FibUtil.getNextHopLabelKey(parentRd, vrfEntry.getDestPrefix()));
+                                // not returning here and allowing the cleanup to go through
+                            }
                             LOG.trace("SUBNETROUTE: deleteFibEntries: Released subnetroute label {} for rd {} prefix {}"
                                     + " as labelRouteInfo cleared", label, rd, vrfEntry.getDestPrefix());
                         }
                     } else {
-                        fibUtil.releaseId(FibConstants.VPN_IDPOOL_NAME, FibUtil.getNextHopLabelKey(
-                                rd, vrfEntry.getDestPrefix()));
+                        int releasedLabel = FibUtil.releaseId(idManager, FibConstants.VPN_IDPOOL_NAME,
+                                FibUtil.getNextHopLabelKey(rd, vrfEntry.getDestPrefix()));
+                        if (releasedLabel == FibConstants.INVALID_ID) {
+                            LOG.error("deleteFibEntries: Unable to release label for key {}",
+                                    FibUtil.getNextHopLabelKey(rd, vrfEntry.getDestPrefix()));
+                            // not returning here and allowing the cleanup to go through
+                        }
                         LOG.trace("SUBNETROUTE: deleteFibEntries: Released subnetroute label {} for rd {} prefix {}",
                                 label, rd, vrfEntry.getDestPrefix());
                     }

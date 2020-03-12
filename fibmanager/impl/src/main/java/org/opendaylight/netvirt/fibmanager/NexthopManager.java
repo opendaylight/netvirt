@@ -215,10 +215,12 @@ public class NexthopManager implements AutoCloseable {
         try {
             Future<RpcResult<CreateIdPoolOutput>> result = idManager.createIdPool(createPool);
             if (result != null && result.get().isSuccessful()) {
-                LOG.info("Created IdPool for NextHopPointerPool");
+                LOG.info("Created IdPool for nexthop pointer");
+            } else {
+                LOG.error("createIdPool: Unable to create ID pool for nexthop pointer");
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Failed to create idPool for NextHopPointerPool", e);
+            LOG.error("createIdPool: Failed to create idPool for nexthop pointer",e);
         }
     }
 
@@ -236,37 +238,6 @@ public class NexthopManager implements AutoCloseable {
 
     public ItmRpcService getItmManager() {
         return itmManager;
-    }
-
-    protected long createNextHopPointer(String nexthopKey) {
-        AllocateIdInput getIdInput = new AllocateIdInputBuilder()
-            .setPoolName(NEXTHOP_ID_POOL_NAME).setIdKey(nexthopKey)
-            .build();
-        //TODO: Proper error handling once IdManager code is complete
-        try {
-            Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
-            RpcResult<AllocateIdOutput> rpcResult = result.get();
-            return rpcResult.getResult().getIdValue().toJava();
-        } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            // FIXME: NPEs should not be caught but rather their root cause should be eliminated
-            LOG.trace("Failed to allocate {}", getIdInput, e);
-        }
-        return 0;
-    }
-
-    protected void removeNextHopPointer(String nexthopKey) {
-        ReleaseIdInput idInput = new ReleaseIdInputBuilder()
-            .setPoolName(NEXTHOP_ID_POOL_NAME)
-            .setIdKey(nexthopKey).build();
-        try {
-            RpcResult<ReleaseIdOutput> rpcResult = idManager.releaseId(idInput).get();
-            if (!rpcResult.isSuccessful()) {
-                LOG.error("RPC Call to Get Unique Id for nexthopKey {} returned with Errors {}",
-                        nexthopKey, rpcResult.getErrors());
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.warn("Exception when getting Unique Id for key {}", nexthopKey, e);
-        }
     }
 
     protected List<ActionInfo> getEgressActionsForInterface(final String ifName, int actionKey,
@@ -408,8 +379,9 @@ public class NexthopManager implements AutoCloseable {
         }
         String macAddress = fibUtil.getMacAddressFromPrefix(ifName, vpnName, primaryIpAddress);
 
-        long groupId = createNextHopPointer(getNextHopKey(vpnId, primaryIpAddress));
-        if (groupId == 0) {
+        long groupId = FibUtil.getUniqueId(idManager, NEXTHOP_ID_POOL_NAME, getNextHopKey(vpnId,
+                primaryIpAddress));
+        if (groupId == FibConstants.INVALID_ID) {
             LOG.error("Unable to allocate groupId for vpnId {} , IntfName {}, primaryIpAddress {} curIpPrefix {}",
                     vpnId, ifName, primaryIpAddress, currDestIpPrefix);
             return groupId;
@@ -627,7 +599,13 @@ public class NexthopManager implements AutoCloseable {
                         //update MD-SAL DS
                         removeVpnNexthopFromDS(vpnId, primaryIpAddress);
                         //release groupId
-                        removeNextHopPointer(getNextHopKey(vpnId, primaryIpAddress));
+                        int releasedNextHop = FibUtil.releaseId(idManager, NEXTHOP_ID_POOL_NAME, getNextHopKey(vpnId,
+                                primaryIpAddress));
+                        if (releasedNextHop == FibConstants.INVALID_ID) {
+                            LOG.error("removeLocalNextHop: Unable to release nexthop group ID for key {}",
+                                    getNextHopKey(vpnId, primaryIpAddress));
+                            return;
+                        }
                         LOG.debug("Local Next hop {} for {} {} on dpn {} successfully deleted",
                                 nh.getEgressPointer(), vpnId, primaryIpAddress, dpnId);
                     } else {
