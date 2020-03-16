@@ -345,7 +345,7 @@ public class FibUtil {
             } else {
                 MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
             }
-            LOG.debug("Created vrfEntry for router-interface-prefix {} rd {} label {}", prefix, rd, label);
+            LOG.error("Created vrfEntry for router-interface-prefix {} rd {} label {}", prefix, rd, label);
         } catch (Exception e) {
             LOG.error("addFibEntryForRouterInterface: prefix {} rd {} label {} error ", prefix, rd, label, e);
         }
@@ -479,7 +479,7 @@ public class FibUtil {
                 } else {
                     MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routePathId, routePaths);
                 }
-                LOG.debug("Added routepath with nextHop {} for prefix {} and label {}.", nextHop, prefix, label);
+                LOG.error("Added routepath with nextHop {} for prefix {} and label {}.", nextHop, prefix, label);
             } else {
                 Optional<RoutePaths> routePath = MDSALUtil.read(dataBroker,
                         LogicalDatastoreType.CONFIGURATION, routePathId);
