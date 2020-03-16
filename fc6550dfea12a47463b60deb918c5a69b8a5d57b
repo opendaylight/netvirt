@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b218af94_0cafc8eb",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2020-03-16T05:29:31Z",
+      "side": 1,
+      "message": "this should be remove() only",
+      "range": {
+        "startLine": 104,
+        "startChar": 52,
+        "endLine": 104,
+        "endChar": 55
+      },
+      "revId": "fc6550dfea12a47463b60deb918c5a69b8a5d57b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86a03eeb_f6a1c061",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2020-03-16T05:29:31Z",
+      "side": 1,
+      "message": "remove this return statement",
+      "range": {
+        "startLine": 107,
+        "startChar": 11,
+        "endLine": 107,
+        "endChar": 19
+      },
+      "revId": "fc6550dfea12a47463b60deb918c5a69b8a5d57b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f88e88c2_3113416a",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1688,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2020-03-16T05:29:31Z",
+      "side": 1,
+      "message": "why this suppressWarnings is needed here. Pleas remove it.",
+      "range": {
+        "startLine": 1688,
+        "startChar": 7,
+        "endLine": 1688,
+        "endChar": 21
+      },
+      "revId": "fc6550dfea12a47463b60deb918c5a69b8a5d57b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
