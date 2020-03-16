@@ -296,7 +296,7 @@ public class FibUtil {
 
             writeFibEntryToDs(vrfEntryId, prefix, nextHopList, label, l3vni, encapType, origin, macAddress,
                     gwMacAddress, parentVpnRd, writeConfigTxn);
-            LOG.info("addOrUpdateFibEntry: Created/Updated vrfEntry for rd {} prefix {} nexthop {} label {} l3vni {}"
+            LOG.error("addOrUpdateFibEntry: Created/Updated vrfEntry for rd {} prefix {} nexthop {} label {} l3vni {}"
                     + " origin {} encapType {}", rd, prefix, nextHopList, label, l3vni, origin, encapType);
         } catch (Exception e) {
             LOG.error("addOrUpdateFibEntry: rd {} prefix {} nexthop {} label {} l3vni {} origin {} encapType {}"
@@ -345,7 +345,7 @@ public class FibUtil {
             } else {
                 MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
             }
-            LOG.debug("Created vrfEntry for router-interface-prefix {} rd {} label {}", prefix, rd, label);
+            LOG.error("Created vrfEntry for router-interface-prefix {} rd {} label {}", prefix, rd, label);
         } catch (Exception e) {
             LOG.error("addFibEntryForRouterInterface: prefix {} rd {} label {} error ", prefix, rd, label, e);
         }
@@ -442,13 +442,13 @@ public class FibUtil {
                 } else {
                     MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
                 }
-                LOG.info("Removed Fib Entry rd {} prefix {} nextHop {}", rd, prefix, nextHopToRemove);
+                LOG.error("Removed Fib Entry rd {} prefix {} nextHop {}", rd, prefix, nextHopToRemove);
             } else {
                 InstanceIdentifier<RoutePaths> routePathsId =
                         FibHelper.buildRoutePathId(rd, prefix, routePath.getNexthopAddress());
                 // Remove route
                 MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, routePathsId);
-                LOG.info("Removed Route Path rd {} prefix {}, nextHop {}, label {}", rd, prefix,
+                LOG.error("Removed Route Path rd {} prefix {}, nextHop {}, label {}", rd, prefix,
                         routePath.getNexthopAddress(), routePath.getLabel());
             }
         } else {
@@ -479,7 +479,7 @@ public class FibUtil {
                 } else {
                     MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routePathId, routePaths);
                 }
-                LOG.debug("Added routepath with nextHop {} for prefix {} and label {}.", nextHop, prefix, label);
+                LOG.error("Added routepath with nextHop {} for prefix {} and label {}.", nextHop, prefix, label);
             } else {
                 Optional<RoutePaths> routePath = MDSALUtil.read(dataBroker,
                         LogicalDatastoreType.CONFIGURATION, routePathId);
@@ -493,7 +493,7 @@ public class FibUtil {
                 } else {
                     MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, routePathId);
                 }
-                LOG.info("Removed routepath with nextHop {} for prefix {} and rd {}.", nextHop, prefix, rd);
+                LOG.error("Removed routepath with nextHop {} for prefix {} and rd {}.", nextHop, prefix, rd);
             }
         } finally {
             lock.unlock();
