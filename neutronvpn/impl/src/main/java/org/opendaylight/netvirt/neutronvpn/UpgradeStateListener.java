@@ -10,10 +10,9 @@ package org.opendaylight.netvirt.neutronvpn;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.serviceutils.tools.mdsal.listener.AbstractClusteredSyncDataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.serviceutils.tools.listener.AbstractClusteredSyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.serviceutils.upgrade.rev180702.UpgradeConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -28,8 +27,7 @@ public class UpgradeStateListener extends AbstractClusteredSyncDataTreeChangeLis
     @Inject
     public UpgradeStateListener(final DataBroker dataBroker,
                                 final NeutronSubnetGwMacResolver neutronSubnetGwMacResolver) {
-        super(dataBroker, new DataTreeIdentifier<>(
-                LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(UpgradeConfig.class)));
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(UpgradeConfig.class));
         LOG.trace("UpgradeStateListener (neutronvpn) initialized");
         this.neutronSubnetGwMacResolver = neutronSubnetGwMacResolver;
     }

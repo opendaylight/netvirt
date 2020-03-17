@@ -7,15 +7,18 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.jobs;
 
-import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.FluentFuture;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.eclipse.jdt.annotation.NonNull;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
@@ -32,7 +35,7 @@ import org.slf4j.LoggerFactory;
 /**
  * The Class DeleteLogicalSwitchJob.
  */
-public class DeleteLogicalSwitchJob implements Callable<List<ListenableFuture<Void>>> {
+public class DeleteLogicalSwitchJob implements Callable<List<? extends ListenableFuture<?>>> {
     private DataBroker broker;
 
     /** The logical switch name. */
@@ -66,7 +69,7 @@ public class DeleteLogicalSwitchJob implements Callable<List<ListenableFuture<Vo
     }
 
     @Override
-    public List<ListenableFuture<Void>> call() {
+    public List<ListenableFuture<?>> call() {
         if (cancelled) {
             LOG.info("Delete logical switch job cancelled ");
             return Collections.emptyList();
@@ -82,7 +85,7 @@ public class DeleteLogicalSwitchJob implements Callable<List<ListenableFuture<Vo
         L2GatewayDevice l2GatewayDevice = new L2GatewayDevice("");
         l2GatewayDevice.setHwvtepNodeId(hwvtepNodeId.getValue());
 
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
+        List<ListenableFuture<?>> futures = new ArrayList<>();
         futures.add(HwvtepUtils.deleteLogicalSwitch(broker, hwvtepNodeId, logicalSwitchName));
         if (clearUcast) {
             LOG.trace("Clearing the local ucast macs of device {} macs ", hwvtepNodeId.getValue());

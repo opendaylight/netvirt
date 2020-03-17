@@ -16,7 +16,7 @@ import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HwvtepDeviceMcastMacUpdateJob implements Callable<List<ListenableFuture<Void>>> {
+public class HwvtepDeviceMcastMacUpdateJob implements Callable<List<? extends ListenableFuture<?>>> {
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepDeviceMcastMacUpdateJob.class);
 
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;

@@ -10,23 +10,23 @@ package org.opendaylight.netvirt.dhcpservice;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import com.google.common.base.Optional;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -47,7 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase<Subnet, DhcpSubnetListener> {
+public class DhcpSubnetListener extends AbstractClusteredAsyncDataTreeChangeListener<Subnet> {
     private static final Logger LOG = LoggerFactory.getLogger(DhcpSubnetListener.class);
 
     private final DataBroker dataBroker;
@@ -59,7 +59,8 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
     @Inject
     public DhcpSubnetListener(final DhcpManager dhcpManager, final DhcpExternalTunnelManager
             dhcpExternalTunnelManager, final DataBroker broker, final DhcpserviceConfig config) {
-        super(Subnet.class, DhcpSubnetListener.class);
+        super(broker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Neutron.class).child(Subnets.class)
+                .child(Subnet.class), Executors.newListeningSingleThreadExecutor("DhcpSubnetListener", LOG));
         this.dhcpManager = dhcpManager;
         this.dataBroker = broker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
@@ -67,30 +68,24 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
         this.config = config;
     }
 
-    @PostConstruct
     public void init() {
         if (config.isControllerDhcpEnabled()) {
-            registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
+            LOG.info("{} init", getClass().getSimpleName());
         }
     }
 
     @Override
-    protected void add(InstanceIdentifier<Subnet> identifier, Subnet add) {
+    public void add(InstanceIdentifier<Subnet> identifier, Subnet add) {
 
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Subnet> identifier, Subnet del) {
+    public void remove(InstanceIdentifier<Subnet> identifier, Subnet del) {
 
     }
 
     @Override
-    protected InstanceIdentifier<Subnet> getWildCardPath() {
-        return InstanceIdentifier.create(Neutron.class).child(Subnets.class).child(Subnet.class);
-    }
-
-    @Override
-    protected void update(InstanceIdentifier<Subnet> identifier, Subnet original, Subnet update) {
+    public void update(InstanceIdentifier<Subnet> identifier, Subnet original, Subnet update) {
         LOG.trace("DhcpSubnetListener Update : Original dhcpstatus: {}, Updated dhcpstatus {}", original.isEnableDhcp(),
                 update.isEnableDhcp());
 
@@ -234,7 +229,7 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
         SubnetmapBuilder builder = null ;
         InstanceIdentifier<Subnetmap> id = InstanceIdentifier.builder(Subnetmaps.class)
                 .child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
-        ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
+        ReadTransaction tx = broker.newReadOnlyTransaction();
 
         Optional<Subnetmap> sn ;
         try {
@@ -258,10 +253,5 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
     public void close() {
         super.close();
         LOG.info("DhcpSubnetListener Closed");
-    }
-
-    @Override
-    protected DhcpSubnetListener getDataTreeChangeListener() {
-        return DhcpSubnetListener.this;
     }
 }

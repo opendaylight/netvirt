@@ -15,10 +15,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepClusteredDataTreeChangeListener;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
@@ -26,6 +25,10 @@ import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
@@ -35,8 +38,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev15071
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.devices.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.l2gatewayconnections.L2gatewayConnection;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateways.attributes.l2gateways.L2gateway;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepPhysicalPortAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteMcastMacs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical.port.attributes.VlanBindings;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
@@ -68,8 +73,14 @@ public class HwvtepTerminationPointListener
     public HwvtepTerminationPointListener(DataBroker broker, ElanL2GatewayUtils elanL2GatewayUtils,
             ElanClusterUtils elanClusterUtils, L2GatewayCache l2GatewayCache,
             HwvtepNodeHACache hwvtepNodeHACache) {
-        super(TerminationPoint.class, HwvtepTerminationPointListener.class, hwvtepNodeHACache);
+        //super(TerminationPoint.class, HwvtepTerminationPointListener.class, hwvtepNodeHACache);
 
+        super(broker, DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
+            InstanceIdentifier.create(NetworkTopology.class)
+                .child(Topology.class, new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID)).child(Node.class)
+                .child(TerminationPoint.class)),
+            Executors.newListeningSingleThreadExecutor("HwvtepTerminationPointListener", LOG),
+            hwvtepNodeHACache);
         this.broker = broker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
         this.elanL2GatewayUtils = elanL2GatewayUtils;
@@ -112,20 +123,13 @@ public class HwvtepTerminationPointListener
         LOG.trace("physical locator available {}", identifier);
     }
 
-    @Override
-    protected InstanceIdentifier<TerminationPoint> getWildCardPath() {
-        return InstanceIdentifier.create(NetworkTopology.class)
-                .child(Topology.class, new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID)).child(Node.class)
-                .child(TerminationPoint.class);
-    }
-
-    @Override
-    protected HwvtepTerminationPointListener getDataTreeChangeListener() {
-        return this;
-    }
-
     private List<ListenableFuture<Void>> handlePortAdded(TerminationPoint portAdded, NodeId psNodeId) {
-        Node psNode = HwvtepUtils.getHwVtepNode(broker, LogicalDatastoreType.OPERATIONAL, psNodeId);
+        Node psNode = null;
+        try {
+            psNode = HwvtepUtils.getHwVtepNode(broker, LogicalDatastoreType.OPERATIONAL, psNodeId);
+        } catch(ExecutionException | InterruptedException e) {
+            LOG.error("Exception while retriving HwVtepNode {}", psNodeId.getValue(), e);
+        }
         if (psNode != null) {
             String psName = psNode.augmentation(PhysicalSwitchAugmentation.class).getHwvtepNodeName().getValue();
             L2GatewayDevice l2GwDevice = l2GatewayCache.get(psName);
@@ -152,8 +156,7 @@ public class HwvtepTerminationPointListener
     private List<ListenableFuture<Void>> handlePortDeleted(InstanceIdentifier<TerminationPoint> identifier) {
         InstanceIdentifier<Node> psNodeIid = identifier.firstIdentifierOf(Node.class);
         return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
-            tx -> tx.read(psNodeIid).get().toJavaUtil().ifPresent(
-                node -> tx.delete(identifier))));
+            tx -> tx.read(psNodeIid).get().ifPresent(node -> tx.delete(identifier))));
     }
 
     private List<VlanBindings> getVlanBindings(List<L2gatewayConnection> l2GwConns, NodeId hwvtepNodeId, String psName,

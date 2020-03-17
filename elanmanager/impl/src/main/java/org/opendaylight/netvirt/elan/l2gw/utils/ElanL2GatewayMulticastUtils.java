@@ -11,7 +11,8 @@ import static java.util.Collections.emptyList;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlanNetworkOrVxlanSegment;
 
-import com.google.common.base.Optional;
+import com.google.common.util.concurrent.FluentFuture;
+import java.util.Optional;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
@@ -21,13 +22,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -42,6 +44,7 @@ import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.netvirt.elan.l2gw.jobs.HwvtepDeviceMcastMacUpdateJob;
 import org.opendaylight.netvirt.elan.l2gw.jobs.McastUpdateJob;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
@@ -404,8 +407,8 @@ public class ElanL2GatewayMulticastUtils {
             operElanInstance = new SingleTransactionDataBroker(broker).syncReadOptional(
                 LogicalDatastoreType.OPERATIONAL,
                 InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class, elanInfo.key())
-                    .build()).orNull();
-        } catch (ReadFailedException e) {
+                    .build()).orElse(null);
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed to read elan instance operational path {}", elanInfo, e);
             return emptyList();
         }
@@ -635,13 +638,13 @@ public class ElanL2GatewayMulticastUtils {
      *            the l2 gateway device
      * @return the listenable future
      */
-    public List<ListenableFuture<Void>> handleMcastForElanL2GwDeviceDelete(String elanName,
+    public List<FluentFuture<?>> handleMcastForElanL2GwDeviceDelete(String elanName,
                                                                            L2GatewayDevice l2GatewayDevice) {
-        ListenableFuture<Void> deleteTepFuture =
+        FluentFuture<?> deleteTepFuture =
             txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                 tx -> tx.delete(buildExternalTepPath(elanName, l2GatewayDevice.getTunnelIp())));
         updateMcastMacsForAllElanDevices(elanName, l2GatewayDevice, false/* updateThisDevice */);
-        ListenableFuture<Void> deleteRemoteMcastMacFuture = deleteRemoteMcastMac(
+        FluentFuture<?> deleteRemoteMcastMacFuture = deleteRemoteMcastMac(
                 new NodeId(l2GatewayDevice.getHwvtepNodeId()), elanName);
         return Arrays.asList(deleteRemoteMcastMacFuture, deleteTepFuture);
     }
@@ -655,7 +658,7 @@ public class ElanL2GatewayMulticastUtils {
      *            the logical switch name
      * @return the listenable future
      */
-    public ListenableFuture<Void> deleteRemoteMcastMac(NodeId nodeId, String logicalSwitchName) {
+    public FluentFuture<? extends @NonNull CommitInfo> deleteRemoteMcastMac(NodeId nodeId, String logicalSwitchName) {
         InstanceIdentifier<LogicalSwitches> logicalSwitch = HwvtepSouthboundUtils
                 .createLogicalSwitchesInstanceIdentifier(nodeId, new HwvtepNodeName(logicalSwitchName));
         RemoteMcastMacsKey remoteMcastMacsKey = new RemoteMcastMacsKey(new HwvtepLogicalSwitchRef(logicalSwitch),
@@ -702,11 +705,22 @@ public class ElanL2GatewayMulticastUtils {
      */
     public DesignatedSwitchForTunnel getDesignatedSwitchForExternalTunnel(IpAddress tunnelIp,
             String elanInstanceName) {
-        InstanceIdentifier<DesignatedSwitchForTunnel> instanceIdentifier = InstanceIdentifier
+        try {
+            InstanceIdentifier<DesignatedSwitchForTunnel> instanceIdentifier = InstanceIdentifier
                 .builder(DesignatedSwitchesForExternalTunnels.class)
-                .child(DesignatedSwitchForTunnel.class, new DesignatedSwitchForTunnelKey(elanInstanceName, tunnelIp))
+                .child(DesignatedSwitchForTunnel.class,
+                    new DesignatedSwitchForTunnelKey(elanInstanceName, tunnelIp))
                 .build();
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, instanceIdentifier).orNull();
+            return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, instanceIdentifier)
+                .orElse(null);
+        } catch (ExecutionException e) {
+            LOG.error("Exception while retriving DesignatedSwitch for elan {} and tunnel {}",
+                elanInstanceName, tunnelIp, e);
+        } catch (InterruptedException e) {
+            LOG.error("Exception while retriving DesignatedSwitch for elan {} and tunnel {}",
+                elanInstanceName, tunnelIp, e);
+        }
+        return null;
     }
 
 }

@@ -7,15 +7,15 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.utils.TransportZoneNotificationUtil;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * Listen for new OVSDB nodes and then make sure they have the necessary bridges configured.
  */
 @Singleton
-public class ElanOvsdbNodeListener extends AsyncDataTreeChangeListenerBase<Node, ElanOvsdbNodeListener> {
+public class ElanOvsdbNodeListener extends AbstractAsyncDataTreeChangeListener<Node> {
     private static final Logger LOG = LoggerFactory.getLogger(ElanOvsdbNodeListener.class);
     private final DataBroker dataBroker;
     private final ElanBridgeManager bridgeMgr;
@@ -50,6 +50,9 @@ public class ElanOvsdbNodeListener extends AsyncDataTreeChangeListenerBase<Node,
     public ElanOvsdbNodeListener(final DataBroker dataBroker, ElanConfig elanConfig,
                                  final ElanBridgeManager bridgeMgr,
                                  final IElanService elanProvider, final TransportZoneNotificationUtil tzUtil) {
+        super(dataBroker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(NetworkTopology.class)
+                .child(Topology.class, new TopologyKey(SouthboundUtils.OVSDB_TOPOLOGY_ID)).child(Node.class),
+                Executors.newListeningSingleThreadExecutor("ElanOvsdbNodeListener", LOG));
         this.dataBroker = dataBroker;
         autoCreateBridge = elanConfig.isAutoCreateBridge();
         this.generateIntBridgeMac = elanConfig.isIntBridgeGenMac();
@@ -58,28 +61,17 @@ public class ElanOvsdbNodeListener extends AsyncDataTreeChangeListenerBase<Node,
         this.tzUtil = tzUtil;
     }
 
-    @Override
-    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<Node> getWildCardPath() {
-        return InstanceIdentifier
-                .create(NetworkTopology.class)
-                .child(Topology.class, new TopologyKey(SouthboundUtils.OVSDB_TOPOLOGY_ID))
-                .child(Node.class);
-    }
-
-    @Override
-    protected void remove(InstanceIdentifier<Node> identifier, Node node) {
+    public void remove(InstanceIdentifier<Node> identifier, Node node) {
         elanProvider.deleteExternalElanNetworks(node);
     }
 
     @Override
-    protected void update(InstanceIdentifier<Node> identifier, Node original, Node update) {
+    public void update(InstanceIdentifier<Node> identifier, Node original, Node update) {
         LOG.debug("ElanOvsdbNodeListener.update, updated node detected. original: NodeId = {}", original.getNodeId());
         boolean integrationBridgeExist = bridgeMgr.isBridgeOnOvsdbNode(update, bridgeMgr.getIntegrationBridgeName());
         // ignore updates where the bridge was deleted
@@ -95,7 +87,7 @@ public class ElanOvsdbNodeListener extends AsyncDataTreeChangeListenerBase<Node,
     }
 
     @Override
-    protected void add(InstanceIdentifier<Node> identifier, Node node) {
+    public void add(InstanceIdentifier<Node> identifier, Node node) {
         LOG.debug("ElanOvsdbNodeListener.add, new node detected {}", node);
         doNodeUpdate(node);
         elanProvider.createExternalElanNetworks(node);
@@ -110,8 +102,4 @@ public class ElanOvsdbNodeListener extends AsyncDataTreeChangeListenerBase<Node,
     /* (non-Javadoc)
      * @see org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase#getDataTreeChangeListener()
      */
-    @Override
-    protected ElanOvsdbNodeListener getDataTreeChangeListener() {
-        return ElanOvsdbNodeListener.this;
-    }
 }

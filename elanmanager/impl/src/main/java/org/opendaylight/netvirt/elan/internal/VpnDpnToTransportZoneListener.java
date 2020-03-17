@@ -11,10 +11,11 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.utils.TransportZoneNotificationUtil;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
@@ -25,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class VpnDpnToTransportZoneListener
-        extends AsyncDataTreeChangeListenerBase<VpnToDpnList, VpnDpnToTransportZoneListener> {
+        extends AbstractAsyncDataTreeChangeListener<VpnToDpnList> {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnDpnToTransportZoneListener.class);
     private final TransportZoneNotificationUtil transportZoneNotificationUtil;
@@ -35,6 +36,9 @@ public class VpnDpnToTransportZoneListener
     @Inject
     public VpnDpnToTransportZoneListener(final DataBroker dbx,
             final ElanConfig elanConfig, final TransportZoneNotificationUtil tznu) {
+        super(dbx, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(VpnInstanceOpData.class)
+                .child(VpnInstanceOpDataEntry.class).child(VpnToDpnList.class),
+                Executors.newListeningSingleThreadExecutor("VpnDpnToTransportZoneListener", LOG));
         useTransportZone = elanConfig.isAutoConfigTransportZones();
         transportZoneNotificationUtil = tznu;
         this.dbx = dbx;
@@ -42,26 +46,18 @@ public class VpnDpnToTransportZoneListener
 
     @PostConstruct
     public void start() {
-
         if (useTransportZone) {
-            registerListener(LogicalDatastoreType.OPERATIONAL, dbx);
             LOG.info("{} registered", getClass().getSimpleName());
         }
     }
 
     @Override
-    protected InstanceIdentifier<VpnToDpnList> getWildCardPath() {
-        return InstanceIdentifier.builder(VpnInstanceOpData.class).child(VpnInstanceOpDataEntry.class)
-                .child(VpnToDpnList.class).build();
-    }
-
-    @Override
-    protected void remove(InstanceIdentifier<VpnToDpnList> identifier, VpnToDpnList del) {
+    public void remove(InstanceIdentifier<VpnToDpnList> identifier, VpnToDpnList del) {
         LOG.debug("Vpn dpn {} remove detected, SHOULD BE deleting transport zones", del.getDpnId());
     }
 
     @Override
-    protected void update(InstanceIdentifier<VpnToDpnList> identifier, VpnToDpnList original, VpnToDpnList update) {
+    public void update(InstanceIdentifier<VpnToDpnList> identifier, VpnToDpnList original, VpnToDpnList update) {
         LOG.debug("Vpn dpn {} update detected, updating transport zones", update.getDpnId());
 
         if (update.getVpnInterfaces() == null || update.getVpnInterfaces().isEmpty()) {
@@ -84,7 +80,7 @@ public class VpnDpnToTransportZoneListener
     }
 
     @Override
-    protected void add(InstanceIdentifier<VpnToDpnList> identifier, VpnToDpnList add) {
+    public void add(InstanceIdentifier<VpnToDpnList> identifier, VpnToDpnList add) {
         LOG.debug("Vpn dpn {} add detected, updating transport zones", add.getDpnId());
 
         boolean shouldCreateVtep = transportZoneNotificationUtil.shouldCreateVtep(add.getVpnInterfaces());
@@ -92,10 +88,5 @@ public class VpnDpnToTransportZoneListener
             String vrfId = identifier.firstKeyOf(VpnInstanceOpDataEntry.class).getVrfId();
             transportZoneNotificationUtil.updateTransportZone(vrfId, add.getDpnId());
         }
-    }
-
-    @Override
-    protected VpnDpnToTransportZoneListener getDataTreeChangeListener() {
-        return VpnDpnToTransportZoneListener.this;
     }
 }
