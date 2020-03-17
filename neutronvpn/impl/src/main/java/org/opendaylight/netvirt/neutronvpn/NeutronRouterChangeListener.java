@@ -7,20 +7,20 @@
  */
 package org.opendaylight.netvirt.neutronvpn;
 
-import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import javax.annotation.PostConstruct;
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.l3.attributes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase<Router, NeutronRouterChangeListener> {
+public class NeutronRouterChangeListener extends AbstractAsyncDataTreeChangeListener<Router> {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronRouterChangeListener.class);
     private final DataBroker dataBroker;
     private final NeutronvpnManager nvpnManager;
@@ -49,7 +49,9 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
                                        final NeutronSubnetGwMacResolver gwMacResolver,
                                        final NeutronvpnUtils neutronvpnUtils,
                                        final JobCoordinator jobCoordinator) {
-        super(Router.class, NeutronRouterChangeListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Neutron.class)
+                .child(Routers.class).child(Router.class),
+                Executors.newSingleThreadExecutor("NeutronRouterChangeListener", LOG));
         this.dataBroker = dataBroker;
         nvpnManager = neutronvpnManager;
         nvpnNatManager = neutronvpnNatManager;
@@ -58,26 +60,12 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
         this.jobCoordinator = jobCoordinator;
     }
 
-    @Override
-    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<Router> getWildCardPath() {
-        return InstanceIdentifier.create(Neutron.class).child(Routers.class).child(Router.class);
-    }
-
-    @Override
-    protected NeutronRouterChangeListener getDataTreeChangeListener() {
-        return NeutronRouterChangeListener.this;
-    }
-
-
-    @Override
-    protected void add(InstanceIdentifier<Router> identifier, Router input) {
+    public void add(InstanceIdentifier<Router> identifier, Router input) {
         LOG.trace("Adding Router : key: {}, value={}", identifier, input);
         neutronvpnUtils.addToRouterCache(input);
         // Create internal VPN
@@ -90,7 +78,7 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Router> identifier, Router input) {
+    public void remove(InstanceIdentifier<Router> identifier, Router input) {
         LOG.trace("Removing router : key: {}, value={}", identifier, input);
         Uuid routerId = input.getUuid();
         // Handle router deletion for the NAT service
@@ -114,7 +102,7 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
     }
 
     @Override
-    protected void update(InstanceIdentifier<Router> identifier, Router original, Router update) {
+    public void update(InstanceIdentifier<Router> identifier, Router original, Router update) {
         LOG.trace("Updating Router : key: {}, original value={}, update value={}", identifier, original, update);
         neutronvpnUtils.addToRouterCache(update);
         Uuid routerId = update.getUuid();

@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.fibmanager;
 import static java.util.stream.Collectors.toList;
 import static org.opendaylight.genius.mdsalutil.NWUtil.isIpv4Address;
 
-import com.google.common.base.Optional;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -19,13 +18,13 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
@@ -59,6 +58,9 @@ import org.opendaylight.genius.utils.batching.SubTransaction;
 import org.opendaylight.genius.utils.batching.SubTransactionImpl;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.fibmanager.NexthopManager.AdjacencyResult;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -553,9 +555,14 @@ public class BaseVrfEntryHandler implements AutoCloseable {
     public Routes getVpnToExtraroute(Uint32 vpnId, String vpnRd, String destPrefix) {
         String optVpnName = fibUtil.getVpnNameFromId(vpnId);
         if (optVpnName != null) {
-            InstanceIdentifier<Routes> vpnExtraRoutesId = getVpnToExtrarouteIdentifier(
-                    optVpnName, vpnRd, destPrefix);
-            return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, vpnExtraRoutesId).orNull();
+            InstanceIdentifier<Routes> vpnExtraRoutesId = getVpnToExtrarouteIdentifier(optVpnName, vpnRd, destPrefix);
+            try {
+                return SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                        vpnExtraRoutesId).orElse(null);
+            } catch (ExecutionException | InterruptedException e) {
+                LOG.error("getVpnToExtraroute: Exception while reading vpn-to-extraroute DS for the prefix {} "
+                        + "rd {} vpnId {} ", destPrefix, vpnRd, vpnId, e);
+            }
         }
         return null;
     }

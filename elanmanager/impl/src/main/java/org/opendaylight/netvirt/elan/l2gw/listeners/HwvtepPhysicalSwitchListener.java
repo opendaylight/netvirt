@@ -10,21 +10,19 @@ package org.opendaylight.netvirt.elan.l2gw.listeners;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import com.google.common.base.Optional;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepAbstractDataTreeChangeListener;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
@@ -33,6 +31,9 @@ import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
+import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpClusteredListener;
 import org.opendaylight.netvirt.elan.l2gw.recovery.impl.L2GatewayServiceRecoveryHandler;
@@ -124,7 +125,12 @@ public class HwvtepPhysicalSwitchListener
                                         HAOpClusteredListener haListener, L2GatewayCache l2GatewayCache,
                                         StaleVlanBindingsCleaner staleVlanBindingsCleaner,
                                         HwvtepNodeHACache hwvtepNodeHACache) {
-        super(PhysicalSwitchAugmentation.class, HwvtepPhysicalSwitchListener.class, hwvtepNodeHACache);
+        super(dataBroker,  DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
+                InstanceIdentifier.create(NetworkTopology.class)
+                .child(Topology.class, new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID)).child(Node.class)
+                .augmentation(PhysicalSwitchAugmentation.class)),
+                Executors.newListeningSingleThreadExecutor("HwvtepPhysicalSwitchListener", LOG),
+                hwvtepNodeHACache);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.itmRpcService = itmRpcService;
@@ -158,8 +164,6 @@ public class HwvtepPhysicalSwitchListener
                 this);
     }
 
-    @Override
-    @PostConstruct
     public void init() {
         registerListener();
     }
@@ -167,24 +171,10 @@ public class HwvtepPhysicalSwitchListener
     @Override
     public void registerListener() {
         LOG.info("Registering HwvtepPhysicalSwitchListener");
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
     public void deregisterListener() {
         LOG.info("Deregistering HwvtepPhysicalSwitchListener");
-        super.deregisterListener();
-    }
-
-    @Override
-    protected InstanceIdentifier<PhysicalSwitchAugmentation> getWildCardPath() {
-        return InstanceIdentifier.create(NetworkTopology.class)
-                .child(Topology.class, new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID)).child(Node.class)
-                .augmentation(PhysicalSwitchAugmentation.class);
-    }
-
-    @Override
-    protected HwvtepPhysicalSwitchListener getDataTreeChangeListener() {
-        return HwvtepPhysicalSwitchListener.this;
     }
 
     @Override

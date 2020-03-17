@@ -13,12 +13,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.PreDestroy;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
+import org.opendaylight.mdsal.binding.api.DataTreeModification;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.TaskRetryLooper;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
@@ -59,7 +59,7 @@ public abstract class ChildListener<P extends DataObject, C extends DataObject, 
 
     protected ListenerRegistration<?> registerListener(final LogicalDatastoreType dsType,
                                                  final InstanceIdentifier wildCard) throws Exception {
-        DataTreeIdentifier<P> treeId = new DataTreeIdentifier<>(dsType, wildCard);
+        DataTreeIdentifier<P> treeId = DataTreeIdentifier.create(dsType, wildCard);
         TaskRetryLooper looper = new TaskRetryLooper(STARTUP_LOOP_TICK, STARTUP_LOOP_MAX_RETRIES);
         return looper.loopUntilNoException(() -> dataBroker.registerDataTreeChangeListener(treeId, this));
     }
