@@ -9,18 +9,18 @@ package org.opendaylight.netvirt.ipv6service;
 
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceConstants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
+import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev170119.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class Ipv6ServiceInterfaceEventListener
-        extends AsyncClusteredDataTreeChangeListenerBase<Interface, Ipv6ServiceInterfaceEventListener> {
+        extends AbstractClusteredAsyncDataTreeChangeListener<Interface> {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6ServiceInterfaceEventListener.class);
     private final DataBroker dataBroker;
     private final IfMgr ifMgr;
@@ -48,7 +48,9 @@ public class Ipv6ServiceInterfaceEventListener
     @Inject
     public Ipv6ServiceInterfaceEventListener(DataBroker broker, IfMgr ifMgr, Ipv6ServiceUtils ipv6ServiceUtils,
             final JobCoordinator jobCoordinator, Ipv6ServiceEosHandler ipv6ServiceEosHandler) {
-        super(Interface.class, Ipv6ServiceInterfaceEventListener.class);
+        super(broker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(InterfacesState.class)
+                        .child(Interface.class),
+                Executors.newListeningSingleThreadExecutor("Ipv6ServiceInterfaceEventListener", LOG));
         this.dataBroker = broker;
         this.ifMgr = ifMgr;
         this.ipv6ServiceUtils = ipv6ServiceUtils;
@@ -56,19 +58,12 @@ public class Ipv6ServiceInterfaceEventListener
         this.ipv6ServiceEosHandler = ipv6ServiceEosHandler;
     }
 
-    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<Interface> getWildCardPath() {
-        return InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
-    }
-
-    @Override
-    protected void remove(InstanceIdentifier<Interface> key, Interface del) {
+    public void remove(InstanceIdentifier<Interface> key, Interface del) {
         LOG.debug("Port removed {}, {}", key, del);
         if (!L2vlan.class.equals(del.getType())) {
             return;
@@ -106,7 +101,7 @@ public class Ipv6ServiceInterfaceEventListener
     }
 
     @Override
-    protected void update(InstanceIdentifier<Interface> key, Interface before, Interface after) {
+    public void update(InstanceIdentifier<Interface> key, Interface before, Interface after) {
         if (before.getType() == null && L2vlan.class.equals(after.getType())) {
             add(key, after);
         }
@@ -123,7 +118,7 @@ public class Ipv6ServiceInterfaceEventListener
     }
 
     @Override
-    protected void add(InstanceIdentifier<Interface> key, Interface add) {
+    public void add(InstanceIdentifier<Interface> key, Interface add) {
         List<String> ofportIds = add.getLowerLayerIf();
 
         if (!L2vlan.class.equals(add.getType())) {
@@ -177,10 +172,5 @@ public class Ipv6ServiceInterfaceEventListener
                 }
             }
         }
-    }
-
-    @Override
-    protected Ipv6ServiceInterfaceEventListener getDataTreeChangeListener() {
-        return Ipv6ServiceInterfaceEventListener.this;
     }
 }

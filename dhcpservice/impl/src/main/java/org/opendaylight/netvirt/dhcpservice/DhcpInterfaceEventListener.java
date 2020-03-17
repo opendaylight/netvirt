@@ -8,17 +8,18 @@
 package org.opendaylight.netvirt.dhcpservice;
 
 import java.util.List;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.dhcpservice.jobs.DhcpInterfaceAddJob;
 import org.opendaylight.netvirt.dhcpservice.jobs.DhcpInterfaceRemoveJob;
 import org.opendaylight.netvirt.dhcpservice.jobs.DhcpInterfaceUpdateJob;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev170119.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev170119.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
@@ -32,8 +33,7 @@ import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DhcpInterfaceEventListener
-        extends AsyncDataTreeChangeListenerBase<Interface, DhcpInterfaceEventListener> {
+public class DhcpInterfaceEventListener extends AbstractAsyncDataTreeChangeListener<Interface> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpInterfaceEventListener.class);
 
@@ -51,7 +51,9 @@ public class DhcpInterfaceEventListener
                                       IInterfaceManager interfaceManager, IElanService elanService,
                                       DhcpPortCache dhcpPortCache, JobCoordinator jobCoordinator,
                                       ItmRpcService itmRpcService) {
-        super(Interface.class, DhcpInterfaceEventListener.class);
+        super(dataBroker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(InterfacesState.class)
+                .child(Interface.class),
+                Executors.newListeningSingleThreadExecutor("DhcpInterfaceEventListener", LOG));
         this.dhcpManager = dhcpManager;
         this.dataBroker = dataBroker;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
@@ -60,7 +62,6 @@ public class DhcpInterfaceEventListener
         this.dhcpPortCache = dhcpPortCache;
         this.jobCoordinator = jobCoordinator;
         this.itmRpcService = itmRpcService;
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
     @Override
@@ -70,7 +71,7 @@ public class DhcpInterfaceEventListener
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Interface> identifier, Interface del) {
+    public void remove(InstanceIdentifier<Interface> identifier, Interface del) {
         if (!L2vlan.class.equals(del.getType()) && !Tunnel.class.equals(del.getType())) {
             return;
         }
@@ -93,7 +94,7 @@ public class DhcpInterfaceEventListener
     }
 
     @Override
-    protected void update(InstanceIdentifier<Interface> identifier,
+    public void update(InstanceIdentifier<Interface> identifier,
             Interface original, Interface update) {
         // We're only interested in Vlan and Tunnel ports
         if (!L2vlan.class.equals(update.getType()) && !Tunnel.class.equals(update.getType())) {
@@ -120,7 +121,7 @@ public class DhcpInterfaceEventListener
     }
 
     @Override
-    protected void add(InstanceIdentifier<Interface> identifier, Interface add) {
+    public void add(InstanceIdentifier<Interface> identifier, Interface add) {
         // We're only interested in Vlan and Tunnel ports
         if (!L2vlan.class.equals(add.getType()) && !Tunnel.class.equals(add.getType())) {
             return;
@@ -143,15 +144,5 @@ public class DhcpInterfaceEventListener
         DhcpInterfaceAddJob job = new DhcpInterfaceAddJob(dhcpManager, dhcpExternalTunnelManager, dataBroker,
                 add, dpnId, interfaceManager, elanService, itmRpcService);
         jobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), job, DhcpMConstants.RETRY_COUNT);
-    }
-
-    @Override
-    protected InstanceIdentifier<Interface> getWildCardPath() {
-        return InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
-    }
-
-    @Override
-    protected DhcpInterfaceEventListener getDataTreeChangeListener() {
-        return DhcpInterfaceEventListener.this;
     }
 }

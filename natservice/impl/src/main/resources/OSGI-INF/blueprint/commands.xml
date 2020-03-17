@@ -2,7 +2,7 @@
            xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
 
     <reference id="dataBrokerRef"
-               interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
+               interface="org.opendaylight.mdsal.binding.api.DataBroker"
                odl:type="pingpong"/>
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>

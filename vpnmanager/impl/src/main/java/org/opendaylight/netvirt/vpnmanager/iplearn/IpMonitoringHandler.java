@@ -7,20 +7,19 @@
  */
 package org.opendaylight.netvirt.vpnmanager.iplearn;
 
-import com.google.common.base.Optional;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import javax.annotation.PostConstruct;
+import java.util.Optional;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.eos.binding.api.Entity;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipCandidateRegistration;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
@@ -29,6 +28,7 @@ import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.VpnConstants;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.iplearn.model.MacEntry;
+import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.AlivenessMonitorService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
@@ -39,8 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class IpMonitoringHandler
-        extends AsyncClusteredDataTreeChangeListenerBase<LearntVpnVipToPort, IpMonitoringHandler> {
+public class IpMonitoringHandler extends AbstractClusteredAsyncDataTreeChangeListener<LearntVpnVipToPort> {
     private static final Logger LOG = LoggerFactory.getLogger(IpMonitoringHandler.class);
     private final DataBroker dataBroker;
     private final AlivenessMonitorService alivenessManager;
@@ -51,8 +50,8 @@ public class IpMonitoringHandler
     private final JobCoordinator jobCoordinator;
     private final VpnUtil vpnUtil;
 
-    private Optional<Uint32> arpMonitorProfileId = Optional.absent();
-    private Optional<Uint32> ipv6NdMonitorProfileId = Optional.absent();
+    private Optional<Uint32> arpMonitorProfileId = Optional.empty();
+    private Optional<Uint32> ipv6NdMonitorProfileId = Optional.empty();
     private EntityOwnershipCandidateRegistration candidateRegistration;
 
     @Inject
@@ -60,7 +59,9 @@ public class IpMonitoringHandler
             INeutronVpnManager neutronVpnService, IInterfaceManager interfaceManager,
             EntityOwnershipService entityOwnershipService, JobCoordinator jobCoordinator,
             AlivenessMonitorUtils alivenessMonitorUtils, VpnUtil vpnUtil) {
-        super(LearntVpnVipToPort.class, IpMonitoringHandler.class);
+        super(dataBroker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(LearntVpnVipToPortData.class)
+                .child(LearntVpnVipToPort.class),
+                Executors.newListeningSingleThreadExecutor("IpMonitoringHandler", LOG));
         this.dataBroker = dataBroker;
         this.alivenessManager = alivenessManager;
         this.neutronVpnService = neutronVpnService;
@@ -71,15 +72,14 @@ public class IpMonitoringHandler
         this.vpnUtil = vpnUtil;
     }
 
-    @PostConstruct
     public void start() {
+        LOG.info("{} start", getClass().getSimpleName());
         this.arpMonitorProfileId = alivenessMonitorUtils.allocateArpMonitorProfile();
         this.ipv6NdMonitorProfileId = alivenessMonitorUtils.allocateIpv6NaMonitorProfile();
         if (this.arpMonitorProfileId == null || this.ipv6NdMonitorProfileId == null) {
             LOG.error("Error while allocating ARP and IPv6 ND Profile Ids: ARP={}, IPv6ND={}", arpMonitorProfileId,
                     ipv6NdMonitorProfileId);
         }
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
 
         try {
             candidateRegistration = entityOwnershipUtils.getEntityOwnershipService().registerCandidate(
@@ -99,20 +99,10 @@ public class IpMonitoringHandler
         }
     }
 
-    @Override
-    protected InstanceIdentifier<LearntVpnVipToPort> getWildCardPath() {
-        return InstanceIdentifier.create(LearntVpnVipToPortData.class).child(LearntVpnVipToPort.class);
-    }
-
-    @Override
-    protected IpMonitoringHandler getDataTreeChangeListener() {
-        return this;
-    }
-
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
-    protected void update(InstanceIdentifier<LearntVpnVipToPort> id, LearntVpnVipToPort value,
+    public void update(InstanceIdentifier<LearntVpnVipToPort> id, LearntVpnVipToPort value,
             LearntVpnVipToPort dataObjectModificationAfter) {
         runOnlyInOwnerNode("IpMonitoringHandler: update event", () -> {
             try {
@@ -131,7 +121,7 @@ public class IpMonitoringHandler
     }
 
     @Override
-    protected void add(InstanceIdentifier<LearntVpnVipToPort> identifier, LearntVpnVipToPort value) {
+    public void add(InstanceIdentifier<LearntVpnVipToPort> identifier, LearntVpnVipToPort value) {
         runOnlyInOwnerNode("IpMonitoringHandler: add event", () -> {
             try {
                 InetAddress srcInetAddr = InetAddress.getByName(value.getPortFixedip());
@@ -156,7 +146,7 @@ public class IpMonitoringHandler
     }
 
     @Override
-    protected void remove(InstanceIdentifier<LearntVpnVipToPort> key, LearntVpnVipToPort value) {
+    public void remove(InstanceIdentifier<LearntVpnVipToPort> key, LearntVpnVipToPort value) {
         runOnlyInOwnerNode("IpMonitoringHandler: remove event", () -> {
             try {
                 InetAddress srcInetAddr = InetAddress.getByName(value.getPortFixedip());

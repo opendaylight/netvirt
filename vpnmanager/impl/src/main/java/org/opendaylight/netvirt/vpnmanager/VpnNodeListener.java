@@ -15,12 +15,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
@@ -43,7 +39,11 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchArpOp;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.config.rev161130.VpnConfig;
@@ -53,7 +53,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<Node, VpnNodeListener> {
+public class VpnNodeListener extends AbstractAsyncDataTreeChangeListener<Node> {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnNodeListener.class);
     private static final String FLOWID_PREFIX = "L3.";
@@ -68,7 +68,8 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
     @Inject
     public VpnNodeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager, JobCoordinator jobCoordinator,
                            VpnConfig vpnConfig) {
-        super(Node.class, VpnNodeListener.class);
+        super(dataBroker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(Nodes.class).child(Node.class),
+                Executors.newListeningSingleThreadExecutor("VpnNodeListener", LOG));
         this.broker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.mdsalManager = mdsalManager;
@@ -77,23 +78,12 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
         this.vpnConfig = vpnConfig;
     }
 
-    @PostConstruct
     public void start() {
-        registerListener(LogicalDatastoreType.OPERATIONAL, broker);
+        LOG.info("{} start", getClass().getSimpleName());
     }
 
     @Override
-    protected InstanceIdentifier<Node> getWildCardPath() {
-        return InstanceIdentifier.create(Nodes.class).child(Node.class);
-    }
-
-    @Override
-    protected VpnNodeListener getDataTreeChangeListener() {
-        return VpnNodeListener.this;
-    }
-
-    @Override
-    protected void add(InstanceIdentifier<Node> identifier, Node add) {
+    public void add(InstanceIdentifier<Node> identifier, Node add) {
         Uint64 dpId = MDSALUtil.getDpnIdFromNodeName(add.getId());
         if (!connectedDpnIds.contains(dpId)) {
             connectedDpnIds.add(dpId);
@@ -102,13 +92,13 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Node> identifier, Node del) {
+    public void remove(InstanceIdentifier<Node> identifier, Node del) {
         Uint64 dpId = MDSALUtil.getDpnIdFromNodeName(del.getId());
         connectedDpnIds.remove(dpId);
     }
 
     @Override
-    protected void update(InstanceIdentifier<Node> identifier, Node original, Node update) {
+    public void update(InstanceIdentifier<Node> identifier, Node original, Node update) {
     }
 
     public boolean isConnectedNode(Uint64 nodeId) {
