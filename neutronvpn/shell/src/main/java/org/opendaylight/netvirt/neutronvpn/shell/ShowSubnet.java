@@ -7,23 +7,24 @@
  */
 package org.opendaylight.netvirt.neutronvpn.shell;
 
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
 import static org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker.syncReadOptional;
+import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.CONFIGURATION;
+import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.OPERATIONAL;
 
-import com.google.common.base.Optional;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.SubnetOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntry;
@@ -100,7 +101,7 @@ public class ShowSubnet extends OsgiCommandSupport {
             Optional<SubnetOpDataEntry> optionalSubnetOpDataEntries =
                 syncReadOptional(dataBroker, OPERATIONAL, subOpIdentifier);
             if (optionalSubnetOpDataEntries.isPresent()) {
-                optionalSubnetOpDataEntries.asSet().forEach(subnetOpDataEntry -> {
+                Collections.singleton(optionalSubnetOpDataEntries.get()).forEach(subnetOpDataEntry -> {
                     SubnetOpDataEntry data = subnetOpDataEntry;
                     System.out.println("Fetching subnetmapdataentry for given subnetId\n");
                     System.out.println("------------------------"
@@ -251,7 +252,7 @@ public class ShowSubnet extends OsgiCommandSupport {
     }
 
     @SuppressWarnings("checkstyle:RegexpSinglelineJava")
-    private void getSubnet() throws ReadFailedException {
+    private void getSubnet() throws ExecutionException, InterruptedException {
         List<SubnetOpDataEntry> subnetOpDataEntryList = new ArrayList<>();
         InstanceIdentifier<Subnetmaps> subnetmapsid = InstanceIdentifier.builder(Subnetmaps.class).build();
         InstanceIdentifier<SubnetOpData> subOpIdentifier = InstanceIdentifier.builder(SubnetOpData.class).build();

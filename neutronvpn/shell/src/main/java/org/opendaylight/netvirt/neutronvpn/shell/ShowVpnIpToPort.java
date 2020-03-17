@@ -7,18 +7,19 @@
  */
 package org.opendaylight.netvirt.neutronvpn.shell;
 
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
 import static org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker.syncReadOptional;
+import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.CONFIGURATION;
+import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.OPERATIONAL;
 
-import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPortKey;
@@ -116,7 +117,7 @@ public class ShowVpnIpToPort extends OsgiCommandSupport {
     }
 
     @SuppressWarnings("checkstyle:RegexpSinglelineJava")
-    private void getNeutronVpnPort() throws ReadFailedException {
+    private void getNeutronVpnPort() throws ExecutionException, InterruptedException {
         InstanceIdentifier<NeutronVpnPortipPortData> neutronVpnPortipPortDataIdentifier = InstanceIdentifier
                 .builder(NeutronVpnPortipPortData.class).build();
         Optional<NeutronVpnPortipPortData> optionalNeutronVpnPort = syncReadOptional(dataBroker, CONFIGURATION,
@@ -129,7 +130,7 @@ public class ShowVpnIpToPort extends OsgiCommandSupport {
     }
 
     @SuppressWarnings("checkstyle:RegexpSinglelineJava")
-    private void getLearntVpnVipPort() throws ReadFailedException {
+    private void getLearntVpnVipPort() throws ExecutionException, InterruptedException {
         InstanceIdentifier<LearntVpnVipToPortData> learntVpnVipPortDataIdentifier = InstanceIdentifier
                 .builder(LearntVpnVipToPortData.class).build();
         Optional<LearntVpnVipToPortData> optionalLearntVpnPort = syncReadOptional(dataBroker, OPERATIONAL,

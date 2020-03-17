@@ -12,8 +12,8 @@ import static org.opendaylight.netvirt.elan.l2gw.nodehandlertest.NodeConnectedHa
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.netvirt.elan.l2gw.nodehandlertest.GlobalAugmentationHelper;
 import org.opendaylight.netvirt.elan.l2gw.nodehandlertest.TestBuilders;
