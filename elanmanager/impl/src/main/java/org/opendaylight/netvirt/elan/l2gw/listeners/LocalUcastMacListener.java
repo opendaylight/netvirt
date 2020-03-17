@@ -21,11 +21,11 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataTreeModification;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
@@ -156,7 +156,7 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
                 }
 
                 elanL2GwDevice.removeUcastLocalMac(macRemoved);
-                ElanInstance elanInstance = elanInstanceCache.get(elanName).orNull();
+                ElanInstance elanInstance = elanInstanceCache.get(elanName).orElse(null);
                 elanL2GatewayUtils.unInstallL2GwUcastMacFromL2gwDevices(elanName, elanL2GwDevice,
                         Collections.singletonList(macAddress));
                 elanL2GatewayUtils.unInstallL2GwUcastMacFromElanDpns(elanInstance, elanL2GwDevice,
@@ -175,7 +175,7 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
 
         LOG.trace("LocalUcastMacs {} added to {}", macAddress, hwvtepNodeId);
 
-        ElanInstance elan = elanInstanceCache.get(elanName).orNull();
+        ElanInstance elan = elanInstanceCache.get(elanName).orElse(null);
         if (elan == null) {
             LOG.warn("Could not find ELAN for mac {} being added", macAddress);
             return;
@@ -234,7 +234,7 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
             LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
                 LOG.trace("On parent add {}", nodeIid);
                 Node operNode = modification.getRootNode().getDataAfter();
-                Set<LocalUcastMacs> configMacs = getMacs(tx.read(nodeIid).get().orNull());
+                Set<LocalUcastMacs> configMacs = getMacs(tx.read(nodeIid).get().orElse(null));
                 Set<LocalUcastMacs> operMacs = getMacs(operNode);
                 Set<LocalUcastMacs> staleMacs = Sets.difference(configMacs, operMacs);
                 staleMacs.forEach(staleMac -> removed(getMacIid(nodeIid, staleMac), staleMac));

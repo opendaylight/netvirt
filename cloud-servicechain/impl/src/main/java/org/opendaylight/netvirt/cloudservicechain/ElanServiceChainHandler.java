@@ -7,15 +7,15 @@
  */
 package org.opendaylight.netvirt.cloudservicechain;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;

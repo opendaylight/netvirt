@@ -10,7 +10,7 @@ package org.opendaylight.netvirt.cloudservicechain.jobs;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import java.util.concurrent.Callable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 

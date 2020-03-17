@@ -9,12 +9,8 @@ package org.opendaylight.netvirt.qosservice;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -24,9 +20,13 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.qosservice.recovery.QosServiceRecoveryHandler;
 import org.opendaylight.serviceutils.srm.RecoverableListener;
 import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -37,7 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class QosNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapableNode, QosNodeListener>
+public class QosNodeListener extends AbstractAsyncDataTreeChangeListener<FlowCapableNode>
         implements RecoverableListener {
     private static final Logger LOG = LoggerFactory.getLogger(QosNodeListener.class);
 
@@ -48,7 +48,9 @@ public class QosNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
     public QosNodeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalUtils,
                            final ServiceRecoveryRegistry serviceRecoveryRegistry,
                            final QosServiceRecoveryHandler qosServiceRecoveryHandler) {
-        super(FlowCapableNode.class, QosNodeListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Nodes.class).child(Node.class)
+                .augmentation(FlowCapableNode.class),
+                Executors.newListeningSingleThreadExecutor("QosNodeListener", LOG));
         this.dataBroker = dataBroker;
         this.mdsalUtils = mdsalUtils;
         serviceRecoveryRegistry.addRecoverableListener(qosServiceRecoveryHandler.buildServiceRegistryKey(),
@@ -56,44 +58,34 @@ public class QosNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         LOG.trace("{} created",  getClass().getSimpleName());
     }
 
-    @Override
-    @PostConstruct
     public void init() {
-        registerListener();
         LOG.trace("{} init and registerListener done", getClass().getSimpleName());
     }
 
     @Override
     public void registerListener() {
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<FlowCapableNode> getWildCardPath() {
-        return InstanceIdentifier.create(Nodes.class).child(Node.class).augmentation(FlowCapableNode.class);
+    public void deregisterListener() {
     }
 
     @Override
-    protected void remove(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModification) {
+    public void remove(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModification) {
         //do nothing
     }
 
     @Override
-    protected void update(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModificationBefore,
+    public void update(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModificationBefore,
                           FlowCapableNode dataObjectModificationAfter) {
         //do nothing
     }
 
     @Override
-    protected void add(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModification) {
+    public void add(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModification) {
         NodeKey nodeKey = key.firstKeyOf(Node.class);
         Uint64 dpId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
         createTableMissEntry(dpId);
-    }
-
-    @Override
-    protected QosNodeListener getDataTreeChangeListener() {
-        return QosNodeListener.this;
     }
 
     public void createTableMissEntry(Uint64 dpnId) {

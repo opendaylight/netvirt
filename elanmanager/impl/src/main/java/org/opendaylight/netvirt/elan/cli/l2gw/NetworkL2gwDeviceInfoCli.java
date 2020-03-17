@@ -8,20 +8,21 @@
 
 package org.opendaylight.netvirt.elan.cli.l2gw;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
@@ -95,71 +96,75 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
     protected Object doExecute() {
         List<Node> nodes = new ArrayList<>();
         Set<String> networks = new HashSet<>();
-        if (nodeId == null) {
-            Optional<Topology> topologyOptional = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                    createHwvtepTopologyInstanceIdentifier());
-            if (topologyOptional.isPresent()) {
-                nodes.addAll(topologyOptional.get().nonnullNode());
+        try {
+            if (nodeId == null) {
+                Optional<Topology> topologyOptional = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, createHwvtepTopologyInstanceIdentifier());
+                if (topologyOptional.isPresent()) {
+                    nodes.addAll(topologyOptional.get().nonnullNode());
+                }
+            } else {
+                Optional<Node> nodeOptional = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, createInstanceIdentifier(new NodeId(new Uri(nodeId))));
+                if (nodeOptional.isPresent()) {
+                    nodes.add(nodeOptional.get());
+                }
             }
-        } else {
-            Optional<Node> nodeOptional = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                    createInstanceIdentifier(new NodeId(new Uri(nodeId))));
-            if (nodeOptional.isPresent()) {
-                nodes.add(nodeOptional.get());
-            }
-        }
-        if (elanName == null) {
-            //get all elan instance
-            //get all device node id
-            //print result
-            Optional<ElanInstances> elanInstancesOptional = MDSALUtil.read(dataBroker,
-                    LogicalDatastoreType.CONFIGURATION,
-                    InstanceIdentifier.builder(ElanInstances.class).build());
-            if (elanInstancesOptional.isPresent()) {
-                List<ElanInstance> elans = elanInstancesOptional.get().getElanInstance();
-                if (elans != null) {
-                    for (ElanInstance elan : elans) {
-                        networks.add(elan.getElanInstanceName());
+            if (elanName == null) {
+                //get all elan instance
+                //get all device node id
+                //print result
+                Optional<ElanInstances> elanInstancesOptional = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION,
+                        InstanceIdentifier.builder(ElanInstances.class).build());
+                if (elanInstancesOptional.isPresent()) {
+                    List<ElanInstance> elans = elanInstancesOptional.get().getElanInstance();
+                    if (elans != null) {
+                        for (ElanInstance elan : elans) {
+                            networks.add(elan.getElanInstanceName());
+                        }
                     }
                 }
+            } else {
+                networks.add(elanName);
             }
-        } else {
-            networks.add(elanName);
-        }
 
-        if (nodes != null) {
-            for (Node node : nodes) {
-                if (node.getNodeId().getValue().contains("physicalswitch")) {
-                    continue;
-                }
-                Node hwvtepConfigNode =
-                        HwvtepUtils.getHwVtepNode(dataBroker, LogicalDatastoreType.CONFIGURATION, node.getNodeId());
-                Node hwvtepOpPsNode = getPSnode(node, LogicalDatastoreType.OPERATIONAL);
-                Node hwvtepConfigPsNode = null;
-                if (hwvtepOpPsNode != null) {
-                    hwvtepConfigPsNode = HwvtepUtils.getHwVtepNode(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                            hwvtepOpPsNode.getNodeId());
-                    opPSNodes.put(node.getNodeId(), hwvtepOpPsNode);
-                }
-                opNodes.put(node.getNodeId(), node);
-                configNodes.put(node.getNodeId(), hwvtepConfigNode);
-
-                if (hwvtepConfigPsNode != null) {
-                    configPSNodes.put(node.getNodeId(), hwvtepConfigPsNode);
-                }
-            }
-        }
-        if (!networks.isEmpty()) {
-            for (String network : networks) {
-                session.getConsole().println("Network info for " + network);
+            if (nodes != null) {
                 for (Node node : nodes) {
                     if (node.getNodeId().getValue().contains("physicalswitch")) {
                         continue;
                     }
-                    session.getConsole().println("Printing for node " + node.getNodeId().getValue());
-                    process(node.getNodeId(), network);
+                    Node hwvtepConfigNode =
+                            HwvtepUtils.getHwVtepNode(dataBroker, LogicalDatastoreType.CONFIGURATION, node.getNodeId());
+                    Node hwvtepOpPsNode = getPSnode(node, LogicalDatastoreType.OPERATIONAL);
+                    Node hwvtepConfigPsNode = null;
+                    if (hwvtepOpPsNode != null) {
+                        hwvtepConfigPsNode = HwvtepUtils.getHwVtepNode(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                                hwvtepOpPsNode.getNodeId());
+                        opPSNodes.put(node.getNodeId(), hwvtepOpPsNode);
+                    }
+                    opNodes.put(node.getNodeId(), node);
+                    configNodes.put(node.getNodeId(), hwvtepConfigNode);
+
+                    if (hwvtepConfigPsNode != null) {
+                        configPSNodes.put(node.getNodeId(), hwvtepConfigPsNode);
+                    }
                 }
             }
+            if (!networks.isEmpty()) {
+                for (String network : networks) {
+                    session.getConsole().println("Network info for " + network);
+                    for (Node node : nodes) {
+                        if (node.getNodeId().getValue().contains("physicalswitch")) {
+                            continue;
+                        }
+                        session.getConsole().println("Printing for node " + node.getNodeId().getValue());
+                        process(node.getNodeId(), network);
+                    }
+                }
+            }
+        } catch (ExecutionException | InterruptedException e) {
+            session.getConsole().println("Failed with error " + e.getMessage());
         }
         return null;
     }
@@ -342,7 +347,8 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
     }
 
     @Nullable
-    Node getPSnode(Node hwvtepNode, LogicalDatastoreType datastoreType) {
+    Node getPSnode(Node hwvtepNode, LogicalDatastoreType datastoreType) throws ExecutionException,
+            InterruptedException {
         if (hwvtepNode.augmentation(HwvtepGlobalAugmentation.class) != null) {
             List<Switches> switches = hwvtepNode.augmentation(HwvtepGlobalAugmentation.class).getSwitches();
             if (switches != null) {

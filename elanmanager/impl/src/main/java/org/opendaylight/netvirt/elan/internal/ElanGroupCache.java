@@ -8,23 +8,23 @@
 
 package org.opendaylight.netvirt.elan.internal;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.utils.Scheduler;
+import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.Group;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class ElanGroupCache extends AsyncClusteredDataTreeChangeListenerBase<Group, ElanGroupCache> {
+public class ElanGroupCache extends AbstractClusteredAsyncDataTreeChangeListener<Group> {
     private static final Logger LOG = LoggerFactory.getLogger(ElanGroupCache.class);
     private final DataBroker dataBroker;
     private final Scheduler scheduler;
@@ -43,21 +43,15 @@ public class ElanGroupCache extends AsyncClusteredDataTreeChangeListenerBase<Gro
 
     @Inject
     public ElanGroupCache(final DataBroker dataBroker, final Scheduler scheduler) {
-        super(Group.class, ElanGroupCache.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Nodes.class)
+                .child(Node.class).augmentation(FlowCapableNode.class).child(Group.class),
+                Executors.newListeningSingleThreadExecutor("ElanGroupCache", LOG));
         this.dataBroker = dataBroker;
         this.scheduler = scheduler;
     }
 
-    @PostConstruct
     public synchronized void init() {
-        this.registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
-    }
-
-    @Override
-    protected InstanceIdentifier<Group> getWildCardPath() {
-        return InstanceIdentifier.builder(Nodes.class)
-                .child(Node.class).augmentation(FlowCapableNode.class)
-                .child(Group.class).build();
+        LOG.info("{} registered", getClass().getSimpleName());
     }
 
     public synchronized void addJobToWaitList(InstanceIdentifier<Group> key,
@@ -71,22 +65,17 @@ public class ElanGroupCache extends AsyncClusteredDataTreeChangeListenerBase<Gro
     }
 
     @Override
-    protected ElanGroupCache getDataTreeChangeListener() {
-        return ElanGroupCache.this;
-    }
-
-    @Override
-    protected synchronized void remove(InstanceIdentifier<Group> key, Group deleted) {
+    public synchronized void remove(InstanceIdentifier<Group> key, Group deleted) {
         groupsById.remove(key);
     }
 
     @Override
-    protected void update(InstanceIdentifier<Group> key, Group old, Group updated) {
+    public void update(InstanceIdentifier<Group> key, Group old, Group updated) {
         add(key, updated);
     }
 
     @Override
-    protected synchronized void add(InstanceIdentifier<Group> key, Group added) {
+    public synchronized void add(InstanceIdentifier<Group> key, Group added) {
         if (groupsById.containsKey(key)) {
             groupsById.put(key, added);
             return;
@@ -103,12 +92,12 @@ public class ElanGroupCache extends AsyncClusteredDataTreeChangeListenerBase<Gro
         }, ElanInterfaceManager.WAIT_TIME_FOR_SYNC_INSTALL, TimeUnit.MILLISECONDS);
     }
 
-    public Optional<Group> getGroup(InstanceIdentifier<Group> key) throws ReadFailedException {
+    public Optional<Group> getGroup(InstanceIdentifier<Group> key) throws InterruptedException, ExecutionException {
         if (groupsById.containsKey(key)) {
             return Optional.of(groupsById.get(key));
         }
-        ReadOnlyTransaction transaction = dataBroker.newReadOnlyTransaction();
-        Optional<Group> optional = transaction.read(LogicalDatastoreType.CONFIGURATION, key).checkedGet();
+        ReadTransaction transaction = dataBroker.newReadOnlyTransaction();
+        Optional<Group> optional = transaction.read(LogicalDatastoreType.CONFIGURATION, key).get();
         transaction.close();
         return optional;
     }
