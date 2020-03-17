@@ -15,26 +15,26 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
-import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput.ArpReponderInputBuilder;
+import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
+import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtension;
@@ -50,8 +50,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class DhcpNeutronPortListener
-        extends AsyncClusteredDataTreeChangeListenerBase<Port, DhcpNeutronPortListener> {
+public class DhcpNeutronPortListener extends AbstractClusteredAsyncDataTreeChangeListener<Port> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpNeutronPortListener.class);
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
@@ -69,8 +68,9 @@ public class DhcpNeutronPortListener
             @Named("elanService") IElanService ielanService, IInterfaceManager interfaceManager,
             DhcpserviceConfig config, final JobCoordinator jobCoordinator, DhcpManager dhcpManager,
             ItmRpcService itmRpcService) {
-
-        super(Port.class, DhcpNeutronPortListener.class);
+        super(db, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Neutron.class).child(Ports.class)
+                .child(Port.class),
+                Executors.newListeningSingleThreadExecutor("DhcpNeutronPortListener", LOG));
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.elanService = ielanService;
         this.interfaceManager = interfaceManager;
@@ -82,16 +82,10 @@ public class DhcpNeutronPortListener
         this.itmRpcService = itmRpcService;
     }
 
-    @PostConstruct
     public void init() {
         if (config.isControllerDhcpEnabled()) {
-            registerListener(LogicalDatastoreType.CONFIGURATION, broker);
+            LOG.info("{} init", getClass().getSimpleName());
         }
-    }
-
-    @Override
-    protected InstanceIdentifier<Port> getWildCardPath() {
-        return InstanceIdentifier.create(Neutron.class).child(Ports.class).child(Port.class);
     }
 
     @Override
@@ -102,7 +96,7 @@ public class DhcpNeutronPortListener
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Port> identifier, Port del) {
+    public void remove(InstanceIdentifier<Port> identifier, Port del) {
         LOG.trace("Port removed: {}", del);
         if (NeutronConstants.IS_ODL_DHCP_PORT.test(del)) {
             jobCoordinator.enqueueJob(getJobKey(del),
@@ -131,7 +125,7 @@ public class DhcpNeutronPortListener
     }
 
     @Override
-    protected void update(InstanceIdentifier<Port> identifier, Port original, Port update) {
+    public void update(InstanceIdentifier<Port> identifier, Port original, Port update) {
         LOG.trace("Port changed to {}", update);
         //With Ipv6 changes we can get ipv4 subnets later. The below check is to support such scenario.
         if (original.nonnullFixedIps().size() < update.nonnullFixedIps().size()) {
@@ -190,7 +184,7 @@ public class DhcpNeutronPortListener
     }
 
     @Override
-    protected void add(InstanceIdentifier<Port> identifier, Port add) {
+    public void add(InstanceIdentifier<Port> identifier, Port add) {
         LOG.trace("Port added {}", add);
         if (NeutronConstants.IS_ODL_DHCP_PORT.test(add)) {
             jobCoordinator.enqueueJob(getJobKey(add),
@@ -255,11 +249,6 @@ public class DhcpNeutronPortListener
         }
         String vnicType = portBinding.getVnicType().trim().toLowerCase(Locale.getDefault());
         return vnicType.equals("direct") || vnicType.equals("macvtap");
-    }
-
-    @Override
-    protected DhcpNeutronPortListener getDataTreeChangeListener() {
-        return DhcpNeutronPortListener.this;
     }
 
     /**

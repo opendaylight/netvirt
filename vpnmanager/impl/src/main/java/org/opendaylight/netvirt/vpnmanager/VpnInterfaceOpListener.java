@@ -10,20 +10,16 @@ package org.opendaylight.netvirt.vpnmanager;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
-import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -32,6 +28,9 @@ import org.opendaylight.genius.infra.TypedReadTransaction;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInterfaceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
@@ -45,8 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnInterfaceOpDataEntry,
-                                                                     VpnInterfaceOpListener> {
+public class VpnInterfaceOpListener extends AbstractAsyncDataTreeChangeListener<VpnInterfaceOpDataEntry> {
     private static final Logger LOG = LoggerFactory.getLogger(VpnInterfaceOpListener.class);
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
@@ -65,7 +63,10 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
     public VpnInterfaceOpListener(final DataBroker dataBroker, final VpnInterfaceManager vpnInterfaceManager,
         final VpnFootprintService vpnFootprintService, final JobCoordinator jobCoordinator,
                                   final VpnUtil vpnUtil) {
-        super(VpnInterfaceOpDataEntry.class, VpnInterfaceOpListener.class);
+        super(dataBroker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(VpnInterfaceOpData.class)
+                        .child(VpnInterfaceOpDataEntry.class),
+                org.opendaylight.infrautils.utils.concurrent.Executors
+                        .newListeningSingleThreadExecutor("VpnInterfaceOpListener", LOG));
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.vpnInterfaceManager = vpnInterfaceManager;
@@ -74,27 +75,12 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
         this.vpnUtil = vpnUtil;
     }
 
-    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<VpnInterfaceOpDataEntry> getWildCardPath() {
-        InstanceIdentifier<VpnInterfaceOpDataEntry> id = InstanceIdentifier.create(VpnInterfaceOpData.class
-                ).child(VpnInterfaceOpDataEntry.class);
-        return id;
-    }
-
-    @Override
-    protected VpnInterfaceOpListener getDataTreeChangeListener() {
-        return VpnInterfaceOpListener.this;
-    }
-
-
-    @Override
-    protected void remove(final InstanceIdentifier<VpnInterfaceOpDataEntry> identifier,
+    public void remove(final InstanceIdentifier<VpnInterfaceOpDataEntry> identifier,
             final VpnInterfaceOpDataEntry del) {
         final VpnInterfaceOpDataEntryKey key = identifier.firstKeyOf(VpnInterfaceOpDataEntry.class);
         final String interfaceName = key.getName();
@@ -222,13 +208,13 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
     }
 
     @Override
-    protected void update(final InstanceIdentifier<VpnInterfaceOpDataEntry> identifier,
+    public void update(final InstanceIdentifier<VpnInterfaceOpDataEntry> identifier,
             final VpnInterfaceOpDataEntry original, final VpnInterfaceOpDataEntry update) {
         LOG.info("update: interface {} vpn {}", original.getName(), original.getVpnInstanceName());
     }
 
     @Override
-    protected void add(InstanceIdentifier<VpnInterfaceOpDataEntry> identifier, VpnInterfaceOpDataEntry add) {
+    public void add(InstanceIdentifier<VpnInterfaceOpDataEntry> identifier, VpnInterfaceOpDataEntry add) {
         LOG.info("add: interface {} vpn {}. Ignoring", add.getName(), add.getVpnInstanceName());
     }
 }

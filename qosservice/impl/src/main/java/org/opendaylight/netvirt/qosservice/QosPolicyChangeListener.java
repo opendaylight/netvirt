@@ -11,27 +11,22 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
-import org.opendaylight.netvirt.neutronvpn.api.utils.ChangeUtils;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.qosservice.recovery.QosServiceRecoveryHandler;
 import org.opendaylight.serviceutils.srm.RecoverableListener;
 import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
+import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
@@ -51,8 +46,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListenerBase<QosPolicy,
-                                                QosPolicyChangeListener> implements RecoverableListener {
+public class QosPolicyChangeListener extends AbstractClusteredAsyncDataTreeChangeListener<QosPolicy>
+        implements RecoverableListener {
     private static final Logger LOG = LoggerFactory.getLogger(QosPolicyChangeListener.class);
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
@@ -64,7 +59,9 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
                                    final QosNeutronUtils qosNeutronUtils, final JobCoordinator jobCoordinator,
                                    final ServiceRecoveryRegistry serviceRecoveryRegistry,
                                    final QosServiceRecoveryHandler qosServiceRecoveryHandler) {
-        super(QosPolicy.class, QosPolicyChangeListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Neutron.class)
+                .child(QosPolicies.class).child(QosPolicy.class),
+                Executors.newListeningSingleThreadExecutor("QosPolicyChangeListener", LOG));
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.qosNeutronUtils = qosNeutronUtils;
@@ -74,33 +71,24 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
         LOG.trace("{} created",  getClass().getSimpleName());
     }
 
-    @PostConstruct
     public void init() {
-        registerListener();
         supportedQoSRuleTypes();
         LOG.trace("{} init and registerListener done", getClass().getSimpleName());
     }
 
     @Override
     public void registerListener() {
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<QosPolicy> getWildCardPath() {
-        return InstanceIdentifier.create(Neutron.class).child(QosPolicies.class).child(QosPolicy.class);
+    public void deregisterListener() {
     }
-
+/*
     @Override
     public void onDataTreeChanged(Collection<DataTreeModification<QosPolicy>> changes) {
         handleQosPolicyChanges(changes);
         handleBandwidthLimitRulesChanges(changes);
         handleDscpMarkingRulesChanges(changes);
-    }
-
-    @Override
-    protected QosPolicyChangeListener getDataTreeChangeListener() {
-        return QosPolicyChangeListener.this;
     }
 
     private void handleQosPolicyChanges(Collection<DataTreeModification<QosPolicy>> changes) {
@@ -157,10 +145,10 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
                 ChangeUtils.extractRemoved(changes, DscpmarkingRules.class)) {
             remove(dscpMarkIid, dscpMarkOriginalMap.get(dscpMarkIid));
         }
-    }
+    }*/
 
     @Override
-    protected void add(InstanceIdentifier<QosPolicy> identifier, QosPolicy input) {
+    public void add(InstanceIdentifier<QosPolicy> identifier, QosPolicy input) {
         LOG.debug("Adding  QosPolicy : key: {}, value={}",
                 identifier.firstKeyOf(QosPolicy.class).getUuid().getValue(),input);
         qosNeutronUtils.addToQosPolicyCache(input);
@@ -201,7 +189,7 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
     }
 
     @Override
-    protected void remove(InstanceIdentifier<QosPolicy> identifier, QosPolicy input) {
+    public void remove(InstanceIdentifier<QosPolicy> identifier, QosPolicy input) {
         LOG.debug("Removing QosPolicy : key: {}, value={}",
                 identifier.firstKeyOf(QosPolicy.class).getUuid().getValue(), input);
         qosNeutronUtils.removeFromQosPolicyCache(input);
@@ -268,7 +256,7 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
     }
 
     @Override
-    protected void update(InstanceIdentifier<QosPolicy> identifier, QosPolicy original, QosPolicy update) {
+    public void update(InstanceIdentifier<QosPolicy> identifier, QosPolicy original, QosPolicy update) {
         LOG.debug("Updating QosPolicy : key: {}, original value={}, update value={}",
                 identifier.firstKeyOf(QosPolicy.class).getUuid().getValue(), original, update);
         qosNeutronUtils.addToQosPolicyCache(update);
