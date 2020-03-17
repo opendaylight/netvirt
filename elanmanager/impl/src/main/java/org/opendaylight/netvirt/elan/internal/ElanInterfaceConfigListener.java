@@ -9,20 +9,20 @@ package org.opendaylight.netvirt.elan.internal;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import com.google.common.base.Optional;
 import java.util.Collections;
-import javax.annotation.PostConstruct;
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan;
@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class ElanInterfaceConfigListener
-    extends AsyncDataTreeChangeListenerBase<Interface, ElanInterfaceConfigListener> {
+    extends AbstractAsyncDataTreeChangeListener<Interface> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanInterfaceConfigListener.class);
 
@@ -46,7 +46,9 @@ public class ElanInterfaceConfigListener
     @Inject
     public ElanInterfaceConfigListener(DataBroker dataBroker, ElanInterfaceManager elanInterfaceManager,
             JobCoordinator jobCoordinator, ElanInterfaceCache elanInterfaceCache) {
-        super(Interface.class, ElanInterfaceConfigListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Interfaces.class)
+                .child(Interface.class),
+                Executors.newListeningSingleThreadExecutor("ElanInterfaceConfigListener", LOG));
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.elanInterfaceManager = elanInterfaceManager;
@@ -54,20 +56,12 @@ public class ElanInterfaceConfigListener
         this.elanInterfaceCache = elanInterfaceCache;
     }
 
-    @Override
-    @PostConstruct
     public void init() {
         LOG.info("ElanInterfaceConfigListener init");
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<Interface> getWildCardPath() {
-        return InstanceIdentifier.create(Interfaces.class).child(Interface.class);
-    }
-
-    @Override
-    protected void remove(InstanceIdentifier<Interface> key, Interface intrf) {
+    public void remove(InstanceIdentifier<Interface> key, Interface intrf) {
         // Sometimes elan service is not unbound on the interface when the user does nova delete followed
         // by neutron port delete since interface config is deleted a bit later. so adding logic to
         // unbind service for interface config removal.
@@ -90,19 +84,13 @@ public class ElanInterfaceConfigListener
     }
 
     @Override
-    protected void update(InstanceIdentifier<Interface> key, Interface dataObjectModificationBefore,
+    public void update(InstanceIdentifier<Interface> key, Interface dataObjectModificationBefore,
             Interface dataObjectModificationAfter) {
         // Not required to handle this event
     }
 
     @Override
-    protected void add(InstanceIdentifier<Interface> key, Interface dataObjectModification) {
+    public void add(InstanceIdentifier<Interface> key, Interface dataObjectModification) {
         // Not required to handle this event
     }
-
-    @Override
-    protected ElanInterfaceConfigListener getDataTreeChangeListener() {
-        return this;
-    }
-
 }

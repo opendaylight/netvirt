@@ -17,13 +17,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
@@ -44,7 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase<Bgpvpn, NeutronBgpvpnChangeListener> {
+public class NeutronBgpvpnChangeListener extends AbstractAsyncDataTreeChangeListener<Bgpvpn> {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronBgpvpnChangeListener.class);
     private final DataBroker dataBroker;
     private final NeutronvpnManager nvpnManager;
@@ -55,7 +55,9 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
     @Inject
     public NeutronBgpvpnChangeListener(final DataBroker dataBroker, final NeutronvpnManager neutronvpnManager,
                                        final IdManagerService idManager, final NeutronvpnUtils neutronvpnUtils) {
-        super(Bgpvpn.class, NeutronBgpvpnChangeListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Neutron.class)
+                .child(Bgpvpns.class).child(Bgpvpn.class), Executors.newSingleThreadExecutor(
+                        "NeutronBgpvpnChangeListener", LOG));
         this.dataBroker = dataBroker;
         nvpnManager = neutronvpnManager;
         this.idManager = idManager;
@@ -64,22 +66,9 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
         adminRDValue = bundleContext.getProperty(NeutronConstants.RD_PROPERTY_KEY);
     }
 
-    @Override
-    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
         createIdPool();
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
-    }
-
-    @Override
-    protected InstanceIdentifier<Bgpvpn> getWildCardPath() {
-        return InstanceIdentifier.create(Neutron.class).child(Bgpvpns.class).child(Bgpvpn.class);
-    }
-
-    @Override
-    protected NeutronBgpvpnChangeListener getDataTreeChangeListener() {
-        return NeutronBgpvpnChangeListener.this;
     }
 
     private boolean isBgpvpnTypeL3(Class<? extends BgpvpnTypeBase> bgpvpnType) {
@@ -94,7 +83,7 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
     @Override
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void add(InstanceIdentifier<Bgpvpn> identifier, Bgpvpn input) {
+    public void add(InstanceIdentifier<Bgpvpn> identifier, Bgpvpn input) {
         LOG.trace("Adding Bgpvpn : key: {}, value={}", identifier, input);
         String vpnName = input.getUuid().getValue();
         if (isBgpvpnTypeL3(input.getType())) {
@@ -172,7 +161,7 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Bgpvpn> identifier, Bgpvpn input) {
+    public void remove(InstanceIdentifier<Bgpvpn> identifier, Bgpvpn input) {
         LOG.trace("Removing Bgpvpn : key: {}, value={}", identifier, input);
         Uuid vpnId = input.getUuid();
         if (isBgpvpnTypeL3(input.getType())) {
@@ -197,7 +186,7 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
     }
 
     @Override
-    protected void update(InstanceIdentifier<Bgpvpn> identifier, Bgpvpn original, Bgpvpn update) {
+    public void update(InstanceIdentifier<Bgpvpn> identifier, Bgpvpn original, Bgpvpn update) {
         LOG.trace("Update Bgpvpn : key: {}, value={}", identifier, update);
         Uuid vpnId = update.getUuid();
         if (isBgpvpnTypeL3(update.getType())) {

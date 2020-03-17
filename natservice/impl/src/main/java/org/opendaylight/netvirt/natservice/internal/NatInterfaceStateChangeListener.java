@@ -7,14 +7,14 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
-import com.google.common.base.Optional;
-import javax.annotation.PostConstruct;
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev170119.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class NatInterfaceStateChangeListener
-    extends AsyncDataTreeChangeListenerBase<Interface, NatInterfaceStateChangeListener> {
+    extends AbstractAsyncDataTreeChangeListener<Interface> {
 
     private static final Logger LOG = LoggerFactory.getLogger(NatInterfaceStateChangeListener.class);
     private final DataBroker dataBroker;
@@ -38,32 +38,21 @@ public class NatInterfaceStateChangeListener
     @Inject
     public NatInterfaceStateChangeListener(final DataBroker dataBroker,
                                            final NatSouthboundEventHandlers southboundEventHandlers) {
-        super(Interface.class, NatInterfaceStateChangeListener.class);
+        super(dataBroker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(InterfacesState.class)
+                .child(Interface.class),
+                Executors.newListeningSingleThreadExecutor("NatInterfaceStateChangeListener", LOG));
         this.dataBroker = dataBroker;
         this.southboundEventHandlers = southboundEventHandlers;
     }
 
-    @Override
-    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
-    }
-
-    @Override
-    protected InstanceIdentifier<Interface> getWildCardPath() {
-        return InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
-    }
-
-    @Override
-    protected NatInterfaceStateChangeListener getDataTreeChangeListener() {
-        return NatInterfaceStateChangeListener.this;
     }
 
     @Override
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
+    public void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
         LOG.trace("add : Interface {} up event received", intrf);
         if (!L2vlan.class.equals(intrf.getType())) {
             LOG.debug("add : Interface {} is not Vlan Interface.Ignoring", intrf.getName());
@@ -95,7 +84,7 @@ public class NatInterfaceStateChangeListener
     @Override
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
+    public void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
         LOG.trace("remove : Interface {} removed event received", intrf);
         if (!L2vlan.class.equals(intrf.getType())) {
             LOG.debug("remove : Interface {} is not Vlan Interface.Ignoring", intrf.getName());
@@ -143,7 +132,7 @@ public class NatInterfaceStateChangeListener
     @Override
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void update(InstanceIdentifier<Interface> identifier, Interface original, Interface update) {
+    public void update(InstanceIdentifier<Interface> identifier, Interface original, Interface update) {
         LOG.trace("update : Operation Interface update event - Old: {}, New: {}", original, update);
         if (!L2vlan.class.equals(update.getType())) {
             LOG.debug("update : Interface {} is not Vlan Interface.Ignoring", update.getName());

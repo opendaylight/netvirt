@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.bgpmanager;
 
-import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -16,15 +15,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.thrift.TException;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarmErrorCodes;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpConstants;
@@ -219,7 +219,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
                 .child(NetworksContainer.class)
                 .child(Networks.class,
                 new NetworksKey(rd, prefix)).build();
-        try (ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
+        try (ReadTransaction tx = dataBroker.newReadOnlyTransaction()) {
             Futures.addCallback(tx.read(LogicalDatastoreType.CONFIGURATION, networksId),
                 new FutureCallback<Optional<Networks>>() {
                     @Override

@@ -7,15 +7,15 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
-import com.google.common.base.Optional;
-import javax.annotation.PostConstruct;
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
@@ -30,37 +30,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class RouterPortsListener
-    extends AsyncDataTreeChangeListenerBase<RouterPorts, RouterPortsListener> {
+public class RouterPortsListener extends AbstractAsyncDataTreeChangeListener<RouterPorts> {
 
     private static final Logger LOG = LoggerFactory.getLogger(RouterPortsListener.class);
     private final DataBroker dataBroker;
 
     @Inject
     public RouterPortsListener(final DataBroker dataBroker) {
-        super(RouterPorts.class, RouterPortsListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(FloatingIpInfo.class)
+                .child(RouterPorts.class),
+                Executors.newListeningSingleThreadExecutor("RouterPortsListener", LOG));
         this.dataBroker = dataBroker;
     }
 
-    @Override
-    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<RouterPorts> getWildCardPath() {
-        return InstanceIdentifier.create(FloatingIpInfo.class).child(RouterPorts.class);
-    }
-
-    @Override
-    protected RouterPortsListener getDataTreeChangeListener() {
-        return RouterPortsListener.this;
-    }
-
-    @Override
-    protected void add(final InstanceIdentifier<RouterPorts> identifier, final RouterPorts routerPorts) {
+    public void add(final InstanceIdentifier<RouterPorts> identifier, final RouterPorts routerPorts) {
         LOG.trace("add : key:{}  value:{}",routerPorts.key(), routerPorts);
         Optional<RouterPorts> optRouterPorts =
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
@@ -96,7 +84,7 @@ public class RouterPortsListener
     }
 
     @Override
-    protected void remove(InstanceIdentifier<RouterPorts> identifier, RouterPorts routerPorts) {
+    public void remove(InstanceIdentifier<RouterPorts> identifier, RouterPorts routerPorts) {
         LOG.trace("remove : key:{}  value:{}",routerPorts.key(), routerPorts);
         //MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, identifier);
         //Remove the router to vpn association mapping entry if at all present
@@ -109,7 +97,7 @@ public class RouterPortsListener
     }
 
     @Override
-    protected void update(InstanceIdentifier<RouterPorts> identifier, RouterPorts original, RouterPorts update) {
+    public void update(InstanceIdentifier<RouterPorts> identifier, RouterPorts original, RouterPorts update) {
         LOG.trace("Update : key: {}, original:{}, update:{}",update.key(), original, update);
     }
 }

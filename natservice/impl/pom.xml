@@ -35,10 +35,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <artifactId>javax.inject</artifactId>
             <optional>true</optional>
         </dependency>
-        <dependency>
+<!--        <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>sal-binding-broker-impl</artifactId>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>org.apache.karaf.shell</groupId>
             <artifactId>org.apache.karaf.shell.commands</artifactId>

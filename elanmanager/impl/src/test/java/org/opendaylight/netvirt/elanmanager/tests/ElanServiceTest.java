@@ -8,11 +8,11 @@
 package org.opendaylight.netvirt.elanmanager.tests;
 
 import static java.util.Arrays.asList;
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
+import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.CONFIGURATION;
+import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.OPERATIONAL;
 
-import com.google.common.base.Optional;
 import java.util.List;
+import java.util.Optional;
 import javax.inject.Inject;
 import org.junit.After;
 import org.junit.Before;
@@ -21,9 +21,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
 import org.mockito.Mockito;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.datastoreutils.testutils.JobCoordinatorTestModule;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
@@ -41,6 +38,9 @@ import org.opendaylight.infrautils.metrics.MetricProvider;
 import org.opendaylight.infrautils.metrics.testimpl.TestMetricProviderImpl;
 import org.opendaylight.infrautils.testutils.LogRule;
 import org.opendaylight.mdsal.binding.testutils.AssertDataObjects;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
+import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceDpnsCache;
