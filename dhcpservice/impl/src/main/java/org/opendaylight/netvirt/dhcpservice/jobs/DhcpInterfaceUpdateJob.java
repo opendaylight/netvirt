@@ -11,8 +11,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.netvirt.dhcpservice.DhcpExternalTunnelManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev170119.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -22,7 +22,7 @@ import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DhcpInterfaceUpdateJob implements Callable<List<ListenableFuture<Void>>> {
+public class DhcpInterfaceUpdateJob implements Callable<List<? extends ListenableFuture<?>>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpInterfaceUpdateJob.class);
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;

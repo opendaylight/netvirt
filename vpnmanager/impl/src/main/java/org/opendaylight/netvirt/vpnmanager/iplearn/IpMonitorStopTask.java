@@ -12,12 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
-
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.iplearn.model.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
@@ -25,7 +24,7 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class IpMonitorStopTask implements Callable<List<ListenableFuture<Void>>> {
+public class IpMonitorStopTask implements Callable<List<? extends ListenableFuture<?>>> {
     private static final Logger LOG = LoggerFactory.getLogger(IpMonitorStopTask.class);
     private MacEntry macEntry;
     private DataBroker dataBroker;

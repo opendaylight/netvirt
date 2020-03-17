@@ -17,7 +17,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.opendaylight.genius.mdsalutil.NWUtil.getEtherTypeFromIpPrefix;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import java.math.BigInteger;
 import java.util.Collections;
@@ -35,11 +35,11 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -104,7 +104,7 @@ public class VPNServiceChainHandlerTest {
     private VPNServiceChainHandler vpnsch; // SUT
 
     @Mock DataBroker broker;
-    @Mock ReadOnlyTransaction readTx;
+    @Mock ReadTransaction readTx;
     @Mock WriteTransaction writeTx;
     @Mock IMdsalApiManager mdsalMgr;
     @Mock IVpnFootprintService vpnFootprintService;
@@ -156,7 +156,7 @@ public class VPNServiceChainHandlerTest {
         InstanceIdentifier<VpnInstance> id = VpnServiceChainUtils.getVpnInstanceToVpnIdIdentifier(vpnName);
         CheckedFuture chkdFuture = mock(CheckedFuture.class);
 
-        when(chkdFuture.checkedGet()).thenReturn(Optional.of(instance));
+        when(chkdFuture.get()).thenReturn(Optional.of(instance));
         // when(readTx.read(eq(LogicalDatastoreType.CONFIGURATION), eq(id))).thenReturn(chkdFuture);
         when(readTx.read(eq(LogicalDatastoreType.CONFIGURATION),
                          argThat(isIIdType(VpnInstance.class)))).thenReturn(chkdFuture);
@@ -165,7 +165,7 @@ public class VPNServiceChainHandlerTest {
 
     private void stubNoRdForVpnName(String vpnName) throws Exception {
         CheckedFuture<Optional<VpnInstance>, ReadFailedException> chkdFuture = mock(CheckedFuture.class);
-        when(chkdFuture.checkedGet()).thenReturn(Optional.absent());
+        when(chkdFuture.get()).thenReturn(Optional.empty());
         when(readTx.read(eq(LogicalDatastoreType.CONFIGURATION),
                          eq(VpnServiceChainUtils.getVpnInstanceToVpnIdIdentifier(vpnName))))
             .thenReturn(chkdFuture);
@@ -173,7 +173,7 @@ public class VPNServiceChainHandlerTest {
 
     private void stubNoVpnInstanceForRD(String rd) throws Exception {
         CheckedFuture<Optional<VpnInstanceOpDataEntry>, ReadFailedException> chkdFuture = mock(CheckedFuture.class);
-        when(chkdFuture.checkedGet()).thenReturn(Optional.absent());
+        when(chkdFuture.get()).thenReturn(Optional.empty());
 
         InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.create(VpnInstanceOpData.class)
                 .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd));
@@ -199,7 +199,7 @@ public class VPNServiceChainHandlerTest {
                                                .setVpnToDpnList(Collections.singletonList(vtdlb.build()))
                                                .setVrfId("1").build();
         CheckedFuture chkdFuture = mock(CheckedFuture.class);
-        when(chkdFuture.checkedGet()).thenReturn(Optional.of(vpnInstanceOpDataEntry));
+        when(chkdFuture.get()).thenReturn(Optional.of(vpnInstanceOpDataEntry));
         when(readTx.read(eq(LogicalDatastoreType.OPERATIONAL),
                          eq(VpnServiceChainUtils.getVpnInstanceOpDataIdentifier(rd)))).thenReturn(chkdFuture);
     }
@@ -210,7 +210,7 @@ public class VPNServiceChainHandlerTest {
         VrfTables tables = new VrfTablesBuilder().withKey(new VrfTablesKey(rd)).setRouteDistinguisher(rd)
                                                  .setVrfEntry(vrfEntryList).build();
         CheckedFuture chkdFuture = mock(CheckedFuture.class);
-        when(chkdFuture.checkedGet()).thenReturn(Optional.of(tables));
+        when(chkdFuture.get()).thenReturn(Optional.of(tables));
         when(readTx.read(eq(LogicalDatastoreType.CONFIGURATION), eq(VpnServiceChainUtils.buildVrfId(rd))))
                 .thenReturn(chkdFuture);
 
@@ -226,7 +226,7 @@ public class VPNServiceChainHandlerTest {
                           .collect(Collectors.toList());
 
         CheckedFuture chkdFuture = mock(CheckedFuture.class);
-        when(chkdFuture.checkedGet()).thenReturn(Optional.of(vpnIfacesList));
+        when(chkdFuture.get()).thenReturn(Optional.of(vpnIfacesList));
         when(readTx.read(eq(LogicalDatastoreType.OPERATIONAL),
                          eq(VpnServiceChainUtils.getVpnToDpnListIdentifier(rd, dpnId))))
              .thenReturn(chkdFuture);
@@ -240,7 +240,7 @@ public class VPNServiceChainHandlerTest {
                                                   CloudServiceChainConstants.COOKIE_SCF_BASE,
                                                   null /*instructions*/);
 
-        when(chkdFuture.checkedGet()).thenReturn(Optional.of(boundService));
+        when(chkdFuture.get()).thenReturn(Optional.of(boundService));
         when(readTx.read(eq(LogicalDatastoreType.CONFIGURATION),
                          eq(VpnServiceChainUtils.buildBoundServicesIid(NwConstants.SCF_SERVICE_INDEX, ifName))))
              .thenReturn(chkdFuture);
@@ -248,7 +248,7 @@ public class VPNServiceChainHandlerTest {
 
     private void stubScfIsNotBoundOnIface(long scfTag, String ifName) throws Exception {
         CheckedFuture chkdFuture = mock(CheckedFuture.class);
-        when(chkdFuture.checkedGet()).thenReturn(Optional.absent());
+        when(chkdFuture.get()).thenReturn(Optional.empty());
         when(readTx.read(eq(LogicalDatastoreType.CONFIGURATION),
                          eq(VpnServiceChainUtils.buildBoundServicesIid(NwConstants.SCF_SERVICE_INDEX, ifName))))
              .thenReturn(chkdFuture);
