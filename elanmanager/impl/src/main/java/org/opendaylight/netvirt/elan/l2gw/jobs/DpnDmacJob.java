@@ -61,7 +61,7 @@ public class DpnDmacJob implements Callable<List<ListenableFuture<Void>>> {
 
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
-        ElanInstance elan = elanRefUtil.getElanInstanceCache().get(elanName).orNull();
+        ElanInstance elan = elanRefUtil.getElanInstanceCache().get(elanName).orElse(null);
         if (elan == null) {
             LOG.error("failed.elan.not.found.{}", jobKey);
             return null;

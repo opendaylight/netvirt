@@ -13,23 +13,23 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.natservice.api.SnatServiceManager;
 import org.opendaylight.netvirt.natservice.internal.NatConstants;
 import org.opendaylight.netvirt.natservice.internal.NatUtil;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig.NatMode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  */
 @Singleton
 public class SnatCentralizedSwitchChangeListener
-        extends AsyncDataTreeChangeListenerBase<RouterToNaptSwitch, SnatCentralizedSwitchChangeListener> {
+        extends AbstractAsyncDataTreeChangeListener<RouterToNaptSwitch> {
 
     private static final Logger LOG = LoggerFactory.getLogger(SnatCentralizedSwitchChangeListener.class);
     private final DataBroker dataBroker;
@@ -59,7 +59,9 @@ public class SnatCentralizedSwitchChangeListener
     public SnatCentralizedSwitchChangeListener(final DataBroker dataBroker,
             final SnatServiceManager snatServiceManger, NatDataUtil natDataUtil, final NatserviceConfig config,
             final DataTreeEventCallbackRegistrar dataTreeEventCallbackRegistrar) {
-        super(RouterToNaptSwitch.class, SnatCentralizedSwitchChangeListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(NaptSwitches.class)
+                .child(RouterToNaptSwitch.class),
+                Executors.newListeningSingleThreadExecutor("SnatCentralizedSwitchChangeListener", LOG));
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.snatServiceManger = snatServiceManger;
@@ -73,20 +75,12 @@ public class SnatCentralizedSwitchChangeListener
         }
     }
 
-    @Override
-    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<RouterToNaptSwitch> getWildCardPath() {
-        return InstanceIdentifier.create(NaptSwitches.class).child(RouterToNaptSwitch.class);
-    }
-
-    @Override
-    protected void remove(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch routerToNaptSwitch) {
+    public void remove(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch routerToNaptSwitch) {
         LOG.debug("Deleting {}", routerToNaptSwitch);
         if (natMode == NatMode.Controller) {
             LOG.info("Do Not Processing this remove() event for (routerName:designatedDpn) {}:{}"
@@ -106,7 +100,7 @@ public class SnatCentralizedSwitchChangeListener
     }
 
     @Override
-    protected void update(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch origRouterToNaptSwitch,
+    public void update(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch origRouterToNaptSwitch,
             RouterToNaptSwitch updatedRouterToNaptSwitch) {
         LOG.debug("Updating old {} new {}", origRouterToNaptSwitch, updatedRouterToNaptSwitch);
         if (natMode == NatMode.Controller) {
@@ -162,7 +156,7 @@ public class SnatCentralizedSwitchChangeListener
     }
 
     @Override
-    protected void add(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch routerToNaptSwitch) {
+    public void add(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch routerToNaptSwitch) {
         LOG.debug("Adding {}", routerToNaptSwitch);
         if (natMode == NatMode.Controller) {
             LOG.info("Do Not Processing this add() event for (routerName:designatedDpn) {}:{}"
@@ -213,10 +207,5 @@ public class SnatCentralizedSwitchChangeListener
         } else {
             LOG.error("Router {} not found for primarySwitch {}", routerName, primarySwitchId);
         }
-    }
-
-    @Override
-    protected SnatCentralizedSwitchChangeListener getDataTreeChangeListener() {
-        return this;
     }
 }

@@ -7,18 +7,20 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.cloudscaler.api.TombstonedNodeManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
@@ -97,8 +99,13 @@ public class NAPTSwitchSelector {
     }
 
     private Map<Uint64, Integer> constructNAPTSwitches() {
-        Optional<NaptSwitches> optNaptSwitches =
-            MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, getNaptSwitchesIdentifier());
+        Optional<NaptSwitches> optNaptSwitches = Optional.empty();
+        try {
+            optNaptSwitches = SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    getNaptSwitchesIdentifier());
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("constructNAPTSwitches: Exception while reading the NaptSwitches DS", e);
+        }
         Map<Uint64, Integer> switchWeights = new HashMap<>();
 
         if (optNaptSwitches.isPresent()) {

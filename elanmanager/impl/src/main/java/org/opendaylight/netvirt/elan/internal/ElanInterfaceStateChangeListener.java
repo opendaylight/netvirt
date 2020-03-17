@@ -7,20 +7,20 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
-import com.google.common.base.Optional;
-import javax.annotation.PostConstruct;
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev170119.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class ElanInterfaceStateChangeListener
-        extends AsyncDataTreeChangeListenerBase<Interface, ElanInterfaceStateChangeListener> {
+        extends AbstractAsyncDataTreeChangeListener<Interface> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanInterfaceStateChangeListener.class);
 
@@ -48,7 +48,9 @@ public class ElanInterfaceStateChangeListener
     public ElanInterfaceStateChangeListener(final DataBroker db, final ElanInterfaceManager ifManager,
             final JobCoordinator jobCoordinator, final ElanInstanceCache elanInstanceCache,
             final ElanInterfaceCache elanInterfaceCache) {
-        super(Interface.class, ElanInterfaceStateChangeListener.class);
+        super(db, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(InterfacesState.class)
+                .child(Interface.class),
+                Executors.newListeningSingleThreadExecutor("ElanInterfaceStateChangeListener", LOG));
         broker = db;
         elanInterfaceManager = ifManager;
         this.jobCoordinator = jobCoordinator;
@@ -56,14 +58,12 @@ public class ElanInterfaceStateChangeListener
         this.elanInterfaceCache = elanInterfaceCache;
     }
 
-    @Override
-    @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.OPERATIONAL, broker);
+        LOG.info("{} registered", getClass().getSimpleName());
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Interface> identifier, Interface delIf) {
+    public void remove(InstanceIdentifier<Interface> identifier, Interface delIf) {
         if (!L2vlan.class.equals(delIf.getType())) {
             return;
         }
@@ -82,7 +82,7 @@ public class ElanInterfaceStateChangeListener
         interfaceInfo.setInterfaceType(InterfaceInfo.InterfaceType.VLAN_INTERFACE);
         interfaceInfo.setInterfaceTag(delIf.getIfIndex());
         String elanInstanceName = elanInterface.get().getElanInstanceName();
-        ElanInstance elanInstance = elanInstanceCache.get(elanInstanceName).orNull();
+        ElanInstance elanInstance = elanInstanceCache.get(elanInstanceName).orElse(null);
         if (elanInstance == null) {
             LOG.debug("No Elan instance is available for the interface:{} ", interfaceName);
             return;
@@ -93,11 +93,11 @@ public class ElanInterfaceStateChangeListener
     }
 
     @Override
-    protected void update(InstanceIdentifier<Interface> identifier, Interface original, Interface update) {
+    public void update(InstanceIdentifier<Interface> identifier, Interface original, Interface update) {
     }
 
     @Override
-    protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
+    public void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
         if (!L2vlan.class.equals(intrf.getType())) {
             return;
         }
@@ -112,16 +112,4 @@ public class ElanInterfaceStateChangeListener
                 .getElanInterfaceConfigurationDataPathId(interfaceName);
         elanInterfaceManager.add(elanInterfaceId, elanInterface.get());
     }
-
-    @Override
-    protected InstanceIdentifier<Interface> getWildCardPath() {
-        return InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
-    }
-
-
-    @Override
-    protected ElanInterfaceStateChangeListener getDataTreeChangeListener() {
-        return this;
-    }
-
 }

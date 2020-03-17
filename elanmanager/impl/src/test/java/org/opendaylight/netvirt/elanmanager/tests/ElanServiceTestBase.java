@@ -20,9 +20,9 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.awaitility.Awaitility;
 import org.awaitility.core.ConditionFactory;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -401,7 +401,7 @@ public class ElanServiceTestBase {
     }
 
     public void addElanInterface(String elanInstanceName, InterfaceInfo interfaceInfo, String prefix) {
-        ElanInstance existingElanInstance = elanInstanceCache.get(elanInstanceName).orNull();
+        ElanInstance existingElanInstance = elanInstanceCache.get(elanInstanceName).orElse(null);
         String interfaceName = interfaceInfo.getInterfaceName();
 
         if (existingElanInstance != null) {

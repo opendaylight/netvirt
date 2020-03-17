@@ -8,7 +8,7 @@
 
 package org.opendaylight.netvirt.cloudservicechain;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,9 +19,9 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -92,7 +92,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
     protected VpnInstanceOpDataEntry getVpnInstance(String rd) {
         InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.create(VpnInstanceOpData.class)
                 .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd));
-        return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id).orNull();
+        return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id).orElse(null);
     }
 
     /**
@@ -304,7 +304,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
             return SingleTransactionDataBroker.syncReadOptional(dataBroker,
                                                                 LogicalDatastoreType.CONFIGURATION, boundServicesIId)
                                               .isPresent();
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Error while reading [{}]", boundServicesIId, e);
             return false;
         }
@@ -344,7 +344,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
         String vpnRd = VpnServiceChainUtils.getVpnRd(dataBroker, vpnName);
         if (vpnRd == null) {
             LOG.trace("Checking if Vpn {} participates in SC. Could not find its RD", vpnName);
-            return Optional.absent();
+            return Optional.empty();
         }
 
         return VpnServiceChainUtils.getVpnPseudoPortData(dataBroker, vpnRd);
