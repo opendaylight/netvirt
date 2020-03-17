@@ -9,10 +9,10 @@ package org.opendaylight.netvirt.aclservice;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.inject.AbstractLifecycle;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;

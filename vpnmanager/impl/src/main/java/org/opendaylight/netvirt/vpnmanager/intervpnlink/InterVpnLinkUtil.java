@@ -7,17 +7,15 @@
  */
 package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
-import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -26,6 +24,8 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.utils.ServiceIndex;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -317,14 +317,14 @@ public final class InterVpnLinkUtil {
      * Retrieves the State of an InterVpnLink.
      *
      * @param interVpnLinkName The name of the InterVpnLink
-     * @return the object that contains the State of the specified InterVpnLink or Optional.absent() if it doesnt exist
+     * @return the object that contains the State of the specified InterVpnLink or Optional.empty() if it doesnt exist
      */
     public Optional<InterVpnLinkState> getInterVpnLinkState(String interVpnLinkName) {
-        Optional<InterVpnLinkState> interVpnLinkStateOptional = Optional.absent();
+        Optional<InterVpnLinkState> interVpnLinkStateOptional = Optional.empty();
         try {
             interVpnLinkStateOptional = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                     LogicalDatastoreType.CONFIGURATION, getInterVpnLinkStateIid(interVpnLinkName));
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("getInterVpnLinkState: Failed to read intervpn link state for {}", interVpnLinkName);
         }
         return interVpnLinkStateOptional;

@@ -7,20 +7,18 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
+import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.OPERATIONAL;
 import static org.opendaylight.netvirt.elan.utils.ElanConstants.ELAN_EOS_DELAY;
 
-import com.google.common.base.Optional;
-
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipChange;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipListener;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;

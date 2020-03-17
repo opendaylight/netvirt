@@ -10,7 +10,7 @@ package org.opendaylight.netvirt.dhcpservice;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -18,9 +18,9 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
@@ -234,7 +234,7 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
         SubnetmapBuilder builder = null ;
         InstanceIdentifier<Subnetmap> id = InstanceIdentifier.builder(Subnetmaps.class)
                 .child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
-        ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
+        ReadTransaction tx = broker.newReadOnlyTransaction();
 
         Optional<Subnetmap> sn ;
         try {

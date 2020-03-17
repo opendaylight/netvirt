@@ -7,10 +7,10 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
-import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
@@ -38,9 +38,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
@@ -423,9 +423,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             try {
                 sn = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                                 LogicalDatastoreType.CONFIGURATION, subnetmapId);
-            } catch (ReadFailedException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Failed to read SubnetMap for  subnetmap Id {}", subnetmapId, e);
-                sn = Optional.absent();
+                sn = Optional.empty();
             }
             if (sn.isPresent()) {
                 // subnets
@@ -1416,9 +1416,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                 ipPortMapping = SingleTransactionDataBroker
                                             .syncReadOptional(dataBroker,
                                                     LogicalDatastoreType.CONFIGURATION, ipPortMappingId);
-                            } catch (ReadFailedException e) {
+                            } catch (InterruptedException | ExecutionException e) {
                                 LOG.error("Failed to read ipPortMapping for router id {}", routerId, e);
-                                ipPortMapping = Optional.absent();
+                                ipPortMapping = Optional.empty();
                             }
 
                             if (ipPortMapping.isPresent()) {
@@ -1638,9 +1638,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         try {
             externalCountersData = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                         LogicalDatastoreType.OPERATIONAL, id);
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed to read external counters data for ExternalIp {}", externalIp, e);
-            externalCountersData = Optional.absent();
+            externalCountersData = Optional.empty();
         }
         if (externalCountersData.isPresent()) {
             ExternalIpsCounter externalIpsCounters = externalCountersData.get();
@@ -1876,9 +1876,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             try {
                 rtrToNapt = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                                 LogicalDatastoreType.CONFIGURATION, routerToNaptSwitch);
-            } catch (ReadFailedException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Failed to read NAPT switch for router {}", routerName, e);
-                rtrToNapt = Optional.absent();
+                rtrToNapt = Optional.empty();
             }
             if (rtrToNapt.isPresent()) {
                 naptSwitchDpnId = rtrToNapt.get().getPrimarySwitchId();
@@ -2687,7 +2687,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     .syncReadOptional(dataBroker,
                             LogicalDatastoreType.CONFIGURATION, routerInstanceIndentifier);
             return routerData.isPresent() && routerData.get().isEnableSnat();
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed to read data for router id {}", routerUuid, e);
             return false;
         }

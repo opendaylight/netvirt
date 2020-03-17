@@ -7,10 +7,9 @@
  */
 package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
-import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -18,23 +17,23 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.NotificationPublishService;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -48,6 +47,7 @@ import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComp
 import org.opendaylight.netvirt.vpnmanager.intervpnlink.tasks.InterVpnLinkCleanedCheckerTask;
 import org.opendaylight.netvirt.vpnmanager.intervpnlink.tasks.InterVpnLinkCreatorTask;
 import org.opendaylight.netvirt.vpnmanager.intervpnlink.tasks.InterVpnLinkRemoverTask;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
@@ -81,7 +81,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterVpnLink, InterVpnLinkListener> {
+public class InterVpnLinkListener extends AbstractAsyncDataTreeChangeListener<InterVpnLink> {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkListener.class);
 
@@ -114,6 +114,9 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                                 final JobCoordinator jobCoordinator,
                                 final InterVpnLinkCache interVpnLinkCache, final VpnUtil vpnUtil,
                                 final InterVpnLinkUtil interVpnLinkUtil) {
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(InterVpnLinks.class)
+                .child(InterVpnLink.class),
+                Executors.newListeningSingleThreadExecutor("InterVpnLinkListener", LOG));
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.idManager = idManager;
@@ -131,24 +134,12 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         this.interVpnLinkUtil = interVpnLinkUtil;
     }
 
-    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<InterVpnLink> getWildCardPath() {
-        return InstanceIdentifier.create(InterVpnLinks.class).child(InterVpnLink.class);
-    }
-
-    @Override
-    protected InterVpnLinkListener getDataTreeChangeListener() {
-        return InterVpnLinkListener.this;
-    }
-
-    @Override
-    protected void add(InstanceIdentifier<InterVpnLink> identifier, InterVpnLink add) {
+    public void add(InstanceIdentifier<InterVpnLink> identifier, InterVpnLink add) {
 
         String ivpnLinkName = add.getName();
         LOG.debug("Reacting to IVpnLink {} creation. Vpn1=[name={}  EndpointIp={}]  Vpn2=[name={} endpointIP={}]",
@@ -294,7 +285,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
     }
 
     @Override
-    protected void remove(InstanceIdentifier<InterVpnLink> identifier, InterVpnLink del) {
+    public void remove(InstanceIdentifier<InterVpnLink> identifier, InterVpnLink del) {
 
         LOG.debug("Reacting to InterVpnLink {} removal", del.getName());
 
@@ -419,7 +410,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
     }
 
     @Override
-    protected void update(InstanceIdentifier<InterVpnLink> identifier, InterVpnLink original, InterVpnLink update) {
+    public void update(InstanceIdentifier<InterVpnLink> identifier, InterVpnLink original, InterVpnLink update) {
 
         LOG.debug("Update InterVpnLink {}. "
                 + " original=[1stEndpoint=[vpn=<{}> ipAddr=<{}>] 2ndEndpoint=[vpn=<{}> ipAddr=<{}>]]"
