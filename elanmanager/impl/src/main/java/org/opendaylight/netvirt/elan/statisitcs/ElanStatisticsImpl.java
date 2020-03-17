@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.statisitcs;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import javax.inject.Inject;

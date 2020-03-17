@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,9 +16,9 @@ import java.util.TreeSet;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.cloudscaler.api.TombstonedNodeManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
@@ -59,7 +59,7 @@ public class NAPTSwitchSelector {
             LOG.debug("selectNewNAPTSwitch : routerSwitches before filtering : {}", routerSwitches);
             routerSwitches = tombstonedNodeManager.filterTombStoned(routerSwitches);
             LOG.debug("selectNewNAPTSwitch : routerSwitches after filtering : {}", routerSwitches);
-        } catch (ReadFailedException ex) {
+        } catch (InterruptedException | ExecutionException ex) {
             LOG.error("selectNewNAPTSwitch : filterTombStoned Exception thrown", ex);
         }
         Set<SwitchWeight> switchWeights = new TreeSet<>();

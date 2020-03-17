@@ -7,12 +7,12 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -82,7 +82,7 @@ public class ElanInterfaceStateChangeListener
         interfaceInfo.setInterfaceType(InterfaceInfo.InterfaceType.VLAN_INTERFACE);
         interfaceInfo.setInterfaceTag(delIf.getIfIndex());
         String elanInstanceName = elanInterface.get().getElanInstanceName();
-        ElanInstance elanInstance = elanInstanceCache.get(elanInstanceName).orNull();
+        ElanInstance elanInstance = elanInstanceCache.get(elanInstanceName).orElse(null);
         if (elanInstance == null) {
             LOG.debug("No Elan instance is available for the interface:{} ", interfaceName);
             return;

@@ -7,23 +7,24 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev170119.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -40,8 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChangeListenerBase<Interface,
-    SubnetRouteInterfaceStateChangeListener> {
+public class SubnetRouteInterfaceStateChangeListener extends AbstractAsyncDataTreeChangeListener<Interface> {
     private static final Logger LOG = LoggerFactory.getLogger(SubnetRouteInterfaceStateChangeListener.class);
     private static final String LOGGING_PREFIX = "SUBNETROUTE:";
     private final DataBroker dataBroker;
@@ -54,7 +54,9 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
     public SubnetRouteInterfaceStateChangeListener(final DataBroker dataBroker,
             final VpnSubnetRouteHandler vpnSubnetRouteHandler, final SubnetOpDpnManager subnetOpDpnManager,
             final INeutronVpnManager neutronVpnService, final JobCoordinator jobCoordinator) {
-        super(Interface.class, SubnetRouteInterfaceStateChangeListener.class);
+        super(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                InstanceIdentifier.create(InterfacesState.class).child(Interface.class),
+                Executors.newListeningSingleThreadExecutor("SubnetRouteInterfaceStateChangeListener", LOG));
         this.dataBroker = dataBroker;
         this.vpnSubnetRouteHandler = vpnSubnetRouteHandler;
         this.subOpDpnManager = subnetOpDpnManager;
@@ -65,21 +67,10 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
     @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<Interface> getWildCardPath() {
-        return InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
-    }
-
-    @Override
-    protected SubnetRouteInterfaceStateChangeListener getDataTreeChangeListener() {
-        return SubnetRouteInterfaceStateChangeListener.this;
-    }
-
-    @Override
-    protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
+    public void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
         LOG.trace("{} add: Received interface {} up event", LOGGING_PREFIX, intrf);
         if (L2vlan.class.equals(intrf.getType())) {
             LOG.trace("SubnetRouteInterfaceListener add: Received interface {} up event", intrf);
@@ -114,7 +105,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                                 }
                                 vpnSubnetRouteHandler.onInterfaceUp(dpnId, intrf.getName(), subnetId);
                                 LOG.info("{} add: Processed interface {} up event", LOGGING_PREFIX, intrf.getName());
-                            } catch (ReadFailedException e) {
+                            } catch (InterruptedException | ExecutionException e) {
                                 LOG.error("add: Failed to read data store for interface {} dpn {}", interfaceName,
                                         dpnId);
                             }
@@ -128,7 +119,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
-    protected void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
+    public void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
         if (L2vlan.class.equals(intrf.getType())) {
             LOG.trace("SubnetRouteInterfaceListener remove: Received interface {} down event", intrf);
             List<Uuid> subnetIdList = getSubnetId(intrf);
@@ -185,7 +176,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                             }
                             LOG.info("{} remove: Processed interface {} down event in ", LOGGING_PREFIX,
                                     intrf.getName());
-                        } catch (ReadFailedException e) {
+                        } catch (InterruptedException | ExecutionException e) {
                             LOG.error("{} remove: Failed to read data store for {}", LOGGING_PREFIX, intrf.getName());
                         }
                         return futures;
@@ -195,7 +186,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
     }
 
     @Override
-    protected void update(InstanceIdentifier<Interface> identifier,
+    public void update(InstanceIdentifier<Interface> identifier,
         Interface original, Interface update) {
         String interfaceName = update.getName();
         if (L2vlan.class.equals(update.getType())) {
@@ -263,7 +254,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                                     vpnSubnetRouteHandler.onInterfaceDown(dpnId, update.getName(), subnetId);
                                 }
                             }
-                        } catch (ReadFailedException e) {
+                        } catch (InterruptedException | ExecutionException e) {
                             LOG.error("update: Failed to read data store for interface {} dpn {}", interfaceName,
                                     dpnId);
                         }

@@ -14,8 +14,8 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
@@ -74,7 +74,7 @@ public class ElanDpnInterfacesListener
         LOG.debug("received Dpninterfaces update event for dpn {}", update.getDpId());
         Uint64 dpnId = update.getDpId();
         String elanInstanceName = identifier.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
-        ElanInstance elanInstance = elanInstanceCache.get(elanInstanceName).orNull();
+        ElanInstance elanInstance = elanInstanceCache.get(elanInstanceName).orElse(null);
 
         if (elanInstance != null && !elanInstance.isExternal() && ElanUtils.isVlan(elanInstance)) {
             List<String> interfaces = update.getInterfaces();
@@ -95,7 +95,7 @@ public class ElanDpnInterfacesListener
         LOG.debug("received Dpninterfaces add event for dpn {}", dpnInterfaces.getDpId());
         Uint64 dpnId = dpnInterfaces.getDpId();
         String elanInstanceName = identifier.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
-        ElanInstance elanInstance = elanInstanceCache.get(elanInstanceName).orNull();
+        ElanInstance elanInstance = elanInstanceCache.get(elanInstanceName).orElse(null);
 
         // trigger creation of vlan provider intf for the vlan provider network
         // on br-int patch port for this DPN

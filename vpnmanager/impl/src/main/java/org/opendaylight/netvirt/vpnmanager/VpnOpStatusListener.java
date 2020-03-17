@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import static java.util.Collections.emptyList;
 
-import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -17,14 +16,12 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -33,9 +30,13 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.L3nexthop;
@@ -52,7 +53,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInstanceOpDataEntry, VpnOpStatusListener> {
+public class VpnOpStatusListener extends AbstractAsyncDataTreeChangeListener<VpnInstanceOpDataEntry> {
     private static final Logger LOG = LoggerFactory.getLogger(VpnOpStatusListener.class);
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
@@ -69,7 +70,9 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
                                final IdManagerService idManager, final IFibManager fibManager,
                                final IMdsalApiManager mdsalManager, final VpnFootprintService vpnFootprintService,
                                final JobCoordinator jobCoordinator, VpnUtil vpnUtil) {
-        super(VpnInstanceOpDataEntry.class, VpnOpStatusListener.class);
+        super(dataBroker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(VpnInstanceOpData.class)
+                .child(VpnInstanceOpDataEntry.class), Executors
+                .newListeningSingleThreadExecutor("VpnOpStatusListener", LOG));
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.bgpManager = bgpManager;
@@ -84,27 +87,16 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
     @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<VpnInstanceOpDataEntry> getWildCardPath() {
-        return InstanceIdentifier.create(VpnInstanceOpData.class).child(VpnInstanceOpDataEntry.class);
-    }
-
-    @Override
-    protected VpnOpStatusListener getDataTreeChangeListener() {
-        return VpnOpStatusListener.this;
-    }
-
-    @Override
-    protected void remove(InstanceIdentifier<VpnInstanceOpDataEntry> identifier, VpnInstanceOpDataEntry value) {
+    public void remove(InstanceIdentifier<VpnInstanceOpDataEntry> identifier, VpnInstanceOpDataEntry value) {
         LOG.info("remove: Ignoring vpn Op {} with rd {}", value.getVpnInstanceName(), value.getVrfId());
     }
 
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void update(InstanceIdentifier<VpnInstanceOpDataEntry> identifier,
+    public void update(InstanceIdentifier<VpnInstanceOpDataEntry> identifier,
                           VpnInstanceOpDataEntry original, VpnInstanceOpDataEntry update) {
         LOG.info("update: Processing update for vpn {} with rd {}", update.getVpnInstanceName(), update.getVrfId());
         if (update.getVpnState() == VpnInstanceOpDataEntry.VpnState.PendingDelete
@@ -147,11 +139,11 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
                         }
                         InstanceIdentifier<Vpn> vpnToExtraroute =
                                 VpnExtraRouteHelper.getVpnToExtrarouteVpnIdentifier(vpnName);
-                        Optional<Vpn> optVpnToExtraroute = Optional.absent();
+                        Optional<Vpn> optVpnToExtraroute = Optional.empty();
                         try {
                             optVpnToExtraroute = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                                     LogicalDatastoreType.OPERATIONAL, vpnToExtraroute);
-                        } catch (ReadFailedException e) {
+                        } catch (InterruptedException | ExecutionException e) {
                             LOG.error("update: Failed to read VpnToExtraRoute for vpn {}", vpnName);
                         }
                         if (optVpnToExtraroute.isPresent()) {
@@ -161,11 +153,11 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
                             vpnUtil.removeExternalTunnelDemuxFlows(vpnName);
                         }
                         // Clean up PrefixToInterface Operational DS
-                        Optional<VpnIds> optPrefixToIntf = Optional.absent();
+                        Optional<VpnIds> optPrefixToIntf = Optional.empty();
                         try {
                             optPrefixToIntf = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                                     LogicalDatastoreType.OPERATIONAL, VpnUtil.getPrefixToInterfaceIdentifier(vpnId));
-                        } catch (ReadFailedException e) {
+                        } catch (InterruptedException | ExecutionException e) {
                             LOG.error("update: Failed to read PrefixToInterface for vpn {}", vpnName);
                         }
                         if (optPrefixToIntf.isPresent()) {
@@ -174,11 +166,11 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
                         // Clean up L3NextHop Operational DS
                         InstanceIdentifier<VpnNexthops> vpnNextHops = InstanceIdentifier.builder(L3nexthop.class).child(
                                 VpnNexthops.class, new VpnNexthopsKey(vpnId)).build();
-                        Optional<VpnNexthops> optL3nexthopForVpnId = Optional.absent();
+                        Optional<VpnNexthops> optL3nexthopForVpnId = Optional.empty();
                         try {
                             optL3nexthopForVpnId = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                                     LogicalDatastoreType.OPERATIONAL, vpnNextHops);
-                        } catch (ReadFailedException e) {
+                        } catch (InterruptedException | ExecutionException e) {
                             LOG.error("update: Failed to read VpnNextHops for vpn {}", vpnName);
                         }
                         if (optL3nexthopForVpnId.isPresent()) {
@@ -318,7 +310,7 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
     }
 
     @Override
-    protected void add(final InstanceIdentifier<VpnInstanceOpDataEntry> identifier,
+    public void add(final InstanceIdentifier<VpnInstanceOpDataEntry> identifier,
                        final VpnInstanceOpDataEntry value) {
         LOG.debug("add: Ignoring vpn Op {} with rd {}", value.getVpnInstanceName(), value.getVrfId());
     }

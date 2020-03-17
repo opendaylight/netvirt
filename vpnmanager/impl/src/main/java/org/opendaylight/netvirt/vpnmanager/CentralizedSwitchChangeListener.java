@@ -16,16 +16,17 @@ import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
@@ -47,7 +48,7 @@ import org.slf4j.LoggerFactory;
  */
 @Singleton
 public class CentralizedSwitchChangeListener
-        extends AsyncDataTreeChangeListenerBase<RouterToNaptSwitch, CentralizedSwitchChangeListener> {
+        extends AbstractAsyncDataTreeChangeListener<RouterToNaptSwitch> {
 
     private static final Logger LOG = LoggerFactory.getLogger(CentralizedSwitchChangeListener.class);
 
@@ -60,7 +61,9 @@ public class CentralizedSwitchChangeListener
     @Inject
     public CentralizedSwitchChangeListener(final DataBroker dataBroker, final IVpnManager vpnManager,
             final ExternalRouterDataUtil externalRouterDataUtil, final VpnUtil vpnUtil) {
-        super(RouterToNaptSwitch.class, CentralizedSwitchChangeListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                InstanceIdentifier.create(NaptSwitches.class).child(RouterToNaptSwitch.class),
+                Executors.newListeningSingleThreadExecutor("CentralizedSwitchChangeListener", LOG));
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.vpnManager = vpnManager;
@@ -68,20 +71,13 @@ public class CentralizedSwitchChangeListener
         this.vpnUtil = vpnUtil;
     }
 
-    @Override
     @PostConstruct
-    public void init() {
-        LOG.info("{} init", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
+    public void start() {
+        LOG.info("{} start", getClass().getSimpleName());
     }
 
     @Override
-    protected InstanceIdentifier<RouterToNaptSwitch> getWildCardPath() {
-        return InstanceIdentifier.create(NaptSwitches.class).child(RouterToNaptSwitch.class);
-    }
-
-    @Override
-    protected void remove(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch routerToNaptSwitch) {
+    public void remove(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch routerToNaptSwitch) {
         LOG.debug("Removing {}", routerToNaptSwitch);
         ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx ->
                                             setupRouterGwFlows(routerToNaptSwitch, tx, NwConstants.DEL_FLOW)), LOG,
@@ -89,7 +85,7 @@ public class CentralizedSwitchChangeListener
     }
 
     @Override
-    protected void update(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch origRouterToNaptSwitch,
+    public void update(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch origRouterToNaptSwitch,
             RouterToNaptSwitch updatedRouterToNaptSwitch) {
         LOG.debug("Updating old {} new {}", origRouterToNaptSwitch, updatedRouterToNaptSwitch);
         if (!Objects.equals(updatedRouterToNaptSwitch.getPrimarySwitchId(),
@@ -102,16 +98,11 @@ public class CentralizedSwitchChangeListener
     }
 
     @Override
-    protected void add(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch routerToNaptSwitch) {
+    public void add(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch routerToNaptSwitch) {
         LOG.debug("Adding {}", routerToNaptSwitch);
         ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx ->
                         setupRouterGwFlows(routerToNaptSwitch, tx, NwConstants.ADD_FLOW)), LOG,
                 "Error processing switch addition for {}", routerToNaptSwitch);
-    }
-
-    @Override
-    protected CentralizedSwitchChangeListener getDataTreeChangeListener() {
-        return this;
     }
 
     private void setupRouterGwFlows(RouterToNaptSwitch routerToNaptSwitch,

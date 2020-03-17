@@ -8,18 +8,19 @@
 
 package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinkStates;
@@ -62,28 +63,34 @@ public class InterVpnLinkCacheImpl implements InterVpnLinkCache {
         InstanceIdentifier<InterVpnLinks> interVpnLinksIid = InstanceIdentifier.builder(InterVpnLinks.class).build();
 
         Optional<InterVpnLinks> optIVpnLinksOpData =
-                MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, interVpnLinksIid);
+                null;
+        try {
+            optIVpnLinksOpData = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, interVpnLinksIid);
+            if (!optIVpnLinksOpData.isPresent()) {
+                return; // Nothing to be added to cache
+            }
+            InterVpnLinks interVpnLinks = optIVpnLinksOpData.get();
+            for (InterVpnLink interVpnLink : interVpnLinks.nonnullInterVpnLink()) {
+                addInterVpnLinkToCaches(interVpnLink);
+            }
 
-        if (!optIVpnLinksOpData.isPresent()) {
-            return; // Nothing to be added to cache
-        }
-        InterVpnLinks interVpnLinks = optIVpnLinksOpData.get();
-        for (InterVpnLink interVpnLink : interVpnLinks.nonnullInterVpnLink()) {
-            addInterVpnLinkToCaches(interVpnLink);
-        }
+            // Now the States
+            InstanceIdentifier<InterVpnLinkStates> interVpnLinkStateIid =
+                    InstanceIdentifier.builder(InterVpnLinkStates.class).build();
 
-        // Now the States
-        InstanceIdentifier<InterVpnLinkStates> interVpnLinkStateIid =
-                InstanceIdentifier.builder(InterVpnLinkStates.class).build();
-
-        Optional<InterVpnLinkStates> optIVpnLinkStateOpData =
-                MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, interVpnLinkStateIid);
-        if (!optIVpnLinkStateOpData.isPresent()) {
-            return;
-        }
-        InterVpnLinkStates interVpnLinkStates = optIVpnLinkStateOpData.get();
-        for (InterVpnLinkState interVpnLinkState : interVpnLinkStates.nonnullInterVpnLinkState()) {
-            addInterVpnLinkStateToCaches(interVpnLinkState);
+            Optional<InterVpnLinkStates> optIVpnLinkStateOpData =
+                    SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                            interVpnLinkStateIid);
+            if (!optIVpnLinkStateOpData.isPresent()) {
+                return;
+            }
+            InterVpnLinkStates interVpnLinkStates = optIVpnLinkStateOpData.get();
+            for (InterVpnLinkState interVpnLinkState : interVpnLinkStates.nonnullInterVpnLinkState()) {
+                addInterVpnLinkStateToCaches(interVpnLinkState);
+            }
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("initialFeed: Exception while reading interVpnLink DS", e);
         }
     }
 
@@ -96,7 +103,7 @@ public class InterVpnLinkCacheImpl implements InterVpnLinkCache {
                 interVpnLink.getFirstEndpoint().getIpAddress(), interVpnLink.getSecondEndpoint().getVpnUuid(),
                 interVpnLink.getSecondEndpoint().getIpAddress());
 
-        InterVpnLinkDataComposite interVpnLinkDataComposite = getInterVpnLinkByName(ivlName).orNull();
+        InterVpnLinkDataComposite interVpnLinkDataComposite = getInterVpnLinkByName(ivlName).orElse(null);
         if (interVpnLinkDataComposite != null) {
             interVpnLinkDataComposite.setInterVpnLinkConfig(interVpnLink);
         } else {
@@ -115,7 +122,7 @@ public class InterVpnLinkCacheImpl implements InterVpnLinkCache {
         LOG.debug("Adding InterVpnLinkState {} with vpn1=[{}]  and vpn2=[{}]",
                   ivlName, interVpnLinkState.getFirstEndpointState(), interVpnLinkState.getSecondEndpointState());
 
-        InterVpnLinkDataComposite ivl = getInterVpnLinkByName(ivlName).orNull();
+        InterVpnLinkDataComposite ivl = getInterVpnLinkByName(ivlName).orElse(null);
         if (ivl != null) {
             ivl.setInterVpnLinkState(interVpnLinkState);
         } else {
@@ -128,13 +135,13 @@ public class InterVpnLinkCacheImpl implements InterVpnLinkCache {
     }
 
     private void addToEndpointCache(InterVpnLinkDataComposite interVpnLink) {
-        safePut(endpointToInterVpnLinkCache, interVpnLink.getFirstEndpointIpAddr().orNull(), interVpnLink);
-        safePut(endpointToInterVpnLinkCache, interVpnLink.getSecondEndpointIpAddr().orNull(), interVpnLink);
+        safePut(endpointToInterVpnLinkCache, interVpnLink.getFirstEndpointIpAddr().orElse(null), interVpnLink);
+        safePut(endpointToInterVpnLinkCache, interVpnLink.getSecondEndpointIpAddr().orElse(null), interVpnLink);
     }
 
     private void addToVpnUuidCache(InterVpnLinkDataComposite interVpnLink) {
-        safePut(uuidToInterVpnLinkCache, interVpnLink.getFirstEndpointVpnUuid().orNull(), interVpnLink);
-        safePut(uuidToInterVpnLinkCache, interVpnLink.getSecondEndpointVpnUuid().orNull(), interVpnLink);
+        safePut(uuidToInterVpnLinkCache, interVpnLink.getFirstEndpointVpnUuid().orElse(null), interVpnLink);
+        safePut(uuidToInterVpnLinkCache, interVpnLink.getSecondEndpointVpnUuid().orElse(null), interVpnLink);
     }
 
     private void addToIVpnLinkNameCache(InterVpnLinkDataComposite interVpnLink) {
@@ -170,30 +177,30 @@ public class InterVpnLinkCacheImpl implements InterVpnLinkCache {
 
 
     private void removeFromVpnUuidCache(InterVpnLinkDataComposite interVpnLinkComposite) {
-        safeRemove(uuidToInterVpnLinkCache, interVpnLinkComposite.getFirstEndpointVpnUuid().orNull());
-        safeRemove(uuidToInterVpnLinkCache, interVpnLinkComposite.getSecondEndpointVpnUuid().orNull());
+        safeRemove(uuidToInterVpnLinkCache, interVpnLinkComposite.getFirstEndpointVpnUuid().orElse(null));
+        safeRemove(uuidToInterVpnLinkCache, interVpnLinkComposite.getSecondEndpointVpnUuid().orElse(null));
     }
 
 
     private void removeFromEndpointIpAddressCache(InterVpnLinkDataComposite interVpnLinkComposite) {
-        safeRemove(endpointToInterVpnLinkCache, interVpnLinkComposite.getFirstEndpointIpAddr().orNull());
-        safeRemove(endpointToInterVpnLinkCache, interVpnLinkComposite.getSecondEndpointIpAddr().orNull());
+        safeRemove(endpointToInterVpnLinkCache, interVpnLinkComposite.getFirstEndpointIpAddr().orElse(null));
+        safeRemove(endpointToInterVpnLinkCache, interVpnLinkComposite.getSecondEndpointIpAddr().orElse(null));
     }
 
     @Override
     public Optional<InterVpnLinkDataComposite> getInterVpnLinkByName(String interVpnLinkName) {
-        return Optional.fromNullable(safeGet(nameToInterVpnLinkCache, interVpnLinkName));
+        return Optional.ofNullable(safeGet(nameToInterVpnLinkCache, interVpnLinkName));
     }
 
     @Override
     public Optional<InterVpnLinkDataComposite> getInterVpnLinkByEndpoint(String endpointIp) {
         LOG.trace("Checking if {} is configured as an InterVpnLink endpoint", endpointIp);
-        return Optional.fromNullable(safeGet(endpointToInterVpnLinkCache, endpointIp));
+        return Optional.ofNullable(safeGet(endpointToInterVpnLinkCache, endpointIp));
     }
 
     @Override
     public Optional<InterVpnLinkDataComposite> getInterVpnLinkByVpnId(String vpnId) {
-        return Optional.fromNullable(safeGet(uuidToInterVpnLinkCache, vpnId));
+        return Optional.ofNullable(safeGet(uuidToInterVpnLinkCache, vpnId));
     }
 
     @Override

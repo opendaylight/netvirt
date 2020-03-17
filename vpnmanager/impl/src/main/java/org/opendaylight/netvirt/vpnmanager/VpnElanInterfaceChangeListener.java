@@ -12,34 +12,32 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.interfaces.VpnInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.interfaces.VpnInterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.interfaces.vpn._interface.VpnInstanceNames;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.interfaces.vpn._interface.VpnInstanceNames.AssociatedSubnetType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.interfaces.vpn._interface.VpnInstanceNames;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class VpnElanInterfaceChangeListener
-    extends AsyncDataTreeChangeListenerBase<ElanInterface, VpnElanInterfaceChangeListener> {
+public class VpnElanInterfaceChangeListener extends AbstractAsyncDataTreeChangeListener<ElanInterface> {
     private static final Logger LOG = LoggerFactory.getLogger(VpnElanInterfaceChangeListener.class);
 
     private final DataBroker broker;
@@ -50,7 +48,9 @@ public class VpnElanInterfaceChangeListener
     @Inject
     public VpnElanInterfaceChangeListener(final DataBroker broker, final IElanService elanService,
                                           final VpnUtil vpnUtil) {
-        super(ElanInterface.class, VpnElanInterfaceChangeListener.class);
+        super(broker, LogicalDatastoreType.CONFIGURATION,
+                InstanceIdentifier.create(ElanInterfaces.class).child(ElanInterface.class),
+                Executors.newListeningSingleThreadExecutor("VpnElanInterfaceChangeListener", LOG));
         this.broker = broker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
         this.elanService = elanService;
@@ -60,16 +60,10 @@ public class VpnElanInterfaceChangeListener
     @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.CONFIGURATION, broker);
     }
 
     @Override
-    protected InstanceIdentifier<ElanInterface> getWildCardPath() {
-        return InstanceIdentifier.create(ElanInterfaces.class).child(ElanInterface.class);
-    }
-
-    @Override
-    protected void remove(InstanceIdentifier<ElanInterface> key, ElanInterface elanInterface) {
+    public void remove(InstanceIdentifier<ElanInterface> key, ElanInterface elanInterface) {
         String interfaceName = elanInterface.getName();
         if (!elanService.isExternalInterface(interfaceName)) {
             LOG.debug("remove: Interface {} is not external. Ignoring interface removal", interfaceName);
@@ -88,13 +82,13 @@ public class VpnElanInterfaceChangeListener
     }
 
     @Override
-    protected void update(InstanceIdentifier<ElanInterface> key, ElanInterface origElanInterface,
+    public void update(InstanceIdentifier<ElanInterface> key, ElanInterface origElanInterface,
         ElanInterface updatedElanInterface) {
 
     }
 
     @Override
-    protected void add(InstanceIdentifier<ElanInterface> key, ElanInterface elanInterface) {
+    public void add(InstanceIdentifier<ElanInterface> key, ElanInterface elanInterface) {
         String interfaceName = elanInterface.getName();
         if (!elanService.isExternalInterface(interfaceName)) {
             LOG.debug("add: Interface {} is not external. Ignoring", interfaceName);
@@ -129,8 +123,4 @@ public class VpnElanInterfaceChangeListener
                 elanInterface.getElanInstanceName());
     }
 
-    @Override
-    protected VpnElanInterfaceChangeListener getDataTreeChangeListener() {
-        return this;
-    }
 }

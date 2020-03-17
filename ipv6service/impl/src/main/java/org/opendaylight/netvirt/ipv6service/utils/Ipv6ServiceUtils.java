@@ -8,7 +8,7 @@
 
 package org.opendaylight.netvirt.ipv6service.utils;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -19,9 +19,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
@@ -114,7 +114,7 @@ public class Ipv6ServiceUtils {
      * @return the required object.
      */
     public <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
-        try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
+        try (ReadTransaction tx = broker.newReadOnlyTransaction()) {
             return tx.read(datastoreType, path).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
@@ -128,7 +128,7 @@ public class Ipv6ServiceUtils {
      */
     public org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
         .@Nullable Interface getInterface(String interfaceName) {
-        return read(LogicalDatastoreType.CONFIGURATION, getInterfaceIdentifier(interfaceName)).orNull();
+        return read(LogicalDatastoreType.CONFIGURATION, getInterfaceIdentifier(interfaceName)).orElse(null);
     }
 
     /**
@@ -167,7 +167,7 @@ public class Ipv6ServiceUtils {
      */
     public org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
             .@Nullable Interface getInterfaceStateFromOperDS(String interfaceName) {
-        return MDSALUtil.read(LogicalDatastoreType.OPERATIONAL, buildStateInterfaceId(interfaceName), broker).orNull();
+        return MDSALUtil.read(LogicalDatastoreType.OPERATIONAL, buildStateInterfaceId(interfaceName), broker).orElse(null);
     }
 
     private static List<MatchInfo> getIcmpv6RSMatch(Long elanTag) {

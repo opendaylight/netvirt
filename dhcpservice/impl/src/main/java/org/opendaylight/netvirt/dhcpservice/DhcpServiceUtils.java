@@ -8,9 +8,9 @@
 
 package org.opendaylight.netvirt.dhcpservice;
 
-import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -28,9 +28,9 @@ import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.Datastore.Operational;
@@ -299,7 +299,7 @@ public final class DhcpServiceUtils {
                 .interfaces.state.Interface> interfaceId = InstanceIdentifier.builder(InterfacesState.class)
                 .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
                         .interfaces.state.Interface.class, interfaceKey).build();
-        return MDSALUtil.read(LogicalDatastoreType.OPERATIONAL, interfaceId, dataBroker).orNull();
+        return MDSALUtil.read(LogicalDatastoreType.OPERATIONAL, interfaceId, dataBroker).orElse(null);
     }
 
 
@@ -399,7 +399,7 @@ public final class DhcpServiceUtils {
         try {
             return java.util.Optional
                     .ofNullable(SingleTransactionDataBroker.syncRead(broker, LogicalDatastoreType.CONFIGURATION, id));
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Failed to read SubnetToDhcpPort for DS due to error {}", e.getMessage());
         }
         return java.util.Optional.empty();

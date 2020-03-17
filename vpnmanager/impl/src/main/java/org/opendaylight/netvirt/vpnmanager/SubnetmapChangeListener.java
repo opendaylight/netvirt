@@ -16,14 +16,15 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -38,7 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Subnetmap, SubnetmapChangeListener> {
+public class SubnetmapChangeListener extends AbstractAsyncDataTreeChangeListener<Subnetmap> {
     private static final Logger LOG = LoggerFactory.getLogger(SubnetmapChangeListener.class);
     private final DataBroker dataBroker;
     private final VpnSubnetRouteHandler vpnSubnetRouteHandler;
@@ -49,7 +50,9 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
     @Inject
     public SubnetmapChangeListener(final DataBroker dataBroker, final VpnSubnetRouteHandler vpnSubnetRouteHandler,
                                    VpnUtil vpnUtil, IVpnManager vpnManager) {
-        super(Subnetmap.class, SubnetmapChangeListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                InstanceIdentifier.create(Subnetmaps.class).child(Subnetmap.class),
+                Executors.newListeningSingleThreadExecutor("SubnetmapChangeListener", LOG));
         this.dataBroker = dataBroker;
         this.vpnSubnetRouteHandler = vpnSubnetRouteHandler;
         this.vpnUtil = vpnUtil;
@@ -60,27 +63,10 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
     @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        registerListener(dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<Subnetmap> getWildCardPath() {
-        return InstanceIdentifier.create(Subnetmaps.class).child(Subnetmap.class);
-    }
-
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    private void registerListener(final DataBroker db) {
-        try {
-            registerListener(LogicalDatastoreType.CONFIGURATION, db);
-        } catch (final Exception e) {
-            LOG.error("VPNManager subnetMap config DataChange listener registration fail!", e);
-            throw new IllegalStateException("VPNManager subnetMap config DataChange listener registration failed.", e);
-        }
-    }
-
-    @Override
-    protected void add(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmap) {
+    public void add(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmap) {
         LOG.debug("add: subnetmap method - key: {}, value: {}", identifier, subnetmap);
         Uuid subnetId = subnetmap.getId();
         Network network = vpnUtil.getNeutronNetwork(subnetmap.getNetworkId());
@@ -129,14 +115,14 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmap) {
+    public void remove(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmap) {
         LOG.trace("remove: subnetmap method - key: {}, value: {}", identifier, subnetmap);
     }
 
     @Override
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void update(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmapOriginal, Subnetmap
+    public void update(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmapOriginal, Subnetmap
             subnetmapUpdate) {
         LOG.debug("update: method - key {}, original {}, update {}", identifier,
                   subnetmapOriginal, subnetmapUpdate);
@@ -241,11 +227,6 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
         }
     }
 
-    @Override
-    protected SubnetmapChangeListener getDataTreeChangeListener() {
-        return this;
-    }
-
     @SuppressWarnings("all")
     protected long getElanTag(String elanInstanceName) {
         final long[] elanTag = {0L};
@@ -254,7 +235,7 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
             InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class)
                     .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
             ElanInstance elanInstance = tx.read(LogicalDatastoreType.CONFIGURATION, elanIdentifierId)
-                    .checkedGet().orNull();
+                    .get().orElse(null);
             if (elanInstance != null) {
                 if (elanInstance.getElanTag() != null) {
                     elanTag[0] =elanInstance.getElanTag().longValue();

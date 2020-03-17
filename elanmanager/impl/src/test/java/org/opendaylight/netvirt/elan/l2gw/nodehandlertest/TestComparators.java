@@ -16,8 +16,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.LocalMcastCmd;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.LocalUcastCmd;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.LogicalSwitchesCmd;
@@ -332,14 +332,14 @@ public final class TestComparators {
             InstanceIdentifier<TerminationPoint> tpPathd = d1ps.child(TerminationPoint.class,
                     new TerminationPointKey(new TpId(portName)));
             TerminationPoint tpNoded = readWriteTransaction.read(LogicalDatastoreType.OPERATIONAL, tpPathd)
-                    .checkedGet().get();
+                    .get().get();
             HwvtepPhysicalPortAugmentation hwvtepPhysicalPortAugmentationD =
                     tpNoded.augmentation(HwvtepPhysicalPortAugmentation.class);
 
             InstanceIdentifier<TerminationPoint> tpPathha = haPsa.child(TerminationPoint.class,
                     new TerminationPointKey(new TpId(portName)));
             TerminationPoint tpNodeha = readWriteTransaction.read(LogicalDatastoreType.OPERATIONAL, tpPathha)
-                    .checkedGet().get();
+                    .get().get();
             HwvtepPhysicalPortAugmentation hwvtepPhysicalPortAugmentationHa =
                     tpNodeha.augmentation(HwvtepPhysicalPortAugmentation.class);
             assertEquals("Termination point hwvtep-node-name should be same",

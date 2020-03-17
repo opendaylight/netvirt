@@ -8,40 +8,36 @@
 
 package org.opendaylight.netvirt.vpnmanager;
 
-import com.google.common.base.Optional;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
+import java.util.Optional;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class VpnServiceElanDpnInterfacesListener
-        extends AsyncDataTreeChangeListenerBase<DpnInterfaces, VpnServiceElanDpnInterfacesListener> {
+public class VpnServiceElanDpnInterfacesListener extends AbstractAsyncDataTreeChangeListener<DpnInterfaces> {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnServiceElanDpnInterfacesListener.class);
     private final DataBroker dataBroker;
@@ -53,6 +49,9 @@ public class VpnServiceElanDpnInterfacesListener
     @Inject
     public VpnServiceElanDpnInterfacesListener(final DataBroker dataBroker, final IInterfaceManager interfaceManager,
             final IFibManager fibManager,final JobCoordinator jobCoordinator, VpnUtil vpnUtil) {
+        super(dataBroker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(ElanDpnInterfaces.class)
+                        .child(ElanDpnInterfacesList.class).child(DpnInterfaces.class).build(),
+                Executors.newListeningSingleThreadExecutor("VpnServiceElanDpnInterfacesListener", LOG));
         this.dataBroker = dataBroker;
         this.interfaceManager = interfaceManager;
         this.fibManager = fibManager;
@@ -62,22 +61,16 @@ public class VpnServiceElanDpnInterfacesListener
 
     @PostConstruct
     public void start() {
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
+        LOG.info("{} start", getClass().getSimpleName());
     }
 
     @Override
-    public InstanceIdentifier<DpnInterfaces> getWildCardPath() {
-        return InstanceIdentifier.builder(ElanDpnInterfaces.class).child(ElanDpnInterfacesList.class)
-                .child(DpnInterfaces.class).build();
-    }
-
-    @Override
-    protected void remove(InstanceIdentifier<DpnInterfaces> identifier, DpnInterfaces dpnInterfaces) {
+    public void remove(InstanceIdentifier<DpnInterfaces> identifier, DpnInterfaces dpnInterfaces) {
 
     }
 
     @Override
-    protected void update(InstanceIdentifier<DpnInterfaces> identifier, DpnInterfaces original,
+    public void update(InstanceIdentifier<DpnInterfaces> identifier, DpnInterfaces original,
             DpnInterfaces update) {
         LOG.info("received Dpninterfaces update event for dpn {}", update.getDpId());
         Uint64 dpnId = update.getDpId();
@@ -123,7 +116,7 @@ public class VpnServiceElanDpnInterfacesListener
     }
 
     @Override
-    protected void add(InstanceIdentifier<DpnInterfaces> identifier, DpnInterfaces dpnInterfaces) {
+    public void add(InstanceIdentifier<DpnInterfaces> identifier, DpnInterfaces dpnInterfaces) {
         Uint64 dpnId = dpnInterfaces.getDpId();
         String elanInstanceName = identifier.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
         ElanInstance elanInstance = vpnUtil.getElanInstanceByName(elanInstanceName);
@@ -136,12 +129,6 @@ public class VpnServiceElanDpnInterfacesListener
         }
         vpnUtil.addRouterPortToElanForVlanInDpn(vpnName, dpnId);
     }
-
-    @Override
-    protected VpnServiceElanDpnInterfacesListener getDataTreeChangeListener() {
-        return VpnServiceElanDpnInterfacesListener.this;
-    }
-
 
     public static List<String> getUpdatedInterfaceList(List<String> updatedInterfaceList,
             List<String> currentInterfaceList) {

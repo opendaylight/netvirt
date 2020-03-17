@@ -11,7 +11,7 @@ import static java.util.Collections.emptyList;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlanNetworkOrVxlanSegment;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
@@ -25,9 +25,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -188,7 +188,7 @@ public class ElanL2GatewayMulticastUtils {
             if (mac.isPresent()) {
                 existingMac = mac.get();
             }
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed to read iid for elan {}", elanName, e);
         }
 
@@ -404,8 +404,8 @@ public class ElanL2GatewayMulticastUtils {
             operElanInstance = new SingleTransactionDataBroker(broker).syncReadOptional(
                 LogicalDatastoreType.OPERATIONAL,
                 InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class, elanInfo.key())
-                    .build()).orNull();
-        } catch (ReadFailedException e) {
+                    .build()).orElse(null);
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed to read elan instance operational path {}", elanInfo, e);
             return emptyList();
         }
@@ -555,7 +555,7 @@ public class ElanL2GatewayMulticastUtils {
             if (mac.isPresent()) {
                 existingRemoteMcastMac = mac.get();
             }
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed to read iid {}", iid, e);
         }
 
@@ -706,7 +706,7 @@ public class ElanL2GatewayMulticastUtils {
                 .builder(DesignatedSwitchesForExternalTunnels.class)
                 .child(DesignatedSwitchForTunnel.class, new DesignatedSwitchForTunnelKey(elanInstanceName, tunnelIp))
                 .build();
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, instanceIdentifier).orNull();
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, instanceIdentifier).orElse(null);
     }
 
 }

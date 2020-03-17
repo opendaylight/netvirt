@@ -7,11 +7,10 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
-import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -21,16 +20,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.Datastore.Operational;
@@ -51,8 +48,12 @@ import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.ExternalTunnelList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.external.tunnel.list.ExternalTunnel;
@@ -75,7 +76,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInstance, VpnInstanceListener> {
+public class VpnInstanceListener extends AbstractAsyncDataTreeChangeListener<VpnInstance> {
     private static final Logger LOG = LoggerFactory.getLogger(VpnInstanceListener.class);
     private static final String LOGGING_PREFIX_ADD = "VPN-ADD:";
     private static final String LOGGING_PREFIX_UPDATE = "VPN-UPDATE:";
@@ -95,7 +96,9 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             final VpnInterfaceManager vpnInterfaceManager, final IFibManager fibManager,
             final VpnOpDataSyncer vpnOpDataSyncer, final IMdsalApiManager mdsalManager,
             final JobCoordinator jobCoordinator, VpnUtil vpnUtil) {
-        super(VpnInstance.class, VpnInstanceListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                InstanceIdentifier.create(VpnInstances.class).child(VpnInstance.class),
+                Executors.newListeningSingleThreadExecutor("VpnInstanceListener", LOG));
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.idManager = idManager;
@@ -110,21 +113,10 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
     @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<VpnInstance> getWildCardPath() {
-        return InstanceIdentifier.create(VpnInstances.class).child(VpnInstance.class);
-    }
-
-    @Override
-    protected VpnInstanceListener getDataTreeChangeListener() {
-        return VpnInstanceListener.this;
-    }
-
-    @Override
-    protected void remove(InstanceIdentifier<VpnInstance> identifier, VpnInstance del) {
+    public void remove(InstanceIdentifier<VpnInstance> identifier, VpnInstance del) {
         LOG.trace("{} : VPN event key: {}, value: {}", LOGGING_PREFIX_DELETE, identifier, del);
         final String vpnName = del.getVpnInstanceName();
         Optional<VpnInstanceOpDataEntry> vpnOpValue;
@@ -138,7 +130,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         try {
             vpnOpValue = SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL,
                     VpnUtil.getVpnInstanceOpDataIdentifier(primaryRd));
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("{}, failed to remove VPN: Exception while retrieving VpnInstanceOpDataEntry for VPN {}. ",
                     LOGGING_PREFIX_DELETE,  vpnName, e);
             return;
@@ -171,7 +163,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
     }
 
     @Override
-    protected void update(InstanceIdentifier<VpnInstance> identifier,
+    public void update(InstanceIdentifier<VpnInstance> identifier,
         VpnInstance original, VpnInstance update) {
         LOG.trace("VPN-UPDATE: update: VPN event key: {}, value: {}.", identifier, update);
         String vpnName = update.getVpnInstanceName();
@@ -188,7 +180,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
     }
 
     @Override
-    protected void add(final InstanceIdentifier<VpnInstance> identifier, final VpnInstance value) {
+    public void add(final InstanceIdentifier<VpnInstance> identifier, final VpnInstance value) {
         LOG.trace("{} add: Add VPN event key: {}, value: {}", LOGGING_PREFIX_ADD, identifier, value);
         final String vpnName = value.getVpnInstanceName();
         jobCoordinator.enqueueJob("VPN-" + vpnName, new AddVpnInstanceWorker(dataBroker, value),
@@ -366,15 +358,19 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                         Arrays.asList(new InstructionWriteMetadata(MetaDataUtil.getVpnIdMetadata(vpnInstanceOpDataEntry
                                 .getVpnId().toJava()), MetaDataUtil.METADATA_MASK_VRFID),
                                 new InstructionGotoTable(NwConstants.L3_GW_MAC_TABLE));
-
-                for (Uint64 dpnId: NWUtil.getOperativeDPNs(dataBroker)) {
-                    String flowRef = getFibFlowRef(dpnId, NwConstants.L3VNI_EXTERNAL_TUNNEL_DEMUX_TABLE,
-                            vpnName, VpnConstants.DEFAULT_FLOW_PRIORITY);
-                    FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId,
-                            NwConstants.L3VNI_EXTERNAL_TUNNEL_DEMUX_TABLE, flowRef, VpnConstants.DEFAULT_FLOW_PRIORITY,
-                            "VxLAN VPN Tunnel Bind Service", 0, 0, NwConstants.COOKIE_VM_FIB_TABLE,
-                            mkMatches, instructions);
-                    mdsalManager.installFlow(dpnId, flowEntity);
+                try {
+                    for (Uint64 dpnId: NWUtil.getOperativeDPNs(dataBroker)) {
+                        String flowRef = getFibFlowRef(dpnId, NwConstants.L3VNI_EXTERNAL_TUNNEL_DEMUX_TABLE,
+                                vpnName, VpnConstants.DEFAULT_FLOW_PRIORITY);
+                        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId,
+                                NwConstants.L3VNI_EXTERNAL_TUNNEL_DEMUX_TABLE, flowRef,
+                                VpnConstants.DEFAULT_FLOW_PRIORITY, "VxLAN VPN Tunnel Bind Service",
+                                0, 0, NwConstants.COOKIE_VM_FIB_TABLE, mkMatches, instructions);
+                        mdsalManager.installFlow(dpnId, flowEntity);
+                    }
+                } catch (ExecutionException | InterruptedException e) {
+                    LOG.error("PostAddVpnInstanceWorker: Exception while getting the list of Operative DPNs for Vpn {}",
+                            vpnName, e);
                 }
 
                 ///////////////////////
@@ -429,8 +425,8 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(rd);
         try {
             return SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                    id).orNull();
-        } catch (ReadFailedException e) {
+                    id).orElse(null);
+        } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException("Error reading VPN instance data for " + rd, e);
         }
     }
@@ -481,7 +477,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 }
 
             }
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("getDcGatewayTunnelInterfaceNameList: Failed to read data store");
         }
         return tunnelInterfaceNameList;
