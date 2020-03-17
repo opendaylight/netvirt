@@ -12,7 +12,7 @@ import static org.mockito.Mockito.mock;
 
 import java.util.Optional;
 import org.mockito.Mockito;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.test.DataBrokerTestModule;
 import org.opendaylight.daexim.DataImportBootReady;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;

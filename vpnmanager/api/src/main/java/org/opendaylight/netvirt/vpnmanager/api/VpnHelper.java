@@ -7,18 +7,17 @@
  */
 package org.opendaylight.netvirt.vpnmanager.api;
 
-import com.google.common.base.Optional;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
@@ -58,7 +57,7 @@ public final class VpnHelper {
 
     public static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
                                                           InstanceIdentifier<T> path) {
-        try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
+        try (ReadTransaction tx = broker.newReadOnlyTransaction()) {
             return tx.read(datastoreType, path).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
