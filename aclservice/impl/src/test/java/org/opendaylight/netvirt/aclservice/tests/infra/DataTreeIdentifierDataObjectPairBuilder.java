@@ -8,8 +8,8 @@
 package org.opendaylight.netvirt.aclservice.tests.infra;
 
 import org.eclipse.xtext.xbase.lib.Pair;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -34,6 +34,6 @@ public interface DataTreeIdentifierDataObjectPairBuilder<T extends DataObject>
 
     @Override
     default Pair<DataTreeIdentifier<T>, T> build() {
-        return Pair.of(new DataTreeIdentifier<>(type(), identifier()), dataObject());
+        return Pair.of(DataTreeIdentifier.create(type(), identifier()), dataObject());
     }
 }

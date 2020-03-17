@@ -8,9 +8,8 @@
 
 package org.opendaylight.netvirt.dhcpservice;
 
-import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
-import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -20,6 +19,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
@@ -28,9 +28,7 @@ import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.datastoreutils.ExpectedDataObjectNotFoundException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.Datastore.Operational;
@@ -58,6 +56,8 @@ import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.mdsalutil.matches.MatchUdpDestinationPort;
 import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort;
 import org.opendaylight.genius.utils.ServiceIndex;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
@@ -260,13 +260,18 @@ public final class DhcpServiceUtils {
         if (!connectedDpnIds.isEmpty()) {
             return connectedDpnIds;
         }
-        return extractDpnsFromNodes(MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
-                InstanceIdentifier.builder(Nodes.class).build()));
+        try {
+            return extractDpnsFromNodes(MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
+                    InstanceIdentifier.builder(Nodes.class).build()));
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getListOfDpns: Exception while reading getListOfDpns DS", e);
+            return Collections.emptyList();
+        }
     }
 
     @NonNull
     private static List<Uint64> extractDpnsFromNodes(Optional<Nodes> optionalNodes) {
-        return optionalNodes.toJavaUtil().map(
+        return optionalNodes.map(
             nodes -> nodes.nonnullNode().stream().map(Node::getId).filter(Objects::nonNull).map(
                     MDSALUtil::getDpnIdFromNodeName).collect(
                     Collectors.toList())).orElse(Collections.emptyList());
@@ -278,8 +283,15 @@ public final class DhcpServiceUtils {
         InstanceIdentifier<ElanDpnInterfacesList> elanDpnInstanceIdentifier =
                 InstanceIdentifier.builder(ElanDpnInterfaces.class)
                         .child(ElanDpnInterfacesList.class, new ElanDpnInterfacesListKey(elanInstanceName)).build();
-        Optional<ElanDpnInterfacesList> elanDpnOptional =
-                MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, elanDpnInstanceIdentifier);
+        Optional<ElanDpnInterfacesList> elanDpnOptional;
+        try {
+            elanDpnOptional = SingleTransactionDataBroker.syncReadOptional(broker, LogicalDatastoreType.OPERATIONAL,
+                    elanDpnInstanceIdentifier);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getDpnsForElan: Exception while reading ElanDpnInterfacesList DS for the elanInstanceName {}",
+                    elanInstanceName, e);
+            return Collections.emptyList();
+        }
         if (elanDpnOptional.isPresent()) {
             List<DpnInterfaces> dpns = elanDpnOptional.get().nonnullDpnInterfaces();
             for (DpnInterfaces dpnInterfaces : dpns) {
@@ -299,7 +311,7 @@ public final class DhcpServiceUtils {
                 .interfaces.state.Interface> interfaceId = InstanceIdentifier.builder(InterfacesState.class)
                 .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
                         .interfaces.state.Interface.class, interfaceKey).build();
-        return MDSALUtil.read(LogicalDatastoreType.OPERATIONAL, interfaceId, dataBroker).orNull();
+        return MDSALUtil.read(LogicalDatastoreType.OPERATIONAL, interfaceId, dataBroker).orElse(null);
     }
 
 
@@ -307,7 +319,14 @@ public final class DhcpServiceUtils {
     public static String getSegmentationId(Uuid networkId, DataBroker broker) {
         InstanceIdentifier<Network> inst = InstanceIdentifier.create(Neutron.class)
                 .child(Networks.class).child(Network.class, new NetworkKey(networkId));
-        Optional<Network> optionalNetwork = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst);
+        Optional<Network> optionalNetwork;
+        try {
+            optionalNetwork = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getSegmentationId: Exception while reading Network DS for the Network {}",
+                    networkId.getValue(), e);
+            return null;
+        }
         if (!optionalNetwork.isPresent()) {
             return null;
         }
@@ -399,7 +418,7 @@ public final class DhcpServiceUtils {
         try {
             return java.util.Optional
                     .ofNullable(SingleTransactionDataBroker.syncRead(broker, LogicalDatastoreType.CONFIGURATION, id));
-        } catch (ReadFailedException e) {
+        } catch (ExpectedDataObjectNotFoundException e) {
             LOG.warn("Failed to read SubnetToDhcpPort for DS due to error {}", e.getMessage());
         }
         return java.util.Optional.empty();
@@ -492,7 +511,15 @@ public final class DhcpServiceUtils {
     @NonNull
     public static List<Uuid> getSubnetIdsFromNetworkId(DataBroker broker, Uuid networkId) {
         InstanceIdentifier id = buildNetworkMapIdentifier(networkId);
-        Optional<NetworkMap> optionalNetworkMap = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        Optional<NetworkMap> optionalNetworkMap;
+        try {
+            optionalNetworkMap = SingleTransactionDataBroker.syncReadOptional(broker,
+                    LogicalDatastoreType.CONFIGURATION, id);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getSubnetIdsFromNetworkId: Exception while reading NetworkMap DS for the network {}",
+                    networkId.getValue(), e);
+            return Collections.emptyList();
+        }
         if (optionalNetworkMap.isPresent()) {
             @Nullable List<Uuid> subnetIdList = optionalNetworkMap.get().getSubnetIdList();
             if (subnetIdList != null) {
@@ -511,7 +538,15 @@ public final class DhcpServiceUtils {
         final SubnetKey subnetkey = new SubnetKey(subnetUuid);
         final InstanceIdentifier<Subnet> subnetidentifier = InstanceIdentifier.create(Neutron.class)
                 .child(Subnets.class).child(Subnet.class, subnetkey);
-        final Optional<Subnet> subnet = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, subnetidentifier);
+        final Optional<Subnet> subnet;
+        try {
+            subnet = SingleTransactionDataBroker.syncReadOptional(broker, LogicalDatastoreType.CONFIGURATION,
+                    subnetidentifier);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("isIpv4Subnet: Exception while reading Subnet DS for the Subnet {}",
+                    subnetUuid.getValue(), e);
+            return false;
+        }
         if (subnet.isPresent()) {
             Class<? extends IpVersionBase> ipVersionBase = subnet.get().getIpVersion();
             return IpVersionV4.class.equals(ipVersionBase);

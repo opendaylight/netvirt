@@ -17,12 +17,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.Datastore.Configuration;
@@ -58,11 +54,15 @@ import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderConstant;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
@@ -78,7 +78,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, ElanNodeListener> {
+public class ElanNodeListener extends AbstractAsyncDataTreeChangeListener<Node> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanNodeListener.class);
     private static final int LEARN_MATCH_REG4_VALUE = 1;
@@ -101,6 +101,8 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
     public ElanNodeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager, ElanConfig elanConfig,
             IdManagerService idManagerService, JobCoordinator jobCoordinator,
             DataTreeEventCallbackRegistrar eventCallbacks) {
+        super(dataBroker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(Nodes.class).child(Node.class),
+                Executors.newListeningSingleThreadExecutor("ElanNodeListener", LOG));
         this.broker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.mdsalManager = mdsalManager;
@@ -112,27 +114,20 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
         this.eventCallbacks = eventCallbacks;
     }
 
-    @Override
-    @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.OPERATIONAL, broker);
+        LOG.info("{} registered", getClass().getSimpleName());
     }
 
     @Override
-    protected InstanceIdentifier<Node> getWildCardPath() {
-        return InstanceIdentifier.create(Nodes.class).child(Node.class);
+    public void remove(InstanceIdentifier<Node> identifier, Node del) {
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Node> identifier, Node del) {
+    public void update(InstanceIdentifier<Node> identifier, Node original, Node update) {
     }
 
     @Override
-    protected void update(InstanceIdentifier<Node> identifier, Node original, Node update) {
-    }
-
-    @Override
-    protected void add(InstanceIdentifier<Node> identifier, Node add) {
+    public void add(InstanceIdentifier<Node> identifier, Node add) {
         NodeId nodeId = add.getId();
         String[] node = nodeId.getValue().split(":");
         if (node.length < 2) {
@@ -317,11 +312,6 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
 
     private static String getTableMissFlowRef(long tableId) {
         return String.valueOf(tableId);
-    }
-
-    @Override
-    protected ElanNodeListener getDataTreeChangeListener() {
-        return ElanNodeListener.this;
     }
 
     private void setupTableMissApResponderFlow(TypedWriteTransaction<Configuration> tx, final Uint64 dpnId) {

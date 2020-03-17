@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.statistics;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -27,12 +27,12 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
@@ -240,7 +240,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
                 if (input.getIncomingTraffic() != null) {
                     Optional<EgressElementCountersRequestConfig> eecrcOpt =
                             transaction.read(LogicalDatastoreType.CONFIGURATION,
-                                    CountersServiceUtils.EECRC_IDENTIFIER).checkedGet();
+                                    CountersServiceUtils.EECRC_IDENTIFIER).get();
                     if (!eecrcOpt.isPresent()) {
                         LOG.warn("failed creating incoming traffic counter request data container in DB");
                         statisticsCounters.failedCreatingEgressCounterDataConfig();
@@ -268,7 +268,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
                 if (input.getOutgoingTraffic() != null) {
                     Optional<IngressElementCountersRequestConfig> iecrcOpt =
                             transaction.read(LogicalDatastoreType.CONFIGURATION,
-                                    CountersServiceUtils.IECRC_IDENTIFIER).checkedGet();
+                                    CountersServiceUtils.IECRC_IDENTIFIER).get();
                     if (!iecrcOpt.isPresent()) {
                         LOG.warn("failed creating outgoing traffc counter request data container in DB");
                         statisticsCounters.failedCreatingIngressCounterDataConfig();
@@ -312,9 +312,9 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
         SettableFuture<RpcResult<ReleaseElementCountersRequestHandlerOutput>> result = SettableFuture.create();
         ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
             Optional<IngressElementCountersRequestConfig> iecrcOpt =
-                    tx.read(LogicalDatastoreType.CONFIGURATION, CountersServiceUtils.IECRC_IDENTIFIER).checkedGet();
+                    tx.read(LogicalDatastoreType.CONFIGURATION, CountersServiceUtils.IECRC_IDENTIFIER).get();
             Optional<EgressElementCountersRequestConfig> eecrcOpt =
-                    tx.read(LogicalDatastoreType.CONFIGURATION, CountersServiceUtils.EECRC_IDENTIFIER).checkedGet();
+                    tx.read(LogicalDatastoreType.CONFIGURATION, CountersServiceUtils.EECRC_IDENTIFIER).get();
             if (!iecrcOpt.isPresent() || !eecrcOpt.isPresent()) {
                 LOG.warn("Couldn't read element counters config data from DB");
                 statisticsCounters.failedReadingCounterDataFromConfig();
@@ -324,9 +324,9 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
                 return;
             }
             Optional<CounterRequests> ingressRequestOpt =
-                    tx.read(LogicalDatastoreType.CONFIGURATION, ingressPath).checkedGet();
+                    tx.read(LogicalDatastoreType.CONFIGURATION, ingressPath).get();
             Optional<CounterRequests> egressRequestOpt =
-                    tx.read(LogicalDatastoreType.CONFIGURATION, egressPath).checkedGet();
+                    tx.read(LogicalDatastoreType.CONFIGURATION, egressPath).get();
             if (!ingressRequestOpt.isPresent() && !egressRequestOpt.isPresent()) {
                 LOG.warn("Handler does not exists");
                 statisticsCounters.unknownRequestHandler();
@@ -361,7 +361,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
                 InstanceIdentifier.builder(EgressElementCountersRequestConfig.class)
                         .child(CounterRequests.class, new CounterRequestsKey(input.getHandler())).build();
 
-        ReadOnlyTransaction tx = db.newReadOnlyTransaction();
+        ReadTransaction tx = db.newReadOnlyTransaction();
         CheckedFuture<Optional<CounterRequests>, ReadFailedException> ingressRequestData =
                 tx.read(LogicalDatastoreType.CONFIGURATION, ingressPath);
         CheckedFuture<Optional<CounterRequests>, ReadFailedException> egressRequestData =
@@ -413,7 +413,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
     public void handleInterfaceRemoval(String interfaceId) {
         CheckedFuture<Optional<IngressElementCountersRequestConfig>, ReadFailedException> iecrc;
         CheckedFuture<Optional<EgressElementCountersRequestConfig>, ReadFailedException> eecrc;
-        try (ReadOnlyTransaction tx = db.newReadOnlyTransaction()) {
+        try (ReadTransaction tx = db.newReadOnlyTransaction()) {
             iecrc = tx.read(LogicalDatastoreType.CONFIGURATION, CountersServiceUtils.IECRC_IDENTIFIER);
             eecrc = tx.read(LogicalDatastoreType.CONFIGURATION, CountersServiceUtils.EECRC_IDENTIFIER);
         }
@@ -438,7 +438,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
     @Override
     public ListenableFuture<RpcResult<CleanAllElementCounterRequestsOutput>> cleanAllElementCounterRequests(
             CleanAllElementCounterRequestsInput input) {
-        ReadOnlyTransaction tx = db.newReadOnlyTransaction();
+        ReadTransaction tx = db.newReadOnlyTransaction();
         CheckedFuture<Optional<IngressElementCountersRequestConfig>, ReadFailedException> iecrc =
                 tx.read(LogicalDatastoreType.CONFIGURATION, CountersServiceUtils.IECRC_IDENTIFIER);
         CheckedFuture<Optional<EgressElementCountersRequestConfig>, ReadFailedException> eecrc =
@@ -584,10 +584,10 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
             txRunner.callWithNewReadWriteTransactionAndSubmit(transaction -> {
                 Optional<IngressElementCountersRequestConfig> iecrcOpt =
                         transaction.read(LogicalDatastoreType.CONFIGURATION,
-                                CountersServiceUtils.IECRC_IDENTIFIER).checkedGet();
+                                CountersServiceUtils.IECRC_IDENTIFIER).get();
                 Optional<EgressElementCountersRequestConfig> eecrcOpt =
                         transaction.read(LogicalDatastoreType.CONFIGURATION,
-                                CountersServiceUtils.EECRC_IDENTIFIER).checkedGet();
+                                CountersServiceUtils.EECRC_IDENTIFIER).get();
                 if (!iecrcOpt.isPresent()) {
                     creatIngressEelementCountersContainerInConfig(transaction,
                             CountersServiceUtils.IECRC_IDENTIFIER);
@@ -991,7 +991,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
     }
 
     private boolean checkPoolExists() {
-        ReadOnlyTransaction roTransaction = db.newReadOnlyTransaction();
+        ReadTransaction roTransaction = db.newReadOnlyTransaction();
         InstanceIdentifier<IdPool> path = InstanceIdentifier.create(IdPools.class).child(IdPool.class,
                 new IdPoolKey(CountersServiceUtils.COUNTERS_PULL_NAME));
         CheckedFuture<Optional<IdPool>, ReadFailedException> pool =

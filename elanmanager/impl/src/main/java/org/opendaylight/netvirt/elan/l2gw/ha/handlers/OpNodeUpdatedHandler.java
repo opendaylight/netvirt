@@ -7,9 +7,9 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.handlers;
 
-import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
+import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalAugmentationMerger;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalNodeMerger;

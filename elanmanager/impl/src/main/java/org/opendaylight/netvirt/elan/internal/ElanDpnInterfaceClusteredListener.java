@@ -10,15 +10,14 @@ package org.opendaylight.netvirt.elan.internal;
 import static java.util.Collections.emptyList;
 
 import java.util.List;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceDpnsCache;
 import org.opendaylight.netvirt.elan.l2gw.jobs.BcGroupUpdateJob;
@@ -31,6 +30,7 @@ import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanDmacUtils;
 import org.opendaylight.netvirt.elan.utils.ElanItmUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
+import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class ElanDpnInterfaceClusteredListener
-        extends AsyncClusteredDataTreeChangeListenerBase<DpnInterfaces, ElanDpnInterfaceClusteredListener> {
+        extends AbstractClusteredAsyncDataTreeChangeListener<DpnInterfaces> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanDpnInterfaceClusteredListener.class);
     private static final Logger EVENT_LOGGER = LoggerFactory.getLogger("NetvirtEventLogger");
@@ -67,6 +67,9 @@ public class ElanDpnInterfaceClusteredListener
                                              ElanInstanceDpnsCache elanInstanceDpnsCache,
                                              ElanRefUtil elanRefUtil, ElanDmacUtils elanDmacUtils,
                                              ElanItmUtils elanItmUtils) {
+        super(broker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(ElanDpnInterfaces.class)
+                .child(ElanDpnInterfacesList.class).child(DpnInterfaces.class),
+                Executors.newListeningSingleThreadExecutor("ElanDpnInterfaceClusteredListener", LOG));
         this.broker = broker;
         this.entityOwnershipUtils = entityOwnershipUtils;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
@@ -80,15 +83,8 @@ public class ElanDpnInterfaceClusteredListener
         this.elanInstanceDpnsCache = elanInstanceDpnsCache;
     }
 
-    @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.OPERATIONAL, this.broker);
-    }
-
-    @Override
-    public InstanceIdentifier<DpnInterfaces> getWildCardPath() {
-        return InstanceIdentifier.builder(ElanDpnInterfaces.class).child(ElanDpnInterfacesList.class)
-                .child(DpnInterfaces.class).build();
+        LOG.info("{} start", getClass().getSimpleName());
     }
 
     void handleUpdate(InstanceIdentifier<DpnInterfaces> id, DpnInterfaces dpnInterfaces) {
@@ -106,7 +102,7 @@ public class ElanDpnInterfaceClusteredListener
     }
 
     @Override
-    protected void remove(InstanceIdentifier<DpnInterfaces> identifier, final DpnInterfaces dpnInterfaces) {
+    public void remove(InstanceIdentifier<DpnInterfaces> identifier, final DpnInterfaces dpnInterfaces) {
         // this is the last dpn interface on this elan
         final String elanName = getElanName(identifier);
         //Cache need to be updated in all cluster nodes and not only by leader node .
@@ -138,7 +134,7 @@ public class ElanDpnInterfaceClusteredListener
     }
 
     @Override
-    protected void update(InstanceIdentifier<DpnInterfaces> identifier, DpnInterfaces original,
+    public void update(InstanceIdentifier<DpnInterfaces> identifier, DpnInterfaces original,
                           final DpnInterfaces dpnInterfaces) {
         List<String> interfaces = dpnInterfaces.getInterfaces();
         if (interfaces != null && !interfaces.isEmpty()) {
@@ -159,7 +155,7 @@ public class ElanDpnInterfaceClusteredListener
             elanInstanceDpnsCache.add(getElanName(identifier), dpnInterfaces);
             if (entityOwnershipUtils.isEntityOwner(HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
                     HwvtepSouthboundConstants.ELAN_ENTITY_NAME)) {
-                ElanInstance elanInstance = elanInstanceCache.get(elanName).orNull();
+                ElanInstance elanInstance = elanInstanceCache.get(elanName).orElse(null);
                 if (elanInstance != null) {
                     BcGroupUpdateJob.updateAllBcGroups(elanName, elanRefUtil, elanL2GatewayMulticastUtils,
                             broker, true);
@@ -177,10 +173,4 @@ public class ElanDpnInterfaceClusteredListener
     private static String getElanName(InstanceIdentifier<DpnInterfaces> identifier) {
         return identifier.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
     }
-
-    @Override
-    protected ElanDpnInterfaceClusteredListener getDataTreeChangeListener() {
-        return this;
-    }
-
 }
