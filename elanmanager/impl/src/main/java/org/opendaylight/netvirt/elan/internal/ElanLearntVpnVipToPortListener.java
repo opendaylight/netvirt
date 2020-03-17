@@ -10,7 +10,7 @@ package org.opendaylight.netvirt.elan.internal;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.Datastore.Operational;
@@ -153,7 +153,7 @@ public class ElanLearntVpnVipToPortListener extends
             InstanceIdentifier<MacEntry> elanMacEntryId =
                     ElanUtils.getMacEntryOperationalDataPath(elanName, physAddress);
             interfaceTx.put(elanMacEntryId, macEntry);
-            ElanInstance elanInstance = elanInstanceCache.get(elanName).orNull();
+            ElanInstance elanInstance = elanInstanceCache.get(elanName).orElse(null);
             elanUtils.setupMacFlows(elanInstance, interfaceManager.getInterfaceInfo(interfaceName), macTimeOut,
                     macAddress, true, flowTx);
         }
@@ -192,7 +192,7 @@ public class ElanLearntVpnVipToPortListener extends
             MacEntry macEntry = elanUtils.getInterfaceMacEntriesOperationalDataPath(interfaceName, physAddress);
             InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
             if (macEntry != null && interfaceInfo != null) {
-                elanUtils.deleteMacFlows(elanInstanceCache.get(elanName).orNull(), interfaceInfo, macEntry, flowTx);
+                elanUtils.deleteMacFlows(elanInstanceCache.get(elanName).orElse(null), interfaceInfo, macEntry, flowTx);
                 interfaceTx.delete(
                         ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress));
                 interfaceTx.delete(

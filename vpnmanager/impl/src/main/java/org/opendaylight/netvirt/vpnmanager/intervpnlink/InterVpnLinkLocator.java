@@ -9,23 +9,24 @@ package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Predicate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.NWUtil;
-import org.opendaylight.netvirt.vpnmanager.VpnUtil;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnTargets;
+import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTarget;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnTargets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
 import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
@@ -64,9 +65,12 @@ public class InterVpnLinkLocator {
      */
     public List<Uint64> selectSuitableDpns(InterVpnLink interVpnLink) {
         int numberOfDpns = Integer.getInteger(NBR_OF_DPNS_PROPERTY_NAME, 1);
-        List<Uint64> dpnIdPool = NWUtil.getOperativeDPNs(dataBroker).stream()
-                                                                        .map(dpn -> dpn)
-                                                                        .collect(Collectors.toList());
+        List<Uint64> dpnIdPool = new ArrayList<>();
+        try {
+            dpnIdPool = NWUtil.getOperativeDPNs(dataBroker).stream().map(dpn -> dpn).collect(Collectors.toList());
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("selectSuitableDpns: Exception while reading Operative DPNs", e);
+        }
         LOG.trace("selectSuitableDpns for {} with numberOfDpns={} and availableDpns={}",
                   interVpnLink.getName(), numberOfDpns, dpnIdPool);
         int poolSize = dpnIdPool.size();
@@ -204,8 +208,8 @@ public class InterVpnLinkLocator {
             if (ivl.getInterVpnLinkName().equals(ivpnLinkToMatch.getName())) {
                 return false; // ivl and ivpnLinlToMatch are the same InterVpnLink
             }
-            String vpn1Name = ivl.getFirstEndpointVpnUuid().orNull();
-            String vpn2Name = ivl.getSecondEndpointVpnUuid().orNull();
+            String vpn1Name = ivl.getFirstEndpointVpnUuid().orElse(null);
+            String vpn2Name = ivl.getSecondEndpointVpnUuid().orElse(null);
             if (vpn1Name == null) {
                 return false;
             }

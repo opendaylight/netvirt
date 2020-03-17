@@ -8,11 +8,11 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import static java.util.Collections.emptyList;
-import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.google.common.util.concurrent.FutureCallback;
@@ -39,17 +39,15 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.infra.TransactionAdapter;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -72,6 +70,7 @@ import org.opendaylight.netvirt.vpnmanager.arp.responder.ArpResponderHandler;
 import org.opendaylight.netvirt.vpnmanager.populator.input.L3vpnInput;
 import org.opendaylight.netvirt.vpnmanager.populator.intfc.VpnPopulator;
 import org.opendaylight.netvirt.vpnmanager.populator.registry.L3vpnRegistry;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -125,7 +124,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInterface, VpnInterfaceManager> {
+public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<VpnInterface> {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnInterfaceManager.class);
     private static final short DJC_MAX_RETRIES = 3;
@@ -165,7 +164,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                final JobCoordinator jobCoordinator,
                                final CacheProvider cacheProvider,
                                final VpnUtil vpnUtil) {
-        super(VpnInterface.class, VpnInterfaceManager.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                InstanceIdentifier.create(VpnInterfaces.class).child(VpnInterface.class),
+                Executors.newListeningSingleThreadExecutor("VpnInterfaceManager", LOG));
 
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
@@ -193,7 +194,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
@@ -201,16 +201,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     public void close() {
         super.close();
         vpnInstanceOpDataEntryCache.close();
-    }
-
-    @Override
-    protected InstanceIdentifier<VpnInterface> getWildCardPath() {
-        return InstanceIdentifier.create(VpnInterfaces.class).child(VpnInterface.class);
-    }
-
-    @Override
-    protected VpnInterfaceManager getDataTreeChangeListener() {
-        return VpnInterfaceManager.this;
     }
 
     @Override
@@ -534,7 +524,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     addNewAdjToVpnInterface(vpnInterfaceOpIdentifier, primaryRd, adjacency,
                             dpId, writeOperTxn, writeConfigTxn, writeInvTxn, prefixListForRefreshFib);
                 }
-            } catch (ReadFailedException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 LOG.error("processVpnInterfaceUp: Failed to read data store for interface {} vpn {} rd {} dpn {}",
                         interfaceName, vpnName, primaryRd, dpId);
             }
@@ -659,7 +649,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     }
                 }
             }
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("advertiseAdjacenciesForVpnToBgp: Failed to read data store for interface {} dpn {} nexthop {}"
                     + "vpn {} rd {}", interfaceName, dpnId, nextHopIp, vpnName, rd);
         }
@@ -687,11 +677,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
         LOG.info("withdrawAdjacenciesForVpnFromBgp: For interface {} in vpn {} with rd {}", interfaceName,
                vpnName, rd);
-        Optional<AdjacenciesOp> adjacencies = Optional.absent();
+        Optional<AdjacenciesOp> adjacencies = Optional.empty();
         try {
             adjacencies = SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL,
                     path);
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("withdrawAdjacenciesForVpnFromBgp: Failed to read data store for interface {} vpn {}",
                     interfaceName, vpnName);
         }
@@ -739,11 +729,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             throws ExecutionException, InterruptedException {
         InstanceIdentifier<VpnInterface> identifier = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
         // Read NextHops
-        Optional<VpnInterface> vpnInteface = Optional.absent();
+        Optional<VpnInterface> vpnInteface = Optional.empty();
         try {
             vpnInteface = SingleTransactionDataBroker.syncReadOptional(dataBroker,
             LogicalDatastoreType.CONFIGURATION, identifier);
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("processVpnInterfaceAdjacencies: Failed to read data store for interface {} vpn {} rd {}"
                     + "dpn {}", interfaceName, vpnName, primaryRd, dpnId);
         }
@@ -777,7 +767,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             LOG.debug("processVpnInterfaceAdjacencies: NextHop for interface {} on dpn {} in vpn {} is {}",
                     interfaceName, dpnId, vpnName, nhList);
         }
-        Optional<String> gwMac = Optional.absent();
+        Optional<String> gwMac = Optional.empty();
         String vpnInterfaceSubnetGwMacAddress = null;
         VpnInstanceOpDataEntry vpnInstanceOpData = vpnUtil.getVpnInstanceOpData(primaryRd);
         Uint32 l3vni = vpnInstanceOpData.getL3vni() != null ? vpnInstanceOpData.getL3vni() : Uint32.ZERO;
@@ -910,7 +900,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 gwMac.isPresent() ? gwMac.get() : null, gatewayIp, writeOperTxn);
 
         L3vpnInput input = new L3vpnInput().setNextHopIp(nextHopIp).setL3vni(l3vni.longValue()).setPrimaryRd(primaryRd)
-                .setGatewayMac(gwMac.orNull()).setInterfaceName(interfaceName)
+                .setGatewayMac(gwMac.orElse(null)).setInterfaceName(interfaceName)
                 .setVpnName(vpnName).setDpnId(dpnId).setEncapType(encapType);
 
         for (Adjacency nextHop : aug.getAdjacency()) {
@@ -996,8 +986,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         + " vpn {} vpnid {} rd {} interface {}", label, srcDpnId , prefix, nhList,
                         vpnInterface.getVpnInstanceName(), vpnId, rd, vpnInterface.getName());
                 // Update the VRF entry with nextHop
-                fibManager.updateRoutePathForFibEntry(primaryRd, prefix, srcTepIp,
-                        label, true, TransactionAdapter.toWriteTransaction(writeConfigTxn));
+                fibManager.updateRoutePathForFibEntry(primaryRd, prefix, srcTepIp, label, true,
+                        writeConfigTxn);
 
                 //Get the list of VPN's importing this route(prefix) .
                 // Then update the VRF entry with nhList
@@ -1005,8 +995,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
                     String vpnRd = vpn.getVrfId();
                     if (vpnRd != null) {
-                        fibManager.updateRoutePathForFibEntry(vpnRd, prefix,
-                            srcTepIp, label, true, TransactionAdapter.toWriteTransaction(writeConfigTxn));
+                        fibManager.updateRoutePathForFibEntry(vpnRd, prefix, srcTepIp, label, true,
+                                writeConfigTxn);
                         LOG.info("updateVpnInterfaceOnTepAdd: Exported route with rd {} prefix {} nhList {} label {}"
                                 + " interface {} dpn {} from vpn {} to VPN {} vpnRd {}", rd, prefix, nhList, label,
                             vpnInterface.getName(), srcDpnId, vpnName,
@@ -1098,8 +1088,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             prefix, nhList, vpnName,
                             vpnId, rd, vpnInterface.getName());
                     // Update the VRF entry with removed nextHop
-                    fibManager.updateRoutePathForFibEntry(primaryRd, prefix, srcTepIp,
-                            label, false, TransactionAdapter.toWriteTransaction(writeConfigTxn));
+                    fibManager.updateRoutePathForFibEntry(primaryRd, prefix, srcTepIp, label, false,
+                            writeConfigTxn);
 
                     //Get the list of VPN's importing this route(prefix) .
                     // Then update the VRF entry with nhList
@@ -1107,8 +1097,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
                         String vpnRd = vpn.getVrfId();
                         if (vpnRd != null) {
-                            fibManager.updateRoutePathForFibEntry(vpnRd, prefix,
-                                srcTepIp, label, false, TransactionAdapter.toWriteTransaction(writeConfigTxn));
+                            fibManager.updateRoutePathForFibEntry(vpnRd, prefix, srcTepIp, label, false,
+                                    writeConfigTxn);
                             LOG.info("updateVpnInterfaceOnTepDelete: Exported route with rd {} prefix {} nhList {}"
                                     + " label {} interface {} dpn {} from vpn {} to VPN {} vpnRd {}", rd, prefix,
                                     nhList, label, vpnInterface.getName(), srcDpnId,
@@ -1297,7 +1287,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                 try {
                                     optVpnInterface = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                                             LogicalDatastoreType.OPERATIONAL, interfaceId);
-                                } catch (ReadFailedException e) {
+                                } catch (InterruptedException | ExecutionException e) {
                                     LOG.error("remove: Failed to read data store for interface {} vpn {}",
                                             interfaceName, vpnName);
                                     return;
@@ -1485,7 +1475,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         + " Removing it.", interfaceName, vpnName, dpnId);
                 writeOperTxn.delete(identifier);
             }
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("removeAdjacenciesFromVpn: Failed to read data store for interface {} dpn {} vpn {}",
                     interfaceName, dpnId, vpnName);
         }
@@ -1612,11 +1602,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     gwPort.getMacAddress(), ipAddress, ifName, vpnName);
             return Optional.of(gwPort.getMacAddress());
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     @Override
-    protected void update(final InstanceIdentifier<VpnInterface> identifier, final VpnInterface original,
+    public void update(final InstanceIdentifier<VpnInterface> identifier, final VpnInterface original,
         final VpnInterface update) {
         LOG.trace("Received VpnInterface update event: original={}, update={}", original, update);
         LOG.info("update: VPN Interface update event - intfName {} on dpn {} oldVpn {} newVpn {}", update.getName(),
@@ -1928,7 +1918,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             }
             LOG.info("updateLabelMapper: Updated label rotue info for label {} with nextHopList {}", label,
                     nextHopIpList);
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("updateLabelMapper: Failed to read data store for label {} nexthopList {}", label,
                     nextHopIpList);
         } catch (TransactionCommitFailedException e) {
@@ -2094,7 +2084,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                 currVpnIntf.getGatewayMacAddress(), currVpnIntf.getGatewayIpAddress());
                 writeOperTxn.merge(identifier, newVpnIntf, CREATE_MISSING_PARENTS);
             }
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("addNewAdjToVpnInterface: Failed to read data store for interface {} dpn {} vpn {} rd {} ip "
                     + "{}", interfaceName, dpnId, configVpnName, primaryRd, adj.getIpAddress());
         }
@@ -2151,7 +2141,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             + "unavailable dpnId {} adjIP {} rd {}", dpnId, adj.getIpAddress(), adj.getVrfId());
                 }
             }
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("delAdjFromVpnInterface: Failed to read data store for ip {} interface {} dpn {} vpn {}",
                     adj.getIpAddress(), interfaceName, dpnId, vpnName);
         }
@@ -2457,7 +2447,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                     }
                                 });
                         });
-                } catch (ReadFailedException e) {
+                } catch (InterruptedException | ExecutionException e) {
                     LOG.error("updateVpnInterfacesForUnProcessAdjancencies: Failed to read data store for vpn {} rd {}",
                             vpnName, primaryRd);
                 }

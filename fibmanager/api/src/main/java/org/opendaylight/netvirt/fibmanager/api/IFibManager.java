@@ -13,8 +13,8 @@ import com.google.common.util.concurrent.FutureCallback;
 import java.util.List;
 
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
@@ -71,8 +71,8 @@ public interface IFibManager {
     void removeFibEntry(String rd, String prefix, String eventSource,
                         @Nullable TypedWriteTransaction<Configuration> writeConfigTxn);
 
-    void updateRoutePathForFibEntry(String rd, String prefix, String nextHop,
-                                    Uint32 label, boolean nextHopAdd, WriteTransaction writeConfigTxn);
+    void updateRoutePathForFibEntry(String rd, String prefix, String nextHop, Uint32 label, boolean nextHopAdd,
+                                    TypedWriteTransaction<Configuration> writeConfigTxn);
 
     void addVrfTable(String rd, WriteTransaction writeConfigTxn);
 

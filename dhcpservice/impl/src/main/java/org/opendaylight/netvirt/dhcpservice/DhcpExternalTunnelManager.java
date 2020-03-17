@@ -9,7 +9,7 @@ package org.opendaylight.netvirt.dhcpservice;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -35,10 +35,10 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -837,13 +837,13 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
                 .setLogicalSwitchRef(lsRef).build();
         InstanceIdentifier<RemoteMcastMacs> iid = HwvtepSouthboundUtils.createRemoteMcastMacsInstanceIdentifier(
                 dstDevice.getNodeId(), remoteMcastMacs.key());
-        ReadOnlyTransaction transaction = broker.newReadOnlyTransaction();
+        ReadTransaction transaction = broker.newReadOnlyTransaction();
         try {
             //TODO do async mdsal read
-            remoteMcastMacs = transaction.read(LogicalDatastoreType.CONFIGURATION, iid).checkedGet().get();
+            remoteMcastMacs = transaction.read(LogicalDatastoreType.CONFIGURATION, iid).get().get();
             locators.addAll(remoteMcastMacs.getLocatorSet());
             return new RemoteMcastMacsBuilder(remoteMcastMacs).setLocatorSet(new ArrayList<>(locators)).build();
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed to read the macs {}", iid);
         } finally {
             transaction.close();

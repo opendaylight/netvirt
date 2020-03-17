@@ -12,8 +12,8 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils;
@@ -64,7 +64,7 @@ public class ElanMacEntryListener extends AsyncDataTreeChangeListenerBase<MacEnt
     protected void add(InstanceIdentifier<MacEntry> instanceIdentifier, MacEntry macEntry) {
         LOG.info("ElanMacEntryListener : ADD macEntry {} ", instanceIdentifier);
         String elanName = instanceIdentifier.firstKeyOf(MacTable.class).getElanInstanceName();
-        ElanInstance elanInfo = elanInstanceCache.get(elanName).orNull();
+        ElanInstance elanInfo = elanInstanceCache.get(elanName).orElse(null);
         if (EvpnUtils.getEvpnNameFromElan(elanInfo) == null) {
             LOG.trace("ElanMacEntryListener : Add evpnName is null for elan {} ", elanInfo);
             return;
@@ -76,7 +76,7 @@ public class ElanMacEntryListener extends AsyncDataTreeChangeListenerBase<MacEnt
     protected void remove(InstanceIdentifier<MacEntry> instanceIdentifier, MacEntry macEntry) {
         LOG.info("ElanMacEntryListener : remove macEntry {} ", instanceIdentifier);
         String elanName = instanceIdentifier.firstKeyOf(MacTable.class).getElanInstanceName();
-        ElanInstance elanInfo = elanInstanceCache.get(elanName).orNull();
+        ElanInstance elanInfo = elanInstanceCache.get(elanName).orElse(null);
         if (EvpnUtils.getEvpnNameFromElan(elanInfo) == null) {
             LOG.trace("ElanMacEntryListener : Remove evpnName is null for elan {} ", elanInfo);
             return;

@@ -7,10 +7,10 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,9 +27,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.infra.Datastore.Configuration;
@@ -337,7 +337,7 @@ public class VpnManagerImpl implements IVpnManager {
                 LOG.trace("isVPNConfigured: No VPNs configured.");
                 return false;
             }
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException("Error reading VPN " + vpnsIdentifier, e);
         }
         LOG.trace("isVPNConfigured: VPNs are configured on the system.");
@@ -801,7 +801,7 @@ public class VpnManagerImpl implements IVpnManager {
                                 }
                             }
                         }
-                    } catch (ReadFailedException e) {
+                    } catch (InterruptedException | ExecutionException e) {
                         LOG.error("doesExistingVpnsHaveConflictingSubnet: Failed to read route targets to subnet"
                                 + "association for rt {} type {} subnet-cidr {}", routerTarget.getRt(),
                                 RouteTarget.RtType.ERT, subnetCidr);

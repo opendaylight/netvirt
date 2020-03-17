@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.cache;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,9 +15,9 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.mdsalutil.cache.InstanceIdDataObjectCache;
 import org.opendaylight.infrautils.caches.CacheProvider;
 import org.opendaylight.netvirt.elan.utils.Scheduler;
@@ -61,9 +61,9 @@ public class ElanInstanceCache extends InstanceIdDataObjectCache<ElanInstance> {
     public Optional<ElanInstance> get(String elanInstanceName) {
         try {
             return get(ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName));
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Error reading ElanInstance {}", elanInstanceName, e);
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 

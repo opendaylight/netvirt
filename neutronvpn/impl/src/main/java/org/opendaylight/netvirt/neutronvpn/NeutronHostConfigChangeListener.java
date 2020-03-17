@@ -10,15 +10,15 @@ package org.opendaylight.netvirt.neutronvpn;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.ovsdb.utils.mdsal.utils.ControllerMdsalUtils;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.hostconfig.rev150712.hostconfig.attributes.Hostconfigs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.hostconfig.rev150712.hostconfig.attributes.hostconfigs.Hostconfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.hostconfig.rev150712.hostconfig.attributes.hostconfigs.HostconfigBuilder;
@@ -34,8 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class NeutronHostConfigChangeListener
-        extends AsyncDataTreeChangeListenerBase<Node,NeutronHostConfigChangeListener> {
+public class NeutronHostConfigChangeListener extends AbstractAsyncDataTreeChangeListener<Node> {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronHostConfigChangeListener.class);
     private static final String OS_HOST_CONFIG_HOST_ID_KEY = "odl_os_hostconfig_hostid";
     private static final String OS_HOST_CONFIG_CONFIG_KEY_PREFIX = "odl_os_hostconfig_config_odl_";
@@ -49,49 +48,34 @@ public class NeutronHostConfigChangeListener
 
     private final DataBroker dataBroker;
     private final SouthboundUtils southboundUtils;
-    private final ControllerMdsalUtils mdsalUtils;
+    private final MdsalUtils mdsalUtils;
 
     @Inject
     public NeutronHostConfigChangeListener(final DataBroker dataBroker) {
-        super(Node.class,NeutronHostConfigChangeListener.class);
+        super(dataBroker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(NetworkTopology.class)
+                .child(Topology.class,new TopologyKey(SouthboundUtils.OVSDB_TOPOLOGY_ID)).child(Node.class),
+                Executors.newSingleThreadExecutor("NeutronHostConfigChangeListener", LOG));
         this.dataBroker = dataBroker;
-        this.mdsalUtils = new ControllerMdsalUtils(dataBroker);
+        this.mdsalUtils = new MdsalUtils(dataBroker);
         this.southboundUtils = new SouthboundUtils(mdsalUtils);
     }
 
-    @Override
-    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<Node> getWildCardPath() {
-        return InstanceIdentifier
-                .create(NetworkTopology.class)
-                .child(Topology.class,new TopologyKey(SouthboundUtils.OVSDB_TOPOLOGY_ID))
-                .child(Node.class);
-    }
-
-    @Override
-    protected NeutronHostConfigChangeListener getDataTreeChangeListener() {
-        return NeutronHostConfigChangeListener.this;
-    }
-
-
-    @Override
-    protected void remove(InstanceIdentifier<Node> identifier, Node del) {
+    public void remove(InstanceIdentifier<Node> identifier, Node del) {
         updateHostConfig(del, Action.DELETE);
     }
 
     @Override
-    protected void update(InstanceIdentifier<Node> identifier, Node original, Node update) {
+    public void update(InstanceIdentifier<Node> identifier, Node original, Node update) {
         updateHostConfig(update, Action.UPDATE);
     }
 
     @Override
-    protected void add(InstanceIdentifier<Node> identifier, Node add) {
+    public void add(InstanceIdentifier<Node> identifier, Node add) {
         updateHostConfig(add, Action.ADD);
 
     }

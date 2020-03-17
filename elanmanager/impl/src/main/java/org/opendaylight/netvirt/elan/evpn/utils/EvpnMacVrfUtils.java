@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.evpn.utils;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,10 +15,10 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
@@ -81,7 +81,7 @@ public class EvpnMacVrfUtils {
         if (elanName == null) {
             LOG.error("getElanTag: elanName is NULL for iid = {}", macVrfEntryIid);
         }
-        ElanInstance elanInstance = elanInstanceCache.get(elanName).orNull();
+        ElanInstance elanInstance = elanInstanceCache.get(elanName).orElse(null);
         if (elanInstance == null) {
             return null;
         }
@@ -94,7 +94,7 @@ public class EvpnMacVrfUtils {
     }
 
     public String getElanNameByMacvrfiid(InstanceIdentifier<MacVrfEntry> instanceIdentifier) {
-        try (ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
+        try (ReadTransaction tx = dataBroker.newReadOnlyTransaction()) {
             String rd = instanceIdentifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
             String elanName = null;
             InstanceIdentifier<EvpnRdToNetwork> iidEvpnRdToNet =
@@ -102,11 +102,11 @@ public class EvpnMacVrfUtils {
                             new EvpnRdToNetworkKey(rd)).build();
             try {
                 Optional<EvpnRdToNetwork> evpnRdToNetwork =
-                        tx.read(LogicalDatastoreType.CONFIGURATION, iidEvpnRdToNet).checkedGet();
+                        tx.read(LogicalDatastoreType.CONFIGURATION, iidEvpnRdToNet).get();
                 if (evpnRdToNetwork.isPresent()) {
                     elanName = evpnRdToNetwork.get().getNetworkId();
                 }
-            } catch (ReadFailedException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 LOG.error("getElanName: unable to read elanName, exception ", e);
             }
             return elanName;
@@ -148,7 +148,7 @@ public class EvpnMacVrfUtils {
     }
 
     public boolean checkEvpnAttachedToNet(String elanName) {
-        ElanInstance elanInfo = elanInstanceCache.get(elanName).orNull();
+        ElanInstance elanInfo = elanInstanceCache.get(elanName).orElse(null);
         String evpnName = EvpnUtils.getEvpnNameFromElan(elanInfo);
         if (evpnName == null) {
             LOG.error("Error : evpnName is null for elanName {}", elanName);
