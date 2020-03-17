@@ -9,19 +9,20 @@ package org.opendaylight.netvirt.vpnmanager.api;
 
 import static java.util.stream.Collectors.toList;
 
-import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.TypedReadTransaction;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelTypeInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelTypeOutput;
@@ -56,7 +57,15 @@ public final class VpnExtraRouteHelper {
     public static Optional<Routes> getVpnExtraroutes(DataBroker broker, String vpnName,
                                                      String vpnRd, String destPrefix) {
         InstanceIdentifier<Routes> vpnExtraRoutesId = getVpnToExtrarouteVrfIdIdentifier(vpnName, vpnRd, destPrefix);
-        return MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, vpnExtraRoutesId);
+        Optional<Routes> extraRouteOptional = Optional.empty();
+        try {
+            extraRouteOptional = SingleTransactionDataBroker.syncReadOptional(broker, LogicalDatastoreType.OPERATIONAL,
+                    vpnExtraRoutesId);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getVpnExtraroutes: failed to read VpnToExtraRoutes for vpn {} rd {} destprefix {} due "
+                    + "to exception", vpnName, vpnRd, destPrefix, e);
+        }
+        return extraRouteOptional;
     }
 
     public static Optional<Routes> getVpnExtraroutes(TypedReadTransaction<Operational> operTx, String vpnName,
@@ -80,11 +89,13 @@ public final class VpnExtraRouteHelper {
             List<String> usedRds, String destPrefix) {
         List<Routes> routes = new ArrayList<>();
         for (String rd : usedRds) {
-            Optional<Routes> extraRouteInfo =
-                    MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                            getVpnToExtrarouteVrfIdIdentifier(vpnName, rd, destPrefix));
-            if (extraRouteInfo.isPresent()) {
-                routes.add(extraRouteInfo.get());
+            try {
+                Optional<Routes> extraRouteInfo = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                                getVpnToExtrarouteVrfIdIdentifier(vpnName, rd, destPrefix));
+                extraRouteInfo.ifPresent(routes::add);
+            } catch (ExecutionException | InterruptedException e) {
+                LOG.error("getAllVpnExtraRoutes: failed to read VpnToExtraRouteVrf for vpn {} rd {} destprefix {} due "
+                       + "to exception", vpnName, rd, destPrefix, e);
             }
         }
         return routes;
@@ -92,7 +103,13 @@ public final class VpnExtraRouteHelper {
 
     public static  List<String> getUsedRds(DataBroker broker, Uint32 vpnId, String destPrefix) {
         InstanceIdentifier<DestPrefixes> usedRdsId = getUsedRdsIdentifier(vpnId, destPrefix);
-        Optional<DestPrefixes> usedRds = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, usedRdsId);
+        Optional<DestPrefixes> usedRds = Optional.empty();
+        try {
+            usedRds = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, usedRdsId);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getUsedRds: failed to read Used Rds for vpn {} destprefix {} due to exception", vpnId,
+                    destPrefix, e);
+        }
         return usedRds.isPresent() && usedRds.get().getAllocatedRds() != null ? usedRds.get().getAllocatedRds().stream()
                 .map(AllocatedRds::getRd).distinct().collect(toList()) : new ArrayList<>();
     }
@@ -142,15 +159,25 @@ public final class VpnExtraRouteHelper {
     public static java.util.Optional<String> getRdAllocatedForExtraRoute(DataBroker broker,
             Uint32 vpnId, String destPrefix, String nextHop) {
         InstanceIdentifier<AllocatedRds> usedRdsId = getUsedRdsIdentifier(vpnId, destPrefix, nextHop);
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, usedRdsId)
-                .toJavaUtil().map(AllocatedRds::getRd);
+        try {
+            return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, usedRdsId)
+                    .map(AllocatedRds::getRd);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getRdAllocatedForExtraRoute: failed to read Used Rds for vpn {} destprefix {} nexthop {} due "
+                    + "to exception", vpnId, destPrefix, nextHop, e);
+        }
+        return Optional.empty();
     }
 
     public static List<DestPrefixes> getExtraRouteDestPrefixes(DataBroker broker, Uint32 vpnId) {
-        Optional<ExtrarouteRds> optionalExtraRoutes = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION,
-                getUsedRdsIdentifier(vpnId));
-        List<DestPrefixes> prefixes =
-            optionalExtraRoutes.isPresent() ? optionalExtraRoutes.get().getDestPrefixes() : null;
-        return prefixes == null ? Collections.emptyList() : prefixes;
+        try {
+            Optional<ExtrarouteRds> optionalExtraRoutes = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION,
+                    getUsedRdsIdentifier(vpnId));
+            List<DestPrefixes> prefixes = optionalExtraRoutes.map(ExtrarouteRds::getDestPrefixes).orElse(null);
+            return prefixes == null ? Collections.emptyList() : prefixes;
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getExtraRouteDestPrefixes: failed to read ExRoutesRdsMap for vpn {} due to exception", vpnId, e);
+        }
+        return new ArrayList<>();
     }
 }
