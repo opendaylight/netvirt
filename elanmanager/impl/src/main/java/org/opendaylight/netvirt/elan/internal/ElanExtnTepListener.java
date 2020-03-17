@@ -7,19 +7,20 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
-import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.l2gw.jobs.BcGroupUpdateJob;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanRefUtil;
+import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ExternalTeps;
@@ -28,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class ElanExtnTepListener extends AsyncClusteredDataTreeChangeListenerBase<ExternalTeps, ElanExtnTepListener> {
+public class ElanExtnTepListener extends AbstractClusteredAsyncDataTreeChangeListener<ExternalTeps> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanExtnTepListener.class);
 
@@ -42,7 +43,9 @@ public class ElanExtnTepListener extends AsyncClusteredDataTreeChangeListenerBas
     @Inject
     public ElanExtnTepListener(DataBroker dataBroker, ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
             JobCoordinator jobCoordinator, ElanInstanceCache elanInstanceCache, ElanRefUtil elanRefUtil) {
-        super(ExternalTeps.class, ElanExtnTepListener.class);
+        super(dataBroker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(ElanInstances.class)
+                .child(ElanInstance.class).child(ExternalTeps.class),
+                Executors.newListeningSingleThreadExecutor("ElanExtnTepListener", LOG));
         this.broker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
@@ -51,28 +54,22 @@ public class ElanExtnTepListener extends AsyncClusteredDataTreeChangeListenerBas
         this.elanRefUtil = elanRefUtil;
     }
 
-    @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.OPERATIONAL, broker);
+        LOG.info("{} registered", getClass().getSimpleName());
     }
 
     @Override
-    public InstanceIdentifier<ExternalTeps> getWildCardPath() {
-        return InstanceIdentifier.create(ElanInstances.class).child(ElanInstance.class).child(ExternalTeps.class);
-    }
-
-    @Override
-    protected void add(InstanceIdentifier<ExternalTeps> instanceIdentifier, ExternalTeps tep) {
+    public void add(InstanceIdentifier<ExternalTeps> instanceIdentifier, ExternalTeps tep) {
         LOG.trace("ExternalTeps add received {}", instanceIdentifier);
         updateBcGroupOfElan(instanceIdentifier, tep, true);
     }
 
     @Override
-    protected void update(InstanceIdentifier<ExternalTeps> instanceIdentifier, ExternalTeps tep, ExternalTeps t1) {
+    public void update(InstanceIdentifier<ExternalTeps> instanceIdentifier, ExternalTeps tep, ExternalTeps t1) {
     }
 
     @Override
-    protected void remove(InstanceIdentifier<ExternalTeps> instanceIdentifier, ExternalTeps tep) {
+    public void remove(InstanceIdentifier<ExternalTeps> instanceIdentifier, ExternalTeps tep) {
         LOG.trace("ExternalTeps remove received {}", instanceIdentifier);
         updateBcGroupOfElan(instanceIdentifier, tep, false);
     }
@@ -84,7 +81,9 @@ public class ElanExtnTepListener extends AsyncClusteredDataTreeChangeListenerBas
     }
 
     @Override
-    protected ElanExtnTepListener getDataTreeChangeListener() {
-        return this;
+    @PreDestroy
+    public void close() {
+        super.close();
+        Executors.shutdownAndAwaitTermination(getExecutorService());
     }
 }

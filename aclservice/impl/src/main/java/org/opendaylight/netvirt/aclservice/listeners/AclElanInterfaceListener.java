@@ -7,13 +7,13 @@
  */
 package org.opendaylight.netvirt.aclservice.listeners;
 
-import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
@@ -22,6 +22,7 @@ import org.opendaylight.netvirt.aclservice.utils.AclClusterUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.serviceutils.srm.RecoverableListener;
 import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
@@ -30,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class AclElanInterfaceListener extends AsyncDataTreeChangeListenerBase<ElanInterface, AclElanInterfaceListener>
+public class AclElanInterfaceListener extends AbstractAsyncDataTreeChangeListener<ElanInterface>
         implements ClusteredDataTreeChangeListener<ElanInterface>, RecoverableListener {
     private static final Logger LOG = LoggerFactory.getLogger(AclElanInterfaceListener.class);
 
@@ -43,7 +44,9 @@ public class AclElanInterfaceListener extends AsyncDataTreeChangeListenerBase<El
     public AclElanInterfaceListener(AclServiceManager aclServiceManager, AclClusterUtil aclClusterUtil,
             DataBroker dataBroker, AclInterfaceCache aclInterfaceCache,
             ServiceRecoveryRegistry serviceRecoveryRegistry) {
-        super(ElanInterface.class, AclElanInterfaceListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                InstanceIdentifier.create(ElanInterfaces.class).child(ElanInterface.class),
+                Executors.newListeningSingleThreadExecutor("AclElanInterfaceListener", LOG));
         this.aclServiceManager = aclServiceManager;
         this.aclClusterUtil = aclClusterUtil;
         this.dataBroker = dataBroker;
@@ -51,36 +54,33 @@ public class AclElanInterfaceListener extends AsyncDataTreeChangeListenerBase<El
         serviceRecoveryRegistry.addRecoverableListener(AclServiceUtils.getRecoverServiceRegistryKey(), this);
     }
 
-    @Override
-    @PostConstruct
     public void init() {
         LOG.info("{} start", getClass().getSimpleName());
-        registerListener();
     }
 
     @Override
     public void registerListener() {
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
+        super.register();
     }
 
     @Override
-    protected InstanceIdentifier<ElanInterface> getWildCardPath() {
-        return InstanceIdentifier.create(ElanInterfaces.class).child(ElanInterface.class);
+    public void deregisterListener() {
+        super.close();
     }
 
     @Override
-    protected void remove(InstanceIdentifier<ElanInterface> key, ElanInterface dataObjectModification) {
+    public void remove(InstanceIdentifier<ElanInterface> key, ElanInterface dataObjectModification) {
         // do nothing
     }
 
     @Override
-    protected void update(InstanceIdentifier<ElanInterface> key, ElanInterface dataObjectModificationBefore,
+    public void update(InstanceIdentifier<ElanInterface> key, ElanInterface dataObjectModificationBefore,
             ElanInterface dataObjectModificationAfter) {
         // do nothing
     }
 
     @Override
-    protected void add(InstanceIdentifier<ElanInterface> key, ElanInterface elanInterface) {
+    public void add(InstanceIdentifier<ElanInterface> key, ElanInterface elanInterface) {
         String interfaceId = elanInterface.getName();
         AclInterface aclInterface = aclInterfaceCache.updateIfPresent(interfaceId, (prevAclInterface, builder) -> {
             if (prevAclInterface.getElanId() == null) {
@@ -109,7 +109,9 @@ public class AclElanInterfaceListener extends AsyncDataTreeChangeListenerBase<El
     }
 
     @Override
-    protected AclElanInterfaceListener getDataTreeChangeListener() {
-        return this;
+    @PreDestroy
+    public void close() {
+        super.close();
+        Executors.shutdownAndAwaitTermination(getExecutorService());
     }
 }
