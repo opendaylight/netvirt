@@ -12,7 +12,7 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 import static org.opendaylight.genius.mdsalutil.NWUtil.isIpv4Address;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -34,9 +34,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -1012,7 +1012,7 @@ public class NexthopManager implements AutoCloseable {
                         LOG.trace("Tunnel is not up for interface {}", egressInterface);
                         return;
                     }
-                } catch (ReadFailedException e) {
+                } catch (InterruptedException | ExecutionException e) {
                     LOG.error("getBucketsForRemoteNexthop: error in fetching tunnel state for interface {}",
                         egressInterface, e);
                     return;
@@ -1125,7 +1125,7 @@ public class NexthopManager implements AutoCloseable {
         InstanceIdentifier<DcGatewayIpList> dcGatewayIpListid =
                 InstanceIdentifier.builder(DcGatewayIpList.class).build();
         DcGatewayIpList dcGatewayIpListConfig =
-                MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, dcGatewayIpListid).orNull();
+                MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, dcGatewayIpListid).orElse(null);
         if (dcGatewayIpListConfig == null) {
             return Collections.emptyList();
         }

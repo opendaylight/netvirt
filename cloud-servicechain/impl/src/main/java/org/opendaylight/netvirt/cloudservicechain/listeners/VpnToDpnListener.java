@@ -7,14 +7,14 @@
  */
 package org.opendaylight.netvirt.cloudservicechain.listeners;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.math.BigInteger;
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.cloudservicechain.CloudServiceChainConstants;
@@ -108,7 +108,7 @@ public class VpnToDpnListener implements OdlL3vpnListener {
             VpnServiceChainUtils.programLPortDispatcherFlowForScfToVpn(mdsalMgr, vpnId, dpnId,
                                                                        vpnToPseudoPortInfo.getVpnLportTag().intValue(),
                                                                        addOrRemove);
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("Error retrieving the VPN to pseudo-port data for {}", rd, e);
         }
     }

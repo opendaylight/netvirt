@@ -10,15 +10,15 @@ package org.opendaylight.netvirt.elan.l2gw.nodehandlertest;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
@@ -164,7 +164,7 @@ public class NodeConnectedHandlerTest extends AbstractConcurrentDataBrokerTest {
     }
 
     public void readNodes() throws Exception {
-        ReadOnlyTransaction tx = getDataBroker().newReadOnlyTransaction();
+        ReadTransaction tx = getDataBroker().newReadOnlyTransaction();
         d1GlobalOpNode = TestUtil.readNode(LogicalDatastoreType.OPERATIONAL, d1NodePath, tx);
         d2GlobalOpNode = TestUtil.readNode(LogicalDatastoreType.OPERATIONAL, d2NodePath, tx);
         haGlobalOpNode = TestUtil.readNode(LogicalDatastoreType.OPERATIONAL, haNodePath, tx);

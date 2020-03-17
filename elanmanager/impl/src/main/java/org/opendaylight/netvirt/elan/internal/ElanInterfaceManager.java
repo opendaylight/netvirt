@@ -8,13 +8,13 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import static java.util.Collections.emptyList;
-import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 import static org.opendaylight.infrautils.utils.concurrent.LoggingFutures.addErrorLogging;
 import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlanNetworkOrVxlanSegment;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -35,9 +35,9 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.Datastore.Operational;
@@ -240,7 +240,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 unProcessedElanInterfaces.remove(elanInstanceName);
             }
         }
-        ElanInstance elanInfo = elanInstanceCache.get(elanInstanceName).orNull();
+        ElanInstance elanInfo = elanInstanceCache.get(elanInstanceName).orElse(null);
         /*
          * Handling in case the elan instance is deleted.If the Elan instance is
          * deleted, there is no need to explicitly delete the elan interfaces
@@ -613,7 +613,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 LOG.info("Interface {} is removed from Interface Oper DS due to port down ", interfaceName);
                 return;
             }
-            ElanInstance elanInstance = elanInstanceCache.get(elanInstanceName).orNull();
+            ElanInstance elanInstance = elanInstanceCache.get(elanInstanceName).orElse(null);
 
             if (elanInstance == null) {
                 // Add the ElanInstance in the Configuration data-store
@@ -924,7 +924,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         MacEntry macEntry = new MacEntryBuilder().setMacAddress(physAddress).setInterface(interfaceName)
                 .withKey(new MacEntryKey(physAddress)).build();
         elanForwardingEntriesHandler.deleteElanInterfaceForwardingEntries(
-                elanInstanceCache.get(elanInstanceName).orNull(), interfaceInfo, macEntry);
+                elanInstanceCache.get(elanInstanceName).orElse(null), interfaceInfo, macEntry);
     }
 
     private boolean checkIfFirstInterface(String elanInterface, String elanInstanceName,
@@ -1589,7 +1589,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         for (ElanDpnInterfacesList elanDpns : elanDpnIf) {
             int cnt = 0;
             String elanName = elanDpns.getElanInstanceName();
-            ElanInstance elanInfo = elanInstanceCache.get(elanName).orNull();
+            ElanInstance elanInfo = elanInstanceCache.get(elanName).orElse(null);
             if (elanInfo == null) {
                 LOG.warn("ELAN Info is null for elanName {} that does exist in elanDpnInterfaceList, "
                         + "skipping this ELAN for tunnel handling", elanName);
@@ -1680,7 +1680,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         List<ElanDpnInterfacesList> elanDpnIf = dpnInterfaceLists.nonnullElanDpnInterfacesList();
         for (ElanDpnInterfacesList elanDpns : elanDpnIf) {
             String elanName = elanDpns.getElanInstanceName();
-            ElanInstance elanInfo = elanInstanceCache.get(elanName).orNull();
+            ElanInstance elanInfo = elanInstanceCache.get(elanName).orElse(null);
 
             DpnInterfaces dpnInterfaces = elanUtils.getElanInterfaceInfoByElanDpn(elanName, dpId);
             if (elanInfo == null || dpnInterfaces == null || dpnInterfaces.getInterfaces() == null

@@ -9,7 +9,7 @@ package org.opendaylight.netvirt.fibmanager;
 
 import static java.util.stream.Collectors.toList;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -20,9 +20,9 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
@@ -233,7 +233,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
                             usedRds.get(0), vrfEntry.getDestPrefix());
                 }
             } else {
-                extraRouteOptional = Optional.absent();
+                extraRouteOptional = Optional.empty();
             }
             for (VpnToDpnList curDpn : vpnToDpnList) {
                 if (curDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
@@ -393,7 +393,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
                 .ifPresent(routes -> {
                     LOG.trace(" deleting remote FIB entry {}", vrfEntry);
                     deleteRemoteRoute(null, dpnId, vpnId, vrfTable.get().key(), vrfEntry,
-                            Optional.absent(), writeCfgTxn, subTxns);
+                            Optional.empty(), writeCfgTxn, subTxns);
                 });
     }
 
