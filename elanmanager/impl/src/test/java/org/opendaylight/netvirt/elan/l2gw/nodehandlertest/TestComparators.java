@@ -15,9 +15,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import java.util.concurrent.ExecutionException;
+import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.LocalMcastCmd;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.LocalUcastCmd;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.LogicalSwitchesCmd;
@@ -261,7 +261,9 @@ public final class TestComparators {
                                                InstanceIdentifier<Node> d2psnodePath,
                                                InstanceIdentifier<Node> haPsnodePath,
                                                ReadWriteTransaction readWriteTransaction, String switchName,
-                                               Node d1, Node d2, Node ha) throws ReadFailedException {
+                                               Node d1, Node d2, Node ha)
+        throws ExecutionException, InterruptedException {
+
         PhysicalSwitchAugmentation d1PsAug = d1ps.augmentation(PhysicalSwitchAugmentation.class);
         PhysicalSwitchAugmentation d2PsAug = d2ps.augmentation(PhysicalSwitchAugmentation.class);
         PhysicalSwitchAugmentation haPsAug = haps.augmentation(PhysicalSwitchAugmentation.class);
@@ -300,7 +302,8 @@ public final class TestComparators {
     public static void comparePhysicalSwitches(Node d1ps, Node haps, InstanceIdentifier<Node> d1psnodePath,
                                                InstanceIdentifier<Node> haPsnodePath,
                                                ReadWriteTransaction readWriteTransaction,
-                                               String switchName, Node d1, Node ha) throws ReadFailedException {
+                                               String switchName, Node d1, Node ha)
+        throws ExecutionException, InterruptedException {
         //Compare Physical Augmentation data
         PhysicalSwitchAugmentation d1PsAug = d1ps.augmentation(PhysicalSwitchAugmentation.class);
         PhysicalSwitchAugmentation haPsAug = haps.augmentation(PhysicalSwitchAugmentation.class);
@@ -327,19 +330,19 @@ public final class TestComparators {
 
     public static void assertTerminationPoint(List<String> terminationPointNames, InstanceIdentifier<Node> d1ps,
                                               InstanceIdentifier<Node> haPsa, ReadWriteTransaction readWriteTransaction,
-                                              Node nodeD, Node nodeHa) throws ReadFailedException {
+                                              Node nodeD, Node nodeHa) throws ExecutionException, InterruptedException {
         for (String portName : terminationPointNames) {
             InstanceIdentifier<TerminationPoint> tpPathd = d1ps.child(TerminationPoint.class,
                     new TerminationPointKey(new TpId(portName)));
             TerminationPoint tpNoded = readWriteTransaction.read(LogicalDatastoreType.OPERATIONAL, tpPathd)
-                    .checkedGet().get();
+                    .get().get();
             HwvtepPhysicalPortAugmentation hwvtepPhysicalPortAugmentationD =
                     tpNoded.augmentation(HwvtepPhysicalPortAugmentation.class);
 
             InstanceIdentifier<TerminationPoint> tpPathha = haPsa.child(TerminationPoint.class,
                     new TerminationPointKey(new TpId(portName)));
             TerminationPoint tpNodeha = readWriteTransaction.read(LogicalDatastoreType.OPERATIONAL, tpPathha)
-                    .checkedGet().get();
+                    .get().get();
             HwvtepPhysicalPortAugmentation hwvtepPhysicalPortAugmentationHa =
                     tpNodeha.augmentation(HwvtepPhysicalPortAugmentation.class);
             assertEquals("Termination point hwvtep-node-name should be same",

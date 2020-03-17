@@ -9,14 +9,13 @@ package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
 import java.math.BigInteger;
 import java.util.List;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.vpnmanager.VpnFootprintService;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
@@ -24,6 +23,7 @@ import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComp
 import org.opendaylight.netvirt.vpnmanager.intervpnlink.tasks.InterVpnLinkCleanedCheckerTask;
 import org.opendaylight.netvirt.vpnmanager.intervpnlink.tasks.InterVpnLinkCreatorTask;
 import org.opendaylight.netvirt.vpnmanager.intervpnlink.tasks.InterVpnLinkRemoverTask;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * moved to some other DPN.
  */
 @Singleton
-public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<Node, InterVpnLinkNodeListener> {
+public class InterVpnLinkNodeListener extends AbstractAsyncDataTreeChangeListener<Node> {
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkNodeListener.class);
 
     public static final TopologyId FLOW_TOPOLOGY_ID = new TopologyId(new Uri("flow:1"));
@@ -59,6 +59,10 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
                                     final VpnFootprintService vpnFootprintService,
                                     final JobCoordinator jobCoordinator, final InterVpnLinkCache interVpnLinkCache,
                                     VpnUtil vpnUtil, InterVpnLinkUtil interVpnLinkUtil) {
+        super(dataBroker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(NetworkTopology.class)
+                .child(Topology.class, new TopologyKey(FLOW_TOPOLOGY_ID))
+                .child(Node.class), Executors.newListeningSingleThreadExecutor("InterVpnLinkNodeListener",
+                LOG));
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalMgr;
         this.vpnFootprintService = vpnFootprintService;
@@ -68,26 +72,12 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
         this.interVpnLinkUtil = interVpnLinkUtil;
     }
 
-    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<Node> getWildCardPath() {
-        return InstanceIdentifier.create(NetworkTopology.class)
-            .child(Topology.class, new TopologyKey(FLOW_TOPOLOGY_ID))
-            .child(Node.class);
-    }
-
-    @Override
-    protected InterVpnLinkNodeListener getDataTreeChangeListener() {
-        return InterVpnLinkNodeListener.this;
-    }
-
-    @Override
-    protected void add(InstanceIdentifier<Node> identifier, Node add) {
+    public void add(InstanceIdentifier<Node> identifier, Node add) {
         NodeId nodeId = add.getNodeId();
         String[] node = nodeId.getValue().split(":");
         if (node.length < 2) {
@@ -101,7 +91,7 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Node> identifier, Node del) {
+    public void remove(InstanceIdentifier<Node> identifier, Node del) {
         LOG.trace("Node {} has been deleted", identifier.firstKeyOf(Node.class).toString());
         NodeId nodeId = del.getNodeId();
         String[] node = nodeId.getValue().split(":");
@@ -130,6 +120,6 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
     }
 
     @Override
-    protected void update(InstanceIdentifier<Node> identifier, Node original, Node update) {
+    public void update(InstanceIdentifier<Node> identifier, Node original, Node update) {
     }
 }

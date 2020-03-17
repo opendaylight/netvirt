@@ -8,15 +8,15 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import java.util.Collections;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TepTypeInternal;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TunnelOperStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TunnelsState;
@@ -27,8 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class ElanTunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBase<StateTunnelList,
-    ElanTunnelInterfaceStateListener> {
+public class ElanTunnelInterfaceStateListener extends AbstractAsyncDataTreeChangeListener<StateTunnelList> {
     private static final Logger LOG = LoggerFactory.getLogger(ElanTunnelInterfaceStateListener.class);
     private final DataBroker dataBroker;
     private final ElanInterfaceManager elanInterfaceManager;
@@ -39,35 +38,30 @@ public class ElanTunnelInterfaceStateListener extends AsyncDataTreeChangeListene
     public ElanTunnelInterfaceStateListener(final DataBroker dataBroker,
             final ElanInterfaceManager elanInterfaceManager, final ElanUtils elanUtils,
             final JobCoordinator jobCoordinator) {
-        super(StateTunnelList.class, ElanTunnelInterfaceStateListener.class);
+        super(dataBroker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(TunnelsState.class)
+                .child(StateTunnelList.class),
+                Executors.newListeningSingleThreadExecutor("ElanTunnelInterfaceStateListener", LOG));
         this.dataBroker = dataBroker;
         this.elanInterfaceManager = elanInterfaceManager;
         this.elanUtils = elanUtils;
         this.jobCoordinator = jobCoordinator;
     }
 
-    @Override
-    @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
+        LOG.info("{} init", getClass().getSimpleName());
     }
 
     @Override
-    protected InstanceIdentifier<StateTunnelList> getWildCardPath() {
-        return InstanceIdentifier.create(TunnelsState.class).child(StateTunnelList.class);
+    public void remove(InstanceIdentifier<StateTunnelList> key, StateTunnelList delete) {
     }
 
     @Override
-    protected void remove(InstanceIdentifier<StateTunnelList> key, StateTunnelList delete) {
-    }
-
-    @Override
-    protected void update(InstanceIdentifier<StateTunnelList> key, StateTunnelList original,
+    public void update(InstanceIdentifier<StateTunnelList> key, StateTunnelList original,
             StateTunnelList update) {
     }
 
     @Override
-    protected void add(InstanceIdentifier<StateTunnelList> key, StateTunnelList add) {
+    public void add(InstanceIdentifier<StateTunnelList> key, StateTunnelList add) {
         LOG.info("processing add state for StateTunnelList {}", add);
         if (!isInternalTunnel(add)) {
             LOG.trace("tunnel {} is not a internal vxlan tunnel", add);
@@ -95,11 +89,6 @@ public class ElanTunnelInterfaceStateListener extends AsyncDataTreeChangeListene
             LOG.error("Invalid source TepDeviceId {} or destination TepDeviceId {}", add.getSrcInfo().getTepDeviceId(),
                 add.getDstInfo().getTepDeviceId());
         }
-    }
-
-    @Override
-    protected ElanTunnelInterfaceStateListener getDataTreeChangeListener() {
-        return this;
     }
 
     private static boolean isInternalTunnel(StateTunnelList stateTunnelList) {

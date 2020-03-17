@@ -16,7 +16,7 @@ import java.util.concurrent.Callable;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.netvirt.dhcpservice.DhcpServiceUtils;
 
-public class DhcpAllocationPoolRemoveJob implements Callable<List<ListenableFuture<Void>>> {
+public class DhcpAllocationPoolRemoveJob implements Callable<List<? extends ListenableFuture<?>>> {
 
     private final ManagedNewTransactionRunner txRunner;
     private final String interfaceName;

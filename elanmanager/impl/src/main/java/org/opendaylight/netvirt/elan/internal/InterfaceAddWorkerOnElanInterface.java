@@ -17,7 +17,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class InterfaceAddWorkerOnElanInterface implements Callable<List<ListenableFuture<Void>>> {
+public class InterfaceAddWorkerOnElanInterface implements Callable<List<? extends ListenableFuture<?>>> {
 
     private final String key;
     private final ElanInterface elanInterface;

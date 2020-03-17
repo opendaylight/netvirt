@@ -13,9 +13,9 @@ import java.util.concurrent.Future;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
@@ -155,6 +155,6 @@ public final class NeutronSecurityGroupUtils {
     }
 
     public Acl getAcl(DataBroker broker, InstanceIdentifier<Acl> aclInstanceIdentifier) {
-        return MDSALUtil.read(LogicalDatastoreType.CONFIGURATION, aclInstanceIdentifier, broker).orNull();
+        return MDSALUtil.read(LogicalDatastoreType.CONFIGURATION, aclInstanceIdentifier, broker).orElse(null);
     }
 }

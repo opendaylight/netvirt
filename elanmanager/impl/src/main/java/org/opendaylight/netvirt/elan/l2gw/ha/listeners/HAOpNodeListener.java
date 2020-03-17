@@ -10,24 +10,23 @@ package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.infrautils.metrics.MetricProvider;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.handlers.HAEventHandler;
 import org.opendaylight.netvirt.elan.l2gw.ha.handlers.IHAEventHandler;
@@ -106,9 +105,9 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener<Operational> implem
         InstanceIdentifier<Node> haNodePath = getHwvtepNodeHACache().getParent(childGlobalPath);
         LOG.trace("Ha enabled child node connected {}", childNode.getNodeId().getValue());
         try {
-            nodeCopier.copyGlobalNode(Optional.fromNullable(childNode), childGlobalPath, haNodePath, OPERATIONAL, tx);
+            nodeCopier.copyGlobalNode(Optional.ofNullable(childNode), childGlobalPath, haNodePath, OPERATIONAL, tx);
             LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
-                confTx -> nodeCopier.copyGlobalNode(Optional.fromNullable(null), haNodePath, childGlobalPath,
+                confTx -> nodeCopier.copyGlobalNode(Optional.ofNullable(null), haNodePath, childGlobalPath,
                     CONFIGURATION, confTx)), LOG, "Error copying to configuration");
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed to read nodes {} , {} ", childGlobalPath, haNodePath);
@@ -122,7 +121,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener<Operational> implem
                             Node updatedChildNode,
                             Node originalChildNode,
                             DataObjectModification<Node> mod,
-                            TypedReadWriteTransaction<Operational> tx) throws ReadFailedException {
+                            TypedReadWriteTransaction<Operational> tx)  {
 
         String oldHAId = HwvtepHAUtil.getHAIdFromManagerOtherConfig(originalChildNode);
         if (!Strings.isNullOrEmpty(oldHAId)) { //was already ha child
@@ -182,10 +181,10 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener<Operational> implem
         InstanceIdentifier<Node> haGlobalPath = getHwvtepNodeHACache().getParent(childGlobalPath);
         InstanceIdentifier<Node> haPsPath = HwvtepHAUtil.convertPsPath(childPsNode, haGlobalPath);
         try {
-            nodeCopier.copyPSNode(Optional.fromNullable(childPsNode), childPsPath, haPsPath, haGlobalPath,
+            nodeCopier.copyPSNode(Optional.ofNullable(childPsNode), childPsPath, haPsPath, haGlobalPath,
                     OPERATIONAL, tx);
             LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
-                confTx -> nodeCopier.copyPSNode(Optional.fromNullable(null), haPsPath, childPsPath, childGlobalPath,
+                confTx -> nodeCopier.copyPSNode(Optional.ofNullable(null), haPsPath, childPsPath, childGlobalPath,
                     CONFIGURATION, confTx)), LOG, "Error copying to configuration");
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed to read nodes {} , {} ", childPsPath, haGlobalPath);
