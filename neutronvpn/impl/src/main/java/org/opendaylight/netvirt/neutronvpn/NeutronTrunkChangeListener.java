@@ -14,17 +14,17 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev170119.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
@@ -48,7 +48,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<Trunk, NeutronTrunkChangeListener> {
+public class NeutronTrunkChangeListener extends AbstractAsyncDataTreeChangeListener<Trunk> {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronTrunkChangeListener.class);
 
     private final DataBroker dataBroker;
@@ -59,31 +59,21 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
     @Inject
     public NeutronTrunkChangeListener(final DataBroker dataBroker, final IInterfaceManager ifMgr,
             final JobCoordinator jobCoordinator) {
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                InstanceIdentifier.create(Neutron.class).child(Trunks.class).child(Trunk.class),
+                Executors.newSingleThreadExecutor("NeutronTrunkChangeListener", LOG));
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.ifMgr = ifMgr;
         this.jobCoordinator = jobCoordinator;
     }
 
-    @Override
-    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<Trunk> getWildCardPath() {
-        return InstanceIdentifier.create(Neutron.class).child(Trunks.class).child(Trunk.class);
-    }
-
-    @Override
-    protected NeutronTrunkChangeListener getDataTreeChangeListener() {
-        return NeutronTrunkChangeListener.this;
-    }
-
-    @Override
-    protected void add(InstanceIdentifier<Trunk> identifier, Trunk input) {
+    public void add(InstanceIdentifier<Trunk> identifier, Trunk input) {
         Preconditions.checkNotNull(input.getPortId());
         LOG.trace("Adding Trunk : key: {}, value={}", identifier, input);
         List<SubPorts> subPorts = input.getSubPorts();
@@ -93,7 +83,7 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Trunk> identifier, Trunk input) {
+    public void remove(InstanceIdentifier<Trunk> identifier, Trunk input) {
         Preconditions.checkNotNull(input.getPortId());
         LOG.trace("Removing Trunk : key: {}, value={}", identifier, input);
         List<SubPorts> subPorts = input.getSubPorts();
@@ -103,7 +93,7 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
     }
 
     @Override
-    protected void update(InstanceIdentifier<Trunk> identifier, Trunk original, Trunk update) {
+    public void update(InstanceIdentifier<Trunk> identifier, Trunk original, Trunk update) {
         List<SubPorts> updatedSubPorts = update.getSubPorts();
         if (updatedSubPorts == null) {
             updatedSubPorts = Collections.emptyList();

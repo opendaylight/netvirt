@@ -8,15 +8,15 @@
 package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 
 import java.util.Arrays;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
+import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.Managers;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public final class ManagerListener extends AsyncClusteredDataTreeChangeListenerBase<Managers, ManagerListener> {
+public final class ManagerListener extends AbstractClusteredAsyncDataTreeChangeListener<Managers> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ManagerListener.class);
 
@@ -34,34 +34,28 @@ public final class ManagerListener extends AsyncClusteredDataTreeChangeListenerB
 
     @Inject
     public ManagerListener(DataBroker dataBroker, HwvtepNodeHACache hwvtepNodeHACache) {
-        super(Managers.class, ManagerListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                HwvtepSouthboundUtils.createHwvtepTopologyInstanceIdentifier().child(Node.class)
+                        .augmentation(HwvtepGlobalAugmentation.class).child(Managers.class),
+                Executors.newListeningSingleThreadExecutor("ManagerListener", LOG));
         this.dataBroker = dataBroker;
         this.hwvtepNodeHACache = hwvtepNodeHACache;
     }
 
-    @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
+        LOG.info("{} init", getClass().getSimpleName());
     }
 
     @Override
-    protected InstanceIdentifier<Managers> getWildCardPath() {
-        return HwvtepSouthboundUtils.createHwvtepTopologyInstanceIdentifier()
-                .child(Node.class)
-                .augmentation(HwvtepGlobalAugmentation.class)
-                .child(Managers.class);
+    public void remove(InstanceIdentifier<Managers> key, Managers managers) {
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Managers> key, Managers managers) {
+    public void update(InstanceIdentifier<Managers> key, Managers before, Managers after) {
     }
 
     @Override
-    protected void update(InstanceIdentifier<Managers> key, Managers before, Managers after) {
-    }
-
-    @Override
-    protected void add(InstanceIdentifier<Managers> key, Managers managers) {
+    public void add(InstanceIdentifier<Managers> key, Managers managers) {
         InstanceIdentifier<Node> parent = key.firstIdentifierOf(Node.class);
         if (managers.key().getTarget().getValue().contains(HwvtepHAUtil.MANAGER_KEY)
                 && managers.getManagerOtherConfigs() != null) {
@@ -71,10 +65,5 @@ public final class ManagerListener extends AsyncClusteredDataTreeChangeListenerB
                 .map(HwvtepHAUtil::convertToInstanceIdentifier)
                 .forEach(childIid -> hwvtepNodeHACache.addChild(parent, childIid));
         }
-    }
-
-    @Override
-    protected ManagerListener getDataTreeChangeListener() {
-        return this;
     }
 }

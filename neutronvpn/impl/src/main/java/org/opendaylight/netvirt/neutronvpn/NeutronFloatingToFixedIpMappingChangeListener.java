@@ -9,23 +9,23 @@ package org.opendaylight.netvirt.neutronvpn;
 
 import static org.opendaylight.netvirt.neutronvpn.NeutronvpnUtils.buildfloatingIpIdToPortMappingIdentifier;
 
-import com.google.common.base.Optional;
 import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.NamedLocks;
 import org.opendaylight.infrautils.utils.concurrent.NamedSimpleReentrantLock.AcquireResult;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
@@ -48,8 +48,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTreeChangeListenerBase<Floatingip,
-        NeutronFloatingToFixedIpMappingChangeListener> {
+public class NeutronFloatingToFixedIpMappingChangeListener extends AbstractAsyncDataTreeChangeListener<Floatingip> {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronFloatingToFixedIpMappingChangeListener.class);
     private static final long LOCK_WAIT_TIME = 10L;
 
@@ -58,29 +57,19 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
 
     @Inject
     public NeutronFloatingToFixedIpMappingChangeListener(final DataBroker dataBroker) {
-        super(Floatingip.class, NeutronFloatingToFixedIpMappingChangeListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Neutron.class)
+                        .child(Floatingips.class).child(Floatingip.class),
+                Executors.newSingleThreadExecutor("NeutronFloatingToFixedIpMappingChangeListener", LOG));
         this.dataBroker = dataBroker;
     }
 
-    @Override
-    @PostConstruct
+
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<Floatingip> getWildCardPath() {
-        return InstanceIdentifier.create(Neutron.class).child(Floatingips.class).child(Floatingip.class);
-    }
-
-    @Override
-    protected NeutronFloatingToFixedIpMappingChangeListener getDataTreeChangeListener() {
-        return NeutronFloatingToFixedIpMappingChangeListener.this;
-    }
-
-    @Override
-    protected void add(InstanceIdentifier<Floatingip> identifier, Floatingip input) {
+    public void add(InstanceIdentifier<Floatingip> identifier, Floatingip input) {
         LOG.trace("Neutron Floating IP created: key: {}, value={}", identifier, input);
         IpAddress fixedIp = input.getFixedIpAddress();
         String floatingIp = input.getFloatingIpAddress().getIpv4Address().getValue();
@@ -91,7 +80,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Floatingip> identifier, Floatingip input) {
+    public void remove(InstanceIdentifier<Floatingip> identifier, Floatingip input) {
         LOG.trace("Neutron Floating IP deleted : key: {}, value={}", identifier, input);
         IpAddress fixedIp = input.getFixedIpAddress();
         if (fixedIp != null) {
@@ -108,7 +97,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
 
     // populate the floating to fixed ip map upon association/dissociation from fixed ip
     @Override
-    protected void update(InstanceIdentifier<Floatingip> identifier, Floatingip original, Floatingip update) {
+    public void update(InstanceIdentifier<Floatingip> identifier, Floatingip original, Floatingip update) {
         LOG.trace("Handling FloatingIptoFixedIp mapping : key: {}, original value={}, update value={}", identifier,
                 original, update);
         IpAddress oldFixedIp = original.getFixedIpAddress();
@@ -191,7 +180,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                     routerPortsBuilder.build());
                 LOG.debug("FloatingIpInfo DS updated for floating IP {} ", floatingIpAddress);
             }
-        } catch (ReadFailedException | RuntimeException e) {
+        } catch (RuntimeException | ExecutionException | InterruptedException e) {
             LOG.error("addToFloatingIpInfo failed for floating IP: {} ", floatingIpAddress, e);
         }
     }
@@ -248,7 +237,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
             } else {
                 LOG.warn("routerPorts for router {} - fixedIp {} not found", routerName, fixedIpAddress);
             }
-        } catch (RuntimeException | ReadFailedException e) {
+        } catch (RuntimeException | ExecutionException | InterruptedException e) {
             LOG.error("Failed to delete internal-to-external-port-map from FloatingIpInfo DS for fixed Ip {}",
                     fixedIpAddress, e);
         }
@@ -289,7 +278,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                 LOG.debug("FloatingIPInfo DS empty. Hence, no router present containing fixed to floating IP "
                     + "association(s)");
             }
-        } catch (ReadFailedException e) {
+        } catch (ExecutionException | InterruptedException e) {
             LOG.error("Failed to dissociate fixedIP from FloatingIpInfo DS for neutron port {}",
                     fixedNeutronPortName, e);
         }

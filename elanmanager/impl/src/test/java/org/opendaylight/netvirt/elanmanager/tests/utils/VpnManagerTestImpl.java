@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.elanmanager.tests.utils;
 
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 
 public abstract class VpnManagerTestImpl implements IVpnManager {

@@ -8,10 +8,9 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import static java.util.Collections.emptyList;
-import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -28,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -36,11 +36,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.net.util.SubnetUtils;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.common.util.Arguments;
+import org.opendaylight.genius.datastoreutils.ExpectedDataObjectNotFoundException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.Datastore.Operational;
@@ -73,6 +70,9 @@ import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
@@ -339,7 +339,7 @@ public final class NatUtil {
         }
 
         try {
-            return confTx.read(getVpnInstanceToVpnIdIdentifier(vpnName)).get().toJavaUtil().map(
+            return confTx.read(getVpnInstanceToVpnIdIdentifier(vpnName)).get().map(
                 org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
                     .VpnInstance::getVpnId).orElse(NatConstants.INVALID_ID);
         } catch (InterruptedException | ExecutionException e) {
@@ -377,9 +377,9 @@ public final class NatUtil {
         try {
             routerInterfacesData = SingleTransactionDataBroker.syncReadOptional(broker,
                 LogicalDatastoreType.CONFIGURATION, vmInterfaceIdentifier);
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("Read Failed Exception While read RouterInterface data for router {}", routerName, e);
-            routerInterfacesData = Optional.absent();
+            routerInterfacesData = Optional.empty();
         }
         if (routerInterfacesData.isPresent()) {
             return Boolean.TRUE;
@@ -449,7 +449,7 @@ public final class NatUtil {
         InstanceIdentifier<VpnIds> id = InstanceIdentifier.builder(VpnIdToVpnInstance.class)
             .child(VpnIds.class, new VpnIdsKey(vpnId)).build();
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(VpnIds::getVpnInstanceName).orElse(null);
+                LogicalDatastoreType.CONFIGURATION, id).map(VpnIds::getVpnInstanceName).orElse(null);
     }
 
     /*
@@ -493,7 +493,7 @@ public final class NatUtil {
         }
         InstanceIdentifier<Routers> id = buildRouterIdentifier(routerName);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(Routers::getNetworkId).orElse(null);
+                LogicalDatastoreType.CONFIGURATION, id).map(Routers::getNetworkId).orElse(null);
     }
 
     static InstanceIdentifier<Routers> buildRouterIdentifier(String routerId) {
@@ -518,20 +518,20 @@ public final class NatUtil {
     static boolean isSnatEnabledForRouterId(DataBroker broker, String routerId) {
         InstanceIdentifier<Routers> id = buildRouterIdentifier(routerId);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(Routers::isEnableSnat).orElse(false);
+                LogicalDatastoreType.CONFIGURATION, id).map(Routers::isEnableSnat).orElse(false);
     }
 
     @Nullable
     public static Uuid getVpnIdfromNetworkId(DataBroker broker, Uuid networkId) {
         InstanceIdentifier<Networks> id = buildNetworkIdentifier(networkId);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(Networks::getVpnid).orElse(null);
+                LogicalDatastoreType.CONFIGURATION, id).map(Networks::getVpnid).orElse(null);
     }
 
     @Nullable
     public static Uuid getVpnIdfromNetworkId(TypedReadTransaction<Configuration> tx, Uuid networkId) {
         try {
-            return tx.read(buildNetworkIdentifier(networkId)).get().toJavaUtil().map(Networks::getVpnid).orElse(null);
+            return tx.read(buildNetworkIdentifier(networkId)).get().map(Networks::getVpnid).orElse(null);
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Error reading network VPN id for {}", networkId, e);
             return null;
@@ -542,14 +542,14 @@ public final class NatUtil {
     public static ProviderTypes getProviderTypefromNetworkId(DataBroker broker, Uuid networkId) {
         InstanceIdentifier<Networks> id = buildNetworkIdentifier(networkId);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(Networks::getProviderNetworkType).orElse(null);
+                LogicalDatastoreType.CONFIGURATION, id).map(Networks::getProviderNetworkType).orElse(null);
     }
 
     @Nullable
     public static ProviderTypes getProviderTypefromNetworkId(TypedReadTransaction<Configuration> tx, Uuid networkId) {
         InstanceIdentifier<Networks> id = buildNetworkIdentifier(networkId);
         try {
-            return tx.read(id).get().toJavaUtil().map(Networks::getProviderNetworkType).orElse(null);
+            return tx.read(id).get().map(Networks::getProviderNetworkType).orElse(null);
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Error retrieving provider type for {}", networkId, e);
             return null;
@@ -596,7 +596,7 @@ public final class NatUtil {
         }
         InstanceIdentifier<RouterToNaptSwitch> id = buildNaptSwitchIdentifier(routerName);
         return (SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(RouterToNaptSwitch::getPrimarySwitchId).orElse(
+                LogicalDatastoreType.CONFIGURATION, id).map(RouterToNaptSwitch::getPrimarySwitchId).orElse(
                 Uint64.valueOf(0L)));
     }
 
@@ -660,7 +660,7 @@ public final class NatUtil {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
             .instance.to.vpn.id.VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
+                LogicalDatastoreType.CONFIGURATION, id).map(
                 org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
                         .VpnInstance::getVrfId).orElse(null);
     }
@@ -668,7 +668,7 @@ public final class NatUtil {
     @Nullable
     public static String getVpnRd(TypedReadTransaction<Configuration> tx, String vpnName) {
         try {
-            return tx.read(getVpnInstanceToVpnIdIdentifier(vpnName)).get().toJavaUtil().map(
+            return tx.read(getVpnInstanceToVpnIdIdentifier(vpnName)).get().map(
                 org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
                     .VpnInstance::getVrfId).orElse(null);
         } catch (InterruptedException | ExecutionException e) {
@@ -684,7 +684,7 @@ public final class NatUtil {
         InstanceIdentifier<IpPortMap> ipPortMapId =
             buildIpToPortMapIdentifier(routerId, internalIpAddress, internalPort, protocolType);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, ipPortMapId).toJavaUtil().map(IpPortMap::getIpPortExternal).orElse(
+                LogicalDatastoreType.CONFIGURATION, ipPortMapId).map(IpPortMap::getIpPortExternal).orElse(
                 null);
     }
 
@@ -795,7 +795,7 @@ public final class NatUtil {
     static Uint32 getAssociatedVpn(DataBroker broker, String routerName) {
         InstanceIdentifier<Routermapping> routerMappingId = NatUtil.getRouterVpnMappingId(routerName);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.OPERATIONAL, routerMappingId).toJavaUtil().map(Routermapping::getVpnId).orElse(
+                LogicalDatastoreType.OPERATIONAL, routerMappingId).map(Routermapping::getVpnId).orElse(
                 NatConstants.INVALID_ID);
     }
 
@@ -914,7 +914,7 @@ public final class NatUtil {
         List<Uint16> portList = SingleTransactionDataBroker
                 .syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                 LogicalDatastoreType.CONFIGURATION,
-                        buildSnatIntIpPortIdentifier(routerId, internalIpAddress, protocolType)).toJavaUtil().map(
+                        buildSnatIntIpPortIdentifier(routerId, internalIpAddress, protocolType)).map(
                 IntIpProtoType::getPorts).orElse(emptyList());
 
         if (!portList.isEmpty()) {
@@ -948,7 +948,7 @@ public final class NatUtil {
                                                           String internalIpAddress) {
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                 LogicalDatastoreType.CONFIGURATION,
-                buildSnatIntIpPortIdentifier(routerId, internalIpAddress)).orNull();
+                buildSnatIntIpPortIdentifier(routerId, internalIpAddress)).orElse(null);
     }
 
     public static ProtocolTypes getProtocolType(NAPTEntryEvent.Protocol protocol) {
@@ -1021,7 +1021,7 @@ public final class NatUtil {
     @Nullable
     public static IpPortMapping getIportMapping(DataBroker broker, Uint32 routerId) {
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, getIportMappingIdentifier(routerId)).orNull();
+                LogicalDatastoreType.CONFIGURATION, getIportMappingIdentifier(routerId)).orElse(null);
     }
 
     public static InstanceIdentifier<IpPortMapping> getIportMappingIdentifier(Uint32 routerId) {
@@ -1085,8 +1085,15 @@ public final class NatUtil {
         InstanceIdentifier<ExternalCounters> id =
             InstanceIdentifier.builder(ExternalIpsCounter.class)
                 .child(ExternalCounters.class, new ExternalCountersKey(segmentId)).build();
-        Optional<ExternalCounters> externalCountersData =
-            MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        Optional<ExternalCounters> externalCountersData;
+        try {
+            externalCountersData = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL, id);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getLeastLoadedExternalIp: Exception while reading ExternalCounters DS for the segmentId {}",
+                    segmentId, e);
+            return leastLoadedExternalIp;
+        }
         if (externalCountersData.isPresent()) {
             ExternalCounters externalCounter = externalCountersData.get();
             short countOfLstLoadExtIp = 32767;
@@ -1131,7 +1138,7 @@ public final class NatUtil {
             .child(Subnetmap.class, new SubnetmapKey(subnetId))
             .build();
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
-                LogicalDatastoreType.CONFIGURATION, subnetmapId).toJavaUtil().map(Subnetmap::getSubnetIp).orElse(null);
+                LogicalDatastoreType.CONFIGURATION, subnetmapId).map(Subnetmap::getSubnetIp).orElse(null);
     }
 
     public static String[] getExternalIpAndPrefix(String leastLoadedExtIpAddr) {
@@ -1172,7 +1179,7 @@ public final class NatUtil {
     static org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces
             .@Nullable RouterInterface getConfiguredRouterInterface(DataBroker broker, String interfaceName) {
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, NatUtil.getRouterInterfaceId(interfaceName)).orNull();
+                LogicalDatastoreType.CONFIGURATION, NatUtil.getRouterInterfaceId(interfaceName)).orElse(null);
     }
 
     static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911
@@ -1291,7 +1298,7 @@ public final class NatUtil {
             optionalRouterDpnList = operTx.read(routerDpnListIdentifier).get();
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Error reading the router DPN list for {}", routerDpnListIdentifier, e);
-            optionalRouterDpnList = Optional.absent();
+            optionalRouterDpnList = Optional.empty();
         }
         if (optionalRouterDpnList.isPresent()) {
             List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns
@@ -1567,7 +1574,7 @@ public final class NatUtil {
         InstanceIdentifier<Subnetmap> subnetmapId = InstanceIdentifier.builder(Subnetmaps.class)
             .child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, subnetmapId).orNull();
+                LogicalDatastoreType.CONFIGURATION, subnetmapId).orElse(null);
     }
 
     @NonNull
@@ -1576,7 +1583,7 @@ public final class NatUtil {
             .child(NetworkMap.class, new NetworkMapKey(networkId)).build();
         List<Uuid> subnetIdList = SingleTransactionDataBroker
                 .syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                        LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(NetworkMap::getSubnetIdList).orElse(
+                        LogicalDatastoreType.CONFIGURATION, id).map(NetworkMap::getSubnetIdList).orElse(
                 emptyList());
         if (!subnetIdList.isEmpty()) {
             subnetIdList = new ArrayList<>(subnetIdList);
@@ -1660,7 +1667,7 @@ public final class NatUtil {
     protected static String getFloatingIpPortMacFromFloatingIpId(DataBroker broker, Uuid floatingIpId) {
         InstanceIdentifier<FloatingIpIdToPortMapping> id = buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
+                LogicalDatastoreType.CONFIGURATION, id).map(
                 FloatingIpIdToPortMapping::getFloatingIpPortMacAddress).orElse(null);
     }
 
@@ -1668,7 +1675,7 @@ public final class NatUtil {
     protected static String getFloatingIpPortMacFromFloatingIpId(TypedReadTransaction<Configuration> confTx,
         Uuid floatingIpId) {
         try {
-            return confTx.read(buildfloatingIpIdToPortMappingIdentifier(floatingIpId)).get().toJavaUtil().map(
+            return confTx.read(buildfloatingIpIdToPortMappingIdentifier(floatingIpId)).get().map(
                 FloatingIpIdToPortMapping::getFloatingIpPortMacAddress).orElse(null);
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Error reading the floating IP port MAC for {}", floatingIpId, e);
@@ -1680,7 +1687,7 @@ public final class NatUtil {
     protected static Uuid getFloatingIpPortSubnetIdFromFloatingIpId(DataBroker broker, Uuid floatingIpId) {
         InstanceIdentifier<FloatingIpIdToPortMapping> id = buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
+                LogicalDatastoreType.CONFIGURATION, id).map(
                 FloatingIpIdToPortMapping::getFloatingIpPortSubnetId).orElse(null);
     }
 
@@ -1688,7 +1695,7 @@ public final class NatUtil {
     protected static Uuid getFloatingIpPortSubnetIdFromFloatingIpId(TypedReadTransaction<Configuration> confTx,
         Uuid floatingIpId) {
         try {
-            return confTx.read(buildfloatingIpIdToPortMappingIdentifier(floatingIpId)).get().toJavaUtil().map(
+            return confTx.read(buildfloatingIpIdToPortMappingIdentifier(floatingIpId)).get().map(
                 FloatingIpIdToPortMapping::getFloatingIpPortSubnetId).orElse(null);
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Error reading the floating IP port subnet for {}", floatingIpId, e);
@@ -1706,7 +1713,7 @@ public final class NatUtil {
         InstanceIdentifier<Interface> ifStateId =
             buildStateInterfaceId(interfaceName);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
-                LogicalDatastoreType.OPERATIONAL, ifStateId).orNull();
+                LogicalDatastoreType.OPERATIONAL, ifStateId).orElse(null);
     }
 
     static InstanceIdentifier<Interface> buildStateInterfaceId(String interfaceName) {
@@ -1723,13 +1730,13 @@ public final class NatUtil {
     public static Routers getRoutersFromConfigDS(DataBroker dataBroker, String routerName) {
         InstanceIdentifier<Routers> routerIdentifier = NatUtil.buildRouterIdentifier(routerName);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
-                LogicalDatastoreType.CONFIGURATION, routerIdentifier).orNull();
+                LogicalDatastoreType.CONFIGURATION, routerIdentifier).orElse(null);
     }
 
     @Nullable
     public static Routers getRoutersFromConfigDS(TypedReadTransaction<Configuration> confTx, String routerName) {
         try {
-            return confTx.read(NatUtil.buildRouterIdentifier(routerName)).get().orNull();
+            return confTx.read(NatUtil.buildRouterIdentifier(routerName)).get().orElse(null);
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Error reading router {}", routerName, e);
             return null;
@@ -1793,13 +1800,13 @@ public final class NatUtil {
     static String getExtGwMacAddFromRouterName(DataBroker broker, String routerName) {
         InstanceIdentifier<Routers> id = buildRouterIdentifier(routerName);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(Routers::getExtGwMacAddress).orElse(null);
+                LogicalDatastoreType.CONFIGURATION, id).map(Routers::getExtGwMacAddress).orElse(null);
     }
 
     @Nullable
     static String getExtGwMacAddFromRouterName(TypedReadTransaction<Configuration> tx, String routerName) {
         try {
-            return tx.read(buildRouterIdentifier(routerName)).get().toJavaUtil().map(
+            return tx.read(buildRouterIdentifier(routerName)).get().map(
                 Routers::getExtGwMacAddress).orElse(null);
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Error retrieving external gateway MAC address for router {}", routerName, e);
@@ -1818,7 +1825,7 @@ public final class NatUtil {
     public static String getNeutronRouterNamebyUuid(DataBroker broker, Uuid routerUuid) {
         InstanceIdentifier<Router> neutronRouterIdentifier = NatUtil.buildNeutronRouterIdentifier(routerUuid);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, neutronRouterIdentifier).toJavaUtil().map(Router::getName).orElse(
+                LogicalDatastoreType.CONFIGURATION, neutronRouterIdentifier).map(Router::getName).orElse(
                 null);
     }
 
@@ -1827,7 +1834,7 @@ public final class NatUtil {
         InstanceIdentifier<RouterPorts> routerPortsIdentifier = getRouterPortsId(routerUuid.getValue());
         List<Ports> portsList = SingleTransactionDataBroker
                 .syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker, LogicalDatastoreType.CONFIGURATION,
-                routerPortsIdentifier).toJavaUtil().map(RouterPorts::getPorts).orElse(emptyList());
+                routerPortsIdentifier).map(RouterPorts::getPorts).orElse(emptyList());
         if (!portsList.isEmpty()) {
             portsList = new ArrayList<>(portsList);
         }
@@ -1897,7 +1904,7 @@ public final class NatUtil {
         .subnets.Subnets> getOptionalExternalSubnets(DataBroker dataBroker, Uuid subnetId) {
         if (subnetId == null) {
             LOG.warn("getOptionalExternalSubnets : subnetId is null");
-            return Optional.absent();
+            return Optional.empty();
         }
 
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice
@@ -1914,7 +1921,7 @@ public final class NatUtil {
         .subnets.Subnets> getOptionalExternalSubnets(TypedReadTransaction<Configuration> tx, Uuid subnetId) {
         if (subnetId == null) {
             LOG.warn("getOptionalExternalSubnets : subnetId is null");
-            return Optional.absent();
+            return Optional.empty();
         }
 
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice
@@ -1926,7 +1933,7 @@ public final class NatUtil {
             return tx.read(subnetsIdentifier).get();
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Error retrieving external subnets on {}", subnetId, e);
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 
@@ -1999,13 +2006,13 @@ public final class NatUtil {
     public static ElanInstance getElanInstanceByName(String elanInstanceName, DataBroker broker) {
         InstanceIdentifier<ElanInstance> elanIdentifierId = getElanInstanceConfigurationDataPath(elanInstanceName);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, elanIdentifierId).orNull();
+                LogicalDatastoreType.CONFIGURATION, elanIdentifierId).orElse(null);
     }
 
     @Nullable
     public static ElanInstance getElanInstanceByName(TypedReadTransaction<Configuration> tx, String elanInstanceName) {
         try {
-            return tx.read(getElanInstanceConfigurationDataPath(elanInstanceName)).get().orNull();
+            return tx.read(getElanInstanceConfigurationDataPath(elanInstanceName)).get().orElse(null);
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Error retrieving ELAN instance by name {}", elanInstanceName, e);
             return null;
@@ -2066,7 +2073,15 @@ public final class NatUtil {
                                                     String vpnName, String externalIp,
                                                     Boolean isMoreThanOneFipCheckOnDpn) {
         InstanceIdentifier<VpnToDpnList> id = getVpnToDpnListIdentifier(rd, dpnId);
-        Optional<VpnToDpnList> dpnInVpn = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        Optional<VpnToDpnList> dpnInVpn;
+        try {
+            dpnInVpn = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL, id);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("isFloatingIpPresentForDpn: Exception while reading VpnToDpnList DS for the rd {} dpnId {}",
+                    rd, dpnId, e);
+            return false;
+        }
         if (dpnInVpn.isPresent()) {
             LOG.debug("isFloatingIpPresentForDpn : vpn-to-dpn-list is not empty for vpnName {}, dpn id {}, "
                     + "rd {} and floatingIp {}", vpnName, dpnId, rd, externalIp);
@@ -2111,7 +2126,7 @@ public final class NatUtil {
     @Nullable
     public static String getPrimaryRd(String vpnName, TypedReadTransaction<Configuration> tx)
         throws ExecutionException, InterruptedException {
-        return tx.read(getVpnInstanceIdentifier(vpnName)).get().toJavaUtil().map(NatUtil::getPrimaryRd).orElse(null);
+        return tx.read(getVpnInstanceIdentifier(vpnName)).get().map(NatUtil::getPrimaryRd).orElse(null);
     }
 
     @Nullable
@@ -2147,8 +2162,15 @@ public final class NatUtil {
     public static boolean checkForRoutersWithSameExtNetAndNaptSwitch(DataBroker broker, Uuid networkId,
                                                                      String routerName, Uint64 dpnId) {
         InstanceIdentifier<Networks> id = buildNetworkIdentifier(networkId);
-        Optional<Networks> networkData = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
-
+        Optional<Networks> networkData = null;
+        try {
+            networkData = SingleTransactionDataBroker.syncReadOptional(broker,
+                    LogicalDatastoreType.CONFIGURATION, id);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("checkForRoutersWithSameExtNetAndNaptSwitch: Exception while reading Networks DS for the "
+                            + "network {} router {} dpnId {}", networkId.getValue(), routerName, dpnId, e);
+            return false;
+        }
         if (networkData != null && networkData.isPresent()) {
             List<Uuid> routerUuidList = networkData.get().getRouterIds();
             if (routerUuidList != null && !routerUuidList.isEmpty()) {
@@ -2171,8 +2193,8 @@ public final class NatUtil {
 
     public static boolean checkForRoutersWithSameExtSubnetAndNaptSwitch(DataBroker broker, Uuid externalSubnetId,
                                                                         String routerName, Uint64 dpnId) {
-        List<Uuid> routerUuidList = getOptionalExternalSubnets(broker, externalSubnetId).toJavaUtil()
-            .map(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external
+        List<Uuid> routerUuidList = getOptionalExternalSubnets(broker, externalSubnetId)
+                .map(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external
                 .subnets.Subnets::getRouterIds).orElse(emptyList());
         if (!routerUuidList.isEmpty()) {
             for (Uuid routerUuid : routerUuidList) {
@@ -2454,7 +2476,7 @@ public final class NatUtil {
                 SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
                     elanDpnInterfaceId, dpnInterface);
             }
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Failed to read elanDpnInterface with error {}", e.getMessage());
         } catch (TransactionCommitFailedException e) {
             LOG.warn("Failed to add elanDpnInterface with error {}", e.getMessage());
@@ -2492,7 +2514,7 @@ public final class NatUtil {
                     .withKey(new DpnInterfacesKey(dpnId)).build();
             SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
                     elanDpnInterfaceId, dpnInterface);
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Failed to read elanDpnInterface with error {}", e.getMessage());
         } catch (TransactionCommitFailedException e) {
             LOG.warn("Failed to remove elanDpnInterface with error {}", e.getMessage());
@@ -2518,7 +2540,7 @@ public final class NatUtil {
             return SingleTransactionDataBroker.syncRead(dataBroker,
                     LogicalDatastoreType.OPERATIONAL, getLearntVpnVipToPortDataId());
         }
-        catch (ReadFailedException e) {
+        catch (ExpectedDataObjectNotFoundException e) {
             LOG.warn("Failed to read LearntVpnVipToPortData with error {}", e.getMessage());
             return null;
         }
@@ -2627,7 +2649,7 @@ public final class NatUtil {
                         LogicalDatastoreType.OPERATIONAL, bridgeRefInfoPath);
         if (!bridgeRefEntry.isPresent()) {
             LOG.info("getBridgeRefInfo : bridgeRefEntry is not present for {}", dpnId);
-            return Optional.absent();
+            return Optional.empty();
         }
 
         InstanceIdentifier<Node> nodeId =
@@ -2639,7 +2661,7 @@ public final class NatUtil {
 
     @Nullable
     public static String getProviderMappings(Uint64 dpId, DataBroker dataBroker) {
-        return getBridgeRefInfo(dpId, dataBroker).toJavaUtil().map(node -> getOpenvswitchOtherConfigs(node,
+        return getBridgeRefInfo(dpId, dataBroker).map(node -> getOpenvswitchOtherConfigs(node,
                 PROVIDER_MAPPINGS, dataBroker)).orElse(null);
     }
 
@@ -2673,7 +2695,7 @@ public final class NatUtil {
             return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                     LogicalDatastoreType.OPERATIONAL, ovsdbNodeIid);
         }
-        return Optional.absent();
+        return Optional.empty();
 
     }
 
@@ -2699,7 +2721,7 @@ public final class NatUtil {
             if (optionalExternalSubnets.isPresent()) {
                 return optionalExternalSubnets.get();
             }
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed to read the subnets from the datastore.");
         }
         return null;
@@ -2782,9 +2804,9 @@ public final class NatUtil {
         try {
             portsOptional = SingleTransactionDataBroker
                 .syncReadOptional(broker, LogicalDatastoreType.CONFIGURATION, portsIdentifier);
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("Read Failed Exception While Reading Neutron Port for {}", ifaceName, e);
-            portsOptional = Optional.absent();
+            portsOptional = Optional.empty();
         }
         if (!portsOptional.isPresent()) {
             LOG.error("getNeutronPort : No neutron ports found for interface {}", ifaceName);
@@ -2802,10 +2824,10 @@ public final class NatUtil {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911
             .vpn.instance.to.vpn.id.VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
         Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911
-            .vpn.instance.to.vpn.id.VpnInstance> vpnInstance = Optional.absent();
+            .vpn.instance.to.vpn.id.VpnInstance> vpnInstance = Optional.empty();
         try {
             vpnInstance = SingleTransactionDataBroker.syncReadOptional(broker, LogicalDatastoreType.CONFIGURATION, id);
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed to read VpnInstance {}", vpnInstance, e);
         }
         if (vpnInstance.isPresent()) {

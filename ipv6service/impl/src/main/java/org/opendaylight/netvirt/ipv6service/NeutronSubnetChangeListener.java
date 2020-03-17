@@ -8,13 +8,13 @@
 package org.opendaylight.netvirt.ipv6service;
 
 import com.google.common.collect.ImmutableBiMap;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceConstants;
+import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.Dhcpv6Base;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.Dhcpv6Off;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.Dhcpv6Slaac;
@@ -31,8 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class NeutronSubnetChangeListener extends AsyncClusteredDataTreeChangeListenerBase<Subnet,
-        NeutronSubnetChangeListener> {
+public class NeutronSubnetChangeListener extends AbstractClusteredAsyncDataTreeChangeListener<Subnet> {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronSubnetChangeListener.class);
     private final DataBroker dataBroker;
     private final IfMgr ifMgr;
@@ -53,23 +52,19 @@ public class NeutronSubnetChangeListener extends AsyncClusteredDataTreeChangeLis
 
     @Inject
     public NeutronSubnetChangeListener(final DataBroker dataBroker, IfMgr ifMgr) {
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Neutron.class)
+                .child(Subnets.class).child(Subnet.class),
+                Executors.newListeningSingleThreadExecutor("NeutronSubnetChangeListener", LOG));
         this.dataBroker = dataBroker;
         this.ifMgr = ifMgr;
     }
 
-    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<Subnet> getWildCardPath() {
-        return InstanceIdentifier.create(Neutron.class).child(Subnets.class).child(Subnet.class);
-    }
-
-    @Override
-    protected void add(InstanceIdentifier<Subnet> identifier, Subnet input) {
+    public void add(InstanceIdentifier<Subnet> identifier, Subnet input) {
         if (IPV_MAP.get(input.getIpVersion()).equals(Ipv6ServiceConstants.IP_VERSION_V6)) {
             LOG.info("Add Subnet notification handler is invoked {} ", input);
             String ipv6AddrMode = "";
@@ -87,18 +82,12 @@ public class NeutronSubnetChangeListener extends AsyncClusteredDataTreeChangeLis
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Subnet> identifier, Subnet input) {
+    public void remove(InstanceIdentifier<Subnet> identifier, Subnet input) {
         ifMgr.removeSubnet(input.getUuid());
     }
 
     @Override
-    protected void update(InstanceIdentifier<Subnet> identifier, Subnet original, Subnet update) {
+    public void update(InstanceIdentifier<Subnet> identifier, Subnet original, Subnet update) {
         LOG.debug("Update Subnet notification handler is invoked Original: {}, Update: {}", original, update);
     }
-
-    @Override
-    protected NeutronSubnetChangeListener getDataTreeChangeListener() {
-        return NeutronSubnetChangeListener.this;
-    }
-
 }
