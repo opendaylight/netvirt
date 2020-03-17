@@ -10,18 +10,17 @@ package org.opendaylight.netvirt.natservice.internal;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import java.util.Objects;
-
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.natservice.api.CentralizedSwitchScheduler;
 import org.opendaylight.netvirt.natservice.api.SnatServiceManager;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.serviceutils.upgrade.UpgradeState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -35,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class SnatExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Routers, SnatExternalRoutersListener> {
+public class SnatExternalRoutersListener extends AbstractAsyncDataTreeChangeListener<Routers> {
     private static final Logger LOG = LoggerFactory.getLogger(SnatExternalRoutersListener.class);
 
     private final DataBroker dataBroker;
@@ -53,7 +52,9 @@ public class SnatExternalRoutersListener extends AsyncDataTreeChangeListenerBase
                                        final NatserviceConfig config,
                                        final SnatServiceManager natServiceManager,
                                        final UpgradeState upgradeState) {
-        super(Routers.class, SnatExternalRoutersListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(ExtRouters.class)
+                .child(Routers.class),
+                Executors.newListeningSingleThreadExecutor("SnatExternalRoutersListener", LOG));
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.idManager = idManager;
@@ -67,26 +68,18 @@ public class SnatExternalRoutersListener extends AsyncDataTreeChangeListenerBase
         }
     }
 
-    @Override
-    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
         // This class handles ExternalRouters for Conntrack SNAT mode.
         // For Controller SNAT mode, its handled in ExternalRoutersListeners.java
         if (natMode == NatMode.Conntrack) {
-            registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
             NatUtil.createGroupIdPool(idManager);
         }
     }
 
     @Override
-    protected InstanceIdentifier<Routers> getWildCardPath() {
-        return InstanceIdentifier.create(ExtRouters.class).child(Routers.class);
-    }
-
-    @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void add(InstanceIdentifier<Routers> identifier, Routers routers) {
+    public void add(InstanceIdentifier<Routers> identifier, Routers routers) {
         String routerName = routers.getRouterName();
         if (upgradeState.isUpgradeInProgress()) {
             LOG.warn("add event for ext-router {}, but upgrade is in progress.", routerName);
@@ -106,7 +99,7 @@ public class SnatExternalRoutersListener extends AsyncDataTreeChangeListenerBase
     }
 
     @Override
-    protected void update(InstanceIdentifier<Routers> identifier, Routers original, Routers update) {
+    public void update(InstanceIdentifier<Routers> identifier, Routers original, Routers update) {
         String routerName = original.getRouterName();
         Uint32 routerId = NatUtil.getVpnId(dataBroker, routerName);
         if (routerId == NatConstants.INVALID_ID) {
@@ -128,7 +121,7 @@ public class SnatExternalRoutersListener extends AsyncDataTreeChangeListenerBase
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Routers> identifier, Routers router) {
+    public void remove(InstanceIdentifier<Routers> identifier, Routers router) {
         if (identifier == null || router == null) {
             LOG.error("remove : returning without processing since ext-router is null");
             return;
@@ -136,10 +129,5 @@ public class SnatExternalRoutersListener extends AsyncDataTreeChangeListenerBase
 
         LOG.info("remove : external router event for {}", router.getRouterName());
         centralizedSwitchScheduler.releaseCentralizedSwitch(router);
-    }
-
-    @Override
-    protected SnatExternalRoutersListener getDataTreeChangeListener() {
-        return SnatExternalRoutersListener.this;
     }
 }

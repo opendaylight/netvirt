@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
@@ -120,7 +120,7 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
         InstanceIdentifier<InterfaceNameMacAddress> instanceIdentifier =
                 InstanceIdentifier.builder(InterfaceNameMacAddresses.class)
                         .child(InterfaceNameMacAddress.class, new InterfaceNameMacAddressKey(interfaceName)).build();
-        return tx.read(instanceIdentifier).get().toJavaUtil().map(
+        return tx.read(instanceIdentifier).get().map(
             interfaceNameMacAddress -> {
                 String vmMacAddress = interfaceNameMacAddress.getMacAddress();
                 LOG.trace("Entry for interface found in InterfaceNameVmMacAddress map {}, {}", interfaceName,

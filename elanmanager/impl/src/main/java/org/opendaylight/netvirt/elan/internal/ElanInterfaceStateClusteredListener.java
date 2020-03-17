@@ -7,14 +7,14 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
+import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev170119.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class ElanInterfaceStateClusteredListener extends
-    AsyncClusteredDataTreeChangeListenerBase<Interface, ElanInterfaceStateClusteredListener> {
+        AbstractClusteredAsyncDataTreeChangeListener<Interface> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanInterfaceStateClusteredListener.class);
 
@@ -41,33 +41,30 @@ public class ElanInterfaceStateClusteredListener extends
     @Inject
     public ElanInterfaceStateClusteredListener(DataBroker broker, ElanInterfaceManager elanInterfaceManager,
                                                ElanUtils elanUtils, ElanClusterUtils elanClusterUtils) {
+        super(broker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(InterfacesState.class)
+                .child(Interface.class),
+                Executors.newListeningSingleThreadExecutor("ElanInterfaceStateClusteredListener", LOG));
         this.broker = broker;
         this.elanInterfaceManager = elanInterfaceManager;
         this.elanUtils = elanUtils;
         this.elanClusterUtils = elanClusterUtils;
     }
 
-    @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.OPERATIONAL, broker);
+        LOG.info("{} registered", getClass().getSimpleName());
     }
 
     @Override
-    public InstanceIdentifier<Interface> getWildCardPath() {
-        return InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
+    public void remove(InstanceIdentifier<Interface> identifier, Interface delIf) {
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Interface> identifier, Interface delIf) {
-    }
-
-    @Override
-    protected void update(InstanceIdentifier<Interface> identifier, Interface original, final Interface update) {
+    public void update(InstanceIdentifier<Interface> identifier, Interface original, final Interface update) {
         add(identifier, update);
     }
 
     @Override
-    protected void add(InstanceIdentifier<Interface> identifier, final Interface intrf) {
+    public void add(InstanceIdentifier<Interface> identifier, final Interface intrf) {
         if (intrf.getType() != null && intrf.getType().equals(Tunnel.class)) {
             if (Interface.OperStatus.Up.equals(intrf.getOperStatus())) {
                 final String interfaceName = intrf.getName();
@@ -94,9 +91,4 @@ public class ElanInterfaceStateClusteredListener extends
     /* (non-Javadoc)
      * @see org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase#getDataTreeChangeListener()
      */
-    @Override
-    protected ElanInterfaceStateClusteredListener getDataTreeChangeListener() {
-        return this;
-    }
-
 }

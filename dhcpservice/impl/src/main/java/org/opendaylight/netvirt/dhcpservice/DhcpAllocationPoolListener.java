@@ -9,17 +9,18 @@ package org.opendaylight.netvirt.dhcpservice;
 
 import java.math.BigInteger;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import java.util.Map;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.dhcpservice.jobs.DhcpAllocationPoolAddJob;
 import org.opendaylight.netvirt.dhcpservice.jobs.DhcpAllocationPoolRemoveJob;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp_allocation_pool.rev161214.DhcpAllocationPool;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp_allocation_pool.rev161214.dhcp_allocation_pool.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp_allocation_pool.rev161214.dhcp_allocation_pool.network.AllocationPool;
@@ -28,8 +29,7 @@ import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DhcpAllocationPoolListener
-        extends AsyncDataTreeChangeListenerBase<AllocationPool, DhcpAllocationPoolListener> {
+public class DhcpAllocationPoolListener extends AbstractAsyncDataTreeChangeListener<AllocationPool> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpAllocationPoolListener.class);
 
@@ -40,17 +40,18 @@ public class DhcpAllocationPoolListener
 
     public DhcpAllocationPoolListener(final DhcpAllocationPoolManager dhcpAllocationPoolManager,
             final DataBroker dataBroker, final JobCoordinator jobCoordinator) {
-        super(AllocationPool.class, DhcpAllocationPoolListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(DhcpAllocationPool.class)
+                .child(Network.class).child(AllocationPool.class),
+                Executors.newListeningSingleThreadExecutor("DhcpAllocationPoolListener", LOG));
         this.dhcpAllocationPoolManager = dhcpAllocationPoolManager;
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.jobCoordinator = jobCoordinator;
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
         LOG.info("DhcpAllocationPoolListener initialized");
     }
 
     @Override
-    protected void add(InstanceIdentifier<AllocationPool> key, AllocationPool dataObjectModification) {
+    public void add(InstanceIdentifier<AllocationPool> key, AllocationPool dataObjectModification) {
         String networkId = key.firstKeyOf(Network.class).getNetworkId();
         dhcpAllocationPoolManager.createIdAllocationPool(networkId, dataObjectModification);
         Map<Uint64, List<String>> elanDpnInterfacesByName =
@@ -67,18 +68,7 @@ public class DhcpAllocationPoolListener
     }
 
     @Override
-    protected DhcpAllocationPoolListener getDataTreeChangeListener() {
-        return this;
-    }
-
-    @Override
-    protected InstanceIdentifier<AllocationPool> getWildCardPath() {
-        return InstanceIdentifier.builder(DhcpAllocationPool.class)//
-                .child(Network.class).child(AllocationPool.class).build();
-    }
-
-    @Override
-    protected void remove(InstanceIdentifier<AllocationPool> key, AllocationPool dataObjectModification) {
+    public void remove(InstanceIdentifier<AllocationPool> key, AllocationPool dataObjectModification) {
         String networkId = key.firstKeyOf(Network.class).getNetworkId();
         dhcpAllocationPoolManager.releaseIdAllocationPool(networkId, dataObjectModification);
         Map<Uint64, List<String>> elanDpnInterfacesByName =
@@ -91,7 +81,7 @@ public class DhcpAllocationPoolListener
     }
 
     @Override
-    protected void update(InstanceIdentifier<AllocationPool> key, AllocationPool dataObjectModificationBefore,
+    public void update(InstanceIdentifier<AllocationPool> key, AllocationPool dataObjectModificationBefore,
             AllocationPool dataObjectModificationAfter) {
         // TODO Auto-generated method stub
 
