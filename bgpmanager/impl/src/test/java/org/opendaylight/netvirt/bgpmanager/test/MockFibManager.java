@@ -8,11 +8,11 @@
 package org.opendaylight.netvirt.bgpmanager.test;
 
 import java.util.Collection;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
+import org.opendaylight.mdsal.binding.api.DataTreeModification;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
@@ -30,9 +30,9 @@ public class MockFibManager extends AbstractMockFibManager<VrfEntry> {
         registerListener(db) ;
     }
 
-    private void registerListener(final DataBroker db) {
+    public void registerListener(final DataBroker db) {
         final DataTreeIdentifier<VrfEntry> treeId =
-                new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, getWildCardPath());
+                DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION, getWildCardPath());
         listenerRegistration = db.registerDataTreeChangeListener(treeId, MockFibManager.this);
     }
 

@@ -12,9 +12,9 @@ import static org.opendaylight.netvirt.elan.l2gw.nodehandlertest.NodeConnectedHa
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.netvirt.elan.l2gw.nodehandlertest.GlobalAugmentationHelper;
 import org.opendaylight.netvirt.elan.l2gw.nodehandlertest.TestBuilders;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;

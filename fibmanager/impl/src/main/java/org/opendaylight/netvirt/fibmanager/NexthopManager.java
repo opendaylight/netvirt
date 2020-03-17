@@ -12,10 +12,8 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 import static org.opendaylight.genius.mdsalutil.NWUtil.isIpv4Address;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,6 +22,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -32,11 +31,8 @@ import java.util.concurrent.TimeoutException;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -59,6 +55,9 @@ import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldTunnelId;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldVlanVid;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.L3VPNTransportTypes;
@@ -555,7 +554,15 @@ public class NexthopManager implements AutoCloseable {
             InstanceIdentifier.builder(L3nexthop.class).child(VpnNexthops.class,
                 new VpnNexthopsKey(vpnId));
         InstanceIdentifier<VpnNexthops> id = idBuilder.build();
-        Optional<VpnNexthops> vpnNexthops = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        Optional<VpnNexthops> vpnNexthops;
+        try {
+            vpnNexthops = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL, id);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getVpnNexthop: Exception while reading VpnNexthops DS for the address {} vpn {}", ipAddress,
+                    vpnId, e);
+            return null;
+        }
         if (vpnNexthops.isPresent()) {
             // get nexthops list for vpn
             List<VpnNexthop> nexthops = vpnNexthops.get().nonnullVpnNexthop();
@@ -678,9 +685,14 @@ public class NexthopManager implements AutoCloseable {
              * if the value is Unset, cache value as VxLAN.
              */
             LOG.trace("configureTransportType is not yet set.");
-            Optional<ConfTransportTypeL3vpn> configuredTransTypeFromConfig =
-                MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, getConfTransportTypeIdentifier());
-
+            Optional<ConfTransportTypeL3vpn> configuredTransTypeFromConfig;
+            try {
+                configuredTransTypeFromConfig = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, getConfTransportTypeIdentifier());
+            } catch (ExecutionException | InterruptedException e) {
+                LOG.error("getReqTransType: Exception while reading ConfTransportTypeL3vpn DS", e);
+                return null;
+            }
             if (configuredTransTypeFromConfig.isPresent()) {
                 if (TunnelTypeGre.class.equals(configuredTransTypeFromConfig.get().getTransportType())) {
                     configuredTransportTypeL3VPN = L3VPNTransportTypes.GRE;
@@ -1124,8 +1136,14 @@ public class NexthopManager implements AutoCloseable {
     private List<String> getDcGwIps() {
         InstanceIdentifier<DcGatewayIpList> dcGatewayIpListid =
                 InstanceIdentifier.builder(DcGatewayIpList.class).build();
-        DcGatewayIpList dcGatewayIpListConfig =
-                MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, dcGatewayIpListid).orNull();
+        DcGatewayIpList dcGatewayIpListConfig;
+        try {
+            dcGatewayIpListConfig = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, dcGatewayIpListid).orElse(null);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getDcGwIps: Exception while reading DcGatewayIpList DS", e);
+            return Collections.emptyList();
+        }
         if (dcGatewayIpListConfig == null) {
             return Collections.emptyList();
         }
@@ -1142,9 +1160,15 @@ public class NexthopManager implements AutoCloseable {
             InstanceIdentifier<StateTunnelList> tunnelStateId =
                     InstanceIdentifier.builder(TunnelsState.class).child(
                             StateTunnelList.class, new StateTunnelListKey(tunnelName)).build();
-            return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, tunnelStateId)
-                    .toJavaUtil().map(StateTunnelList::getOperState)
-                    .orElse(TunnelOperStatus.Down) == TunnelOperStatus.Up;
+            try {
+                return SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                        tunnelStateId).map(StateTunnelList::getOperState)
+                        .orElse(TunnelOperStatus.Down) == TunnelOperStatus.Up;
+            } catch (ExecutionException | InterruptedException e) {
+                LOG.error("isTunnelUp: Exception while reading StateTunnelList DS for tunnel {} tunnelType {}",
+                        tunnelName, tunnelType, e);
+                return false;
+            }
         }
         return false;
     }

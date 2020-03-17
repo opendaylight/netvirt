@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.neutronvpn;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.gson.Gson;
@@ -24,16 +23,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.ObjectUtils;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.infra.Datastore;
@@ -42,11 +38,16 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev170119.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
@@ -86,7 +87,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<Port, NeutronPortChangeListener> {
+public class NeutronPortChangeListener extends AbstractAsyncDataTreeChangeListener<Port> {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronPortChangeListener.class);
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
@@ -110,7 +111,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                                      final HostConfigCache hostConfigCache,
                                      final DataTreeEventCallbackRegistrar dataTreeEventCallbackRegistrar,
                                      final NeutronvpnConfig neutronvpnConfig) {
-        super(Port.class, NeutronPortChangeListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Neutron.class)
+                .child(Ports.class).child(Port.class),
+                Executors.newSingleThreadExecutor("NeutronPortChangeListener", LOG));
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         nvpnManager = neutronvpnManager;
@@ -125,26 +128,12 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
 
     }
 
-    @Override
-    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<Port> getWildCardPath() {
-        return InstanceIdentifier.create(Neutron.class).child(Ports.class).child(Port.class);
-    }
-
-    @Override
-    protected NeutronPortChangeListener getDataTreeChangeListener() {
-        return NeutronPortChangeListener.this;
-    }
-
-
-    @Override
-    protected void add(InstanceIdentifier<Port> identifier, Port input) {
+    public void add(InstanceIdentifier<Port> identifier, Port input) {
         LOG.trace("Received port add event: port={}", input);
         String portName = input.getUuid().getValue();
         LOG.trace("Adding Port : key: {}, value={}", identifier, input);
@@ -183,7 +172,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Port> identifier, Port input) {
+    public void remove(InstanceIdentifier<Port> identifier, Port input) {
         LOG.trace("Removing Port : key: {}, value={}", identifier, input);
         Network network = neutronvpnUtils.getNeutronNetwork(input.getNetworkId());
         // need to proceed with deletion in case network is null for a case where v2 sync happens and a read for
@@ -215,7 +204,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     }
 
     @Override
-    protected void update(InstanceIdentifier<Port> identifier, Port original, Port update) {
+    public void update(InstanceIdentifier<Port> identifier, Port original, Port update) {
         LOG.trace("Received port update event: original={}, update={}", original, update);
         // Switchdev ports need to be bounded to a host before creation
         // in order to validate the supported vnic types from the hostconfig
@@ -522,19 +511,25 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         // the MAC of the router's gw port is not available to be set when the
         // router is written. We catch that here.
         InstanceIdentifier<Routers> routersId = NeutronvpnUtils.buildExtRoutersIdentifier(routerId);
-        Optional<Routers> optionalRouter = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routersId);
-        if (!optionalRouter.isPresent()) {
-            return;
+        Optional<Routers> optionalRouter = null;
+        try {
+            optionalRouter = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routersId);
+            if (!optionalRouter.isPresent()) {
+                return;
+            }
+            Routers extRouters = optionalRouter.get();
+            if (extRouters.getExtGwMacAddress() != null) {
+                return;
+            }
+
+            RoutersBuilder builder = new RoutersBuilder(extRouters);
+            builder.setExtGwMacAddress(routerGwPort.getMacAddress().getValue());
+            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routersId, builder.build());
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("setExternalGwMac: failed to read EXT-Routers for router Id {} rout-Gw port {} due to exception",
+                    routerId, routerGwPort, e);
         }
 
-        Routers extRouters = optionalRouter.get();
-        if (extRouters.getExtGwMacAddress() != null) {
-            return;
-        }
-
-        RoutersBuilder builder = new RoutersBuilder(extRouters);
-        builder.setExtGwMacAddress(routerGwPort.getMacAddress().getValue());
-        MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routersId, builder.build());
     }
 
     @Nullable
@@ -561,7 +556,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             LOG.error("failed to read host config from host {}", hostId, e);
             return null;
         }
-        return hostConfig.orNull();
+        return hostConfig.orElse(null);
     }
 
     private boolean isPortBound(final Port port) {
@@ -915,7 +910,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             } else {
                 LOG.warn("Interface {} is already present", infName);
             }
-        } catch (ReadFailedException e) {
+        } catch (ExecutionException | InterruptedException e) {
             LOG.error("failed to create interface {}", infName, e);
         }
         return infName;
@@ -995,7 +990,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             } else {
                 LOG.warn("deleteOfPortInterface: Interface {} is not present", name);
             }
-        } catch (ReadFailedException e) {
+        } catch (ExecutionException | InterruptedException e) {
             LOG.error("deleteOfPortInterface: Failed to delete interface {}", name, e);
         }
     }

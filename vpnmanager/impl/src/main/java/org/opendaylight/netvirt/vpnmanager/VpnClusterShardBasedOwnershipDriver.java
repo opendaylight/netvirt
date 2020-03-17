@@ -14,7 +14,6 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -34,7 +33,6 @@ public class VpnClusterShardBasedOwnershipDriver extends VpnClusterOwnershipDriv
     public VpnClusterShardBasedOwnershipDriver(final EntityOwnershipService entityOwnershipService) {
     }
 
-    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
     }

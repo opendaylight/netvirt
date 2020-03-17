@@ -7,15 +7,16 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
-import com.google.common.base.Optional;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Predicate;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -64,25 +65,32 @@ public class DhcpL2GwUtil {
 
     @Nullable
     private IpAddress getTunnelIp(InstanceIdentifier<Node> nodeIid) {
-        Optional<Node> nodeOptional =
-                MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, nodeIid);
-        if (!CONTAINS_GLOBAL_AUGMENTATION.test(nodeOptional)) {
+        Optional<Node> nodeOptional;
+        try {
+            nodeOptional = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL, nodeIid);
+            if (!CONTAINS_GLOBAL_AUGMENTATION.test(nodeOptional)) {
+                return null;
+            }
+            List<Switches> switchIids = nodeOptional.get().augmentation(HwvtepGlobalAugmentation.class).getSwitches();
+            if (EMPTY_LIST.test(switchIids)) {
+                return null;
+            }
+            InstanceIdentifier<Node> psIid = (InstanceIdentifier<Node>) switchIids.get(0).getSwitchRef().getValue();
+            nodeOptional = SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                    psIid);
+            if (!CONTAINS_SWITCH_AUGMENTATION.test(nodeOptional)) {
+                return null;
+            }
+            List<TunnelIps> tunnelIps = nodeOptional.get().augmentation(PhysicalSwitchAugmentation.class)
+                    .getTunnelIps();
+            if (EMPTY_LIST.test(tunnelIps)) {
+                return null;
+            }
+            return tunnelIps.get(0).key().getTunnelIpsKey();
+        } catch (ExecutionException | InterruptedException e) {
             return null;
         }
-        List<Switches> switchIids = nodeOptional.get().augmentation(HwvtepGlobalAugmentation.class).getSwitches();
-        if (EMPTY_LIST.test(switchIids)) {
-            return null;
-        }
-        InstanceIdentifier<Node> psIid = (InstanceIdentifier<Node>) switchIids.get(0).getSwitchRef().getValue();
-        nodeOptional = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, psIid);
-        if (!CONTAINS_SWITCH_AUGMENTATION.test(nodeOptional)) {
-            return null;
-        }
-        List<TunnelIps> tunnelIps = nodeOptional.get().augmentation(PhysicalSwitchAugmentation.class).getTunnelIps();
-        if (EMPTY_LIST.test(tunnelIps)) {
-            return null;
-        }
-        return tunnelIps.get(0).key().getTunnelIpsKey();
     }
 
 }

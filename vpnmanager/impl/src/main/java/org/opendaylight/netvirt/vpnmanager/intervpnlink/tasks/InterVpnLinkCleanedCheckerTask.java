@@ -7,14 +7,14 @@
  */
 package org.opendaylight.netvirt.vpnmanager.intervpnlink.tasks;
 
-import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeoutException;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkUtil;
@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * InterVpnLink has been removed, like the stateful information, leaked
  * vrfEntries, etc.
  */
-public class InterVpnLinkCleanedCheckerTask implements Callable<List<ListenableFuture<Void>>> {
+public class InterVpnLinkCleanedCheckerTask implements Callable<List<? extends ListenableFuture<?>>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkCleanedCheckerTask.class);
     private static final long MAX_WAIT_FOR_REMOVAL = 10000; // 10 seconds

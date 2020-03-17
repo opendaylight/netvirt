@@ -7,15 +7,14 @@
  */
 package org.opendaylight.netvirt.vpnmanager.api;
 
-import com.google.common.base.Optional;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
@@ -155,7 +154,7 @@ public final class InterfaceUtils {
     }
 
     public static Optional<String> getMacAddressForInterface(DataBroker dataBroker, String interfaceName) {
-        Optional<String> macAddressOptional = Optional.absent();
+        Optional<String> macAddressOptional = Optional.empty();
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces
             .rev140508.interfaces.state.Interface>
             ifStateId =
@@ -171,7 +170,7 @@ public final class InterfaceUtils {
     }
 
     public static Optional<String> getMacAddressFromInterfaceState(Interface ifState) {
-        Optional<String> macAddressOptional = Optional.absent();
+        Optional<String> macAddressOptional = Optional.empty();
         PhysAddress macAddress = ifState.getPhysAddress();
         if (macAddress != null) {
             macAddressOptional = Optional.of(macAddress.getValue());
@@ -209,7 +208,7 @@ public final class InterfaceUtils {
             InstanceIdentifier<T> path) {
         try {
             return SingleTransactionDataBroker.syncReadOptional(broker, datastoreType, path);
-        } catch (ReadFailedException e) {
+        } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }

@@ -7,16 +7,16 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
-import com.google.common.base.Optional;
-import javax.annotation.PostConstruct;
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
@@ -28,8 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInstance,
-    ExternalSubnetVpnInstanceListener> {
+public class ExternalSubnetVpnInstanceListener extends AbstractAsyncDataTreeChangeListener<VpnInstance> {
     private static final Logger LOG = LoggerFactory.getLogger(ExternalSubnetVpnInstanceListener.class);
     private final DataBroker dataBroker;
     private final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer;
@@ -40,26 +39,21 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
     public ExternalSubnetVpnInstanceListener(final DataBroker dataBroker,
                      final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer,
                      final IElanService elanService, final IVpnManager vpnManager) {
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(VpnInstanceToVpnId.class)
+                .child(VpnInstance.class),
+                Executors.newListeningSingleThreadExecutor("ExternalSubnetVpnInstanceListener", LOG));
         this.dataBroker = dataBroker;
         this.snatDefaultRouteProgrammer = snatDefaultRouteProgrammer;
         this.elanService = elanService;
         this.vpnManager = vpnManager;
     }
 
-    @Override
-    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<VpnInstance> getWildCardPath() {
-        return InstanceIdentifier.create(VpnInstanceToVpnId.class).child(VpnInstance.class);
-    }
-
-    @Override
-    protected void remove(InstanceIdentifier<VpnInstance> key, VpnInstance vpnInstance) {
+    public void remove(InstanceIdentifier<VpnInstance> key, VpnInstance vpnInstance) {
         LOG.trace("remove : External Subnet VPN Instance remove mapping method - key:{}. value={}",
                 vpnInstance.key(), vpnInstance);
         String possibleExtSubnetUuid = vpnInstance.getVpnInstanceName();
@@ -72,14 +66,14 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
     }
 
     @Override
-    protected void update(InstanceIdentifier<VpnInstance> key, VpnInstance vpnInstanceOrig,
+    public void update(InstanceIdentifier<VpnInstance> key, VpnInstance vpnInstanceOrig,
             VpnInstance vpnInstanceNew) {
         LOG.trace("update : External Subnet VPN Instance update mapping method - key:{} original:{} new:{}",
                 vpnInstanceNew.key(), vpnInstanceOrig, vpnInstanceNew);
     }
 
     @Override
-    protected void add(InstanceIdentifier<VpnInstance> key, VpnInstance vpnInstance) {
+    public void add(InstanceIdentifier<VpnInstance> key, VpnInstance vpnInstance) {
         LOG.trace("add : External Subnet VPN Instance OP Data Entry add mapping method - key:{}. value={}",
                 vpnInstance.key(), vpnInstance);
         String possibleExtSubnetUuid = vpnInstance.getVpnInstanceName();
@@ -123,10 +117,5 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
                 vpnInstanceName, subnet);
         snatDefaultRouteProgrammer.addOrDelDefaultFibRouteToSNATForSubnet(subnet,
                 subnet.getExternalNetworkId().getValue(), flowAction, vpnInstance.getVpnId());
-    }
-
-    @Override
-    protected ExternalSubnetVpnInstanceListener getDataTreeChangeListener() {
-        return ExternalSubnetVpnInstanceListener.this;
     }
 }

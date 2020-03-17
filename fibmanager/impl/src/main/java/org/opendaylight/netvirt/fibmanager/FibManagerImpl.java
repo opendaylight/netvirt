@@ -7,18 +7,18 @@
  */
 package org.opendaylight.netvirt.fibmanager;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
@@ -166,7 +166,7 @@ public class FibManagerImpl implements IFibManager {
 
     @Override
     public void updateRoutePathForFibEntry(String rd, String prefix, String nextHop,
-            Uint32 label, boolean nextHopAdd, WriteTransaction writeConfigTxn) {
+            Uint32 label, boolean nextHopAdd, TypedWriteTransaction<Configuration> writeConfigTxn) {
         fibUtil.updateRoutePathForFibEntry(rd, prefix, nextHop, label, nextHopAdd, writeConfigTxn);
     }
 

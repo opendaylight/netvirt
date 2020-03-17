@@ -14,21 +14,22 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.awaitility.Awaitility;
 import org.awaitility.core.ConditionFactory;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.testutils.TestInterfaceManager;
 import org.opendaylight.genius.testutils.interfacemanager.TunnelInterfaceDetails;
 import org.opendaylight.genius.testutils.itm.ItmRpcTestImpl;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -319,7 +320,7 @@ public class ElanServiceTestBase {
     }
 
 
-    protected void setupItm() throws TransactionCommitFailedException {
+    protected void setupItm() throws ExecutionException, InterruptedException {
         /*Add tap port and tunnel ports in DPN1 and DPN2*/
         interfaceMgr.addInterfaceInfo(ELAN_INTERFACES.get(ELAN1 + ":" + DPN1MAC1).getLeft());
         interfaceMgr.addInterfaceInfo(ELAN_INTERFACES.get(ELAN1 + ":" + DPN1MAC2).getLeft());
@@ -401,7 +402,7 @@ public class ElanServiceTestBase {
     }
 
     public void addElanInterface(String elanInstanceName, InterfaceInfo interfaceInfo, String prefix) {
-        ElanInstance existingElanInstance = elanInstanceCache.get(elanInstanceName).orNull();
+        ElanInstance existingElanInstance = elanInstanceCache.get(elanInstanceName).orElse(null);
         String interfaceName = interfaceInfo.getInterfaceName();
 
         if (existingElanInstance != null) {
