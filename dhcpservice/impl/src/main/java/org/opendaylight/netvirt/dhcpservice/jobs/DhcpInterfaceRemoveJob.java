@@ -17,12 +17,12 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.netvirt.dhcpservice.DhcpExternalTunnelManager;
 import org.opendaylight.netvirt.dhcpservice.DhcpManager;
 import org.opendaylight.netvirt.dhcpservice.DhcpServiceUtils;
@@ -41,7 +41,7 @@ import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Void>>> {
+public class DhcpInterfaceRemoveJob implements Callable<List<? extends ListenableFuture<?>>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpInterfaceRemoveJob.class);
 
@@ -120,7 +120,7 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
         InstanceIdentifier<InterfaceNameMacAddress> instanceIdentifier =
                 InstanceIdentifier.builder(InterfaceNameMacAddresses.class)
                         .child(InterfaceNameMacAddress.class, new InterfaceNameMacAddressKey(interfaceName)).build();
-        return tx.read(instanceIdentifier).get().toJavaUtil().map(
+        return tx.read(instanceIdentifier).get().map(
             interfaceNameMacAddress -> {
                 String vmMacAddress = interfaceNameMacAddress.getMacAddress();
                 LOG.trace("Entry for interface found in InterfaceNameVmMacAddress map {}, {}", interfaceName,

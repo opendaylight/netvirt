@@ -7,16 +7,14 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
-import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
-import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-
 import java.math.BigInteger;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -30,18 +28,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -79,11 +73,15 @@ import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchMplsLabel;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -153,7 +151,7 @@ import org.slf4j.LoggerFactory;
 
 
 @Singleton
-public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Routers, ExternalRoutersListener> {
+public class ExternalRoutersListener extends AbstractAsyncDataTreeChangeListener<Routers> {
     private static final Logger LOG = LoggerFactory.getLogger(ExternalRoutersListener.class);
 
     private static final Uint64 COOKIE_TUNNEL = Uint64.valueOf("9000000", 16).intern();
@@ -204,7 +202,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                    final JobCoordinator coordinator,
                                    final NatOverVxlanUtil natOverVxlanUtil,
                                    final IInterfaceManager interfaceManager) {
-        super(Routers.class, ExternalRoutersListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(ExtRouters.class)
+                .child(Routers.class),
+                Executors.newListeningSingleThreadExecutor("ExternalRoutersListener", LOG));
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.mdsalManager = mdsalManager;
@@ -235,27 +235,19 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         }
     }
 
-    @Override
-    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
         // This class handles ExternalRouters for Controller SNAT mode.
         // For Conntrack SNAT mode, its handled in SnatExternalRoutersListener.java
         if (natMode == NatMode.Controller) {
-            registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
             NatUtil.createGroupIdPool(idManager);
         }
     }
 
     @Override
-    protected InstanceIdentifier<Routers> getWildCardPath() {
-        return InstanceIdentifier.create(ExtRouters.class).child(Routers.class);
-    }
-
-    @Override
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void add(InstanceIdentifier<Routers> identifier, Routers routers) {
+    public void add(InstanceIdentifier<Routers> identifier, Routers routers) {
         // Populate the router-id-name container
         String routerName = routers.getRouterName();
         LOG.info("add : external router event for {}", routerName);
@@ -423,9 +415,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             try {
                 sn = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                                 LogicalDatastoreType.CONFIGURATION, subnetmapId);
-            } catch (ReadFailedException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Failed to read SubnetMap for  subnetmap Id {}", subnetmapId, e);
-                sn = Optional.absent();
+                sn = Optional.empty();
             }
             if (sn.isPresent()) {
                 // subnets
@@ -1260,7 +1252,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     }
 
     @Override
-    protected void update(InstanceIdentifier<Routers> identifier, Routers original, Routers update) {
+    public void update(InstanceIdentifier<Routers> identifier, Routers original, Routers update) {
         LOG.trace("update : origRouter: {} updatedRouter: {}", original, update);
         String routerName = original.getRouterName();
         Uint32 routerId = NatUtil.getVpnId(dataBroker, routerName);
@@ -1422,9 +1414,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                 ipPortMapping = SingleTransactionDataBroker
                                             .syncReadOptional(dataBroker,
                                                     LogicalDatastoreType.CONFIGURATION, ipPortMappingId);
-                            } catch (ReadFailedException e) {
+                            } catch (InterruptedException | ExecutionException e) {
                                 LOG.error("Failed to read ipPortMapping for router id {}", routerId, e);
-                                ipPortMapping = Optional.absent();
+                                ipPortMapping = Optional.empty();
                             }
 
                             if (ipPortMapping.isPresent()) {
@@ -1644,9 +1636,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         try {
             externalCountersData = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                         LogicalDatastoreType.OPERATIONAL, id);
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed to read external counters data for ExternalIp {}", externalIp, e);
-            externalCountersData = Optional.absent();
+            externalCountersData = Optional.empty();
         }
         if (externalCountersData.isPresent()) {
             ExternalIpsCounter externalIpsCounters = externalCountersData.get();
@@ -1747,7 +1739,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Routers> identifier, Routers router) {
+    public void remove(InstanceIdentifier<Routers> identifier, Routers router) {
         LOG.trace("remove : Router delete method");
         /*
         ROUTER DELETE SCENARIO
@@ -1882,9 +1874,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             try {
                 rtrToNapt = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                                 LogicalDatastoreType.CONFIGURATION, routerToNaptSwitch);
-            } catch (ReadFailedException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Failed to read NAPT switch for router {}", routerName, e);
-                rtrToNapt = Optional.absent();
+                rtrToNapt = Optional.empty();
             }
             if (rtrToNapt.isPresent()) {
                 naptSwitchDpnId = rtrToNapt.get().getPrimarySwitchId();
@@ -2693,7 +2685,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     .syncReadOptional(dataBroker,
                             LogicalDatastoreType.CONFIGURATION, routerInstanceIndentifier);
             return routerData.isPresent() && routerData.get().isEnableSnat();
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed to read data for router id {}", routerUuid, e);
             return false;
         }
@@ -3003,11 +2995,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             NwConstants.COOKIE_SNAT_TABLE, matches, instructionInfo);
         LOG.debug("buildNaptPfibFlowEntityWithUpdatedVpnId : Returning NaptPFib Flow Entity {}", flowEntity);
         return flowEntity;
-    }
-
-    @Override
-    protected ExternalRoutersListener getDataTreeChangeListener() {
-        return ExternalRoutersListener.this;
     }
 
     protected void installNaptPfibEntriesForExternalSubnets(String routerName, Uint64 dpnId,

@@ -14,12 +14,6 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import javax.annotation.PreDestroy;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.TaskRetryLooper;
 import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -32,6 +26,11 @@ import org.opendaylight.infrautils.metrics.Meter;
 import org.opendaylight.infrautils.metrics.MetricDescriptor;
 import org.opendaylight.infrautils.metrics.MetricProvider;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
+import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentation;
@@ -94,7 +93,7 @@ public abstract class HwvtepNodeBaseListener<D extends Datastore>
     }
 
     protected void registerListener(Class<D> dsType, DataBroker broker) throws Exception {
-        final DataTreeIdentifier<Node> treeId = new DataTreeIdentifier<>(Datastore.toType(dsType),
+        final DataTreeIdentifier<Node> treeId = DataTreeIdentifier.create(Datastore.toType(dsType),
                 getWildcardPath());
         TaskRetryLooper looper = new TaskRetryLooper(STARTUP_LOOP_TICK, STARTUP_LOOP_MAX_RETRIES);
         registration = looper.loopUntilNoException(() ->
@@ -154,7 +153,7 @@ public abstract class HwvtepNodeBaseListener<D extends Datastore>
 
     private void processUpdatedNodes(Collection<DataTreeModification<Node>> changes,
                                      TypedReadWriteTransaction<D> tx)
-            throws ReadFailedException, ExecutionException, InterruptedException {
+            throws ExecutionException, InterruptedException {
         for (DataTreeModification<Node> change : changes) {
             final InstanceIdentifier<Node> key = change.getRootPath().getRootIdentifier();
             final DataObjectModification<Node> mod = change.getRootNode();
@@ -209,7 +208,7 @@ public abstract class HwvtepNodeBaseListener<D extends Datastore>
 
     private void processDisconnectedNodes(Collection<DataTreeModification<Node>> changes,
                                           TypedReadWriteTransaction<D> tx)
-            throws InterruptedException, ExecutionException, ReadFailedException {
+            throws InterruptedException, ExecutionException {
         for (DataTreeModification<Node> change : changes) {
             final InstanceIdentifier<Node> key = change.getRootPath().getRootIdentifier();
             final DataObjectModification<Node> mod = change.getRootNode();
@@ -273,11 +272,11 @@ public abstract class HwvtepNodeBaseListener<D extends Datastore>
 
     //default methods
     void onGlobalNodeDelete(InstanceIdentifier<Node> key, Node added, TypedReadWriteTransaction<D> tx)
-        throws ReadFailedException, ExecutionException, InterruptedException {
+        throws ExecutionException, InterruptedException {
     }
 
     void onPsNodeDelete(InstanceIdentifier<Node> key, Node addedPSNode, TypedReadWriteTransaction<D> tx)
-        throws ReadFailedException, ExecutionException, InterruptedException {
+        throws ExecutionException, InterruptedException {
 
     }
 
@@ -291,14 +290,12 @@ public abstract class HwvtepNodeBaseListener<D extends Datastore>
     }
 
     void onGlobalNodeUpdate(InstanceIdentifier<Node> key, Node updated, Node original,
-                            DataObjectModification<Node> mod, TypedReadWriteTransaction<D> tx)
-            throws ReadFailedException, InterruptedException, ExecutionException {
+                            DataObjectModification<Node> mod, TypedReadWriteTransaction<D> tx) {
 
     }
 
     void onPsNodeUpdate(Node updated,
-                        DataObjectModification<Node> mod, TypedReadWriteTransaction<D> tx)
-            throws ReadFailedException, InterruptedException, ExecutionException {
+                        DataObjectModification<Node> mod, TypedReadWriteTransaction<D> tx) {
 
     }
 

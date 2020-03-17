@@ -24,17 +24,18 @@ public class UuidUtilTest {
     @Test
     public void valid() {
         assertThat(uuidUtil.newUuidIfValidPattern("f81d4fae-7dec-11d0-a765-00a0c91e6bf6"))
-                .hasValue(new Uuid("f81d4fae-7dec-11d0-a765-00a0c91e6bf6"));
+                .isSameAs(new Uuid("f81d4fae-7dec-11d0-a765-00a0c91e6bf6"));
     }
 
     @Test
     public void invalid() {
-        assertThat(uuidUtil.newUuidIfValidPattern("tap61d7aec1-2c")).isAbsent();
+        assertThat(uuidUtil.newUuidIfValidPattern("tap61d7aec1-2c"))
+                .isNotEqualTo("tap61d7aec1-11");
     }
 
     @Test
     public void empty() {
-        assertThat(uuidUtil.newUuidIfValidPattern("")).isAbsent();
+        assertThat(uuidUtil.newUuidIfValidPattern("")).isNull();
     }
 
     @Test(expected = NullPointerException.class)

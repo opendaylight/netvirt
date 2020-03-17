@@ -8,15 +8,15 @@
 package org.opendaylight.netvirt.qosservice;
 
 import java.util.Objects;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.qosservice.recovery.QosServiceRecoveryHandler;
 import org.opendaylight.serviceutils.srm.RecoverableListener;
 import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
+import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosNetworkExtension;
@@ -26,8 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class QosNeutronNetworkChangeListener extends AsyncClusteredDataTreeChangeListenerBase<Network,
-        QosNeutronNetworkChangeListener> implements RecoverableListener {
+public class QosNeutronNetworkChangeListener extends AbstractClusteredAsyncDataTreeChangeListener<Network>
+        implements RecoverableListener {
     private static final Logger LOG = LoggerFactory.getLogger(QosNeutronNetworkChangeListener.class);
     private final DataBroker dataBroker;
     private final QosNeutronUtils qosNeutronUtils;
@@ -37,7 +37,9 @@ public class QosNeutronNetworkChangeListener extends AsyncClusteredDataTreeChang
                                            final QosNeutronUtils qosNeutronUtils,
                                            final ServiceRecoveryRegistry serviceRecoveryRegistry,
                                            final QosServiceRecoveryHandler qosServiceRecoveryHandler) {
-        super(Network.class, QosNeutronNetworkChangeListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Neutron.class)
+                .child(Networks.class).child(Network.class),
+                Executors.newListeningSingleThreadExecutor("QosNeutronNetworkChangeListener", LOG));
         this.dataBroker = dataBroker;
         this.qosNeutronUtils = qosNeutronUtils;
         serviceRecoveryRegistry.addRecoverableListener(qosServiceRecoveryHandler.buildServiceRegistryKey(),
@@ -45,34 +47,25 @@ public class QosNeutronNetworkChangeListener extends AsyncClusteredDataTreeChang
         LOG.trace("{} created",  getClass().getSimpleName());
     }
 
-    @PostConstruct
     public void init() {
-        registerListener();
         LOG.trace("{} init and registerListener done", getClass().getSimpleName());
     }
 
     @Override
     public void registerListener() {
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<Network> getWildCardPath() {
-        return InstanceIdentifier.create(Neutron.class).child(Networks.class).child(Network.class);
+    public void deregisterListener() {
     }
 
     @Override
-    protected QosNeutronNetworkChangeListener getDataTreeChangeListener() {
-        return QosNeutronNetworkChangeListener.this;
-    }
-
-    @Override
-    protected void remove(InstanceIdentifier<Network> instanceIdentifier, Network network) {
+    public void remove(InstanceIdentifier<Network> instanceIdentifier, Network network) {
         qosNeutronUtils.removeFromNetworkCache(network);
     }
 
     @Override
-    protected void update(InstanceIdentifier<Network> instanceIdentifier, Network original, Network update) {
+    public void update(InstanceIdentifier<Network> instanceIdentifier, Network original, Network update) {
         qosNeutronUtils.addToNetworkCache(update);
 
         QosNetworkExtension updateQos = update.augmentation(QosNetworkExtension.class);
@@ -95,7 +88,7 @@ public class QosNeutronNetworkChangeListener extends AsyncClusteredDataTreeChang
     }
 
     @Override
-    protected void add(InstanceIdentifier<Network> instanceIdentifier, Network network) {
+    public void add(InstanceIdentifier<Network> instanceIdentifier, Network network) {
         qosNeutronUtils.addToNetworkCache(network);
 
         QosNetworkExtension networkQos = network.augmentation(QosNetworkExtension.class);

@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiPredicate;
@@ -23,13 +24,13 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.utils.Scheduler;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
@@ -108,12 +109,18 @@ public class StaleVlanBindingsCleaner {
                 () -> {
                     L2GatewayDevice l2GwDevice = l2GatewayCache.get(deviceName);
                     NodeId globalNodeId = globalNodeIid.firstKeyOf(Node.class).getNodeId();
-                    Node configNode = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, globalNodeIid)
-                            .or(defaultNode(globalNodeId));
-                    Node configPsNode =
-                        MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, psNodeIid).or(defaultNode(psNodeId));
-                    cleanupStaleLogicalSwitches(l2GwDevice, configNode, configPsNode);
-                    cleanupTasks.remove(psNodeIid.firstKeyOf(Node.class).getNodeId());
+                    try {
+                        Node configNode = SingleTransactionDataBroker.syncReadOptional(broker,
+                                LogicalDatastoreType.CONFIGURATION, globalNodeIid).orElse(defaultNode(globalNodeId));
+                        Node configPsNode = SingleTransactionDataBroker.syncReadOptional(broker,
+                                LogicalDatastoreType.CONFIGURATION, psNodeIid)
+                                        .orElse(defaultNode(psNodeId));
+                        cleanupStaleLogicalSwitches(l2GwDevice, configNode, configPsNode);
+                        cleanupTasks.remove(psNodeIid.firstKeyOf(Node.class).getNodeId());
+                    } catch (ExecutionException | InterruptedException e) {
+                        LOG.error("scheduleStaleCleanup: Exception while reading globalNodeIid/psNodeIid DS for "
+                                + "the globalNodeIid {} psNodeIid {}", globalNodeId, psNodeId, e);
+                    }
                 }, getCleanupDelay(), TimeUnit.SECONDS);
         });
     }

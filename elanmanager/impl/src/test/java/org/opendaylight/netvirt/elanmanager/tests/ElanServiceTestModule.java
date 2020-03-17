@@ -12,8 +12,6 @@ import static org.mockito.Mockito.mock;
 
 import java.util.Optional;
 import org.mockito.Mockito;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.test.DataBrokerTestModule;
 import org.opendaylight.daexim.DataImportBootReady;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.interfacemanager.commons.InterfaceManagerCommonUtils;
@@ -33,6 +31,8 @@ import org.opendaylight.infrautils.diagstatus.DiagStatusService;
 import org.opendaylight.infrautils.inject.guice.testutils.AbstractGuiceJsr250Module;
 import org.opendaylight.infrautils.metrics.MetricProvider;
 import org.opendaylight.infrautils.metrics.testimpl.TestMetricProviderImpl;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractBaseDataBrokerTest;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
 import org.opendaylight.mdsal.eos.common.api.EntityOwnershipState;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
@@ -67,9 +67,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Pa
  */
 public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
 
+    AbstractBaseDataBrokerTest abstractBaseDataBrokerTest;
+
     @Override
     protected void configureBindings() {
-        DataBroker dataBroker = DataBrokerTestModule.dataBroker();
+        DataBroker dataBroker = abstractBaseDataBrokerTest.getDataBroker();
         EntityOwnershipService mockedEntityOwnershipService = mock(EntityOwnershipService.class);
         EntityOwnershipState mockedEntityOwnershipState = EntityOwnershipState.IS_OWNER;
         Mockito.when(mockedEntityOwnershipService.getOwnershipState(Mockito.any()))
