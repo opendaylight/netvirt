@@ -13,18 +13,19 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
+import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group.buckets.Bucket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.Group;
@@ -38,7 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<Group, ElanGroupListener> {
+public class ElanGroupListener extends AbstractClusteredAsyncDataTreeChangeListener<Group> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanGroupListener.class);
     private final ManagedNewTransactionRunner txRunner;
@@ -50,24 +51,23 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
     @Inject
     public ElanGroupListener(DataBroker db, ElanClusterUtils elanClusterUtils, ElanUtils elanUtils,
             ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils, ElanInstanceCache elanInstanceCache) {
-        super(Group.class, ElanGroupListener.class);
+        super(db, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Nodes.class).child(Node.class)
+                .augmentation(FlowCapableNode.class).child(Group.class),
+                Executors.newListeningSingleThreadExecutor("ElanGroupListener", LOG));
         this.txRunner = new ManagedNewTransactionRunnerImpl(db);
         this.elanClusterUtils = elanClusterUtils;
         this.elanUtils = elanUtils;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
         this.elanInstanceCache = elanInstanceCache;
-        registerListener(LogicalDatastoreType.CONFIGURATION, db);
         LOG.trace("ElanGroupListener registered");
     }
 
-    @Override
-    protected InstanceIdentifier<Group> getWildCardPath() {
-        return InstanceIdentifier.create(Nodes.class).child(Node.class)
-                .augmentation(FlowCapableNode.class).child(Group.class);
+    public void init() {
+        LOG.info("{} init", getClass().getSimpleName());
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Group> identifier, Group del) {
+    public void remove(InstanceIdentifier<Group> identifier, Group del) {
         LOG.trace("received group removed {}", del.key().getGroupId());
     }
 
@@ -97,7 +97,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
     }
 
     @Override
-    protected void update(InstanceIdentifier<Group> identifier, @Nullable Group original, Group update) {
+    public void update(InstanceIdentifier<Group> identifier, @Nullable Group original, Group update) {
         LOG.trace("received group updated {}", update.key().getGroupId());
         final Uint64 dpnId = getDpnId(identifier.firstKeyOf(Node.class).getId().getValue());
         if (dpnId == null) {
@@ -161,14 +161,9 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
     }
 
     @Override
-    protected void add(InstanceIdentifier<Group> identifier, Group added) {
+    public void add(InstanceIdentifier<Group> identifier, Group added) {
         LOG.trace("received group add {}", added.key().getGroupId());
         update(identifier, null/*original*/, added);
-    }
-
-    @Override
-    protected ElanGroupListener getDataTreeChangeListener() {
-        return this;
     }
 }
 

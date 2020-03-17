@@ -7,11 +7,11 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
-import com.google.common.base.Optional;
 import java.util.Collections;
 import java.util.EventListener;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
@@ -21,13 +21,11 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
@@ -111,7 +109,7 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
     }
 
     @Nullable
-    public AllocationPool getAllocationPoolByNetwork(String networkId) throws ReadFailedException {
+    public AllocationPool getAllocationPoolByNetwork(String networkId) throws ExecutionException, InterruptedException {
         InstanceIdentifier<Network> network = InstanceIdentifier.builder(DhcpAllocationPool.class)
                 .child(Network.class, new NetworkKey(networkId)).build();
         Optional<Network> optionalNetworkConfData = SingleTransactionDataBroker.syncReadOptional(dataBroker,
@@ -136,8 +134,15 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
     public Map<Uint64, List<String>> getElanDpnInterfacesByName(DataBroker broker, String elanInstanceName) {
         InstanceIdentifier<ElanDpnInterfacesList> elanDpnIfacesIid = InstanceIdentifier.builder(ElanDpnInterfaces.class)
                 .child(ElanDpnInterfacesList.class, new ElanDpnInterfacesListKey(elanInstanceName)).build();
-        Optional<ElanDpnInterfacesList> elanDpnIfacesOpc = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
-                elanDpnIfacesIid);
+        Optional<ElanDpnInterfacesList> elanDpnIfacesOpc;
+        try {
+            elanDpnIfacesOpc = SingleTransactionDataBroker.syncReadOptional(broker, LogicalDatastoreType.OPERATIONAL,
+                    elanDpnIfacesIid);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getElanDpnInterfacesByName: Exception while reading the ElanDpnInterfacesList DS for the "
+                    + "elan-instance {}", elanInstanceName, e);
+            return Collections.emptyMap();
+        }
         if (!elanDpnIfacesOpc.isPresent()) {
             LOG.warn("Could not find DpnInterfaces for elan {}", elanInstanceName);
             return Collections.emptyMap();
@@ -149,7 +154,7 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
     }
 
     @Nullable
-    public String getNetworkByPort(String portUuid) throws ReadFailedException {
+    public String getNetworkByPort(String portUuid) throws ExecutionException, InterruptedException {
         InstanceIdentifier<ElanInterface> elanInterfaceName = InstanceIdentifier.builder(ElanInterfaces.class)
                 .child(ElanInterface.class, new ElanInterfaceKey(portUuid)).build();
         Optional<ElanInterface> optionalElanInterface = SingleTransactionDataBroker.syncReadOptional(dataBroker,

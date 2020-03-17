@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.natservice.internal;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.google.common.util.concurrent.FluentFuture;
@@ -20,6 +19,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.locks.ReentrantLock;
@@ -27,9 +27,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -37,6 +34,9 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces.RouterInterface;
@@ -194,7 +194,7 @@ public class NatSouthboundEventHandlers {
         return transitionState;
     }
 
-    private class NatInterfaceStateAddWorker implements Callable<List<ListenableFuture<Void>>> {
+    private class NatInterfaceStateAddWorker implements Callable<List<? extends ListenableFuture<?>>> {
         private final String interfaceName;
         private final String routerName;
         private final Uint64 intfDpnId;
@@ -225,7 +225,7 @@ public class NatSouthboundEventHandlers {
         }
     }
 
-    private class NatInterfaceStateRemoveWorker implements Callable<List<ListenableFuture<Void>>> {
+    private class NatInterfaceStateRemoveWorker implements Callable<List<? extends ListenableFuture<?>>> {
         private final String interfaceName;
         private final String routerName;
         private final Uint64 intfDpnId;
@@ -255,7 +255,7 @@ public class NatSouthboundEventHandlers {
         }
     }
 
-    private class NatInterfaceStateUpdateWorker implements Callable<List<ListenableFuture<Void>>> {
+    private class NatInterfaceStateUpdateWorker implements Callable<List<? extends ListenableFuture<?>>> {
         private final Interface original;
         private final Interface update;
         private final Uint64 intfDpnId;
@@ -373,7 +373,7 @@ public class NatSouthboundEventHandlers {
         }
     }
 
-    private class NatFlowAddWorker implements Callable<List<ListenableFuture<Void>>> {
+    private class NatFlowAddWorker implements Callable<List<? extends ListenableFuture<?>>> {
         private final String interfaceName;
         private final String routerName;
         private final Uint64 dpnId;
@@ -402,7 +402,7 @@ public class NatSouthboundEventHandlers {
         }
     }
 
-    private class NatFlowUpdateWorker implements Callable<List<ListenableFuture<Void>>> {
+    private class NatFlowUpdateWorker implements Callable<List<? extends ListenableFuture<?>>> {
         private final Interface original;
         private final Interface update;
         private final String routerName;
@@ -441,7 +441,7 @@ public class NatSouthboundEventHandlers {
         }
     }
 
-    private class NatFlowRemoveWorker implements Callable<List<ListenableFuture<Void>>> {
+    private class NatFlowRemoveWorker implements Callable<List<? extends ListenableFuture<?>>> {
         private final String interfaceName;
         private final String routerName;
         private final Uint64 intfDpnId;

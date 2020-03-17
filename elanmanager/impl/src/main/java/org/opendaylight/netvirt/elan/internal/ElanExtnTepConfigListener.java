@@ -9,15 +9,15 @@ package org.opendaylight.netvirt.elan.internal;
 
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ExternalTeps;
@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class ElanExtnTepConfigListener
-        extends AsyncDataTreeChangeListenerBase<ExternalTeps, ElanExtnTepConfigListener> {
+        extends AbstractAsyncDataTreeChangeListener<ExternalTeps> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanExtnTepConfigListener.class);
 
@@ -36,45 +36,32 @@ public class ElanExtnTepConfigListener
 
     @Inject
     public ElanExtnTepConfigListener(DataBroker dataBroker) {
-        super(ExternalTeps.class, ElanExtnTepConfigListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(ElanInstances.class)
+                .child(ElanInstance.class).child(ExternalTeps.class),
+                Executors.newListeningSingleThreadExecutor("ElanExtnTepConfigListener", LOG));
         this.broker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
     }
 
-    @Override
-    @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.CONFIGURATION, broker);
+        LOG.info("{} registered", getClass().getSimpleName());
     }
 
     @Override
-    public InstanceIdentifier<ExternalTeps> getWildCardPath() {
-        return InstanceIdentifier
-                .builder(ElanInstances.class)
-                .child(ElanInstance.class)
-                .child(ExternalTeps.class).build();
-    }
-
-    @Override
-    protected void add(InstanceIdentifier<ExternalTeps> iid, ExternalTeps tep) {
+    public void add(InstanceIdentifier<ExternalTeps> iid, ExternalTeps tep) {
         LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
             tx.put(iid, tep, true);
         }), LOG, "Failed to update operational external teps {}", iid);
     }
 
     @Override
-    protected void update(InstanceIdentifier<ExternalTeps> iid, ExternalTeps tep, ExternalTeps t1) {
+    public void update(InstanceIdentifier<ExternalTeps> iid, ExternalTeps tep, ExternalTeps t1) {
     }
 
     @Override
-    protected void remove(InstanceIdentifier<ExternalTeps> iid, ExternalTeps tep) {
+    public void remove(InstanceIdentifier<ExternalTeps> iid, ExternalTeps tep) {
         LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
             tx.delete(iid);
         }), LOG, "Failed to update operational external teps {}", iid);
-    }
-
-    @Override
-    protected ElanExtnTepConfigListener getDataTreeChangeListener() {
-        return this;
     }
 }

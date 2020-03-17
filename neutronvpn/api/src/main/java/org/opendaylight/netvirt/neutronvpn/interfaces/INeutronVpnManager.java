@@ -11,7 +11,6 @@ package org.opendaylight.netvirt.neutronvpn.interfaces;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
@@ -22,7 +21,7 @@ public interface INeutronVpnManager {
 
     List<String> showVpnConfigCLI(Uuid vuuid) throws InterruptedException, ExecutionException;
 
-    List<String> showNeutronPortsCLI() throws ReadFailedException;
+    List<String> showNeutronPortsCLI() throws ExecutionException, InterruptedException;
 
     Network getNeutronNetwork(Uuid networkId);
 

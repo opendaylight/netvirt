@@ -27,7 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DpnDmacJob implements Callable<List<ListenableFuture<Void>>> {
+public class DpnDmacJob implements Callable<List<? extends ListenableFuture<?>>> {
     private static final Logger LOG = LoggerFactory.getLogger(DpnDmacJob.class);
 
     private String elanName;
@@ -61,7 +61,7 @@ public class DpnDmacJob implements Callable<List<ListenableFuture<Void>>> {
 
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
-        ElanInstance elan = elanRefUtil.getElanInstanceCache().get(elanName).orNull();
+        ElanInstance elan = elanRefUtil.getElanInstanceCache().get(elanName).orElse(null);
         if (elan == null) {
             LOG.error("failed.elan.not.found.{}", jobKey);
             return null;

@@ -23,7 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
-public class McastUpdateJob implements Callable<List<ListenableFuture<Void>>> {
+public class McastUpdateJob implements Callable<List<? extends ListenableFuture<?>>> {
     private String elanName;
     private String nodeId;
     private ElanL2GatewayMulticastUtils mcastUtils;
@@ -51,9 +51,9 @@ public class McastUpdateJob implements Callable<List<ListenableFuture<Void>>> {
     }
 
     @Override
-    public List<ListenableFuture<Void>> call() throws Exception {
+    public List<ListenableFuture<?>> call() throws Exception {
         L2GatewayDevice device = ElanL2GwCacheUtils.getL2GatewayDeviceFromCache(elanName, nodeId);
-        ListenableFuture<Void> ft = null;
+        ListenableFuture<?> ft = null;
         //TODO: make prepareRemoteMcastMacUpdateOnDevice return a ListenableFuture<Void>
         if (add) {
             ft = mcastUtils.prepareRemoteMcastMacUpdateOnDevice(elanName, device, !dpnOrConnectionRemoved ,
@@ -61,7 +61,7 @@ public class McastUpdateJob implements Callable<List<ListenableFuture<Void>>> {
         } else {
             ft =  mcastUtils.deleteRemoteMcastMac(new NodeId(nodeId), elanName);
         }
-        List<ListenableFuture<Void>> fts = new ArrayList<ListenableFuture<Void>>();
+        List<ListenableFuture<?>> fts = new ArrayList<>();
         fts.add(ft);
         return fts;
     }

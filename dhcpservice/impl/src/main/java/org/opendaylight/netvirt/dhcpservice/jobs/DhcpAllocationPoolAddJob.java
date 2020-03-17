@@ -17,7 +17,7 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.dhcpservice.DhcpServiceUtils;
 
-public class DhcpAllocationPoolAddJob implements Callable<List<ListenableFuture<Void>>> {
+public class DhcpAllocationPoolAddJob implements Callable<List<? extends ListenableFuture<?>>> {
 
     private final ManagedNewTransactionRunner txRunner;
     private final String interfaceName;

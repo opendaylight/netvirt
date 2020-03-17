@@ -8,15 +8,14 @@
 package org.opendaylight.netvirt.elan.utils;
 
 import static java.util.Collections.emptyList;
-import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
-import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -30,6 +29,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -42,12 +42,7 @@ import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.Datastore.Operational;
@@ -83,6 +78,12 @@ import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.infrautils.utils.concurrent.NamedLocks;
 import org.opendaylight.infrautils.utils.concurrent.NamedSimpleReentrantLock.Acquired;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
 import org.opendaylight.netvirt.elan.internal.ElanGroupCache;
@@ -260,9 +261,9 @@ public class ElanUtils {
             .setBucketId(new BucketId(id.incrementAndGet()))
             .build();
 
-    public static final FutureCallback<Void> DEFAULT_CALLBACK = new FutureCallback<Void>() {
+    public static final FutureCallback<CommitInfo> DEFAULT_CALLBACK = new FutureCallback<CommitInfo>() {
         @Override
-        public void onSuccess(Void result) {
+        public void onSuccess(CommitInfo result) {
             LOG.debug("Success in Datastore operation");
         }
 
@@ -344,27 +345,28 @@ public class ElanUtils {
     @SuppressWarnings("checkstyle:IllegalCatch")
     public static <T extends DataObject> Optional<T> read(@NonNull DataBroker broker,
             LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
-        try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
+        try (ReadTransaction tx = broker.newReadOnlyTransaction()) {
             return tx.read(datastoreType, path).get();
-        } catch (Exception e) {
+        } catch (ExecutionException | InterruptedException  e) {
             throw new RuntimeException(e);
         }
     }
 
     public <T extends DataObject> Optional<T> read2(LogicalDatastoreType datastoreType, InstanceIdentifier<T> path)
-            throws ReadFailedException {
-        try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
-            CheckedFuture<Optional<T>, ReadFailedException> checkedFuture = tx.read(datastoreType, path);
-            return checkedFuture.checkedGet();
+            throws InterruptedException, ExecutionException {
+        try (ReadTransaction tx = broker.newReadOnlyTransaction()) {
+            FluentFuture<Optional<T>> checkedFuture = tx.read(datastoreType, path);
+            return checkedFuture.get();
         }
     }
 
     @SuppressWarnings("checkstyle:ForbidCertainMethod")
     public static <T extends DataObject> void delete(DataBroker broker, LogicalDatastoreType datastoreType,
-            InstanceIdentifier<T> path) {
+                                                            InstanceIdentifier<T> path) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         tx.delete(datastoreType, path);
-        Futures.addCallback(tx.submit(), DEFAULT_CALLBACK, MoreExecutors.directExecutor());
+        FluentFuture<? extends @NonNull CommitInfo> future = tx.commit();
+        future.addCallback(DEFAULT_CALLBACK, MoreExecutors.directExecutor());
     }
 
     public static InstanceIdentifier<ElanInterface> getElanInterfaceConfigurationDataPathId(String interfaceName) {
@@ -376,13 +378,20 @@ public class ElanUtils {
     @Nullable
     public static Elan getElanByName(DataBroker broker, String elanInstanceName) {
         InstanceIdentifier<Elan> elanIdentifier = getElanInstanceOperationalDataPath(elanInstanceName);
-        return MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, elanIdentifier).orNull();
+        try {
+            return SingleTransactionDataBroker.syncReadOptional(broker, LogicalDatastoreType.CONFIGURATION,
+                    elanIdentifier).orElse(null);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getElanByName: Exception while reading elan-instance DS for the elan instance {}",
+                    elanInstanceName, e);
+            return null;
+        }
     }
 
     @Nullable
     public static Elan getElanByName(TypedReadTransaction<Operational> tx, String elanInstanceName)
             throws ExecutionException, InterruptedException {
-        return tx.read(getElanInstanceOperationalDataPath(elanInstanceName)).get().orNull();
+        return tx.read(getElanInstanceOperationalDataPath(elanInstanceName)).get().orElse(null);
     }
 
     public static InstanceIdentifier<Elan> getElanInstanceOperationalDataPath(String elanInstanceName) {
@@ -394,13 +403,13 @@ public class ElanUtils {
     public MacEntry getInterfaceMacEntriesOperationalDataPath(String interfaceName, PhysAddress physAddress) {
         InstanceIdentifier<MacEntry> existingMacEntryId = getInterfaceMacEntriesIdentifierOperationalDataPath(
                 interfaceName, physAddress);
-        return read(broker, LogicalDatastoreType.OPERATIONAL, existingMacEntryId).orNull();
+        return read(broker, LogicalDatastoreType.OPERATIONAL, existingMacEntryId).orElse(null);
     }
 
     @Nullable
     public MacEntry getInterfaceMacEntriesOperationalDataPathFromId(TypedReadTransaction<Operational> tx,
             InstanceIdentifier<MacEntry> identifier) throws ExecutionException, InterruptedException {
-        return tx.read(identifier).get().orNull();
+        return tx.read(identifier).get().orElse(null);
     }
 
     public static InstanceIdentifier<MacEntry> getInterfaceMacEntriesIdentifierOperationalDataPath(String interfaceName,
@@ -426,7 +435,7 @@ public class ElanUtils {
     @Nullable
     public MacEntry getMacEntryFromElanMacId(TypedReadTransaction<Operational> tx,
             InstanceIdentifier<MacEntry> identifier) throws ExecutionException, InterruptedException {
-        return tx.read(identifier).get().orNull();
+        return tx.read(identifier).get().orElse(null);
     }
 
     public static InstanceIdentifier<MacEntry> getMacEntryOperationalDataPath(String elanName,
@@ -449,7 +458,7 @@ public class ElanUtils {
     public static ElanInterfaceMac getElanInterfaceMacByInterfaceName(DataBroker dataBroker, String interfaceName) {
         InstanceIdentifier<ElanInterfaceMac> elanInterfaceId = getElanInterfaceMacEntriesOperationalDataPath(
                 interfaceName);
-        return read(dataBroker, LogicalDatastoreType.OPERATIONAL, elanInterfaceId).orNull();
+        return read(dataBroker, LogicalDatastoreType.OPERATIONAL, elanInterfaceId).orElse(null);
     }
 
     public static InstanceIdentifier<ElanInterfaceMac> getElanInterfaceMacEntriesOperationalDataPath(
@@ -472,7 +481,7 @@ public class ElanUtils {
     public DpnInterfaces getElanInterfaceInfoByElanDpn(String elanInstanceName, Uint64 dpId) {
         InstanceIdentifier<DpnInterfaces> elanDpnInterfacesId = getElanDpnInterfaceOperationalDataPath(elanInstanceName,
                 dpId);
-        return read(broker, LogicalDatastoreType.OPERATIONAL, elanDpnInterfacesId).orNull();
+        return read(broker, LogicalDatastoreType.OPERATIONAL, elanDpnInterfacesId).orElse(null);
     }
 
     /**
@@ -499,7 +508,7 @@ public class ElanUtils {
         InstanceIdentifier<ElanTagName> elanId = getElanInfoEntriesOperationalDataPath(elanTag);
         Optional<ElanTagName> existingElanInfo = read(broker,
                 LogicalDatastoreType.OPERATIONAL, elanId);
-        return existingElanInfo.orNull();
+        return existingElanInfo.orElse(null);
     }
 
     public static InstanceIdentifier<ElanTagName> getElanInfoEntriesOperationalDataPath(Uint32 elanTag) {
@@ -527,14 +536,14 @@ public class ElanUtils {
     @Nullable
     public ElanDpnInterfacesList getElanDpnInterfacesList(String elanName) {
         InstanceIdentifier<ElanDpnInterfacesList> elanDpnInterfaceId = getElanDpnOperationDataPath(elanName);
-        return read(broker, LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId).orNull();
+        return read(broker, LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId).orElse(null);
     }
 
     @Nullable
     public ElanDpnInterfaces getElanDpnInterfacesList() {
         InstanceIdentifier<ElanDpnInterfaces> elanDpnInterfaceId = InstanceIdentifier.builder(ElanDpnInterfaces.class)
                 .build();
-        return read(broker, LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId).orNull();
+        return read(broker, LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId).orElse(null);
     }
 
     /**
@@ -581,7 +590,7 @@ public class ElanUtils {
     @Nullable
     public static MacTable getElanMacTable(DataBroker dataBroker, String elanName) {
         InstanceIdentifier<MacTable> elanMacTableId = getElanMacTableOperationalDataPath(elanName);
-        return read(dataBroker, LogicalDatastoreType.OPERATIONAL, elanMacTableId).orNull();
+        return read(dataBroker, LogicalDatastoreType.OPERATIONAL, elanMacTableId).orElse(null);
     }
 
     public static long getElanLocalBCGId(long elanTag) {
@@ -686,7 +695,8 @@ public class ElanUtils {
     }
 
     private Uint32 getElanTag(ElanInstance elanInfo, InterfaceInfo interfaceInfo) {
-        EtreeInterface etreeInterface = elanInterfaceCache.getEtreeInterface(interfaceInfo.getInterfaceName()).orNull();
+        EtreeInterface etreeInterface = elanInterfaceCache
+            .getEtreeInterface(interfaceInfo.getInterfaceName()).orElse(null);
         if (etreeInterface == null || etreeInterface.getEtreeInterfaceType() == EtreeInterfaceType.Root) {
             return elanInfo.getElanTag();
         } else { // Leaf
@@ -865,8 +875,14 @@ public class ElanUtils {
     @NonNull
     public List<DpnInterfaces> getElanDPNByName(String elanInstanceName) {
         InstanceIdentifier<ElanDpnInterfacesList> elanIdentifier = getElanDpnOperationDataPath(elanInstanceName);
-        return MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, elanIdentifier).toJavaUtil().map(
-                ElanDpnInterfacesList::getDpnInterfaces).orElse(emptyList());
+        try {
+            return SingleTransactionDataBroker.syncReadOptional(broker, LogicalDatastoreType.OPERATIONAL,
+                    elanIdentifier).map(ElanDpnInterfacesList::getDpnInterfaces).orElse(emptyList());
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getElanDPNByName: Exception while reading elanDpnInterfaceList DS for the elan "
+                    + "instance {}", elanInstanceName, e);
+            return emptyList();
+        }
     }
 
     private void setupLocalDmacFlow(Uint32 elanTag, Uint64 dpId, String ifName, String macAddress,
@@ -879,7 +895,7 @@ public class ElanUtils {
 
     private void installEtreeLocalDmacFlow(Uint32 elanTag, Uint64 dpId, String ifName, String macAddress,
             ElanInstance elanInfo, long ifTag, TypedWriteTransaction<Configuration> writeFlowGroupTx) {
-        EtreeInterface etreeInterface = elanInterfaceCache.getEtreeInterface(ifName).orNull();
+        EtreeInterface etreeInterface = elanInterfaceCache.getEtreeInterface(ifName).orElse(null);
         if (etreeInterface != null && etreeInterface.getEtreeInterfaceType() == EtreeInterfaceType.Root) {
             EtreeLeafTagName etreeTagName = elanEtreeUtils.getEtreeLeafTagByElanTag(elanTag.longValue());
             if (etreeTagName == null) {
@@ -968,7 +984,7 @@ public class ElanUtils {
                                           TypedWriteTransaction<Configuration> writeFlowGroupTx,
                                           ElanInstance elanInstance) {
         Flow flowEntity;
-        EtreeInterface etreeInterface = elanInterfaceCache.getEtreeInterface(interfaceName).orNull();
+        EtreeInterface etreeInterface = elanInterfaceCache.getEtreeInterface(interfaceName).orElse(null);
         if (etreeInterface != null && etreeInterface.getEtreeInterfaceType() == EtreeInterfaceType.Root) {
             EtreeLeafTagName etreeTagName = elanEtreeUtils.getEtreeLeafTagByElanTag(elanTag.longValue());
             if (etreeTagName == null) {
@@ -1298,7 +1314,7 @@ public class ElanUtils {
         Class<? extends TunnelTypeBase> tunType = TunnelTypeVxlan.class;
         InstanceIdentifier<ExternalTunnel> iid = InstanceIdentifier.builder(ExternalTunnelList.class)
                 .child(ExternalTunnel.class, new ExternalTunnelKey(destinationDevice, sourceDevice, tunType)).build();
-        return read(broker, datastoreType, iid).orNull();
+        return read(broker, datastoreType, iid).orElse(null);
     }
 
     /**
@@ -1332,7 +1348,7 @@ public class ElanUtils {
      */
     public List<ExternalTunnel> getAllExternalTunnels(LogicalDatastoreType datastoreType) {
         InstanceIdentifier<ExternalTunnelList> iid = InstanceIdentifier.builder(ExternalTunnelList.class).build();
-        return read(broker, datastoreType, iid).toJavaUtil().map(ExternalTunnelList::getExternalTunnel).orElse(
+        return read(broker, datastoreType, iid).map(ExternalTunnelList::getExternalTunnel).orElse(
                 emptyList());
     }
 
@@ -1375,8 +1391,14 @@ public class ElanUtils {
      */
     public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
             .@Nullable Interface getInterfaceStateFromOperDS(String interfaceName, DataBroker dataBroker) {
-        return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-            createInterfaceStateInstanceIdentifier(interfaceName)).orNull();
+        try {
+            return SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                    createInterfaceStateInstanceIdentifier(interfaceName)).orElse(null);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getInterfaceStateFromOperDS: Exception while reading interface DS for the interface {}",
+                    interfaceName, e);
+            return null;
+        }
     }
 
     /**
@@ -1589,7 +1611,7 @@ public class ElanUtils {
     }
 
     public Optional<IpAddress> getSourceIpAddress(Ethernet ethernet) {
-        Optional<IpAddress> srcIpAddress = Optional.absent();
+        Optional<IpAddress> srcIpAddress = Optional.empty();
         if (ethernet.getPayload() == null) {
             return srcIpAddress;
         }

@@ -8,16 +8,16 @@
 
 package org.opendaylight.netvirt.natservice.cli;
 
-import com.google.common.base.Optional;
 import java.io.PrintStream;
 import java.math.BigInteger;
+import java.util.Optional;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.natservice.internal.NatUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.BridgeRefInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.bridge.ref.info.BridgeRefEntry;
@@ -66,7 +66,7 @@ public class DisplayNaptSwithcesCli extends OsgiCommandSupport {
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                         LogicalDatastoreType.OPERATIONAL, bridgeRefInfoPath);
         if (!bridgeRefEntry.isPresent()) {
-            return Optional.absent();
+            return Optional.empty();
         }
 
         InstanceIdentifier<Node> nodeId =
@@ -78,7 +78,7 @@ public class DisplayNaptSwithcesCli extends OsgiCommandSupport {
 
     @Nullable
     private String getDpnLocalIp(BigInteger dpId) {
-        return getPortsNode(dpId).toJavaUtil().map(node -> getOpenvswitchOtherConfig(node, LOCAL_IP)).orElse(null);
+        return getPortsNode(dpId).map(node -> getOpenvswitchOtherConfig(node, LOCAL_IP)).orElse(null);
     }
 
     @Nullable
@@ -111,7 +111,7 @@ public class DisplayNaptSwithcesCli extends OsgiCommandSupport {
             return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                     LogicalDatastoreType.OPERATIONAL, ovsdbNodeIid);
         }
-        return Optional.absent();
+        return Optional.empty();
 
     }
 
