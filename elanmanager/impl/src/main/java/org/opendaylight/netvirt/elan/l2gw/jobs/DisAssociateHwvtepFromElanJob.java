@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 /**
 * Created by ekvsver on 4/15/2016.
 */
-public class DisAssociateHwvtepFromElanJob implements Callable<List<ListenableFuture<Void>>> {
+public class DisAssociateHwvtepFromElanJob implements Callable<List<? extends ListenableFuture<?>>> {
     private static final Logger LOG = LoggerFactory.getLogger(DisAssociateHwvtepFromElanJob.class);
 
     private final ElanL2GatewayUtils elanL2GatewayUtils;
@@ -57,11 +57,11 @@ public class DisAssociateHwvtepFromElanJob implements Callable<List<ListenableFu
     }
 
     @Override
-    public List<ListenableFuture<Void>> call() {
+    public List<ListenableFuture<?>> call() {
         String strHwvtepNodeId = hwvtepNodeId.getValue();
         LOG.info("running disassosiate l2gw connection job for {} {}", elanName, strHwvtepNodeId);
 
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
+        List<ListenableFuture<?>> futures = new ArrayList<>();
 
         // Remove remote MACs and vlan mappings from physical port
         // Once all above configurations are deleted, delete logical

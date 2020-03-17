@@ -12,9 +12,9 @@ import static org.opendaylight.yangtools.testutils.mockito.MoreAnswers.realOrExc
 import java.util.Collections;
 import java.util.List;
 import org.mockito.Mockito;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.BgpControlPlaneType;

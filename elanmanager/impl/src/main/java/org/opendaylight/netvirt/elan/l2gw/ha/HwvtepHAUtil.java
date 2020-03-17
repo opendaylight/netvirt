@@ -7,9 +7,8 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha;
 
-import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -17,16 +16,17 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
+import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.SwitchesCmd;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
