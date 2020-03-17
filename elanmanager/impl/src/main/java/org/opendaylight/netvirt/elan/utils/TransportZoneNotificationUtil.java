@@ -9,16 +9,16 @@ package org.opendaylight.netvirt.elan.utils;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.MapDifference;
 import com.google.common.collect.MapDifference.ValueDifference;
+import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -26,9 +26,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -37,6 +34,9 @@ import org.opendaylight.genius.infra.TypedReadTransaction;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.internal.ElanBridgeManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
@@ -113,7 +113,7 @@ public class TransportZoneNotificationUtil {
             }
 
             if (ElanUtils.isVxlanNetworkOrVxlanSegment(
-                    elanInstanceCache.get(elanInt.getElanInstanceName()).orNull())) {
+                    elanInstanceCache.get(elanInt.getElanInstanceName()).orElse(null))) {
                 return true;
             } else {
                 LOG.debug("Non-VXLAN elanInstance: {}", elanInt.getElanInstanceName());
@@ -164,7 +164,7 @@ public class TransportZoneNotificationUtil {
                 .child(TransportZone.class, new TransportZoneKey(zoneName));
 
         // FIXME: Read this through a cache
-        TransportZone zone = tx.read(inst).get().orNull();
+        TransportZone zone = tx.read(inst).get().orElse(null);
 
         if (zone == null) {
             zone = createZone(ALL_SUBNETS, zoneName);
@@ -210,7 +210,7 @@ public class TransportZoneNotificationUtil {
                 .child(TransportZone.class, new TransportZoneKey(zoneName));
 
         // FIXME: Read this through a cache
-        TransportZone zone = tx.read(inst).get().orNull();
+        TransportZone zone = tx.read(inst).get().orElse(null);
         if (zone != null) {
             try {
                 deleteTransportZone(zone, dpnId, tx);
@@ -372,7 +372,7 @@ public class TransportZoneNotificationUtil {
             return tx.read(identifier).get();
         } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Failed to read DPNTEPsInfo for DPN id {}", dpId);
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 
@@ -427,7 +427,7 @@ public class TransportZoneNotificationUtil {
     private Map<String, String> getDpnLocalIps(Uint64 dpId) throws ReadFailedException {
         // Example of local IPs from other_config:
         // local_ips="10.0.43.159:MPLS,11.11.11.11:DSL,ip:underlay-network"
-        return getPortsNode(dpId).toJavaUtil().map(
+        return getPortsNode(dpId).map(
             node -> elanBridgeManager.getOpenvswitchOtherConfigMap(node, LOCAL_IPS)).orElse(Collections.emptyMap());
     }
 
@@ -441,7 +441,7 @@ public class TransportZoneNotificationUtil {
             singleTxBroker.syncReadOptional(LogicalDatastoreType.OPERATIONAL, bridgeRefInfoPath);
         if (!optionalBridgeRefEntry.isPresent()) {
             LOG.error("no bridge ref entry found for dpnId {}", dpnId);
-            return Optional.absent();
+            return Optional.empty();
         }
 
         InstanceIdentifier<Node> nodeId =
@@ -461,6 +461,6 @@ public class TransportZoneNotificationUtil {
 
     private static Optional<String> getZonePrefixForUnderlayNetwork(String zoneName, String underlayNetworkName) {
         String[] zoneParts = zoneName.split(IP_NETWORK_ZONE_NAME_DELIMITER + underlayNetworkName);
-        return zoneParts.length == 2 ? Optional.of(zoneParts[0]) : Optional.absent();
+        return zoneParts.length == 2 ? Optional.of(zoneParts[0]) : Optional.empty();
     }
 }

@@ -7,10 +7,9 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
-import com.google.common.base.Optional;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,18 +17,15 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.ReentrantLock;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.infra.Datastore.Configuration;
@@ -48,6 +44,8 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.infrautils.utils.function.InterruptibleCheckedConsumer;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput.ArpReponderInputBuilder;
@@ -151,7 +149,6 @@ public class VpnManagerImpl implements IVpnManager {
         this.vpnUtil = vpnUtil;
     }
 
-    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         createIdPool();
@@ -337,7 +334,7 @@ public class VpnManagerImpl implements IVpnManager {
                 LOG.trace("isVPNConfigured: No VPNs configured.");
                 return false;
             }
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException("Error reading VPN " + vpnsIdentifier, e);
         }
         LOG.trace("isVPNConfigured: VPNs are configured on the system.");
@@ -801,7 +798,7 @@ public class VpnManagerImpl implements IVpnManager {
                                 }
                             }
                         }
-                    } catch (ReadFailedException e) {
+                    } catch (InterruptedException | ExecutionException e) {
                         LOG.error("doesExistingVpnsHaveConflictingSubnet: Failed to read route targets to subnet"
                                 + "association for rt {} type {} subnet-cidr {}", routerTarget.getRt(),
                                 RouteTarget.RtType.ERT, subnetCidr);

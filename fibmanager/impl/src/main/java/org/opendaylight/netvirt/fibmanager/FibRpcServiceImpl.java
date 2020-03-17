@@ -12,12 +12,12 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
@@ -26,6 +26,8 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
@@ -214,8 +216,13 @@ public class FibRpcServiceImpl implements FibRpcService {
     @Nullable
     public static String getVpnRd(DataBroker broker, String vpnName) {
         InstanceIdentifier<VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
-                VpnInstance::getVrfId).orElse(null);
+        try {
+            return SingleTransactionDataBroker.syncReadOptional(broker, LogicalDatastoreType.CONFIGURATION, id)
+                    .map(VpnInstance::getVrfId).orElse(null);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getVpnRd: Exception while reading VpnInstance DS for the vpn {}", vpnName, e);
+        }
+        return null;
     }
 
     static InstanceIdentifier<VpnInstance> getVpnInstanceToVpnIdIdentifier(String vpnName) {
@@ -226,7 +233,12 @@ public class FibRpcServiceImpl implements FibRpcService {
 
     static Uint32 getVpnId(DataBroker broker, String vpnName) {
         InstanceIdentifier<VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
-                VpnInstance::getVpnId).orElse(Uint32.ZERO);
+        try {
+            return SingleTransactionDataBroker.syncReadOptional(broker, LogicalDatastoreType.CONFIGURATION, id)
+                    .map(VpnInstance::getVpnId).orElse(Uint32.ZERO);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getVpnId: Exception while reading VpnInstance DS for the vpn {}", vpnName, e);
+        }
+        return Uint32.ZERO;
     }
 }

@@ -7,26 +7,38 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
-import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepClusteredDataTreeChangeListener;
 import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
+import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepLogicalSwitchRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteMcastMacs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteMcastMacsKey;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +66,7 @@ public class HwvtepRemoteMcastMacListener
 
     AtomicBoolean executeTask = new AtomicBoolean(true);
 
-    Callable<List<ListenableFuture<Void>>> taskToRun;
+    Callable<List<? extends ListenableFuture<?>>> taskToRun;
 
     private final JobCoordinator jobCoordinator;
 
@@ -72,10 +84,14 @@ public class HwvtepRemoteMcastMacListener
     public HwvtepRemoteMcastMacListener(DataBroker broker, ElanUtils elanUtils, String logicalSwitchName,
                                         L2GatewayDevice l2GatewayDevice,
                                         List<IpAddress> expectedPhyLocatorIps,
-                                        Callable<List<ListenableFuture<Void>>> task,
+                                        Callable<List<? extends ListenableFuture<?>>> task,
                                         JobCoordinator jobCoordinator, HwvtepNodeHACache hwvtepNodeHACache)
                                                 throws Exception {
-        super(RemoteMcastMacs.class, HwvtepRemoteMcastMacListener.class, hwvtepNodeHACache);
+        super(broker, DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
+            HwvtepSouthboundUtils.createRemoteMcastMacsInstanceIdentifier(new NodeId(l2GatewayDevice.getHwvtepNodeId()),
+            logicalSwitchName, new MacAddress(ElanConstants.UNKNOWN_DMAC))),
+            Executors.newListeningSingleThreadExecutor("HwvtepRemoteMcastMacListener", LOG),
+            hwvtepNodeHACache);
         this.elanUtils = elanUtils;
         this.nodeId = new NodeId(l2GatewayDevice.getHwvtepNodeId());
         this.taskToRun = task;
@@ -83,8 +99,8 @@ public class HwvtepRemoteMcastMacListener
         this.expectedPhyLocatorIps = expectedPhyLocatorIps;
         this.jobCoordinator = jobCoordinator;
         LOG.info("registering the listener for mcast mac ");
-        registerListener(LogicalDatastoreType.OPERATIONAL, broker);
-        LOG.info("registered the listener for mcast mac ");
+        //registerListener(LogicalDatastoreType.OPERATIONAL, broker);
+        LOG.info("registered the listener for mcast mac");
         if (isDataPresentInOpDs(getWildCardPath())) {
             LOG.info("mcast mac already present running the task ");
             if (executeTask.compareAndSet(true, false)) {
@@ -116,15 +132,9 @@ public class HwvtepRemoteMcastMacListener
         return true;
     }
 
-    @Override
     public InstanceIdentifier<RemoteMcastMacs> getWildCardPath() {
         return HwvtepSouthboundUtils.createRemoteMcastMacsInstanceIdentifier(nodeId,
                 logicalSwitchName, new MacAddress(ElanConstants.UNKNOWN_DMAC));
-    }
-
-    @Override
-    protected HwvtepRemoteMcastMacListener getDataTreeChangeListener() {
-        return this;
     }
 
     @Override

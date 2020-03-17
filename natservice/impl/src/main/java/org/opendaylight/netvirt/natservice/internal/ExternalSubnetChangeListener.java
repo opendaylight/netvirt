@@ -7,16 +7,16 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalSubnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -25,8 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class ExternalSubnetChangeListener extends AsyncDataTreeChangeListenerBase<Subnets,
-    ExternalSubnetChangeListener> {
+public class ExternalSubnetChangeListener extends AbstractAsyncDataTreeChangeListener<Subnets> {
     private static final Logger LOG = LoggerFactory.getLogger(ExternalSubnetChangeListener.class);
     private final DataBroker dataBroker;
     private final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer;
@@ -36,24 +35,19 @@ public class ExternalSubnetChangeListener extends AsyncDataTreeChangeListenerBas
                      final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer,
                      final IElanService elanService, final IVpnManager vpnManager,
                      DataTreeEventCallbackRegistrar dataTreeEventCallbackRegistrar) {
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(ExternalSubnets.class)
+                .child(Subnets.class),
+                Executors.newListeningSingleThreadExecutor("ExternalSubnetChangeListener", LOG));
         this.dataBroker = dataBroker;
         this.snatDefaultRouteProgrammer = snatDefaultRouteProgrammer;
     }
 
-    @Override
-    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<Subnets> getWildCardPath() {
-        return InstanceIdentifier.create(ExternalSubnets.class).child(Subnets.class);
-    }
-
-    @Override
-    protected void remove(InstanceIdentifier<Subnets> key, Subnets subnet) {
+    public void remove(InstanceIdentifier<Subnets> key, Subnets subnet) {
         LOG.info("remove : External Subnet remove mapping method - key:{}. value={}",
                 subnet.key(), subnet);
         String extSubnetUuid = subnet.getId().getValue();
@@ -68,16 +62,11 @@ public class ExternalSubnetChangeListener extends AsyncDataTreeChangeListenerBas
     }
 
     @Override
-    protected void update(InstanceIdentifier<Subnets> key, Subnets orig,
+    public void update(InstanceIdentifier<Subnets> key, Subnets orig,
             Subnets update) {
     }
 
     @Override
-    protected void add(InstanceIdentifier<Subnets> key, Subnets subnet) {
-    }
-
-    @Override
-    protected ExternalSubnetChangeListener getDataTreeChangeListener() {
-        return ExternalSubnetChangeListener.this;
+    public void add(InstanceIdentifier<Subnets> key, Subnets subnet) {
     }
 }

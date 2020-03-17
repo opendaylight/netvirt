@@ -9,9 +9,12 @@
 package org.opendaylight.netvirt.elan.l2gw.utils;
 
 import static java.util.Collections.emptyList;
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlanNetworkOrVxlanSegment;
 
-import com.google.common.base.Optional;
+import com.google.common.util.concurrent.FluentFuture;
+import com.google.common.util.concurrent.ListenableFuture;
+import java.util.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -22,13 +25,17 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
@@ -79,6 +86,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
     private final ElanRefUtil elanRefUtil;
     private final L2GatewayServiceRecoveryHandler l2GatewayServiceRecoveryHandler;
     private final ServiceRecoveryRegistry serviceRecoveryRegistry;
+    private final ManagedNewTransactionRunner txRunner;
 
     @Inject
     public L2GatewayConnectionUtils(DataBroker dataBroker, ElanClusterUtils elanClusterUtils,
@@ -101,6 +109,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
         this.elanRefUtil = elanRefUtil;
         this.l2GatewayServiceRecoveryHandler = l2GatewayServiceRecoveryHandler;
         this.serviceRecoveryRegistry = serviceRecoveryRegistry;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
     }
 
     @Override
@@ -125,22 +134,38 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
         LOG.debug("getNeutronL2gateway for {}", l2GatewayId.getValue());
         InstanceIdentifier<L2gateway> inst = InstanceIdentifier.create(Neutron.class).child(L2gateways.class)
                 .child(L2gateway.class, new L2gatewayKey(l2GatewayId));
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst).orNull();
+        try {
+            return SingleTransactionDataBroker.syncReadOptional(broker, LogicalDatastoreType.CONFIGURATION, inst)
+                    .orElse(null);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getNeutronL2gateway: Exception while reading L2gateway DS for the ID {}", l2GatewayId, e);
+        }
+        return null;
     }
 
     @NonNull
     public static List<L2gateway> getL2gatewayList(DataBroker broker) {
         InstanceIdentifier<L2gateways> inst = InstanceIdentifier.create(Neutron.class).child(L2gateways.class);
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst).toJavaUtil().map(
-                L2gateways::getL2gateway).orElse(emptyList());
+        try {
+            return SingleTransactionDataBroker.syncReadOptional(broker, LogicalDatastoreType.CONFIGURATION, inst).map(
+                    L2gateways::getL2gateway).orElse(emptyList());
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getNeutronL2gateway: Exception while reading L2gateway DS", e);
+        }
+        return null;
     }
 
     @NonNull
     public static List<L2gatewayConnection> getAllL2gatewayConnections(DataBroker broker) {
         InstanceIdentifier<L2gatewayConnections> inst = InstanceIdentifier.create(Neutron.class)
                 .child(L2gatewayConnections.class);
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst).toJavaUtil().map(
-                L2gatewayConnections::getL2gatewayConnection).orElse(emptyList());
+        try {
+            return SingleTransactionDataBroker.syncReadOptional(broker, LogicalDatastoreType.CONFIGURATION, inst).map(
+                    L2gatewayConnections::getL2gatewayConnection).orElse(emptyList());
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getNeutronL2gateway: Exception while reading L2gateway DS", e);
+        }
+        return null;
     }
 
     /**
@@ -207,7 +232,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
         // comes we need to wait for elaninstance to resolve. Hence updating the map with the runnable .
         // When elanInstance add comes , it look in to the map and run the associated runnable associated with it.
         ElanInstance elanInstance = elanInstanceCache.get(networkUuid.getValue(),
-            () -> addL2GatewayConnection(input, l2GwDeviceName)).orNull();
+            () -> addL2GatewayConnection(input, l2GwDeviceName)).orElse(null);
         if (elanInstance == null) {
             return;
         }
@@ -372,36 +397,36 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
         final InstanceIdentifier<Node> nodeIid = HwvtepSouthboundUtils.createInstanceIdentifier(
                 new NodeId(l2GatewayDevice.getHwvtepNodeId()));
         jobCoordinator.enqueueJob(elanName + ":" + l2GatewayDevice.getDeviceName(), () -> {
-            final SettableFuture settableFuture = SettableFuture.create();
-            Futures.addCallback(broker.newReadOnlyTransaction().read(LogicalDatastoreType.OPERATIONAL,
-                    nodeIid), new SettableFutureCallback<Optional<Node>>(settableFuture) {
-                        @Override
-                        public void onSuccess(@NonNull Optional<Node> resultNode) {
-                            LocalUcastMacListener localUcastMacListener =
-                                    new LocalUcastMacListener(broker, haOpClusteredListener,
-                                            elanL2GatewayUtils, jobCoordinator, elanInstanceCache, hwvtepNodeHACache,
-                                            l2GatewayServiceRecoveryHandler, serviceRecoveryRegistry);
-                            settableFuture.set(resultNode);
-                            Optional<Node> nodeOptional = resultNode;
+                ListenableFuture<Void> future = txRunner
+                    .callWithNewReadOnlyTransactionAndClose(OPERATIONAL, tx -> {
+                        try {
+                            Optional<Node> nodeOptional = tx.read(nodeIid).get();
                             if (nodeOptional.isPresent()) {
                                 Node node = nodeOptional.get();
                                 if (node.augmentation(HwvtepGlobalAugmentation.class) != null) {
                                     List<LocalUcastMacs> localUcastMacs =
-                                            node.augmentation(HwvtepGlobalAugmentation.class).getLocalUcastMacs();
+                                        node.augmentation(HwvtepGlobalAugmentation.class).getLocalUcastMacs();
                                     if (localUcastMacs == null) {
                                         return;
                                     }
+                                    LocalUcastMacListener localUcastMacListener =
+                                        new LocalUcastMacListener(broker, haOpClusteredListener,
+                                            elanL2GatewayUtils, jobCoordinator, elanInstanceCache, hwvtepNodeHACache,
+                                            l2GatewayServiceRecoveryHandler, serviceRecoveryRegistry);
                                     localUcastMacs.stream()
-                                            .filter((mac) -> macBelongsToLogicalSwitch(mac, elanName))
-                                            .forEach((mac) -> {
-                                                InstanceIdentifier<LocalUcastMacs> macIid = getMacIid(nodeIid, mac);
-                                                localUcastMacListener.added(macIid, mac);
-                                            });
+                                        .filter((mac) -> macBelongsToLogicalSwitch(mac, elanName))
+                                        .forEach((mac) -> {
+                                            InstanceIdentifier<LocalUcastMacs> macIid = getMacIid(nodeIid, mac);
+                                            localUcastMacListener.added(macIid, mac);
+                                        });
                                 }
                             }
+                        }  catch (InterruptedException | ExecutionException e) {
+                            LOG.error("Exception While  ", e);
+                            throw new RuntimeException(e.getMessage(), e); //TODO: Avoid this
                         }
-                    }, MoreExecutors.directExecutor());
-            return Lists.newArrayList(settableFuture);
+                    });
+                return Lists.newArrayList(future);
         } , 5);
     }
 

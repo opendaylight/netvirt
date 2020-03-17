@@ -8,14 +8,14 @@
 
 package org.opendaylight.netvirt.neutronvpn.l2gw;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.TransportZones;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.TransportZone;
@@ -28,8 +28,7 @@ import org.slf4j.LoggerFactory;
  * The listener class for ITM transport zone updates.
  */
 @Singleton
-public class L2GwTransportZoneListener
-        extends AsyncDataTreeChangeListenerBase<TransportZone, L2GwTransportZoneListener> {
+public class L2GwTransportZoneListener extends AbstractAsyncDataTreeChangeListener<TransportZone> {
     private static final Logger LOG = LoggerFactory.getLogger(L2GwTransportZoneListener.class);
     private final DataBroker dataBroker;
     private final ItmRpcService itmRpcService;
@@ -45,29 +44,16 @@ public class L2GwTransportZoneListener
     @Inject
     public L2GwTransportZoneListener(final DataBroker dataBroker, final ItmRpcService itmRpcService,
             final JobCoordinator jobCoordinator, final L2GatewayCache l2GatewayCache) {
-        super(TransportZone.class, L2GwTransportZoneListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(TransportZones.class)
+                .child(TransportZone.class), Executors.newSingleThreadExecutor("L2GwTransportZoneListener", LOG));
         this.dataBroker = dataBroker;
         this.itmRpcService = itmRpcService;
         this.jobCoordinator = jobCoordinator;
         this.l2GatewayCache = l2GatewayCache;
     }
 
-    @Override
-    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.opendaylight.vpnservice.datastoreutils.
-     * AsyncDataTreeChangeListenerBase#getWildCardPath()
-     */
-    @Override
-    protected InstanceIdentifier<TransportZone> getWildCardPath() {
-        return InstanceIdentifier.create(TransportZones.class).child(TransportZone.class);
     }
 
     /*
@@ -79,7 +65,7 @@ public class L2GwTransportZoneListener
      * org.opendaylight.yangtools.yang.binding.DataObject)
      */
     @Override
-    protected void remove(InstanceIdentifier<TransportZone> key, TransportZone dataObjectModification) {
+    public void remove(InstanceIdentifier<TransportZone> key, TransportZone dataObjectModification) {
         // do nothing
     }
 
@@ -93,7 +79,7 @@ public class L2GwTransportZoneListener
      * org.opendaylight.yangtools.yang.binding.DataObject)
      */
     @Override
-    protected void update(InstanceIdentifier<TransportZone> key, TransportZone dataObjectModificationBefore,
+    public void update(InstanceIdentifier<TransportZone> key, TransportZone dataObjectModificationBefore,
                           TransportZone dataObjectModificationAfter) {
         // do nothing
     }
@@ -107,7 +93,7 @@ public class L2GwTransportZoneListener
      * org.opendaylight.yangtools.yang.binding.DataObject)
      */
     @Override
-    protected void add(InstanceIdentifier<TransportZone> key, TransportZone tzNew) {
+    public void add(InstanceIdentifier<TransportZone> key, TransportZone tzNew) {
         LOG.trace("Received Transport Zone Add Event: {}", tzNew);
         if (TunnelTypeVxlan.class.equals(tzNew.getTunnelType())) {
             AddL2GwDevicesToTransportZoneJob job =
@@ -116,14 +102,4 @@ public class L2GwTransportZoneListener
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.opendaylight.vpnservice.datastoreutils.
-     * AsyncDataTreeChangeListenerBase#getDataTreeChangeListener()
-     */
-    @Override
-    protected L2GwTransportZoneListener getDataTreeChangeListener() {
-        return this;
-    }
 }

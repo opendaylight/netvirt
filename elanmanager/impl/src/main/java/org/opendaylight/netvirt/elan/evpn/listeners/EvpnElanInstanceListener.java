@@ -11,18 +11,18 @@ package org.opendaylight.netvirt.elan.evpn.listeners;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import java.util.concurrent.ExecutionException;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.evpn.utils.EvpnMacVrfUtils;
 import org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.EvpnAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 
 @Singleton
-public class EvpnElanInstanceListener extends AsyncDataTreeChangeListenerBase<ElanInstance, EvpnElanInstanceListener> {
+public class EvpnElanInstanceListener extends AbstractAsyncDataTreeChangeListener<ElanInstance> {
     private static final Logger LOG = LoggerFactory.getLogger(EvpnElanInstanceListener.class);
     private final DataBroker broker;
     private final ManagedNewTransactionRunner txRunner;
@@ -45,7 +45,9 @@ public class EvpnElanInstanceListener extends AsyncDataTreeChangeListenerBase<El
     @Inject
     public EvpnElanInstanceListener(final DataBroker dataBroker, final EvpnUtils evpnUtils,
                                     EvpnMacVrfUtils evpnMacVrfUtils, IMdsalApiManager mdsalApiManager) {
-        super(ElanInstance.class, EvpnElanInstanceListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(ElanInstances.class)
+                .child(ElanInstance.class),
+                Executors.newListeningSingleThreadExecutor("EvpnElanInstanceListener", LOG));
         this.broker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.evpnUtils = evpnUtils;
@@ -53,27 +55,20 @@ public class EvpnElanInstanceListener extends AsyncDataTreeChangeListenerBase<El
         this.mdsalManager = mdsalApiManager;
     }
 
-    @Override
-    @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.CONFIGURATION, broker);
+        LOG.info("{} start", getClass().getSimpleName());
     }
 
     @Override
-    protected InstanceIdentifier<ElanInstance> getWildCardPath() {
-        return InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class).build();
+    public void add(InstanceIdentifier<ElanInstance> instanceIdentifier, ElanInstance evpnAugmentation) {
     }
 
     @Override
-    protected void add(InstanceIdentifier<ElanInstance> instanceIdentifier, ElanInstance evpnAugmentation) {
+    public void remove(InstanceIdentifier<ElanInstance> instanceIdentifier, ElanInstance evpnAugmentation) {
     }
 
     @Override
-    protected void remove(InstanceIdentifier<ElanInstance> instanceIdentifier, ElanInstance evpnAugmentation) {
-    }
-
-    @Override
-    protected void update(InstanceIdentifier<ElanInstance> instanceIdentifier, ElanInstance original,
+    public void update(InstanceIdentifier<ElanInstance> instanceIdentifier, ElanInstance original,
                           ElanInstance update) {
         String elanName = update.getElanInstanceName();
         LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, confTx -> {
@@ -98,10 +93,4 @@ public class EvpnElanInstanceListener extends AsyncDataTreeChangeListenerBase<El
             }
         }), LOG, "Error handling EVPN ELAN instance update");
     }
-
-    @Override
-    protected EvpnElanInstanceListener getDataTreeChangeListener() {
-        return this;
-    }
-
 }
