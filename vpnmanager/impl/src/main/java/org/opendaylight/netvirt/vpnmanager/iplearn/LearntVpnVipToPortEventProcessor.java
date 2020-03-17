@@ -7,23 +7,18 @@
  */
 package org.opendaylight.netvirt.vpnmanager.iplearn;
 
-import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.locks.ReentrantLock;
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -33,12 +28,17 @@ import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.mdsal.eos.binding.api.Entity;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipCandidateRegistration;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
 import org.opendaylight.mdsal.eos.common.api.CandidateAlreadyRegisteredException;
 import org.opendaylight.netvirt.vpnmanager.VpnConstants;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
+import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortEventAction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortEventData;
@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class LearntVpnVipToPortEventProcessor
-        extends AsyncClusteredDataTreeChangeListenerBase<LearntVpnVipToPortEvent, LearntVpnVipToPortEventProcessor> {
+        extends AbstractClusteredAsyncDataTreeChangeListener<LearntVpnVipToPortEvent> {
     private static final Logger LOG = LoggerFactory.getLogger(LearntVpnVipToPortEventProcessor.class);
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
@@ -72,7 +72,9 @@ public class LearntVpnVipToPortEventProcessor
     @Inject
     public LearntVpnVipToPortEventProcessor(final DataBroker dataBroker, IInterfaceManager interfaceManager,
             EntityOwnershipService entityOwnershipService, final JobCoordinator jobCoordinator, VpnUtil vpnUtil) {
-        super(LearntVpnVipToPortEvent.class, LearntVpnVipToPortEventProcessor.class);
+        super(dataBroker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier
+                .create(LearntVpnVipToPortEventData.class).child(LearntVpnVipToPortEvent.class),
+                Executors.newListeningSingleThreadExecutor("LearntVpnVipToPortEventProcessor", LOG));
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.interfaceManager = interfaceManager;
@@ -81,9 +83,8 @@ public class LearntVpnVipToPortEventProcessor
         this.vpnUtil = vpnUtil;
     }
 
-    @PostConstruct
     public void start() {
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
+        LOG.info("{} start", getClass().getSimpleName());
         try {
             candidateRegistration = entityOwnershipUtils.getEntityOwnershipService()
                     .registerCandidate(new Entity(VpnConstants.IP_MONITORING_ENTITY,
@@ -103,24 +104,14 @@ public class LearntVpnVipToPortEventProcessor
     }
 
     @Override
-    protected InstanceIdentifier<LearntVpnVipToPortEvent> getWildCardPath() {
-        return InstanceIdentifier.create(LearntVpnVipToPortEventData.class).child(LearntVpnVipToPortEvent.class);
-    }
-
-    @Override
-    protected LearntVpnVipToPortEventProcessor getDataTreeChangeListener() {
-        return this;
-    }
-
-    @Override
-    protected void update(InstanceIdentifier<LearntVpnVipToPortEvent> id, LearntVpnVipToPortEvent value,
+    public void update(InstanceIdentifier<LearntVpnVipToPortEvent> id, LearntVpnVipToPortEvent value,
             LearntVpnVipToPortEvent dataObjectModificationAfter) {
         // Updates does not make sense on an event queue .
         // NOTE: DONOT ADD ANY CODE HERE AND MAKE A CIRCUS
     }
 
     @Override
-    protected void add(InstanceIdentifier<LearntVpnVipToPortEvent> identifier, LearntVpnVipToPortEvent value) {
+    public void add(InstanceIdentifier<LearntVpnVipToPortEvent> identifier, LearntVpnVipToPortEvent value) {
         // AFTER PROCESSING THE EVENT, REMOVE THE EVENT FROM THE QUEUE
         entityOwnershipUtils.runOnlyInOwnerNode(VpnConstants.IP_MONITORING_ENTITY, VpnConstants.IP_MONITORING_ENTITY,
             jobCoordinator, "LearntVpnVipToPortEvent-Handler", () -> {
@@ -143,7 +134,7 @@ public class LearntVpnVipToPortEventProcessor
     }
 
     @Override
-    protected void remove(InstanceIdentifier<LearntVpnVipToPortEvent> key, LearntVpnVipToPortEvent value) {
+    public void remove(InstanceIdentifier<LearntVpnVipToPortEvent> key, LearntVpnVipToPortEvent value) {
         // Removals are triggered by add handling.
         // NOTE: DONOT ADD ANY CODE HERE AND MAKE A CIRCUS
     }
@@ -249,7 +240,7 @@ public class LearntVpnVipToPortEventProcessor
                 SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIfId,
                     newVpnIntf, VpnUtil.SINGLE_TRANSACTION_BROKER_NO_RETRY);
                 LOG.debug(" Successfully stored subnetroute Adjacency into VpnInterface {}", vpnInterface);
-            } catch (ReadFailedException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 LOG.error("addMipAdjacency: Failed to read data store for interface {} vpn {} ip {} mac {}",
                         vpnInterface, vpnInstName, srcPrefix, mipMacAddress);
             } catch (TransactionCommitFailedException e) {

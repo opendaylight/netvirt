@@ -24,7 +24,7 @@ import java.util.SortedSet;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.ActionInfo;

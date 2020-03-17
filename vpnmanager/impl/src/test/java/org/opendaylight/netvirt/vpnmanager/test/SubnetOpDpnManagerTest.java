@@ -8,22 +8,19 @@
 
 package org.opendaylight.netvirt.vpnmanager.test;
 
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.verify;
-
-import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.vpnmanager.SubnetOpDpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PortOpData;
@@ -41,6 +38,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.sub
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.subnet.to.dpn.VpnInterfacesKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint64;
+
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -64,7 +64,7 @@ public class SubnetOpDpnManagerTest {
     @Mock
     DataBroker dataBroker;
     @Mock
-    ReadOnlyTransaction mockReadTx;
+    ReadTransaction mockReadTx;
     @Mock
     WriteTransaction mockWriteTx;
 
@@ -129,7 +129,7 @@ public class SubnetOpDpnManagerTest {
     @Test
     public void testAddPortOpDataEntryPortOpAbsent() {
 
-        doReturn(Futures.immediateCheckedFuture(Optional.absent())).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(Futures.immediateCheckedFuture(Optional.empty())).when(mockReadTx).read(LogicalDatastoreType
             .OPERATIONAL, portOpIdentifier);
 
         subOpDpnManager.addPortOpDataEntry(infName, subnetId, dpId);
@@ -157,7 +157,7 @@ public class SubnetOpDpnManagerTest {
     @Test
     public void testRemovePortOpDataEntryPortOpAbsent() {
 
-        doReturn(Futures.immediateCheckedFuture(Optional.absent())).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(Futures.immediateCheckedFuture(Optional.empty())).when(mockReadTx).read(LogicalDatastoreType
             .OPERATIONAL, portOpIdentifier);
 
         subOpDpnManager.removePortOpDataEntry(infName, null);
@@ -178,7 +178,7 @@ public class SubnetOpDpnManagerTest {
     @Test
     public void testGetPortOpDataEntryPortOpAbsent() {
 
-        doReturn(Futures.immediateCheckedFuture(Optional.absent())).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(Futures.immediateCheckedFuture(Optional.empty())).when(mockReadTx).read(LogicalDatastoreType
             .OPERATIONAL, portOpIdentifier);
 
         subOpDpnManager.getPortOpDataEntry(infName);

@@ -7,24 +7,21 @@
  */
 package org.opendaylight.netvirt.vpnmanager.populator.impl;
 
-import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
-import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
-import static org.opendaylight.infrautils.utils.concurrent.ListenableFutures.addErrorLogging;
-
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.locks.ReentrantLock;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
@@ -53,6 +50,10 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+import static org.opendaylight.infrautils.utils.concurrent.ListenableFutures.addErrorLogging;
+import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 public abstract class L3vpnPopulator implements VpnPopulator {
     private static final Logger LOG = LoggerFactory.getLogger(L3vpnPopulator.class);
@@ -97,8 +98,14 @@ public abstract class L3vpnPopulator implements VpnPopulator {
                 InstanceIdentifier.builder(FibEntries.class)
                         .child(VrfTables.class, new VrfTablesKey(rd))
                         .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
-        Optional<VrfEntry> entry = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
-
+        Optional<VrfEntry> entry = Optional.empty();
+        try {
+            entry = SingleTransactionDataBroker.syncReadOptional(broker,
+                    LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("addSubnetRouteFibEntry: Exception while reading vrfEntry for the prefix {} rd {}", prefix,
+                    rd, e);
+        }
         if (!entry.isPresent()) {
             List<VrfEntry> vrfEntryList = Collections.singletonList(vrfEntry);
 

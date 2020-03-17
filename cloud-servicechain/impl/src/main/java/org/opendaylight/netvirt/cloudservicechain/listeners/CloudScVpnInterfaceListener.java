@@ -7,13 +7,13 @@
  */
 package org.opendaylight.netvirt.cloudservicechain.listeners;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.cloudservicechain.VPNServiceChainHandler;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
@@ -72,7 +72,7 @@ public class CloudScVpnInterfaceListener
                     LOG.trace("Vpn {} is not related to ServiceChaining. No further action", vpnName);
                     return;
                 }
-            } catch (ReadFailedException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Error reading the ServiceChaining information for VPN {}", vpnName, e);
             }
             break;
@@ -101,7 +101,7 @@ public class CloudScVpnInterfaceListener
                 }
                 vpnScHandler.bindScfOnVpnInterface(vpnIfaceAdded.key().getName(),
                         optScfInfoForVpn.get().getScfTag());
-            } catch (ReadFailedException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Error reading the ServiceChaining information for VPN {}", vpnName, e);
             }
         }

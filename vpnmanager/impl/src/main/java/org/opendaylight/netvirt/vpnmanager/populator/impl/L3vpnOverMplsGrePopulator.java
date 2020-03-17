@@ -7,8 +7,6 @@
  */
 package org.opendaylight.netvirt.vpnmanager.populator.impl;
 
-import static java.util.Collections.singletonList;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -17,9 +15,9 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -36,6 +34,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.re
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.util.Collections.singletonList;
 
 @Singleton
 public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {

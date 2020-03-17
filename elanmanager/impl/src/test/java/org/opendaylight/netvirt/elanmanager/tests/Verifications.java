@@ -20,9 +20,9 @@ import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.awaitility.core.ConditionFactory;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
+import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -141,7 +141,7 @@ public class Verifications {
             } else {
                 return remoteMcastFoundFlag == false;
             }
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             return false;
         }
     }
@@ -183,7 +183,7 @@ public class Verifications {
             } else {
                 return remoteUcastFoundFlag == false;
             }
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             return false;
         }
     }

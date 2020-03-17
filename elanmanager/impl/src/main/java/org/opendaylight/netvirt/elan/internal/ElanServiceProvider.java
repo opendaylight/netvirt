@@ -10,7 +10,7 @@ package org.opendaylight.netvirt.elan.internal;
 
 import static java.util.Collections.emptyList;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,8 +26,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
@@ -240,7 +240,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     @Override
     @Nullable
     public EtreeInterface getEtreeInterfaceByElanInterfaceName(String elanInterface) {
-        return elanInterfaceCache.getEtreeInterface(elanInterface).orNull();
+        return elanInterfaceCache.getEtreeInterface(elanInterface).orElse(null);
     }
 
     public static boolean compareWithExistingElanInstance(ElanInstance existingElanInstance, long macTimeOut,
@@ -424,7 +424,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     @Override
     @Nullable
     public ElanInstance getElanInstance(String elanName) {
-        return elanInstanceCache.get(elanName).orNull();
+        return elanInstanceCache.get(elanName).orElse(null);
     }
 
     @Override
@@ -666,7 +666,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     @Override
     @Nullable
     public ElanInterface getElanInterfaceByElanInterfaceName(String interfaceName) {
-        return elanInterfaceCache.get(interfaceName).orNull();
+        return elanInterfaceCache.get(interfaceName).orElse(null);
     }
 
     @Override
@@ -684,7 +684,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             LOG.trace("ELAN service is after L3VPN in the Netvirt pipeline skip known L3DMAC flows installation");
             return;
         }
-        ElanInstance elanInstance = elanInstanceCache.get(elanInstanceName).orNull();
+        ElanInstance elanInstance = elanInstanceCache.get(elanInstanceName).orElse(null);
         if (elanInstance == null) {
             LOG.warn("Null elan instance {}", elanInstanceName);
             return;
@@ -706,7 +706,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             LOG.trace("ELAN service is after L3VPN in the Netvirt pipeline skip known L3DMAC flows installation");
             return;
         }
-        ElanInstance elanInstance = elanInstanceCache.get(elanInstanceName).orNull();
+        ElanInstance elanInstance = elanInstanceCache.get(elanInstanceName).orElse(null);
         if (elanInstance == null) {
             LOG.warn("Null elan instance {}", elanInstanceName);
             return;
@@ -862,7 +862,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                 ingressInterfaceName, macAddress, ipAddress);
         Optional<ElanInterface> elanIface = elanInterfaceCache.get(ingressInterfaceName);
         ElanInstance elanInstance = elanIface.isPresent()
-                ? elanInstanceCache.get(elanIface.get().getElanInstanceName()).orNull() : null;
+                ? elanInstanceCache.get(elanIface.get().getElanInstanceName()).orElse(null) : null;
         if (elanInstance == null) {
             LOG.debug("addArpResponderFlow: elanInstance is null, Failed to install arp responder flow for dpnId {}"
                     + "for Interface {} with MAC {} & IP {}", dpnId, ingressInterfaceName, macAddress, ipAddress);
@@ -889,7 +889,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         LOG.trace("Installing the ExternalTunnel ARP responder flow on DPN {} for ElanInstance {} with MAC {} & IP {}",
                 dpnId, elanInstanceName, macAddress, ipAddress);
 
-        ElanInstance elanInstance = elanInstanceCache.get(elanInstanceName).orNull();
+        ElanInstance elanInstance = elanInstanceCache.get(elanInstanceName).orElse(null);
         if (elanInstance == null) {
             LOG.warn("Null elan instance {}", elanInstanceName);
             return;

@@ -8,9 +8,6 @@
 
 package org.opendaylight.netvirt.vpnmanager;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
-
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -20,18 +17,18 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.DpnEndpoints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.dpn.teps.info.TunnelEndPoints;
@@ -43,9 +40,12 @@ import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+
 @Singleton
 public class TunnelEndPointChangeListener
-    extends AsyncDataTreeChangeListenerBase<TunnelEndPoints, TunnelEndPointChangeListener> {
+    extends AbstractAsyncDataTreeChangeListener<TunnelEndPoints> {
     private static final Logger LOG = LoggerFactory.getLogger(TunnelEndPointChangeListener.class);
 
     private final DataBroker broker;
@@ -58,7 +58,9 @@ public class TunnelEndPointChangeListener
     @Inject
     public TunnelEndPointChangeListener(final DataBroker broker, final VpnInterfaceManager vpnInterfaceManager,
             final JobCoordinator jobCoordinator, VpnUtil vpnUtil, final IFibManager fibManager) {
-        super(TunnelEndPoints.class, TunnelEndPointChangeListener.class);
+        super(broker, LogicalDatastoreType.CONFIGURATION,
+                InstanceIdentifier.create(DpnEndpoints.class).child(DPNTEPsInfo.class).child(TunnelEndPoints.class),
+                Executors.newListeningSingleThreadExecutor("TunnelEndPointChangeListener", LOG));
         this.broker = broker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
         this.vpnInterfaceManager = vpnInterfaceManager;
@@ -67,29 +69,21 @@ public class TunnelEndPointChangeListener
         this.fibManager = fibManager;
     }
 
-    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.CONFIGURATION, broker);
     }
 
     @Override
-    protected InstanceIdentifier<TunnelEndPoints> getWildCardPath() {
-        return InstanceIdentifier.builder(DpnEndpoints.class).child(DPNTEPsInfo.class).child(TunnelEndPoints.class)
-            .build();
+    public void remove(InstanceIdentifier<TunnelEndPoints> key, TunnelEndPoints tep) {
     }
 
     @Override
-    protected void remove(InstanceIdentifier<TunnelEndPoints> key, TunnelEndPoints tep) {
-    }
-
-    @Override
-    protected void update(InstanceIdentifier<TunnelEndPoints> key, TunnelEndPoints origTep,
+    public void update(InstanceIdentifier<TunnelEndPoints> key, TunnelEndPoints origTep,
         TunnelEndPoints updatedTep) {
     }
 
     @Override
-    protected void add(InstanceIdentifier<TunnelEndPoints> key, TunnelEndPoints tep) {
+    public void add(InstanceIdentifier<TunnelEndPoints> key, TunnelEndPoints tep) {
         Uint64 dpnId = key.firstIdentifierOf(DPNTEPsInfo.class).firstKeyOf(DPNTEPsInfo.class).getDPNID();
         if (Uint64.ZERO.equals(dpnId)) {
             LOG.warn("add: Invalid DPN id for TEP {}", tep.getInterfaceName());
@@ -166,8 +160,4 @@ public class TunnelEndPointChangeListener
         }
     }
 
-    @Override
-    protected TunnelEndPointChangeListener getDataTreeChangeListener() {
-        return this;
-    }
 }

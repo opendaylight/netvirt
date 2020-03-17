@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.vpnmanager.shell;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,9 +17,9 @@ import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
@@ -124,7 +124,7 @@ public class ShowVpnInstanceOpData extends OsgiCommandSupport {
 
     private <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType,
             InstanceIdentifier<T> path) {
-        try (ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
+        try (ReadTransaction tx = dataBroker.newReadOnlyTransaction()) {
             return tx.read(datastoreType, path).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);

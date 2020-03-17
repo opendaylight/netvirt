@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;

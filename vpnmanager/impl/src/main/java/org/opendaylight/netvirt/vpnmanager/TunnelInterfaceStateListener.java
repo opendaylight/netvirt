@@ -7,14 +7,8 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import static java.util.Collections.emptyList;
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
-
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,29 +16,29 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.ReentrantLock;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev170119.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -82,9 +76,13 @@ import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.Collections.emptyList;
+
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+
 @Singleton
-public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBase<StateTunnelList,
-        TunnelInterfaceStateListener> {
+public class TunnelInterfaceStateListener extends AbstractAsyncDataTreeChangeListener<StateTunnelList> {
 
     private static final Logger LOG = LoggerFactory.getLogger(TunnelInterfaceStateListener.class);
 
@@ -126,7 +124,9 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                                         final VpnSubnetRouteHandler vpnSubnetRouteHandler,
                                         final JobCoordinator jobCoordinator,
                                         VpnUtil vpnUtil) {
-        super(StateTunnelList.class, TunnelInterfaceStateListener.class);
+        super(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                InstanceIdentifier.create(TunnelsState.class).child(StateTunnelList.class),
+                Executors.newListeningSingleThreadExecutor("TunnelInterfaceStateListener", LOG));
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.fibManager = fibManager;
@@ -137,24 +137,12 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         this.vpnUtil = vpnUtil;
     }
 
-    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<StateTunnelList> getWildCardPath() {
-        return InstanceIdentifier.create(TunnelsState.class).child(StateTunnelList.class);
-    }
-
-    @Override
-    protected TunnelInterfaceStateListener getDataTreeChangeListener() {
-        return TunnelInterfaceStateListener.this;
-    }
-
-    @Override
-    protected void remove(InstanceIdentifier<StateTunnelList> identifier, StateTunnelList del) {
+    public void remove(InstanceIdentifier<StateTunnelList> identifier, StateTunnelList del) {
         LOG.trace("remove: Tunnel deletion---- {}", del);
         if (isGreTunnel(del)) {
             programDcGwLoadBalancingGroup(del, NwConstants.MOD_FLOW, false);
@@ -163,7 +151,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
     }
 
     @Override
-    protected void update(InstanceIdentifier<StateTunnelList> identifier, StateTunnelList original,
+    public void update(InstanceIdentifier<StateTunnelList> identifier, StateTunnelList original,
                           StateTunnelList update) {
         LOG.trace("update: Tunnel updation---- {}", update);
         LOG.info("update: ITM Tunnel {} of type {} state event changed from :{} to :{}",
@@ -223,7 +211,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
     }
 
     @Override
-    protected void add(InstanceIdentifier<StateTunnelList> identifier, StateTunnelList add) {
+    public void add(InstanceIdentifier<StateTunnelList> identifier, StateTunnelList add) {
         LOG.trace("add: Tunnel addition---- {}", add);
         TunnelOperStatus tunOpStatus = add.getOperState();
         if (tunOpStatus != TunnelOperStatus.Down && tunOpStatus != TunnelOperStatus.Up) {
@@ -539,7 +527,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                     }
                 }
             }
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("handleTunnelEventForDPN: Failed to read data store for interface {} srcDpn {} srcTep {} "
                     + "dstTep {}", intfName, srcDpnId, srcTepIp, destTepIp);
         }

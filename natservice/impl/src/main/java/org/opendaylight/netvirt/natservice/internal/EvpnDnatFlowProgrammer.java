@@ -8,11 +8,11 @@
 
 package org.opendaylight.netvirt.natservice.internal;
 
-import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -26,8 +26,8 @@ import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;

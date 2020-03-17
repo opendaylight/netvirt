@@ -7,21 +7,19 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-
-import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -56,6 +54,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.FormattingTuple;
 import org.slf4j.helpers.MessageFormatter;
+
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 @Singleton
 public class VpnRpcServiceImpl implements VpnRpcService {

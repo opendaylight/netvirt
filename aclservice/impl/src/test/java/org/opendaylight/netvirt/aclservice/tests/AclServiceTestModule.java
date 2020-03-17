@@ -14,7 +14,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.inject.AbstractModule;
 import org.mockito.Mockito;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.test.DataBrokerTestModule;
 import org.opendaylight.genius.datastoreutils.testutils.JobCoordinatorEventsWaiter;
 import org.opendaylight.genius.datastoreutils.testutils.TestableJobCoordinatorEventsWaiter;

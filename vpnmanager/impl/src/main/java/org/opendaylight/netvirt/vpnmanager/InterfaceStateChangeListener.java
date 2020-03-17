@@ -7,10 +7,6 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
-
-import com.google.common.base.Optional;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.google.common.util.concurrent.FutureCallback;
@@ -22,18 +18,19 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev170119.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -49,9 +46,11 @@ import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+
 @Singleton
-public class InterfaceStateChangeListener
-    extends AsyncDataTreeChangeListenerBase<Interface, InterfaceStateChangeListener> {
+public class InterfaceStateChangeListener extends AbstractAsyncDataTreeChangeListener<Interface> {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceStateChangeListener.class);
     private static final short DJC_MAX_RETRIES = 3;
@@ -87,7 +86,9 @@ public class InterfaceStateChangeListener
     @Inject
     public InterfaceStateChangeListener(final DataBroker dataBroker, final VpnInterfaceManager vpnInterfaceManager,
             final VpnUtil vpnUtil, final JobCoordinator jobCoordinator, final IFibManager fibManager) {
-        super(Interface.class, InterfaceStateChangeListener.class);
+        super(dataBroker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(InterfacesState.class)
+                .child(Interface.class),
+                Executors.newListeningSingleThreadExecutor("InterfaceStateChangeListener", LOG));
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.vpnInterfaceManager = vpnInterfaceManager;
@@ -97,28 +98,14 @@ public class InterfaceStateChangeListener
         initialize();
     }
 
-    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
-
-
-    @Override
-    protected InstanceIdentifier<Interface> getWildCardPath() {
-        return InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
-    }
-
-    @Override
-    protected InterfaceStateChangeListener getDataTreeChangeListener() {
-        return InterfaceStateChangeListener.this;
-    }
-
 
     @Override
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
+    public void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
         try {
             if (L2vlan.class.equals(intrf.getType())) {
                 LOG.info("VPN Interface add event - intfName {} from InterfaceStateChangeListener",
@@ -199,7 +186,7 @@ public class InterfaceStateChangeListener
     @Override
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
+    public void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
         final String ifName = intrf.getName();
         Uint64 dpId = Uint64.ZERO;
         try {
@@ -265,7 +252,7 @@ public class InterfaceStateChangeListener
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
-    protected void update(InstanceIdentifier<Interface> identifier,
+    public void update(InstanceIdentifier<Interface> identifier,
                     Interface original, Interface update) {
         final String ifName = update.getName();
         try {

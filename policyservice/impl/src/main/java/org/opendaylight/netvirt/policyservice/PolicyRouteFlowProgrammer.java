@@ -8,14 +8,14 @@
 
 package org.opendaylight.netvirt.policyservice;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;

@@ -9,15 +9,15 @@ package org.opendaylight.netvirt.fibmanager;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
@@ -243,7 +243,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler {
                         return;
                     }
                     tunnelId = Uint64.valueOf(stateTunnelList.getIfIndex().intValue());
-                } catch (ReadFailedException e) {
+                } catch (InterruptedException | ExecutionException e) {
                     LOG.error("createRemoteFibEntry: error in fetching tunnel state for interface {}",
                             interfaceName, e);
                     continue;
@@ -287,7 +287,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler {
         if (vpnToDpnList != null) {
             jobCoordinator.enqueueJob("FIB" + rd + vrfEntry.getDestPrefix(),
                 () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-                    final Optional<Routes> extraRouteOptional = Optional.absent();
+                    final Optional<Routes> extraRouteOptional = Optional.empty();
                     if (localDpnIdList.size() <= 0) {
                         for (VpnToDpnList curDpn1 : vpnToDpnList) {
                             if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP) {

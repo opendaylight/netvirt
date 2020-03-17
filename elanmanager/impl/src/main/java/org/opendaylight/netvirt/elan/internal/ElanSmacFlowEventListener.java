@@ -10,7 +10,7 @@ package org.opendaylight.netvirt.elan.internal;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -21,8 +21,8 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
@@ -120,17 +120,17 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
                 LOG.info("Deleting the Mac-Entry:{} present on ElanInstance:{}", macEntry, elanInstanceName);
                 ListenableFuture<Void> result = txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
                     if (macEntry != null && interfaceInfo != null) {
-                        deleteSmacAndDmacFlows(elanInstanceCache.get(elanInstanceName).orNull(),
+                        deleteSmacAndDmacFlows(elanInstanceCache.get(elanInstanceName).orElse(null),
                                 interfaceInfo, srcMacAddress, tx);
                     } else if (macEntry == null) { //Remove flow of src flow entry only for MAC movement
                         MacEntry macEntryOfElanForwarding = elanUtils.getMacEntryForElanInstance(elanTagInfo.getName(),
-                                physAddress).orNull();
+                                physAddress).orElse(null);
                         if (macEntryOfElanForwarding != null) {
                             String macAddress = macEntryOfElanForwarding.getMacAddress().getValue();
-                            elanUtils.deleteSmacFlowOnly(elanInstanceCache.get(elanInstanceName).orNull(),
+                            elanUtils.deleteSmacFlowOnly(elanInstanceCache.get(elanInstanceName).orElse(null),
                                     interfaceInfo, macAddress, tx);
                         } else {
-                            deleteSmacAndDmacFlows(elanInstanceCache.get(elanInstanceName).orNull(), interfaceInfo,
+                            deleteSmacAndDmacFlows(elanInstanceCache.get(elanInstanceName).orElse(null), interfaceInfo,
                                     srcMacAddress, tx);
                         }
                     }
@@ -146,7 +146,7 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
                         tx -> {
                             tx.delete(macEntryIdForElanInterface);
                             MacEntry macEntryInElanInstance = elanUtils.getMacEntryForElanInstance(elanInstanceName,
-                                physAddress).orNull();
+                                physAddress).orElse(null);
                             if (macEntryInElanInstance != null
                                 && macEntryInElanInstance.getInterface().equals(interfaceName)) {
                                 InstanceIdentifier<MacEntry> macEntryIdForElanInstance = ElanUtils

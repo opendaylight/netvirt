@@ -8,16 +8,11 @@
 
 package org.opendaylight.netvirt.vpnmanager.test;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Future;
 import javax.inject.Inject;
 import org.junit.Before;
@@ -26,11 +21,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.SubnetOpDpnManager;
@@ -92,6 +87,11 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.opendaylight.yangtools.yang.common.Uint64;
+
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VpnSubnetRouteHandlerTest {
@@ -161,7 +161,7 @@ public class VpnSubnetRouteHandlerTest {
     @Mock
     DataBroker dataBroker;
     @Mock
-    ReadOnlyTransaction mockReadTx;
+    ReadTransaction mockReadTx;
     @Mock
     WriteTransaction mockWriteTx;
     @Mock
@@ -242,7 +242,7 @@ public class VpnSubnetRouteHandlerTest {
             .CONFIGURATION, instVpnInstance);
         doReturn(Futures.immediateCheckedFuture(vpnInstanceOptional)).when(mockReadTx).read(LogicalDatastoreType
             .CONFIGURATION, vpnInstanceIdentifier);
-        doReturn(Futures.immediateCheckedFuture(Optional.absent())).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(Futures.immediateCheckedFuture(Optional.empty())).when(mockReadTx).read(LogicalDatastoreType
             .CONFIGURATION, netsIdentifier);
         doReturn(idOutputOptional).when(idManager).allocateId(allocateIdInput);
 
@@ -309,7 +309,7 @@ public class VpnSubnetRouteHandlerTest {
         networks = new NetworksBuilder().setId(portId).withKey(new NetworksKey(portId)).build();
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();
         doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();
-        doReturn(Futures.immediateCheckedFuture(null)).when(mockWriteTx).submit();
+        doReturn(Futures.immediateCheckedFuture(null)).when(mockWriteTx).commit();
     }
 
     @Ignore
@@ -371,7 +371,7 @@ public class VpnSubnetRouteHandlerTest {
     @Test
     public void testOnSubnetAddedToVpn() {
 
-        doReturn(Futures.immediateCheckedFuture(Optional.absent())).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(Futures.immediateCheckedFuture(Optional.empty())).when(mockReadTx).read(LogicalDatastoreType
             .OPERATIONAL, subOpIdentifier);
 
         vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmap, true, elanTag);

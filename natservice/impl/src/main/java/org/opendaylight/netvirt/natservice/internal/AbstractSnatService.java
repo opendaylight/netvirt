@@ -15,10 +15,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
+import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.infra.Datastore.Configuration;
@@ -639,7 +639,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
 
             SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                     vpnInterfacesId, vpnInterfacesBuilder.build());
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Failed to read removeMipAdjacencies with error {}", e.getMessage());
         } catch (TransactionCommitFailedException e) {
             LOG.warn("Failed to remove removeMipAdjacencies with error {}", e.getMessage());

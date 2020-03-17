@@ -13,8 +13,8 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
@@ -159,7 +159,7 @@ public class ElanDpnInterfaceClusteredListener
             elanInstanceDpnsCache.add(getElanName(identifier), dpnInterfaces);
             if (entityOwnershipUtils.isEntityOwner(HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
                     HwvtepSouthboundConstants.ELAN_ENTITY_NAME)) {
-                ElanInstance elanInstance = elanInstanceCache.get(elanName).orNull();
+                ElanInstance elanInstance = elanInstanceCache.get(elanName).orElse(null);
                 if (elanInstance != null) {
                     BcGroupUpdateJob.updateAllBcGroups(elanName, elanRefUtil, elanL2GatewayMulticastUtils,
                             broker, true);

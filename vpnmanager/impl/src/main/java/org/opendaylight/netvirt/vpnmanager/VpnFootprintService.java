@@ -8,10 +8,6 @@
 
 package org.opendaylight.netvirt.vpnmanager;
 
-import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
-import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
-
-import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -19,6 +15,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
@@ -26,12 +23,12 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.NotificationPublishService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
@@ -65,6 +62,9 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 @Singleton
 public class VpnFootprintService implements IVpnFootprintService {

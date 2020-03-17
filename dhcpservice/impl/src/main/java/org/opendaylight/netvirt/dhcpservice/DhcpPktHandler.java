@@ -24,8 +24,8 @@ import org.apache.commons.net.util.SubnetUtils;
 import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -315,7 +315,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
                 default:
                     break;
             }
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("Error reading from MD-SAL", e);
         }
         return null;

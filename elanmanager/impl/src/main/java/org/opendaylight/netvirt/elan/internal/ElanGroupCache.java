@@ -8,21 +8,21 @@
 
 package org.opendaylight.netvirt.elan.internal;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.elan.utils.Scheduler;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
@@ -103,12 +103,12 @@ public class ElanGroupCache extends AsyncClusteredDataTreeChangeListenerBase<Gro
         }, ElanInterfaceManager.WAIT_TIME_FOR_SYNC_INSTALL, TimeUnit.MILLISECONDS);
     }
 
-    public Optional<Group> getGroup(InstanceIdentifier<Group> key) throws ReadFailedException {
+    public Optional<Group> getGroup(InstanceIdentifier<Group> key) throws InterruptedException, ExecutionException {
         if (groupsById.containsKey(key)) {
             return Optional.of(groupsById.get(key));
         }
-        ReadOnlyTransaction transaction = dataBroker.newReadOnlyTransaction();
-        Optional<Group> optional = transaction.read(LogicalDatastoreType.CONFIGURATION, key).checkedGet();
+        ReadTransaction transaction = dataBroker.newReadOnlyTransaction();
+        Optional<Group> optional = transaction.read(LogicalDatastoreType.CONFIGURATION, key).get();
         transaction.close();
         return optional;
     }

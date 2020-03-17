@@ -12,7 +12,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -28,10 +28,10 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
@@ -182,7 +182,7 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataTreeChangeLis
                 LOG.error("Failed to read config topology");
                 return;
             }
-            ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
+            ReadTransaction tx = broker.newReadOnlyTransaction();
             InstanceIdentifier<Topology> topoIid = HwvtepSouthboundUtils.createHwvtepTopologyInstanceIdentifier();
             Futures.addCallback(tx.read(CONFIGURATION, topoIid), new FutureCallback<Optional<Topology>>() {
                 @Override
