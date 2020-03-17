@@ -8,12 +8,12 @@
 
 package org.opendaylight.netvirt.natservice.internal;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap, SubnetmapListener> {
+public class SubnetmapListener extends AbstractAsyncDataTreeChangeListener<Subnetmap> {
     private static final Logger LOG = LoggerFactory.getLogger(SubnetmapListener.class);
     private final DataBroker dataBroker;
     private final ExternalNetworkGroupInstaller externalNetworkGroupInstaller;
@@ -31,32 +31,27 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
     public SubnetmapListener(final DataBroker dataBroker,
                              final ExternalNetworkGroupInstaller externalNetworkGroupInstaller,
                              NatServiceCounters natServiceCounters) {
-        super(Subnetmap.class, SubnetmapListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                InstanceIdentifier.create(Subnetmaps.class).child(Subnetmap.class),
+                Executors.newListeningSingleThreadExecutor("SubnetmapListener", LOG));
         this.dataBroker = dataBroker;
         this.externalNetworkGroupInstaller = externalNetworkGroupInstaller;
         this.natServiceCounters = natServiceCounters;
     }
 
-    @Override
-    @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
+        LOG.info("{} init", getClass().getSimpleName());
     }
 
     @Override
-    protected InstanceIdentifier<Subnetmap> getWildCardPath() {
-        return InstanceIdentifier.create(Subnetmaps.class).child(Subnetmap.class);
-    }
-
-    @Override
-    protected void remove(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmap) {
+    public void remove(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmap) {
         LOG.trace("remove key: {} value: {}", subnetmap.key(), subnetmap);
         natServiceCounters.subnetmapRemove();
         externalNetworkGroupInstaller.removeExtNetGroupEntries(subnetmap);
     }
 
     @Override
-    protected void update(InstanceIdentifier<Subnetmap> identifier,
+    public void update(InstanceIdentifier<Subnetmap> identifier,
                           Subnetmap subnetmapBefore, Subnetmap subnetmapAfter) {
         LOG.trace("update key: {}, original: {}, update: {}", subnetmapAfter.key(), subnetmapBefore, subnetmapAfter);
         natServiceCounters.subnetmapUpdate();
@@ -64,14 +59,9 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
     }
 
     @Override
-    protected void add(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmap) {
+    public void add(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmap) {
         LOG.trace("add key: {} value: {}", subnetmap.key(), subnetmap);
         natServiceCounters.subnetmapAdd();
         externalNetworkGroupInstaller.installExtNetGroupEntries(subnetmap);
-    }
-
-    @Override
-    protected SubnetmapListener getDataTreeChangeListener() {
-        return this;
     }
 }

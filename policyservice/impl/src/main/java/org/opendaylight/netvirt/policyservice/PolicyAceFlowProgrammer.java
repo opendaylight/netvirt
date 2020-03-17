@@ -8,7 +8,7 @@
 
 package org.opendaylight.netvirt.policyservice;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
@@ -167,14 +167,14 @@ public class PolicyAceFlowProgrammer {
             }
         }
 
-        return Optional.absent();
+        return Optional.empty();
     }
 
     private Optional<PolicyAceFlowWrapper> getIngressInterfaceFlow(IngressInterface ingressInterface) {
         String interfaceName = ingressInterface.getName();
         if (interfaceName == null) {
             LOG.error("Invalid ingress interface augmentation. missing interface name");
-            return Optional.absent();
+            return Optional.empty();
         }
 
         String flowName = "INGRESS_INTERFACE_" + interfaceName;
@@ -209,7 +209,7 @@ public class PolicyAceFlowProgrammer {
         Class<? extends ServiceTypeBase> serviceType = service.getServiceType();
         if (serviceName == null || serviceType == null) {
             LOG.error("Invalid policy service augmentation {}", service);
-            return Optional.absent();
+            return Optional.empty();
         }
 
         if (serviceType.isAssignableFrom(L2vpnServiceType.class)) {
@@ -234,6 +234,6 @@ public class PolicyAceFlowProgrammer {
                     PolicyServiceConstants.POLICY_ACL_L3VPN_FLOW_PRIOPITY));
         }
 
-        return Optional.absent();
+        return Optional.empty();
     }
 }
