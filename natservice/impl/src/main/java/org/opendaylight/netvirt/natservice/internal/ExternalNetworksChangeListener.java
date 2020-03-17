@@ -9,21 +9,23 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import com.google.common.base.Optional;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.PostConstruct;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig;
@@ -44,8 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class ExternalNetworksChangeListener
-        extends AsyncDataTreeChangeListenerBase<Networks, ExternalNetworksChangeListener> {
+public class ExternalNetworksChangeListener extends AbstractAsyncDataTreeChangeListener<Networks> {
     private static final Logger LOG = LoggerFactory.getLogger(ExternalNetworksChangeListener.class);
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
@@ -61,7 +62,9 @@ public class ExternalNetworksChangeListener
                                           final OdlInterfaceRpcService interfaceManager,
                                           final NatserviceConfig config,
                                           final JobCoordinator coordinator) {
-        super(Networks.class, ExternalNetworksChangeListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(ExternalNetworks.class)
+                .child(Networks.class),
+                Executors.newListeningSingleThreadExecutor("ExternalNetworksChangeListener", LOG));
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.floatingIpListener = floatingIpListener;
@@ -75,30 +78,17 @@ public class ExternalNetworksChangeListener
         }
     }
 
-    @Override
-    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<Networks> getWildCardPath() {
-        return InstanceIdentifier.create(ExternalNetworks.class).child(Networks.class);
-    }
-
-    @Override
-    protected void add(InstanceIdentifier<Networks> identifier, Networks networks) {
+    public void add(InstanceIdentifier<Networks> identifier, Networks networks) {
 
     }
 
     @Override
-    protected ExternalNetworksChangeListener getDataTreeChangeListener() {
-        return ExternalNetworksChangeListener.this;
-    }
-
-    @Override
-    protected void remove(InstanceIdentifier<Networks> identifier, Networks networks) {
+    public void remove(InstanceIdentifier<Networks> identifier, Networks networks) {
         if (identifier == null || networks == null || networks.getRouterIds() == null
                 || networks.getRouterIds().isEmpty()) {
             LOG.warn("remove : returning without processing since networks/identifier is null: "
@@ -119,7 +109,7 @@ public class ExternalNetworksChangeListener
     }
 
     @Override
-    protected void update(InstanceIdentifier<Networks> identifier, Networks original, Networks update) {
+    public void update(InstanceIdentifier<Networks> identifier, Networks original, Networks update) {
         //Check for VPN disassociation
         Uuid originalVpn = original.getVpnid();
         Uuid updatedVpn = update.getVpnid();
@@ -161,8 +151,15 @@ public class ExternalNetworksChangeListener
                 //long router = NatUtil.getVpnId(dataBroker, routerId.getValue());
 
                 InstanceIdentifier<RouterPorts> routerPortsId = NatUtil.getRouterPortsId(routerId.getValue());
-                Optional<RouterPorts> optRouterPorts = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                    routerPortsId);
+                Optional<RouterPorts> optRouterPorts = null;
+                try {
+                    optRouterPorts = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                            LogicalDatastoreType.CONFIGURATION, routerPortsId);
+                } catch (ExecutionException | InterruptedException e) {
+                    LOG.error("associateExternalNetworkWithVPN: Exception while reading RouterPorts DS for the "
+                            + "router {} network {} ", routerId, network.getId().getValue(), e);
+                    continue;
+                }
                 if (!optRouterPorts.isPresent()) {
                     LOG.debug("associateExternalNetworkWithVPN : Could not read Router Ports data object with id: {} "
                         + "to handle associate ext nw {}", routerId, network.getId());
@@ -206,8 +203,14 @@ public class ExternalNetworksChangeListener
                 Uint64 dpnId = Uint64.valueOf("0");
                 InstanceIdentifier<RouterToNaptSwitch> routerToNaptSwitch =
                     NatUtil.buildNaptSwitchRouterIdentifier(routerId.getValue());
-                Optional<RouterToNaptSwitch> rtrToNapt =
-                    MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerToNaptSwitch);
+                Optional<RouterToNaptSwitch> rtrToNapt = Optional.empty();
+                try {
+                    rtrToNapt = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                            LogicalDatastoreType.CONFIGURATION, routerToNaptSwitch);
+                } catch (ExecutionException | InterruptedException e) {
+                    LOG.error("associateExternalNetworkWithVPN: Exception while reading routerToNaptSwitch DS for the "
+                            + "router {}", routerId, e);
+                }
                 if (rtrToNapt.isPresent()) {
                     dpnId = rtrToNapt.get().getPrimarySwitchId();
                 }
@@ -273,8 +276,14 @@ public class ExternalNetworksChangeListener
         if (network.getRouterIds() != null) {
             for (Uuid routerId : network.getRouterIds()) {
                 InstanceIdentifier<RouterPorts> routerPortsId = NatUtil.getRouterPortsId(routerId.getValue());
-                Optional<RouterPorts> optRouterPorts = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                    routerPortsId);
+                Optional<RouterPorts> optRouterPorts = Optional.empty();
+                try {
+                    optRouterPorts = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                            LogicalDatastoreType.CONFIGURATION, routerPortsId);
+                } catch (ExecutionException | InterruptedException e) {
+                    LOG.error("disassociateExternalNetworkFromVPN: Exception while reading RouterPorts DS for the "
+                            + "router {} network {} vpn {}", routerId, network.getId().getValue(), vpnName, e);
+                }
                 if (!optRouterPorts.isPresent()) {
                     LOG.debug(
                         "disassociateExternalNetworkFromVPN : Could not read Router Ports data object with id: {} "

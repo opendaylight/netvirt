@@ -7,15 +7,15 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
+import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DhcpConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.dhcp.config.Configs;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class DhcpConfigListener extends AsyncClusteredDataTreeChangeListenerBase<DhcpConfig, DhcpConfigListener> {
+public class DhcpConfigListener extends AbstractClusteredAsyncDataTreeChangeListener<DhcpConfig> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpConfigListener.class);
 
@@ -32,19 +32,14 @@ public class DhcpConfigListener extends AsyncClusteredDataTreeChangeListenerBase
 
     @Inject
     public DhcpConfigListener(final DataBroker db, final DhcpManager dhcpMgr) {
-        super(DhcpConfig.class, DhcpConfigListener.class);
+        super(db, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(DhcpConfig.class),
+                Executors.newListeningSingleThreadExecutor("DhcpConfigListener", LOG));
         dhcpManager = dhcpMgr;
         this.dataBroker = db;
     }
 
-    @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
-    }
-
-    @Override
-    protected InstanceIdentifier<DhcpConfig> getWildCardPath() {
-        return InstanceIdentifier.create(DhcpConfig.class);
+        LOG.info("{} close", getClass().getSimpleName());
     }
 
     @Override
@@ -55,19 +50,19 @@ public class DhcpConfigListener extends AsyncClusteredDataTreeChangeListenerBase
     }
 
     @Override
-    protected void remove(InstanceIdentifier<DhcpConfig> identifier, DhcpConfig del) {
+    public void remove(InstanceIdentifier<DhcpConfig> identifier, DhcpConfig del) {
         LOG.trace("DhcpConfig removed: {}", del);
         updateConfig(null);
     }
 
     @Override
-    protected void update(InstanceIdentifier<DhcpConfig> identifier, DhcpConfig original, DhcpConfig update) {
+    public void update(InstanceIdentifier<DhcpConfig> identifier, DhcpConfig original, DhcpConfig update) {
         LOG.trace("DhcpConfig changed to {}", update);
         updateConfig(update);
     }
 
     @Override
-    protected void add(InstanceIdentifier<DhcpConfig> identifier, DhcpConfig add) {
+    public void add(InstanceIdentifier<DhcpConfig> identifier, DhcpConfig add) {
         LOG.trace("DhcpConfig added {}", add);
         updateConfig(add);
     }
@@ -87,10 +82,5 @@ public class DhcpConfigListener extends AsyncClusteredDataTreeChangeListenerBase
             dhcpManager.setDefaultDomain(config.getDefaultDomain());
             //TODO: What to do if string is ""
         }
-    }
-
-    @Override
-    protected DhcpConfigListener getDataTreeChangeListener() {
-        return DhcpConfigListener.this;
     }
 }

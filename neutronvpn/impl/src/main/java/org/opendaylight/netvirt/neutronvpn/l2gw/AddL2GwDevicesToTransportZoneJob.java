@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 /**
  * The Class AddL2GwDevicesToTransportZoneJob.
  */
-public class AddL2GwDevicesToTransportZoneJob implements Callable<List<ListenableFuture<Void>>> {
+public class AddL2GwDevicesToTransportZoneJob implements Callable<List<? extends ListenableFuture<?>>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(AddL2GwDevicesToTransportZoneJob.class);
     private final ItmRpcService itmRpcService;

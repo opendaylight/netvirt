@@ -12,20 +12,20 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.l2gw.recovery.impl.L2GatewayServiceRecoveryHandler;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.serviceutils.srm.RecoverableListener;
 import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
+import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.L2gatewayConnections;
@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class ElanInstanceListener extends AsyncClusteredDataTreeChangeListenerBase<ElanInstance, ElanInstanceListener>
+public class ElanInstanceListener extends AbstractClusteredAsyncDataTreeChangeListener<ElanInstance>
         implements RecoverableListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanInstanceListener.class);
@@ -49,14 +49,15 @@ public class ElanInstanceListener extends AsyncClusteredDataTreeChangeListenerBa
     public ElanInstanceListener(final DataBroker db, final ElanClusterUtils elanClusterUtils,
                                 final L2GatewayServiceRecoveryHandler l2GatewayServiceRecoveryHandler,
                                 final ServiceRecoveryRegistry serviceRecoveryRegistry) {
-        super(ElanInstance.class, ElanInstanceListener.class);
+        super(db, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(ElanInstances.class)
+                .child(ElanInstance.class),
+                Executors.newListeningSingleThreadExecutor("ElanInstanceListener", LOG));
         broker = db;
         this.txRunner = new ManagedNewTransactionRunnerImpl(db);
         this.elanClusterUtils = elanClusterUtils;
         serviceRecoveryRegistry.addRecoverableListener(l2GatewayServiceRecoveryHandler.buildServiceRegistryKey(), this);
     }
 
-    @PostConstruct
     public void init() {
         registerListener();
     }
@@ -64,16 +65,14 @@ public class ElanInstanceListener extends AsyncClusteredDataTreeChangeListenerBa
     @Override
     public void registerListener() {
         LOG.info("Registering ElanInstanceListener");
-        registerListener(LogicalDatastoreType.CONFIGURATION, broker);
     }
 
     public void deregisterListener() {
         LOG.info("Deregistering ElanInstanceListener");
-        super.deregisterListener();
     }
 
     @Override
-    protected void remove(final InstanceIdentifier<ElanInstance> identifier,
+    public void remove(final InstanceIdentifier<ElanInstance> identifier,
                           final ElanInstance del) {
         elanClusterUtils.runOnlyInOwnerNode(del.getElanInstanceName(), "delete Elan instance",
             () -> {
@@ -101,22 +100,11 @@ public class ElanInstanceListener extends AsyncClusteredDataTreeChangeListenerBa
     }
 
     @Override
-    protected void update(InstanceIdentifier<ElanInstance> identifier, ElanInstance original, ElanInstance update) {
+    public void update(InstanceIdentifier<ElanInstance> identifier, ElanInstance original, ElanInstance update) {
 
     }
 
     @Override
-    protected void add(InstanceIdentifier<ElanInstance> identifier, ElanInstance add) {
+    public void add(InstanceIdentifier<ElanInstance> identifier, ElanInstance add) {
     }
-
-    @Override
-    protected ElanInstanceListener getDataTreeChangeListener() {
-        return ElanInstanceListener.this;
-    }
-
-    @Override
-    protected InstanceIdentifier<ElanInstance> getWildCardPath() {
-        return InstanceIdentifier.create(ElanInstances.class).child(ElanInstance.class);
-    }
-
 }

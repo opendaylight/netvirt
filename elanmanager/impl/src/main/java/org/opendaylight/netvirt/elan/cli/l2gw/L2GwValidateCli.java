@@ -9,7 +9,6 @@
 package org.opendaylight.netvirt.elan.cli.l2gw;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
@@ -19,19 +18,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.LogicalSwitchesCmd;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.MergeCommand;
@@ -119,19 +119,19 @@ public class L2GwValidateCli extends OsgiCommandSupport {
             verifyConfigVsOperationalDiff();
             verifyL2GatewayConnections();
             pw.close();
-        } catch (ReadFailedException e) {
+        } catch (ExecutionException | InterruptedException e) {
             session.getConsole().println("Failed with error " + e.getMessage());
             LOG.error("Failed with error ", e);
         }
         return null;
     }
 
-    private void readNodes() throws ReadFailedException {
-        try (ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
+    private void readNodes() throws ExecutionException, InterruptedException {
+        try (ReadTransaction tx = dataBroker.newReadOnlyTransaction()) {
             InstanceIdentifier<Topology> topoId = HwvtepSouthboundUtils.createHwvtepTopologyInstanceIdentifier();
 
-            Optional<Topology> operationalTopoOptional = tx.read(LogicalDatastoreType.OPERATIONAL, topoId).checkedGet();
-            Optional<Topology> configTopoOptional = tx.read(LogicalDatastoreType.CONFIGURATION, topoId).checkedGet();
+            Optional<Topology> operationalTopoOptional = tx.read(LogicalDatastoreType.OPERATIONAL, topoId).get();
+            Optional<Topology> configTopoOptional = tx.read(LogicalDatastoreType.CONFIGURATION, topoId).get();
 
             if (operationalTopoOptional.isPresent()) {
                 for (Node node : operationalTopoOptional.get().nonnullNode()) {
@@ -150,7 +150,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
             fillNodesData(configNodes, configNodesData);
 
             Optional<ElanInstances> elanInstancesOptional = tx.read(LogicalDatastoreType.CONFIGURATION,
-                    InstanceIdentifier.builder(ElanInstances.class).build()).checkedGet();
+                    InstanceIdentifier.builder(ElanInstances.class).build()).get();
 
             if (elanInstancesOptional.isPresent() && elanInstancesOptional.get().getElanInstance() != null) {
                 for (ElanInstance elanInstance : elanInstancesOptional.get().getElanInstance()) {

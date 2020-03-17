@@ -7,14 +7,14 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore;
@@ -96,7 +96,7 @@ public abstract class HwvtepNodeDataListener<D extends Datastore, T extends Data
     }
 
     private boolean isNodeConnected(InstanceIdentifier<T> identifier)
-            throws ReadFailedException {
+            throws ExecutionException, InterruptedException {
         return singleTxBroker.syncReadOptional(LogicalDatastoreType.OPERATIONAL,
             identifier.firstIdentifierOf(Node.class)).isPresent();
     }

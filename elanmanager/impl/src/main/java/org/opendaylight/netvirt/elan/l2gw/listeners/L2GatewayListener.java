@@ -24,8 +24,9 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
@@ -44,6 +45,7 @@ import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.serviceutils.srm.RecoverableListener;
 import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
+import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
@@ -59,7 +61,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<L2gateway, L2GatewayListener>
+public class L2GatewayListener extends AbstractClusteredAsyncDataTreeChangeListener<L2gateway>
         implements RecoverableListener {
     private static final Logger LOG = LoggerFactory.getLogger(L2GatewayListener.class);
     private final DataBroker dataBroker;
@@ -76,6 +78,9 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
                              final JobCoordinator jobCoordinator, final L2GatewayCache l2GatewayCache,
                              L2GatewayInstanceRecoveryHandler l2GatewayInstanceRecoveryHandler,
                              ServiceRecoveryRegistry serviceRecoveryRegistry) {
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Neutron.class)
+                .child(L2gateways.class).child(L2gateway.class),
+                Executors.newListeningSingleThreadExecutor("L2GatewayListener", LOG));
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.entityOwnershipUtils = new EntityOwnershipUtils(entityOwnershipService);
@@ -85,31 +90,23 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
         this.l2GatewayCache = l2GatewayCache;
         serviceRecoveryRegistry.addRecoverableListener(l2GatewayInstanceRecoveryHandler.buildServiceRegistryKey(),
                 this);
+        init();
     }
 
-    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        registerListener();
     }
 
     public void registerListener() {
         LOG.info("Registering L2Gateway Listener");
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     public void deregisterListener() {
         LOG.info("Deregistering L2GatewayListener");
-        super.deregisterListener();
     }
 
     @Override
-    protected InstanceIdentifier<L2gateway> getWildCardPath() {
-        return InstanceIdentifier.create(Neutron.class).child(L2gateways.class).child(L2gateway.class);
-    }
-
-    @Override
-    protected void add(final InstanceIdentifier<L2gateway> identifier, final L2gateway input) {
+    public void add(final InstanceIdentifier<L2gateway> identifier, final L2gateway input) {
         LOG.info("Adding L2gateway with ID: {}", input.getUuid());
 
         for (Devices l2Device : input.nonnullDevices()) {
@@ -119,7 +116,7 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
     }
 
     @Override
-    protected void remove(final InstanceIdentifier<L2gateway> identifier, final L2gateway input) {
+    public void remove(final InstanceIdentifier<L2gateway> identifier, final L2gateway input) {
         LOG.info("Removing L2gateway with ID: {}", input.getUuid());
         List<L2gatewayConnection> connections = l2gwService
                 .getL2GwConnectionsByL2GatewayId(input.getUuid());
@@ -147,7 +144,7 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
     }
 
     @Override
-    protected void update(InstanceIdentifier<L2gateway> identifier, L2gateway original, L2gateway update) {
+    public void update(InstanceIdentifier<L2gateway> identifier, L2gateway original, L2gateway update) {
         LOG.trace("Updating L2gateway : key: {}, original value={}, update value={}", identifier, original, update);
         List<L2gatewayConnection> connections = l2gwService.getAssociatedL2GwConnections(
                 Sets.newHashSet(update.getUuid()));
@@ -276,11 +273,6 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
         } else {
             LOG.error("Unable to find L2 Gateway details for {}", l2DeviceName);
         }
-    }
-
-    @Override
-    protected L2GatewayListener getDataTreeChangeListener() {
-        return this;
     }
 
     static class DeviceInterfaces {
