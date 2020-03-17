@@ -11,7 +11,6 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -29,6 +28,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -40,10 +40,6 @@ import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -54,6 +50,9 @@ import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
@@ -427,7 +426,7 @@ public class NeutronvpnUtils {
         }
         LOG.debug("getNeutronNetwork for {}", networkId.getValue());
         InstanceIdentifier<Network> inst = NEUTRON_NETWORKS_IID.child(Network.class, new NetworkKey(networkId));
-        return read(LogicalDatastoreType.CONFIGURATION, inst).orNull();
+        return read(LogicalDatastoreType.CONFIGURATION, inst).orElse(null);
     }
 
     protected @Nullable Port getNeutronPort(Uuid portId) {
@@ -437,7 +436,7 @@ public class NeutronvpnUtils {
         }
         LOG.debug("getNeutronPort for {}", portId.getValue());
         InstanceIdentifier<Port> inst = NEUTRON_PORTS_IID.child(Port.class, new PortKey(portId));
-        return read(LogicalDatastoreType.CONFIGURATION, inst).orNull();
+        return read(LogicalDatastoreType.CONFIGURATION, inst).orElse(null);
     }
 
     public PortIdToSubport getPortIdToSubport(Uuid portId) {
@@ -1070,7 +1069,7 @@ public class NeutronvpnUtils {
     private <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
         try {
             return SingleTransactionDataBroker.syncReadOptional(dataBroker, datastoreType, path);
-        } catch (ReadFailedException e) {
+        } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
@@ -1144,17 +1143,23 @@ public class NeutronvpnUtils {
      */
     public Optional<InterVpnLink> getInterVpnLinkByEndpointIp(String endpointIp) {
         InstanceIdentifier<InterVpnLinks> interVpnLinksIid = InstanceIdentifier.builder(InterVpnLinks.class).build();
-        Optional<InterVpnLinks> interVpnLinksOpData = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                interVpnLinksIid);
-        if (interVpnLinksOpData.isPresent()) {
-            for (InterVpnLink interVpnLink : interVpnLinksOpData.get().nonnullInterVpnLink()) {
-                if (interVpnLink.getFirstEndpoint().getIpAddress().getValue().equals(endpointIp)
-                        || interVpnLink.getSecondEndpoint().getIpAddress().getValue().equals(endpointIp)) {
-                    return Optional.of(interVpnLink);
+        Optional<InterVpnLinks> interVpnLinksOpData = null;
+        try {
+            interVpnLinksOpData = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    interVpnLinksIid);
+            if (interVpnLinksOpData.isPresent()) {
+                for (InterVpnLink interVpnLink : interVpnLinksOpData.get().nonnullInterVpnLink()) {
+                    if (interVpnLink.getFirstEndpoint().getIpAddress().getValue().equals(endpointIp)
+                            || interVpnLink.getSecondEndpoint().getIpAddress().getValue().equals(endpointIp)) {
+                        return Optional.of(interVpnLink);
+                    }
                 }
             }
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getInterVpnLinkByEndpointIp: Exception when reading intervpn Links for endpoint Ip {} ",
+                    endpointIp, e);
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     protected Integer releaseId(String poolName, String idKey) {
@@ -1335,7 +1340,7 @@ public class NeutronvpnUtils {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
             .instance.to.vpn.id.VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
-                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
+                LogicalDatastoreType.CONFIGURATION, id).map(
                 org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
                         .VpnInstance::getVrfId).orElse(null);
     }
@@ -1738,7 +1743,7 @@ public class NeutronvpnUtils {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
                 .instance.to.vpn.id.VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
-                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
+                LogicalDatastoreType.CONFIGURATION, id).map(
                 org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
                         .VpnInstance::getVpnId).orElse(null).toJava();
     }
@@ -1765,7 +1770,7 @@ public class NeutronvpnUtils {
         jobCoordinator.enqueueJob(jobKey, () -> {
             SettableFuture<Optional<T>> settableFuture = SettableFuture.create();
             List futures = Collections.singletonList(settableFuture);
-            try (ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
+            try (ReadTransaction tx = dataBroker.newReadOnlyTransaction()) {
                 Futures.addCallback(tx.read(datastoreType, iid),
                         new SettableFutureCallback<Optional<T>>(settableFuture) {
                             @Override

@@ -8,7 +8,7 @@
 
 package org.opendaylight.netvirt.policyservice.util;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,10 +21,10 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -106,7 +106,7 @@ public class PolicyServiceUtil {
         SetPolicyClassifier setPolicyClassifier = actions.augmentation(SetPolicyClassifier.class);
         if (setPolicyClassifier == null) {
             LOG.warn("No valid policy action found for ACE rule {}", ace.getRuleName());
-            return Optional.absent();
+            return Optional.empty();
         }
 
         Class<? extends DirectionBase> direction;
@@ -114,12 +114,12 @@ public class PolicyServiceUtil {
             direction = setPolicyClassifier.getDirection();
         } catch (IllegalArgumentException e) {
             LOG.warn("Failed to parse policy classifier direction");
-            return Optional.absent();
+            return Optional.empty();
         }
 
         if (direction == null || !direction.isAssignableFrom(DirectionEgress.class)) {
             LOG.trace("Ignoring non egress policy ACE rule {}", ace.getRuleName());
-            return Optional.absent();
+            return Optional.empty();
         }
 
         return Optional.of(setPolicyClassifier.getPolicyClassifier());
@@ -130,9 +130,9 @@ public class PolicyServiceUtil {
         try {
             return SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
                     identifier);
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Failed to get policy ACE rule {} for ACL {}", ruleName, aclName);
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 
@@ -142,7 +142,7 @@ public class PolicyServiceUtil {
             Optional<PolicyProfiles> optProfiles = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                     LogicalDatastoreType.CONFIGURATION, identifier);
             return optProfiles.isPresent() ? optProfiles.get().getPolicyProfile() : Collections.emptyList();
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Failed to get policy profiles");
             return Collections.emptyList();
         }
@@ -155,7 +155,7 @@ public class PolicyServiceUtil {
                     LogicalDatastoreType.CONFIGURATION, identifier);
             return optProfile.isPresent() ? getUnderlayNetworksFromPolicyRoutes(optProfile.get().getPolicyRoute())
                     : Collections.emptyList();
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Failed to get policy routes for classifier {}", policyClassifier);
             return Collections.emptyList();
         }
@@ -168,7 +168,7 @@ public class PolicyServiceUtil {
             Optional<UnderlayNetwork> optUnderlayNet = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                     LogicalDatastoreType.OPERATIONAL, identifier);
             return optUnderlayNet.isPresent() ? optUnderlayNet.get().getPolicyProfile() : Collections.emptyList();
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Failed to get policy classifiers for underlay network {}", underlayNetwork);
             return Collections.emptyList();
         }
@@ -181,7 +181,7 @@ public class PolicyServiceUtil {
             Optional<PolicyProfile> optProfile = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                     LogicalDatastoreType.OPERATIONAL, identifier);
             return optProfile.isPresent() ? optProfile.get().getPolicyAclRule() : Collections.emptyList();
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Failed to get policy rules for policy classifier {}", policyClassifier);
             return Collections.emptyList();
         }
@@ -375,7 +375,7 @@ public class PolicyServiceUtil {
                     .syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL, identifier)
                     .toJavaUtil().map(UnderlayNetwork::getDpnToInterface)
                     .orElse(Collections.emptyList());
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Failed to get DPNs for underlay network {}", underlayNetwork);
             return Collections.emptyList();
         }
@@ -387,9 +387,9 @@ public class PolicyServiceUtil {
             Optional<DpnToInterface> dpnToInterfaceOpt = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                     LogicalDatastoreType.OPERATIONAL, identifier);
             return dpnToInterfaceOpt;
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Failed to get DPN {} for underlay network {}", dpId, underlayNetwork);
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 
@@ -456,14 +456,14 @@ public class PolicyServiceUtil {
         Optional<String> logicalTunnelNameOpt = getLogicalTunnelName(srcDpId, dstDpId);
         if (!logicalTunnelNameOpt.isPresent()) {
             LOG.debug("Failed to get logical tunnel for source DPN {} dst DPN {}", srcDpId, dstDpId);
-            return Optional.absent();
+            return Optional.empty();
         }
 
         String logicalTunnelName = logicalTunnelNameOpt.get();
         InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(logicalTunnelName);
         if (interfaceInfo == null) {
             LOG.debug("Failed to get interface info for logical tunnel {}", logicalTunnelName);
-            return Optional.absent();
+            return Optional.empty();
         }
 
         return Optional.of(interfaceInfo.getInterfaceTag());
@@ -481,7 +481,7 @@ public class PolicyServiceUtil {
             LOG.error("Error in RPC call getTunnelInterfaceName for source DPN {} dst DPN {}", srcDpId, dstDpId, e);
         }
 
-        return Optional.absent();
+        return Optional.empty();
     }
 
 
@@ -489,7 +489,7 @@ public class PolicyServiceUtil {
         List<Interface> vlanMemberInterfaces = interfaceManager.getChildInterfaces(trunkInterface);
         if (vlanMemberInterfaces == null || vlanMemberInterfaces.isEmpty()) {
             LOG.debug("No child interfaces found for trunk {}", trunkInterface);
-            return Optional.absent();
+            return Optional.empty();
         }
 
         return vlanMemberInterfaces.stream()

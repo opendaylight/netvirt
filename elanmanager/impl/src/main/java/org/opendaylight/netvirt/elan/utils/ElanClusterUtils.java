@@ -32,7 +32,7 @@ public final class ElanClusterUtils {
             HwvtepSouthboundConstants.ELAN_ENTITY_NAME, jobCoordinator, jobDesc, job);
     }
 
-    public void runOnlyInOwnerNode(String jobKey, String jobDesc, Callable<List<ListenableFuture<Void>>> job) {
+    public void runOnlyInOwnerNode(String jobKey, String jobDesc, Callable<List<? extends ListenableFuture<?>>> job) {
         entityOwnershipUtils.runOnlyInOwnerNode(HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
             HwvtepSouthboundConstants.ELAN_ENTITY_NAME, jobCoordinator, jobKey, jobDesc, job);
     }

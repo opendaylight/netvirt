@@ -12,14 +12,14 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceConstants;
+import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
@@ -30,31 +30,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class NeutronPortChangeListener extends AsyncClusteredDataTreeChangeListenerBase<Port,
-        NeutronPortChangeListener> {
+public class NeutronPortChangeListener extends AbstractClusteredAsyncDataTreeChangeListener<Port> {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronPortChangeListener.class);
     private final DataBroker dataBroker;
     private final IfMgr ifMgr;
 
     @Inject
     public NeutronPortChangeListener(final DataBroker dataBroker, IfMgr ifMgr) {
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Neutron.class)
+                .child(Ports.class).child(Port.class),
+                Executors.newListeningSingleThreadExecutor("NeutronPortChangeListener", LOG));
         this.dataBroker = dataBroker;
         this.ifMgr = ifMgr;
     }
 
-    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<Port> getWildCardPath() {
-        return InstanceIdentifier.create(Neutron.class).child(Ports.class).child(Port.class);
-    }
-
-    @Override
-    protected void add(InstanceIdentifier<Port> identifier, Port port) {
+    public void add(InstanceIdentifier<Port> identifier, Port port) {
         if (Ipv6ServiceConstants.NETWORK_ROUTER_GATEWAY.equalsIgnoreCase(port.getDeviceOwner())) {
             // Todo: revisit when IPv6 north-south support is implemented.
             LOG.info("IPv6Service (TODO): Skipping router_gateway port {} for add event", port);
@@ -75,7 +70,7 @@ public class NeutronPortChangeListener extends AsyncClusteredDataTreeChangeListe
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Port> identifier, Port port) {
+    public void remove(InstanceIdentifier<Port> identifier, Port port) {
         if (Ipv6ServiceConstants.NETWORK_ROUTER_GATEWAY.equalsIgnoreCase(port.getDeviceOwner())) {
             // Todo: revisit when IPv6 north-south support is implemented.
             LOG.info("IPv6Service (TODO): Skipping router_gateway port {} for remove event", port);
@@ -91,7 +86,7 @@ public class NeutronPortChangeListener extends AsyncClusteredDataTreeChangeListe
     }
 
     @Override
-    protected void update(InstanceIdentifier<Port> identifier, Port original, Port update) {
+    public void update(InstanceIdentifier<Port> identifier, Port original, Port update) {
         if (Ipv6ServiceConstants.NETWORK_ROUTER_GATEWAY.equalsIgnoreCase(update.getDeviceOwner())) {
             // Todo: revisit when IPv6 north-south support is implemented.
             LOG.info("IPv6Service (TODO): Skipping router_gateway port {} for update event", update);
@@ -168,10 +163,5 @@ public class NeutronPortChangeListener extends AsyncClusteredDataTreeChangeListe
 
     private Set<FixedIps> getFixedIpSet(@Nullable List<FixedIps> fixedIps) {
         return fixedIps != null ? new HashSet<>(fixedIps) : Collections.emptySet();
-    }
-
-    @Override
-    protected NeutronPortChangeListener getDataTreeChangeListener() {
-        return NeutronPortChangeListener.this;
     }
 }

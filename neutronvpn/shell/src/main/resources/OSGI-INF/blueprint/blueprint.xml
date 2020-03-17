@@ -14,7 +14,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
                availability="optional"/>
     <reference id="rpcRegistryRef" interface="org.opendaylight.mdsal.binding.api.RpcConsumerRegistry"
                availability="optional"/>
-    <reference id="dataBrokerRef" interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
+    <reference id="dataBrokerRef" interface="org.opendaylight.mdsal.binding.api.DataBroker"
                availability="optional"/>
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
 

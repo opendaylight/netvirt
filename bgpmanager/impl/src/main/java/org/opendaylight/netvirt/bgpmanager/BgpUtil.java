@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.bgpmanager;
 
-import com.google.common.base.Optional;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -15,20 +14,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.utils.batching.ActionableResource;
 import org.opendaylight.genius.utils.batching.ActionableResourceImpl;
 import org.opendaylight.genius.utils.batching.DefaultBatchHandler;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.encap_type;
@@ -198,8 +200,13 @@ public class BgpUtil implements AutoCloseable {
 
     public VpnInstanceOpDataEntry getVpnInstanceOpData(String rd)  {
         InstanceIdentifier<VpnInstanceOpDataEntry> id = getVpnInstanceOpDataIdentifier(rd);
-        Optional<VpnInstanceOpDataEntry> vpnInstanceOpData = MDSALUtil.read(dataBroker,
-                LogicalDatastoreType.OPERATIONAL, id);
+        Optional<VpnInstanceOpDataEntry> vpnInstanceOpData = Optional.empty();
+        try {
+            vpnInstanceOpData = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL, id);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("Exception while reading VpnInstanceOpDataEntry DS for the Vpn Rd {}", rd, e);
+        }
         if (vpnInstanceOpData.isPresent()) {
             return vpnInstanceOpData.get();
         }
@@ -213,8 +220,13 @@ public class BgpUtil implements AutoCloseable {
 
     private String getElanNamefromRd(String rd)  {
         InstanceIdentifier<EvpnRdToNetwork> id = getEvpnRdToNetworkIdentifier(rd);
-        Optional<EvpnRdToNetwork> evpnRdToNetworkOpData = MDSALUtil.read(dataBroker,
-                LogicalDatastoreType.CONFIGURATION, id);
+        Optional<EvpnRdToNetwork> evpnRdToNetworkOpData = Optional.empty();
+        try {
+            evpnRdToNetworkOpData = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, id);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("Exception while reading EvpnRdToNetwork DS for the Vpn Rd {}", rd, e);
+        }
         if (evpnRdToNetworkOpData.isPresent()) {
             return evpnRdToNetworkOpData.get().getNetworkId();
         }
@@ -287,7 +299,13 @@ public class BgpUtil implements AutoCloseable {
         KeyedInstanceIdentifier<Vrfs, VrfsKey> id = InstanceIdentifier.create(Bgp.class)
                 .child(VrfsContainer.class)
                 .child(Vrfs.class, new VrfsKey(rd));
-        Optional<Vrfs> vrfsFromDs = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+        Optional<Vrfs> vrfsFromDs = Optional.empty();
+        try {
+            vrfsFromDs = SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    id);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("Exception while reading BGP VRF table for the Vpn Rd {}", rd, e);
+        }
         if (vrfsFromDs.isPresent()) {
             vrfs = vrfsFromDs.get();
         }
@@ -341,8 +359,13 @@ public class BgpUtil implements AutoCloseable {
     public BfdConfig getBfdConfig() {
         InstanceIdentifier<BfdConfig> id =
                 InstanceIdentifier.builder(BfdConfig.class).build();
-        Optional<BfdConfig> bfdConfigOptional = MDSALUtil.read(dataBroker,
-                LogicalDatastoreType.CONFIGURATION, id);
+        Optional<BfdConfig> bfdConfigOptional = Optional.empty();
+        try {
+            bfdConfigOptional = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, id);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("Exception while reading BfdConfig", e);
+        }
         if (bfdConfigOptional.isPresent()) {
             return bfdConfigOptional.get();
         }
@@ -352,8 +375,13 @@ public class BgpUtil implements AutoCloseable {
     public DcgwTepList getDcgwTepConfig() {
         InstanceIdentifier<DcgwTepList> id =
                 InstanceIdentifier.builder(Bgp.class).child(DcgwTepList.class).build();
-        Optional<DcgwTepList> dcgwTepListOptional = MDSALUtil.read(dataBroker,
-                LogicalDatastoreType.CONFIGURATION, id);
+        Optional<DcgwTepList> dcgwTepListOptional = Optional.empty();
+        try {
+            dcgwTepListOptional = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, id);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getDcgwTepConfig: Exception while reading DcgwTepList", e);
+        }
         if (dcgwTepListOptional.isPresent()) {
             return dcgwTepListOptional.get();
         }
@@ -365,8 +393,13 @@ public class BgpUtil implements AutoCloseable {
                 InstanceIdentifier.builder(Bgp.class)
                         .child(DcgwTepList.class)
                         .child(DcgwTep.class, new DcgwTepKey(dcgwIp)).build();
-        Optional<DcgwTep> tepListOptional = MDSALUtil.read(dataBroker,
-                LogicalDatastoreType.CONFIGURATION, id);
+        Optional<DcgwTep> tepListOptional = Optional.empty();
+        try {
+            tepListOptional = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, id);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("Exception while reading DcgwTep for the IP {}", dcgwIp, e);
+        }
         if (tepListOptional.isPresent()) {
             return tepListOptional.get().getTepIps();
         }

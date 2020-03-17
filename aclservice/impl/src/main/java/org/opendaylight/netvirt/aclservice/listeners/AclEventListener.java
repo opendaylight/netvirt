@@ -19,14 +19,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
@@ -36,6 +35,7 @@ import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.serviceutils.srm.RecoverableListener;
 import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
@@ -49,7 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEventListener> implements
+public class AclEventListener extends AbstractAsyncDataTreeChangeListener<Acl> implements
         ClusteredDataTreeChangeListener<Acl>, RecoverableListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclEventListener.class);
@@ -65,7 +65,9 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
     public AclEventListener(AclServiceManager aclServiceManager, AclClusterUtil aclClusterUtil, DataBroker dataBroker,
             AclDataUtil aclDataUtil, AclServiceUtils aclServicUtils, AclInterfaceCache aclInterfaceCache,
             ServiceRecoveryRegistry serviceRecoveryRegistry) {
-        super(Acl.class, AclEventListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                InstanceIdentifier.create(AccessLists.class).child(Acl.class),
+                Executors.newListeningSingleThreadExecutor("AclEventListener", LOG));
         this.aclServiceManager = aclServiceManager;
         this.aclClusterUtil = aclClusterUtil;
         this.dataBroker = dataBroker;
@@ -75,25 +77,20 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
         serviceRecoveryRegistry.addRecoverableListener(AclServiceUtils.getRecoverServiceRegistryKey(), this);
     }
 
-    @Override
-    @PostConstruct
     public void init() {
         LOG.info("{} start", getClass().getSimpleName());
-        registerListener();
     }
 
     @Override
     public void registerListener() {
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<Acl> getWildCardPath() {
-        return InstanceIdentifier.create(AccessLists.class).child(Acl.class);
+    public void deregisterListener() {
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Acl> key, Acl acl) {
+    public void remove(InstanceIdentifier<Acl> key, Acl acl) {
         LOG.trace("On remove event, remove ACL: {}", acl);
         String aclName = acl.getAclName();
         this.aclDataUtil.removeAcl(aclName);
@@ -115,7 +112,7 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
     }
 
     @Override
-    protected void update(InstanceIdentifier<Acl> key, Acl aclBefore, Acl aclAfter) {
+    public void update(InstanceIdentifier<Acl> key, Acl aclBefore, Acl aclAfter) {
         String aclName = aclAfter.getAclName();
         Collection<AclInterface> interfacesBefore =
                 ImmutableSet.copyOf(aclDataUtil.getInterfaceList(new Uuid(aclName)));
@@ -160,7 +157,7 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
     }
 
     @Override
-    protected void add(InstanceIdentifier<Acl> key, Acl acl) {
+    public void add(InstanceIdentifier<Acl> key, Acl acl) {
         LOG.trace("On add event, add ACL: {}", acl);
         this.aclDataUtil.addAcl(acl);
 
@@ -246,11 +243,6 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
 
             aclDataUtil.addOrUpdateAclInterfaceMap(aclInterface.getSecurityGroups(), aclInterfaceInCache);
         }
-    }
-
-    @Override
-    protected AclEventListener getDataTreeChangeListener() {
-        return this;
     }
 
     private static @NonNull List<Ace> getChangedAceList(Acl updatedAcl, Acl currentAcl) {

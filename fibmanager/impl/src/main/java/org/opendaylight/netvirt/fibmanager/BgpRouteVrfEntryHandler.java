@@ -9,10 +9,10 @@ package org.opendaylight.netvirt.fibmanager;
 
 import static java.util.stream.Collectors.toList;
 
-import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
@@ -20,9 +20,6 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
@@ -43,6 +40,9 @@ import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.batching.ResourceHandler;
 import org.opendaylight.genius.utils.batching.SubTransaction;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.serviceutils.upgrade.UpgradeState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
@@ -128,6 +128,11 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
         if (original instanceof VrfEntry && update instanceof VrfEntry) {
             createFibEntries(tx, identifier, (VrfEntry) update, subTxns);
         }
+    }
+
+    @Override
+    public void updateContainer(WriteTransaction tx, LogicalDatastoreType datastoreType, InstanceIdentifier identifier,
+                                Object original, Object update, List<SubTransaction> transactionObjects) {
     }
 
     @Override
@@ -233,7 +238,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
                             usedRds.get(0), vrfEntry.getDestPrefix());
                 }
             } else {
-                extraRouteOptional = Optional.absent();
+                extraRouteOptional = Optional.empty();
             }
             for (VpnToDpnList curDpn : vpnToDpnList) {
                 if (curDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
@@ -393,7 +398,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
                 .ifPresent(routes -> {
                     LOG.trace(" deleting remote FIB entry {}", vrfEntry);
                     deleteRemoteRoute(null, dpnId, vpnId, vrfTable.get().key(), vrfEntry,
-                            Optional.absent(), writeCfgTxn, subTxns);
+                            Optional.empty(), writeCfgTxn, subTxns);
                 });
     }
 

@@ -9,33 +9,30 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.natservice.api.SnatServiceManager;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
@@ -63,8 +60,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class NatTepChangeListener extends
-    AsyncDataTreeChangeListenerBase<TunnelEndPoints, NatTepChangeListener> {
+public class NatTepChangeListener extends AbstractAsyncDataTreeChangeListener<TunnelEndPoints> {
 
     private static final Logger LOG = LoggerFactory
         .getLogger(NatTepChangeListener.class);
@@ -98,7 +94,9 @@ public class NatTepChangeListener extends
         final SnatServiceManager natServiceManager,
         final JobCoordinator coordinator,
         final NatOverVxlanUtil natOverVxlanUtil) {
-        super(TunnelEndPoints.class, NatTepChangeListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.builder(DpnEndpoints.class)
+                .child(DPNTEPsInfo.class).child(TunnelEndPoints.class).build(),
+                Executors.newListeningSingleThreadExecutor("NatTepChangeListener", LOG));
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.defaultRouteProgrammer = defaultRouteProgrammer;
@@ -120,21 +118,12 @@ public class NatTepChangeListener extends
         }
     }
 
-    @Override
-    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<TunnelEndPoints> getWildCardPath() {
-        return InstanceIdentifier.builder(DpnEndpoints.class)
-            .child(DPNTEPsInfo.class).child(TunnelEndPoints.class).build();
-    }
-
-    @Override
-    protected void remove(InstanceIdentifier<TunnelEndPoints> key,
+    public void remove(InstanceIdentifier<TunnelEndPoints> key,
         TunnelEndPoints tep) {
         /*
          * Whenever the TEP on a given DPNID is removed, this API take care
@@ -153,14 +142,14 @@ public class NatTepChangeListener extends
     }
 
     @Override
-    protected void update(InstanceIdentifier<TunnelEndPoints> key,
+    public void update(InstanceIdentifier<TunnelEndPoints> key,
         TunnelEndPoints origTep, TunnelEndPoints updatedTep) {
         // Will be handled in NatTunnelInterfaceStateListener.add()
         LOG.debug("NO ACTION duing update event : {}", updatedTep.key());
     }
 
     @Override
-    protected void add(InstanceIdentifier<TunnelEndPoints> key,
+    public void add(InstanceIdentifier<TunnelEndPoints> key,
         TunnelEndPoints tep) {
         LOG.debug("NO ACTION duing add event : {}", tep.key());
     }
@@ -238,8 +227,15 @@ public class NatTepChangeListener extends
             + "associated to the router {}", routerName);
 
         InstanceIdentifier<RouterPorts> routerPortsId = NatUtil.getRouterPortsId(routerName);
-        Optional<RouterPorts> optRouterPorts = MDSALUtil.read(dataBroker, LogicalDatastoreType
-            .CONFIGURATION, routerPortsId);
+        Optional<RouterPorts> optRouterPorts;
+        try {
+            optRouterPorts = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, routerPortsId);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("hndlTepDelForDnatInEachRtr: Exception while reading RouterPorts DS for the router {}",
+                    routerName, e);
+            return isFipExists;
+        }
         if (!optRouterPorts.isPresent()) {
             LOG.debug(
                 "hndlTepDelForDnatInEachRtr : DNAT -> Could not read Router Ports data object with id: {} "
@@ -366,7 +362,7 @@ public class NatTepChangeListener extends
 
         // Check if this is externalRouter else ignore
         InstanceIdentifier<Routers> extRoutersId = NatUtil.buildRouterIdentifier(routerName);
-        Optional<Routers> routerData = Optional.absent();
+        Optional<Routers> routerData = Optional.empty();
         try {
             routerData = confTx.read(extRoutersId).get();
         } catch (InterruptedException | ExecutionException e) {
@@ -457,10 +453,5 @@ public class NatTepChangeListener extends
                     routerId, dpnId);
             }
         }
-    }
-
-    @Override
-    protected NatTepChangeListener getDataTreeChangeListener() {
-        return this;
     }
 }
