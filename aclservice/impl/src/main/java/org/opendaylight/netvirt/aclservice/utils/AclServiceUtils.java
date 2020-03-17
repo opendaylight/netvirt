@@ -8,35 +8,25 @@
 
 package org.opendaylight.netvirt.aclservice.utils;
 
-import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
@@ -187,11 +177,11 @@ public final class AclServiceUtils {
      */
     public static <T extends DataObject> Optional<T> read(
             DataBroker broker, LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
-        try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
-            return tx.read(datastoreType, path).checkedGet();
-        } catch (ReadFailedException e) {
+        try (ReadTransaction tx = broker.newReadOnlyTransaction()) {
+            return tx.read(datastoreType, path).get();
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed to read InstanceIdentifier {} from {}", path, datastoreType, e);
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 
@@ -205,7 +195,7 @@ public final class AclServiceUtils {
         .@Nullable Interface getInterfaceStateFromOperDS(DataBroker dataBroker, String interfaceName) {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
             .interfaces.state.Interface> ifStateId = buildStateInterfaceId(interfaceName);
-        return MDSALUtil.read(LogicalDatastoreType.OPERATIONAL, ifStateId, dataBroker).orNull();
+        return MDSALUtil.read(LogicalDatastoreType.OPERATIONAL, ifStateId, dataBroker).orElse(null);
     }
 
     /**
@@ -691,7 +681,7 @@ public final class AclServiceUtils {
     @Nullable
     public static ElanInterface getElanInterfaceByElanInterfaceName(String elanInterfaceName,DataBroker broker) {
         InstanceIdentifier<ElanInterface> elanInterfaceId = getElanInterfaceConfigurationDataPathId(elanInterfaceName);
-        return read(broker, LogicalDatastoreType.CONFIGURATION, elanInterfaceId).orNull();
+        return read(broker, LogicalDatastoreType.CONFIGURATION, elanInterfaceId).orElse(null);
     }
 
     public static InstanceIdentifier<ElanInterface> getElanInterfaceConfigurationDataPathId(String interfaceName) {
@@ -703,7 +693,7 @@ public final class AclServiceUtils {
     @Nullable
     public static ElanInstance getElanInstanceByName(String elanInstanceName, DataBroker broker) {
         InstanceIdentifier<ElanInstance> elanIdentifierId = getElanInstanceConfigurationDataPath(elanInstanceName);
-        return read(broker, LogicalDatastoreType.CONFIGURATION, elanIdentifierId).orNull();
+        return read(broker, LogicalDatastoreType.CONFIGURATION, elanIdentifierId).orElse(null);
     }
 
     public static InstanceIdentifier<ElanInstance> getElanInstanceConfigurationDataPath(String elanInstanceName) {
@@ -1120,9 +1110,9 @@ public final class AclServiceUtils {
     @Nullable
     private AclPortsByIp getAclPortsByIpFromOperDs(String aclName) {
         InstanceIdentifier<AclPortsByIp> path = aclPortsByIpPath(aclName);
-        try (ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
-            return tx.read(LogicalDatastoreType.OPERATIONAL, path).checkedGet().orNull();
-        } catch (ReadFailedException e) {
+        try (ReadTransaction tx = dataBroker.newReadOnlyTransaction()) {
+            return tx.read(LogicalDatastoreType.OPERATIONAL, path).get().orElse(null);
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed to read ACL ports {}", path, e);
             return null;
         }
@@ -1131,9 +1121,9 @@ public final class AclServiceUtils {
     @Nullable
     private AclIpPrefixes getAclIpPrefixesFromOperDs(String aclName, IpPrefixOrAddress ipPrefix) {
         InstanceIdentifier<AclIpPrefixes> path = getAclIpPrefixesPath(aclName, ipPrefix);
-        try (ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
-            return tx.read(LogicalDatastoreType.OPERATIONAL, path).checkedGet().orNull();
-        } catch (ReadFailedException e) {
+        try (ReadTransaction tx = dataBroker.newReadOnlyTransaction()) {
+            return tx.read(LogicalDatastoreType.OPERATIONAL, path).get().orElse(null);
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed to read ACL IP prefixes {}", path, e);
             return null;
         }

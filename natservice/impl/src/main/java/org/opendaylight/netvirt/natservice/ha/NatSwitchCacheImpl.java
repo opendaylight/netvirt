@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.netvirt.natservice.api.NatSwitchCache;
 import org.opendaylight.netvirt.natservice.api.NatSwitchCacheListener;
 import org.opendaylight.netvirt.natservice.api.SwitchInfo;

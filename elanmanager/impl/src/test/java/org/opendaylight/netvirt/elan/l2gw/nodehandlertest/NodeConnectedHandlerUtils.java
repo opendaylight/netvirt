@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.nodehandlertest;
 
-import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import java.util.ArrayList;
 import java.util.Arrays;

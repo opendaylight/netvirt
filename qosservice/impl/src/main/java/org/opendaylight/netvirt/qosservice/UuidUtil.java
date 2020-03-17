@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.qosservice;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Preconditions;
 import java.util.regex.Pattern;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -35,7 +35,7 @@ class UuidUtil {
         if (uuidPattern.matcher(possibleUuid).matches()) {
             return Optional.of(new Uuid(possibleUuid));
         } else {
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 }

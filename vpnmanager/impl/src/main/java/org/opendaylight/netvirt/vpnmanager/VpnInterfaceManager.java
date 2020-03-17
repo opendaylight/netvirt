@@ -8,11 +8,11 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import static java.util.Collections.emptyList;
-import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.google.common.util.concurrent.FutureCallback;
@@ -39,10 +39,10 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
+import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
@@ -534,7 +534,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     addNewAdjToVpnInterface(vpnInterfaceOpIdentifier, primaryRd, adjacency,
                             dpId, writeOperTxn, writeConfigTxn, writeInvTxn, prefixListForRefreshFib);
                 }
-            } catch (ReadFailedException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 LOG.error("processVpnInterfaceUp: Failed to read data store for interface {} vpn {} rd {} dpn {}",
                         interfaceName, vpnName, primaryRd, dpId);
             }
@@ -659,7 +659,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     }
                 }
             }
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("advertiseAdjacenciesForVpnToBgp: Failed to read data store for interface {} dpn {} nexthop {}"
                     + "vpn {} rd {}", interfaceName, dpnId, nextHopIp, vpnName, rd);
         }
@@ -687,11 +687,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
         LOG.info("withdrawAdjacenciesForVpnFromBgp: For interface {} in vpn {} with rd {}", interfaceName,
                vpnName, rd);
-        Optional<AdjacenciesOp> adjacencies = Optional.absent();
+        Optional<AdjacenciesOp> adjacencies = Optional.empty();
         try {
             adjacencies = SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL,
                     path);
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("withdrawAdjacenciesForVpnFromBgp: Failed to read data store for interface {} vpn {}",
                     interfaceName, vpnName);
         }
@@ -739,11 +739,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             throws ExecutionException, InterruptedException {
         InstanceIdentifier<VpnInterface> identifier = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
         // Read NextHops
-        Optional<VpnInterface> vpnInteface = Optional.absent();
+        Optional<VpnInterface> vpnInteface = Optional.empty();
         try {
             vpnInteface = SingleTransactionDataBroker.syncReadOptional(dataBroker,
             LogicalDatastoreType.CONFIGURATION, identifier);
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("processVpnInterfaceAdjacencies: Failed to read data store for interface {} vpn {} rd {}"
                     + "dpn {}", interfaceName, vpnName, primaryRd, dpnId);
         }
@@ -777,7 +777,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             LOG.debug("processVpnInterfaceAdjacencies: NextHop for interface {} on dpn {} in vpn {} is {}",
                     interfaceName, dpnId, vpnName, nhList);
         }
-        Optional<String> gwMac = Optional.absent();
+        Optional<String> gwMac = Optional.empty();
         String vpnInterfaceSubnetGwMacAddress = null;
         VpnInstanceOpDataEntry vpnInstanceOpData = vpnUtil.getVpnInstanceOpData(primaryRd);
         Uint32 l3vni = vpnInstanceOpData.getL3vni() != null ? vpnInstanceOpData.getL3vni() : Uint32.ZERO;
@@ -910,7 +910,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 gwMac.isPresent() ? gwMac.get() : null, gatewayIp, writeOperTxn);
 
         L3vpnInput input = new L3vpnInput().setNextHopIp(nextHopIp).setL3vni(l3vni.longValue()).setPrimaryRd(primaryRd)
-                .setGatewayMac(gwMac.orNull()).setInterfaceName(interfaceName)
+                .setGatewayMac(gwMac.orElse(null)).setInterfaceName(interfaceName)
                 .setVpnName(vpnName).setDpnId(dpnId).setEncapType(encapType);
 
         for (Adjacency nextHop : aug.getAdjacency()) {
@@ -1297,7 +1297,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                 try {
                                     optVpnInterface = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                                             LogicalDatastoreType.OPERATIONAL, interfaceId);
-                                } catch (ReadFailedException e) {
+                                } catch (InterruptedException | ExecutionException e) {
                                     LOG.error("remove: Failed to read data store for interface {} vpn {}",
                                             interfaceName, vpnName);
                                     return;
@@ -1485,7 +1485,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         + " Removing it.", interfaceName, vpnName, dpnId);
                 writeOperTxn.delete(identifier);
             }
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("removeAdjacenciesFromVpn: Failed to read data store for interface {} dpn {} vpn {}",
                     interfaceName, dpnId, vpnName);
         }
@@ -1612,7 +1612,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     gwPort.getMacAddress(), ipAddress, ifName, vpnName);
             return Optional.of(gwPort.getMacAddress());
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     @Override
@@ -1928,7 +1928,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             }
             LOG.info("updateLabelMapper: Updated label rotue info for label {} with nextHopList {}", label,
                     nextHopIpList);
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("updateLabelMapper: Failed to read data store for label {} nexthopList {}", label,
                     nextHopIpList);
         } catch (TransactionCommitFailedException e) {
@@ -2094,7 +2094,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                 currVpnIntf.getGatewayMacAddress(), currVpnIntf.getGatewayIpAddress());
                 writeOperTxn.merge(identifier, newVpnIntf, CREATE_MISSING_PARENTS);
             }
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("addNewAdjToVpnInterface: Failed to read data store for interface {} dpn {} vpn {} rd {} ip "
                     + "{}", interfaceName, dpnId, configVpnName, primaryRd, adj.getIpAddress());
         }
@@ -2151,7 +2151,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             + "unavailable dpnId {} adjIP {} rd {}", dpnId, adj.getIpAddress(), adj.getVrfId());
                 }
             }
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("delAdjFromVpnInterface: Failed to read data store for ip {} interface {} dpn {} vpn {}",
                     adj.getIpAddress(), interfaceName, dpnId, vpnName);
         }
@@ -2457,7 +2457,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                     }
                                 });
                         });
-                } catch (ReadFailedException e) {
+                } catch (InterruptedException | ExecutionException e) {
                     LOG.error("updateVpnInterfacesForUnProcessAdjancencies: Failed to read data store for vpn {} rd {}",
                             vpnName, primaryRd);
                 }

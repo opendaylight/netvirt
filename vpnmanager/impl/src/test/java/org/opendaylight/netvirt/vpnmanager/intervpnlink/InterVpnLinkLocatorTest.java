@@ -19,11 +19,11 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.binding.test.ConstantSchemaAbstractDataBrokerTest;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
@@ -98,7 +98,7 @@ public class InterVpnLinkLocatorTest extends ConstantSchemaAbstractDataBrokerTes
                       new InterVpnLinksBuilder().setInterVpnLink(Collections.emptyList()).build(), true);
         writeTx.merge(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.builder(InterVpnLinkStates.class).build(),
                       new InterVpnLinkStatesBuilder().setInterVpnLinkState(Collections.emptyList()).build(), true);
-        writeTx.submit().checkedGet();
+        writeTx.submit().get();
 
         interVpnLinkCache = new InterVpnLinkCacheImpl(dataBroker);
         interVpnLinkCache.initialFeed();
@@ -173,11 +173,11 @@ public class InterVpnLinkLocatorTest extends ConstantSchemaAbstractDataBrokerTes
             writeTx1.merge(LogicalDatastoreType.CONFIGURATION,
                           VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpn.vpnCfgData.getVpnInstanceName()),
                           vpnInstance, true);
-            writeTx1.submit().checkedGet();
+            writeTx1.submit().get();
             WriteTransaction writeTx2 = broker.newWriteOnlyTransaction();
             writeTx2.merge(LogicalDatastoreType.OPERATIONAL,
                           VpnUtil.getVpnInstanceOpDataIdentifier(vpn.vpnOpData.getVrfId()), vpn.vpnOpData, true);
-            writeTx2.submit().checkedGet();
+            writeTx2.submit().get();
         }
     }
 
@@ -187,12 +187,12 @@ public class InterVpnLinkLocatorTest extends ConstantSchemaAbstractDataBrokerTes
             WriteTransaction writeTx1 = broker.newWriteOnlyTransaction();
             writeTx1.delete(LogicalDatastoreType.OPERATIONAL,
                            VpnUtil.getVpnInstanceOpDataIdentifier(vpn.vpnOpData.getVrfId()));
-            writeTx1.submit().checkedGet();
+            writeTx1.submit().get();
 
             WriteTransaction writeTx2 = broker.newWriteOnlyTransaction();
             writeTx2.delete(LogicalDatastoreType.CONFIGURATION,
                            VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpn.vpnCfgData.getVpnInstanceName()));
-            writeTx2.submit().checkedGet();
+            writeTx2.submit().get();
         }
     }
 
@@ -204,7 +204,7 @@ public class InterVpnLinkLocatorTest extends ConstantSchemaAbstractDataBrokerTes
             writeTx1.merge(LogicalDatastoreType.OPERATIONAL,
                           InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(nodeId)).build(), node);
         }
-        writeTx1.submit().checkedGet();
+        writeTx1.submit().get();
     }
 
 }
