@@ -17,7 +17,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class InterfaceAddWorkerOnElan implements Callable<List<ListenableFuture<Void>>> {
+public class InterfaceAddWorkerOnElan implements Callable<List<? extends ListenableFuture<?>>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceAddWorkerOnElan.class);
 

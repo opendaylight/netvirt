@@ -9,24 +9,24 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import com.google.common.base.Optional;
 import java.util.Collection;
 import java.util.Collections;
-import javax.annotation.PostConstruct;
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.natservice.api.SnatServiceManager;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.serviceutils.upgrade.UpgradeState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -44,8 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class RouterDpnChangeListener
-        extends AsyncDataTreeChangeListenerBase<DpnVpninterfacesList, RouterDpnChangeListener> {
+public class RouterDpnChangeListener extends AbstractAsyncDataTreeChangeListener<DpnVpninterfacesList> {
 
     private static final Logger LOG = LoggerFactory.getLogger(RouterDpnChangeListener.class);
     private final DataBroker dataBroker;
@@ -72,7 +71,9 @@ public class RouterDpnChangeListener
                                    final NatserviceConfig config,
                                    final JobCoordinator coordinator,
                                    final UpgradeState upgradeState) {
-        super(DpnVpninterfacesList.class, RouterDpnChangeListener.class);
+        super(dataBroker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(NeutronRouterDpns.class)
+                .child(RouterDpnList.class).child(DpnVpninterfacesList.class),
+                Executors.newListeningSingleThreadExecutor("RouterDpnChangeListener", LOG));
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.mdsalManager = mdsalManager;
@@ -87,26 +88,12 @@ public class RouterDpnChangeListener
         this.upgradeState = upgradeState;
     }
 
-    @Override
-    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
     @Override
-    protected RouterDpnChangeListener getDataTreeChangeListener() {
-        return RouterDpnChangeListener.this;
-    }
-
-    @Override
-    protected InstanceIdentifier<DpnVpninterfacesList> getWildCardPath() {
-        return InstanceIdentifier.create(NeutronRouterDpns.class).child(RouterDpnList.class)
-            .child(DpnVpninterfacesList.class);
-    }
-
-    @Override
-    protected void add(final InstanceIdentifier<DpnVpninterfacesList> identifier, final DpnVpninterfacesList dpnInfo) {
+    public void add(final InstanceIdentifier<DpnVpninterfacesList> identifier, final DpnVpninterfacesList dpnInfo) {
         LOG.trace("add : key: {}, value: {}", dpnInfo.key(), dpnInfo);
         final String routerUuid = identifier.firstKeyOf(RouterDpnList.class).getRouterId();
         Uint64 dpnId = dpnInfo.getDpnId();
@@ -214,7 +201,7 @@ public class RouterDpnChangeListener
     }
 
     @Override
-    protected void remove(InstanceIdentifier<DpnVpninterfacesList> identifier, DpnVpninterfacesList dpnInfo) {
+    public void remove(InstanceIdentifier<DpnVpninterfacesList> identifier, DpnVpninterfacesList dpnInfo) {
         LOG.trace("remove : key: {}, value: {}", dpnInfo.key(), dpnInfo);
         final String routerUuid = identifier.firstKeyOf(RouterDpnList.class).getRouterId();
         Uint32 routerId = NatUtil.getVpnId(dataBroker, routerUuid);
@@ -311,7 +298,7 @@ public class RouterDpnChangeListener
     }
 
     @Override
-    protected void update(InstanceIdentifier<DpnVpninterfacesList> identifier, DpnVpninterfacesList original,
+    public void update(InstanceIdentifier<DpnVpninterfacesList> identifier, DpnVpninterfacesList original,
                           DpnVpninterfacesList update) {
         LOG.trace("Update key: {}, original: {}, update: {}", update.key(), original, update);
     }

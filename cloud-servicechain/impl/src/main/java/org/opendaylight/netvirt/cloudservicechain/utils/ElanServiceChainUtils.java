@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.cloudservicechain.utils;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,8 +15,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -278,7 +278,7 @@ public final class ElanServiceChainUtils {
      *
      * @param broker dataBroker service reference
      * @param elanInstanceName the name of the Elan
-     * @return the ElanToPseudoPortData object or Optional.absent() if it
+     * @return the ElanToPseudoPortData object or Optional.empty() if it
      *     cannot be found
      */
     public static Optional<ElanServiceChainState> getElanServiceChainState(final DataBroker broker,

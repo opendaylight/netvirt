@@ -10,12 +10,11 @@ package org.opendaylight.netvirt.elanmanager.api;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.datastoreutils.ExpectedDataObjectNotFoundException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
@@ -64,7 +63,7 @@ public final class ElanHelper {
                 return existingElanDpnInterfaces.getDpnInterfaces().stream().flatMap(v -> v.getInterfaces().stream())
                         .collect(Collectors.toList());
             }
-        } catch (ReadFailedException e) {
+        } catch (ExpectedDataObjectNotFoundException e) {
             LOG.warn("Failed to read ElanDpnInterfacesList with error {}", e.getMessage());
         }
         return Collections.emptyList();

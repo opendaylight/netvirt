@@ -10,17 +10,15 @@ package org.opendaylight.netvirt.elan.internal;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
-import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
@@ -31,6 +29,8 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
@@ -122,7 +122,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                 }
                 String elanName = elanTagName.getName();
                 PhysAddress physAddress = new PhysAddress(macAddress);
-                MacEntry oldMacEntry = elanUtils.getMacEntryForElanInstance(elanName, physAddress).orNull();
+                MacEntry oldMacEntry = elanUtils.getMacEntryForElanInstance(elanName, physAddress).orElse(null);
                 boolean isVlanOrFlatProviderIface = interfaceManager.isExternalInterface(interfaceName);
 
                 Optional<IpAddress> srcIpAddress = elanUtils.getSourceIpAddress(res);
@@ -142,13 +142,13 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                 if (srcIpAddress.isPresent()) {
                     String prefix = srcIpAddress.get().getIpv4Address().getValue();
                     InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
-                    ElanInstance elanInstance = elanInstanceCache.get(elanName).orNull();
+                    ElanInstance elanInstance = elanInstanceCache.get(elanName).orElse(null);
                     evpnUtils.advertisePrefix(elanInstance, macAddress, prefix, interfaceName, interfaceInfo.getDpId());
                 }
                 enqueueJobForMacSpecificTasks(macAddress, elanTag, interfaceName, elanName, physAddress, oldMacEntry,
                         newMacEntry, isVlanOrFlatProviderIface);
 
-                ElanInstance elanInstance = elanInstanceCache.get(elanName).orNull();
+                ElanInstance elanInstance = elanInstanceCache.get(elanName).orElse(null);
                 InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
                 if (interfaceInfo == null) {
                     LOG.trace("Interface:{} is not present under Config DS", interfaceName);
@@ -246,7 +246,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
      * Static MAC having been added on a wrong ELAN.
      */
     private void tryAndRemoveInvalidMacEntry(String elanName, MacEntry macEntry) {
-        ElanInstance elanInfo = elanInstanceCache.get(elanName).orNull();
+        ElanInstance elanInfo = elanInstanceCache.get(elanName).orElse(null);
         if (elanInfo == null) {
             LOG.warn("MAC {} is been added (either statically or dynamically) for an invalid Elan {}. "
                     + "Manual cleanup may be necessary", macEntry.getMacAddress(), elanName);

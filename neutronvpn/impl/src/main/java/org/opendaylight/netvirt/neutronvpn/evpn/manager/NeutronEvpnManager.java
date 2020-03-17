@@ -7,16 +7,16 @@
  */
 package org.opendaylight.netvirt.neutronvpn.evpn.manager;
 
-import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.neutronvpn.NeutronvpnManager;
 import org.opendaylight.netvirt.neutronvpn.NeutronvpnUtils;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
@@ -186,7 +186,7 @@ public class NeutronEvpnManager {
                     VpnMap vpnMap = optionalVpnMap.get();
                     evpn.setTenantId(vpnMap.getTenantId()).setName(vpnMap.getName());
                 }
-            } catch (ReadFailedException e) {
+            } catch (ExecutionException | InterruptedException e) {
                 LOG.error("Error reading the VPN map for {}", vpnMapIdentifier, e);
                 result.set(RpcResultBuilder.<GetEVPNOutput>failed().withError(RpcError.ErrorType.APPLICATION,
                         "Error reading the VPN map for " + vpnMapIdentifier, e).build());

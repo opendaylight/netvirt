@@ -16,17 +16,18 @@ import static org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkTestC
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.binding.test.ConstantSchemaAbstractDataBrokerTest;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
@@ -53,7 +54,7 @@ import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class InterVpnLinkLocatorTest extends ConstantSchemaAbstractDataBrokerTest {
+public class InterVpnLinkLocatorTest extends AbstractConcurrentDataBrokerTest {
 
     static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkLocatorTest.class);
 
@@ -94,11 +95,11 @@ public class InterVpnLinkLocatorTest extends ConstantSchemaAbstractDataBrokerTes
 
         // Creating both empty containers: InterVpnLinks and InterVpnLinkStates
         WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
-        writeTx.merge(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.builder(InterVpnLinks.class).build(),
-                      new InterVpnLinksBuilder().setInterVpnLink(Collections.emptyList()).build(), true);
-        writeTx.merge(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.builder(InterVpnLinkStates.class).build(),
-                      new InterVpnLinkStatesBuilder().setInterVpnLinkState(Collections.emptyList()).build(), true);
-        writeTx.submit().checkedGet();
+        writeTx.merge(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(InterVpnLinks.class),
+                      new InterVpnLinksBuilder().setInterVpnLink(Collections.emptyList()).build());
+        writeTx.merge(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(InterVpnLinkStates.class),
+                      new InterVpnLinkStatesBuilder().setInterVpnLinkState(Collections.emptyList()).build());
+        writeTx.commit().get();
 
         interVpnLinkCache = new InterVpnLinkCacheImpl(dataBroker);
         interVpnLinkCache.initialFeed();
@@ -163,7 +164,7 @@ public class InterVpnLinkLocatorTest extends ConstantSchemaAbstractDataBrokerTes
     //////////////
 
     public void populateL3Vpns(DataBroker broker, List<L3VpnComposite> vpns)
-        throws TransactionCommitFailedException {
+        throws ExecutionException, InterruptedException {
         for (L3VpnComposite vpn : vpns) {
             VpnInstance vpnInstance = new VpnInstanceBuilder().setVpnId(vpn.vpnOpData.getVpnId())
                 .setVpnInstanceName(vpn.vpnOpData.getVpnInstanceName())
@@ -173,26 +174,26 @@ public class InterVpnLinkLocatorTest extends ConstantSchemaAbstractDataBrokerTes
             writeTx1.merge(LogicalDatastoreType.CONFIGURATION,
                           VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpn.vpnCfgData.getVpnInstanceName()),
                           vpnInstance, true);
-            writeTx1.submit().checkedGet();
+            writeTx1.commit().get();
             WriteTransaction writeTx2 = broker.newWriteOnlyTransaction();
             writeTx2.merge(LogicalDatastoreType.OPERATIONAL,
                           VpnUtil.getVpnInstanceOpDataIdentifier(vpn.vpnOpData.getVrfId()), vpn.vpnOpData, true);
-            writeTx2.submit().checkedGet();
+            writeTx2.commit().get();
         }
     }
 
     public void cleanL3Vpns(DataBroker broker, List<L3VpnComposite> vpns)
-        throws TransactionCommitFailedException {
+            throws ExecutionException, InterruptedException {
         for (L3VpnComposite vpn : vpns) {
             WriteTransaction writeTx1 = broker.newWriteOnlyTransaction();
             writeTx1.delete(LogicalDatastoreType.OPERATIONAL,
                            VpnUtil.getVpnInstanceOpDataIdentifier(vpn.vpnOpData.getVrfId()));
-            writeTx1.submit().checkedGet();
+            writeTx1.commit().get();
 
             WriteTransaction writeTx2 = broker.newWriteOnlyTransaction();
             writeTx2.delete(LogicalDatastoreType.CONFIGURATION,
                            VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpn.vpnCfgData.getVpnInstanceName()));
-            writeTx2.submit().checkedGet();
+            writeTx2.commit().get();
         }
     }
 
@@ -204,7 +205,6 @@ public class InterVpnLinkLocatorTest extends ConstantSchemaAbstractDataBrokerTes
             writeTx1.merge(LogicalDatastoreType.OPERATIONAL,
                           InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(nodeId)).build(), node);
         }
-        writeTx1.submit().checkedGet();
+        writeTx1.commit().get();
     }
-
 }
