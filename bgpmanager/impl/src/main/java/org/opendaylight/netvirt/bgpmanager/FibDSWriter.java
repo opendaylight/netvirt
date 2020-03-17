@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.bgpmanager;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Preconditions;
 import java.util.Collections;
 import java.util.List;
@@ -15,9 +15,9 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -199,7 +199,7 @@ public class FibDSWriter {
                         bgpUtil.delete(routePathId);
                     });
             }
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("Error while reading vrfEntry for rd {}, prefix {}", rd, prefix);
             return;
         }
@@ -246,7 +246,7 @@ public class FibDSWriter {
                     bgpUtil.removeVrfEntry(rd, vrfEntry);
                 }
             }
-        } catch (ReadFailedException rfe) {
+        } catch (InterruptedException | ExecutionException rfe) {
             LOG.error("removeVrfSubFamilyFromDS : Internal Error rd {}", rd, rfe);
         }
         return;

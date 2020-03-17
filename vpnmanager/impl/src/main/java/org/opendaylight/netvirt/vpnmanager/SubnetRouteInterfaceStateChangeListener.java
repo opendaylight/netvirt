@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,9 +15,9 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
@@ -114,7 +114,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                                 }
                                 vpnSubnetRouteHandler.onInterfaceUp(dpnId, intrf.getName(), subnetId);
                                 LOG.info("{} add: Processed interface {} up event", LOGGING_PREFIX, intrf.getName());
-                            } catch (ReadFailedException e) {
+                            } catch (InterruptedException | ExecutionException e) {
                                 LOG.error("add: Failed to read data store for interface {} dpn {}", interfaceName,
                                         dpnId);
                             }
@@ -185,7 +185,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                             }
                             LOG.info("{} remove: Processed interface {} down event in ", LOGGING_PREFIX,
                                     intrf.getName());
-                        } catch (ReadFailedException e) {
+                        } catch (InterruptedException | ExecutionException e) {
                             LOG.error("{} remove: Failed to read data store for {}", LOGGING_PREFIX, intrf.getName());
                         }
                         return futures;
@@ -263,7 +263,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                                     vpnSubnetRouteHandler.onInterfaceDown(dpnId, update.getName(), subnetId);
                                 }
                             }
-                        } catch (ReadFailedException e) {
+                        } catch (InterruptedException | ExecutionException e) {
                             LOG.error("update: Failed to read data store for interface {} dpn {}", interfaceName,
                                     dpnId);
                         }

@@ -9,7 +9,7 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import static java.util.Collections.emptyList;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -21,9 +21,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore;
@@ -147,11 +147,11 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
                         }
                         InstanceIdentifier<Vpn> vpnToExtraroute =
                                 VpnExtraRouteHelper.getVpnToExtrarouteVpnIdentifier(vpnName);
-                        Optional<Vpn> optVpnToExtraroute = Optional.absent();
+                        Optional<Vpn> optVpnToExtraroute = Optional.empty();
                         try {
                             optVpnToExtraroute = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                                     LogicalDatastoreType.OPERATIONAL, vpnToExtraroute);
-                        } catch (ReadFailedException e) {
+                        } catch (InterruptedException | ExecutionException e) {
                             LOG.error("update: Failed to read VpnToExtraRoute for vpn {}", vpnName);
                         }
                         if (optVpnToExtraroute.isPresent()) {
@@ -161,11 +161,11 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
                             vpnUtil.removeExternalTunnelDemuxFlows(vpnName);
                         }
                         // Clean up PrefixToInterface Operational DS
-                        Optional<VpnIds> optPrefixToIntf = Optional.absent();
+                        Optional<VpnIds> optPrefixToIntf = Optional.empty();
                         try {
                             optPrefixToIntf = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                                     LogicalDatastoreType.OPERATIONAL, VpnUtil.getPrefixToInterfaceIdentifier(vpnId));
-                        } catch (ReadFailedException e) {
+                        } catch (InterruptedException | ExecutionException e) {
                             LOG.error("update: Failed to read PrefixToInterface for vpn {}", vpnName);
                         }
                         if (optPrefixToIntf.isPresent()) {
@@ -174,11 +174,11 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
                         // Clean up L3NextHop Operational DS
                         InstanceIdentifier<VpnNexthops> vpnNextHops = InstanceIdentifier.builder(L3nexthop.class).child(
                                 VpnNexthops.class, new VpnNexthopsKey(vpnId)).build();
-                        Optional<VpnNexthops> optL3nexthopForVpnId = Optional.absent();
+                        Optional<VpnNexthops> optL3nexthopForVpnId = Optional.empty();
                         try {
                             optL3nexthopForVpnId = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                                     LogicalDatastoreType.OPERATIONAL, vpnNextHops);
-                        } catch (ReadFailedException e) {
+                        } catch (InterruptedException | ExecutionException e) {
                             LOG.error("update: Failed to read VpnNextHops for vpn {}", vpnName);
                         }
                         if (optL3nexthopForVpnId.isPresent()) {

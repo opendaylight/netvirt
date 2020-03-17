@@ -8,7 +8,7 @@
 
 package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,8 +17,8 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
@@ -96,7 +96,7 @@ public class InterVpnLinkCacheImpl implements InterVpnLinkCache {
                 interVpnLink.getFirstEndpoint().getIpAddress(), interVpnLink.getSecondEndpoint().getVpnUuid(),
                 interVpnLink.getSecondEndpoint().getIpAddress());
 
-        InterVpnLinkDataComposite interVpnLinkDataComposite = getInterVpnLinkByName(ivlName).orNull();
+        InterVpnLinkDataComposite interVpnLinkDataComposite = getInterVpnLinkByName(ivlName).orElse(null);
         if (interVpnLinkDataComposite != null) {
             interVpnLinkDataComposite.setInterVpnLinkConfig(interVpnLink);
         } else {
@@ -115,7 +115,7 @@ public class InterVpnLinkCacheImpl implements InterVpnLinkCache {
         LOG.debug("Adding InterVpnLinkState {} with vpn1=[{}]  and vpn2=[{}]",
                   ivlName, interVpnLinkState.getFirstEndpointState(), interVpnLinkState.getSecondEndpointState());
 
-        InterVpnLinkDataComposite ivl = getInterVpnLinkByName(ivlName).orNull();
+        InterVpnLinkDataComposite ivl = getInterVpnLinkByName(ivlName).orElse(null);
         if (ivl != null) {
             ivl.setInterVpnLinkState(interVpnLinkState);
         } else {
@@ -128,13 +128,13 @@ public class InterVpnLinkCacheImpl implements InterVpnLinkCache {
     }
 
     private void addToEndpointCache(InterVpnLinkDataComposite interVpnLink) {
-        safePut(endpointToInterVpnLinkCache, interVpnLink.getFirstEndpointIpAddr().orNull(), interVpnLink);
-        safePut(endpointToInterVpnLinkCache, interVpnLink.getSecondEndpointIpAddr().orNull(), interVpnLink);
+        safePut(endpointToInterVpnLinkCache, interVpnLink.getFirstEndpointIpAddr().orElse(null), interVpnLink);
+        safePut(endpointToInterVpnLinkCache, interVpnLink.getSecondEndpointIpAddr().orElse(null), interVpnLink);
     }
 
     private void addToVpnUuidCache(InterVpnLinkDataComposite interVpnLink) {
-        safePut(uuidToInterVpnLinkCache, interVpnLink.getFirstEndpointVpnUuid().orNull(), interVpnLink);
-        safePut(uuidToInterVpnLinkCache, interVpnLink.getSecondEndpointVpnUuid().orNull(), interVpnLink);
+        safePut(uuidToInterVpnLinkCache, interVpnLink.getFirstEndpointVpnUuid().orElse(null), interVpnLink);
+        safePut(uuidToInterVpnLinkCache, interVpnLink.getSecondEndpointVpnUuid().orElse(null), interVpnLink);
     }
 
     private void addToIVpnLinkNameCache(InterVpnLinkDataComposite interVpnLink) {
@@ -170,14 +170,14 @@ public class InterVpnLinkCacheImpl implements InterVpnLinkCache {
 
 
     private void removeFromVpnUuidCache(InterVpnLinkDataComposite interVpnLinkComposite) {
-        safeRemove(uuidToInterVpnLinkCache, interVpnLinkComposite.getFirstEndpointVpnUuid().orNull());
-        safeRemove(uuidToInterVpnLinkCache, interVpnLinkComposite.getSecondEndpointVpnUuid().orNull());
+        safeRemove(uuidToInterVpnLinkCache, interVpnLinkComposite.getFirstEndpointVpnUuid().orElse(null));
+        safeRemove(uuidToInterVpnLinkCache, interVpnLinkComposite.getSecondEndpointVpnUuid().orElse(null));
     }
 
 
     private void removeFromEndpointIpAddressCache(InterVpnLinkDataComposite interVpnLinkComposite) {
-        safeRemove(endpointToInterVpnLinkCache, interVpnLinkComposite.getFirstEndpointIpAddr().orNull());
-        safeRemove(endpointToInterVpnLinkCache, interVpnLinkComposite.getSecondEndpointIpAddr().orNull());
+        safeRemove(endpointToInterVpnLinkCache, interVpnLinkComposite.getFirstEndpointIpAddr().orElse(null));
+        safeRemove(endpointToInterVpnLinkCache, interVpnLinkComposite.getSecondEndpointIpAddr().orElse(null));
     }
 
     @Override

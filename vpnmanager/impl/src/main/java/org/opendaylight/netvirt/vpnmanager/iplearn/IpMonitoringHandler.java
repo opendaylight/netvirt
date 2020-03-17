@@ -7,15 +7,15 @@
  */
 package org.opendaylight.netvirt.vpnmanager.iplearn;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.NWUtil;
@@ -51,8 +51,8 @@ public class IpMonitoringHandler
     private final JobCoordinator jobCoordinator;
     private final VpnUtil vpnUtil;
 
-    private Optional<Uint32> arpMonitorProfileId = Optional.absent();
-    private Optional<Uint32> ipv6NdMonitorProfileId = Optional.absent();
+    private Optional<Uint32> arpMonitorProfileId = Optional.empty();
+    private Optional<Uint32> ipv6NdMonitorProfileId = Optional.empty();
     private EntityOwnershipCandidateRegistration candidateRegistration;
 
     @Inject

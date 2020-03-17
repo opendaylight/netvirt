@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.primitives.Ints;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -16,9 +16,9 @@ import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
@@ -167,7 +167,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                         .label(NWUtil.toStringIpAddress(srcIpBytes) + "." + NWUtil.toStringIpAddress(srcIpBytes));
                 counter.increment();
                 LOG.error("{} onPacketReceived: Failed to handle subnetroute packet.", LOGGING_PREFIX, ex);
-            } catch (ReadFailedException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 Counter counter = packetInCounter.label(CounterUtility.subnet_route_packet_failed.toString())
                         .label(NWUtil.toStringIpAddress(srcIpBytes) + "." + NWUtil.toStringIpAddress(srcIpBytes));
                 counter.increment();
@@ -376,7 +376,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
 
             transmitArpOrNsPacket(targetSubnetForPacketOut.getNhDpnId(),
                                         sourceIp, sourceMac, dstIp, dstIpStr, elanTag);
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("handlePacketToInternalNetwork: Failed to read data store for destIp {} elanTag {}", dstIpStr,
                     elanTag);
         }
@@ -493,7 +493,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                     }
                 }
             }
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("{} getTargetDpnForPacketOut: Failed to read data store for elan {}", LOGGING_PREFIX,
                     elanInfo.getName());
         }

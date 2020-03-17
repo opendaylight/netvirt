@@ -11,7 +11,7 @@ package org.opendaylight.netvirt.natservice.ha;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -23,10 +23,10 @@ import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
+import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
@@ -142,7 +142,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
                 SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                         getNaptSwitchesIdentifier(routerName), routerToNaptSwitchBuilder.build());
             }
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("updateCentralizedSwitch ReadFailedException for {}", routerName);
         } catch (TransactionCommitFailedException e) {
             LOG.error("updateCentralizedSwitch TransactionCommitFailedException for {}", routerName);
@@ -182,7 +182,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
         try {
             String primaryRd = txRunner.applyWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
                 for (Uuid subnetUuid : addedSubnetIds) {
-                    Subnetmap subnetMapEntry = tx.read(getSubnetMapIdentifier(subnetUuid)).get().orNull();
+                    Subnetmap subnetMapEntry = tx.read(getSubnetMapIdentifier(subnetUuid)).get().orElse(null);
                     subnetMapEntries.put(subnetUuid, subnetMapEntry);
                     Uuid routerPortUuid = subnetMapEntry.getRouterInterfacePortId();
                     subnetIdToRouterPortMap.put(subnetUuid.getValue(), routerPortUuid.getValue());
@@ -259,7 +259,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
             try {
                 optRouters = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                         LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(ExtRouters.class));
-            } catch (ReadFailedException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 LOG.error("addSwitch: Error reading external routers", e);
                 return;
             }
@@ -290,7 +290,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
             if (dpnId == null || dpnId.equals(Uint64.ZERO)) {
                 return false;
             }
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("isPrimarySwitchAllocatedForRouter: Error reading RouterToNaptSwitch model", e);
             return false;
         }
@@ -323,7 +323,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
     private NaptSwitches getNaptSwitches() {
         InstanceIdentifier<NaptSwitches> id = InstanceIdentifier.builder(NaptSwitches.class).build();
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
-                LogicalDatastoreType.CONFIGURATION, id).orNull();
+                LogicalDatastoreType.CONFIGURATION, id).orElse(null);
     }
 
     private Uint64 getSwitchWithLowestWeight(String providerNet) {
@@ -368,7 +368,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
                 return null;
             }
             return naptSwitches.get().getPrimarySwitchId();
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("Error reading RouterToNaptSwitch model", e);
             return null;
         }

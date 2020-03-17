@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
@@ -204,8 +204,8 @@ public class InterVpnLinkLocator {
             if (ivl.getInterVpnLinkName().equals(ivpnLinkToMatch.getName())) {
                 return false; // ivl and ivpnLinlToMatch are the same InterVpnLink
             }
-            String vpn1Name = ivl.getFirstEndpointVpnUuid().orNull();
-            String vpn2Name = ivl.getSecondEndpointVpnUuid().orNull();
+            String vpn1Name = ivl.getFirstEndpointVpnUuid().orElse(null);
+            String vpn2Name = ivl.getSecondEndpointVpnUuid().orElse(null);
             if (vpn1Name == null) {
                 return false;
             }

@@ -10,7 +10,7 @@ package org.opendaylight.netvirt.bgpmanager;
 import static org.opendaylight.netvirt.bgpmanager.oam.BgpConstants.HISTORY_LIMIT;
 import static org.opendaylight.netvirt.bgpmanager.oam.BgpConstants.HISTORY_THRESHOLD;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.Futures;
@@ -54,11 +54,11 @@ import org.apache.thrift.TApplicationException;
 import org.apache.thrift.TException;
 import org.apache.thrift.transport.TTransport;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
+import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -2291,8 +2291,8 @@ public class BgpConfigurationManager implements EbgpService {
         while (0 != bgpDSretryCount.decrementAndGet()) {
             try {
                 return SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                        InstanceIdentifier.create(Bgp.class)).orNull();
-            } catch (ReadFailedException e) {
+                        InstanceIdentifier.create(Bgp.class)).orElse(null);
+            } catch (InterruptedException | ExecutionException e) {
                 //Config DS may not be up, so sleep for 1 second and retry
                 LOG.debug("failed to get bgp config, may be DS is yet in consistent state(?)", e);
                 try {
@@ -3056,7 +3056,7 @@ public class BgpConfigurationManager implements EbgpService {
             } else {
                 LOG.error("createStaleFibMap:: FIBentries.class is not present");
             }
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("createStaleFibMap:: error ", e);
         }
         LOG.error("created {} staled entries ", totalStaledCount);
@@ -3105,7 +3105,7 @@ public class BgpConfigurationManager implements EbgpService {
             } else {
                 LOG.error("deleteExternalFibRoutes:: FIBentries.class is not present");
             }
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("deleteExternalFibRoutes:: error ", e);
         }
         LOG.debug("deleted {} fib entries {} mac entries", totalExternalRoutes, totalExternalMacRoutes);

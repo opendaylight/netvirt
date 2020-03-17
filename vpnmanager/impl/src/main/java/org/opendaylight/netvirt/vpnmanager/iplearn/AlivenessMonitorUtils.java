@@ -7,15 +7,15 @@
  */
 package org.opendaylight.netvirt.vpnmanager.iplearn;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.genius.arputil.api.ArpConstants;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -156,7 +156,7 @@ public final class AlivenessMonitorUtils {
     }
 
     private Optional<Uint32> allocateIpMonitorProfile(IpAddress targetIp) {
-        Optional<Uint32> profileIdOptional = Optional.absent();
+        Optional<Uint32> profileIdOptional = Optional.empty();
         if (targetIp.getIpv4Address() != null) {
             profileIdOptional = allocateArpMonitorProfile();
         } else if (targetIp.getIpv6Address() != null) {
@@ -218,7 +218,7 @@ public final class AlivenessMonitorUtils {
         } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Exception when allocating profile Id", e);
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     private MonitorProfileGetInput buildMonitorGetProfile(long monitorInterval, long monitorWindow,
