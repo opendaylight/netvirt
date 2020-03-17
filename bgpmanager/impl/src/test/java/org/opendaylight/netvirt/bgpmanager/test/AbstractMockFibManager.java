@@ -8,8 +8,8 @@
 package org.opendaylight.netvirt.bgpmanager.test;
 
 import java.util.Collection;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
+import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public abstract class AbstractMockFibManager<D extends DataObject> implements DataTreeChangeListener<D> {

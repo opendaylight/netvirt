@@ -7,9 +7,9 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
-import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -17,8 +17,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
@@ -35,6 +34,8 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -170,7 +171,14 @@ public class DhcpManager {
         Subnet subnet = null;
         InstanceIdentifier<Subnet> inst = InstanceIdentifier.create(Neutron.class).child(Subnets.class).child(Subnet
                 .class, new SubnetKey(subnetId));
-        Optional<Subnet> sn = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst);
+        Optional<Subnet> sn;
+        try {
+            sn = SingleTransactionDataBroker.syncReadOptional(broker, LogicalDatastoreType.CONFIGURATION,
+                    inst);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("Exception while reading subnet DS for the subnetId {}", subnetId.getValue(), e);
+            return subnet;
+        }
         if (sn.isPresent()) {
             subnet = sn.get();
         }
@@ -183,7 +191,14 @@ public class DhcpManager {
         Port prt = null;
         InstanceIdentifier<Port> inst = InstanceIdentifier.create(Neutron.class).child(Ports.class).child(Port.class,
                 new PortKey(new Uuid(name)));
-        Optional<Port> port = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst);
+        Optional<Port> port;
+        try {
+            port = SingleTransactionDataBroker.syncReadOptional(broker, LogicalDatastoreType.CONFIGURATION,
+                    inst);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("Exception while reading port DS for the port {}", name, e);
+            return prt;
+        }
         if (port.isPresent()) {
             prt = port.get();
         }

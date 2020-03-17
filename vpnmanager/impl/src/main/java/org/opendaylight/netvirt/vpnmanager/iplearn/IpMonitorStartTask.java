@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import org.opendaylight.netvirt.vpnmanager.iplearn.model.MacEntry;
 
-public class IpMonitorStartTask implements Callable<List<ListenableFuture<Void>>> {
+public class IpMonitorStartTask implements Callable<List<? extends ListenableFuture<?>>> {
     private final MacEntry macEntry;
     private final Long arpMonitorProfileId;
     private final AlivenessMonitorUtils alivenessMonitorUtils;
