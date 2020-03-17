@@ -7,13 +7,12 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.handlers;
 
-import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import com.google.common.base.Optional;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -21,6 +20,7 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAJobScheduler;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalAugmentationMerger;
@@ -148,7 +148,7 @@ public class NodeConnectedHandler {
             return;
         }
         for (Switches ps : switches) {
-            Node childPsNode = tx.read((InstanceIdentifier<Node>) ps.getSwitchRef().getValue()).get().orNull();
+            Node childPsNode = tx.read((InstanceIdentifier<Node>) ps.getSwitchRef().getValue()).get().orElse(null);
             if (childPsNode != null) {
                 InstanceIdentifier<Node> haPsPath = HwvtepHAUtil.convertPsPath(childPsNode, haNodePath);
                 copyChildPSOpToHAPS(childPsNode, haNodePath, haPsPath, tx);
@@ -279,7 +279,7 @@ public class NodeConnectedHandler {
 
         PhysicalSwitchAugmentation src = childPsNode.augmentation(PhysicalSwitchAugmentation.class);
 
-        Node existingHAPSNode = tx.read(haPspath).get().orNull();
+        Node existingHAPSNode = tx.read(haPspath).get().orElse(null);
         PhysicalSwitchAugmentation existingHAPSAugumentation =
                 HwvtepHAUtil.getPhysicalSwitchAugmentationOfNode(existingHAPSNode);
 

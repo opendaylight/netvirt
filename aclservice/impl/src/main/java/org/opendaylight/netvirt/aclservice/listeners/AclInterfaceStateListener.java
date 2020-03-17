@@ -10,15 +10,14 @@ package org.opendaylight.netvirt.aclservice.listeners;
 import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
@@ -28,6 +27,7 @@ import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.serviceutils.srm.RecoverableListener;
 import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev170119.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -40,8 +40,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<Interface,
-        AclInterfaceStateListener> implements ClusteredDataTreeChangeListener<Interface>, RecoverableListener {
+public class AclInterfaceStateListener extends AbstractAsyncDataTreeChangeListener<Interface>
+        implements ClusteredDataTreeChangeListener<Interface>, RecoverableListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclInterfaceStateListener.class);
 
@@ -60,7 +60,9 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
             DataBroker dataBroker, AclDataUtil aclDataUtil, IInterfaceManager interfaceManager,
             AclInterfaceCache aclInterfaceCache, AclServiceUtils aclServicUtils, JobCoordinator jobCoordinator,
             ServiceRecoveryRegistry serviceRecoveryRegistry) {
-        super(Interface.class, AclInterfaceStateListener.class);
+        super(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                InstanceIdentifier.create(InterfacesState.class).child(Interface.class),
+                Executors.newListeningSingleThreadExecutor("AclInterfaceStateListener", LOG));
         this.aclServiceManger = aclServiceManger;
         this.aclClusterUtil = aclClusterUtil;
         this.dataBroker = dataBroker;
@@ -72,25 +74,20 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
         serviceRecoveryRegistry.addRecoverableListener(AclServiceUtils.getRecoverServiceRegistryKey(), this);
     }
 
-    @Override
-    @PostConstruct
     public void init() {
         LOG.info("{} start", getClass().getSimpleName());
-        registerListener();
     }
 
     @Override
     public void registerListener() {
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<Interface> getWildCardPath() {
-        return InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
+    public void deregisterListener() {
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Interface> key, Interface deleted) {
+    public void remove(InstanceIdentifier<Interface> key, Interface deleted) {
         if (!L2vlan.class.equals(deleted.getType())) {
             return;
         }
@@ -119,7 +116,7 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
     }
 
     @Override
-    protected void update(InstanceIdentifier<Interface> key, Interface before, Interface after) {
+    public void update(InstanceIdentifier<Interface> key, Interface before, Interface after) {
         /*
          * The update is not of interest as the attributes populated from this listener will not change.
          * The northbound updates are handled in AclInterfaceListener.
@@ -134,7 +131,7 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
     }
 
     @Override
-    protected void add(InstanceIdentifier<Interface> key, Interface added) {
+    public void add(InstanceIdentifier<Interface> key, Interface added) {
         if (!L2vlan.class.equals(added.getType())) {
             return;
         }
@@ -189,10 +186,5 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
                 aclServiceManger.notify(aclInterface, null, Action.ADD);
             }
         }
-    }
-
-    @Override
-    protected AclInterfaceStateListener getDataTreeChangeListener() {
-        return AclInterfaceStateListener.this;
     }
 }

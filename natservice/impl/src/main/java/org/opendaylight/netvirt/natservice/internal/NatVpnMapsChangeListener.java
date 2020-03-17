@@ -9,20 +9,20 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import com.google.common.base.Optional;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
@@ -39,7 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class NatVpnMapsChangeListener extends AsyncDataTreeChangeListenerBase<VpnMap, NatVpnMapsChangeListener> {
+public class NatVpnMapsChangeListener extends AbstractAsyncDataTreeChangeListener<VpnMap> {
     private static final Logger LOG = LoggerFactory.getLogger(NatVpnMapsChangeListener.class);
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
@@ -52,7 +52,9 @@ public class NatVpnMapsChangeListener extends AsyncDataTreeChangeListenerBase<Vp
                                final FloatingIPListener floatingIpListener,
                                final OdlInterfaceRpcService interfaceManager,
                                final ExternalRoutersListener externalRoutersListener) {
-        super(VpnMap.class, NatVpnMapsChangeListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(VpnMaps.class)
+                .child(VpnMap.class),
+                Executors.newListeningSingleThreadExecutor("NatVpnMapsChangeListener", LOG));
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.floatingIpListener = floatingIpListener;
@@ -60,20 +62,12 @@ public class NatVpnMapsChangeListener extends AsyncDataTreeChangeListenerBase<Vp
         this.externalRoutersListener = externalRoutersListener;
     }
 
-    @Override
-    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<VpnMap> getWildCardPath() {
-        return InstanceIdentifier.create(VpnMaps.class).child(VpnMap.class);
-    }
-
-    @Override
-    protected void add(InstanceIdentifier<VpnMap> identifier, VpnMap vpnMap) {
+    public void add(InstanceIdentifier<VpnMap> identifier, VpnMap vpnMap) {
         Uuid vpnUuid = vpnMap.getVpnId();
         String vpnName = vpnUuid.getValue();
         if (vpnMap.getRouterIds() != null) {
@@ -88,7 +82,7 @@ public class NatVpnMapsChangeListener extends AsyncDataTreeChangeListenerBase<Vp
     }
 
     @Override
-    protected void remove(InstanceIdentifier<VpnMap> identifier, VpnMap vpnMap) {
+    public void remove(InstanceIdentifier<VpnMap> identifier, VpnMap vpnMap) {
         Uuid vpnUuid = vpnMap.getVpnId();
         String vpnName = vpnUuid.getValue();
         if (vpnMap.getRouterIds() != null) {
@@ -103,7 +97,7 @@ public class NatVpnMapsChangeListener extends AsyncDataTreeChangeListenerBase<Vp
     }
 
     @Override
-    protected void update(InstanceIdentifier<VpnMap> identifier, VpnMap original, VpnMap updated) {
+    public void update(InstanceIdentifier<VpnMap> identifier, VpnMap original, VpnMap updated) {
         Uuid vpnUuid = updated.getVpnId();
         String vpnName = vpnUuid.getValue();
 
@@ -145,11 +139,6 @@ public class NatVpnMapsChangeListener extends AsyncDataTreeChangeListenerBase<Vp
                     onRouterDisassociatedFromVpn(vpnName, routerName);
                 });
         }
-    }
-
-    @Override
-    protected NatVpnMapsChangeListener getDataTreeChangeListener() {
-        return this;
     }
 
     public void onRouterAssociatedToVpn(String vpnName, String routerName) {

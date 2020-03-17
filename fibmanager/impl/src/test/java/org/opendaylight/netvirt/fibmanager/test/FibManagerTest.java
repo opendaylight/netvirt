@@ -13,9 +13,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.fibmanager.VrfEntryListener;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
@@ -36,7 +36,7 @@ public class FibManagerTest {
     @Mock
     DataBroker dataBroker;
     @Mock
-    ReadOnlyTransaction mockReadTx;
+    ReadTransaction mockReadTx;
     @Mock
     WriteTransaction mockWriteTx;
     @Mock

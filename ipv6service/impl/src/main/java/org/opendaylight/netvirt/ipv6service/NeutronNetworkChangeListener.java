@@ -7,12 +7,12 @@
  */
 package org.opendaylight.netvirt.ipv6service;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.mtu.ext.rev181114.NetworkMtuExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
@@ -22,8 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class NeutronNetworkChangeListener extends AsyncClusteredDataTreeChangeListenerBase<Network,
-        NeutronNetworkChangeListener> {
+public class NeutronNetworkChangeListener extends AbstractClusteredAsyncDataTreeChangeListener<Network> {
 
     private static final Logger LOG = LoggerFactory.getLogger(NeutronNetworkChangeListener.class);
 
@@ -32,23 +31,19 @@ public class NeutronNetworkChangeListener extends AsyncClusteredDataTreeChangeLi
 
     @Inject
     public NeutronNetworkChangeListener(final DataBroker dataBroker, IfMgr ifMgr) {
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Neutron.class)
+                .child(Networks.class).child(Network.class),
+                Executors.newListeningSingleThreadExecutor("NeutronNetworkChangeListener", LOG));
         this.dataBroker = dataBroker;
         this.ifMgr = ifMgr;
     }
 
-    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<Network> getWildCardPath() {
-        return InstanceIdentifier.create(Neutron.class).child(Networks.class).child(Network.class);
-    }
-
-    @Override
-    protected void add(InstanceIdentifier<Network> identifier, Network input) {
+    public void add(InstanceIdentifier<Network> identifier, Network input) {
         int mtu = 0;
         LOG.debug("Add Network notification handler is invoked {} ", input);
         if (input.augmentation(NetworkMtuExtension.class) != null) {
@@ -58,22 +53,13 @@ public class NeutronNetworkChangeListener extends AsyncClusteredDataTreeChangeLi
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Network> identifier, Network input) {
+    public void remove(InstanceIdentifier<Network> identifier, Network input) {
         LOG.debug("Remove Network notification handler is invoked {} ", input);
         ifMgr.removeNetwork(input.getUuid());
     }
 
     @Override
-    protected void update(InstanceIdentifier<Network> identifier, Network original, Network update) {
+    public void update(InstanceIdentifier<Network> identifier, Network original, Network update) {
         LOG.debug("Update Network notification handler is invoked...");
     }
-
-    /* (non-Javadoc)
-     * @see org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase#getDataTreeChangeListener()
-     */
-    @Override
-    protected NeutronNetworkChangeListener getDataTreeChangeListener() {
-        return NeutronNetworkChangeListener.this;
-    }
-
 }

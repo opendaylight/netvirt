@@ -15,7 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.netvirt.bgpmanager.BgpUtil;
 import org.opendaylight.netvirt.bgpmanager.FibDSWriter;

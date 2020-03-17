@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -19,14 +18,11 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -36,17 +32,20 @@ import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.natservice.api.SnatServiceManager;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
@@ -82,8 +81,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class NatTunnelInterfaceStateListener
-    extends AsyncDataTreeChangeListenerBase<StateTunnelList, NatTunnelInterfaceStateListener> {
+public class NatTunnelInterfaceStateListener extends AbstractAsyncDataTreeChangeListener<StateTunnelList> {
 
     private static final Logger LOG = LoggerFactory.getLogger(NatTunnelInterfaceStateListener.class);
     private final DataBroker dataBroker;
@@ -147,7 +145,9 @@ public class NatTunnelInterfaceStateListener
                                            final IElanService elanManager,
                                            final IInterfaceManager interfaceManager,
                                            final NatOverVxlanUtil natOverVxlanUtils) {
-        super(StateTunnelList.class, NatTunnelInterfaceStateListener.class);
+        super(dataBroker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(TunnelsState.class)
+                .child(StateTunnelList.class),
+                Executors.newListeningSingleThreadExecutor("NatTunnelInterfaceStateListener", LOG));
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.bgpManager = bgpManager;
@@ -171,37 +171,24 @@ public class NatTunnelInterfaceStateListener
         }
     }
 
-    @Override
-    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<StateTunnelList> getWildCardPath() {
-        return InstanceIdentifier.create(TunnelsState.class).child(StateTunnelList.class);
-    }
-
-    @Override
-    protected NatTunnelInterfaceStateListener getDataTreeChangeListener() {
-        return NatTunnelInterfaceStateListener.this;
-    }
-
-    @Override
-    protected void add(InstanceIdentifier<StateTunnelList> instanceIdentifier, StateTunnelList add) {
+    public void add(InstanceIdentifier<StateTunnelList> instanceIdentifier, StateTunnelList add) {
         LOG.trace("add : TEP addtion---- {}", add);
         hndlTepEvntsForDpn(add, TunnelAction.TUNNEL_EP_ADD);
     }
 
     @Override
-    protected void remove(InstanceIdentifier<StateTunnelList> identifier, StateTunnelList del) {
+    public void remove(InstanceIdentifier<StateTunnelList> identifier, StateTunnelList del) {
         LOG.trace("remove : TEP deletion---- {}", del);
         // Moved the remove implementation logic to NatTepChangeLister.remove()
     }
 
     @Override
-    protected void update(InstanceIdentifier<StateTunnelList> identifier, StateTunnelList original,
+    public void update(InstanceIdentifier<StateTunnelList> identifier, StateTunnelList original,
                           StateTunnelList update) {
         LOG.trace("update : Tunnel updation---- {}", update);
         //UPDATE IS A SEQUENCE OF DELETE AND ADD EVENTS . DELETE MIGHT HAVE CHANGED THE PRIMARY AND ADVERTISED. SO
@@ -346,7 +333,7 @@ public class NatTunnelInterfaceStateListener
             routerData = writeFlowInvTx.read(extRoutersId).get();
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Error reading router data for {}", extRoutersId, e);
-            routerData = Optional.absent();
+            routerData = Optional.empty();
         }
         if (!routerData.isPresent()) {
             LOG.warn("hndlTepAddForSnatInEachRtr : SNAT->Ignoring TEP add for router {} since its not External Router",
@@ -648,8 +635,15 @@ public class NatTunnelInterfaceStateListener
         final String routerName = router.getRouter();
 
         InstanceIdentifier<RouterPorts> routerPortsId = NatUtil.getRouterPortsId(routerName);
-        Optional<RouterPorts> optRouterPorts = MDSALUtil.read(dataBroker, LogicalDatastoreType
-            .CONFIGURATION, routerPortsId);
+        Optional<RouterPorts> optRouterPorts;
+        try {
+            optRouterPorts = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, routerPortsId);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("hndlTepAddForDnatInEachRtr: Exception while reading RouterPorts DS for the router {}",
+                    routerName, e);
+            return;
+        }
         if (!optRouterPorts.isPresent()) {
             LOG.debug("hndlTepAddForDnatInEachRtr : DNAT -> Could not read Router Ports data object with id: {} "
                     + "from DNAT FloatinIpInfo", routerName);

@@ -9,14 +9,12 @@
 package org.opendaylight.netvirt.dhcpservice;
 
 import java.math.BigInteger;
-
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -26,20 +24,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class DhcpNodeListener extends AsyncClusteredDataTreeChangeListenerBase<Node, DhcpNodeListener> {
+public class DhcpNodeListener extends AbstractClusteredAsyncDataTreeChangeListener<Node> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpNodeListener.class);
     private final DataBroker broker;
 
     @Inject
     public DhcpNodeListener(DataBroker broker) {
-        super(Node.class, DhcpNodeListener.class);
+        super(broker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(Nodes.class).child(Node.class),
+                Executors.newListeningSingleThreadExecutor("DhcpNodeListener", LOG));
         this.broker = broker;
     }
 
-    @PostConstruct
-    public void start() {
-        registerListener(LogicalDatastoreType.OPERATIONAL, broker);
+    public void init() {
+        LOG.info("{} init", getClass().getSimpleName());
     }
 
     @Override
@@ -48,12 +46,7 @@ public class DhcpNodeListener extends AsyncClusteredDataTreeChangeListenerBase<N
     }
 
     @Override
-    protected InstanceIdentifier<Node> getWildCardPath() {
-        return InstanceIdentifier.create(Nodes.class).child(Node.class);
-    }
-
-    @Override
-    protected void remove(InstanceIdentifier<Node> key, Node del) {
+    public void remove(InstanceIdentifier<Node> key, Node del) {
         LOG.trace("Received remove for {}", del);
         NodeId nodeId = del.getId();
         String[] node =  nodeId.getValue().split(":");
@@ -66,12 +59,12 @@ public class DhcpNodeListener extends AsyncClusteredDataTreeChangeListenerBase<N
     }
 
     @Override
-    protected void update(InstanceIdentifier<Node> key, Node dataObjectModificationBefore,
+    public void update(InstanceIdentifier<Node> key, Node dataObjectModificationBefore,
             Node dataObjectModificationAfter) {
     }
 
     @Override
-    protected void add(InstanceIdentifier<Node> key, Node add) {
+    public void add(InstanceIdentifier<Node> key, Node add) {
         LOG.trace("Received add for {}", add);
         NodeId nodeId = add.getId();
         String[] node =  nodeId.getValue().split(":");
@@ -82,10 +75,4 @@ public class DhcpNodeListener extends AsyncClusteredDataTreeChangeListenerBase<N
         BigInteger dpId = new BigInteger(node[1]);
         DhcpServiceUtils.addToDpnIdCache(Uint64.valueOf(dpId));
     }
-
-    @Override
-    protected DhcpNodeListener getDataTreeChangeListener() {
-        return DhcpNodeListener.this;
-    }
-
 }

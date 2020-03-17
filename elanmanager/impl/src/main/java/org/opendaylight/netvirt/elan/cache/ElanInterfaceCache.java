@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.cache;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -16,9 +16,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.mdsalutil.cache.InstanceIdDataObjectCache;
 import org.opendaylight.infrautils.caches.CacheProvider;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -53,15 +53,15 @@ public class ElanInterfaceCache extends InstanceIdDataObjectCache<ElanInterface>
             return get(ElanUtils.getElanInterfaceConfigurationDataPathId(interfaceName));
         } catch (ReadFailedException e) {
             LOG.warn("Error reading ElanInterface {}", interfaceName, e);
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 
     @NonNull
     public Optional<EtreeInterface> getEtreeInterface(@NonNull String interfaceName) {
         Optional<ElanInterface> elanInterface = get(interfaceName);
-        return elanInterface.isPresent() ? Optional.fromNullable(
-                elanInterface.get().augmentation(EtreeInterface.class)) : Optional.absent();
+        return elanInterface.isPresent() ? Optional.ofNullable(
+                elanInterface.get().augmentation(EtreeInterface.class)) : Optional.empty();
     }
 
     @NonNull

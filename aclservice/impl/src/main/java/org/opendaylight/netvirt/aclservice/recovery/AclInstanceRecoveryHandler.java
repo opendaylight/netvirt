@@ -7,16 +7,14 @@
  */
 package org.opendaylight.netvirt.aclservice.recovery;
 
-import com.google.common.base.Optional;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.listeners.AclInterfaceListener;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
