@@ -27,10 +27,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <artifactId>javax.inject</artifactId>
             <optional>true</optional>
         </dependency>
-        <dependency>
+<!--        <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>sal-binding-api</artifactId>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>org.opendaylight.genius</groupId>
             <artifactId>interfacemanager-api</artifactId>

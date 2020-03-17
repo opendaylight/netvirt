@@ -22,10 +22,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <modelVersion>4.0.0</modelVersion>
 
     <dependencies>
-        <dependency>
+<!--        <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>sal-binding-broker-impl</artifactId>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>org.opendaylight.genius</groupId>
             <artifactId>alivenessmonitor-api</artifactId>
@@ -107,9 +107,15 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         </dependency>
 
         <!-- Testing dependencies -->
-        <dependency>
+<!--        <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>sal-binding-broker-impl</artifactId>
+            <scope>test</scope>
+            <type>test-jar</type>
+        </dependency>-->
+        <dependency>
+            <groupId>org.opendaylight.mdsal</groupId>
+            <artifactId>mdsal-binding-dom-adapter</artifactId>
             <scope>test</scope>
             <type>test-jar</type>
         </dependency>

@@ -75,10 +75,10 @@ this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
             <artifactId>neutronvpn-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
+<!--        <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>sal-binding-broker-impl</artifactId>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>org.opendaylight.ovsdb</groupId>
             <artifactId>hwvtepsouthbound-api</artifactId>
@@ -156,9 +156,15 @@ this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
             <version>${genius.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
+<!--        <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>sal-binding-broker-impl</artifactId>
+            <scope>test</scope>
+            <type>test-jar</type>
+        </dependency>-->
+        <dependency>
+            <groupId>org.opendaylight.mdsal</groupId>
+            <artifactId>mdsal-binding-dom-adapter</artifactId>
             <scope>test</scope>
             <type>test-jar</type>
         </dependency>

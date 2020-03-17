@@ -10,10 +10,11 @@ package org.opendaylight.netvirt.elanmanager.tests;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mock;
 
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Optional;
+import java.util.concurrent.Executors;
 import org.mockito.Mockito;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.test.DataBrokerTestModule;
 import org.opendaylight.daexim.DataImportBootReady;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.interfacemanager.commons.InterfaceManagerCommonUtils;
@@ -33,6 +34,9 @@ import org.opendaylight.infrautils.diagstatus.DiagStatusService;
 import org.opendaylight.infrautils.inject.guice.testutils.AbstractGuiceJsr250Module;
 import org.opendaylight.infrautils.metrics.MetricProvider;
 import org.opendaylight.infrautils.metrics.testimpl.TestMetricProviderImpl;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractBaseDataBrokerTest;
+import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractDataBrokerTestCustomizer;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
 import org.opendaylight.mdsal.eos.common.api.EntityOwnershipState;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
@@ -68,8 +72,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Pa
 public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
 
     @Override
-    protected void configureBindings() {
-        DataBroker dataBroker = DataBrokerTestModule.dataBroker();
+    protected void configureBindings() throws Exception {
+        AbstractBaseDataBrokerTest test = new AbstractBaseDataBrokerTest() {
+            @Override
+            protected AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
+                return new AbstractDataBrokerTestCustomizer() {
+                    @Override
+                    public ListeningExecutorService getCommitCoordinatorExecutor() {
+                        return MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
+                    }
+                };
+            }
+        };
+        test.setup();
+        DataBroker dataBroker = test.getDataBroker();
         EntityOwnershipService mockedEntityOwnershipService = mock(EntityOwnershipService.class);
         EntityOwnershipState mockedEntityOwnershipState = EntityOwnershipState.IS_OWNER;
         Mockito.when(mockedEntityOwnershipService.getOwnershipState(Mockito.any()))

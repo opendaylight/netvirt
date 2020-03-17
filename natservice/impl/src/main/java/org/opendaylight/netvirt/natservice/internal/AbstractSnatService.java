@@ -15,10 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.datastoreutils.ExpectedDataObjectNotFoundException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.infra.Datastore.Configuration;
@@ -48,6 +45,9 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.natservice.api.SnatServiceListener;
@@ -639,7 +639,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
 
             SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                     vpnInterfacesId, vpnInterfacesBuilder.build());
-        } catch (ReadFailedException e) {
+        } catch (ExpectedDataObjectNotFoundException e) {
             LOG.warn("Failed to read removeMipAdjacencies with error {}", e.getMessage());
         } catch (TransactionCommitFailedException e) {
             LOG.warn("Failed to remove removeMipAdjacencies with error {}", e.getMessage());

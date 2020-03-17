@@ -7,20 +7,19 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
+import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.OPERATIONAL;
 import static org.opendaylight.netvirt.elan.utils.ElanConstants.ELAN_EOS_DELAY;
 
-import com.google.common.base.Optional;
-
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipChange;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipListener;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
@@ -106,7 +105,7 @@ public class ElanInstanceEntityOwnershipListener implements EntityOwnershipListe
                         LOG.info("Not the owner for Elan entity {}", ownershipChange);
                     }
                     ft = null;
-                } catch (Exception e) {
+                } catch (ExecutionException | InterruptedException e) {
                     LOG.error("Failed to read mdsal ", e);
                 }
             }, ELAN_EOS_DELAY, TimeUnit.MINUTES);

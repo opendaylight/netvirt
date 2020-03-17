@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * The Job class to delete L2 gateway device local ucast macs from other Elan L2
  * gateway devices.
  */
-public class DeleteL2GwDeviceMacsFromElanJob implements Callable<List<ListenableFuture<Void>>> {
+public class DeleteL2GwDeviceMacsFromElanJob implements Callable<List<? extends ListenableFuture<?>>> {
 
     /** The Constant JOB_KEY_PREFIX. */
     private static final String JOB_KEY_PREFIX = "hwvtep:";
