@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.vpnmanager;
 
-import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -19,10 +18,11 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
@@ -44,6 +44,7 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
     private final VpnSubnetRouteHandler vpnSubnetRouteHandler;
     private final VpnUtil vpnUtil;
     private final IVpnManager vpnManager;
+    private final ManagedNewTransactionRunner txRunner;
 
     @Inject
     public SubnetmapChangeListener(final DataBroker dataBroker, final VpnSubnetRouteHandler vpnSubnetRouteHandler,
@@ -53,6 +54,7 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
         this.vpnSubnetRouteHandler = vpnSubnetRouteHandler;
         this.vpnUtil = vpnUtil;
         this.vpnManager = vpnManager;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
     }
 
     @PostConstruct
@@ -79,11 +81,11 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
 
     @Override
     protected void add(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmap) {
-        LOG.debug("SubnetmapChangeListener add subnetmap method - key: {}, value: {}", identifier, subnetmap);
+        LOG.debug("add: subnetmap method - key: {}, value: {}", identifier, subnetmap);
         Uuid subnetId = subnetmap.getId();
         Network network = vpnUtil.getNeutronNetwork(subnetmap.getNetworkId());
         if (network == null) {
-            LOG.error("SubnetMapChangeListener:add: network was not found for subnetId {}", subnetId.getValue());
+            LOG.error("add: network was not found for subnetId {}", subnetId.getValue());
             return;
         }
         if (subnetmap.getVpnId() != null) {
@@ -99,14 +101,14 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
         String elanInstanceName = subnetmap.getNetworkId().getValue();
         long elanTag = getElanTag(elanInstanceName);
         if (elanTag == 0L) {
-            LOG.error("SubnetMapChangeListener:add: unable to fetch elantag from ElanInstance {} for subnet {}",
+            LOG.error("add: unable to fetch elantag from ElanInstance {} for subnet {}",
                       elanInstanceName, subnetId.getValue());
             return;
         }
         Uuid vpnId = subnetmap.getVpnId();
         if (vpnId != null) {
             boolean isBgpVpn = !vpnId.equals(subnetmap.getRouterId());
-            LOG.info("SubnetMapChangeListener:add: subnetmap {} with elanTag {} to VPN {}", subnetmap, elanTag,
+            LOG.info("add: subnetmap {} with elanTag {} to VPN {}", subnetmap, elanTag,
                      vpnId);
             vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmap, isBgpVpn, elanTag);
             if (isBgpVpn && subnetmap.getRouterId() == null) {
@@ -128,7 +130,7 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
 
     @Override
     protected void remove(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmap) {
-        LOG.trace("SubnetmapListener:remove: subnetmap method - key: {}, value: {}", identifier, subnetmap);
+        LOG.trace("remove: subnetmap method - key: {}, value: {}", identifier, subnetmap);
     }
 
     @Override
@@ -136,25 +138,25 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void update(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmapOriginal, Subnetmap
             subnetmapUpdate) {
-        LOG.debug("SubnetMapChangeListener update method - key {}, original {}, update {}", identifier,
+        LOG.debug("update: method - key {}, original {}, update {}", identifier,
                   subnetmapOriginal, subnetmapUpdate);
         Uuid subnetId = subnetmapUpdate.getId();
         Network network = vpnUtil.getNeutronNetwork(subnetmapUpdate.getNetworkId());
         if (network == null) {
-            LOG.error("SubnetMapChangeListener:update: network was not found for subnetId {}", subnetId.getValue());
+            LOG.error("update: network was not found for subnetId {}", subnetId.getValue());
             return;
         }
         String elanInstanceName = subnetmapUpdate.getNetworkId().getValue();
         long elanTag = getElanTag(elanInstanceName);
         if (elanTag == 0L) {
-            LOG.error("SubnetMapChangeListener:update: unable to fetch elantag from ElanInstance {} for subnetId {}",
+            LOG.error("update: unable to fetch elantag from ElanInstance {} for subnetId {}",
                       elanInstanceName, subnetId);
             return;
         }
         updateVlanDataEntry(subnetmapOriginal.getVpnId(), subnetmapUpdate.getVpnId(), subnetmapUpdate,
                 subnetmapOriginal, elanInstanceName);
         if (VpnUtil.getIsExternal(network)) {
-            LOG.debug("SubnetMapChangeListener:update: provider subnetwork {} is handling in "
+            LOG.debug("update: provider subnetwork {} is handling in "
                       + "ExternalSubnetVpnInstanceListener", subnetId.getValue());
             return;
         }
@@ -162,7 +164,7 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
         Uuid vpnIdOld = subnetmapOriginal.getVpnId();
         Uuid vpnIdNew = subnetmapUpdate.getVpnId();
         if (!Objects.equals(vpnIdOld, vpnIdNew)) {
-            LOG.info("SubnetMapChangeListener:update: update subnetOpDataEntry for subnet {} imported in VPN",
+            LOG.info("update: update subnetOpDataEntry for subnet {} imported in VPN",
                      subnetmapUpdate.getId().getValue());
             updateSubnetmapOpDataEntry(subnetmapOriginal.getVpnId(), subnetmapUpdate.getVpnId(), subnetmapUpdate,
                                        subnetmapOriginal, elanTag);
@@ -171,7 +173,7 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
         Uuid inetVpnIdOld = subnetmapOriginal.getInternetVpnId();
         Uuid inetVpnIdNew = subnetmapUpdate.getInternetVpnId();
         if (!Objects.equals(inetVpnIdOld, inetVpnIdNew)) {
-            LOG.info("SubnetMapChangeListener:update: update subnetOpDataEntry for subnet {} imported in InternetVPN",
+            LOG.info("update: update subnetOpDataEntry for subnet {} imported in InternetVPN",
                      subnetmapUpdate.getId().getValue());
             updateSubnetmapOpDataEntry(inetVpnIdOld, inetVpnIdNew, subnetmapUpdate, subnetmapOriginal, elanTag);
         }
@@ -183,7 +185,7 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
         if (newPortList.size() == oldPortList.size()) {
             return;
         }
-        LOG.info("SubnetMapChangeListener:update: update port list for subnet {}", subnetmapUpdate.getId().getValue());
+        LOG.info("update: update port list for subnet {}", subnetmapUpdate.getId().getValue());
         if (newPortList.size() > oldPortList.size()) {
             for (Uuid portId : newPortList) {
                 if (! oldPortList.contains(portId)) {
@@ -244,16 +246,18 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
         return this;
     }
 
+    @SuppressWarnings("all")
     protected long getElanTag(String elanInstanceName) {
-        InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class)
-                .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
-        long elanTag = 0L;
-        try {
-            Optional<ElanInstance> elanInstance = SingleTransactionDataBroker.syncReadOptional(dataBroker,
-                    LogicalDatastoreType.CONFIGURATION, elanIdentifierId);
-            if (elanInstance.isPresent()) {
-                if (elanInstance.get().getElanTag() != null) {
-                    elanTag = elanInstance.get().getElanTag().toJava();
+        final long[] elanTag = {0L};
+
+        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+            InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class)
+                    .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
+            ElanInstance elanInstance = tx.read(LogicalDatastoreType.CONFIGURATION, elanIdentifierId)
+                    .checkedGet().orNull();
+            if (elanInstance != null) {
+                if (elanInstance.getElanTag() != null) {
+                    elanTag[0] =elanInstance.getElanTag().longValue();
                 } else {
                     LOG.error("Notification failed because of failure in fetching elanTag for ElanInstance {}",
                             elanInstanceName);
@@ -261,10 +265,8 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
             } else {
                 LOG.error("Notification failed because of failure in reading ELANInstance {}", elanInstanceName);
             }
-        } catch (ReadFailedException e) {
-            LOG.error("Notification failed because of failure in fetching elanTag for ElanInstance {}",
-                elanInstanceName, e);
-        }
-        return elanTag;
+        }), LOG, "Error binding an ELAN tag for elanInstance {}", elanInstanceName);
+
+        return elanTag[0];
     }
 }
