@@ -48,5 +48,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.opendaylight.genius</groupId>
+            <artifactId>mdsalutil-api</artifactId>
+            <version>0.9.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>

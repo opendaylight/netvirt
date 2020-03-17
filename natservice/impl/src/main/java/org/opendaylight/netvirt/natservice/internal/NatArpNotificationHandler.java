@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Objects;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.ArpRequestReceived;
@@ -102,7 +102,7 @@ public class NatArpNotificationHandler implements OdlArputilListener {
             notification.getDpnId(), targetIfc.getName());
         VipState cachedState = null;
         try {
-            cachedState = this.vipStateTracker.get(newVipState.getIp()).orNull();
+            cachedState = this.vipStateTracker.get(newVipState.getIp()).orElse(null);
         } catch (ReadFailedException e) {
             LOG.warn("NatArpNotificationHandler failed to read vip state {}", notification, e);
         }

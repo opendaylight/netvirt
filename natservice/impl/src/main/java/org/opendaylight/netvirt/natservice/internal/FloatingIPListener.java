@@ -9,21 +9,17 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -51,9 +47,13 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.natservice.api.CentralizedSwitchScheduler;
 import org.opendaylight.netvirt.natservice.api.NatSwitchCache;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
@@ -77,7 +77,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<InternalToExternalPortMap, FloatingIPListener> {
+public class FloatingIPListener extends AbstractAsyncDataTreeChangeListener<InternalToExternalPortMap> {
     private static final Logger LOG = LoggerFactory.getLogger(FloatingIPListener.class);
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
@@ -97,7 +97,9 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
                               final JobCoordinator coordinator,
                               final CentralizedSwitchScheduler centralizedSwitchScheduler,
                               final NatSwitchCache natSwitchCache) {
-        super(InternalToExternalPortMap.class, FloatingIPListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(FloatingIpInfo.class)
+                .child(RouterPorts.class).child(Ports.class).child(InternalToExternalPortMap.class),
+                Executors.newListeningSingleThreadExecutor("FloatingIPListener", LOG));
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.mdsalManager = mdsalManager;
@@ -109,39 +111,25 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         this.natSwitchCache = natSwitchCache;
     }
 
-    @Override
-    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<InternalToExternalPortMap> getWildCardPath() {
-        return InstanceIdentifier.create(FloatingIpInfo.class).child(RouterPorts.class).child(Ports.class)
-                .child(InternalToExternalPortMap.class);
-    }
-
-    @Override
-    protected FloatingIPListener getDataTreeChangeListener() {
-        return FloatingIPListener.this;
-    }
-
-    @Override
-    protected void add(final InstanceIdentifier<InternalToExternalPortMap> identifier,
+    public void add(final InstanceIdentifier<InternalToExternalPortMap> identifier,
                        final InternalToExternalPortMap mapping) {
         LOG.trace("FloatingIPListener add ip mapping method - key: {} value: {}",mapping.key(), mapping);
         processFloatingIPAdd(identifier, mapping);
     }
 
     @Override
-    protected void remove(InstanceIdentifier<InternalToExternalPortMap> identifier, InternalToExternalPortMap mapping) {
+    public void remove(InstanceIdentifier<InternalToExternalPortMap> identifier, InternalToExternalPortMap mapping) {
         LOG.trace("FloatingIPListener remove ip mapping method - kkey: {} value: {}",mapping.key(), mapping);
         processFloatingIPDel(identifier, mapping);
     }
 
     @Override
-    protected void update(InstanceIdentifier<InternalToExternalPortMap> identifier, InternalToExternalPortMap
+    public void update(InstanceIdentifier<InternalToExternalPortMap> identifier, InternalToExternalPortMap
             original, InternalToExternalPortMap update) {
         LOG.trace("FloatingIPListener update ip mapping method - key: {}, original: {}, update: {}",
                 update.key(), original, update);
@@ -788,7 +776,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         InstanceIdentifier<InternalToExternalPortMap> intExtPortMapIdentifier =
             NatUtil.getIntExtPortMapIdentifier(routerId, interfaceName, internalIp);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
-                LogicalDatastoreType.OPERATIONAL, intExtPortMapIdentifier).toJavaUtil().map(
+                LogicalDatastoreType.OPERATIONAL, intExtPortMapIdentifier).map(
                 InternalToExternalPortMap::getLabel).orElse(NatConstants.INVALID_ID);
     }
 

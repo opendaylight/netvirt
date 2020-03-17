@@ -7,15 +7,18 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.jobs;
 
+import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.List;
 import java.util.concurrent.Callable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import java.util.concurrent.ExecutionException;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
@@ -89,7 +92,7 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
         return logicalSwitchAddedJob.call();
     }
 
-    private ListenableFuture<Void> createLogicalSwitch() {
+    private FluentFuture<? extends @NonNull CommitInfo> createLogicalSwitch() {
         final String logicalSwitchName = ElanL2GatewayUtils.getLogicalSwitchFromElan(
                 elanInstance.getElanInstanceName());
         String segmentationId = ElanUtils.getVxlanSegmentationId(elanInstance).toString();
@@ -98,7 +101,12 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
         LOG.trace("logical switch {} is created on {} with VNI {}", logicalSwitchName,
                 l2GatewayDevice.getHwvtepNodeId(), segmentationId);
         NodeId hwvtepNodeId = new NodeId(l2GatewayDevice.getHwvtepNodeId());
-        String dbVersion = HwvtepUtils.getDbVersion(broker,hwvtepNodeId);
+        String dbVersion = null;
+        try {
+            dbVersion = HwvtepUtils.getDbVersion(broker,hwvtepNodeId);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("createLogicalSwitch: Exception while reading DB version for the node {}", hwvtepNodeId, e);
+        }
         if (SouthboundUtils.compareDbVersionToMinVersion(dbVersion, "1.6.0")) {
             replicationMode = "source_node";
         }
@@ -109,10 +117,11 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
         LogicalSwitches logicalSwitch = HwvtepSouthboundUtils.createLogicalSwitch(logicalSwitchName,
                 elanInstance.getDescription(), segmentationId, replicationMode);
 
-        ListenableFuture<Void> lsCreateFuture = HwvtepUtils.addLogicalSwitch(broker, hwvtepNodeId, logicalSwitch);
-        Futures.addCallback(lsCreateFuture, new FutureCallback<Void>() {
+        FluentFuture<? extends @NonNull CommitInfo> lsCreateFuture = HwvtepUtils.addLogicalSwitch(broker, hwvtepNodeId,
+                logicalSwitch);
+        lsCreateFuture.addCallback(new FutureCallback<CommitInfo>() {
             @Override
-            public void onSuccess(Void noarg) {
+            public void onSuccess(CommitInfo noarg) {
                 // Listener will be closed after all configuration completed
                 // on hwvtep by
                 // listener itself

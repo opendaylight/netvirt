@@ -11,23 +11,23 @@ package org.opendaylight.netvirt.aclservice.listeners;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import java.util.Collections;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclNodeDefaultFlowsTxBuilder;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.serviceutils.srm.RecoverableListener;
 import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
  * during when node is discovered.
  */
 @Singleton
-public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapableNode, AclNodeListener>
+public class AclNodeListener extends AbstractAsyncDataTreeChangeListener<FlowCapableNode>
         implements RecoverableListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclNodeListener.class);
@@ -63,7 +63,9 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
     public AclNodeListener(final IMdsalApiManager mdsalManager, DataBroker dataBroker, AclserviceConfig config,
             AclServiceUtils aclServiceUtils, JobCoordinator jobCoordinator,
             ServiceRecoveryRegistry serviceRecoveryRegistry) {
-        super(FlowCapableNode.class, AclNodeListener.class);
+        super(dataBroker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(Nodes.class).child(Node.class)
+                .augmentation(FlowCapableNode.class),
+                Executors.newListeningSingleThreadExecutor("AclNodeListener", LOG));
 
         this.mdsalManager = mdsalManager;
         this.dataBroker = dataBroker;
@@ -74,40 +76,37 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         serviceRecoveryRegistry.addRecoverableListener(AclServiceUtils.getRecoverServiceRegistryKey(), this);
     }
 
-    @Override
-    @PostConstruct
     public void init() {
         LOG.info("{} start", getClass().getSimpleName());
         if (config != null) {
             this.securityGroupMode = config.getSecurityGroupMode();
         }
-        registerListener();
         LOG.info("AclserviceConfig: {}", this.config);
     }
 
     @Override
     public void registerListener() {
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
+
     }
 
     @Override
-    protected InstanceIdentifier<FlowCapableNode> getWildCardPath() {
-        return InstanceIdentifier.create(Nodes.class).child(Node.class).augmentation(FlowCapableNode.class);
+    public void deregisterListener() {
+
     }
 
     @Override
-    protected void remove(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModification) {
+    public void remove(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModification) {
         // do nothing
     }
 
     @Override
-    protected void update(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModificationBefore,
+    public void update(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModificationBefore,
             FlowCapableNode dataObjectModificationAfter) {
         // do nothing
     }
 
     @Override
-    protected void add(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModification) {
+    public void add(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModification) {
         NodeKey nodeKey = key.firstKeyOf(Node.class);
         Uint64 dpId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
         LOG.info("Received ACL node [{}] add event", dpId);
@@ -125,10 +124,5 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
             })), AclConstants.JOB_MAX_RETRIES);
 
         LOG.trace("FlowCapableNode (dpid: {}) add event is processed.", dpId);
-    }
-
-    @Override
-    protected AclNodeListener getDataTreeChangeListener() {
-        return AclNodeListener.this;
     }
 }

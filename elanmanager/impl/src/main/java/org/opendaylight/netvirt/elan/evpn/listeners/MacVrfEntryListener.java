@@ -8,13 +8,13 @@
 
 package org.opendaylight.netvirt.elan.evpn.listeners;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.evpn.utils.EvpnMacVrfUtils;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.macvrfentries.MacVrfEntry;
@@ -35,47 +35,38 @@ import org.slf4j.LoggerFactory;
  * received dest MAC in all the DPN's (with this network footprint).
  */
 @Singleton
-public class MacVrfEntryListener extends AsyncDataTreeChangeListenerBase<MacVrfEntry, MacVrfEntryListener> {
+public class MacVrfEntryListener extends AbstractAsyncDataTreeChangeListener<MacVrfEntry> {
     private static final Logger LOG = LoggerFactory.getLogger(MacVrfEntryListener.class);
     private final DataBroker broker;
     private final EvpnMacVrfUtils evpnMacVrfUtils;
 
     @Inject
     public MacVrfEntryListener(final DataBroker broker, final EvpnMacVrfUtils evpnMacVrfUtils) {
+        super(broker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(FibEntries.class)
+                .child(VrfTables.class).child(MacVrfEntry.class),
+                Executors.newListeningSingleThreadExecutor("MacVrfEntryListener", LOG));
         this.broker = broker;
         this.evpnMacVrfUtils = evpnMacVrfUtils;
 
     }
 
-    @Override
-    @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.CONFIGURATION, broker);
+        LOG.info("{} start", getClass().getSimpleName());
     }
 
     @Override
-    protected InstanceIdentifier<MacVrfEntry> getWildCardPath() {
-        return InstanceIdentifier.create(FibEntries.class).child(VrfTables.class).child(MacVrfEntry.class);
-    }
-
-    @Override
-    protected MacVrfEntryListener getDataTreeChangeListener() {
-        return MacVrfEntryListener.this;
-    }
-
-    @Override
-    protected void add(InstanceIdentifier<MacVrfEntry> instanceIdentifier, MacVrfEntry macVrfEntry) {
+    public void add(InstanceIdentifier<MacVrfEntry> instanceIdentifier, MacVrfEntry macVrfEntry) {
         LOG.info("ADD: Adding DMAC Entry for MACVrfEntry {} ", macVrfEntry);
         evpnMacVrfUtils.addEvpnDmacFlow(instanceIdentifier, macVrfEntry);
     }
 
     @Override
-    protected void update(InstanceIdentifier<MacVrfEntry> instanceIdentifier, MacVrfEntry macVrfEntry, MacVrfEntry t1) {
+    public void update(InstanceIdentifier<MacVrfEntry> instanceIdentifier, MacVrfEntry macVrfEntry, MacVrfEntry t1) {
 
     }
 
     @Override
-    protected void remove(InstanceIdentifier<MacVrfEntry> instanceIdentifier, MacVrfEntry macVrfEntry) {
+    public void remove(InstanceIdentifier<MacVrfEntry> instanceIdentifier, MacVrfEntry macVrfEntry) {
         LOG.info("REMOVE: Removing DMAC Entry for MACVrfEntry {} ", macVrfEntry);
         evpnMacVrfUtils.removeEvpnDmacFlow(instanceIdentifier, macVrfEntry);
     }

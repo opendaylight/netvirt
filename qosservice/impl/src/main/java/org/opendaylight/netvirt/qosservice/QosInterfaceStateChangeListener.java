@@ -8,13 +8,13 @@
 
 package org.opendaylight.netvirt.qosservice;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.util.Collections;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
@@ -139,7 +139,7 @@ public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChang
                 });
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     @Override
