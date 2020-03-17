@@ -9,14 +9,14 @@ package org.opendaylight.netvirt.aclservice.listeners;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
@@ -26,6 +26,7 @@ import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.serviceutils.srm.RecoverableListener;
 import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -39,7 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interface, AclInterfaceListener>
+public class AclInterfaceListener extends AbstractAsyncDataTreeChangeListener<Interface>
         implements ClusteredDataTreeChangeListener<Interface>, RecoverableListener {
     private static final Logger LOG = LoggerFactory.getLogger(AclInterfaceListener.class);
 
@@ -54,7 +55,9 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
     public AclInterfaceListener(AclServiceManager aclServiceManager, AclClusterUtil aclClusterUtil,
             DataBroker dataBroker, AclDataUtil aclDataUtil, AclInterfaceCache aclInterfaceCache,
             AclServiceUtils aclServicUtils, ServiceRecoveryRegistry serviceRecoveryRegistry) {
-        super(Interface.class, AclInterfaceListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                InstanceIdentifier.create(Interfaces.class).child(Interface.class),
+                Executors.newListeningSingleThreadExecutor("AclEventListener", LOG));
         this.aclServiceManager = aclServiceManager;
         this.aclClusterUtil = aclClusterUtil;
         this.dataBroker = dataBroker;
@@ -64,21 +67,18 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
         serviceRecoveryRegistry.addRecoverableListener(AclServiceUtils.getRecoverServiceRegistryKey(), this);
     }
 
-    @Override
-    @PostConstruct
     public void init() {
         LOG.info("{} start", getClass().getSimpleName());
-        registerListener();
     }
 
     @Override
     public void registerListener() {
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
+        super.register();
     }
 
     @Override
-    protected InstanceIdentifier<Interface> getWildCardPath() {
-        return InstanceIdentifier.create(Interfaces.class).child(Interface.class);
+    public void deregisterListener() {
+        super.close();
     }
 
     @Override
@@ -251,7 +251,9 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
     }
 
     @Override
-    protected AclInterfaceListener getDataTreeChangeListener() {
-        return this;
+    @PreDestroy
+    public void close() {
+        super.close();
+        Executors.shutdownAndAwaitTermination(getExecutorService());
     }
 }

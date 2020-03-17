@@ -11,17 +11,18 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
 import java.util.concurrent.locks.ReentrantLock;
-import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces.RouterInterfaceBuilder;
@@ -36,8 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class NatRouterInterfaceListener
-    extends AsyncDataTreeChangeListenerBase<Interfaces, NatRouterInterfaceListener> {
+public class NatRouterInterfaceListener extends AbstractAsyncDataTreeChangeListener<Interfaces> {
 
     private static final Logger LOG = LoggerFactory.getLogger(NatRouterInterfaceListener.class);
     private final DataBroker dataBroker;
@@ -51,7 +51,9 @@ public class NatRouterInterfaceListener
     public NatRouterInterfaceListener(final DataBroker dataBroker, final OdlInterfaceRpcService interfaceManager,
         final IMdsalApiManager mdsalManager,final NaptManager naptManager,
         final NeutronvpnService neutronvpnService) {
-        super(Interfaces.class, NatRouterInterfaceListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(RouterInterfacesMap.class)
+                .child(RouterInterfaces.class).child(Interfaces.class),
+                Executors.newListeningSingleThreadExecutor("NatRouterInterfaceListener", LOG));
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.interfaceManager = interfaceManager;
@@ -60,28 +62,21 @@ public class NatRouterInterfaceListener
         this.neutronVpnService = neutronvpnService;
     }
 
-    @Override
-    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
-    protected NatRouterInterfaceListener getDataTreeChangeListener() {
-        return NatRouterInterfaceListener.this;
-    }
-
-    @Override
-    protected InstanceIdentifier<Interfaces> getWildCardPath() {
-        return InstanceIdentifier.create(RouterInterfacesMap.class)
-            .child(RouterInterfaces.class).child(Interfaces.class);
+    @PreDestroy
+    public void close() {
+        super.close();
+        Executors.shutdownAndAwaitTermination(getExecutorService());
     }
 
     @Override
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void add(InstanceIdentifier<Interfaces> identifier, Interfaces interfaceInfo) {
+    public void add(InstanceIdentifier<Interfaces> identifier, Interfaces interfaceInfo) {
         LOG.trace("add : Add event - key: {}, value: {}", interfaceInfo.key(), interfaceInfo);
         final String routerId = identifier.firstKeyOf(RouterInterfaces.class).getRouterId().getValue();
         final String interfaceName = interfaceInfo.getInterfaceId();
@@ -124,7 +119,7 @@ public class NatRouterInterfaceListener
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Interfaces> identifier, Interfaces interfaceInfo) {
+    public void remove(InstanceIdentifier<Interfaces> identifier, Interfaces interfaceInfo) {
         LOG.trace("remove : Remove event - key: {}, value: {}", interfaceInfo.key(), interfaceInfo);
         final String routerId = identifier.firstKeyOf(RouterInterfaces.class).getRouterId().getValue();
         final String interfaceName = interfaceInfo.getInterfaceId();
@@ -167,7 +162,7 @@ public class NatRouterInterfaceListener
     }
 
     @Override
-    protected void update(InstanceIdentifier<Interfaces> identifier, Interfaces original, Interfaces update) {
+    public void update(InstanceIdentifier<Interfaces> identifier, Interfaces original, Interfaces update) {
         LOG.trace("update key: {}, original: {}, update: {}", update.key(), original, update);
     }
 

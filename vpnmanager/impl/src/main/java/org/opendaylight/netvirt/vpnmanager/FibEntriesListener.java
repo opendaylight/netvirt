@@ -12,15 +12,16 @@ import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
@@ -34,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry, FibEntriesListener> {
+public class FibEntriesListener extends AbstractAsyncDataTreeChangeListener<VrfEntry> {
     private static final Logger LOG = LoggerFactory.getLogger(FibEntriesListener.class);
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
@@ -42,31 +43,28 @@ public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry
 
     @Inject
     public FibEntriesListener(final DataBroker dataBroker, final VpnInstanceListener vpnInstanceListener) {
-        super(VrfEntry.class, FibEntriesListener.class);
+        super(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                InstanceIdentifier.create(FibEntries.class).child(VrfTables.class).child(VrfEntry.class),
+                Executors.newListeningSingleThreadExecutor("FibEntriesListener", LOG));
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.vpnInstanceListener = vpnInstanceListener;
     }
 
-    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<VrfEntry> getWildCardPath() {
-        return InstanceIdentifier.create(FibEntries.class).child(VrfTables.class).child(VrfEntry.class);
-    }
-
-    @Override
-    protected FibEntriesListener getDataTreeChangeListener() {
-        return FibEntriesListener.this;
+    @PreDestroy
+    public void close() {
+        super.close();
+        Executors.shutdownAndAwaitTermination(getExecutorService());
     }
 
 
     @Override
-    protected void remove(InstanceIdentifier<VrfEntry> identifier,
+    public void remove(InstanceIdentifier<VrfEntry> identifier,
         VrfEntry del) {
         LOG.trace("Remove Fib event - Key : {}, value : {} ", identifier, del);
         final VrfTablesKey key = identifier.firstKeyOf(VrfTables.class);
@@ -76,7 +74,7 @@ public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry
     }
 
     @Override
-    protected void update(InstanceIdentifier<VrfEntry> identifier,
+    public void update(InstanceIdentifier<VrfEntry> identifier,
         VrfEntry original, VrfEntry update) {
         final VrfTablesKey key = identifier.firstKeyOf(VrfTables.class);
         String rd = key.getRouteDistinguisher();
@@ -92,7 +90,7 @@ public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry
     }
 
     @Override
-    protected void add(InstanceIdentifier<VrfEntry> identifier,
+    public void add(InstanceIdentifier<VrfEntry> identifier,
         VrfEntry add) {
         LOG.trace("Add Vrf Entry event - Key : {}, value : {}", identifier, add);
         final VrfTablesKey key = identifier.firstKeyOf(VrfTables.class);

@@ -7,15 +7,16 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
-import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elan.utils.TransportZoneNotificationUtil;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
@@ -27,7 +28,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class ElanDpnToTransportZoneListener
-        extends AsyncDataTreeChangeListenerBase<DpnInterfaces, ElanDpnToTransportZoneListener> {
+        extends AbstractAsyncDataTreeChangeListener<DpnInterfaces> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanDpnToTransportZoneListener.class);
     private final TransportZoneNotificationUtil transportZoneNotificationUtil;
@@ -39,34 +40,33 @@ public class ElanDpnToTransportZoneListener
     public ElanDpnToTransportZoneListener(final DataBroker dbx,
             final ElanConfig elanConfig, final TransportZoneNotificationUtil tznu,
             final ElanInstanceCache elanInstanceCache) {
+        super(dbx, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(ElanDpnInterfaces.class)
+                .child(ElanDpnInterfacesList.class).child(DpnInterfaces.class),
+                Executors.newListeningSingleThreadExecutor("ElanDpnToTransportZoneListener", LOG));
         useTransportZone = elanConfig.isAutoConfigTransportZones();
         transportZoneNotificationUtil = tznu;
         this.dbx = dbx;
         this.elanInstanceCache = elanInstanceCache;
+        start();
     }
 
-    @PostConstruct
     public void start() {
-
         if (useTransportZone) {
-            registerListener(LogicalDatastoreType.OPERATIONAL, dbx);
             LOG.info("{} registered", getClass().getSimpleName());
         }
     }
 
     @Override
-    public InstanceIdentifier<DpnInterfaces> getWildCardPath() {
-        return InstanceIdentifier.builder(ElanDpnInterfaces.class).child(ElanDpnInterfacesList.class)
-                .child(DpnInterfaces.class).build();
-    }
-
-    @Override
-    protected void remove(InstanceIdentifier<DpnInterfaces> key, DpnInterfaces dataObjectModification) {
+    public void remove(InstanceIdentifier<DpnInterfaces> key, DpnInterfaces dataObjectModification) {
+        //Proceed only if "auto-config-transport-zones = TRUE"
+        if (!useTransportZone) {
+            return;
+        }
         LOG.debug("Elan dpn {} delete detected, deleting transport zones", dataObjectModification.getDpId());
         Uint64 dpId = dataObjectModification.getDpId();
         String elanInstanceName = key.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
 
-        if (!ElanUtils.isVxlanNetworkOrVxlanSegment(elanInstanceCache.get(elanInstanceName).orNull())) {
+        if (!ElanUtils.isVxlanNetworkOrVxlanSegment(elanInstanceCache.get(elanInstanceName).orElse(null))) {
             LOG.debug("ElanInstance {} is not vxlan network, nothing to do", elanInstanceName);
             return;
         }
@@ -76,18 +76,22 @@ public class ElanDpnToTransportZoneListener
     }
 
     @Override
-    protected void update(InstanceIdentifier<DpnInterfaces> key, DpnInterfaces dataObjectModificationBefore,
+    public void update(InstanceIdentifier<DpnInterfaces> key, DpnInterfaces dataObjectModificationBefore,
             DpnInterfaces dataObjectModificationAfter) {
     }
 
     @Override
-    protected void add(InstanceIdentifier<DpnInterfaces> key, DpnInterfaces dataObjectModification) {
+    public void add(InstanceIdentifier<DpnInterfaces> key, DpnInterfaces dataObjectModification) {
+        //Proceed only if "auto-config-transport-zones = TRUE"
+        if (!useTransportZone) {
+            return;
+        }
         LOG.debug("Elan dpn {} add detected, updating transport zones", dataObjectModification.getDpId());
 
         Uint64 dpId = dataObjectModification.getDpId();
         String elanInstanceName = key.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
 
-        if (!ElanUtils.isVxlanNetworkOrVxlanSegment(elanInstanceCache.get(elanInstanceName).orNull())) {
+        if (!ElanUtils.isVxlanNetworkOrVxlanSegment(elanInstanceCache.get(elanInstanceName).orElse(null))) {
             return;
         }
 
@@ -95,7 +99,9 @@ public class ElanDpnToTransportZoneListener
     }
 
     @Override
-    protected ElanDpnToTransportZoneListener getDataTreeChangeListener() {
-        return ElanDpnToTransportZoneListener.this;
+    @PreDestroy
+    public void close() {
+        super.close();
+        Executors.shutdownAndAwaitTermination(getExecutorService());
     }
 }

@@ -35,9 +35,13 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>sal-binding-api</artifactId>
         </dependency>
-        <dependency>
+<!--        <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>sal-binding-broker-impl</artifactId>
+        </dependency>-->
+        <dependency>
+            <groupId>org.opendaylight.mdsal</groupId>
+            <artifactId>mdsal-binding-dom-adapter</artifactId>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.genius</groupId>
@@ -128,11 +132,17 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <artifactId>testutils</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
+<!--        <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>sal-binding-broker-impl</artifactId>
             <type>test-jar</type>
             <scope>test</scope>
+        </dependency>-->
+        <dependency>
+            <groupId>org.opendaylight.mdsal</groupId>
+            <artifactId>mdsal-binding-dom-adapter</artifactId>
+            <scope>test</scope>
+            <type>test-jar</type>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal</groupId>

@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,15 +15,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -198,7 +198,7 @@ public class VpnSubnetRouteHandler {
             LOG.error("{} onSubnetAddedToVpn: Unable to handle subnet {} with ip {} added to vpn {}", LOGGING_PREFIX,
                     subnetId.getValue(), subnetIp, vpnName, e);
             return;
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("{} onSubnetAddedToVpn: Failed to read data store for subnet {} ip {} vpn {}", LOGGING_PREFIX,
                     subnetId, subnetIp, vpnName);
             return;
@@ -268,7 +268,7 @@ public class VpnSubnetRouteHandler {
         } catch (RuntimeException e) {
             LOG.error("{} onSubnetAddedToVpn: Unable to handle subnet {} with ip {} added to vpn {}", LOGGING_PREFIX,
                     subnetId.getValue(), subnetIp, vpnName, e);
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("{} onSubnetAddedToVpn: Failed to read data store for subnet {} ip {} vpn {}", LOGGING_PREFIX,
                     subnetId, subnetIp, vpnName);
         } catch (TransactionCommitFailedException ex) {
@@ -378,7 +378,7 @@ public class VpnSubnetRouteHandler {
             LOG.error("{} onSubnetDeletedFromVpn: Removal of SubnetOpDataEntry for subnet {} subnetIp {}"
                             + " vpnId {} failed", LOGGING_PREFIX, subnetId.getValue(), subnetmap.getSubnetIp(),
                     subnetmap.getVpnId(), ex);
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("{} onSubnetDeletedFromVpn: Failed to read data store for subnet {} ip {} vpn {}",
                     LOGGING_PREFIX, subnetId, subnetmap.getSubnetIp(), subnetmap.getVpnId());
         } finally {
@@ -411,7 +411,7 @@ public class VpnSubnetRouteHandler {
             }
             LOG.info("{} onSubnetUpdatedInVpn: subnet {} with Ip {} updated successfully for vpn {}", LOGGING_PREFIX,
                     subnetId.getValue(), subnetIp, vpnName);
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("onSubnetUpdatedInVpn: Failed to read data store for subnet{} ip {} elanTag {} vpn {}",subnetId,
                     subnetIp, elanTag, vpnName);
         }
@@ -505,7 +505,7 @@ public class VpnSubnetRouteHandler {
         } catch (RuntimeException e) { //TODO: Avoid this
             LOG.error("{} onPortAddedToSubnet: Unable to handle port {} added to subnet {}", LOGGING_PREFIX,
                     portId.getValue(), subnetId.getValue(), e);
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("{} onPortAddedToSubnet: Failed to read data store for port {} subnet {}", LOGGING_PREFIX,
                     portId, subnetId);
         } catch (TransactionCommitFailedException e) {
@@ -574,7 +574,7 @@ public class VpnSubnetRouteHandler {
         } catch (RuntimeException e) {
             LOG.error("{} onPortRemovedFromSubnet: Unable to handle port {} removed from subnet {}", LOGGING_PREFIX,
                     portId.getValue(), subnetId.getValue(), e);
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("{} onPortRemovedFromSubnet: Failed to read data store for port {} subnet {}", LOGGING_PREFIX,
                     portId, subnetId);
         } catch (TransactionCommitFailedException e) {
@@ -641,7 +641,7 @@ public class VpnSubnetRouteHandler {
         } catch (RuntimeException e) {
             LOG.error("{} onInterfaceUp: Unable to handle interface up event for port {} in subnet {}",
                     LOGGING_PREFIX, intfName, subnetId.getValue(), e);
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("{} onInterfaceUp: Failed to read data store for interface {} dpn {} subnet {}", LOGGING_PREFIX,
                     intfName, dpnId, subnetId);
         } catch (TransactionCommitFailedException e) {
@@ -702,7 +702,7 @@ public class VpnSubnetRouteHandler {
         } catch (RuntimeException e) { //TODO: Remove RuntimeException
             LOG.error("{} onInterfaceDown: Unable to handle interface down event for port {} in subnet {}",
                     LOGGING_PREFIX, interfaceName, subnetId.getValue(), e);
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("{} onInterfaceDown: Failed to read data store for interface {} dpn {} subnet {}",
                     LOGGING_PREFIX, interfaceName, dpnId, subnetId.getValue(), e);
         } catch (TransactionCommitFailedException ex) {
@@ -762,7 +762,7 @@ public class VpnSubnetRouteHandler {
         } catch (TransactionCommitFailedException ex) {
             LOG.error("{} updateSubnetRouteOnTunnelUpEvent: Failed to update subnetRoute for subnet {} on dpn {}",
                     LOGGING_PREFIX, subnetId.getValue(), dpnId.toString(), ex);
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("{} updateSubnetRouteOnTunnelUpEvent: Failed to read data store for subnet {} on dpn {}",
                     LOGGING_PREFIX, subnetId.getValue(), dpnId.toString(), e);
         }
@@ -810,7 +810,7 @@ public class VpnSubnetRouteHandler {
         } catch (RuntimeException e) {
             LOG.error("{} updateSubnetRouteOnTunnelDownEvent: Unable to handle tunnel down event for subnetId {}"
                     + " dpnId {}", LOGGING_PREFIX, subnetId.getValue(), dpnId.toString(), e);
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("{} Failed to read data store for subnet {} dpn {}", LOGGING_PREFIX, subnetId, dpnId);
         } catch (TransactionCommitFailedException e) {
             LOG.error("{} updateSubnetRouteOnTunnelDownEvent: Updation of SubnetOpDataEntry for subnet {}"
