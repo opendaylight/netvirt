@@ -11,17 +11,17 @@ package org.opendaylight.netvirt.qosservice;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import java.util.Collections;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
+import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.policies.QosPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.policies.qos.policy.BandwidthLimitRules;
@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class QosTerminationPointListener extends
-        AsyncClusteredDataTreeChangeListenerBase<OvsdbTerminationPointAugmentation, QosTerminationPointListener> {
+        AbstractClusteredAsyncDataTreeChangeListener<OvsdbTerminationPointAugmentation> {
     private static final Logger LOG = LoggerFactory.getLogger(QosTerminationPointListener.class);
     private static final String EXTERNAL_ID_INTERFACE_ID = "iface-id";
     private final DataBroker dataBroker;
@@ -55,7 +55,11 @@ public class QosTerminationPointListener extends
                                        final QosEosHandler qosEosHandler,
                                        final QosAlertManager qosAlertManager,
                                        final JobCoordinator jobCoordinator) {
-        super(OvsdbTerminationPointAugmentation.class, QosTerminationPointListener.class);
+        super(dataBroker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(NetworkTopology.class)
+                .child(Topology.class, new TopologyKey(SouthboundUtils.OVSDB_TOPOLOGY_ID))
+                .child(Node.class).child(TerminationPoint.class)
+                .augmentation(OvsdbTerminationPointAugmentation.class),
+                Executors.newListeningSingleThreadExecutor("QosTerminationPointListener", LOG));
         this.dataBroker = dataBroker;
         this.qosNeutronUtils = qosNeutronUtils;
         this.qosEosHandler = qosEosHandler;
@@ -64,21 +68,12 @@ public class QosTerminationPointListener extends
         this.jobCoordinator = jobCoordinator;
     }
 
-    @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
+        LOG.trace("{} init and registerListener done", getClass().getSimpleName());
     }
 
     @Override
-    protected InstanceIdentifier<OvsdbTerminationPointAugmentation> getWildCardPath() {
-        return InstanceIdentifier.create(NetworkTopology.class)
-                .child(Topology.class, new TopologyKey(SouthboundUtils.OVSDB_TOPOLOGY_ID))
-                .child(Node.class).child(TerminationPoint.class)
-                .augmentation(OvsdbTerminationPointAugmentation.class);
-    }
-
-    @Override
-    protected void remove(InstanceIdentifier<OvsdbTerminationPointAugmentation> instanceIdentifier,
+    public void remove(InstanceIdentifier<OvsdbTerminationPointAugmentation> instanceIdentifier,
                           OvsdbTerminationPointAugmentation tp) {
         if (isBandwidthRuleApplied(tp)) {
             String ifaceId = getIfaceId(tp);
@@ -115,7 +110,7 @@ public class QosTerminationPointListener extends
     }
 
     @Override
-    protected void update(InstanceIdentifier<OvsdbTerminationPointAugmentation> instanceIdentifier,
+    public void update(InstanceIdentifier<OvsdbTerminationPointAugmentation> instanceIdentifier,
                           OvsdbTerminationPointAugmentation original,
                           OvsdbTerminationPointAugmentation update) {
         String ifaceId = getIfaceId(update);
@@ -149,7 +144,7 @@ public class QosTerminationPointListener extends
     }
 
     @Override
-    protected void add(InstanceIdentifier<OvsdbTerminationPointAugmentation> instanceIdentifier,
+    public void add(InstanceIdentifier<OvsdbTerminationPointAugmentation> instanceIdentifier,
                        OvsdbTerminationPointAugmentation tpAugment) {
         String ifaceId = getIfaceId(tpAugment);
         if ((ifaceId != null) && isBandwidthRuleApplied(tpAugment)) {
@@ -162,11 +157,6 @@ public class QosTerminationPointListener extends
                 setPortBandwidthRule(instanceIdentifier, tpAugment, port);
             }
         }
-    }
-
-    @Override
-    protected QosTerminationPointListener getDataTreeChangeListener() {
-        return QosTerminationPointListener.this;
     }
 
     private void setPortBandwidthRule(InstanceIdentifier<OvsdbTerminationPointAugmentation> identifier,

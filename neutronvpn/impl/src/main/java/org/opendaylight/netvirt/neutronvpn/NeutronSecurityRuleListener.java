@@ -7,22 +7,22 @@
  */
 package org.opendaylight.netvirt.neutronvpn;
 
-import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.collect.ImmutableBiMap;
 
 import java.util.Collections;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.AclKey;
@@ -60,8 +60,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class NeutronSecurityRuleListener
-        extends AsyncDataTreeChangeListenerBase<SecurityRule, NeutronSecurityRuleListener> {
+public class NeutronSecurityRuleListener extends AbstractAsyncDataTreeChangeListener<SecurityRule> {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronSecurityRuleListener.class);
     private static final ImmutableBiMap<Class<? extends DirectionBase>,
         Class<?extends org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase>>
@@ -80,28 +79,22 @@ public class NeutronSecurityRuleListener
 
     @Inject
     public NeutronSecurityRuleListener(final DataBroker dataBroker, JobCoordinator jobCoordinator) {
-        super(SecurityRule.class, NeutronSecurityRuleListener.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Neutron.class)
+                .child(SecurityRules.class).child(SecurityRule.class),
+                Executors.newSingleThreadExecutor("NeutronSecurityRuleListener", LOG));
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.jobCoordinator = jobCoordinator;
     }
 
-    @Override
-    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
-    }
-
-    @Override
-    protected InstanceIdentifier<SecurityRule> getWildCardPath() {
-        return InstanceIdentifier.create(Neutron.class).child(SecurityRules.class).child(SecurityRule.class);
     }
 
     @Override
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void add(InstanceIdentifier<SecurityRule> instanceIdentifier, SecurityRule securityRule) {
+    public void add(InstanceIdentifier<SecurityRule> instanceIdentifier, SecurityRule securityRule) {
         LOG.trace("added securityRule: {}", securityRule);
         try {
             Ace ace = toAceBuilder(securityRule, false).build();
@@ -232,7 +225,7 @@ public class NeutronSecurityRuleListener
     @Override
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void remove(InstanceIdentifier<SecurityRule> instanceIdentifier, SecurityRule securityRule) {
+    public void remove(InstanceIdentifier<SecurityRule> instanceIdentifier, SecurityRule securityRule) {
         LOG.trace("removed securityRule: {}", securityRule);
         InstanceIdentifier<Ace> identifier = getAceInstanceIdentifier(securityRule);
         try {
@@ -253,14 +246,9 @@ public class NeutronSecurityRuleListener
     }
 
     @Override
-    protected void update(InstanceIdentifier<SecurityRule> instanceIdentifier,
+    public void update(InstanceIdentifier<SecurityRule> instanceIdentifier,
                           SecurityRule oldSecurityRule, SecurityRule updatedSecurityRule) {
         // security rule updation is not supported from openstack, so no need to handle update.
         LOG.trace("updates on security rules not supported.");
-    }
-
-    @Override
-    protected NeutronSecurityRuleListener getDataTreeChangeListener() {
-        return this;
     }
 }

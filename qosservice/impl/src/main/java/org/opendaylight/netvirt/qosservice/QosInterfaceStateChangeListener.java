@@ -8,20 +8,20 @@
 
 package org.opendaylight.netvirt.qosservice;
 
-import com.google.common.base.Optional;
 import java.util.Collections;
-import javax.annotation.PostConstruct;
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.qosservice.recovery.QosServiceRecoveryHandler;
 import org.opendaylight.serviceutils.srm.RecoverableListener;
 import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
+import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev170119.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -35,8 +35,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChangeListenerBase<Interface,
-        QosInterfaceStateChangeListener> implements RecoverableListener {
+public class QosInterfaceStateChangeListener extends AbstractClusteredAsyncDataTreeChangeListener<Interface>
+        implements RecoverableListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(QosInterfaceStateChangeListener.class);
 
@@ -54,7 +54,9 @@ public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChang
                                            final ServiceRecoveryRegistry serviceRecoveryRegistry,
                                            final QosServiceRecoveryHandler qosServiceRecoveryHandler,
                                            final JobCoordinator jobCoordinator) {
-        super(Interface.class, QosInterfaceStateChangeListener.class);
+        super(dataBroker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(InterfacesState.class)
+                .child(Interface.class),
+                Executors.newListeningSingleThreadExecutor("QosInterfaceStateChangeListener", LOG));
         this.dataBroker = dataBroker;
         this.uuidUtil = new UuidUtil();
         this.qosAlertManager = qosAlertManager;
@@ -66,30 +68,22 @@ public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChang
         LOG.trace("{} created",  getClass().getSimpleName());
     }
 
-    @PostConstruct
     public void init() {
-        registerListener();
         LOG.trace("{} init and registerListener done", getClass().getSimpleName());
     }
 
     @Override
     public void registerListener() {
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
     @Override
-    protected InstanceIdentifier<Interface> getWildCardPath() {
-        return InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
+    public void deregisterListener() {
     }
 
-    @Override
-    protected QosInterfaceStateChangeListener getDataTreeChangeListener() {
-        return QosInterfaceStateChangeListener.this;
-    }
 
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
+    public void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
         if (L2vlan.class.equals(intrf.getType())) {
             final String interfaceName = intrf.getName();
             getNeutronPort(interfaceName).ifPresent(port -> {
@@ -116,7 +110,6 @@ public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChang
 
     private java.util.Optional<Port> getNeutronPort(String portName) {
         return uuidUtil.newUuidIfValidPattern(portName)
-                .toJavaUtil()
                 .map(qosNeutronUtils::getNeutronPort);
     }
 
@@ -126,7 +119,7 @@ public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChang
         if (uuid.isPresent()) {
             Port port = qosNeutronUtils.getNeutronPort(portName);
             if (port != null) {
-                return Optional.fromJavaUtil(uuid.toJavaUtil().map(qosNeutronUtils::getNeutronPort));
+                return Optional.ofNullable(uuid.map(qosNeutronUtils::getNeutronPort).orElse(null));
             }
             if (qosNeutronUtils.isBindServiceDone(uuid)) {
                 LOG.trace("Qos Service : interface {} clearing stale flow entries if any", portName);
@@ -139,15 +132,15 @@ public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChang
                 });
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
+    public void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
         if (L2vlan.class.equals(intrf.getType())) {
             final String interfaceName = intrf.getName();
             // Guava Optional asSet().forEach() emulates Java 8 Optional ifPresent()
-            getNeutronPortForRemove(intrf).asSet().forEach(port -> {
+            getNeutronPortForRemove(intrf).stream().forEach(port -> {
                 LOG.trace("Qos Service : Received interface {} PORT DOWN event ", interfaceName);
 
                 String lowerLayerIf = intrf.getLowerLayerIf().get(0);
@@ -171,7 +164,7 @@ public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChang
     }
 
     @Override
-    protected void update(InstanceIdentifier<Interface> identifier, Interface original, Interface update) {
+    public void update(InstanceIdentifier<Interface> identifier, Interface original, Interface update) {
         if (original.getType() == null && L2vlan.class.equals(update.getType())) {
             // IfType was missing at creation, add it now
             add(identifier, update);

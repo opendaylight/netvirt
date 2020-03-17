@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.dhcpservice;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -21,6 +20,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -35,10 +35,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -55,6 +52,9 @@ import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.dhcpservice.api.IDhcpExternalTunnelManager;
@@ -175,8 +175,14 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         LOG.trace("Loading designatedDpnsToTunnelIpElanNameCache");
         InstanceIdentifier<DesignatedSwitchesForExternalTunnels> instanceIdentifier =
                 InstanceIdentifier.builder(DesignatedSwitchesForExternalTunnels.class).build();
-        Optional<DesignatedSwitchesForExternalTunnels> designatedSwitchForTunnelOptional =
-                MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, instanceIdentifier);
+        Optional<DesignatedSwitchesForExternalTunnels> designatedSwitchForTunnelOptional;
+        try {
+            designatedSwitchForTunnelOptional = SingleTransactionDataBroker.syncReadOptional(broker,
+                    LogicalDatastoreType.CONFIGURATION, instanceIdentifier);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("initilizeCaches: Exception while reading the DesignatedSwitchesForExternalTunnels DS", e);
+            return;
+        }
         if (designatedSwitchForTunnelOptional.isPresent()) {
             List<DesignatedSwitchForTunnel> list =
                 designatedSwitchForTunnelOptional.get().nonnullDesignatedSwitchForTunnel();
@@ -197,7 +203,14 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         }
         LOG.trace("Loading vniMacAddressToPortCache");
         InstanceIdentifier<Ports> inst = InstanceIdentifier.builder(Neutron.class).child(Ports.class).build();
-        Optional<Ports> optionalPorts = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst);
+        Optional<Ports> optionalPorts;
+        try {
+            optionalPorts = SingleTransactionDataBroker.syncReadOptional(broker, LogicalDatastoreType.CONFIGURATION,
+                    inst);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("initilizeCaches: Exception while reading the Ports DS", e);
+            return;
+        }
         if (optionalPorts.isPresent()) {
             List<Port> list = optionalPorts.get().nonnullPort();
             for (Port port : list) {
@@ -287,8 +300,15 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
                 InstanceIdentifier.builder(DesignatedSwitchesForExternalTunnels.class)
                         .child(DesignatedSwitchForTunnel.class,
                                 new DesignatedSwitchForTunnelKey(elanInstanceName, tunnelIp)).build();
-        Optional<DesignatedSwitchForTunnel> designatedSwitchForTunnelOptional =
-                MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, instanceIdentifier);
+        Optional<DesignatedSwitchForTunnel> designatedSwitchForTunnelOptional;
+        try {
+            designatedSwitchForTunnelOptional = SingleTransactionDataBroker.syncReadOptional(broker,
+                    LogicalDatastoreType.CONFIGURATION, instanceIdentifier);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("readDesignatedSwitchesForExternalTunnel: Exception while reading the DesignatedSwitchForTunnel "
+                    + "DS for the elan-instance {} tunnelIp {}", elanInstanceName, tunnelIp, e);
+            return Uint64.ZERO;
+        }
         if (designatedSwitchForTunnelOptional.isPresent()) {
             return Uint64.valueOf(designatedSwitchForTunnelOptional.get().getDpId());
         }
@@ -350,8 +370,15 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
     private boolean isDpnDesignatedDpn(Uint64 dpId) {
         InstanceIdentifier<DesignatedSwitchesForExternalTunnels> instanceIdentifier =
                 InstanceIdentifier.builder(DesignatedSwitchesForExternalTunnels.class).build();
-        Optional<DesignatedSwitchesForExternalTunnels> designatedSwitchForTunnelOptional =
-                MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, instanceIdentifier);
+        Optional<DesignatedSwitchesForExternalTunnels> designatedSwitchForTunnelOptional;
+        try {
+            designatedSwitchForTunnelOptional = SingleTransactionDataBroker.syncReadOptional(broker,
+                    LogicalDatastoreType.CONFIGURATION, instanceIdentifier);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("isDpnDesignatedDpn: Exception while reading the DesignatedSwitchesForExternalTunnels "
+                    + "DS for the dpId {}", dpId, e);
+            return false;
+        }
         if (designatedSwitchForTunnelOptional.isPresent()) {
             List<DesignatedSwitchForTunnel> list =
                     designatedSwitchForTunnelOptional.get().nonnullDesignatedSwitchForTunnel();
@@ -837,13 +864,13 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
                 .setLogicalSwitchRef(lsRef).build();
         InstanceIdentifier<RemoteMcastMacs> iid = HwvtepSouthboundUtils.createRemoteMcastMacsInstanceIdentifier(
                 dstDevice.getNodeId(), remoteMcastMacs.key());
-        ReadOnlyTransaction transaction = broker.newReadOnlyTransaction();
+        ReadTransaction transaction = broker.newReadOnlyTransaction();
         try {
             //TODO do async mdsal read
-            remoteMcastMacs = transaction.read(LogicalDatastoreType.CONFIGURATION, iid).checkedGet().get();
+            remoteMcastMacs = transaction.read(LogicalDatastoreType.CONFIGURATION, iid).get().get();
             locators.addAll(remoteMcastMacs.getLocatorSet());
             return new RemoteMcastMacsBuilder(remoteMcastMacs).setLocatorSet(new ArrayList<>(locators)).build();
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed to read the macs {}", iid);
         } finally {
             transaction.close();

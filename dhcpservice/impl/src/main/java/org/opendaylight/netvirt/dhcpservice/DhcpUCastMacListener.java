@@ -7,21 +7,22 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
-import com.google.common.base.Optional;
-import javax.annotation.PostConstruct;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
+import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
@@ -39,8 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class DhcpUCastMacListener
-        extends AsyncClusteredDataTreeChangeListenerBase<LocalUcastMacs, DhcpUCastMacListener> {
+public class DhcpUCastMacListener extends AbstractClusteredAsyncDataTreeChangeListener<LocalUcastMacs> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpUCastMacListener.class);
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
@@ -51,24 +51,20 @@ public class DhcpUCastMacListener
     @Inject
     public DhcpUCastMacListener(final DhcpManager dhcpManager, final DhcpExternalTunnelManager dhcpExtTunnelMgr,
                                 final DataBroker dataBroker, final DhcpserviceConfig config) {
-        super(LocalUcastMacs.class, DhcpUCastMacListener.class);
+        super(dataBroker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(NetworkTopology.class)
+                .child(Topology.class).child(Node.class).augmentation(HwvtepGlobalAugmentation.class)
+                .child(LocalUcastMacs.class),
+                Executors.newListeningSingleThreadExecutor("DhcpUCastMacListener", LOG));
         this.broker = dataBroker;
         this.dhcpExternalTunnelManager = dhcpExtTunnelMgr;
         this.dhcpManager = dhcpManager;
         this.config = config;
     }
 
-    @PostConstruct
     public void init() {
         if (config.isControllerDhcpEnabled()) {
-            registerListener(LogicalDatastoreType.OPERATIONAL, broker);
+            LOG.info("{} init", getClass().getSimpleName());
         }
-    }
-
-    @Override
-    protected InstanceIdentifier<LocalUcastMacs> getWildCardPath() {
-        return InstanceIdentifier.create(NetworkTopology.class).child(Topology.class).child(Node.class)
-                .augmentation(HwvtepGlobalAugmentation.class).child(LocalUcastMacs.class);
     }
 
     @Override
@@ -79,7 +75,7 @@ public class DhcpUCastMacListener
     }
 
     @Override
-    protected void remove(InstanceIdentifier<LocalUcastMacs> identifier,
+    public void remove(InstanceIdentifier<LocalUcastMacs> identifier,
             LocalUcastMacs del) {
         // Flow removal for table 18 is handled in Neutron Port delete.
         //remove the new CR-DHCP
@@ -101,20 +97,26 @@ public class DhcpUCastMacListener
     }
 
     @Override
-    protected void update(InstanceIdentifier<LocalUcastMacs> identifier,
+    public void update(InstanceIdentifier<LocalUcastMacs> identifier,
             LocalUcastMacs original, LocalUcastMacs update) {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    protected void add(InstanceIdentifier<LocalUcastMacs> identifier,
+    public void add(InstanceIdentifier<LocalUcastMacs> identifier,
             LocalUcastMacs add) {
         NodeId torNodeId = identifier.firstKeyOf(Node.class).getNodeId();
         InstanceIdentifier<LogicalSwitches> logicalSwitchRef =
                 (InstanceIdentifier<LogicalSwitches>) add.getLogicalSwitchRef().getValue();
-        Optional<LogicalSwitches> logicalSwitchOptional =
-                MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, logicalSwitchRef);
+        Optional<LogicalSwitches> logicalSwitchOptional;
+        try {
+            logicalSwitchOptional = SingleTransactionDataBroker.syncReadOptional(broker,
+                    LogicalDatastoreType.OPERATIONAL, logicalSwitchRef);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("add: Exception while reading LogicalSwitches DS for the TOR Node ID {}", torNodeId, e);
+            return;
+        }
         if (!logicalSwitchOptional.isPresent()) {
             LOG.error("Logical Switch ref doesn't have data {}", logicalSwitchRef);
             return;
@@ -157,11 +159,12 @@ public class DhcpUCastMacListener
     private LogicalSwitches getLogicalSwitches(LocalUcastMacs ucastMacs) {
         InstanceIdentifier<LogicalSwitches> logicalSwitchRef =
                 (InstanceIdentifier<LogicalSwitches>)ucastMacs.getLogicalSwitchRef().getValue();
-        return MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, logicalSwitchRef).orNull();
-    }
-
-    @Override
-    protected DhcpUCastMacListener getDataTreeChangeListener() {
-        return DhcpUCastMacListener.this;
+        try {
+            return SingleTransactionDataBroker.syncReadOptional(broker, LogicalDatastoreType.OPERATIONAL,
+                    logicalSwitchRef).orElse(null);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getLogicalSwitches: Exception while reading LogicalSwitches DS for ucastMacs {}", ucastMacs, e);
+            return null;
+        }
     }
 }
