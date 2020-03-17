@@ -11,13 +11,13 @@ package org.opendaylight.netvirt.natservice.internal;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -28,8 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class SubnetGwMacChangeListener
-    extends AsyncDataTreeChangeListenerBase<LearntVpnVipToPort, SubnetGwMacChangeListener> {
+public class SubnetGwMacChangeListener extends AbstractAsyncDataTreeChangeListener<LearntVpnVipToPort> {
     private static final Logger LOG = LoggerFactory.getLogger(SubnetGwMacChangeListener.class);
 
     private final DataBroker broker;
@@ -39,40 +38,31 @@ public class SubnetGwMacChangeListener
     @Inject
     public SubnetGwMacChangeListener(final DataBroker broker, final INeutronVpnManager nvpnManager,
                                      final ExternalNetworkGroupInstaller extNetworkInstaller) {
-        super(LearntVpnVipToPort.class, SubnetGwMacChangeListener.class);
+        super(broker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(LearntVpnVipToPortData.class)
+                .child(LearntVpnVipToPort.class),
+                Executors.newListeningSingleThreadExecutor("SubnetGwMacChangeListener", LOG));
         this.broker = broker;
         this.nvpnManager = nvpnManager;
         this.extNetworkInstaller = extNetworkInstaller;
     }
 
-    @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.OPERATIONAL, broker);
+        LOG.info("{} init", getClass().getSimpleName());
     }
 
     @Override
-    protected InstanceIdentifier<LearntVpnVipToPort> getWildCardPath() {
-        return InstanceIdentifier.builder(LearntVpnVipToPortData.class).child(LearntVpnVipToPort.class).build();
+    public void remove(InstanceIdentifier<LearntVpnVipToPort> key, LearntVpnVipToPort learntVpnVipToPort) {
     }
 
     @Override
-    protected void remove(InstanceIdentifier<LearntVpnVipToPort> key, LearntVpnVipToPort learntVpnVipToPort) {
-    }
-
-    @Override
-    protected void update(InstanceIdentifier<LearntVpnVipToPort> key, LearntVpnVipToPort origLearntVpnVipToPort,
+    public void update(InstanceIdentifier<LearntVpnVipToPort> key, LearntVpnVipToPort origLearntVpnVipToPort,
                           LearntVpnVipToPort updatedLearntVpnVipToPort) {
         handleSubnetGwIpChange(updatedLearntVpnVipToPort);
     }
 
     @Override
-    protected void add(InstanceIdentifier<LearntVpnVipToPort> key, LearntVpnVipToPort learntVpnVipToPort) {
+    public void add(InstanceIdentifier<LearntVpnVipToPort> key, LearntVpnVipToPort learntVpnVipToPort) {
         handleSubnetGwIpChange(learntVpnVipToPort);
-    }
-
-    @Override
-    protected SubnetGwMacChangeListener getDataTreeChangeListener() {
-        return this;
     }
 
     private void handleSubnetGwIpChange(LearntVpnVipToPort learntVpnVipToPort) {

@@ -14,7 +14,6 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -43,7 +42,6 @@ public class VpnClusterEosBasedOwnershipDriver extends VpnClusterOwnershipDriver
         this.entityOwnershipService = entityOwnershipService;
     }
 
-    @PostConstruct
     public void start() {
         // TODO: At this point it uses EntityOwnership
         // TODO: This will be enhanced in a subsequent review to elect based on specific Shard availability

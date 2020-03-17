@@ -13,20 +13,20 @@ import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
@@ -38,7 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanInstance, ElanInstanceManager> {
+public class ElanInstanceManager extends AbstractAsyncDataTreeChangeListener<ElanInstance> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanInstanceManager.class);
     private static final Logger EVENT_LOGGER = LoggerFactory.getLogger("NetvirtEventLogger");
@@ -56,7 +56,9 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
                                final ElanInterfaceManager elanInterfaceManager,
                                final IInterfaceManager interfaceManager, final JobCoordinator jobCoordinator,
                                final ElanInterfaceCache elanInterfaceCache) {
-        super(ElanInstance.class, ElanInstanceManager.class);
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(ElanInstances.class)
+                .child(ElanInstance.class),
+                Executors.newListeningSingleThreadExecutor("ElanInstanceManager", LOG));
         this.broker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.idManager = managerService;
@@ -66,14 +68,12 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
         this.elanInterfaceCache = elanInterfaceCache;
     }
 
-    @Override
-    @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.CONFIGURATION, broker);
+        LOG.info("{} registered", getClass().getSimpleName());
     }
 
     @Override
-    protected void remove(InstanceIdentifier<ElanInstance> identifier, ElanInstance deletedElan) {
+    public void remove(InstanceIdentifier<ElanInstance> identifier, ElanInstance deletedElan) {
         LOG.trace("Remove ElanInstance - Key: {}, value: {}", identifier, deletedElan);
         String elanName = deletedElan.getElanInstanceName();
         EVENT_LOGGER.debug("ELAN-Instance, REMOVE {}",elanName);
@@ -103,7 +103,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
     }
 
     @Override
-    protected void update(InstanceIdentifier<ElanInstance> identifier, ElanInstance original, ElanInstance update) {
+    public void update(InstanceIdentifier<ElanInstance> identifier, ElanInstance original, ElanInstance update) {
         EVENT_LOGGER.debug("ELAN-Instance, UPDATE {}", original.getElanInstanceName());
         Uint32 existingElanTag = original.getElanTag();
         String elanName = update.getElanInstanceName();
@@ -125,7 +125,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
     }
 
     @Override
-    protected void add(InstanceIdentifier<ElanInstance> identifier, ElanInstance elanInstanceAdded) {
+    public void add(InstanceIdentifier<ElanInstance> identifier, ElanInstance elanInstanceAdded) {
         LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, operTx -> {
             String elanInstanceName  = elanInstanceAdded.getElanInstanceName();
             EVENT_LOGGER.debug("ELAN-Instance, ADD {}", elanInstanceName);
@@ -136,15 +136,5 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
                         confTx, operTx)), LOG, "Error adding an ELAN instance for config transaction");
             }
         }), LOG, "Error adding an ELAN instance for operational transaction");
-    }
-
-    @Override
-    protected InstanceIdentifier<ElanInstance> getWildCardPath() {
-        return InstanceIdentifier.create(ElanInstances.class).child(ElanInstance.class);
-    }
-
-    @Override
-    protected ElanInstanceManager getDataTreeChangeListener() {
-        return this;
     }
 }

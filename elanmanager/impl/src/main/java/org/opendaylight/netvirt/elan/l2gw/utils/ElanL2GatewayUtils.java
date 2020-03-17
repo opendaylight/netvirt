@@ -9,7 +9,7 @@ package org.opendaylight.netvirt.elan.l2gw.utils;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -38,9 +38,9 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
@@ -474,7 +474,7 @@ public class ElanL2GatewayUtils {
             LOG.trace("No L2 gateway devices in Elan [{}] cache.", elanName);
             return;
         }
-        final ElanInstance elan = elanInstanceCache.get(elanName).orNull();
+        final ElanInstance elan = elanInstanceCache.get(elanName).orElse(null);
         if (elan == null) {
             LOG.error("Could not find Elan by name: {}", elanName);
             return;
@@ -908,8 +908,8 @@ public class ElanL2GatewayUtils {
         InstanceIdentifier<Interface> interfaceId = getInterfaceIdentifier(interfaceKey);
         try {
             return SingleTransactionDataBroker
-                    .syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION, interfaceId).orNull();
-        } catch (ReadFailedException e) {
+                    .syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION, interfaceId).orElse(null);
+        } catch (InterruptedException | ExecutionException e) {
             // TODO remove this, and propagate ReadFailedException instead of re-throw RuntimeException
             LOG.error("getInterfaceFromConfigDS({}) failed", interfaceKey, e);
             throw new RuntimeException(e);
@@ -932,7 +932,7 @@ public class ElanL2GatewayUtils {
         LOG.info("Deleting L2GatewayDevice [{}] UcastLocalMacs from elan [{}]", l2GatewayDevice.getHwvtepNodeId(),
                 elanName);
 
-        ElanInstance elan = elanInstanceCache.get(elanName).orNull();
+        ElanInstance elan = elanInstanceCache.get(elanName).orElse(null);
         if (elan == null) {
             LOG.error("Could not find Elan by name: {}", elanName);
             return;
@@ -980,7 +980,7 @@ public class ElanL2GatewayUtils {
                 .filter(deviceVteps -> !Objects.equals(psNodeId, deviceVteps.getNodeId())
                         || !Objects.equals(tunnelIp, deviceVteps.getIpAddress()))//node id or tunnel ip is changed
                 .forEach(deviceVteps -> deleteStaleL2gwTep(dataBroker, itmRpcService, deviceVteps));
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed delete stale tunnels for {}", globalNodeId);
         }
     }
@@ -1023,7 +1023,7 @@ public class ElanL2GatewayUtils {
                         .forEach(tx::delete)), LOG,
                 "Failed to delete stale external teps {}", deviceVteps);
             Thread.sleep(10000);//TODO remove the sleep currently it waits for interfacemgr to finish the cleanup
-        } catch (ReadFailedException | InterruptedException e) {
+        } catch (InterruptedException | ExecutionException | InterruptedException e) {
             LOG.error("Failed to delete stale l2gw tep {}", deviceVteps, e);
         }
     }
