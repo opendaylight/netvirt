@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.bgpmanager;
 import static org.opendaylight.netvirt.bgpmanager.oam.BgpConstants.HISTORY_LIMIT;
 import static org.opendaylight.netvirt.bgpmanager.oam.BgpConstants.HISTORY_THRESHOLD;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.Futures;
@@ -33,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Timer;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -54,17 +54,14 @@ import org.apache.thrift.TApplicationException;
 import org.apache.thrift.TException;
 import org.apache.thrift.transport.TTransport;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.infrautils.metrics.MetricProvider;
+import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.mdsal.eos.binding.api.Entity;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipCandidateRegistration;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipListenerRegistration;
@@ -90,6 +87,7 @@ import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService;
 import org.opendaylight.ovsdb.utils.mdsal.utils.TransactionHistory;
 import org.opendaylight.ovsdb.utils.mdsal.utils.TransactionType;
+import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebfd.rev190219.BfdConfig;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebfd.rev190219.BfdConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.AddressFamily;
@@ -416,8 +414,8 @@ public class BgpConfigurationManager implements EbgpService {
         for (Class<?> reactor : REACTORS) {
             Object obj = createListener(reactor);
             if (obj != null) {
-                AsyncDataTreeChangeListenerBase dcl = (AsyncDataTreeChangeListenerBase) obj;
-                dcl.registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
+                AbstractAsyncDataTreeChangeListener dcl = (AbstractAsyncDataTreeChangeListener) obj;
+                dcl.register();
                 listeners.add(dcl);
             }
         }
@@ -516,16 +514,19 @@ public class BgpConfigurationManager implements EbgpService {
     }
 
     public class ConfigServerReactor
-            extends AsyncDataTreeChangeListenerBase<ConfigServer, ConfigServerReactor>
+            extends AbstractAsyncDataTreeChangeListener<ConfigServer>
             implements ClusteredDataTreeChangeListener<ConfigServer> {
         private static final String YANG_OBJ = "config-server ";
 
         public ConfigServerReactor() {
-            super(ConfigServer.class, ConfigServerReactor.class);
+            super(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    InstanceIdentifier.create(Bgp.class).child(ConfigServer.class),
+                    org.opendaylight.infrautils.utils.concurrent.Executors
+                            .newListeningSingleThreadExecutor("ConfigServerReactor", LOG));
         }
 
         @Override
-        protected void add(InstanceIdentifier<ConfigServer> iid, ConfigServer val) {
+        public void add(InstanceIdentifier<ConfigServer> iid, ConfigServer val) {
             LOG.trace("received bgp connect config host {}", val.getHost().getValue());
             if (!isBGPEntityOwner()) {
                 return;
@@ -550,17 +551,7 @@ public class BgpConfigurationManager implements EbgpService {
         }
 
         @Override
-        protected ConfigServerReactor getDataTreeChangeListener() {
-            return ConfigServerReactor.this;
-        }
-
-        @Override
-        protected InstanceIdentifier<ConfigServer> getWildCardPath() {
-            return InstanceIdentifier.create(Bgp.class).child(ConfigServer.class);
-        }
-
-        @Override
-        protected void remove(InstanceIdentifier<ConfigServer> iid, ConfigServer val) {
+        public void remove(InstanceIdentifier<ConfigServer> iid, ConfigServer val) {
             LOG.trace("received bgp disconnect");
             if (!isBGPEntityOwner()) {
                 return;
@@ -585,7 +576,7 @@ public class BgpConfigurationManager implements EbgpService {
         }
 
         @Override
-        protected void update(InstanceIdentifier<ConfigServer> iid,
+        public void update(InstanceIdentifier<ConfigServer> iid,
                 ConfigServer oldval, ConfigServer newval) {
             LOG.trace("received bgp Connection update");
             if (!isBGPEntityOwner()) {
@@ -605,18 +596,21 @@ public class BgpConfigurationManager implements EbgpService {
         return bgpRouter;
     }
 
-    public class AsIdReactor
-            extends AsyncDataTreeChangeListenerBase<AsId, AsIdReactor>
+    public class AsIdReactor extends AbstractAsyncDataTreeChangeListener<AsId>
             implements ClusteredDataTreeChangeListener<AsId> {
 
         private static final String YANG_OBJ = "as-id ";
 
         public AsIdReactor() {
-            super(AsId.class, AsIdReactor.class);
+            super(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    InstanceIdentifier.create(Bgp.class).child(AsId.class),
+                    org.opendaylight.infrautils.utils.concurrent.Executors
+                            .newListeningSingleThreadExecutor("AsIdReactor", LOG));
         }
 
+        @SuppressFBWarnings(value  = "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
         @Override
-        protected void add(InstanceIdentifier<AsId> iid, AsId val) {
+        public void add(InstanceIdentifier<AsId> iid, AsId val) {
             LOG.error("received bgp add asid {}", val);
             if (!isBGPEntityOwner()) {
                 return;
@@ -638,17 +632,7 @@ public class BgpConfigurationManager implements EbgpService {
         }
 
         @Override
-        protected AsIdReactor getDataTreeChangeListener() {
-            return AsIdReactor.this;
-        }
-
-        @Override
-        protected InstanceIdentifier<AsId> getWildCardPath() {
-            return InstanceIdentifier.create(Bgp.class).child(AsId.class);
-        }
-
-        @Override
-        protected void remove(InstanceIdentifier<AsId> iid, AsId val) {
+        public void remove(InstanceIdentifier<AsId> iid, AsId val) {
             LOG.error("received delete router config asNum {}", val.getLocalAs());
             if (!isBGPEntityOwner()) {
                 return;
@@ -691,7 +675,7 @@ public class BgpConfigurationManager implements EbgpService {
         }
 
         @Override
-        protected void update(InstanceIdentifier<AsId> iid,
+        public void update(InstanceIdentifier<AsId> iid,
                 AsId oldval, AsId newval) {
             if (!isBGPEntityOwner()) {
                 return;
@@ -700,18 +684,20 @@ public class BgpConfigurationManager implements EbgpService {
         }
     }
 
-    public class GracefulRestartReactor
-            extends AsyncDataTreeChangeListenerBase<GracefulRestart, GracefulRestartReactor>
+    public class GracefulRestartReactor extends AbstractAsyncDataTreeChangeListener<GracefulRestart>
             implements ClusteredDataTreeChangeListener<GracefulRestart> {
 
         private static final String YANG_OBJ = "graceful-restart ";
 
         public GracefulRestartReactor() {
-            super(GracefulRestart.class, GracefulRestartReactor.class);
+            super(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    InstanceIdentifier.create(Bgp.class).child(GracefulRestart.class),
+                    org.opendaylight.infrautils.utils.concurrent.Executors
+                            .newListeningSingleThreadExecutor("GracefulRestartReactor", LOG));
         }
 
         @Override
-        protected void add(InstanceIdentifier<GracefulRestart> iid, GracefulRestart val) {
+        public void add(InstanceIdentifier<GracefulRestart> iid, GracefulRestart val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -732,17 +718,7 @@ public class BgpConfigurationManager implements EbgpService {
         }
 
         @Override
-        protected GracefulRestartReactor getDataTreeChangeListener() {
-            return GracefulRestartReactor.this;
-        }
-
-        @Override
-        protected InstanceIdentifier<GracefulRestart> getWildCardPath() {
-            return InstanceIdentifier.create(Bgp.class).child(GracefulRestart.class);
-        }
-
-        @Override
-        protected void remove(InstanceIdentifier<GracefulRestart> iid, GracefulRestart val) {
+        public void remove(InstanceIdentifier<GracefulRestart> iid, GracefulRestart val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -763,7 +739,7 @@ public class BgpConfigurationManager implements EbgpService {
         }
 
         @Override
-        protected void update(InstanceIdentifier<GracefulRestart> iid,
+        public void update(InstanceIdentifier<GracefulRestart> iid,
                 GracefulRestart oldval, GracefulRestart newval) {
             if (!isBGPEntityOwner()) {
                 return;
@@ -786,18 +762,20 @@ public class BgpConfigurationManager implements EbgpService {
         }
     }
 
-    public class LoggingReactor
-            extends AsyncDataTreeChangeListenerBase<Logging, LoggingReactor>
+    public class LoggingReactor extends AbstractAsyncDataTreeChangeListener<Logging>
             implements ClusteredDataTreeChangeListener<Logging> {
 
         private static final String YANG_OBJ = "logging ";
 
         public LoggingReactor() {
-            super(Logging.class, LoggingReactor.class);
+            super(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    InstanceIdentifier.create(Bgp.class).child(Logging.class),
+                    org.opendaylight.infrautils.utils.concurrent.Executors
+                            .newListeningSingleThreadExecutor("LoggingReactor", LOG));
         }
 
         @Override
-        protected void add(InstanceIdentifier<Logging> iid, Logging val) {
+        public void add(InstanceIdentifier<Logging> iid, Logging val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -817,17 +795,7 @@ public class BgpConfigurationManager implements EbgpService {
         }
 
         @Override
-        protected LoggingReactor getDataTreeChangeListener() {
-            return LoggingReactor.this;
-        }
-
-        @Override
-        protected InstanceIdentifier<Logging> getWildCardPath() {
-            return InstanceIdentifier.create(Bgp.class).child(Logging.class);
-        }
-
-        @Override
-        protected void remove(InstanceIdentifier<Logging> iid, Logging val) {
+        public void remove(InstanceIdentifier<Logging> iid, Logging val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -848,7 +816,7 @@ public class BgpConfigurationManager implements EbgpService {
         }
 
         @Override
-        protected void update(InstanceIdentifier<Logging> iid,
+        public void update(InstanceIdentifier<Logging> iid,
                 Logging oldval, Logging newval) {
             if (!isBGPEntityOwner()) {
                 return;
@@ -869,18 +837,20 @@ public class BgpConfigurationManager implements EbgpService {
         }
     }
 
-    public class NeighborsReactor
-            extends AsyncDataTreeChangeListenerBase<Neighbors, NeighborsReactor>
+    public class NeighborsReactor extends AbstractAsyncDataTreeChangeListener<Neighbors>
             implements ClusteredDataTreeChangeListener<Neighbors> {
 
         private static final String YANG_OBJ = "neighbors ";
 
         public NeighborsReactor() {
-            super(Neighbors.class, NeighborsReactor.class);
+            super(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    InstanceIdentifier.create(Bgp.class).child(NeighborsContainer.class).child(Neighbors.class),
+                    org.opendaylight.infrautils.utils.concurrent.Executors
+                            .newListeningSingleThreadExecutor("NeighborsReactor", LOG));
         }
 
         @Override
-        protected void add(InstanceIdentifier<Neighbors> iid, Neighbors val) {
+        public void add(InstanceIdentifier<Neighbors> iid, Neighbors val) {
             if (nbrList != null && !nbrList.contains(val)) {
                 LOG.trace("Adding nbr {} to nbrlist", val.getAddress().getValue());
                 nbrList.add(val);
@@ -928,17 +898,7 @@ public class BgpConfigurationManager implements EbgpService {
         }
 
         @Override
-        protected NeighborsReactor getDataTreeChangeListener() {
-            return NeighborsReactor.this;
-        }
-
-        @Override
-        protected InstanceIdentifier<Neighbors> getWildCardPath() {
-            return InstanceIdentifier.create(Bgp.class).child(NeighborsContainer.class).child(Neighbors.class);
-        }
-
-        @Override
-        protected void remove(InstanceIdentifier<Neighbors> iid, Neighbors val) {
+        public void remove(InstanceIdentifier<Neighbors> iid, Neighbors val) {
             if (nbrList != null && nbrList.contains(val)) {
                 LOG.trace("Removing nbr {} from nbr list", val.getAddress().getValue());
                 nbrList.remove(val);
@@ -977,7 +937,7 @@ public class BgpConfigurationManager implements EbgpService {
         }
 
         @Override
-        protected void update(InstanceIdentifier<Neighbors> iid,
+        public void update(InstanceIdentifier<Neighbors> iid,
                 Neighbors oldval, Neighbors newval) {
             if (!isBGPEntityOwner()) {
                 return;
@@ -986,18 +946,20 @@ public class BgpConfigurationManager implements EbgpService {
         }
     }
 
-    public class EbgpMultihopReactor
-            extends AsyncDataTreeChangeListenerBase<EbgpMultihop, EbgpMultihopReactor>
+    public class EbgpMultihopReactor extends AbstractAsyncDataTreeChangeListener<EbgpMultihop>
             implements ClusteredDataTreeChangeListener<EbgpMultihop> {
 
         private static final String YANG_OBJ = "ebgp-multihop ";
 
         public EbgpMultihopReactor() {
-            super(EbgpMultihop.class, EbgpMultihopReactor.class);
+            super(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    InstanceIdentifier.create(Bgp.class).child(NeighborsContainer.class).child(Neighbors.class)
+                    .child(EbgpMultihop.class), org.opendaylight.infrautils.utils.concurrent.Executors
+                            .newListeningSingleThreadExecutor("EbgpMultihopReactor", LOG));
         }
 
         @Override
-        protected void add(InstanceIdentifier<EbgpMultihop> iid, EbgpMultihop val) {
+        public void add(InstanceIdentifier<EbgpMultihop> iid, EbgpMultihop val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -1019,18 +981,7 @@ public class BgpConfigurationManager implements EbgpService {
         }
 
         @Override
-        protected EbgpMultihopReactor getDataTreeChangeListener() {
-            return EbgpMultihopReactor.this;
-        }
-
-        @Override
-        protected InstanceIdentifier<EbgpMultihop> getWildCardPath() {
-            return InstanceIdentifier.create(Bgp.class).child(NeighborsContainer.class).child(Neighbors.class)
-                    .child(EbgpMultihop.class);
-        }
-
-        @Override
-        protected void remove(InstanceIdentifier<EbgpMultihop> iid, EbgpMultihop val) {
+        public void remove(InstanceIdentifier<EbgpMultihop> iid, EbgpMultihop val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -1052,7 +1003,7 @@ public class BgpConfigurationManager implements EbgpService {
         }
 
         @Override
-        protected void update(InstanceIdentifier<EbgpMultihop> iid,
+        public void update(InstanceIdentifier<EbgpMultihop> iid,
                 EbgpMultihop oldval, EbgpMultihop newval) {
             if (!isBGPEntityOwner()) {
                 return;
@@ -1061,18 +1012,20 @@ public class BgpConfigurationManager implements EbgpService {
         }
     }
 
-    public class UpdateSourceReactor
-            extends AsyncDataTreeChangeListenerBase<UpdateSource, UpdateSourceReactor>
+    public class UpdateSourceReactor extends AbstractAsyncDataTreeChangeListener<UpdateSource>
             implements ClusteredDataTreeChangeListener<UpdateSource> {
 
         private static final String YANG_OBJ = "update-source ";
 
         public UpdateSourceReactor() {
-            super(UpdateSource.class, UpdateSourceReactor.class);
+            super(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    InstanceIdentifier.create(Bgp.class).child(NeighborsContainer.class).child(Neighbors.class)
+                    .child(UpdateSource.class), org.opendaylight.infrautils.utils.concurrent.Executors
+                            .newListeningSingleThreadExecutor("UpdateSourceReactor", LOG));
         }
 
         @Override
-        protected void add(InstanceIdentifier<UpdateSource> iid, UpdateSource val) {
+        public void add(InstanceIdentifier<UpdateSource> iid, UpdateSource val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -1094,18 +1047,7 @@ public class BgpConfigurationManager implements EbgpService {
         }
 
         @Override
-        protected UpdateSourceReactor getDataTreeChangeListener() {
-            return UpdateSourceReactor.this;
-        }
-
-        @Override
-        protected InstanceIdentifier<UpdateSource> getWildCardPath() {
-            return InstanceIdentifier.create(Bgp.class).child(NeighborsContainer.class).child(Neighbors.class)
-                    .child(UpdateSource.class);
-        }
-
-        @Override
-        protected void remove(InstanceIdentifier<UpdateSource> iid, UpdateSource val) {
+        public void remove(InstanceIdentifier<UpdateSource> iid, UpdateSource val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -1127,7 +1069,7 @@ public class BgpConfigurationManager implements EbgpService {
         }
 
         @Override
-        protected void update(InstanceIdentifier<UpdateSource> iid,
+        public void update(InstanceIdentifier<UpdateSource> iid,
                 UpdateSource oldval, UpdateSource newval) {
             if (!isBGPEntityOwner()) {
                 return;
@@ -1136,18 +1078,20 @@ public class BgpConfigurationManager implements EbgpService {
         }
     }
 
-    public class AddressFamiliesReactor
-            extends AsyncDataTreeChangeListenerBase<AddressFamilies, AddressFamiliesReactor>
+    public class AddressFamiliesReactor extends AbstractAsyncDataTreeChangeListener<AddressFamilies>
             implements ClusteredDataTreeChangeListener<AddressFamilies> {
 
         private static final String YANG_OBJ = "address-families ";
 
         public AddressFamiliesReactor() {
-            super(AddressFamilies.class, AddressFamiliesReactor.class);
+            super(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    InstanceIdentifier.create(Bgp.class).child(NeighborsContainer.class).child(Neighbors.class)
+                    .child(AddressFamilies.class), org.opendaylight.infrautils.utils.concurrent.Executors
+                            .newListeningSingleThreadExecutor("AddressFamiliesReactor", LOG));
         }
 
         @Override
-        protected void add(InstanceIdentifier<AddressFamilies> iid, AddressFamilies val) {
+        public void add(InstanceIdentifier<AddressFamilies> iid, AddressFamilies val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -1171,18 +1115,7 @@ public class BgpConfigurationManager implements EbgpService {
         }
 
         @Override
-        protected AddressFamiliesReactor getDataTreeChangeListener() {
-            return AddressFamiliesReactor.this;
-        }
-
-        @Override
-        protected InstanceIdentifier<AddressFamilies> getWildCardPath() {
-            return InstanceIdentifier.create(Bgp.class).child(NeighborsContainer.class).child(Neighbors.class)
-                    .child(AddressFamilies.class);
-        }
-
-        @Override
-        protected void remove(InstanceIdentifier<AddressFamilies> iid, AddressFamilies val) {
+        public void remove(InstanceIdentifier<AddressFamilies> iid, AddressFamilies val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -1206,7 +1139,7 @@ public class BgpConfigurationManager implements EbgpService {
         }
 
         @Override
-        protected void update(InstanceIdentifier<AddressFamilies> iid,
+        public void update(InstanceIdentifier<AddressFamilies> iid,
                 AddressFamilies oldval, AddressFamilies newval) {
             if (!isBGPEntityOwner()) {
                 return;
@@ -1215,23 +1148,19 @@ public class BgpConfigurationManager implements EbgpService {
         }
     }
 
-    public class NetworksReactor
-            extends AsyncDataTreeChangeListenerBase<Networks, NetworksReactor>
+    public class NetworksReactor extends AbstractAsyncDataTreeChangeListener<Networks>
             implements ClusteredDataTreeChangeListener<Networks> {
 
         private static final String YANG_OBJ = "networks ";
 
         public NetworksReactor() {
-            super(Networks.class, NetworksReactor.class);
+            super(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    InstanceIdentifier.create(Bgp.class).child(NetworksContainer.class).child(Networks.class),
+                    org.opendaylight.infrautils.utils.concurrent.Executors
+                            .newListeningSingleThreadExecutor("NetworksReactor", LOG));
         }
 
-        @Override
-        public NetworksReactor getDataTreeChangeListener() {
-            return NetworksReactor.this;
-        }
-
-        @Override
-        protected void add(InstanceIdentifier<Networks> iid, Networks val) {
+        public void add(InstanceIdentifier<Networks> iid, Networks val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -1271,12 +1200,7 @@ public class BgpConfigurationManager implements EbgpService {
         }
 
         @Override
-        protected InstanceIdentifier<Networks> getWildCardPath() {
-            return InstanceIdentifier.create(Bgp.class).child(NetworksContainer.class).child(Networks.class);
-        }
-
-        @Override
-        protected void remove(InstanceIdentifier<Networks> iid, Networks val) {
+        public void remove(InstanceIdentifier<Networks> iid, Networks val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -1323,7 +1247,7 @@ public class BgpConfigurationManager implements EbgpService {
 
 
         @Override
-        protected void update(final InstanceIdentifier<Networks> iid,
+        public void update(final InstanceIdentifier<Networks> iid,
                 final Networks oldval, final Networks newval) {
             if (!isBGPEntityOwner()) {
                 return;
@@ -1345,18 +1269,20 @@ public class BgpConfigurationManager implements EbgpService {
 
     static Timer timer = new Timer();
 
-    public class VrfsReactor
-            extends AsyncDataTreeChangeListenerBase<Vrfs, VrfsReactor>
+    public class VrfsReactor extends AbstractAsyncDataTreeChangeListener<Vrfs>
             implements ClusteredDataTreeChangeListener<Vrfs> {
 
         private static final String YANG_OBJ = "vrfs ";
 
         public VrfsReactor() {
-            super(Vrfs.class, VrfsReactor.class);
+            super(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    InstanceIdentifier.create(Bgp.class).child(VrfsContainer.class).child(Vrfs.class),
+                    org.opendaylight.infrautils.utils.concurrent.Executors
+                            .newListeningSingleThreadExecutor("VrfsReactor", LOG));
         }
 
         @Override
-        protected void add(InstanceIdentifier<Vrfs> iid, Vrfs vrfs) {
+        public void add(InstanceIdentifier<Vrfs> iid, Vrfs vrfs) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -1405,17 +1331,7 @@ public class BgpConfigurationManager implements EbgpService {
         }
 
         @Override
-        protected VrfsReactor getDataTreeChangeListener() {
-            return VrfsReactor.this;
-        }
-
-        @Override
-        protected InstanceIdentifier<Vrfs> getWildCardPath() {
-            return InstanceIdentifier.create(Bgp.class).child(VrfsContainer.class).child(Vrfs.class);
-        }
-
-        @Override
-        protected void remove(InstanceIdentifier<Vrfs> iid, Vrfs val) {
+        public void remove(InstanceIdentifier<Vrfs> iid, Vrfs val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -1445,7 +1361,7 @@ public class BgpConfigurationManager implements EbgpService {
         }
 
         @Override
-        protected void update(InstanceIdentifier<Vrfs> iid,
+        public void update(InstanceIdentifier<Vrfs> iid,
                 Vrfs oldval, Vrfs newval) {
             if (oldval != null && newval != null) {
                 LOG.debug("received update Vrfs config val {}, VRFS: Update getting triggered for VRFS rd {}",
@@ -1513,19 +1429,19 @@ public class BgpConfigurationManager implements EbgpService {
         }
     }
 
-    public class BgpReactor
-            extends AsyncDataTreeChangeListenerBase<Bgp, BgpReactor>
+    public class BgpReactor extends AbstractAsyncDataTreeChangeListener<Bgp>
             implements ClusteredDataTreeChangeListener<Bgp> {
 
         private static final String YANG_OBJ = "Bgp ";
 
         public BgpReactor() {
-            super(Bgp.class, BgpReactor.class);
+            super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Bgp.class),
+                    org.opendaylight.infrautils.utils.concurrent.Executors
+                            .newListeningSingleThreadExecutor("BgpReactor", LOG));
         }
 
-
         @Override
-        protected void add(InstanceIdentifier<Bgp> iid, Bgp val) {
+        public void add(InstanceIdentifier<Bgp> iid, Bgp val) {
             LOG.debug("received add Bgp config");
 
             try {
@@ -1542,17 +1458,7 @@ public class BgpConfigurationManager implements EbgpService {
         }
 
         @Override
-        protected BgpReactor getDataTreeChangeListener() {
-            return BgpReactor.this;
-        }
-
-        @Override
-        protected InstanceIdentifier<Bgp> getWildCardPath() {
-            return InstanceIdentifier.create(Bgp.class);
-        }
-
-        @Override
-        protected void remove(InstanceIdentifier<Bgp> iid, Bgp val) {
+        public void remove(InstanceIdentifier<Bgp> iid, Bgp val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -1562,7 +1468,7 @@ public class BgpConfigurationManager implements EbgpService {
         }
 
         @Override
-        protected void update(InstanceIdentifier<Bgp> iid,
+        public void update(InstanceIdentifier<Bgp> iid,
                 Bgp oldval, Bgp newval) {
             if (!isBGPEntityOwner()) {
                 return;
@@ -1573,39 +1479,30 @@ public class BgpConfigurationManager implements EbgpService {
     }
 
     @SuppressWarnings("deprecation")
-    public class MultipathReactor
-            extends AsyncDataTreeChangeListenerBase<Multipath, MultipathReactor>
+    public class MultipathReactor extends AbstractAsyncDataTreeChangeListener<Multipath>
             implements ClusteredDataTreeChangeListener<Multipath> {
 
         private static final String YANG_OBJ = "multipath ";
 
         public MultipathReactor() {
-            super(Multipath.class, MultipathReactor.class);
-        }
-
-
-        @Override
-        protected MultipathReactor getDataTreeChangeListener() {
-            return MultipathReactor.this;
+            super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Bgp.class)
+                    .child(MultipathContainer.class).child(Multipath.class),
+                    org.opendaylight.infrautils.utils.concurrent.Executors
+                            .newListeningSingleThreadExecutor("MultipathReactor", LOG));
         }
 
         @Override
-        protected InstanceIdentifier<Multipath> getWildCardPath() {
-            return InstanceIdentifier.create(Bgp.class).child(MultipathContainer.class).child(Multipath.class);
-        }
-
-        @Override
-        protected void remove(InstanceIdentifier<Multipath> iid, Multipath val) {
+        public void remove(InstanceIdentifier<Multipath> iid, Multipath val) {
             executor.execute(new MultipathStatusChange(val));
         }
 
         @Override
-        protected void update(InstanceIdentifier<Multipath> iid, Multipath oldval, Multipath newval) {
+        public void update(InstanceIdentifier<Multipath> iid, Multipath oldval, Multipath newval) {
             executor.execute(new MultipathStatusChange(newval));
         }
 
         @Override
-        protected void add(InstanceIdentifier<Multipath> key, Multipath dataObjectModification) {
+        public void add(InstanceIdentifier<Multipath> key, Multipath dataObjectModification) {
             executor.execute(new MultipathStatusChange(dataObjectModification));
         }
 
@@ -1651,25 +1548,16 @@ public class BgpConfigurationManager implements EbgpService {
     }
 
     @SuppressWarnings("deprecation")
-    public class VrfMaxpathReactor
-            extends AsyncDataTreeChangeListenerBase<VrfMaxpath, VrfMaxpathReactor>
+    public class VrfMaxpathReactor extends AbstractAsyncDataTreeChangeListener<VrfMaxpath>
             implements ClusteredDataTreeChangeListener<VrfMaxpath> {
 
         private static final String YANG_OBJ = "vrfMaxpath ";
 
         public VrfMaxpathReactor() {
-            super(VrfMaxpath.class, VrfMaxpathReactor.class);
-        }
-
-
-        @Override
-        protected VrfMaxpathReactor getDataTreeChangeListener() {
-            return VrfMaxpathReactor.this;
-        }
-
-        @Override
-        protected InstanceIdentifier<VrfMaxpath> getWildCardPath() {
-            return InstanceIdentifier.create(Bgp.class).child(VrfMaxpathContainer.class).child(VrfMaxpath.class);
+            super(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    InstanceIdentifier.create(Bgp.class).child(VrfMaxpathContainer.class).child(VrfMaxpath.class),
+                    org.opendaylight.infrautils.utils.concurrent.Executors
+                            .newListeningSingleThreadExecutor("VrfMaxpathReactor", LOG));
         }
 
         class VrfMaxPathConfigurator implements Runnable {
@@ -1700,7 +1588,7 @@ public class BgpConfigurationManager implements EbgpService {
         }
 
         @Override
-        protected void remove(InstanceIdentifier<VrfMaxpath> iid, VrfMaxpath vrfMaxPathVal) {
+        public void remove(InstanceIdentifier<VrfMaxpath> iid, VrfMaxpath vrfMaxPathVal) {
             if (isBGPEntityOwner()) {
                 synchronized (BgpConfigurationManager.this) {
                     BgpRouter br = getClient(YANG_OBJ);
@@ -1717,7 +1605,7 @@ public class BgpConfigurationManager implements EbgpService {
         }
 
         @Override
-        protected void update(InstanceIdentifier<VrfMaxpath> iid,
+        public void update(InstanceIdentifier<VrfMaxpath> iid,
                               VrfMaxpath oldval, VrfMaxpath newval) {
             if (!Objects.equals(oldval.getMaxpaths(), newval.getMaxpaths())) {
                 executor.execute(new VrfMaxPathConfigurator(newval));
@@ -1725,7 +1613,7 @@ public class BgpConfigurationManager implements EbgpService {
         }
 
         @Override
-        protected void add(InstanceIdentifier<VrfMaxpath> instanceIdentifier, VrfMaxpath vrfMaxpathVal) {
+        public void add(InstanceIdentifier<VrfMaxpath> instanceIdentifier, VrfMaxpath vrfMaxpathVal) {
             executor.execute(new VrfMaxPathConfigurator(vrfMaxpathVal));
         }
 
@@ -1735,18 +1623,19 @@ public class BgpConfigurationManager implements EbgpService {
         }
     }
 
-    public class BfdConfigReactor
-            extends AsyncDataTreeChangeListenerBase<BfdConfig, BfdConfigReactor>
+    public class BfdConfigReactor extends AbstractAsyncDataTreeChangeListener<BfdConfig>
             implements ClusteredDataTreeChangeListener<BfdConfig> {
 
         private static final String YANG_OBJ = "BfdConfig ";
 
         public BfdConfigReactor() {
-            super(BfdConfig.class, BfdConfigReactor.class);
+            super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(BfdConfig.class),
+                    org.opendaylight.infrautils.utils.concurrent.Executors
+                            .newListeningSingleThreadExecutor("BfdConfigReactor", LOG));
         }
 
         @Override
-        protected void add(InstanceIdentifier<BfdConfig> iid, BfdConfig val) {
+        public void add(InstanceIdentifier<BfdConfig> iid, BfdConfig val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -1775,17 +1664,7 @@ public class BgpConfigurationManager implements EbgpService {
         }
 
         @Override
-        protected BfdConfigReactor getDataTreeChangeListener() {
-            return BfdConfigReactor.this;
-        }
-
-        @Override
-        protected InstanceIdentifier<BfdConfig> getWildCardPath() {
-            return InstanceIdentifier.create(BfdConfig.class);
-        }
-
-        @Override
-        protected void remove(InstanceIdentifier<BfdConfig> iid, BfdConfig val) {
+        public void remove(InstanceIdentifier<BfdConfig> iid, BfdConfig val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -1805,7 +1684,7 @@ public class BgpConfigurationManager implements EbgpService {
         }
 
         @Override
-        protected void update(InstanceIdentifier<BfdConfig> iid,
+        public void update(InstanceIdentifier<BfdConfig> iid,
                               BfdConfig oldval, BfdConfig newval) {
             LOG.debug("received bfd config: updated oldval bfd enabled {}"
                     + "min-rx {} min-tx {} detect-mul {} mhop {}",
@@ -1855,7 +1734,7 @@ public class BgpConfigurationManager implements EbgpService {
         try {
             InstanceIdentifier<GracefulRestart> id =
                     InstanceIdentifier.create(Bgp.class).child(GracefulRestart.class);
-            Optional<GracefulRestart> gracefulRestartOptional = MDSALUtil.read(dataBroker,
+            Optional<GracefulRestart> gracefulRestartOptional = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                     LogicalDatastoreType.CONFIGURATION, id);
             if (gracefulRestartOptional.isPresent()) {
                 spt = gracefulRestartOptional.get().getStalepathTime().toJava();
@@ -1868,6 +1747,9 @@ public class BgpConfigurationManager implements EbgpService {
                 LOG.trace("BGP AS id is not set using graceful");
                 spt = defValue;
             }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.trace("Exception while reading GracefulRestart DS for the As {}", asId.getStalepathTime());
+            spt = defValue;
         }
         if (spt == 0) {
             LOG.trace("BGP config/Stale-path time is not set using graceful/start-bgp");
@@ -2330,8 +2212,8 @@ public class BgpConfigurationManager implements EbgpService {
         while (0 != bgpDSretryCount.decrementAndGet()) {
             try {
                 return SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                        InstanceIdentifier.create(Bgp.class)).orNull();
-            } catch (ReadFailedException e) {
+                        InstanceIdentifier.create(Bgp.class)).orElse(null);
+            } catch (InterruptedException | ExecutionException e) {
                 //Config DS may not be up, so sleep for 1 second and retry
                 LOG.debug("failed to get bgp config, may be DS is yet in consistent state(?)", e);
                 try {
@@ -3102,7 +2984,7 @@ public class BgpConfigurationManager implements EbgpService {
             } else {
                 LOG.error("createStaleFibMap:: FIBentries.class is not present");
             }
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("createStaleFibMap:: error ", e);
         }
         LOG.error("created {} staled entries ", totalStaledCount);
@@ -3151,7 +3033,7 @@ public class BgpConfigurationManager implements EbgpService {
             } else {
                 LOG.error("deleteExternalFibRoutes:: FIBentries.class is not present");
             }
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("deleteExternalFibRoutes:: error ", e);
         }
         LOG.debug("deleted {} fib entries {} mac entries", totalExternalRoutes, totalExternalMacRoutes);

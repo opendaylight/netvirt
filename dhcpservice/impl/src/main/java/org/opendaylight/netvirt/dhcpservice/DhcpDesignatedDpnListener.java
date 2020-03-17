@@ -7,13 +7,13 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp.rev160428.DesignatedSwitchesForExternalTunnels;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp.rev160428.designated.switches._for.external.tunnels.DesignatedSwitchForTunnel;
@@ -25,8 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class DhcpDesignatedDpnListener
-        extends AsyncClusteredDataTreeChangeListenerBase<DesignatedSwitchForTunnel, DhcpDesignatedDpnListener> {
+public class DhcpDesignatedDpnListener extends AbstractClusteredAsyncDataTreeChangeListener<DesignatedSwitchForTunnel> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpDesignatedDpnListener.class);
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
@@ -37,16 +36,18 @@ public class DhcpDesignatedDpnListener
     public DhcpDesignatedDpnListener(final DhcpExternalTunnelManager dhcpExternalTunnelManager,
                                      final DataBroker broker,
                                      final DhcpserviceConfig config) {
-        super(DesignatedSwitchForTunnel.class, DhcpDesignatedDpnListener.class);
+        super(broker, LogicalDatastoreType.CONFIGURATION,
+                InstanceIdentifier.create(DesignatedSwitchesForExternalTunnels.class)
+                        .child(DesignatedSwitchForTunnel.class),
+                Executors.newListeningSingleThreadExecutor("DhcpDesignatedDpnListener", LOG));
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.broker = broker;
         this.config = config;
     }
 
-    @PostConstruct
     public void init() {
         if (config.isControllerDhcpEnabled()) {
-            registerListener(LogicalDatastoreType.CONFIGURATION, broker);
+            LOG.info("{} close", getClass().getSimpleName());
         }
     }
 
@@ -58,7 +59,7 @@ public class DhcpDesignatedDpnListener
     }
 
     @Override
-    protected void remove(InstanceIdentifier<DesignatedSwitchForTunnel> identifier, DesignatedSwitchForTunnel del) {
+    public void remove(InstanceIdentifier<DesignatedSwitchForTunnel> identifier, DesignatedSwitchForTunnel del) {
         LOG.debug("Remove for DesignatedSwitchForTunnel : {}", del);
         dhcpExternalTunnelManager.removeFromLocalCache(Uint64.valueOf(del.getDpId()),
                 del.getTunnelRemoteIpAddress(), del.getElanInstanceName());
@@ -76,7 +77,7 @@ public class DhcpDesignatedDpnListener
     }
 
     @Override
-    protected void update(InstanceIdentifier<DesignatedSwitchForTunnel> identifier, DesignatedSwitchForTunnel original,
+    public void update(InstanceIdentifier<DesignatedSwitchForTunnel> identifier, DesignatedSwitchForTunnel original,
             DesignatedSwitchForTunnel update) {
         LOG.debug("Update for DesignatedSwitchForTunnel original {}, update {}", original, update);
         dhcpExternalTunnelManager.removeFromLocalCache(Uint64.valueOf(original.getDpId()),
@@ -103,7 +104,7 @@ public class DhcpDesignatedDpnListener
     }
 
     @Override
-    protected void add(InstanceIdentifier<DesignatedSwitchForTunnel> identifier, DesignatedSwitchForTunnel add) {
+    public void add(InstanceIdentifier<DesignatedSwitchForTunnel> identifier, DesignatedSwitchForTunnel add) {
         LOG.debug("Add for DesignatedSwitchForTunnel : {}", add);
         Uint64 designatedDpnId = Uint64.valueOf(add.getDpId());
         IpAddress tunnelRemoteIpAddress = add.getTunnelRemoteIpAddress();
@@ -118,16 +119,5 @@ public class DhcpDesignatedDpnListener
                     true, tunnelRemoteIpAddress, subnetDhcpData.get().getPortFixedip(),
                     subnetDhcpData.get().getPortMacaddress());
         }
-    }
-
-    @Override
-    protected InstanceIdentifier<DesignatedSwitchForTunnel> getWildCardPath() {
-        return InstanceIdentifier.create(DesignatedSwitchesForExternalTunnels.class)
-                .child(DesignatedSwitchForTunnel.class);
-    }
-
-    @Override
-    protected DhcpDesignatedDpnListener getDataTreeChangeListener() {
-        return DhcpDesignatedDpnListener.this;
     }
 }

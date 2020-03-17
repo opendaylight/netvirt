@@ -14,12 +14,12 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.inject.AbstractModule;
 import org.mockito.Mockito;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.test.DataBrokerTestModule;
 import org.opendaylight.genius.datastoreutils.testutils.JobCoordinatorEventsWaiter;
 import org.opendaylight.genius.datastoreutils.testutils.TestableJobCoordinatorEventsWaiter;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractBaseDataBrokerTest;
 import org.opendaylight.netvirt.aclservice.AclInterfaceCacheImpl;
 import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.stats.TestOdlDirectStatisticsService;
@@ -57,6 +57,7 @@ public class AclServiceTestModule extends AbstractModule {
     private static final Logger LOG = LoggerFactory.getLogger(AclServiceTestModule.class);
 
     final SecurityGroupMode securityGroupMode;
+    AbstractBaseDataBrokerTest abstractBaseDataBrokerTest;
 
     public AclServiceTestModule(SecurityGroupMode securityGroupMode) {
         this.securityGroupMode = securityGroupMode;
@@ -64,7 +65,7 @@ public class AclServiceTestModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(DataBroker.class).toInstance(DataBrokerTestModule.dataBroker());
+        bind(DataBroker.class).toInstance(abstractBaseDataBrokerTest.getDataBroker());
         bind(AclserviceConfig.class).toInstance(aclServiceConfig());
         bind(AclDataUtil.class).toInstance(aclDataUtil());
         bind(AclClusterUtil.class).toInstance(() -> true);

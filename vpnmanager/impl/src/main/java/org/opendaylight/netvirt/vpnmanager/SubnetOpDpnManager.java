@@ -7,17 +7,17 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PortOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.SubnetOpData;
@@ -75,7 +75,7 @@ public class SubnetOpDpnManager {
         } catch (TransactionCommitFailedException ex) {
             LOG.error("addDpnToSubnet: Creation of SubnetToDpn for subnet {} with DpnId {} failed",
                     subnetId.getValue(), dpnId, ex);
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("addDpnToSubnet: Failed to read data store for subnet {} dpn {}", subnetId.getValue(),
                     dpnId);
         }
@@ -103,7 +103,7 @@ public class SubnetOpDpnManager {
         } catch (TransactionCommitFailedException ex) {
             LOG.error("removeDpnFromSubnet: Deletion of SubnetToDpn for subnet {} with DPN {} failed",
                     subnetId.getValue(), dpnId, ex);
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("removeDpnFromSubnet: Failed to read data store for subnet {} dpn {}", subnetId, dpnId);
         }
     }
@@ -143,7 +143,7 @@ public class SubnetOpDpnManager {
         } catch (TransactionCommitFailedException ex) {
             LOG.error("addInterfaceToDpn: Addition of Interface {} for SubnetToDpn on subnet {} with DPN {} failed",
                     intfName, subnetId.getValue(), dpnId, ex);
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("addInterfaceToDpn: Failed to read data store for interface {} subnet {} dpn {}", intfName,
                     subnetId, dpnId);
         }
@@ -192,7 +192,7 @@ public class SubnetOpDpnManager {
         } catch (TransactionCommitFailedException ex) {
             LOG.error("addPortOpDataEntry: Addition of Interface {} for SubnetToDpn on subnet {} with DPN {} failed",
                     intfName, subnetId.getValue(), dpnId, ex);
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("addPortOpDataEntry: Failed to read from data store for interface {} subnet {} dpn {}",
                     intfName, subnetId, dpnId);
         }
@@ -235,7 +235,7 @@ public class SubnetOpDpnManager {
         } catch (TransactionCommitFailedException ex) {
             LOG.error("removeInterfaceFromDpn: Deletion of Interface {} for SubnetToDpn on subnet {}"
                     + " with DPN {} failed", intfName, subnetId.getValue(), dpnId, ex);
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("removeInterfaceFromDpn: Failed to read data store for interface {} subnet {} dpn {}",
                     intfName, subnetId, dpnId);
         }
@@ -280,7 +280,7 @@ public class SubnetOpDpnManager {
                     portOpEntry = null;
                 }
             }
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("removePortOpDataEntry: Failed to read data store for interface {} subnet {}", intfName,
                     subnetId);
         } catch (TransactionCommitFailedException e) {
@@ -302,7 +302,7 @@ public class SubnetOpDpnManager {
             if (optionalPortOp.isPresent()) {
                 portOpDataEntry = optionalPortOp.get();
             }
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("getPortOpDataEntry: Failed to read data store for interface {}", intfName);
         }
         return portOpDataEntry;

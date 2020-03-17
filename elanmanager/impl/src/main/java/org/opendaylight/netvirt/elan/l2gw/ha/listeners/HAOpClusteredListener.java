@@ -9,10 +9,10 @@ package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -20,16 +20,15 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.infrautils.metrics.MetricProvider;
+import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.recovery.impl.L2GatewayServiceRecoveryHandler;
 import org.opendaylight.serviceutils.srm.RecoverableListener;
@@ -159,9 +158,9 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener<Operational>
     public synchronized void runAfterNodeIsConnected(InstanceIdentifier<Node> iid, Consumer<Optional<Node>> consumer) {
         if (connectedNodes.contains(iid)) {
             HAJobScheduler.getInstance().submitJob(() -> {
-                try (ReadOnlyTransaction tx = getDataBroker().newReadOnlyTransaction()) {
-                    consumer.accept(tx.read(LogicalDatastoreType.OPERATIONAL, iid).checkedGet());
-                } catch (ReadFailedException e) {
+                try (ReadTransaction tx = getDataBroker().newReadOnlyTransaction()) {
+                    consumer.accept(tx.read(LogicalDatastoreType.OPERATIONAL, iid).get());
+                } catch (InterruptedException | ExecutionException e) {
                     LOG.error("Failed to read oper ds {}", iid);
                 }
             });
