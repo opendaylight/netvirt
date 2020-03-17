@@ -9,7 +9,7 @@ package org.opendaylight.netvirt.elan.evpn.utils;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
@@ -25,11 +25,11 @@ import java.util.function.Predicate;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
@@ -132,7 +132,7 @@ public class EvpnUtils {
             return;
         }
         String rd = vpnManager.getVpnRd(broker, evpnName);
-        ElanInstance elanInfo = elanInstanceCache.get(elanName).orNull();
+        ElanInstance elanInfo = elanInstanceCache.get(elanName).orElse(null);
         macEntries.stream().filter(isIpv4PrefixAvailable).forEach(macEntry -> {
             InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(macEntry.getInterface());
             if (interfaceInfo == null) {
@@ -235,7 +235,7 @@ public class EvpnUtils {
         if (l3VpName != null) {
             VpnInstance l3VpnInstance = vpnManager.getVpnInstance(broker, l3VpName);
             l3vni = l3VpnInstance.getL3vni();
-            com.google.common.base.Optional<String> gatewayMac = getGatewayMacAddressForInterface(l3VpName,
+            Optional<String> gatewayMac = getGatewayMacAddressForInterface(l3VpName,
                     interfaceName, prefix);
             gatewayMacAddr = gatewayMac.isPresent() ? gatewayMac.get() : null;
 
@@ -321,11 +321,11 @@ public class EvpnUtils {
         ExternalTunnelList externalTunnelList = null;
         try {
             externalTunnelList = elanUtils.read2(LogicalDatastoreType.CONFIGURATION,
-                    externalTunnelListId).orNull();
-        } catch (ReadFailedException e) {
+                    externalTunnelListId).orElse(null);
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("getExternalTunnelList: unable to read ExternalTunnelList, exception ", e);
         }
-        return Optional.fromNullable(externalTunnelList);
+        return Optional.ofNullable(externalTunnelList);
     }
 
     public static InstanceIdentifier<DcGatewayIpList> getDcGatewayIpListIdentifier() {
@@ -338,11 +338,11 @@ public class EvpnUtils {
         DcGatewayIpList dcGatewayIpListConfig = null;
         try {
             dcGatewayIpListConfig = elanUtils.read2(LogicalDatastoreType.CONFIGURATION,
-                    dcGatewayIpListInstanceIdentifier).orNull();
-        } catch (ReadFailedException e) {
+                    dcGatewayIpListInstanceIdentifier).orElse(null);
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("getDcGatewayTunnelInterfaceNameList: unable to read DcGatewayTunnelList, exception ", e);
         }
-        return Optional.fromNullable(dcGatewayIpListConfig);
+        return Optional.ofNullable(dcGatewayIpListConfig);
     }
 
     public List<String> getDcGatewayTunnelInterfaceNameList() {
@@ -417,28 +417,33 @@ public class EvpnUtils {
         Uint32 elanTag = elanInfo.getElanTag();
         List<MatchInfo> mkMatches = new ArrayList<>();
         mkMatches.add(new MatchTunnelId(Uint64.valueOf(ElanUtils.getVxlanSegmentationId(elanInfo).longValue())));
-        NWUtil.getOperativeDPNs(broker).forEach(dpnId -> {
-            LOG.debug("Updating tunnel flow to dpnid {}", dpnId);
-            List<InstructionInfo> instructions = getInstructionsForExtTunnelTable(elanTag);
-            String flowRef = getFlowRef(NwConstants.L2VNI_EXTERNAL_TUNNEL_DEMUX_TABLE, elanTag.longValue(), dpnId);
-            FlowEntity flowEntity = MDSALUtil.buildFlowEntity(
-                    dpnId,
-                    NwConstants.L2VNI_EXTERNAL_TUNNEL_DEMUX_TABLE,
-                    flowRef,
-                    5, // prio
-                    elanInfo.getElanInstanceName(), // flowName
-                    0, // idleTimeout
-                    0, // hardTimeout
-                    Uint64.valueOf(ITMConstants.COOKIE_ITM_EXTERNAL.longValue() + elanTag.longValue()),
-                    mkMatches,
-                    instructions);
-            flowHandler.accept(dpnId, flowEntity);
-        });
+        try {
+            NWUtil.getOperativeDPNs(broker).forEach(dpnId -> {
+                LOG.debug("Updating tunnel flow to dpnid {}", dpnId);
+                List<InstructionInfo> instructions = getInstructionsForExtTunnelTable(elanTag);
+                String flowRef = getFlowRef(NwConstants.L2VNI_EXTERNAL_TUNNEL_DEMUX_TABLE, elanTag.longValue(), dpnId);
+                FlowEntity flowEntity = MDSALUtil.buildFlowEntity(
+                        dpnId,
+                        NwConstants.L2VNI_EXTERNAL_TUNNEL_DEMUX_TABLE,
+                        flowRef,
+                        5, // prio
+                        elanInfo.getElanInstanceName(), // flowName
+                        0, // idleTimeout
+                        0, // hardTimeout
+                        Uint64.valueOf(ITMConstants.COOKIE_ITM_EXTERNAL.longValue() + elanTag.longValue()),
+                        mkMatches,
+                        instructions);
+                flowHandler.accept(dpnId, flowEntity);
+            });
+        } catch (ExecutionException | InterruptedException e) {
+           LOG.error("programEvpnL2vniFlow: Exception while programming Evpn L2vni flow for elanInstance {}",
+                   elanInfo, e);
+        }
     }
 
     public void programEvpnL2vniDemuxTable(String elanName, final BiConsumer<String, String> serviceHandler,
                                            BiConsumer<Uint64, FlowEntity> flowHandler) {
-        ElanInstance elanInfo = elanInstanceCache.get(elanName).orNull();
+        ElanInstance elanInfo = elanInstanceCache.get(elanName).orElse(null);
         List<String> tunnelInterfaceNameList = getDcGatewayTunnelInterfaceNameList();
         if (tunnelInterfaceNameList.isEmpty()) {
             LOG.info("No DC gateways tunnels while programming l2vni table for elan {}.", elanName);
@@ -456,7 +461,7 @@ public class EvpnUtils {
             SettableFuture<Optional<T>> settableFuture = SettableFuture.create();
             List futures = Collections.singletonList(settableFuture);
 
-            try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
+            try (ReadTransaction tx = broker.newReadOnlyTransaction()) {
                 Futures.addCallback(tx.read(datastoreType, iid),
                         new SettableFutureCallback<Optional<T>>(settableFuture) {
                             @Override

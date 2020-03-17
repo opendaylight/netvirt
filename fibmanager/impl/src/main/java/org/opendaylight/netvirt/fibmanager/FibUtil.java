@@ -10,9 +10,9 @@ package org.opendaylight.netvirt.fibmanager;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
-import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 import java.net.InetAddress;
@@ -26,10 +26,11 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.datastoreutils.ExpectedDataObjectNotFoundException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.Datastore.Operational;
@@ -183,7 +184,12 @@ public class FibUtil {
 
     Optional<VpnInstanceOpDataEntry> getVpnInstanceOpData(String rd) {
         InstanceIdentifier<VpnInstanceOpDataEntry> id = getVpnInstanceOpDataIdentifier(rd);
-        return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        try {
+            return SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getVpnInstance: Exception while reading the VpnInstanceOpData DS for the rd {} ", rd, e);
+        }
+        return Optional.empty();
     }
 
     static Optional<VpnInstanceOpDataEntry> getVpnInstanceOpData(TypedReadTransaction<Operational> operTx, String rd)
@@ -196,8 +202,13 @@ public class FibUtil {
         InstanceIdentifier<VpnInstanceOpDataEntry> id =
                 InstanceIdentifier.create(VpnInstanceOpData.class)
                         .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd));
-        Optional<VpnInstanceOpDataEntry> vpnInstanceOpData =
-                MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        Optional<VpnInstanceOpDataEntry> vpnInstanceOpData = Optional.empty();
+        try {
+            vpnInstanceOpData = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL, id);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getVpnInstance: Exception while reading the VpnInstanceOpData DS for the rd {} ", rd, e);
+        }
         return vpnInstanceOpData.isPresent() ? vpnInstanceOpData.get() : null;
     }
 
@@ -207,21 +218,35 @@ public class FibUtil {
 
     @Nullable
     Prefixes getPrefixToInterface(Uint32 vpnId, String ipPrefix) {
-        Optional<Prefixes> localNextHopInfoData = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-            getPrefixToInterfaceIdentifier(vpnId, ipPrefix));
+        Optional<Prefixes> localNextHopInfoData = Optional.empty();
+        try {
+            localNextHopInfoData = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL,
+                getPrefixToInterfaceIdentifier(vpnId, ipPrefix));
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getPrefixToInterface: Exception while reading the prefixToInterface DS for the "
+                    + "prefix {} vpnId {}", ipPrefix, vpnId, e);
+        }
         return localNextHopInfoData.isPresent() ? localNextHopInfoData.get() : null;
     }
 
     @Nullable
     static Prefixes getPrefixToInterface(TypedReadTransaction<Operational> operTx, Uint32 vpnId, String ipPrefix)
             throws ExecutionException, InterruptedException {
-        return operTx.read(getPrefixToInterfaceIdentifier(vpnId, ipPrefix)).get().orNull();
+        return operTx.read(getPrefixToInterfaceIdentifier(vpnId, ipPrefix)).get().orElse(null);
     }
 
     @Nullable
     String getMacAddressFromPrefix(String ifName, String vpnName, String ipPrefix) {
-        Optional<Adjacency> adjacencyData = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                       getAdjacencyIdentifierOp(ifName, vpnName, ipPrefix));
+        Optional<Adjacency> adjacencyData;
+        try {
+            adjacencyData = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL, getAdjacencyIdentifierOp(ifName, vpnName, ipPrefix));
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getMacAddressFromPrefix: Exception while reading adj-op DS for the interface {} prefix {} "
+                    + "vpn {}", ifName, ipPrefix, vpnName, e);
+            return null;
+        }
         return adjacencyData.isPresent() ? adjacencyData.get().getMacAddress() : null;
     }
 
@@ -247,10 +272,14 @@ public class FibUtil {
     }
 
     public Uint32 getVpnId(String vpnName) {
-
         InstanceIdentifier<VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
-        return MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
-                VpnInstance::getVpnId).orElse(Uint32.ZERO);
+        try {
+            return SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION, id)
+                    .map(VpnInstance::getVpnId).orElse(Uint32.ZERO);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getVpnNameFromId: Exception while reading vpnInstanceToVpnId DS for the vpn {}", vpnName, e);
+        }
+        return Uint32.ZERO;
     }
 
     /**
@@ -260,15 +289,20 @@ public class FibUtil {
      * @return The vpn instance
      */
     public Optional<String> getVpnNameFromRd(String rd) {
-        return Optional.fromJavaUtil(
-                getVpnInstanceOpData(rd).toJavaUtil().map(VpnInstanceOpDataEntry::getVpnInstanceName));
+        return Optional.ofNullable(getVpnInstanceOpData(rd).map(VpnInstanceOpDataEntry::getVpnInstanceName)
+                .orElse(null));
     }
 
     @Nullable
     public String getVpnNameFromId(Uint32 vpnId) {
         InstanceIdentifier<VpnIds> id = getVpnIdToVpnInstanceIdentifier(vpnId);
-        return MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
-                VpnIds::getVpnInstanceName).orElse(null);
+        try {
+            return SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION, id)
+                    .map(VpnIds::getVpnInstanceName).orElse(null);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getVpnNameFromId: Exception while reading vpnIdToVpnInstance DS for the vpnId {}", vpnId, e);
+        }
+        return null;
     }
 
     static InstanceIdentifier<VpnIds> getVpnIdToVpnInstanceIdentifier(Uint32 vpnId) {
@@ -419,7 +453,14 @@ public class FibUtil {
         InstanceIdentifier<VrfEntry> vrfEntryId =
             InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd))
                 .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
-        Optional<VrfEntry> entry = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        Optional<VrfEntry> entry = Optional.empty();
+        try {
+            entry = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("removeOrUpdateFibEntry: Exception while reading vrfEntry for the prefix {} rd {} nexthop {}",
+                    prefix, rd, nextHopToRemove, e);
+        }
         if (entry.isPresent()) {
             final List<RoutePaths> routePaths = entry.get().getRoutePaths();
             if (routePaths == null || routePaths.isEmpty()) {
@@ -481,8 +522,15 @@ public class FibUtil {
                 }
                 LOG.debug("Added routepath with nextHop {} for prefix {} and label {}.", nextHop, prefix, label);
             } else {
-                Optional<RoutePaths> routePath = MDSALUtil.read(dataBroker,
-                        LogicalDatastoreType.CONFIGURATION, routePathId);
+                Optional<RoutePaths> routePath;
+                try {
+                    routePath = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                            LogicalDatastoreType.CONFIGURATION, routePathId);
+                } catch (ExecutionException | InterruptedException e) {
+                    LOG.error("updateRoutePathForFibEntry: Exception while reading the RoutePath with rd {}, "
+                                    + "prefix {} and nh {}", rd, prefix, nextHop, e);
+                    return;
+                }
                 if (!routePath.isPresent()) {
                     LOG.warn("Couldn't find RoutePath with rd {}, prefix {} and nh {} for deleting",
                             rd, prefix, nextHop);
@@ -524,8 +572,14 @@ public class FibUtil {
         if (writeConfigTxn != null) {
             writeConfigTxn.delete(vrfTableId);
         } else {
-            Optional<VrfTables> ifStateOptional = MDSALUtil.read(dataBroker,
-                    LogicalDatastoreType.CONFIGURATION, vrfTableId);
+            Optional<VrfTables> ifStateOptional;
+            try {
+                ifStateOptional = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, vrfTableId);
+            } catch (ExecutionException | InterruptedException e) {
+                LOG.error("removeVrfTable: Exception while reading vrfTable for the rd {}", rd, e);
+                return;
+            }
             if (ifStateOptional.isPresent()) {
                 MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfTableId);
             }
@@ -584,11 +638,18 @@ public class FibUtil {
         .@Nullable Interface getInterfaceStateFromOperDS(String interfaceName) {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
             .interfaces.state.Interface> ifStateId = buildStateInterfaceId(interfaceName);
-        Optional<Interface> ifStateOptional = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, ifStateId);
+        Optional<Interface> ifStateOptional;
+        try {
+            ifStateOptional = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL, ifStateId);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getInterfaceStateFromOperDS: Exception while reading interface-state for the interface {}",
+                    interfaceName, e);
+            return null;
+        }
         if (ifStateOptional.isPresent()) {
             return ifStateOptional.get();
         }
-
         return null;
     }
 
@@ -648,7 +709,14 @@ public class FibUtil {
         String nextHopIp = null;
         InstanceIdentifier<DPNTEPsInfo> tunnelInfoId =
             InstanceIdentifier.builder(DpnEndpoints.class).child(DPNTEPsInfo.class, new DPNTEPsInfoKey(dpnId)).build();
-        Optional<DPNTEPsInfo> tunnelInfo = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, tunnelInfoId);
+        Optional<DPNTEPsInfo> tunnelInfo;
+        try {
+            tunnelInfo = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, tunnelInfoId);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getEndpointIpAddressForDPN: Exception while reading DPN {} TEP info", dpnId, e);
+            return null;
+        }
         if (tunnelInfo.isPresent()) {
             List<TunnelEndPoints> nexthopIpList = tunnelInfo.get().getTunnelEndPoints();
             if (nexthopIpList != null && !nexthopIpList.isEmpty()) {
@@ -677,7 +745,15 @@ public class FibUtil {
 
     public List<String> getNextHopAddresses(String rd, String prefix) {
         InstanceIdentifier<VrfEntry> vrfEntryId = getNextHopIdentifier(rd, prefix);
-        Optional<VrfEntry> vrfEntry = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        Optional<VrfEntry> vrfEntry;
+        try {
+            vrfEntry = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getNextHopAddresses: Exception while reading vrfEntry DS for the prefix {} rd {}",
+                    prefix, rd, e);
+            return Collections.emptyList();
+        }
         if (vrfEntry.isPresent()) {
             return FibHelper.getNextHopListFromRoutePaths(vrfEntry.get());
         } else {
@@ -758,13 +834,26 @@ public class FibUtil {
     public Optional<Nexthops> getNexthops(String nextHopKey) {
         InstanceIdentifier<Nexthops> nextHopsId = InstanceIdentifier.builder(L3vpnLbNexthops.class)
                 .child(Nexthops.class, new NexthopsKey(nextHopKey)).build();
-        return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, nextHopsId);
+        try {
+            return SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                    nextHopsId);
+        } catch (ExecutionException | InterruptedException e) {
+           LOG.error("getNexthops: Exception while reading L3-vpn-nexthop DS for the nexthop {}", nextHopKey, e);
+        }
+        return Optional.empty();
     }
 
     public List<String> getL3VpnDcGateWays() {
         InstanceIdentifier<L3vpnDcGws> id = InstanceIdentifier.builder(L3vpnDcGws.class)
                 .build();
-        Optional<L3vpnDcGws> dcGwsOpt = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        Optional<L3vpnDcGws> dcGwsOpt;
+        try {
+            dcGwsOpt = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL, id);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getNexthops: Exception while reading L3vpnDcGws DS", e);
+            return Collections.emptyList();
+        }
         if (!dcGwsOpt.isPresent()) {
             return Collections.emptyList();
         }
@@ -892,7 +981,7 @@ public class FibUtil {
                     && !vpnToDpnList.getVpnInterfaces().isEmpty()) {
                 return true;
             }
-        } catch (ReadFailedException e) {
+        } catch (ExpectedDataObjectNotFoundException e) {
             LOG.warn("Failed to read interfaces with error {}", e.getMessage());
         }
         return false;
@@ -902,7 +991,15 @@ public class FibUtil {
         InstanceIdentifier<VrfEntry> vrfEntryId =
                 InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd))
                         .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
-        Optional<VrfEntry> entry = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        Optional<VrfEntry> entry;
+        try {
+            entry = SingleTransactionDataBroker.syncReadOptional(broker,
+                    LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("checkFibEntryExist: Exception while reading vrfEntry DS for the prefix {} rd {} nexthop {}",
+                    prefix, rd, nextHopIp, e);
+            return false;
+        }
         if (entry.isPresent()) {
             List<RoutePaths> paths = entry.get().getRoutePaths();
             for (RoutePaths path: paths) {

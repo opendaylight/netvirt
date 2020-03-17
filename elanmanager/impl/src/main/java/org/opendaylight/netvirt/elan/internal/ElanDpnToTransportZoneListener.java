@@ -10,8 +10,8 @@ package org.opendaylight.netvirt.elan.internal;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -66,7 +66,7 @@ public class ElanDpnToTransportZoneListener
         Uint64 dpId = dataObjectModification.getDpId();
         String elanInstanceName = key.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
 
-        if (!ElanUtils.isVxlanNetworkOrVxlanSegment(elanInstanceCache.get(elanInstanceName).orNull())) {
+        if (!ElanUtils.isVxlanNetworkOrVxlanSegment(elanInstanceCache.get(elanInstanceName).orElse(null))) {
             LOG.debug("ElanInstance {} is not vxlan network, nothing to do", elanInstanceName);
             return;
         }
@@ -87,7 +87,7 @@ public class ElanDpnToTransportZoneListener
         Uint64 dpId = dataObjectModification.getDpId();
         String elanInstanceName = key.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
 
-        if (!ElanUtils.isVxlanNetworkOrVxlanSegment(elanInstanceCache.get(elanInstanceName).orNull())) {
+        if (!ElanUtils.isVxlanNetworkOrVxlanSegment(elanInstanceCache.get(elanInstanceName).orElse(null))) {
             return;
         }
 
