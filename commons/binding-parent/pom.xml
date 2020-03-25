@@ -23,7 +23,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <packaging>pom</packaging>
 
   <properties>
-    <controller.mdsal.version>1.12.0-SNAPSHOT</controller.mdsal.version>
+    <controller.mdsal.version>1.11.0</controller.mdsal.version>
     <genius.version>0.9.0-SNAPSHOT</genius.version>
     <infrautils.version>1.8.0-SNAPSHOT</infrautils.version>
     <model.bgp.version>2013.07.15.17.0-SNAPSHOT</model.bgp.version>
