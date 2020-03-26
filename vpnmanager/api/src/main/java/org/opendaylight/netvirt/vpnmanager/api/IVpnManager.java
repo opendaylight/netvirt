@@ -16,6 +16,7 @@ import java.util.concurrent.ExecutionException;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.TypedReadTransaction;
@@ -96,12 +97,8 @@ public interface IVpnManager {
     VpnPortipToPort getNeutronPortFromVpnPortFixedIp(TypedReadTransaction<Configuration> confTx, String vpnName,
         String fixedIp);
 
-    void updateRouteTargetsToSubnetAssociation(Set<VpnTarget> routeTargets, String cidr, String vpnName);
-
-    void removeRouteTargetsToSubnetAssociation(Set<VpnTarget> routeTargets, String cidr, String vpnName);
-
     boolean checkForOverlappingSubnets(Uuid network, List<Subnetmap> subnetmapList, Uuid vpn,
                                        Set<VpnTarget> routeTargets, List<String> failedNwList);
 
-    Set<VpnTarget> getRtListForVpn(String vpnName);
+    Set<VpnTarget> getRtListForVpn(String vpnName, ReadWriteTransaction tx);
 }

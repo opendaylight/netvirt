@@ -11,6 +11,9 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import com.google.common.base.Optional;
 import java.util.Collections;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -35,6 +38,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class NeutronEvpnUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(NeutronEvpnUtils.class);
@@ -49,6 +53,7 @@ public class NeutronEvpnUtils {
     private final IVpnManager vpnManager;
     private final JobCoordinator jobCoordinator;
 
+    @Inject
     public NeutronEvpnUtils(DataBroker broker, IVpnManager vpnManager, JobCoordinator jobCoordinator) {
         this.dataBroker = broker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);

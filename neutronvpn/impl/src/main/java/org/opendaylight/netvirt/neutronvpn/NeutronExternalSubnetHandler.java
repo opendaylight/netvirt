@@ -42,7 +42,7 @@ public class NeutronExternalSubnetHandler implements AutoCloseable {
             LOG.info("Added external subnet {} part of external network {} will create NAT external subnet",
                     subnetId.getValue(), networkId.getValue());
             nvpnNatManager.updateOrAddExternalSubnet(networkId, subnetId, routerIds);
-            nvpnManager.updateSubnetNode(subnetId, null/* routerId */, subnetId, null /* internet-vpn-id */);
+            nvpnManager.updateSubnetNode(subnetId, null/* routerId */, subnetId, null /* internet-vpn-id */, null);
             nvpnManager.createVpnInstanceForSubnet(subnetId);
         }
     }

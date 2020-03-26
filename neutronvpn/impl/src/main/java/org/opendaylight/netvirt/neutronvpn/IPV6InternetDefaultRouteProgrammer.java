@@ -76,9 +76,10 @@ public class IPV6InternetDefaultRouteProgrammer {
     /**
      * This method installs in the FIB table the default route for IPv6.
      *
-     * @param dpnId of the compute node
+     * @param dpnId            of the compute node
+     * @param routerId         router id as string
      * @param internetBgpVpnId internetVpn id as long
-     * @param vpnId id of router associated to internet bgpvpn as long
+     * @param vpnId            id of router associated to internet bgpvpn as long
      */
     public void installDefaultRoute(TypedWriteTransaction<Configuration> tx, Uint64 dpnId, String routerId,
             long internetBgpVpnId, long vpnId) {

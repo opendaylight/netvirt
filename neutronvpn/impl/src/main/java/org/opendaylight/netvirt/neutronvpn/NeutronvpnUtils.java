@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -44,6 +45,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -54,9 +56,11 @@ import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
+import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
+import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -88,6 +92,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntriesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NeutronRouterDpns;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.SubnetsAssociatedToRouteTargets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
@@ -95,6 +100,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.lea
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnets.associated.to.route.targets.RouteTarget;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnets.associated.to.route.targets.RouteTargetKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnets.associated.to.route.targets.route.target.AssociatedSubnet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnets.associated.to.route.targets.route.target.AssociatedSubnetKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnets.associated.to.route.targets.route.target.associated.subnet.AssociatedVpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnets.associated.to.route.targets.route.target.associated.subnet.AssociatedVpnBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnets.associated.to.route.targets.route.target.associated.subnet.AssociatedVpnKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
@@ -106,16 +118,27 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMappingKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev150602.Adjacencies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev150602.AdjacenciesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.VpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev150602.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev150602.adjacency.list.AdjacencyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev150602.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances.VpnInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances.VpnInstanceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev150602.vpn.instances.vpn.instance.vpntargets.VpnTarget;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.interfaces.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev150602.vpn.interfaces.VpnInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.interfaces.VpnInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev150602.vpn.interfaces.vpn._interface.VpnInstanceNames;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev150602.vpn.interfaces.vpn._interface.VpnInstanceNamesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortIdSubportData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterInterfacesMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMap;
@@ -125,6 +148,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPortBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPortKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.RouterInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.RouterInterfacesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.RouterInterfacesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.router.interfaces.InterfacesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.router.interfaces.InterfacesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpn.instance.RouterIds;
@@ -132,6 +160,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.ext.rev150712.NetworkL3Extension;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.l3.attributes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.RouterKey;
@@ -198,12 +227,14 @@ public class NeutronvpnUtils {
             .child(Routers.class).build();
     private static final InstanceIdentifier<Subnets> NEUTRON_SUBNETS_IID = InstanceIdentifier.builder(Neutron.class)
             .child(Subnets.class).build();
+    private static long LOCK_WAIT_TIME = 10L;
 
     private final ConcurrentMap<Uuid, Network> networkMap = new ConcurrentHashMap<>();
     private final ConcurrentMap<Uuid, Router> routerMap = new ConcurrentHashMap<>();
     private final ConcurrentMap<Uuid, Port> portMap = new ConcurrentHashMap<>();
     private final ConcurrentMap<Uuid, Subnet> subnetMap = new ConcurrentHashMap<>();
     private final Map<IpAddress, Set<Uuid>> subnetGwIpMap = new ConcurrentHashMap<>();
+    private final KeyedLocks<String> interfaceLock = new KeyedLocks<>();
 
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
@@ -240,7 +271,23 @@ public class NeutronvpnUtils {
         if (optionalVpnMap.isPresent()) {
             return optionalVpnMap.get();
         }
-        LOG.error("getVpnMap failed, VPN {} not present", id.getValue());
+        LOG.error("getVpnMap: failed, VPN {} not present", id.getValue());
+        return null;
+    }
+
+    protected static VpnMap getVpnMap(ReadWriteTransaction tx, Uuid id) {
+        InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class).child(VpnMap.class,
+                new VpnMapKey(id)).build();
+        Optional<VpnMap> optionalVpnMap = null;
+        try {
+            optionalVpnMap = tx.read(LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier).checkedGet();
+        } catch (ReadFailedException e) {
+            throw new RuntimeException(e);
+        }
+        if (optionalVpnMap.isPresent()) {
+            return optionalVpnMap.get();
+        }
+        LOG.error("getVpnMap: with RWTX failed, VPN {} not present", id.getValue());
         return null;
     }
 
@@ -1231,6 +1278,20 @@ public class NeutronvpnUtils {
         return existingRDs;
     }
 
+    public String getVpnForRD(String rd) {
+        InstanceIdentifier<VpnInstances> path = InstanceIdentifier.builder(VpnInstances.class).build();
+        Optional<VpnInstances> vpnInstancesOptional = read(LogicalDatastoreType.CONFIGURATION, path);
+        if (vpnInstancesOptional.isPresent() && vpnInstancesOptional.get().getVpnInstance() != null) {
+            for (VpnInstance vpnInstance : vpnInstancesOptional.get().getVpnInstance()) {
+                List<String> rds = vpnInstance.getRouteDistinguisher();
+                if (rds != null && rds.contains(rd)) {
+                    return vpnInstance.getVpnInstanceName();
+                }
+            }
+        }
+        return null;
+    }
+
     protected boolean doesVpnExist(Uuid vpnId) {
         return read(LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier(vpnId)).isPresent();
     }
@@ -1459,7 +1520,58 @@ public class NeutronvpnUtils {
         return subnetCount;
     }
 
-    public void updateVpnInstanceWithIpFamily(String vpnName, IpVersionChoice ipVersion, boolean add) {
+    public void updateVpnInstanceWithIpFamily(String vpnName, IpVersionChoice ipVersion, boolean add,
+                                              ReadWriteTransaction tx) {
+        try {
+            VpnInstance vpnInstance = getVpnInstance(new Uuid(vpnName));
+            if (vpnInstance == null) {
+                LOG.error("updateVpnInstanceWithIpFamily: Update VpnInstance {} with ipFamily {}."
+                        + "Vpn not found in config vpnInstance DS", vpnName, ipVersion);
+                return;
+            }
+            if (vpnInstance.isL2vpn()) {
+                LOG.debug("updateVpnInstanceWithIpFamily: Update VpnInstance {} with ipFamily {}."
+                        + "VpnInstance is L2 instance. Do nothing.", vpnName, ipVersion);
+                return;
+            }
+            if (ipVersion == IpVersionChoice.UNDEFINED) {
+                LOG.debug("updateVpnInstanceWithIpFamily: Update VpnInstance {} with Undefined address family"
+                        + "is not allowed. Do nothing", vpnName);
+                return;
+            }
+            VpnInstanceBuilder builder = new VpnInstanceBuilder(vpnInstance);
+            boolean ipConfigured = add;
+
+            int originalValue = vpnInstance.getIpAddressFamilyConfigured().getIntValue();
+            int updatedValue = ipVersion.choice;
+
+            if (originalValue != updatedValue) {
+                if (ipConfigured) {
+                    originalValue = originalValue == 0 ? updatedValue : updatedValue + originalValue;
+                } else {
+                    originalValue = 10 - updatedValue;
+                }
+            } else if (!ipConfigured) {
+                originalValue = 0;
+            }
+
+            builder.setIpAddressFamilyConfigured(VpnInstance.IpAddressFamilyConfigured.forValue(originalValue));
+
+            InstanceIdentifier<VpnInstance> vpnIdentifier = InstanceIdentifier.builder(VpnInstances.class)
+                    .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
+            tx.merge(LogicalDatastoreType.CONFIGURATION, vpnIdentifier, builder.build(), false);
+            LOG.info("updateVpnInstanceWithIpFamily: Successfully {} IP family {} to Vpn {}",
+                    add ? "added" : "removed", ipVersion, vpnName);
+        } catch (Exception e) {
+            LOG.error("updateVpnInstanceWithIpFamily: Failed for vpn {} ipversion {} ", vpnName, ipVersion, e);
+        }
+    }
+
+
+
+    @SuppressWarnings({"checkstyle:IllegalCatch"})
+    public void updateVpnInstanceWithIpFamily(String vpnName, IpVersionChoice ipVersion, boolean add,
+                                               KeyedLocks<String> vpnLock, long lockWaitTime) {
         jobCoordinator.enqueueJob("VPN-" + vpnName, () -> {
             VpnInstance vpnInstance = getVpnInstance(dataBroker, new Uuid(vpnName));
             if (vpnInstance == null) {
@@ -1801,6 +1913,724 @@ public class NeutronvpnUtils {
         public void onFailure(Throwable throwable) {
             settableFuture.setException(throwable);
         }
+    }
+
+    protected void createVpnInterface(Collection<Uuid> vpnIds, Port port, WriteTransaction wrtConfigTxn) {
+        boolean isRouterInterface = false;
+        if (port.getDeviceOwner() != null) {
+            isRouterInterface = NeutronConstants.DEVICE_OWNER_ROUTER_INF.equals(port.getDeviceOwner());
+        }
+        String infName = port.getUuid().getValue();
+        // Handling cluster reboot scenario where VpnInterface already exists in datastore.
+        VpnInterface vpnIface = VpnHelper.getVpnInterface(dataBroker, infName);
+        Adjacencies adjs = createPortIpAdjacencies(port, isRouterInterface, wrtConfigTxn, null, vpnIface);
+        LOG.trace("createVpnInterface for Port: {}, isRouterInterface: {}", infName, isRouterInterface);
+        writeVpnInterfaceToDs(vpnIds, infName, adjs, port.getNetworkId(), isRouterInterface, wrtConfigTxn);
+    }
+
+    void writeVpnInterfaceToDs(@Nonnull Collection<Uuid> vpnIdList, String infName, Adjacencies adjacencies,
+                               Uuid networkUuid, Boolean isRouterInterface, WriteTransaction wrtConfigTxn) {
+        List<VpnInstanceNames> vpnIdListStruct = new ArrayList<>();
+        for (Uuid vpnId: vpnIdList) {
+            VpnInstanceNames vpnInstance = new VpnInstanceNamesBuilder().setVpnName(vpnId.getValue()).build();
+            vpnIdListStruct.add(vpnInstance);
+        }
+        Boolean wrtConfigTxnPresent = true;
+        if (wrtConfigTxn == null) {
+            wrtConfigTxnPresent = false;
+            wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+        }
+        VpnInterfaceBuilder vpnb = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(infName))
+                .setName(infName)
+                .setVpnInstanceNames(vpnIdListStruct)
+                .setRouterInterface(isRouterInterface);
+        LOG.info("writeVpnInterfaceToDs: Network Id is {}", networkUuid);
+        if (networkUuid != null) {
+            Network portNetwork = getNeutronNetwork(networkUuid);
+            ProviderTypes providerType = NeutronvpnUtils.getProviderNetworkType(portNetwork);
+            NetworkAttributes.NetworkType networkType = (providerType != null)
+                    ? NetworkAttributes.NetworkType.valueOf(providerType.getName()) : null;
+            String segmentationId = NeutronvpnUtils.getSegmentationIdFromNeutronNetwork(portNetwork);
+            vpnb.setNetworkId(networkUuid).setNetworkType(networkType)
+                    .setSegmentationId(segmentationId != null ? Long.parseLong(segmentationId) : 0L);
+        }
+        if (adjacencies != null) {
+            vpnb.addAugmentation(Adjacencies.class, adjacencies);
+        }
+        InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils.buildVpnInterfaceIdentifier(infName);
+        VpnInterface vpnIf = vpnb.build();
+        LOG.info("writeVpnInterfaceToDs: Creating vpn interface {}", vpnIf.getName());
+        wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, vpnIf);
+        if (!wrtConfigTxnPresent) {
+            wrtConfigTxn.submit();
+        }
+    }
+
+    void updateVpnInterfaceWithAdjacencies(Uuid vpnId, String infName, Adjacencies adjacencies,
+                                           WriteTransaction wrtConfigTxn) {
+        if (wrtConfigTxn == null) {
+            wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+        }
+        InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils.buildVpnInterfaceIdentifier(infName);
+        boolean isLockAcquired = false;
+        try {
+            isLockAcquired = interfaceLock.tryLock(infName, LOCK_WAIT_TIME, TimeUnit.SECONDS);
+            Optional<VpnInterface> optionalVpnInterface = SingleTransactionDataBroker
+                    .syncReadOptional(dataBroker, LogicalDatastoreType
+                            .CONFIGURATION, vpnIfIdentifier);
+            if (optionalVpnInterface.isPresent()) {
+                VpnInterfaceBuilder vpnIfBuilder = new VpnInterfaceBuilder(optionalVpnInterface.get());
+                LOG.debug("updateVpnInterfaceWithAdjacencies: Updating vpn interface {} with new adjacencies", infName);
+
+                if (adjacencies == null) {
+                    if (isLockAcquired) {
+                        interfaceLock.unlock(infName);
+                    }
+                    return;
+                }
+                vpnIfBuilder.addAugmentation(Adjacencies.class, adjacencies);
+                if (optionalVpnInterface.get().getVpnInstanceNames() != null) {
+                    List<VpnInstanceNames> listVpnInstances = new ArrayList<>(
+                            optionalVpnInterface.get().getVpnInstanceNames());
+                    if (listVpnInstances.isEmpty() || !VpnHelper
+                            .doesVpnInterfaceBelongToVpnInstance(vpnId.getValue(),listVpnInstances)) {
+                        VpnInstanceNames vpnInstance = new VpnInstanceNamesBuilder().setVpnName(vpnId.getValue())
+                                .build();
+                        listVpnInstances.add(vpnInstance);
+                        vpnIfBuilder.setVpnInstanceNames(listVpnInstances);
+                    }
+                } else {
+                    VpnInstanceNames vpnInstance = new VpnInstanceNamesBuilder().setVpnName(vpnId.getValue()).build();
+                    List<VpnInstanceNames> listVpnInstances = new ArrayList<>();
+                    listVpnInstances.add(vpnInstance);
+                    vpnIfBuilder.setVpnInstanceNames(listVpnInstances);
+                }
+                LOG.info("updateVpnInterfaceWithAdjacencies: Updating vpn interface {} with new adjacencies", infName);
+                wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, vpnIfBuilder.build());
+            }
+        } catch (IllegalStateException | ReadFailedException ex) {
+            LOG.error("updateVpnInterfaceWithAdjacencies: Update of vpninterface {} failed", infName, ex);
+        } finally {
+            if (isLockAcquired) {
+                interfaceLock.unlock(infName);
+            }
+        }
+    }
+
+    protected void addToNeutronRouterInterfacesMap(Uuid routerId, String interfaceName) {
+        synchronized (routerId.getValue().intern()) {
+            InstanceIdentifier<RouterInterfaces> routerInterfacesId = getRouterInterfacesId(routerId);
+            try {
+                Optional<RouterInterfaces> optRouterInterfaces =
+                        SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                                routerInterfacesId);
+                org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.router
+                        .interfaces.Interfaces routerInterface = new InterfacesBuilder().setKey(new InterfacesKey(
+                        interfaceName)).setInterfaceId(interfaceName).build();
+                if (optRouterInterfaces.isPresent()) {
+                    SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                            routerInterfacesId.child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn
+                                            .rev150602.router.interfaces.map.router.interfaces.Interfaces.class,
+                                    new InterfacesKey(interfaceName)), routerInterface);
+                } else {
+                    RouterInterfacesBuilder builder = new RouterInterfacesBuilder().setRouterId(routerId);
+                    List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces
+                            .map.router.interfaces.Interfaces> interfaces = new ArrayList<>();
+                    interfaces.add(routerInterface);
+                    SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                            routerInterfacesId, builder.setInterfaces(interfaces).build());
+                }
+            } catch (ReadFailedException | TransactionCommitFailedException e) {
+                LOG.error("addToNeutronRouterInterfacesMap: Error reading router interfaces for {}",
+                        routerInterfacesId, e);
+            }
+        }
+    }
+
+    public InstanceIdentifier<RouterInterfaces> getRouterInterfacesId(Uuid routerId) {
+        return InstanceIdentifier.builder(RouterInterfacesMap.class)
+                .child(RouterInterfaces.class, new RouterInterfacesKey(routerId)).build();
+    }
+
+    protected Adjacencies createPortIpAdjacencies(Port port, Boolean isRouterInterface,
+                                                  WriteTransaction wrtConfigTxn, Subnetmap sn, VpnInterface vpnIface) {
+        List<Adjacency> adjList = new ArrayList<>();
+        if (vpnIface != null) {
+            adjList = vpnIface.getAugmentation(Adjacencies.class).getAdjacency();
+        }
+        String infName = port.getUuid().getValue();
+        LOG.trace("neutronVpnManager: create config adjacencies for Port: {}", infName);
+        for (FixedIps ip : port.getFixedIps()) {
+            String ipValue = String.valueOf(ip.getIpAddress().getValue());
+            String ipPrefix = ip.getIpAddress().getIpv4Address() != null ? ipValue + "/32" : ipValue + "/128";
+            if (sn != null && !FibHelper.doesPrefixBelongToSubnet(ipPrefix, sn.getSubnetIp(), false)) {
+                continue;
+            }
+            Subnetmap snTemp = sn != null ? sn : getSubnetmap(ip.getSubnetId());
+            Uuid vpnId = snTemp != null ? snTemp.getVpnId() : null;
+            if (vpnId != null) {
+                createVpnPortFixedIpToPort(vpnId.getValue(), ipValue,
+                        infName, port.getMacAddress().getValue(), isRouterInterface, wrtConfigTxn);
+                //Create Neutron port adjacency if VPN presence is existing for subnet
+                Adjacency vmAdj = new AdjacencyBuilder().setKey(new AdjacencyKey(ipPrefix)).setIpAddress(ipPrefix)
+                        .setMacAddress(port.getMacAddress().getValue()).setAdjacencyType(
+                                Adjacency.AdjacencyType.PrimaryAdjacency).setSubnetId(ip.getSubnetId()).build();
+                if (!adjList.contains(vmAdj)) {
+                    adjList.add(vmAdj);
+                }
+            }
+            Uuid routerId = snTemp != null ? snTemp.getRouterId() : null;
+            if (snTemp != null && snTemp.getInternetVpnId() != null) {
+                createVpnPortFixedIpToPort(snTemp.getInternetVpnId().getValue(),
+                        ipValue, infName, port.getMacAddress().getValue(), isRouterInterface, wrtConfigTxn);
+            }
+            if (routerId != null) {
+                Router rtr = getNeutronRouter(routerId);
+                if (rtr != null && rtr.getRoutes() != null) {
+                    List<Routes> routeList = rtr.getRoutes();
+                    // create extraroute Adjacence for each ipValue,
+                    // because router can have IPv4 and IPv6 subnet ports, or can have
+                    // more that one IPv4 subnet port or more than one IPv6 subnet port
+                    List<Adjacency> erAdjList = getAdjacencyforExtraRoute(routeList, ipValue);
+                    if (!erAdjList.isEmpty()) {
+                        adjList.addAll(erAdjList);
+                    }
+                }
+            }
+        }
+        return new AdjacenciesBuilder().setAdjacency(adjList).build();
+    }
+
+    @Nonnull
+    protected List<Adjacency> getAdjacencyforExtraRoute(List<Routes> routeList, String fixedIp) {
+        List<Adjacency> adjList = new ArrayList<>();
+        Map<String, List<String>> adjMap = new HashMap<>();
+        for (Routes route : routeList) {
+            if (route == null || route.getNexthop() == null || route.getDestination() == null) {
+                LOG.error("getAdjacencyforExtraRoute: Incorrect input received for extra route. {}", route);
+            } else {
+                String nextHop = String.valueOf(route.getNexthop().getValue());
+                String destination = String.valueOf(route.getDestination().getValue());
+                if (!nextHop.equals(fixedIp)) {
+                    LOG.trace("getAdjacencyforExtraRoute: FixedIP {} is not extra route nexthop for destination {}",
+                            fixedIp, destination);
+                    continue;
+                }
+                LOG.trace("AgetAdjacencyforExtraRoute: dding extra route for destination {} with nexthop {} ",
+                        destination, nextHop);
+                List<String> hops = adjMap.computeIfAbsent(destination, k -> new ArrayList<>());
+                if (!hops.contains(nextHop)) {
+                    hops.add(nextHop);
+                }
+            }
+        }
+
+        for (Map.Entry<String, List<String>> entry : adjMap.entrySet()) {
+            final String destination = entry.getKey();
+            final List<String> ipList = entry.getValue();
+            Adjacency erAdj = new AdjacencyBuilder().setIpAddress(destination)
+                    .setAdjacencyType(Adjacency.AdjacencyType.ExtraRoute).setNextHopIpList(ipList)
+                    .setKey(new AdjacencyKey(destination)).build();
+            adjList.add(erAdj);
+        }
+        return  adjList;
+    }
+
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    protected void removeAdjacencyforExtraRoute(Uuid vpnId, List<Routes> routeList) {
+        for (Routes route : routeList) {
+            if (route != null && route.getNexthop() != null && route.getDestination() != null) {
+                boolean isLockAcquired = false;
+                String nextHop = String.valueOf(route.getNexthop().getValue());
+                String destination = String.valueOf(route.getDestination().getValue());
+                String infName = getNeutronPortNameFromVpnPortFixedIp(vpnId.getValue(), nextHop);
+                if (infName == null) {
+                    LOG.error("removeAdjacencyforExtraRoute: Unable to find VPN NextHop interface to remove extra-route"
+                            + " destination {} on VPN {} with nexthop {}", destination, vpnId.getValue(), nextHop);
+                    // Proceed to remove the next extra-route
+                    continue;
+                }
+                LOG.trace("removeAdjacencyforExtraRoute: Removing extra route for destination {} on vpn {} with nexthop"
+                        + " {} and infName {}", destination, vpnId.getValue(), nextHop, infName);
+
+                InstanceIdentifier<Adjacency> adjacencyIdentifier =
+                        InstanceIdentifier.builder(VpnInterfaces.class)
+                                .child(VpnInterface.class, new VpnInterfaceKey(infName))
+                                .augmentation(Adjacencies.class)
+                                .child(Adjacency.class, new AdjacencyKey(destination))
+                                .build();
+
+                try {
+                    // Looking for existing prefix in MDSAL database
+                    Optional<Adjacency> adjacency = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                            LogicalDatastoreType.CONFIGURATION, adjacencyIdentifier);
+                    boolean updateNextHops = false;
+                    List<String> nextHopList = new ArrayList<>();
+                    if (adjacency.isPresent()) {
+                        List<String> nhListRead = adjacency.get().getNextHopIpList();
+                        if (nhListRead.size() > 1) { // ECMP case
+                            for (String nextHopRead : nhListRead) {
+                                if (nextHopRead.equals(nextHop)) {
+                                    updateNextHops = true;
+                                } else {
+                                    nextHopList.add(nextHopRead);
+                                }
+                            }
+                        }
+                    }
+
+                    isLockAcquired = interfaceLock.tryLock(infName, LOCK_WAIT_TIME, TimeUnit.SECONDS);
+                    if (updateNextHops) {
+                        // An update must be done, not including the current next hop
+                        InstanceIdentifier<VpnInterface> vpnIfIdentifier = InstanceIdentifier.builder(
+                                VpnInterfaces.class).child(VpnInterface.class, new VpnInterfaceKey(infName)).build();
+                        Adjacency newAdj = new AdjacencyBuilder(adjacency.get()).setIpAddress(destination)
+                                .setNextHopIpList(nextHopList)
+                                .setKey(new AdjacencyKey(destination))
+                                .build();
+                        Adjacencies erAdjs =
+                                new AdjacenciesBuilder().setAdjacency(Collections.singletonList(newAdj)).build();
+                        VpnInterface vpnIf = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(infName))
+                                .addAugmentation(Adjacencies.class, erAdjs).build();
+                        SingleTransactionDataBroker.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                                vpnIfIdentifier, vpnIf);
+                    } else {
+                        // Remove the whole route
+                        SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                                adjacencyIdentifier);
+                        LOG.trace("removeAdjacencyforExtraRoute: extra route {} deleted successfully", route);
+                    }
+                } catch (TransactionCommitFailedException | ReadFailedException e) {
+                    LOG.error("removeAdjacencyforExtraRoute: exception in deleting extra route with destination {} for"
+                            + " interface {}", destination, infName, e);
+                } finally {
+                    if (isLockAcquired) {
+                        interfaceLock.unlock(infName);
+                    }
+                }
+            } else {
+                LOG.error("removeAdjacencyforExtraRoute: Incorrect input received for extra route: {}", route);
+            }
+        }
+    }
+
+    protected void withdrawPortIpFromVpnIface(Uuid vpnId, Uuid internetVpnId,
+                                              Port port, Subnetmap sn, WriteTransaction wrtConfigTxn) {
+        String infName = port.getUuid().getValue();
+        InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils.buildVpnInterfaceIdentifier(infName);
+        com.google.common.base.Optional<VpnInterface> optionalVpnInterface = null;
+        LOG.debug("withdrawPortIpFromVpnIface vpn {} internetVpn {} Port {}", vpnId, internetVpnId, infName);
+        try {
+            optionalVpnInterface = SingleTransactionDataBroker
+                    .syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier);
+        } catch (ReadFailedException e) {
+            LOG.error("withdrawPortIpFromVpnIface: Error reading the VPN interface for {}", vpnIfIdentifier, e);
+            return;
+        }
+        if (!optionalVpnInterface.isPresent()) {
+            return;
+        }
+        LOG.trace("withdrawPortIpFromVpnIface: withdraw adjacencies for Port: {} subnet {}", port.getUuid().getValue(),
+                sn != null ? sn.getSubnetIp() : "null");
+        List<Adjacency> vpnAdjsList = optionalVpnInterface.get().getAugmentation(Adjacencies.class).getAdjacency();
+        List<Adjacency> updatedAdjsList = new ArrayList<>();
+        boolean isIpFromAnotherSubnet = false;
+        for (Adjacency adj : vpnAdjsList) {
+            String adjString = FibHelper.getIpFromPrefix(adj.getIpAddress());
+            if (sn == null || !Objects.equals(adj.getSubnetId(), sn.getId())) {
+                if (adj.getAdjacencyType() == Adjacency.AdjacencyType.PrimaryAdjacency) {
+                    isIpFromAnotherSubnet = true;
+                }
+                updatedAdjsList.add(adj);
+                continue;
+            }
+            if (adj.getAdjacencyType() == Adjacency.AdjacencyType.PrimaryAdjacency) {
+                LOG.error("withdrawPortIpFromVpnIface: suppressing primaryAdjacency {} FixedIp for vpnId {}",
+                        adjString, vpnId);
+                if (vpnId != null) {
+                    removeVpnPortFixedIpToPort(vpnId.getValue(),
+                            String.valueOf(adjString), wrtConfigTxn);
+                }
+                if (internetVpnId != null) {
+                    removeVpnPortFixedIpToPort(internetVpnId.getValue(),
+                            String.valueOf(adjString), wrtConfigTxn);
+                }
+            } else {
+                if (port.getDeviceOwner()
+                        .equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF) && sn.getRouterId() != null)  {
+                    Router rtr = getNeutronRouter(sn.getRouterId());
+                    if (rtr != null && rtr.getRoutes() != null) {
+                        List<Routes> extraRoutesToRemove = new ArrayList<>();
+                        for (Routes rt: rtr.getRoutes()) {
+                            if (rt.getNexthop().toString().equals(adjString)) {
+                                extraRoutesToRemove.add(rt);
+                            }
+                        }
+                        if (vpnId != null) {
+                            LOG.error("withdrawPortIpFromVpnIface: suppressing extraRoute {} for vpnId {}",
+                                    extraRoutesToRemove, vpnId);
+                            removeAdjacencyforExtraRoute(vpnId, extraRoutesToRemove);
+                        }
+                                            /* removeAdjacencyforExtraRoute done also for internet-vpn-id, in previous call */
+                    }
+                }
+            }
+        }
+        Adjacencies adjacencies = new AdjacenciesBuilder().setAdjacency(updatedAdjsList).build();
+        if (vpnId != null) {
+            updateVpnInterfaceWithAdjacencies(vpnId, infName, adjacencies, wrtConfigTxn);
+        }
+        if (!isIpFromAnotherSubnet) {
+            // no more subnetworks for neutron port
+            if (sn != null && sn.getRouterId() != null) {
+                removeFromNeutronRouterInterfacesMap(sn.getRouterId(), port.getUuid().getValue());
+            }
+            deleteVpnInterface(infName, null /* vpn-id */, wrtConfigTxn);
+        }
+    }
+
+    protected void removeFromNeutronRouterInterfacesMap(Uuid routerId, String interfaceName) {
+        synchronized (routerId.getValue().intern()) {
+            InstanceIdentifier<RouterInterfaces> routerInterfacesId = getRouterInterfacesId(routerId);
+            try {
+                Optional<RouterInterfaces> optRouterInterfaces =
+                        SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                                routerInterfacesId);
+                org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.router
+                        .interfaces.Interfaces routerInterface = new InterfacesBuilder().setKey(new InterfacesKey(
+                        interfaceName)).setInterfaceId(interfaceName).build();
+                if (optRouterInterfaces.isPresent()) {
+                    RouterInterfaces routerInterfaces = optRouterInterfaces.get();
+                    List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces
+                            .map.router.interfaces.Interfaces> interfaces = routerInterfaces.getInterfaces();
+                    if (interfaces != null && interfaces.remove(routerInterface)) {
+                        if (interfaces.isEmpty()) {
+                            SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                                    routerInterfacesId);
+                        } else {
+                            SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                                    routerInterfacesId.child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt
+                                            .neutronvpn.rev150602.router.interfaces.map.router.interfaces.Interfaces
+                                            .class, new InterfacesKey(interfaceName)));
+                        }
+                    }
+                }
+            } catch (ReadFailedException | TransactionCommitFailedException e) {
+                LOG.error("removeFromNeutronRouterInterfacesMap: Error reading the router interfaces for {}",
+                        routerInterfacesId, e);
+            }
+        }
+    }
+
+
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    protected boolean deleteVpnInterface(String infName, @Nullable String vpnId, WriteTransaction wrtConfigTxn) {
+        InstanceIdentifier<VpnInterface> vpnIfIdentifier =
+                NeutronvpnUtils.buildVpnInterfaceIdentifier(infName);
+        Optional<VpnInterface> optionalVpnInterface = null;
+        try {
+            optionalVpnInterface =
+                    SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                            vpnIfIdentifier);
+        } catch (ReadFailedException ex) {
+            LOG.error("deleteVpnInterface: Error during deletion of vpninterface {} have thrown {}", infName, ex);
+            return false;
+        }
+        if (!optionalVpnInterface.isPresent()) {
+            LOG.warn("deleteVpnInterface: Deletion of vpninterface {}, optionalVpnInterface is not present()", infName);
+            return false;
+        }
+        boolean wrtConfigTxnPresent = true;
+        if (wrtConfigTxn == null) {
+            wrtConfigTxnPresent = false;
+            wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+        }
+        if (vpnId != null) {
+            VpnInterface vpnInterface = optionalVpnInterface.get();
+            List<VpnInstanceNames> vpnList = vpnInterface.getVpnInstanceNames();
+            if (vpnList != null
+                    && VpnHelper.doesVpnInterfaceBelongToVpnInstance(vpnId, vpnList)) {
+                VpnHelper.removeVpnInterfaceVpnInstanceNamesFromList(vpnId, vpnList);
+                if (!vpnList.isEmpty()) {
+                    if (!wrtConfigTxnPresent) {
+                        wrtConfigTxn.submit();
+                    }
+                    LOG.debug("Deleting vpn interface {} not immediately since vpnInstanceName List not empty",
+                            infName);
+                    return false;
+                }
+                VpnInterfaceBuilder vpnIfBuilder = new VpnInterfaceBuilder(optionalVpnInterface.get())
+                        .setVpnInstanceNames(vpnList);
+                wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, vpnIfBuilder.build());
+            }
+        }
+        LOG.debug("Deleting vpn interface {}", infName);
+        wrtConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier);
+        if (!wrtConfigTxnPresent) {
+            wrtConfigTxn.submit();
+        }
+        return true;
+    }
+
+    protected void updateVpnInterface(Uuid vpnId, Uuid oldVpnId, Port port, boolean isBeingAssociated,
+                                      boolean isSubnetIp, WriteTransaction writeConfigTxn) {
+        if (vpnId == null || port == null) {
+            return;
+        }
+        boolean isLockAcquired = false;
+        String infName = port.getUuid().getValue();
+        InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils.buildVpnInterfaceIdentifier(infName);
+
+        try {
+            isLockAcquired = interfaceLock.tryLock(infName, LOCK_WAIT_TIME, TimeUnit.SECONDS);
+            Optional<VpnInterface> optionalVpnInterface =
+                    SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                            vpnIfIdentifier);
+            if (optionalVpnInterface.isPresent()) {
+                VpnInstanceNames vpnInstance = new VpnInstanceNamesBuilder().setVpnName(vpnId.getValue()).build();
+                List<VpnInstanceNames> listVpn = new ArrayList<>(optionalVpnInterface
+                        .get().getVpnInstanceNames());
+                if (oldVpnId != null
+                        && VpnHelper.doesVpnInterfaceBelongToVpnInstance(oldVpnId.getValue(), listVpn)) {
+                    VpnHelper.removeVpnInterfaceVpnInstanceNamesFromList(oldVpnId.getValue(), listVpn);
+                }
+                if (vpnId.getValue() != null
+                        && !VpnHelper.doesVpnInterfaceBelongToVpnInstance(vpnId.getValue(), listVpn)) {
+                    listVpn.add(vpnInstance);
+                }
+                VpnInterfaceBuilder vpnIfBuilder = new VpnInterfaceBuilder(optionalVpnInterface.get())
+                        .setVpnInstanceNames(listVpn);
+                LOG.debug("Updating vpn interface {}", infName);
+                if (!isBeingAssociated) {
+                    Adjacencies adjs = vpnIfBuilder.getAugmentation(Adjacencies.class);
+                    List<Adjacency> adjacencyList = adjs != null ? adjs.getAdjacency() : new ArrayList<>();
+                    Iterator<Adjacency> adjacencyIter = adjacencyList.iterator();
+                    while (adjacencyIter.hasNext()) {
+                        Adjacency adjacency = adjacencyIter.next();
+                        if (adjacency.getAdjacencyType() == Adjacency.AdjacencyType.LearntIp) {
+                            adjacencyIter.remove();
+                        }
+                        String mipToQuery = adjacency.getIpAddress().split("/")[0];
+                        InstanceIdentifier<VpnPortipToPort> build =
+                                NeutronvpnUtils.buildVpnPortipToPortIdentifier(oldVpnId.getValue(), mipToQuery);
+                        Optional<VpnPortipToPort> persistedIp = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                                LogicalDatastoreType.OPERATIONAL, build);
+                        if (persistedIp.isPresent() && persistedIp.get().getPortName().equals(infName)) {
+                            removeVpnPortFixedIpToPort(oldVpnId.getValue(), mipToQuery, null);
+                            LOG.trace("updateVpnInterface: Entry for fixedIP {} for port {} on VPN removed from"
+                                    + " VpnPortipToPort", mipToQuery, infName, vpnId.getValue());
+                        }
+                    }
+                    Adjacencies adjacencies = new AdjacenciesBuilder().setAdjacency(adjacencyList).build();
+                    vpnIfBuilder.addAugmentation(Adjacencies.class, adjacencies);
+                }
+                List<FixedIps> ips = port.getFixedIps();
+                for (FixedIps ip : ips) {
+                    String ipValue = String.valueOf(ip.getIpAddress().getValue());
+                    if (oldVpnId != null) {
+                        removeVpnPortFixedIpToPort(oldVpnId.getValue(),
+                                ipValue, writeConfigTxn);
+                    }
+                    createVpnPortFixedIpToPort(vpnId.getValue(), ipValue, infName, port
+                            .getMacAddress().getValue(), isSubnetIp, writeConfigTxn);
+                }
+                writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, vpnIfBuilder
+                        .build());
+            } else {
+                LOG.error("updateVpnInterface: VPN Interface {} not found", infName);
+            }
+        } catch (ReadFailedException ex) {
+            LOG.error("updateVpnInterface: Updation of vpninterface {} failed", infName, ex);
+        } finally {
+            if (isLockAcquired) {
+                interfaceLock.unlock(infName);
+            }
+        }
+    }
+
+    public void updateRouteTargetsToSubnetAssociation(Set<VpnTarget> routeTargets, String cidr, String vpnName,
+                                                      ReadWriteTransaction tx) {
+        boolean newTransactionCreated = false;
+        if (tx == null) {
+            tx = dataBroker.newReadWriteTransaction();
+            newTransactionCreated = true;
+        }
+        try {
+            for (VpnTarget rt : routeTargets) {
+                String rtValue = rt.getVrfRTValue();
+                switch (rt.getVrfRTType()) {
+                    case ImportExtcommunity:
+                        addSubnetAssociationOperationToTx(rtValue, RouteTarget.RtType.IRT, cidr, vpnName,
+                                tx, false/*isAssociationRemoved*/);
+                        break;
+                    case ExportExtcommunity:
+                        addSubnetAssociationOperationToTx(rtValue, RouteTarget.RtType.ERT, cidr, vpnName,
+                                tx, false/*isAssociationRemoved*/);
+                        break;
+                    case Both:
+                        addSubnetAssociationOperationToTx(rtValue, RouteTarget.RtType.IRT, cidr, vpnName,
+                                tx, false/*isAssociationRemoved*/);
+                        addSubnetAssociationOperationToTx(rtValue, RouteTarget.RtType.ERT, cidr, vpnName,
+                                tx, false/*isAssociationRemoved*/);
+                        break;
+                    default:
+                        LOG.error("updateRouteTargetsToSubnetAssociation: Invalid rt-type {} for vpn {}"
+                                + " subnet-cidr {}", rt.getVrfRTType(), vpnName, cidr);
+                        break;
+                }
+            }
+            if (newTransactionCreated) {
+                tx.submit();
+            }
+            LOG.info("updateRouteTargetsToSubnetAssociation: Updated RT to subnet association for vpn {} cidr {}",
+                    vpnName, cidr);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("updateRouteTargetsToSubnetAssociation: Failed for vpn {} cidr {}", vpnName, cidr, e);
+            if (newTransactionCreated) {
+                tx.cancel();
+            }
+        }
+    }
+
+    public void removeRouteTargetsToSubnetAssociation(Set<VpnTarget> routeTargets, String cidr, String vpnName,
+                                                      ReadWriteTransaction tx) {
+        boolean newTransactionCreated = false;
+        if (tx == null) {
+            tx = dataBroker.newReadWriteTransaction();
+            newTransactionCreated = true;
+        }
+        try {
+            for (VpnTarget rt : routeTargets) {
+                String rtValue = rt.getVrfRTValue();
+                switch (rt.getVrfRTType()) {
+                    case ImportExtcommunity:
+                        addSubnetAssociationOperationToTx(rtValue, RouteTarget.RtType.IRT, cidr, vpnName, tx,
+                                true/*isAssociationRemoved*/);
+                        break;
+                    case ExportExtcommunity:
+                        addSubnetAssociationOperationToTx(rtValue, RouteTarget.RtType.ERT, cidr, vpnName, tx,
+                                true/*isAssociationRemoved*/);
+                        break;
+                    case Both:
+                        addSubnetAssociationOperationToTx(rtValue, RouteTarget.RtType.IRT, cidr, vpnName, tx,
+                                true/*isAssociationRemoved*/);
+                        addSubnetAssociationOperationToTx(rtValue, RouteTarget.RtType.ERT, cidr, vpnName, tx,
+                                true/*isAssociationRemoved*/);
+                        break;
+                    default:
+                        LOG.error("removeRouteTargetsToSubnetAssociation: Invalid route-target type {} for vpn {}"
+                                + " subnet-cidr {}", rt.getVrfRTType(), vpnName, cidr);
+                        break;
+                }
+            }
+            if (newTransactionCreated) {
+                tx.submit();
+            }
+            LOG.info("removeRouteTargetsToSubnetAssociation: vpn {} cidr {}", vpnName, cidr);
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("removeRouteTargetsToSubnetAssociation: Failed for vpn {} cidr {}", vpnName, cidr, e);
+            if (newTransactionCreated) {
+                tx.cancel();
+            }
+        }
+    }
+
+    private void addSubnetAssociationOperationToTx(String rt, RouteTarget.RtType rtType, String cidr,
+                                                   String vpnName, ReadWriteTransaction tx,
+                                                   boolean isAssociationRemoved)
+            throws InterruptedException, ExecutionException {
+        if (isAssociationRemoved) {
+            //Remove RT-Subnet-Vpn Association
+            Optional<AssociatedSubnet> associatedSubnet = tx.read(LogicalDatastoreType.OPERATIONAL,
+                    getAssociatedSubnetIdentifier(rt, rtType, cidr)).get();
+            boolean deleteParent = false;
+            if (associatedSubnet.isPresent()) {
+                List<AssociatedVpn> associatedVpns = associatedSubnet.get().getAssociatedVpn();
+                if (associatedVpns == null || associatedVpns.isEmpty()) {
+                    deleteParent = true;
+                } else {
+                    for (Iterator<AssociatedVpn> iterator = associatedVpns.iterator(); iterator.hasNext();) {
+                        AssociatedVpn associatedVpn = (AssociatedVpn) iterator.next();
+                        if (associatedVpn.getName().equals(vpnName)) {
+                            iterator.remove();
+                            break;
+                        }
+                    }
+                    if (associatedVpns.isEmpty()) {
+                        deleteParent = true;
+                    }
+                }
+            }
+            if (deleteParent) {
+                deleteParentForSubnetToVpnAssocication(rt, rtType, cidr, tx);
+            } else {
+                //Some other VPNs are also part of this rtVal, rtType and subnetCidr combination.
+                //Delete only this AssociatedVpn Object
+                tx.delete(LogicalDatastoreType.OPERATIONAL,
+                        getAssociatedSubnetAndVpnIdentifier(rt, rtType, cidr, vpnName));
+                LOG.debug("addSubnetAssocOperationToTx: Removed vpn {} from association rt {} rtType {} cidr {}",
+                        vpnName, rt, rtType, cidr);
+            }
+        } else {
+            //Add RT-Subnet-Vpn Association
+            tx.put(LogicalDatastoreType.OPERATIONAL,
+                    getAssociatedSubnetAndVpnIdentifier(rt, rtType, cidr, vpnName),
+                    buildAssociatedSubnetAndVpn(vpnName), true);
+        }
+    }
+
+    private void deleteParentForSubnetToVpnAssocication(String rt, RouteTarget.RtType rtType,
+                                                        String cidr, ReadWriteTransaction tx)
+            throws InterruptedException, ExecutionException {
+        //Check if you need to delete rtVal+rtType or just the subnetCidr
+        InstanceIdentifier<RouteTarget> rtIdentifier = InstanceIdentifier
+                .builder(SubnetsAssociatedToRouteTargets.class).child(RouteTarget.class,
+                        new RouteTargetKey(rt, rtType)).build();
+        Optional<RouteTarget> rtToSubnetsAssociation = tx.read(LogicalDatastoreType.OPERATIONAL,
+                rtIdentifier).get();
+        if (rtToSubnetsAssociation.isPresent()) {
+            List<AssociatedSubnet> associatedSubnets = rtToSubnetsAssociation.get().getAssociatedSubnet();
+            if (associatedSubnets != null && !associatedSubnets.isEmpty()) {
+                for (Iterator<AssociatedSubnet> iterator = associatedSubnets.iterator(); iterator.hasNext(); ) {
+                    if (iterator.next().getCidr().equals(cidr)) {
+                        iterator.remove();
+                        break;
+                    }
+                }
+                if (associatedSubnets.isEmpty()) {
+                    //The entire rt to subnet association is empty
+                    //Delete the RouteTarget object
+                    tx.delete(LogicalDatastoreType.OPERATIONAL, rtIdentifier);
+                    LOG.debug("deleteParentForSubnetToVpnAssocication: Removed rt {} rtType {} from association,",
+                            rt, rtType);
+                } else {
+                    //Some other VPNs are also part of this rtVal, rtType combination
+                    //Delete only this AssociatedSubnet
+                    tx.delete(LogicalDatastoreType.OPERATIONAL, getAssociatedSubnetIdentifier(rt, rtType,
+                            cidr));
+                    LOG.debug("deleteParentForSubnetToVpnAssocication: Removed cidr {} from association rt {}"
+                            + " rtType {}", cidr, rt, rtType);
+                }
+            }
+        }
+    }
+
+    static InstanceIdentifier<AssociatedVpn> getAssociatedSubnetAndVpnIdentifier(String rt, RouteTarget.RtType rtType,
+                                                                                 String cidr, String vpnName) {
+        return InstanceIdentifier.builder(SubnetsAssociatedToRouteTargets.class).child(RouteTarget.class,
+                new RouteTargetKey(rt, rtType)).child(AssociatedSubnet.class, new AssociatedSubnetKey(cidr))
+                .child(AssociatedVpn.class, new AssociatedVpnKey(vpnName)).build();
+    }
+
+    static InstanceIdentifier<AssociatedSubnet> getAssociatedSubnetIdentifier(String rt, RouteTarget.RtType rtType,
+                                                                              String cidr) {
+        return InstanceIdentifier.builder(SubnetsAssociatedToRouteTargets.class).child(RouteTarget.class,
+                new RouteTargetKey(rt, rtType)).child(AssociatedSubnet.class, new AssociatedSubnetKey(cidr)).build();
+    }
+
+    static AssociatedVpn buildAssociatedSubnetAndVpn(String vpnName) {
+        return new AssociatedVpnBuilder().setName(vpnName).build();
     }
 }
 
