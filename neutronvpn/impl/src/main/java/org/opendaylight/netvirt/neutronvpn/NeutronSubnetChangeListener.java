@@ -131,18 +131,19 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
     private void handleNeutronSubnetDeleted(Uuid subnetId, Uuid networkId, String subnetCidr) {
         Uuid vpnId = neutronvpnUtils.getVpnForNetwork(networkId);
         if (vpnId != null) {
-            LOG.warn("Subnet {} deleted without disassociating network {} from VPN {}. Ideally, please disassociate "
-                    + "network from VPN before deleting neutron subnet.", subnetId.getValue(), networkId.getValue(),
-                    vpnId.getValue());
+            LOG.error("handleNeutronSubnetDeleted: Subnet {} deleted without disassociating network {} from VPN {}."
+                            + " Ideally, please disassociate network from VPN before deleting neutron subnet.",
+                    subnetId.getValue(), networkId.getValue(), vpnId.getValue());
             Subnetmap subnetmap = neutronvpnUtils.getSubnetmap(subnetId);
             if (subnetmap != null) {
-                nvpnManager.removeSubnetFromVpn(vpnId, subnetmap, null /* internet-vpn-id */);
+                nvpnManager.removeFromSubnetNode(subnetmap.getId(), null, null, vpnId, null, null);
             } else {
-                LOG.error("Subnetmap for subnet {} not found", subnetId.getValue());
+                LOG.error("handleNeutronSubnetDeleted: Subnetmap for subnet {} not found", subnetId.getValue());
             }
             Set<VpnTarget> routeTargets = vpnManager.getRtListForVpn(vpnId.getValue());
             if (!routeTargets.isEmpty()) {
-                vpnManager.removeRouteTargetsToSubnetAssociation(routeTargets, subnetCidr, subnetId.getValue());
+                neutronvpnUtils.removeRouteTargetsToSubnetAssociation(routeTargets, subnetCidr,
+                        vpnId.getValue(), null);
             }
         }
         if (networkId != null) {

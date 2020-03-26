@@ -67,7 +67,6 @@ public class NeutronEvpnManager {
         SettableFuture<RpcResult<CreateEVPNOutput>> result = SettableFuture.create();
         List<RpcError> errorList = new ArrayList<>();
         int failurecount = 0;
-        List<String> existingRDs = neutronvpnUtils.getExistingRDs();
 
         for (Evpn vpn : input.nonnullEvpn()) {
             if (vpn.getRouteDistinguisher() == null || vpn.getImportRT() == null || vpn.getExportRT() == null) {
@@ -82,7 +81,7 @@ public class NeutronEvpnManager {
                                 vpn.getId().getValue(), vpn.getRouteDistinguisher())));
                 continue;
             }
-            if (existingRDs.contains(vpn.getRouteDistinguisher().get(0))) {
+            if (neutronvpnUtils.getVpnForRD(vpn.getRouteDistinguisher().get(0)) != null) {
                 errorList.add(RpcResultBuilder.newWarning(RpcError.ErrorType.PROTOCOL, "invalid-input",
                         formatAndLog(LOG::warn,
                                 "Creation of EVPN failed for VPN {} as another VPN with the same RD {} is already "

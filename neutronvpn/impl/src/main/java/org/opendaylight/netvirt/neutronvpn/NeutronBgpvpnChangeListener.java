@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.neutronvpn;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -134,10 +133,10 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
                             + "encountered for BGPVPN {} with RD {}", vpnName, rd.get(0));
                     return;
                 }
-                List<String> existingRDs = neutronvpnUtils.getExistingRDs();
-                if (!Collections.disjoint(existingRDs, rd)) {
-                    LOG.error("Failed to create VPN {} as another VPN with the same RD {} already exists.", vpnName,
-                            rd);
+                String vpnWithSameRd = neutronvpnUtils.getVpnForRD(rd.get(0));
+                if (vpnWithSameRd != null) {
+                    LOG.error("Failed to create VPN {} as another VPN {} with the same RD {} already exists.", vpnName,
+                            vpnWithSameRd, rd);
                     return;
                 }
                 List<Uuid> routersList = null;
