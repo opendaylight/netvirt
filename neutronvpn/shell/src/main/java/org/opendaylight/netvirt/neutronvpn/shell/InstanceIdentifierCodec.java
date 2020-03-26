@@ -11,12 +11,14 @@ package org.opendaylight.netvirt.neutronvpn.shell;
 import com.google.common.base.Preconditions;
 import java.net.URI;
 
+import com.google.common.base.Preconditions;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.impl.codec.DeserializationException;
 import org.opendaylight.yangtools.yang.data.impl.codec.TypeDefinitionAwareCodec;
+import org.opendaylight.yangtools.yang.data.impl.codec.xml.XmlUtils;
 import org.opendaylight.yangtools.yang.data.util.AbstractModuleStringInstanceIdentifierCodec;
 import org.opendaylight.yangtools.yang.data.util.DataSchemaContextTree;
 import org.opendaylight.yangtools.yang.model.api.DataSchemaNode;
@@ -89,13 +91,12 @@ public class InstanceIdentifierCodec extends AbstractModuleStringInstanceIdentif
     protected Object deserializeKeyValue(DataSchemaNode schemaNode, String value) {
         Preconditions.checkNotNull(schemaNode, "schemaNode cannot be null");
         Preconditions.checkArgument(schemaNode instanceof LeafSchemaNode, "schemaNode must be of type LeafSchemaNode");
-        // XMLUtils class is not present so using alternate approach to make it work.
-        TypeDefinition<?> type = resolveBaseTypeFrom(((LeafSchemaNode) schemaNode).getType());
+        TypeDefinition<?> type = XmlUtils.resolveBaseTypeFrom(((LeafSchemaNode) schemaNode).getType());
         if (type instanceof LeafrefTypeDefinition) {
             type = SchemaContextUtil.getBaseTypeForLeafRef((LeafrefTypeDefinition) type, context, schemaNode);
         }
         final TypeDefinitionAwareCodec<Object, ? extends TypeDefinition<?>> codec =
-                TypeDefinitionAwareCodec.from(type);
+                XmlUtils.DEFAULT_XML_CODEC_PROVIDER.codecFor(type);
         Preconditions.checkState(codec != null, String.format("Cannot find codec for type '%s'.", type));
         return codec.deserialize(value);
     }
