@@ -292,7 +292,7 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
         }
     }
 
-    protected void handleRoutersUpdate(Uuid vpnId, List<Uuid> oldRouters, List<Uuid> newRouters) {
+    private void handleRoutersUpdate(Uuid vpnId, List<Uuid> oldRouters, List<Uuid> newRouters) {
         // for dualstack case we can associate with one VPN instance maximum 2 routers: one with
         // only IPv4 ports and one with only IPv6 ports, or only one router with IPv4/IPv6 ports
         // TODO: check router ports ethertype to follow this restriction

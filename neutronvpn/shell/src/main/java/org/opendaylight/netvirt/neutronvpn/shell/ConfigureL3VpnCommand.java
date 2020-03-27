@@ -211,7 +211,7 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
         }
         Uuid vpnId = new Uuid(vid);
 
-        // disassociation of network(s) (removal of subnet(s)) from VPN to be followed by deletion of VPN
+        // dissociation of network(s) (removal of subnet(s)) from VPN to be followed by deletion of VPN
         RpcResult<DissociateNetworksOutput> dissociateNetworksRpcResult = null;
         List<Uuid> networkIdList = null;
         networkIdList = neutronVpnManager.getNetworksForVpn(vpnId);
