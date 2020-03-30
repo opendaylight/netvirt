@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8a0fe482_ca29025b",
+        "filename": "docs/conf.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2020-03-30T04:36:42Z",
+      "side": 1,
+      "message": "Can\u0027t we change \"copyright\" and \"author\" field with active member details?",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 48
+      },
+      "revId": "ada2c06841e77c104dcd483668f0cbab2149cb7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
