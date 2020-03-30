@@ -22,6 +22,30 @@
       "revId": "ada2c06841e77c104dcd483668f0cbab2149cb7b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b44a1286_c0013388",
+        "filename": "docs/conf.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 2759
+      },
+      "writtenOn": "2020-03-30T14:04:35Z",
+      "side": 1,
+      "message": "You\u0027re welcome to do that in a different patch. I am not a committer on netvirt and am merely making sure that the build version is correct.\n\nI think though copyright is always applied to the people who contributed the original work so you cannot remove their copyright.\n\nAuthor is just what appears on the generated website.",
+      "parentUuid": "8a0fe482_ca29025b",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 48
+      },
+      "revId": "ada2c06841e77c104dcd483668f0cbab2149cb7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
