@@ -1019,6 +1019,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         // FLAT/VLAN case having external-subnet as VPN
         String externalSubnetVpn = null;
         if (externalSubnetList != null && !externalSubnetList.isEmpty()) {
+            Boolean isExternalIpsAdvertized = Boolean.FALSE;
             for (Uuid externalSubnetId : externalSubnetList) {
                 Optional<Subnets> externalSubnet = NatUtil
                     .getOptionalExternalSubnets(dataBroker, externalSubnetId);
@@ -1028,10 +1029,15 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE,
                         externalSubnetVpn, routerId, routerName,
                         externalIp, networkId, router, confTx);
+                    isExternalIpsAdvertized = Boolean.TRUE;
                 }
             }
-            return;
+            if (isExternalIpsAdvertized) {
+                LOG.trace("External Ips {} advertized for Router {}", router.getExternalIps(), routerName);
+                return;
+            }
         }
+
         // VXVLAN/GRE case having Internet-VPN
         final String vpnName = NatUtil.getAssociatedVPN(dataBroker, networkId);
         if (vpnName == null) {
