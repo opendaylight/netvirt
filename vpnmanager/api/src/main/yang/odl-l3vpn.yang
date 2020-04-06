@@ -506,9 +506,12 @@ module odl-l3vpn {
                 type  string;
                 description "UUID in string format representing the port ";
             }
-            leaf-list subnet-ids {
-                type  yang:uuid;
-                description "Back reference to obtain the subnet for a port ";
+            list subnets {
+                key subnet-id;
+		leaf subnet-id {
+		    type  yang:uuid;
+                    description "Back reference to obtain the subnet for a port ";
+		}
             }
             leaf dpnId {
                 type uint64;

@@ -284,7 +284,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
 
         PortOpDataEntry portOpEntry = subOpDpnManager.getPortOpDataEntry(intrf.getName());
         if (portOpEntry != null) {
-            List<Uuid> subnet = portOpEntry.getSubnetIds();
+            List<Uuid> subnet = VpnUtil.getSubnetIdsFromSubnetList(portOpEntry.getSubnets()); 
             if (subnet != null) {
                 return subnet;
             }

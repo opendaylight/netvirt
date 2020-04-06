@@ -24,6 +24,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Sub
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.op.data.PortOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.op.data.PortOpDataEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.op.data.PortOpDataEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.op.data.port.op.data.entry.Subnets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.op.data.port.op.data.entry.SubnetsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.op.data.port.op.data.entry.SubnetsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.SubnetToDpn;
@@ -158,35 +161,31 @@ public class SubnetOpDpnManager {
             InstanceIdentifier<PortOpDataEntry> portOpIdentifier =
                 InstanceIdentifier.builder(PortOpData.class).child(PortOpDataEntry.class,
                     new PortOpDataEntryKey(intfName)).build();
-            Optional<PortOpDataEntry> optionalPortOp = SingleTransactionDataBroker.syncReadOptional(broker,
-                    LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
-            if (!optionalPortOp.isPresent()) {
-                // Create PortOpDataEntry only if not present
-                portOpBuilder =
-                    new PortOpDataEntryBuilder().withKey(new PortOpDataEntryKey(intfName)).setPortId(intfName);
-                List<Uuid> listSubnet = new ArrayList<>();
-                listSubnet.add(subnetId);
-                portOpBuilder.setSubnetIds(listSubnet);
-            } else {
-                PortOpDataEntry portEntry = optionalPortOp.get();
-                List<Uuid> listSubnet = new ArrayList<>();
-                listSubnet = (portEntry.getSubnetIds() != null && !portEntry.getSubnetIds().isEmpty())
-                        ? new ArrayList<>(portEntry.getSubnetIds()) : listSubnet;
-                portOpBuilder = new PortOpDataEntryBuilder(optionalPortOp.get());
-                if (listSubnet == null) {
-                    listSubnet = new ArrayList<>();
+            synchronized (("subnetroute-intf-" + intfName).intern()) {
+                Optional<PortOpDataEntry> optionalPortOp = SingleTransactionDataBroker.syncReadOptional(broker,
+                        LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
+                SubnetsBuilder subnetsBuilder = new SubnetsBuilder().setKey(new SubnetsKey(subnetId))
+                        .setSubnetId(subnetId);
+                if (!optionalPortOp.isPresent()) {
+                    // Create PortOpDataEntry only if not present
+                    portOpBuilder =
+                            new PortOpDataEntryBuilder().withKey(new PortOpDataEntryKey(intfName)).setPortId(intfName);
+                    List<Subnets> listSubnet = new ArrayList<>();
+                    listSubnet.add(subnetsBuilder.build());
+                    portOpBuilder.setSubnetIds(listSubnet);
+                } else {
+                    portOpBuilder = new PortOpDataEntryBuilder(optionalPortOp.get());
+                    List<Subnets> listSubnet = portOpBuilder.getSubnets();
+                    listSubnet.add(subnetsBuilder.build());
+                    portOpBuilder.setSubnets(listSubnet);
                 }
-                if (!listSubnet.contains(subnetId)) {
-                    listSubnet.add(subnetId);
+                if (dpnId != null && !dpnId.equals(Uint64.ZERO)) {
+                    portOpBuilder.setDpnId(dpnId);
                 }
-                portOpBuilder.setSubnetIds(listSubnet);
+                portOpEntry = portOpBuilder.build();
+                SingleTransactionDataBroker.syncUpdate(broker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier,
+                        portOpEntry, VpnUtil.SINGLE_TRANSACTION_BROKER_NO_RETRY);
             }
-            if (dpnId != null && !dpnId.equals(Uint64.ZERO)) {
-                portOpBuilder.setDpnId(dpnId);
-            }
-            portOpEntry = portOpBuilder.build();
-            SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier,
-                portOpEntry, VpnUtil.SINGLE_TRANSACTION_BROKER_NO_RETRY);
             LOG.info("addPortOpDataEntry: Created PortOpData entry for port {} with DPNId {} subnetId {}",
                      intfName, dpnId, subnetId.getValue());
         } catch (TransactionCommitFailedException ex) {
@@ -249,35 +248,32 @@ public class SubnetOpDpnManager {
                         new PortOpDataEntryKey(intfName)).build();
         PortOpDataEntry portOpEntry = null;
         try {
-            Optional<PortOpDataEntry> optionalPortOp = SingleTransactionDataBroker.syncReadOptional(broker,
-                    LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
-            if (!optionalPortOp.isPresent()) {
-                LOG.info("removePortOpDataEntry: Cannot delete, portOp for port {} is not available in datastore",
-                        intfName);
-            } else {
-                portOpEntry = optionalPortOp.get();
-                List<Uuid> listSubnet = new ArrayList<>();
-                listSubnet = (portOpEntry.getSubnetIds() != null && !portOpEntry.getSubnetIds().isEmpty())
-                        ? new ArrayList<>(portOpEntry.getSubnetIds()) : listSubnet;
-                if (listSubnet == null) {
-                    listSubnet = new ArrayList<>();
-                }
-                if (subnetId != null && listSubnet.contains(subnetId)) {
-                    listSubnet.remove(subnetId);
-                }
-                if (listSubnet.isEmpty() || subnetId == null) {
-                    SingleTransactionDataBroker.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier,
-                            VpnUtil.SINGLE_TRANSACTION_BROKER_NO_RETRY);
-                    LOG.info("removePortOpDataEntry: Deleted portOpData entry for port {}", intfName);
+            synchronized (("subnetroute-intf-" + intfName).intern()) {
+                Optional<PortOpDataEntry> optionalPortOp = SingleTransactionDataBroker.syncReadOptional(broker,
+                        LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
+                if (!optionalPortOp.isPresent()) {
+                    LOG.info("removePortOpDataEntry: Cannot delete, portOp for port {} is not available in datastore",
+                            intfName);
                 } else {
-                    PortOpDataEntryBuilder portOpBuilder = null;
-                    portOpBuilder = new PortOpDataEntryBuilder(portOpEntry);
-                    portOpBuilder.setSubnetIds(listSubnet);
-                    SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL,
-                            portOpIdentifier, portOpEntry, VpnUtil.SINGLE_TRANSACTION_BROKER_NO_RETRY);
-                    LOG.info("removePortOpDataEntry: Updated PortOpData entry for port {} with removing"
-                            + " subnetId {}", intfName, subnetId.getValue());
-                    portOpEntry = null;
+                    portOpEntry = optionalPortOp.get();
+                    List<Uuid> listSubnet = VpnUtil.getSubnetIdsFromSubnetList(portOpEntry.getSubnets());
+                    if (listSubnet != null) {
+                        listSubnet.remove(subnetId);
+                        if (listSubnet.isEmpty() || subnetId == null) {
+                            SingleTransactionDataBroker.syncDelete(broker, LogicalDatastoreType.OPERATIONAL,
+                                    portOpIdentifier,VpnUtil.SINGLE_TRANSACTION_BROKER_NO_RETRY);
+                            LOG.info("removePortOpDataEntry: Deleted portOpData entry for port {}", intfName);
+                        } else {
+                            InstanceIdentifier<Subnets> subnetsInstanceIdentifier = InstanceIdentifier.builder(
+                                    PortOpData.class).child(PortOpDataEntry.class, new PortOpDataEntryKey(intfName))
+                                    .child(Subnets.class, new SubnetsKey(subnetId)).build();
+                            SingleTransactionDataBroker.syncDelete(broker, LogicalDatastoreType.OPERATIONAL,
+                                    subnetsInstanceIdentifier,VpnUtil.SINGLE_TRANSACTION_BROKER_NO_RETRY);
+                            LOG.info("removePortOpDataEntry: Updated PortOpData entry for port {} with removing"
+                                    + " subnetId {}", intfName, subnetId.getValue());
+                            portOpEntry = null;
+                        }
+                    }
                 }
             }
         } catch (ReadFailedException e) {

@@ -42,6 +42,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Sub
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.TaskState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.op.data.PortOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.op.data.PortOpDataEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.op.data.port.op.data.entry.Subnets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.op.data.port.op.data.entry.SubnetsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryBuilder;
@@ -353,8 +355,34 @@ public class VpnSubnetRouteHandler {
                                 LOGGING_PREFIX, port.getValue(), subnetId.getValue(),
                                 optionalSubs.get().getSubnetCidr(), optionalSubs.get().getVpnName(),
                                 optionalSubs.get().getRouteAdvState());
-                        SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                                portOpIdentifier, VpnUtil.SINGLE_TRANSACTION_BROKER_NO_RETRY);
+                        PortOpDataEntry portOpEntry;
+                        synchronized (("subnetroute-intf-" + port.getValue()).intern()) {
+                            Optional<PortOpDataEntry> optionalPortOp = SingleTransactionDataBroker.syncReadOptional(
+                                    dataBroker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
+                            if (!optionalPortOp.isPresent()) {
+                                LOG.error("OnSubnetDeletedFromVpn: portOp for port {} is not available in datastore",
+                                        port.getValue());
+                            } else {
+                                portOpEntry = optionalPortOp.get();
+                                List<Uuid> subnetListForPort = VpnUtil.getSubnetIdsFromSubnetList(portOpEntry.getSubnets());
+                                subnetListForPort.remove(subnetId);
+                                if (subnetListForPort.isEmpty()) {
+                                    SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                                            portOpIdentifier);
+                                    LOG.info("OnSubnetDeletedFromVpn: Deleted PortOpData entry for port {}",
+                                            port.getValue());
+                                } else {
+                                    InstanceIdentifier<Subnets> subnetsInstanceIdentifier = InstanceIdentifier
+                                            .builder(PortOpData.class).child(PortOpDataEntry.class,
+                                                    new PortOpDataEntryKey(port.getValue())).child(Subnets.class,
+                                                    new SubnetsKey(subnetId)).build();
+                                    SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                                            subnetsInstanceIdentifier);
+                                    LOG.info("OnSubnetDeletedFromVpn: Updated PortOpData entry for port {} with removing"
+                                            + " subnetId {}", port.getValue(), subnetId.getValue());
+                                }
+                            }
+                        }
                     }
                 }
             }
