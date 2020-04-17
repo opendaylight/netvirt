@@ -83,7 +83,7 @@
         </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal.model</groupId>
-            <artifactId>odl-mdsal-model-draft-ietf-netmod-acl-model-07</artifactId>
+            <artifactId>odl-mdsal-model-rfc7223</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
