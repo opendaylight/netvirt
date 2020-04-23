@@ -3,6 +3,7 @@
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
             <action class="org.opendaylight.netvirt.bgpmanager.ConfigureBgpCli">
+                <argument ref="bgpManager"/>
                 <argument ref="bgpConfigurationManager"/>
             </action>
         </command>
@@ -12,7 +13,6 @@
         <command>
             <action class="org.opendaylight.netvirt.bgpmanager.DisplayBgpConfigCli">
                 <argument ref="bgpManager"/>
-                <argument ref="bgpConfigurationManager"/>
             </action>
         </command>
     </command-bundle>
@@ -33,7 +33,7 @@
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
             <action class="org.opendaylight.netvirt.bgpmanager.commands.Connect">
-                <argument ref="bgpConfigurationManager"/>
+                <argument ref="bgpManager"/>
             </action>
         </command>
     </command-bundle>
@@ -49,7 +49,7 @@
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
             <action class="org.opendaylight.netvirt.bgpmanager.commands.Router">
-                <argument ref="bgpConfigurationManager"/>
+                <argument ref="bgpManager"/>
             </action>
         </command>
     </command-bundle>
@@ -73,14 +73,14 @@
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
             <action class="org.opendaylight.netvirt.bgpmanager.commands.Misc">
-                <argument ref="bgpConfigurationManager"/>
+                <argument ref="bgpManager"/>
             </action>
         </command>
     </command-bundle>
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
             <action class="org.opendaylight.netvirt.bgpmanager.commands.Cache">
-                <argument ref="bgpConfigurationManager"/>
+                <argument ref="bgpManager"/>
             </action>
         </command>
     </command-bundle>
@@ -108,7 +108,7 @@
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
             <action class="org.opendaylight.netvirt.bgpmanager.commands.Multipath">
-                <argument ref="bgpConfigurationManager"/>
+                <argument ref="bgpManager"/>
             </action>
         </command>
     </command-bundle>
