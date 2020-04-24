@@ -11,7 +11,6 @@ import com.google.common.base.Optional;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -31,7 +30,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.serviceutils.srm.types.rev1
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 @Singleton
 public class L2GatewayConnectionInstanceRecoveryHandler implements ServiceRecoveryInterface {

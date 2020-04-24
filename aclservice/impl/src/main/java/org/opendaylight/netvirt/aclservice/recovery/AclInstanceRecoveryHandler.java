@@ -8,14 +8,11 @@
 package org.opendaylight.netvirt.aclservice.recovery;
 
 import com.google.common.base.Optional;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.listeners.AclInterfaceListener;
@@ -31,8 +28,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.serviceutils.srm.types.rev180626.NetvirtAclInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-
 
 @Singleton
 public class AclInstanceRecoveryHandler implements ServiceRecoveryInterface {

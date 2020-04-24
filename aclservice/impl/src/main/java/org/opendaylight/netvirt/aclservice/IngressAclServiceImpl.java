@@ -11,7 +11,6 @@ import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CR
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import com.google.common.collect.Lists;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

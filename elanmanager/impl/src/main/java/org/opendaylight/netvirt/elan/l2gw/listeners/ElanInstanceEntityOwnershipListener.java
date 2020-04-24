@@ -11,13 +11,11 @@ import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastor
 import static org.opendaylight.netvirt.elan.utils.ElanConstants.ELAN_EOS_DELAY;
 
 import com.google.common.base.Optional;
-
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
@@ -36,7 +34,6 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class ElanInstanceEntityOwnershipListener implements EntityOwnershipListener {
-
     private static final Logger LOG = LoggerFactory.getLogger(ElanInstanceEntityOwnershipListener.class);
 
     private final L2GatewayConnectionListener l2GatewayConnectionListener;

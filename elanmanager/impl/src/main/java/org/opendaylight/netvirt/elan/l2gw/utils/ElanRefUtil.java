@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.elan.l2gw.utils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.cache.ConfigMcastCache;
@@ -21,7 +20,6 @@ import org.opendaylight.netvirt.elan.utils.Scheduler;
 
 @Singleton
 public class ElanRefUtil {
-
     private final DataBroker dataBroker;
     private final ElanClusterUtils elanClusterUtils;
     private final Scheduler scheduler;

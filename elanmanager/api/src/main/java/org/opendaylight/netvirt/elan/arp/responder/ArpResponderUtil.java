@@ -18,7 +18,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
@@ -66,7 +65,6 @@ import org.slf4j.LoggerFactory;
  * Arp Responder Utility Class.
  */
 public final class ArpResponderUtil {
-
     private static final Logger LOG = LoggerFactory.getLogger(ArpResponderUtil.class);
 
     /**

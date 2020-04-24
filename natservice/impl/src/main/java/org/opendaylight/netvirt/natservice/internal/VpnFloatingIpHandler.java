@@ -16,7 +16,6 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;

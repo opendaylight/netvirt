@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.elan.l2gw.nodehandlertest;
 
 import com.google.common.collect.ImmutableList;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +15,6 @@ import java.util.List;
  * Created by eaksahu on 8/12/2016.
  */
 public final class DataProvider {
-
     private DataProvider() {
     }
 

@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.natservice.api.NatSwitchCache;
