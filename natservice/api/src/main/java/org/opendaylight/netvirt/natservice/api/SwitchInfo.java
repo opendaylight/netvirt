@@ -5,11 +5,9 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.natservice.api;
 
 import java.util.Set;
-
 import org.opendaylight.yangtools.yang.common.Uint64;
 
 public final class SwitchInfo {
@@ -33,6 +31,4 @@ public final class SwitchInfo {
     public void setProviderNets(Set<String> providerNets) {
         this.providerNets = providerNets;
     }
-
-
 }

@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.bgpmanager.thrift.client;
 
 import static org.junit.Assert.fail;
@@ -20,7 +19,6 @@ import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.BgpConfigurator;
 
 public class BgpRouterAddNeighborTest {

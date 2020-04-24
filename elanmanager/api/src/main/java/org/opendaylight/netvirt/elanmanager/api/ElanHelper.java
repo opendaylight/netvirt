@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.elanmanager.api;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -28,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class ElanHelper {
-
     private static final Logger LOG = LoggerFactory.getLogger(ElanHelper.class);
 
     private ElanHelper() {
@@ -73,6 +71,5 @@ public final class ElanHelper {
     public static InstanceIdentifier<ElanDpnInterfacesList> getElanDpnOperationDataPath(String elanInstanceName) {
         return InstanceIdentifier.builder(ElanDpnInterfaces.class)
                 .child(ElanDpnInterfacesList.class, new ElanDpnInterfacesListKey(elanInstanceName)).build();
-
     }
 }

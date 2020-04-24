@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.elan.internal;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;

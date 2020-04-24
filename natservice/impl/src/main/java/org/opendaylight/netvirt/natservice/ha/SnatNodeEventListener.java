@@ -8,9 +8,7 @@
 package org.opendaylight.netvirt.natservice.ha;
 
 import java.util.concurrent.Executors;
-
 import javax.inject.Inject;
-
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;

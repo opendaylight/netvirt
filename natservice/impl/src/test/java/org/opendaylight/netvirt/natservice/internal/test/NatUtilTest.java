@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.natservice.internal.test;
 import org.junit.Test;
 import org.opendaylight.genius.mdsalutil.FlowEntityBuilder;
 import org.opendaylight.netvirt.natservice.internal.NatUtil;
-
 import org.opendaylight.yangtools.yang.common.Uint64;
 
 public class NatUtilTest {

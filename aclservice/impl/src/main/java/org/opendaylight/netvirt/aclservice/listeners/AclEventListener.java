@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.aclservice.listeners;
 
 import com.google.common.collect.ImmutableSet;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;

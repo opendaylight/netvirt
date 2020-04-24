@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.elan.cache;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.cache.InstanceIdDataObjectCache;
@@ -27,7 +26,6 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class ConfigMcastCache extends InstanceIdDataObjectCache<RemoteMcastMacs> {
-
     private static final Logger LOG = LoggerFactory.getLogger(ConfigMcastCache.class);
 
     @Inject

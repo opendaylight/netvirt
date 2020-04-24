@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.aclservice.stats;
 
 import static org.junit.Assert.assertFalse;
@@ -19,7 +18,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Future;
 import javax.inject.Inject;
-
 import org.eclipse.xtext.xbase.lib.Pair;
 import org.junit.Assert;
 import org.junit.Before;

@@ -11,9 +11,7 @@ import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CR
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import com.google.common.collect.ImmutableBiMap;
-
 import java.util.Collections;
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
