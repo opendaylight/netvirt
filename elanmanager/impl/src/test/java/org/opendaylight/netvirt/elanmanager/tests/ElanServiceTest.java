@@ -326,7 +326,7 @@ public class ElanServiceTest extends  ElanServiceTestBase {
                 readBgpNetworkFromDS(DPN1IP1));
     }
 
-/*    @Test public void checkEvpnAdvRT2NewInterface() throws Exception {
+    @Test public void checkEvpnAdvRT2NewInterface() throws Exception {
         createElanInstanceAndInterfaceAndAttachEvpn();
 
         // Add Elan interface
@@ -335,9 +335,9 @@ public class ElanServiceTest extends  ElanServiceTestBase {
         AssertDataObjects.assertEqualBeans(
                 ExpectedObjects.checkEvpnAdvertiseRoute(ELAN1_SEGMENT_ID, DPN1MAC2, DPN1_TEPIP, DPN1IP2, RD),
                 readBgpNetworkFromDS(DPN1IP2));
-    }*/
+    }
 
-/*    @Test public void checkEvpnWithdrawRT2DelIntf() throws Exception {
+    @Test public void checkEvpnWithdrawRT2DelIntf() throws Exception {
         createElanInstanceAndInterfaceAndAttachEvpn();
 
         InstanceIdentifier<Networks> iid = evpnTestHelper.buildBgpNetworkIid(DPN1IP1);
@@ -347,7 +347,7 @@ public class ElanServiceTest extends  ElanServiceTestBase {
 
         deleteElanInterface(ELAN_INTERFACES.get(ELAN1 + ":" + DPN1MAC1).getLeft());
         awaitForDataDelete(LogicalDatastoreType.CONFIGURATION, iid);
-    }*/
+    }
 
 /*    @Test public void checkEvpnWithdrawRouteDetachEvpn() throws Exception {
         createElanInstanceAndInterfaceAndAttachEvpn();
@@ -362,7 +362,7 @@ public class ElanServiceTest extends  ElanServiceTestBase {
         awaitForDataDelete(LogicalDatastoreType.CONFIGURATION, evpnTestHelper.buildBgpNetworkIid(DPN1IP2));
     }*/
 
-/*    @Test public void checkEvpnInstalDmacFlow() throws Exception {
+    @Test public void checkEvpnInstalDmacFlow() throws Exception {
         createElanInstanceAndInterfaceAndAttachEvpn();
         addElanInterface(ExpectedObjects.ELAN1, ELAN_INTERFACES.get(ELAN1 + ":" + DPN1MAC2).getLeft(), DPN1IP2);
 
@@ -377,7 +377,7 @@ public class ElanServiceTest extends  ElanServiceTestBase {
         // verify successful installation of DMAC flow for recvd rt2
         awaitForData(LogicalDatastoreType.CONFIGURATION, evpnTestHelper.buildMacVrfEntryIid(EVPNRECVMAC1));
         awaitForData(LogicalDatastoreType.CONFIGURATION, evpnTestHelper.buildMacVrfEntryIid(EVPNRECVMAC2));
-    }*/
+    }
 
     @Test
     @Ignore
@@ -425,10 +425,9 @@ public class ElanServiceTest extends  ElanServiceTestBase {
     }
 
     public Networks readBgpNetworkFromDS(String prefix) throws ReadFailedException {
-        InstanceIdentifier<Networks> iid = InstanceIdentifier.builder(Bgp.class)
+        InstanceIdentifier<Networks> iid = InstanceIdentifier.create(Bgp.class)
                 .child(NetworksContainer.class)
-                .child(Networks.class, new NetworksKey(prefix, RD))
-                .build();
+                .child(Networks.class, new NetworksKey(prefix, RD));
         awaitForData(LogicalDatastoreType.CONFIGURATION, iid);
 
         return singleTxdataBroker.syncRead(CONFIGURATION, iid);

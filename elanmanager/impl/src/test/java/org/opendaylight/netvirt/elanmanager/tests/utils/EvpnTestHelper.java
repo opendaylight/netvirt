@@ -119,18 +119,18 @@ public class EvpnTestHelper  {
         macEntryBuilder.setMac(macAddress);
         macEntryBuilder.setDestPrefix(prefix);
         InstanceIdentifier<MacVrfEntry> macEntryId =
-                InstanceIdentifier.builder(FibEntries.class)
+                InstanceIdentifier.create(FibEntries.class)
                         .child(VrfTables.class, new VrfTablesKey(rd))
-                        .child(MacVrfEntry.class, new MacVrfEntryKey(macAddress)).build();
+                        .child(MacVrfEntry.class, new MacVrfEntryKey(macAddress));
 
         singleTxdataBroker.syncWrite(LogicalDatastoreType.CONFIGURATION, macEntryId, macEntryBuilder.build());
     }
 
     public void deleteMacVrfEntryToDS(String rd, String macAddress) throws TransactionCommitFailedException {
         InstanceIdentifier<MacVrfEntry> macEntryId =
-                InstanceIdentifier.builder(FibEntries.class)
+                InstanceIdentifier.create(FibEntries.class)
                         .child(VrfTables.class, new VrfTablesKey(rd))
-                        .child(MacVrfEntry.class, new MacVrfEntryKey(macAddress)).build();
+                        .child(MacVrfEntry.class, new MacVrfEntryKey(macAddress));
 
         singleTxdataBroker.syncDelete(LogicalDatastoreType.CONFIGURATION, macEntryId);
     }
@@ -171,15 +171,15 @@ public class EvpnTestHelper  {
     }
 
     public InstanceIdentifier<MacVrfEntry> buildMacVrfEntryIid(String mac)  {
-        return InstanceIdentifier.builder(FibEntries.class)
+        return InstanceIdentifier.create(FibEntries.class)
                 .child(VrfTables.class, new VrfTablesKey(RD))
-                .child(MacVrfEntry.class, new MacVrfEntryKey(mac)).build();
+                .child(MacVrfEntry.class, new MacVrfEntryKey(mac));
     }
 
     public InstanceIdentifier<Networks> buildBgpNetworkIid(String prefix)  {
-        return InstanceIdentifier.builder(Bgp.class)
+        return InstanceIdentifier.create(Bgp.class)
                 .child(NetworksContainer.class)
-                .child(Networks.class, new NetworksKey(prefix, RD)).build();
+                .child(Networks.class, new NetworksKey(prefix, RD));
     }
 
 }

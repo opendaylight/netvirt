@@ -270,11 +270,11 @@ public class ElanServiceTestBase {
     }
 
     void awaitForData(LogicalDatastoreType dsType, InstanceIdentifier<? extends DataObject> iid) {
-        getAwaiter().until(() -> MDSALUtil.read(dataBroker, dsType, iid).isPresent());
+        getAwaiter().until(() -> SingleTransactionDataBroker.syncReadOptional(dataBroker, dsType, iid).isPresent());
     }
 
     void awaitForDataDelete(LogicalDatastoreType dsType, InstanceIdentifier<? extends DataObject> iid) {
-        getAwaiter().until(() -> !MDSALUtil.read(dataBroker, dsType, iid).isPresent());
+        getAwaiter().until(() -> !SingleTransactionDataBroker.syncReadOptional(dataBroker, dsType, iid).isPresent());
     }
 
     Flow getFlowWithoutCookie(Flow flow) {
