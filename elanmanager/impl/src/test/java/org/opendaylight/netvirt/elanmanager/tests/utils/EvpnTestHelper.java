@@ -75,8 +75,8 @@ public class EvpnTestHelper  {
     }
 
     public InstanceIdentifier<EvpnRdToNetwork> getRdToNetworkIdentifier(String vrfId) {
-        return InstanceIdentifier.builder(EvpnRdToNetworks.class)
-                .child(EvpnRdToNetwork.class, new EvpnRdToNetworkKey(vrfId)).build();
+        return InstanceIdentifier.create(EvpnRdToNetworks.class)
+                .child(EvpnRdToNetwork.class, new EvpnRdToNetworkKey(vrfId));
     }
 
     public void updateEvpnNameInElan(String elanInstanceName, String evpnName)
