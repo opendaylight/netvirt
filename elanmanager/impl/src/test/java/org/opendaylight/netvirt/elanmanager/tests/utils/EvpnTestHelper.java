@@ -119,9 +119,9 @@ public class EvpnTestHelper  {
         macEntryBuilder.setMac(macAddress);
         macEntryBuilder.setDestPrefix(prefix);
         InstanceIdentifier<MacVrfEntry> macEntryId =
-                InstanceIdentifier.builder(FibEntries.class)
+                InstanceIdentifier.create(FibEntries.class)
                         .child(VrfTables.class, new VrfTablesKey(rd))
-                        .child(MacVrfEntry.class, new MacVrfEntryKey(macAddress)).build();
+                        .child(MacVrfEntry.class, new MacVrfEntryKey(macAddress));
 
         singleTxdataBroker.syncWrite(LogicalDatastoreType.CONFIGURATION, macEntryId, macEntryBuilder.build());
     }
@@ -171,9 +171,9 @@ public class EvpnTestHelper  {
     }
 
     public InstanceIdentifier<MacVrfEntry> buildMacVrfEntryIid(String mac)  {
-        return InstanceIdentifier.builder(FibEntries.class)
+        return InstanceIdentifier.create(FibEntries.class)
                 .child(VrfTables.class, new VrfTablesKey(RD))
-                .child(MacVrfEntry.class, new MacVrfEntryKey(mac)).build();
+                .child(MacVrfEntry.class, new MacVrfEntryKey(mac));
     }
 
     public InstanceIdentifier<Networks> buildBgpNetworkIid(String prefix)  {

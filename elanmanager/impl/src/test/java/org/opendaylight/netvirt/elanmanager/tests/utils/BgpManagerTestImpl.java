@@ -84,9 +84,9 @@ public abstract class BgpManagerTestImpl implements IBgpManager {
     }
 
     public void withdrawPrefix(String rd, String pfx) {
-        InstanceIdentifier<Networks> iid = InstanceIdentifier.builder(Bgp.class)
+        InstanceIdentifier<Networks> iid = InstanceIdentifier.create(Bgp.class)
                 .child(NetworksContainer.class)
-                .child(Networks.class, new NetworksKey(pfx, rd)).build();
+                .child(Networks.class, new NetworksKey(pfx, rd));
         try {
             singleTxdataBroker.syncDelete(LogicalDatastoreType.CONFIGURATION, iid);
         } catch (TransactionCommitFailedException e) {
