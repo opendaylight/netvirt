@@ -885,8 +885,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
         IngressElementCountersRequestConfigBuilder ecrcb = new IngressElementCountersRequestConfigBuilder();
         ecrcb.setCounterRequests(counterRequests);
         requestConfig = ecrcb.build();
-        transaction.put(LogicalDatastoreType.CONFIGURATION, ecrcIdentifier, requestConfig,
-                WriteTransaction.CREATE_MISSING_PARENTS);
+        transaction.mergeParentStructurePut(LogicalDatastoreType.CONFIGURATION, ecrcIdentifier, requestConfig);
     }
 
     private void putEgressElementCounterRequestInConfig(AcquireElementCountersRequestHandlerInput input,
@@ -909,8 +908,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
         EgressElementCountersRequestConfigBuilder ecrcb = new EgressElementCountersRequestConfigBuilder();
         ecrcb.setCounterRequests(counterRequests);
         requestConfig = ecrcb.build();
-        transaction.put(LogicalDatastoreType.CONFIGURATION, ecrcIdentifier, requestConfig,
-                WriteTransaction.CREATE_MISSING_PARENTS);
+        transaction.put(LogicalDatastoreType.CONFIGURATION, ecrcIdentifier, requestConfig);
     }
 
     private void creatIngressEelementCountersContainerInConfig(ReadWriteTransaction transaction,
@@ -919,8 +917,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
         List<CounterRequests> counterRequests = new ArrayList<>();
         iecrcb.setCounterRequests(counterRequests);
         IngressElementCountersRequestConfig iecrc = iecrcb.build();
-        transaction.put(LogicalDatastoreType.CONFIGURATION, ecrcIdentifier, iecrc,
-                WriteTransaction.CREATE_MISSING_PARENTS);
+        transaction.put(LogicalDatastoreType.CONFIGURATION, ecrcIdentifier, iecrc);
     }
 
     private void creatEgressEelementCountersContainerInConfig(ReadWriteTransaction transaction,
@@ -929,8 +926,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
         List<CounterRequests> counterRequests = new ArrayList<>();
         eecrcb.setCounterRequests(counterRequests);
         EgressElementCountersRequestConfig eecrc = eecrcb.build();
-        transaction.put(LogicalDatastoreType.CONFIGURATION, ecrcIdentifier, eecrc,
-                WriteTransaction.CREATE_MISSING_PARENTS);
+        transaction.put(LogicalDatastoreType.CONFIGURATION, ecrcIdentifier, eecrc);
     }
 
     private Integer allocateId(String idKey) {

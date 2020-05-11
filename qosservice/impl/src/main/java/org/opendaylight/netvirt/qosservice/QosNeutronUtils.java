@@ -883,7 +883,7 @@ public class QosNeutronUtils {
 
     public int getIpVersions(Port port) {
         int versions = 0;
-        for (FixedIps fixedIp: port.getFixedIps()) {
+        for (FixedIps fixedIp: port.getFixedIps().values()) {
             if (fixedIp.getIpAddress().getIpv4Address() != null) {
                 versions |= (1 << QosConstants.IPV4_ADDR_MASK_BIT);
             } else if (fixedIp.getIpAddress().getIpv6Address() != null) {

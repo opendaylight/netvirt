@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
@@ -31,7 +32,7 @@ public class TunnelCmd  extends MergeCommand<Tunnels, PhysicalSwitchAugmentation
     @Nullable
     public List<Tunnels> getData(PhysicalSwitchAugmentation node) {
         if (node != null) {
-            return node.getTunnels();
+            return new ArrayList<>(node.getTunnels().values());
         }
         return null;
     }

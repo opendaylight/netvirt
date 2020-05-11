@@ -11,6 +11,7 @@ import com.google.common.base.Preconditions;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNull;
@@ -30,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.NetworkProviderExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.neutron.networks.network.Segments;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.neutron.networks.network.SegmentsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -136,9 +138,9 @@ public final class NeutronUtils {
         if (providerExtension != null) {
             segmentationId = providerExtension.getSegmentationId();
             if (segmentationId == null) {
-                List<Segments> providerSegments = providerExtension.getSegments();
+                Map<SegmentsKey, Segments> providerSegments = providerExtension.getSegments();
                 if (providerSegments != null && providerSegments.size() > 0) {
-                    for (Segments providerSegment: providerSegments) {
+                    for (Segments providerSegment: providerSegments.values()) {
                         if (isNetworkSegmentType(providerSegment, networkType)) {
                             segmentationId = providerSegment.getSegmentationId();
                             break;

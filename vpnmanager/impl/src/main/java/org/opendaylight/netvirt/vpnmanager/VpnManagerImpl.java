@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
@@ -852,8 +851,8 @@ public class VpnManagerImpl implements IVpnManager {
             }
         } else {
             //Add RT-Subnet-Vpn Association
-            tx.put(VpnUtil.getAssociatedSubnetAndVpnIdentifier(rt, rtType, cidr, vpnName),
-                    VpnUtil.buildAssociatedSubnetAndVpn(vpnName), CREATE_MISSING_PARENTS);
+            tx.mergeParentStructurePut(VpnUtil.getAssociatedSubnetAndVpnIdentifier(rt, rtType, cidr, vpnName),
+                    VpnUtil.buildAssociatedSubnetAndVpn(vpnName));
         }
     }
 

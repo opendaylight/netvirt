@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
@@ -38,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.r
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig.NatMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
@@ -146,7 +148,8 @@ public class RouterDpnChangeListener extends AbstractAsyncDataTreeChangeListener
                         coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + networkId, () -> {
                             extNetGroupInstaller.installExtNetGroupEntries(networkId, dpnId);
                             installDefaultNatRouteForRouterExternalSubnets(dpnId,
-                                    NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps()));
+                                    NatUtil.getExternalSubnetIdsFromExternalIps(
+                                            new ArrayList<ExternalIps>(router.getExternalIps().values())));
                             return Collections.emptyList();
                         });
                     }
