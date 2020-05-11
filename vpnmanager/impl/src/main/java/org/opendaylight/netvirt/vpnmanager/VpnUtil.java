@@ -1629,10 +1629,10 @@ public final class VpnUtil {
                     BoundServices serviceInfo = isTunnelInterface
                             ? VpnUtil.getBoundServicesForTunnelInterface(vpnInstanceName, interfaceName)
                             : getBoundServicesForVpnInterface(vpnInstanceName, interfaceName);
-                    tx.put(InterfaceUtils.buildServiceId(interfaceName,
+                    tx.mergeParentStructurePut(InterfaceUtils.buildServiceId(interfaceName,
                             ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME,
                                     NwConstants.L3VPN_SERVICE_INDEX)),
-                            serviceInfo, WriteTransaction.CREATE_MISSING_PARENTS);
+                            serviceInfo);
                 })), SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
     }
 
@@ -1956,9 +1956,8 @@ public final class VpnUtil {
 
     ListenableFuture<Void> unsetScheduledToRemoveForVpnInterface(String interfaceName) {
         VpnInterfaceBuilder builder = new VpnInterfaceBuilder().withKey(new VpnInterfaceKey(interfaceName));
-        return txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> tx.merge(
-                VpnUtil.getVpnInterfaceIdentifier(interfaceName), builder.build(),
-                WriteTransaction.CREATE_MISSING_PARENTS));
+        return txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> tx.mergeParentStructureMerge(
+                VpnUtil.getVpnInterfaceIdentifier(interfaceName), builder.build()));
     }
 
     /**

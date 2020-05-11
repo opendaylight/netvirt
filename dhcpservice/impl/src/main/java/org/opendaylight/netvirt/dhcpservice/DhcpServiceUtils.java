@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.dhcpservice;
 
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -349,7 +348,7 @@ public final class DhcpServiceUtils {
                 getBoundServices(String.format("%s.%s", "dhcp", interfaceName),
                         serviceIndex, DhcpMConstants.DEFAULT_FLOW_PRIORITY,
                         DhcpMConstants.COOKIE_VM_INGRESS_TABLE, instructions);
-        tx.put(buildServiceId(interfaceName, serviceIndex), serviceInfo, CREATE_MISSING_PARENTS);
+        tx.mergeParentStructurePut(buildServiceId(interfaceName, serviceIndex), serviceInfo);
     }
 
     public static void unbindDhcpService(String interfaceName, TypedWriteTransaction<Configuration> tx) {
@@ -492,7 +491,7 @@ public final class DhcpServiceUtils {
                     new InterfaceNameMacAddressBuilder()
                             .withKey(new InterfaceNameMacAddressKey(interfaceName))
                             .setInterfaceName(interfaceName).setMacAddress(vmMacAddress).build();
-            tx.merge(instanceIdentifier, interfaceNameMacAddress, CREATE_MISSING_PARENTS);
+            tx.mergeParentStructureMerge(instanceIdentifier, interfaceNameMacAddress);
             return vmMacAddress;
         }
         return existingEntry.get().getMacAddress();

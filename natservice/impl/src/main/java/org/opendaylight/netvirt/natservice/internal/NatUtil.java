@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import static java.util.Collections.emptyList;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
@@ -1213,10 +1212,10 @@ public final class NatUtil {
         if (optionalDpnVpninterfacesList.isPresent()) {
             LOG.debug("addToNeutronRouterDpnsMap : RouterDpnList already present for the Router {} and DPN {} for the "
                     + "Interface {} in the ODL-L3VPN : NeutronRouterDpn map", routerName, dpId, interfaceName);
-            operTx.merge(dpnVpnInterfacesListIdentifier
+            operTx.mergeParentStructureMerge(dpnVpnInterfacesListIdentifier
                     .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router
                             .dpns.router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces.class,
-                            new RouterInterfacesKey(interfaceName)), routerInterface, CREATE_MISSING_PARENTS);
+                            new RouterInterfacesKey(interfaceName)), routerInterface);
         } else {
             LOG.debug("addToNeutronRouterDpnsMap : Building new RouterDpnList for the Router {} and DPN {} for the "
                     + "Interface {} in the ODL-L3VPN : NeutronRouterDpn map", routerName, dpId, interfaceName);
@@ -1228,7 +1227,7 @@ public final class NatUtil {
             routerInterfaces.add(routerInterface);
             dpnVpnList.setRouterInterfaces(routerInterfaces);
             routerDpnListBuilder.setDpnVpninterfacesList(Collections.singletonList(dpnVpnList.build()));
-            operTx.merge(getRouterId(routerName), routerDpnListBuilder.build(), CREATE_MISSING_PARENTS);
+            operTx.mergeParentStructureMerge(getRouterId(routerName), routerDpnListBuilder.build());
         }
     }
 
@@ -1253,8 +1252,8 @@ public final class NatUtil {
             if (!routersListFromDs.contains(routersList)) {
                 LOG.debug("addToDpnRoutersMap : Router {} not present for the DPN {}"
                         + " in the ODL-L3VPN : DPNRouters map", routerName, dpId);
-                operTx.merge(dpnRoutersListIdentifier
-                        .child(RoutersList.class, new RoutersListKey(routerName)), routersList, CREATE_MISSING_PARENTS);
+                operTx.mergeParentStructureMerge(dpnRoutersListIdentifier
+                        .child(RoutersList.class, new RoutersListKey(routerName)), routersList);
             } else {
                 LOG.debug("addToDpnRoutersMap : Router {} already mapped to the DPN {} in the ODL-L3VPN : "
                         + "DPNRouters map", routerName, dpId);
@@ -1267,7 +1266,7 @@ public final class NatUtil {
             RoutersListBuilder routersListBuilder = new RoutersListBuilder();
             routersListBuilder.setRouter(routerName);
             dpnRoutersListBuilder.setRoutersList(Collections.singletonList(routersListBuilder.build()));
-            operTx.merge(getDpnRoutersId(dpId), dpnRoutersListBuilder.build(), CREATE_MISSING_PARENTS);
+            operTx.mergeParentStructureMerge(getDpnRoutersId(dpId), dpnRoutersListBuilder.build());
         }
     }
 

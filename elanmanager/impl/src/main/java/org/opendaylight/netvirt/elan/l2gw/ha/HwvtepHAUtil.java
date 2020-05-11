@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha;
 
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.base.Strings;
 import java.nio.charset.StandardCharsets;
@@ -446,7 +445,7 @@ public final class HwvtepHAUtil {
         nodeBuilder.setNodeId(haNodePath.firstKeyOf(Node.class).getNodeId());
         nodeBuilder.addAugmentation(HwvtepGlobalAugmentation.class, hwvtepGlobalBuilder.build());
         Node configHANode = nodeBuilder.build();
-        tx.merge(haNodePath, configHANode, CREATE_MISSING_PARENTS);
+        tx.mergeParentStructureMerge(haNodePath, configHANode);
     }
 
     public static <D extends Datastore> void deleteNodeIfPresent(TypedReadWriteTransaction<D> tx,

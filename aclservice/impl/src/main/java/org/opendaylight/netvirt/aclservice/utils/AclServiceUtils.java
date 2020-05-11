@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.aclservice.utils;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
@@ -1048,7 +1047,7 @@ public final class AclServiceUtils {
                                 new PortIdsBuilder().withKey(new PortIdsKey(portId)).setPortId(portId).build();
                         InstanceIdentifier<PortIds> path =
                                 AclServiceUtils.getPortIdsPathInAclPortsLookup(aclName, aap.getIpAddress(), portId);
-                        tx.put(path, portIdObj, CREATE_MISSING_PARENTS);
+                        tx.mergeParentStructurePut(path, portIdObj);
                     }
                 }));
                 return futures;
