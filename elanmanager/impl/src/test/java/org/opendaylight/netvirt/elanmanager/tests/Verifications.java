@@ -127,7 +127,7 @@ public class Verifications {
                 }
             }
             boolean remoteMcastFoundFlag = false;
-            for (RemoteMcastMacs remoteMcastMacs : augmentation.getRemoteMcastMacs()) {
+            for (RemoteMcastMacs remoteMcastMacs : augmentation.getRemoteMcastMacs().values()) {
                 for (LocatorSet locatorSet : remoteMcastMacs.getLocatorSet()) {
                     TpId tpId = locatorSet.getLocatorRef().getValue().firstKeyOf(TerminationPoint.class).getTpId();
                     if (tpId.getValue().contains(tepIp)) {
@@ -171,7 +171,7 @@ public class Verifications {
                 }
             }
             boolean remoteUcastFoundFlag = false;
-            for (RemoteUcastMacs remoteUcastMacs : augmentation.getRemoteUcastMacs()) {
+            for (RemoteUcastMacs remoteUcastMacs : augmentation.getRemoteUcastMacs().values()) {
                 String mac = remoteUcastMacs.getMacEntryKey().getValue();
                 if (mac.equals(dpnMac)) {
                     remoteUcastFoundFlag = true;
@@ -201,8 +201,8 @@ public class Verifications {
                         .setIntfName(extnIntfs.get(dpnId + ":" + otherDpn).getInterfaceInfo().getInterfaceName())
                         .setTunnelKey(elanInfo.getElanTag().longValue() + ElanConstants.ELAN_TAG_ADDEND).build();
                 List<Action> actionsList =
-                        odlInterfaceRpcService.getEgressActionsForInterface(getEgressActInput).get().getResult()
-                                .getAction();
+                        new ArrayList<Action>(odlInterfaceRpcService.getEgressActionsForInterface(getEgressActInput)
+                                .get().getResult().getAction().values());
                 listBucketInfo.add(MDSALUtil.buildBucket(actionsList, MDSALUtil.GROUP_WEIGHT, bucketId,
                         MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
 
@@ -216,8 +216,8 @@ public class Verifications {
                         .setIntfName(extnIntfs.get(dpnId + ":" + otherTor).getInterfaceInfo().getInterfaceName())
                         .setTunnelKey(elanInfo.getSegmentationId()).build();
                 List<Action> actionsList =
-                        odlInterfaceRpcService.getEgressActionsForInterface(getEgressActInput).get().getResult()
-                                .getAction();
+                        new ArrayList<Action>(odlInterfaceRpcService.getEgressActionsForInterface(getEgressActInput)
+                                .get().getResult().getAction().values());
                 listBucketInfo.add(MDSALUtil.buildBucket(actionsList, MDSALUtil.GROUP_WEIGHT, bucketId,
                         MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
 
@@ -261,8 +261,8 @@ public class Verifications {
             AssertDataObjects.assertEqualBeans(expected, actual);
         }
 
-        Set<Bucket> actualBuckets = modifyBucketId(actual.getBuckets().getBucket());
-        Set<Bucket> expectedBuckets = modifyBucketId(expected.getBuckets().getBucket());
+        Set<Bucket> actualBuckets = modifyBucketId(new ArrayList<Bucket>(actual.getBuckets().getBucket().values()));
+        Set<Bucket> expectedBuckets = modifyBucketId(new ArrayList<Bucket>(expected.getBuckets().getBucket().values()));
         Set<Bucket> diff = Sets.difference(actualBuckets, expectedBuckets);
         if (diff != null && !diff.isEmpty()) {
             AssertDataObjects.assertEqualBeans(expected, actual);

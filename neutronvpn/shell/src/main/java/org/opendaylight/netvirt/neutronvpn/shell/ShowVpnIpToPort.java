@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
@@ -125,7 +124,8 @@ public class ShowVpnIpToPort extends OsgiCommandSupport {
         if (!optionalNeutronVpnPort.isPresent()) {
             System.out.println("No NeutronVpnPortIpToPortData configured.");
         } else {
-            vpnPortipToPortList = optionalNeutronVpnPort.get().getVpnPortipToPort();
+            vpnPortipToPortList
+                    = new ArrayList<VpnPortipToPort>(optionalNeutronVpnPort.get().getVpnPortipToPort().values());
         }
     }
 
@@ -138,7 +138,8 @@ public class ShowVpnIpToPort extends OsgiCommandSupport {
         if (!optionalLearntVpnPort.isPresent()) {
             System.out.println("No LearntVpnVipToPortData discovered.");
         } else {
-            vpnVipToPortList = optionalLearntVpnPort.get().getLearntVpnVipToPort();
+            vpnVipToPortList = new ArrayList<LearntVpnVipToPort>(optionalLearntVpnPort.get()
+                    .getLearntVpnVipToPort().values());
         }
     }
 

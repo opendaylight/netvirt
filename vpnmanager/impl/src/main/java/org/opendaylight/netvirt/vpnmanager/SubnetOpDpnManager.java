@@ -128,8 +128,8 @@ public class SubnetOpDpnManager {
             }
             SubnetToDpnBuilder subDpnBuilder = new SubnetToDpnBuilder(subDpn);
             List<VpnInterfaces> vpnIntfList = new ArrayList<>();
-            vpnIntfList = subDpnBuilder.getVpnInterfaces() != null ? new ArrayList<>(subDpnBuilder.getVpnInterfaces())
-                    : vpnIntfList;
+            vpnIntfList = subDpnBuilder.getVpnInterfaces() != null
+                    ? new ArrayList<>(subDpnBuilder.getVpnInterfaces().values()) : vpnIntfList;
 
             VpnInterfaces vpnIntfs =
                 new VpnInterfacesBuilder().withKey(new VpnInterfacesKey(intfName)).setInterfaceName(intfName).build();
@@ -217,7 +217,7 @@ public class SubnetOpDpnManager {
             SubnetToDpnBuilder subDpnBuilder = new SubnetToDpnBuilder(optionalSubDpn.get());
             List<VpnInterfaces> vpnIntfList = new ArrayList<>();
             vpnIntfList = (subDpnBuilder.getVpnInterfaces() != null && !subDpnBuilder.getVpnInterfaces().isEmpty())
-                    ? new ArrayList<>(subDpnBuilder.getVpnInterfaces()) : vpnIntfList;
+                    ? new ArrayList<>(subDpnBuilder.getVpnInterfaces().values()) : vpnIntfList;
             VpnInterfaces vpnIntfs =
                 new VpnInterfacesBuilder().withKey(new VpnInterfacesKey(intfName)).setInterfaceName(intfName).build();
             vpnIntfList.remove(vpnIntfs);

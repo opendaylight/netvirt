@@ -35,8 +35,8 @@ public class RemoteMcastCmd extends
     @Override
     @Nullable
     public List<RemoteMcastMacs> getData(HwvtepGlobalAugmentation augmentation) {
-        if (augmentation != null) {
-            return augmentation.getRemoteMcastMacs();
+        if (augmentation != null && augmentation.getRemoteMcastMacs() != null) {
+            return new ArrayList<RemoteMcastMacs>(augmentation.getRemoteMcastMacs().values());
         }
         return null;
     }

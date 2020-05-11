@@ -102,7 +102,7 @@ public class NeutronHostConfigChangeListener extends AbstractAsyncDataTreeChange
         Map<String, String> config = new HashMap<>();
         OvsdbNodeAugmentation ovsdbNode = getOvsdbNodeAugmentation(node);
         if (ovsdbNode != null && ovsdbNode.getOpenvswitchExternalIds() != null) {
-            for (OpenvswitchExternalIds openvswitchExternalIds : ovsdbNode.getOpenvswitchExternalIds()) {
+            for (OpenvswitchExternalIds openvswitchExternalIds : ovsdbNode.getOpenvswitchExternalIds().values()) {
                 if (openvswitchExternalIds.getExternalIdKey() != null && openvswitchExternalIds.getExternalIdKey()
                         .startsWith(OS_HOST_CONFIG_CONFIG_KEY_PREFIX)) {
                     // Extract the host type. Max 8 characters after
@@ -160,7 +160,7 @@ public class NeutronHostConfigChangeListener extends AbstractAsyncDataTreeChange
     private String getExternalId(Node node, String key) {
         OvsdbNodeAugmentation ovsdbNode = getOvsdbNodeAugmentation(node);
         if (ovsdbNode != null && ovsdbNode.getOpenvswitchExternalIds() != null) {
-            for (OpenvswitchExternalIds openvswitchExternalIds : ovsdbNode.getOpenvswitchExternalIds()) {
+            for (OpenvswitchExternalIds openvswitchExternalIds : ovsdbNode.getOpenvswitchExternalIds().values()) {
                 if (key.equals(openvswitchExternalIds.getExternalIdKey())) {
                     return openvswitchExternalIds.getExternalIdValue();
                 }

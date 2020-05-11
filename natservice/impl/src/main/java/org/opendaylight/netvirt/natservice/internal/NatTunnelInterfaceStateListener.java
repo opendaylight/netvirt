@@ -18,6 +18,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.PreDestroy;
@@ -67,6 +68,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.F
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.routers.DpnRoutersList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.routers.dpn.routers.list.RoutersList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.routers.dpn.routers.list.RoutersListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig.NatMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
@@ -290,8 +292,8 @@ public class NatTunnelInterfaceStateListener extends AbstractAsyncDataTreeChange
             return false;
         }
 
-        List<RoutersList> routersList = optionalRouterDpnList.get().getRoutersList();
-        if (routersList == null) {
+        Map<RoutersListKey, RoutersList> keyRoutersListMap = optionalRouterDpnList.get().getRoutersList();
+        if (keyRoutersListMap == null) {
             LOG.debug("hndlTepAddForAllRtrs : Ignoring TEP add for the DPN {} since no routers are associated"
                 + " for the DPN having the TUNNEL TYPE {} b/w SRC IP {} and DST IP {} and"
                 + "TUNNEL NAME {} ", srcDpnId, tunnelType, srcTepIp, destTepIp, tunnelName);
@@ -299,7 +301,7 @@ public class NatTunnelInterfaceStateListener extends AbstractAsyncDataTreeChange
         }
 
         String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, srcDpnId);
-        for (RoutersList router : routersList) {
+        for (RoutersList router : keyRoutersListMap.values()) {
             String routerName = router.getRouter();
             Uint32 routerId = NatUtil.getVpnId(dataBroker, routerName);
             if (routerId == NatConstants.INVALID_ID) {
@@ -692,7 +694,7 @@ public class NatTunnelInterfaceStateListener extends AbstractAsyncDataTreeChange
                 l3Vni = natOverVxlanUtil.getInternetVpnVni(vpnName, routerId);
             }
         }
-        for (Ports port : routerPorts.nonnullPorts()) {
+        for (Ports port : routerPorts.nonnullPorts().values()) {
             //Get the DPN on which this interface resides
             final String interfaceName = port.getPortName();
             final Uint64 fipCfgdDpnId = NatUtil.getDpnForInterface(interfaceService, interfaceName);
@@ -707,7 +709,7 @@ public class NatTunnelInterfaceStateListener extends AbstractAsyncDataTreeChange
                     tepAddedDpnId, fipCfgdDpnId, interfaceName);
                 continue;
             }
-            for (InternalToExternalPortMap intExtPortMap : port.nonnullInternalToExternalPortMap()) {
+            for (InternalToExternalPortMap intExtPortMap : port.nonnullInternalToExternalPortMap().values()) {
                 final String internalIp = intExtPortMap.getInternalIp();
                 final String externalIp = intExtPortMap.getExternalIp();
                 LOG.debug("hndlTepAddForDnatInEachRtr : DNAT -> Advertising the FIB route to the floating IP {} "

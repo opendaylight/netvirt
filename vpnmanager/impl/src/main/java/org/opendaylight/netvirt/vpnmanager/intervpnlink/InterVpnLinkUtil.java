@@ -10,7 +10,9 @@ package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -37,6 +39,7 @@ import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinkStates;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinks;
@@ -302,13 +305,13 @@ public final class InterVpnLinkUtil {
     }
 
 
-    public static List<Instruction> buildLportDispatcherTableInstructions(Uint32 vpnId) {
+    public static  Map<InstructionKey, Instruction> buildLportDispatcherTableInstructions(Uint32 vpnId) {
         int instructionKey = 0;
-        List<Instruction> instructions = new ArrayList<>();
-        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getVpnIdMetadata(vpnId.intValue()),
-            MetaDataUtil.METADATA_MASK_VRFID,
-            ++instructionKey));
-        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.L3_FIB_TABLE, ++instructionKey));
+        Map<InstructionKey, Instruction> instructions = new HashMap<InstructionKey, Instruction>();
+        instructions.put(new InstructionKey(++instructionKey), MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil
+                        .getVpnIdMetadata(vpnId.intValue()), MetaDataUtil.METADATA_MASK_VRFID, instructionKey));
+        instructions.put(new InstructionKey(++instructionKey),
+                MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.L3_FIB_TABLE, instructionKey));
 
         return instructions;
     }

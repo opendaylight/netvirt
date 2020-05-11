@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
@@ -33,8 +34,8 @@ public class LocalUcastCmd
     @Override
     @Nullable
     public List<LocalUcastMacs> getData(HwvtepGlobalAugmentation node) {
-        if (node != null) {
-            return node.getLocalUcastMacs();
+        if (node != null && node.getLocalUcastMacs() != null) {
+            return new ArrayList<LocalUcastMacs>(node.getLocalUcastMacs().values());
         }
         return null;
     }

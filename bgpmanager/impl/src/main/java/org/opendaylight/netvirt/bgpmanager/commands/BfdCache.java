@@ -72,7 +72,7 @@ public class BfdCache extends OsgiCommandSupport {
 
         DcgwTepList dcgwTepList = bgpUtil.getDcgwTepConfig();
         if (dcgwTepList != null) {
-            dcgwTepList.getDcgwTep().forEach(dcgwTep -> {
+            dcgwTepList.getDcgwTep().values().forEach(dcgwTep -> {
                 ps.printf("%n%n%-15s  %s", DCGWIP, dcgwTep.getDcGwIp());
                 dcgwTep.getTepIps().forEach(tep -> {
                     ps.printf("%n\t%-15s  %s", TEPIP, tep);
