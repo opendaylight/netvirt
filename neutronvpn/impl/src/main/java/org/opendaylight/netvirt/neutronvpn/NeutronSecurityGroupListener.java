@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -98,7 +97,7 @@ public class NeutronSecurityGroupListener extends AbstractAsyncDataTreeChangeLis
             Integer aclTag = neutronSecurityGroupUtils.allocateAclTag(securityGroupId);
             Acl acl = toAclBuilder(securityGroup, aclTag).build();
             return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
-                tx -> tx.put(identifier, acl, CREATE_MISSING_PARENTS)));
+                tx -> tx.mergeParentStructurePut(identifier, acl)));
         });
     }
 

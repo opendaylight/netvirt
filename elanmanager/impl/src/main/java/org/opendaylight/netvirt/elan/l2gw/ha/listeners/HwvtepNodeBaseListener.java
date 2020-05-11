@@ -9,7 +9,7 @@ package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
-import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
@@ -36,6 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hw
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LogicalSwitches;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.Managers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.ManagersKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteMcastMacs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteUcastMacs;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
@@ -122,8 +123,8 @@ public abstract class HwvtepNodeBaseListener<D extends Datastore>
         if (beforeChildNode != null) {
             beforeAugmentaion = beforeChildNode.augmentation(HwvtepGlobalAugmentation.class);
         }
-        List<Managers> up = null;
-        List<Managers> be = null;
+        Map<ManagersKey, Managers> up = null;
+        Map<ManagersKey, Managers> be = null;
         if (updatedAugmentaion != null) {
             up = updatedAugmentaion.getManagers();
         }

@@ -13,6 +13,7 @@ import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -40,6 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.adjacency.list.AdjacencyKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -131,9 +133,9 @@ public class VpnInterfaceOpListener extends AbstractAsyncDataTreeChangeListener<
                 VpnInstanceOpDataEntry vpnInstOp = vpnUtil.getVpnInstanceOpData(rd);
 
                 AdjacenciesOp adjs = del.augmentation(AdjacenciesOp.class);
-                List<Adjacency> adjList = adjs != null ? adjs.getAdjacency() : null;
+                Map<AdjacencyKey, Adjacency> adjMap = adjs != null ? adjs.getAdjacency() : null;
 
-                if (vpnInstOp != null && adjList != null && adjList.size() > 0) {
+                if (vpnInstOp != null && adjMap != null && adjMap.size() > 0) {
                 /*
                  * When a VPN Interface is removed by FibManager (aka VrfEntryListener and its cohorts),
                  * one adjacency or two adjacency (in case of dual-stack)
@@ -148,7 +150,7 @@ public class VpnInterfaceOpListener extends AbstractAsyncDataTreeChangeListener<
                  * vpnInterface from it.
                  */
                     List<Prefixes> prefixToInterface = new ArrayList<>();
-                    for (Adjacency adjacency : adjs.getAdjacency()) {
+                    for (Adjacency adjacency : adjs.getAdjacency().values()) {
                         List<Prefixes> prefixToInterfaceLocal = new ArrayList<>();
                         Optional<Prefixes> prefix = operTx.read(
                             VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),

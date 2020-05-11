@@ -174,7 +174,7 @@ public class ExternalNetworksChangeListener extends AbstractAsyncDataTreeChangeL
                     continue;
                 }
                 RouterPorts routerPorts = optRouterPorts.get();
-                for (Ports port : routerPorts.nonnullPorts()) {
+                for (Ports port : routerPorts.nonnullPorts().values()) {
                     String portName = port.getPortName();
                     Uint64 dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
                     if (dpnId.equals(Uint64.ZERO)) {
@@ -182,7 +182,7 @@ public class ExternalNetworksChangeListener extends AbstractAsyncDataTreeChangeL
                             + "skip handling of ext nw {} association", portName, network.getId());
                         continue;
                     }
-                    for (InternalToExternalPortMap ipMap : port.nonnullInternalToExternalPortMap()) {
+                    for (InternalToExternalPortMap ipMap : port.nonnullInternalToExternalPortMap().values()) {
                         // remove all VPN related entries
                         coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + ipMap.key(),
                             () -> Collections.singletonList(
@@ -246,7 +246,7 @@ public class ExternalNetworksChangeListener extends AbstractAsyncDataTreeChangeL
                                 .intext.ip.map.IpMapping> ipMapping = MDSALUtil.read(dataBroker,
                                 LogicalDatastoreType.OPERATIONAL, id);
                             if (ipMapping.isPresent()) {
-                                for (IpMap ipMap : ipMapping.get().nonnullIpMap()) {
+                                for (IpMap ipMap : ipMapping.get().nonnullIpMap().values()) {
                                     String externalIp = ipMap.getExternalIp();
                                     LOG.debug(
                                         "associateExternalNetworkWithVPN : Calling advToBgpAndInstallFibAndTsFlows "
@@ -299,7 +299,7 @@ public class ExternalNetworksChangeListener extends AbstractAsyncDataTreeChangeL
                     continue;
                 }
                 RouterPorts routerPorts = optRouterPorts.get();
-                for (Ports port : routerPorts.nonnullPorts()) {
+                for (Ports port : routerPorts.nonnullPorts().values()) {
                     String portName = port.getPortName();
                     Uint64 dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
                     if (dpnId.equals(Uint64.ZERO)) {
@@ -307,7 +307,7 @@ public class ExternalNetworksChangeListener extends AbstractAsyncDataTreeChangeL
                             + "skip handling of ext nw {} disassociation", portName, network.getId());
                         continue;
                     }
-                    for (InternalToExternalPortMap intExtPortMap : port.nonnullInternalToExternalPortMap()) {
+                    for (InternalToExternalPortMap intExtPortMap : port.nonnullInternalToExternalPortMap().values()) {
                         coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + intExtPortMap.key(),
                             () -> Collections.singletonList(
                                 txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
