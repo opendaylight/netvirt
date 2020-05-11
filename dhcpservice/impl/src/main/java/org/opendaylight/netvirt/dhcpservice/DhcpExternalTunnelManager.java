@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
@@ -85,6 +86,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.subnet.dhcp.port.data.SubnetToDhcpPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepLogicalSwitchRef;
@@ -184,9 +186,9 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
             return;
         }
         if (designatedSwitchForTunnelOptional.isPresent()) {
-            List<DesignatedSwitchForTunnel> list =
+            Map<DesignatedSwitchForTunnelKey, DesignatedSwitchForTunnel> keyDesignatedSwitchForTunnelMap =
                 designatedSwitchForTunnelOptional.get().nonnullDesignatedSwitchForTunnel();
-            for (DesignatedSwitchForTunnel designatedSwitchForTunnel : list) {
+            for (DesignatedSwitchForTunnel designatedSwitchForTunnel : keyDesignatedSwitchForTunnelMap.values()) {
                 Set<Pair<IpAddress, String>> setOfTunnelIpElanNamePair =
                         designatedDpnsToTunnelIpElanNameCache
                                 .get(Uint64.valueOf(designatedSwitchForTunnel.getDpId()));
@@ -212,8 +214,8 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
             return;
         }
         if (optionalPorts.isPresent()) {
-            List<Port> list = optionalPorts.get().nonnullPort();
-            for (Port port : list) {
+            Map<PortKey, Port> portKeyPortMap = optionalPorts.get().nonnullPort();
+            for (Port port : portKeyPortMap.values()) {
                 if (NeutronUtils.isPortVnicTypeNormal(port)) {
                     continue;
                 }
@@ -380,9 +382,9 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
             return false;
         }
         if (designatedSwitchForTunnelOptional.isPresent()) {
-            List<DesignatedSwitchForTunnel> list =
+            Map<DesignatedSwitchForTunnelKey, DesignatedSwitchForTunnel> keyDesignatedSwitchForTunnelMap =
                     designatedSwitchForTunnelOptional.get().nonnullDesignatedSwitchForTunnel();
-            for (DesignatedSwitchForTunnel designatedSwitchForTunnel : list) {
+            for (DesignatedSwitchForTunnel designatedSwitchForTunnel : keyDesignatedSwitchForTunnelMap.values()) {
                 if (dpId.equals(Uint64.valueOf(designatedSwitchForTunnel.getDpId()))) {
                     return true;
                 }

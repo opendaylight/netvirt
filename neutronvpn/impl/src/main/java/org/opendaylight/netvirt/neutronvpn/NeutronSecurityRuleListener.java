@@ -8,12 +8,9 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.collect.ImmutableBiMap;
-
 import java.util.Collections;
-
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -110,7 +107,7 @@ public class NeutronSecurityRuleListener extends AbstractAsyncDataTreeChangeList
             String jobKey = securityRule.getSecurityGroupId().getValue();
             jobCoordinator.enqueueJob(jobKey,
                 () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
-                    tx -> tx.put(identifier, ace, CREATE_MISSING_PARENTS))),
+                    tx -> tx.mergeParentStructurePut(identifier, ace))),
                     NeutronSecurityGroupConstants.DJC_MAX_RETRIES);
         } catch (Exception ex) {
             LOG.error("Exception occured while adding acl for security rule: {}. ", securityRule, ex);
@@ -241,7 +238,7 @@ public class NeutronSecurityRuleListener extends AbstractAsyncDataTreeChangeList
             String jobKey = securityRule.getSecurityGroupId().getValue();
             jobCoordinator.enqueueJob(jobKey,
                 () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
-                    tx -> tx.merge(identifier, ace, CREATE_MISSING_PARENTS))),
+                    tx -> tx.mergeParentStructureMerge(identifier, ace))),
                     NeutronSecurityGroupConstants.DJC_MAX_RETRIES);
         } catch (Exception ex) {
             /*

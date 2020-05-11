@@ -294,7 +294,8 @@ public class ElanServiceTestBase {
     org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.Instruction
         sortActions(org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.Instruction input) {
         if (input instanceof  ApplyActionsCase) {
-            List<Action> action = new ArrayList<>(((ApplyActionsCase)input).getApplyActions().getAction());
+            List<Action> action = new ArrayList<Action>(((ApplyActionsCase)input)
+                    .getApplyActions().getAction().values());
             action.sort(Comparator.comparing(Ordered::getOrder));
 
             ApplyActions actions = new ApplyActionsBuilder().setAction(action).build();

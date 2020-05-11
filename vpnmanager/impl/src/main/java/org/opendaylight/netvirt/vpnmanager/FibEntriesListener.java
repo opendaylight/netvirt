@@ -69,7 +69,7 @@ public class FibEntriesListener extends AbstractAsyncDataTreeChangeListener<VrfE
         LOG.trace("Remove Fib event - Key : {}, value : {} ", identifier, del);
         final VrfTablesKey key = identifier.firstKeyOf(VrfTables.class);
         String rd = key.getRouteDistinguisher();
-        List<RoutePaths> routePaths = del.getRoutePaths();
+        List<RoutePaths> routePaths = new ArrayList<RoutePaths>(del.getRoutePaths().values());
         removeLabelFromVpnInstance(rd, routePaths);
     }
 
@@ -78,8 +78,8 @@ public class FibEntriesListener extends AbstractAsyncDataTreeChangeListener<VrfE
         VrfEntry original, VrfEntry update) {
         final VrfTablesKey key = identifier.firstKeyOf(VrfTables.class);
         String rd = key.getRouteDistinguisher();
-        List<RoutePaths> originalRoutePaths = new ArrayList<>(original.getRoutePaths());
-        List<RoutePaths> updateRoutePaths = new ArrayList<>(update.getRoutePaths());
+        List<RoutePaths> originalRoutePaths = new ArrayList<RoutePaths>(original.getRoutePaths().values());
+        List<RoutePaths> updateRoutePaths = new ArrayList<RoutePaths>(update.getRoutePaths().values());
         if (originalRoutePaths.size() < updateRoutePaths.size()) {
             updateRoutePaths.removeAll(originalRoutePaths);
             addLabelToVpnInstance(rd, updateRoutePaths);
@@ -95,7 +95,7 @@ public class FibEntriesListener extends AbstractAsyncDataTreeChangeListener<VrfE
         LOG.trace("Add Vrf Entry event - Key : {}, value : {}", identifier, add);
         final VrfTablesKey key = identifier.firstKeyOf(VrfTables.class);
         String rd = key.getRouteDistinguisher();
-        addLabelToVpnInstance(rd, add.getRoutePaths());
+        addLabelToVpnInstance(rd, new ArrayList<RoutePaths>(add.getRoutePaths().values()));
     }
 
     private void addLabelToVpnInstance(String rd, List<RoutePaths> routePaths) {

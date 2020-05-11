@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.bgpmanager;
 
 import com.google.common.base.Preconditions;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -252,12 +251,12 @@ public class FibDSWriter {
         try {
             VrfTables vrfTable = singleTxDB.syncRead(LogicalDatastoreType.CONFIGURATION, id);
             if (vrfTable != null) {
-                List<VrfEntry> vrfEntries = vrfTable.getVrfEntry();
-                if (vrfEntries == null) {
+                Map<VrfEntryKey, VrfEntry> keyVrfEntryMap = vrfTable.getVrfEntry();
+                if (keyVrfEntryMap == null) {
                     LOG.error("removeVrfSubFamilyFromDS : VrfEntry not found for rd {}", rd);
                     return;
                 }
-                for (VrfEntry vrfEntry : vrfEntries) {
+                for (VrfEntry vrfEntry : keyVrfEntryMap.values()) {
                     boolean found = false;
                     if (vrfEntry.getEncapType() != null) {
                         if (!vrfEntry.getEncapType().equals(EncapType.Mplsgre)

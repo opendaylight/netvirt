@@ -10,7 +10,7 @@ package org.opendaylight.netvirt.bgpmanager;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.List;
+import java.util.Map;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
@@ -20,6 +20,7 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.protocol_type;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.TcpMd5SignaturePasswordType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.Neighbors;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.NeighborsKey;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
 @Command(scope = "odl", name = "configure-bgp", description = "")
@@ -202,12 +203,12 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
         if (conf == null) {
             return -1;
         }
-        List<Neighbors> nbrs = conf.getNeighborsContainer() == null ? null
+        Map<NeighborsKey, Neighbors> keyNeighborsMap = conf.getNeighborsContainer() == null ? null
                 : conf.getNeighborsContainer().getNeighbors();
-        if (nbrs == null) {
+        if (keyNeighborsMap == null) {
             return -1;
         }
-        for (Neighbors nbr : nbrs) {
+        for (Neighbors nbr : keyNeighborsMap.values()) {
             if (nbrIp.equals(nbr.getAddress().getValue())) {
                 return nbr.getRemoteAs().toJava();
             }
@@ -220,9 +221,9 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
         if (conf == null) {
             return;
         }
-        List<Neighbors> nbrs = conf.getNeighborsContainer() == null ? null
+        Map<NeighborsKey, Neighbors> keyNeighborsMap = conf.getNeighborsContainer() == null ? null
                 : conf.getNeighborsContainer().getNeighbors();
-        if (nbrs != null && nbrs.size() > 0) {
+        if (keyNeighborsMap != null && keyNeighborsMap.size() > 0) {
             session.getConsole().println(
                     "error: all BGP congiguration must be deleted before stopping the router instance");
             return;

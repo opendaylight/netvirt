@@ -12,6 +12,7 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.MapDifference.ValueDifference;
 import com.google.common.collect.Maps;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -42,8 +43,6 @@ import org.opendaylight.netvirt.elan.internal.ElanBridgeManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.ovsdb.utils.mdsal.utils.ControllerMdsalUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.BridgeRefInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.bridge.ref.info.BridgeRefEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.bridge.ref.info.BridgeRefEntryKey;
@@ -58,7 +57,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.TransportZoneBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.TransportZoneKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.Vteps;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.VtepsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.VtepsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
@@ -355,7 +353,7 @@ public class TransportZoneNotificationUtil {
     }
 
     private List<String> getTepTransportZoneNames(TunnelEndPoints tep) {
-        List<TzMembership> tzMembershipList = tep.getTzMembership();
+        List<TzMembership> tzMembershipList = new ArrayList<TzMembership>(tep.getTzMembership().values());
         if (tzMembershipList == null) {
             LOG.debug("No TZ membership exist for TEP ip {}", tep.getIpAddress().stringValue());
             return Collections.emptyList();
@@ -382,17 +380,19 @@ public class TransportZoneNotificationUtil {
      * @return Whether a vtep was added or not.
      */
     private boolean addVtep(TransportZone zone, String subnetIp, Uint64 dpnId, @Nullable String localIp) {
-        for (Vteps existingVtep : zone.nonnullVteps()) {
+        for (Vteps existingVtep : new ArrayList<Vteps>(zone.nonnullVteps().values())) {
             if (Objects.equals(existingVtep.getDpnId(), dpnId)) {
                 return false;
             }
         }
 
         if (localIp != null) {
-            IpAddress nodeIp = IpAddressBuilder.getDefaultInstance(localIp);
+            //This seems to be a unused code, creating unused objects
+            //Check if any assignment needed here.
+            /*IpAddress nodeIp = IpAddressBuilder.getDefaultInstance(localIp);
             VtepsBuilder vtepsBuilder = new VtepsBuilder().setDpnId(dpnId).setIpAddress(nodeIp)
                     .setOptionOfTunnel(elanConfig.isUseOfTunnels());
-            zone.getVteps().add(vtepsBuilder.build());
+            zone.getVteps().add(vtepsBuilder.build());*/
             return true;
         }
 

@@ -15,6 +15,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.PreDestroy;
@@ -52,7 +53,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.Ports;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.PortsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMapKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -175,7 +178,7 @@ public class NatTepChangeListener extends AbstractAsyncDataTreeChangeListener<Tu
                 .syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                     LogicalDatastoreType.OPERATIONAL, dpnRoutersListId);
         if (optionalRouterDpnList.isPresent()) {
-            routersList = optionalRouterDpnList.get().getRoutersList();
+            routersList = new ArrayList<RoutersList>(optionalRouterDpnList.get().getRoutersList().values());
         } else {
             LOG.debug(
                 "NAT Service : RouterDpnList is empty for DPN {}. Hence ignoring TEP DEL event",
@@ -275,8 +278,8 @@ public class NatTepChangeListener extends AbstractAsyncDataTreeChangeListener<Tu
                 l3Vni = natOverVxlanUtil.getInternetVpnVni(vpnName, routerId);
             }
         }
-        List<Ports> interfaces = routerPorts.getPorts();
-        for (Ports port : interfaces) {
+        Map<PortsKey, Ports> interfacesMap = routerPorts.getPorts();
+        for (Ports port : interfacesMap.values()) {
             //Get the DPN on which this interface resides
             String interfaceName = port.getPortName();
             Uint64 fipCfgdDpnId = NatUtil.getDpnForInterface(interfaceService, interfaceName);
@@ -294,8 +297,9 @@ public class NatTepChangeListener extends AbstractAsyncDataTreeChangeListener<Tu
                 continue;
             }
             isFipExists = Boolean.TRUE;
-            List<InternalToExternalPortMap> intExtPortMapList = port.getInternalToExternalPortMap();
-            for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
+            Map<InternalToExternalPortMapKey, InternalToExternalPortMap> keyInternalToExternalPortMapMap
+                    = port.getInternalToExternalPortMap();
+            for (InternalToExternalPortMap intExtPortMap : keyInternalToExternalPortMapMap.values()) {
                 String internalIp = intExtPortMap.getInternalIp();
                 String externalIp = intExtPortMap.getExternalIp();
                 externalIp = NatUtil.validateAndAddNetworkMask(externalIp);

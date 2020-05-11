@@ -20,7 +20,6 @@ import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.BgpConfigurator;
 
 public class BgpRouterAddNeighborTest {

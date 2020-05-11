@@ -11,7 +11,7 @@ import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
 import java.math.BigInteger;
 import java.util.Collection;
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.locks.ReentrantLock;
@@ -34,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Rem
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.remove.dpn.event.RemoveEventData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,9 +74,9 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
                     SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
             if (vpnOpValue.isPresent()) {
                 VpnInstanceOpDataEntry vpnInstOpData = vpnOpValue.get();
-                List<VpnToDpnList> vpnToDpnList = vpnInstOpData.nonnullVpnToDpnList();
+                Map<VpnToDpnListKey, VpnToDpnList> vpnToDpnMap = vpnInstOpData.nonnullVpnToDpnList();
                 boolean flushDpnsOnVpn = true;
-                for (VpnToDpnList dpn : vpnToDpnList) {
+                for (VpnToDpnList dpn : vpnToDpnMap.values()) {
                     if (dpn.getDpnState() == VpnToDpnList.DpnState.Active) {
                         flushDpnsOnVpn = false;
                         break;
@@ -84,7 +85,7 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
                 if (flushDpnsOnVpn) {
                     try {
                         txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL,
-                            tx -> deleteDpn(vpnToDpnList, rd, tx)).get();
+                            tx -> deleteDpn(vpnToDpnMap.values(), rd, tx)).get();
                     } catch (InterruptedException | ExecutionException e) {
                         LOG.error("Error removing dpnToVpnList for vpn {} ", vpnName);
                         throw new RuntimeException(e.getMessage(), e);

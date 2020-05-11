@@ -9,10 +9,8 @@ package org.opendaylight.netvirt.neutronvpn;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;

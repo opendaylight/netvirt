@@ -7,16 +7,14 @@
  */
 package org.opendaylight.netvirt.cloudservicechain.utils;
 
-import java.util.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
-import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -27,6 +25,8 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.utils.ServiceIndex;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.cloudservicechain.CloudServiceChainConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
@@ -52,7 +52,9 @@ public final class ElanServiceChainUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanServiceChainUtils.class);
 
-    private ElanServiceChainUtils() { }
+    private ElanServiceChainUtils() {
+
+    }
 
     public static InstanceIdentifier<ElanInstance> getElanInstanceConfigDataPath(String elanInstanceName) {
         return InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class,
