@@ -12,6 +12,7 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
@@ -38,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIpsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.serviceutils.upgrade.rev180702.UpgradeConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -104,7 +106,8 @@ public class UpgradeStateListener extends AbstractClusteredSyncDataTreeChangeLis
             if (original.isUpgradeInProgress() && !updated.isUpgradeInProgress()) {
                 Optional<NaptSwitches> npatSwitches = NatUtil.getAllPrimaryNaptSwitches(dataBroker);
                 if (npatSwitches.isPresent()) {
-                    for (RouterToNaptSwitch routerToNaptSwitch : npatSwitches.get().nonnullRouterToNaptSwitch()) {
+                    for (RouterToNaptSwitch routerToNaptSwitch
+                            : npatSwitches.get().nonnullRouterToNaptSwitch().values()) {
                         Uint64 primaryNaptDpnId = routerToNaptSwitch.getPrimarySwitchId();
                         if (!NatUtil.getSwitchStatus(dataBroker, routerToNaptSwitch.getPrimarySwitchId())) {
                             String routerUuid = routerToNaptSwitch.getRouterName();
@@ -135,8 +138,8 @@ public class UpgradeStateListener extends AbstractClusteredSyncDataTreeChangeLis
             return;
         }
 
-        for (Routers router : routers.nonnullRouters()) {
-            List<ExternalIps> externalIps = router.getExternalIps();
+        for (Routers router : routers.nonnullRouters().values()) {
+            Map<ExternalIpsKey, ExternalIps> externalIps = router.getExternalIps();
             if (router.isEnableSnat() && externalIps != null && !externalIps.isEmpty()) {
                 centralizedSwitchScheduler.scheduleCentralizedSwitch(router);
             }

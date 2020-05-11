@@ -222,7 +222,7 @@ public class ElanBridgeManager {
             return null;
         }
 
-        return ovsdbNode.nonnullManagedNodeEntry();
+        return new ArrayList<>(ovsdbNode.nonnullManagedNodeEntry().values());
     }
 
     private void prepareIntegrationBridge(Node ovsdbNode, Node brIntNode) {
@@ -260,7 +260,7 @@ public class ElanBridgeManager {
 
     private void copyBridgeToConfig(Node brIntNode) {
         NodeBuilder bridgeNodeBuilder = new NodeBuilder(brIntNode);
-        bridgeNodeBuilder.setTerminationPoint(null);
+        bridgeNodeBuilder.setTerminationPoint(Collections.emptyMap());
         InstanceIdentifier<Node> brNodeIid = SouthboundUtils.createInstanceIdentifier(brIntNode.getNodeId());
         try {
             SingleTransactionDataBroker.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION,
@@ -350,7 +350,7 @@ public class ElanBridgeManager {
         if (bridgeAug != null) {
             DatapathId dpId = bridgeAug.getDatapathId();
             if (dpId != null) {
-                otherConfigs = bridgeAug.getBridgeOtherConfigs();
+                otherConfigs = new ArrayList<>(bridgeAug.getBridgeOtherConfigs().values());
                 if (otherConfigs == null) {
                     otherConfigs = Lists.newArrayList();
                 }
@@ -573,13 +573,13 @@ public class ElanBridgeManager {
      */
     @Nullable
     private Node getBridgeNode(Uint64 dpId) {
-        List<Node> ovsdbNodes = southboundUtils.getOvsdbNodes();
+        Map<NodeKey, Node> ovsdbNodes = southboundUtils.getOvsdbNodes();
         if (null == ovsdbNodes) {
             LOG.debug("Could not find any (?) ovsdb nodes");
             return null;
         }
 
-        for (Node node : ovsdbNodes) {
+        for (Node node : ovsdbNodes.values()) {
             if (!isIntegrationBridge(node)) {
                 continue;
             }

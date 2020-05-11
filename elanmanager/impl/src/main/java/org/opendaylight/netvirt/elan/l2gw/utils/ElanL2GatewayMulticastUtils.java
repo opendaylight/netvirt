@@ -14,14 +14,8 @@ import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlanNetworkOrVxla
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -332,7 +326,7 @@ public class ElanL2GatewayMulticastUtils {
     @Nullable
     private static DpnInterfaces getDpnInterfaces(ElanDpnInterfacesList elanDpns, Uint64 dpnId) {
         if (elanDpns != null) {
-            for (DpnInterfaces dpnInterface : elanDpns.nonnullDpnInterfaces()) {
+            for (DpnInterfaces dpnInterface : elanDpns.nonnullDpnInterfaces().values()) {
                 if (Objects.equals(dpnInterface.getDpId(), dpnId)) {
                     return dpnInterface;
                 }
@@ -415,12 +409,12 @@ public class ElanL2GatewayMulticastUtils {
         if (operElanInstance == null) {
             return emptyList();
         }
-        List<ExternalTeps> teps = operElanInstance.getExternalTeps();
+        Map<ExternalTepsKey, ExternalTeps> teps = operElanInstance.getExternalTeps();
         if (teps == null || teps.isEmpty()) {
             return emptyList();
         }
         List<Bucket> listBucketInfo = new ArrayList<>();
-        for (ExternalTeps tep : teps) {
+        for (ExternalTeps tep : teps.values()) {
             String externalTep = tep.getNodeid() != null ? tep.getNodeid() : tep.getTepIp().toString();
             String interfaceName = elanItmUtils.getExternalTunnelInterfaceName(String.valueOf(dpnId),
                     externalTep);
@@ -446,7 +440,7 @@ public class ElanL2GatewayMulticastUtils {
             long elanTagOrVni) {
         List<Bucket> listBucketInfo = new ArrayList<>();
         if (elanDpns != null) {
-            for (DpnInterfaces dpnInterface : elanDpns.nonnullDpnInterfaces())  {
+            for (DpnInterfaces dpnInterface : elanDpns.nonnullDpnInterfaces().values())  {
                 if (!Objects.equals(dpnInterface.getDpId(), dpnId) && dpnInterface.getInterfaces() != null
                         && !dpnInterface.getInterfaces().isEmpty()) {
                     try {

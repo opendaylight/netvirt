@@ -199,7 +199,7 @@ public class QosTerminationPointListener extends
     @Nullable
     private String getIfaceId(OvsdbTerminationPointAugmentation tpAugmentation) {
         if (tpAugmentation.getInterfaceExternalIds() != null) {
-            for (InterfaceExternalIds entry: tpAugmentation.getInterfaceExternalIds()) {
+            for (InterfaceExternalIds entry: tpAugmentation.getInterfaceExternalIds().values()) {
                 if (EXTERNAL_ID_INTERFACE_ID.equals(entry.getExternalIdKey())) {
                     return entry.getExternalIdValue();
                 }
