@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -125,10 +126,10 @@ public abstract class HwvtepNodeBaseListener<D extends Datastore>
         List<Managers> up = null;
         List<Managers> be = null;
         if (updatedAugmentaion != null) {
-            up = updatedAugmentaion.getManagers();
+            up = new ArrayList<Managers>(updatedAugmentaion.getManagers().values());
         }
         if (beforeAugmentaion != null) {
-            be = beforeAugmentaion.getManagers();
+            be = new ArrayList<Managers>(beforeAugmentaion.getManagers().values());
         }
 
         if (up != null) {

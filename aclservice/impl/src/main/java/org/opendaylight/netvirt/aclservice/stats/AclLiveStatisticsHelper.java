@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.aclservice.stats;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.eclipse.jdt.annotation.NonNull;
@@ -25,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511
 import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.GetFlowStatisticsOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.OpendaylightDirectStatisticsService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.statistics.rev130819.flow.and.statistics.map.list.FlowAndStatisticsMapList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.statistics.rev130819.flow.and.statistics.map.list.FlowAndStatisticsMapListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowCookie;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.Match;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.MatchBuilder;
@@ -152,8 +154,9 @@ public final class AclLiveStatisticsHelper {
      */
     private static void getAclDropStats(Direction direction, AclPortStatsBuilder aclStatsBuilder,
             GetFlowStatisticsOutput flowStatsOutput) {
-        List<FlowAndStatisticsMapList> flowAndStatisticsMapList = flowStatsOutput.getFlowAndStatisticsMapList();
-        if (flowAndStatisticsMapList == null || flowAndStatisticsMapList.isEmpty()) {
+        Map<FlowAndStatisticsMapListKey, FlowAndStatisticsMapList> keyFlowAndStatisticsMapListMap
+                = flowStatsOutput.getFlowAndStatisticsMapList();
+        if (keyFlowAndStatisticsMapListMap == null || keyFlowAndStatisticsMapListMap.isEmpty()) {
             String errMsg = "Unable to retrieve drop counts as interface is not configured for statistics collection.";
             aclStatsBuilder.setError(new ErrorBuilder().setErrorMessage(errMsg).build());
             return;
@@ -165,7 +168,7 @@ public final class AclLiveStatisticsHelper {
         PacketsBuilder portEgressPacketsBuilder = new PacketsBuilder();
         PacketsBuilder portIngressPacketsBuilder = new PacketsBuilder();
 
-        for (FlowAndStatisticsMapList flowStats : flowAndStatisticsMapList) {
+        for (FlowAndStatisticsMapList flowStats : keyFlowAndStatisticsMapListMap.values()) {
             switch (flowStats.getTableId().toJava()) {
                 case NwConstants.INGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE:
                     if (AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY.equals(flowStats.getPriority().toJava())) {

@@ -11,7 +11,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collections;
 import java.util.List;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnServiceChainUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev160711.vpn.to.pseudo.port.list.VpnToPseudoPortData;
@@ -51,7 +50,6 @@ public class AddVpnPseudoPortDataJob extends VpnPseudoPortDataBaseJob {
         InstanceIdentifier<VpnToPseudoPortData> path = VpnServiceChainUtils.getVpnToPseudoPortTagIid(vpnRd);
 
         return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-            tx -> tx.put(LogicalDatastoreType.CONFIGURATION, path, newValue,
-                    WriteTransaction.CREATE_MISSING_PARENTS)));
+            tx -> tx.mergeParentStructurePut(LogicalDatastoreType.CONFIGURATION, path, newValue)));
     }
 }

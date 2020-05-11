@@ -16,7 +16,6 @@ import static org.opendaylight.netvirt.bgpmanager.oam.BgpConstants.MIN_TX_MAX;
 import static org.opendaylight.netvirt.bgpmanager.oam.BgpConstants.MIN_TX_MIN;
 
 import java.io.PrintStream;
-
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;

@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
+import java.util.ArrayList;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -75,7 +76,7 @@ public class DhcpConfigListener extends AbstractClusteredAsyncDataTreeChangeList
             dhcpManager.setDefaultDomain(DhcpMConstants.DEFAULT_DOMAIN_NAME);
             return;
         }
-        Configs config = update.getConfigs().get(0);
+        Configs config = new ArrayList<Configs>(update.getConfigs().values()).get(0);
         if (config.getLeaseDuration() != null) {
             dhcpManager.setLeaseDuration(config.getLeaseDuration());
         }

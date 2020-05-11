@@ -222,27 +222,27 @@ public class VpnSubnetRouteHandlerTest {
         vpnInstanceOptional = Optional.of(vpnInstnce);
         optionalNetworks = Optional.of(networks);
 
-        doReturn(Futures.immediateCheckedFuture(optionalIfState)).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(Futures.immediateFuture(optionalIfState)).when(mockReadTx).read(LogicalDatastoreType
             .OPERATIONAL, ifStateId);
-        doReturn(Futures.immediateCheckedFuture(optionalSubs)).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(Futures.immediateFuture(optionalSubs)).when(mockReadTx).read(LogicalDatastoreType
             .OPERATIONAL, subOpIdentifier);
-        doReturn(Futures.immediateCheckedFuture(optionalSubDpn)).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(Futures.immediateFuture(optionalSubDpn)).when(mockReadTx).read(LogicalDatastoreType
             .OPERATIONAL, dpnOpId);
-        doReturn(Futures.immediateCheckedFuture(optionalTunnelInfo)).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(Futures.immediateFuture(optionalTunnelInfo)).when(mockReadTx).read(LogicalDatastoreType
             .CONFIGURATION, tunnelInfoId);
-        doReturn(Futures.immediateCheckedFuture(optionalPortOp)).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(Futures.immediateFuture(optionalPortOp)).when(mockReadTx).read(LogicalDatastoreType
             .OPERATIONAL, portOpIdentifier);
-        doReturn(Futures.immediateCheckedFuture(optionalPtOp)).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(Futures.immediateFuture(optionalPtOp)).when(mockReadTx).read(LogicalDatastoreType
             .OPERATIONAL, portOpIdentifr);
-        doReturn(Futures.immediateCheckedFuture(optionalPortOp)).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(Futures.immediateFuture(optionalPortOp)).when(mockReadTx).read(LogicalDatastoreType
             .OPERATIONAL, instPortOp);
-        doReturn(Futures.immediateCheckedFuture(optionalSubnetMap)).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(Futures.immediateFuture(optionalSubnetMap)).when(mockReadTx).read(LogicalDatastoreType
             .CONFIGURATION, subMapid);
-        doReturn(Futures.immediateCheckedFuture(optionalVpnInstnce)).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(Futures.immediateFuture(optionalVpnInstnce)).when(mockReadTx).read(LogicalDatastoreType
             .CONFIGURATION, instVpnInstance);
-        doReturn(Futures.immediateCheckedFuture(vpnInstanceOptional)).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(Futures.immediateFuture(vpnInstanceOptional)).when(mockReadTx).read(LogicalDatastoreType
             .CONFIGURATION, vpnInstanceIdentifier);
-        doReturn(Futures.immediateCheckedFuture(Optional.empty())).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(Futures.immediateFuture(Optional.empty())).when(mockReadTx).read(LogicalDatastoreType
             .CONFIGURATION, netsIdentifier);
         doReturn(idOutputOptional).when(idManager).allocateId(allocateIdInput);
 
@@ -309,7 +309,7 @@ public class VpnSubnetRouteHandlerTest {
         networks = new NetworksBuilder().setId(portId).withKey(new NetworksKey(portId)).build();
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();
         doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();
-        doReturn(Futures.immediateCheckedFuture(null)).when(mockWriteTx).commit();
+        doReturn(Futures.immediateFuture(null)).when(mockWriteTx).commit();
     }
 
     @Ignore
@@ -318,12 +318,9 @@ public class VpnSubnetRouteHandlerTest {
 
         vpnSubnetRouteHandler.onPortAddedToSubnet(subnetmap, portId);
 
-        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, portOpIdentifier, portOp,
-                WriteTransaction.CREATE_MISSING_PARENTS);
-        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, dpnOpId, subnetToDpn,
-                WriteTransaction.CREATE_MISSING_PARENTS);
-        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subnetOp,
-                WriteTransaction.CREATE_MISSING_PARENTS);
+        verify(mockWriteTx).mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, portOpIdentifier, portOp);
+        verify(mockWriteTx).mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, dpnOpId, subnetToDpn);
+        verify(mockWriteTx).mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subnetOp);
     }
 
     @Ignore
@@ -333,10 +330,8 @@ public class VpnSubnetRouteHandlerTest {
         vpnSubnetRouteHandler.onPortRemovedFromSubnet(subnetmap, portId);
 
         verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
-        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, dpnOpId, subnetToDpn,
-                WriteTransaction.CREATE_MISSING_PARENTS);
-        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subnetOp,
-                WriteTransaction.CREATE_MISSING_PARENTS);
+        verify(mockWriteTx).mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, dpnOpId, subnetToDpn);
+        verify(mockWriteTx).mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subnetOp);
 
     }
 
@@ -346,12 +341,9 @@ public class VpnSubnetRouteHandlerTest {
 
         vpnSubnetRouteHandler.onInterfaceUp(dpId, interfaceName, subnetId);
 
-        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, instPortOp, portOp,
-                WriteTransaction.CREATE_MISSING_PARENTS);
-        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, dpnOpId, subnetToDpn,
-                WriteTransaction.CREATE_MISSING_PARENTS);
-        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subnetOp,
-                WriteTransaction.CREATE_MISSING_PARENTS);
+        verify(mockWriteTx).mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, instPortOp, portOp);
+        verify(mockWriteTx).mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, dpnOpId, subnetToDpn);
+        verify(mockWriteTx).mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subnetOp);
     }
 
     @Ignore
@@ -362,8 +354,7 @@ public class VpnSubnetRouteHandlerTest {
 
         // TODO: subnetOpDpnManager is mocked so not sure how this delete ever worked.
         //verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, dpnOpId);
-        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subnetOp,
-                WriteTransaction.CREATE_MISSING_PARENTS);
+        verify(mockWriteTx).mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subnetOp);
 
     }
 
@@ -371,15 +362,13 @@ public class VpnSubnetRouteHandlerTest {
     @Test
     public void testOnSubnetAddedToVpn() {
 
-        doReturn(Futures.immediateCheckedFuture(Optional.empty())).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(Futures.immediateFuture(Optional.empty())).when(mockReadTx).read(LogicalDatastoreType
             .OPERATIONAL, subOpIdentifier);
 
         vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmap, true, elanTag);
 
-        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, dpnOpId, subnetToDpn,
-                WriteTransaction.CREATE_MISSING_PARENTS);
-        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, portOpIdentifier, portOp,
-                WriteTransaction.CREATE_MISSING_PARENTS);
+        verify(mockWriteTx).mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, dpnOpId, subnetToDpn);
+        verify(mockWriteTx).mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, portOpIdentifier, portOp);
 
 
     }
