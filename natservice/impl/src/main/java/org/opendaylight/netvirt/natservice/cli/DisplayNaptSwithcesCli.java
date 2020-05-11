@@ -48,7 +48,7 @@ public class DisplayNaptSwithcesCli extends OsgiCommandSupport {
         ps.printf(String.format(" %-36s  %-20s  %-20s %n", "Router Id ", "Datapath Node Id", "Managment Ip Address"));
         ps.printf("-------------------------------------------------------------------------------------------%n");
         if (npatSwitches.isPresent()) {
-            for (RouterToNaptSwitch routerToNaptSwitch : npatSwitches.get().nonnullRouterToNaptSwitch()) {
+            for (RouterToNaptSwitch routerToNaptSwitch : npatSwitches.get().nonnullRouterToNaptSwitch().values()) {
                 ps.printf(String.format(" %-36s  %-20s  %-20s %n", routerToNaptSwitch.getRouterName(),
                      routerToNaptSwitch.getPrimarySwitchId(),
                      getDpnLocalIp(routerToNaptSwitch.getPrimarySwitchId().toJava())));
@@ -92,7 +92,7 @@ public class DisplayNaptSwithcesCli extends OsgiCommandSupport {
         }
 
         if (ovsdbNode != null && ovsdbNode.getOpenvswitchOtherConfigs() != null) {
-            for (OpenvswitchOtherConfigs openvswitchOtherConfigs : ovsdbNode.getOpenvswitchOtherConfigs()) {
+            for (OpenvswitchOtherConfigs openvswitchOtherConfigs : ovsdbNode.getOpenvswitchOtherConfigs().values()) {
                 if (key.equals(openvswitchOtherConfigs.getOtherConfigKey())) {
                     return openvswitchOtherConfigs.getOtherConfigValue();
                 }

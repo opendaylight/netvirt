@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.aclservice.utils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 

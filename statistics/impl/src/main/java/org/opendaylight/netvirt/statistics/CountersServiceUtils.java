@@ -86,7 +86,9 @@ public final class CountersServiceUtils {
 
     private static AtomicLong flowIdInc = new AtomicLong(2);
 
-    private CountersServiceUtils() { }
+    private CountersServiceUtils() {
+
+    }
 
     public static BoundServices getBoundServices(String serviceName, short servicePriority, int flowPriority,
             BigInteger cookie, List<Instruction> instructions) {

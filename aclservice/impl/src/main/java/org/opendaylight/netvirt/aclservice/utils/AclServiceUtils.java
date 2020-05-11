@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.aclservice.utils;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
@@ -24,6 +23,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -944,7 +944,7 @@ public final class AclServiceUtils {
         AclIpPrefixes aclIpPrefixes = getAclIpPrefixesFromOperDs(remoteAclId.getValue(), ipPrefix);
         if (aclIpPrefixes != null && aclIpPrefixes.getPortIds() != null) {
             List<String> ignorePorts = Lists.newArrayList(portId);
-            List<PortIds> portIds = new ArrayList<>(aclIpPrefixes.getPortIds());
+            List<PortIds> portIds = new ArrayList<>(aclIpPrefixes.getPortIds().values());
             // Checking if there are any other ports excluding ignorePorts
             long noOfRemotePorts =
                     portIds.stream().map(PortIds::getPortId).filter(y -> !ignorePorts.contains(y)).count();
@@ -1048,7 +1048,7 @@ public final class AclServiceUtils {
                                 new PortIdsBuilder().withKey(new PortIdsKey(portId)).setPortId(portId).build();
                         InstanceIdentifier<PortIds> path =
                                 AclServiceUtils.getPortIdsPathInAclPortsLookup(aclName, aap.getIpAddress(), portId);
-                        tx.put(path, portIdObj, CREATE_MISSING_PARENTS);
+                        tx.mergeParentStructurePut(path, portIdObj);
                     }
                 }));
                 return futures;
@@ -1091,12 +1091,13 @@ public final class AclServiceUtils {
             return;
         }
         boolean deleteEntireAcl;
-        List<AclIpPrefixes> ipPrefixes = aclPortsByIp.getAclIpPrefixes();
-        if (ipPrefixes == null || ipPrefixes.isEmpty()) {
+        @NonNull Map<AclIpPrefixesKey, AclIpPrefixes> aclIpPrefixesKeyAclIpPrefixesMap
+                = aclPortsByIp.getAclIpPrefixes();
+        if (aclIpPrefixesKeyAclIpPrefixesMap == null || aclIpPrefixesKeyAclIpPrefixesMap.isEmpty()) {
             deleteEntireAcl = true;
         } else {
             boolean deleteMap = true;
-            for (AclIpPrefixes ipPrefix : ipPrefixes) {
+            for (AclIpPrefixes ipPrefix : aclIpPrefixesKeyAclIpPrefixesMap.values()) {
                 if (ipPrefix.getPortIds() != null && !ipPrefix.getPortIds().isEmpty()) {
                     deleteMap = false;
                     break;
@@ -1107,7 +1108,7 @@ public final class AclServiceUtils {
         if (deleteEntireAcl) {
             tx.delete(AclServiceUtils.aclPortsByIpPath(aclName));
         } else {
-            for (AclIpPrefixes ipPrefix : ipPrefixes) {
+            for (AclIpPrefixes ipPrefix : aclIpPrefixesKeyAclIpPrefixesMap.values()) {
                 if (ipPrefix.getPortIds() == null || ipPrefix.getPortIds().isEmpty()) {
                     InstanceIdentifier<AclIpPrefixes> delPath =
                             AclServiceUtils.getAclIpPrefixesPath(aclName, ipPrefix.getIpPrefix());

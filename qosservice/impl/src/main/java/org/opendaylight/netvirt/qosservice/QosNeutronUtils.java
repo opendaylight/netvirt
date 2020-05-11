@@ -485,11 +485,11 @@ public class QosNeutronUtils {
         tpBuilder.addAugmentation(OvsdbTerminationPointAugmentation.class, tpAugmentationBuilder.build());
         try {
             if (writeConfigTxn != null) {
-                writeConfigTxn.merge(InstanceIdentifier
+                writeConfigTxn.mergeParentStructureMerge(InstanceIdentifier
                         .create(NetworkTopology.class)
                         .child(Topology.class, new TopologyKey(SouthboundUtils.OVSDB_TOPOLOGY_ID))
                         .child(Node.class, bridgeNode.get().key())
-                        .child(TerminationPoint.class, new TerminationPointKey(tp.key())), tpBuilder.build(), true);
+                        .child(TerminationPoint.class, new TerminationPointKey(tp.key())), tpBuilder.build());
             } else {
                 MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier
                         .create(NetworkTopology.class)
@@ -883,7 +883,7 @@ public class QosNeutronUtils {
 
     public int getIpVersions(Port port) {
         int versions = 0;
-        for (FixedIps fixedIp: port.getFixedIps()) {
+        for (FixedIps fixedIp: port.getFixedIps().values()) {
             if (fixedIp.getIpAddress().getIpv4Address() != null) {
                 versions |= (1 << QosConstants.IPV4_ADDR_MASK_BIT);
             } else if (fixedIp.getIpAddress().getIpv6Address() != null) {

@@ -11,9 +11,10 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -28,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.Fl
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeLeafTagName;
@@ -80,11 +82,11 @@ public class ElanDmacUtils {
             Long vni, String dstMacAddress, String displayName) {
         List<MatchInfo> mkMatches =
                 ElanUtils.buildMatchesForElanTagShFlagAndDstMac(elanTag, /* shFlag */ false, dstMacAddress);
-        List<Instruction> mkInstructions = new ArrayList<>();
+        Map<InstructionKey, Instruction> mkInstructionsMap = new HashMap<>();
         try {
             List<Action> actions =
                     elanItmUtils.getExternalTunnelItmEgressAction(dpId, new NodeId(extDeviceNodeId), vni);
-            mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));
+            mkInstructionsMap.put(new InstructionKey(0), MDSALUtil.buildApplyActionsInstruction(actions));
         } catch (Exception e) {
             LOG.error("Could not get Egress Actions for DpId {} externalNode {}", dpId, extDeviceNodeId, e);
         }
@@ -96,7 +98,7 @@ public class ElanDmacUtils {
                 displayName, 0, /* idleTimeout */
                 0, /* hardTimeout */
                 Uint64.valueOf(ElanConstants.COOKIE_ELAN_KNOWN_DMAC.toJava().add(BigInteger.valueOf(elanTag))),
-                mkMatches, mkInstructions);
+                mkMatches, mkInstructionsMap);
     }
 
     /**
@@ -171,7 +173,7 @@ public class ElanDmacUtils {
             Long elanTag, String dstMacAddress) {
         List<MatchInfo> mkMatches =
                 ElanUtils.buildMatchesForElanTagShFlagAndDstMac(elanTag, SH_FLAG_SET, dstMacAddress);
-        List<Instruction> mkInstructions = MDSALUtil.buildInstructionsDrop();
+        Map<InstructionKey, Instruction> mkInstructionsMap = MDSALUtil.buildInstructionsDrop();
         String flowId =
                 ElanUtils.getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpnId, extDeviceNodeId, dstMacAddress,
                         elanTag, true);
@@ -180,7 +182,7 @@ public class ElanDmacUtils {
                 "Drop", 0, /* idleTimeout */
                 0, /* hardTimeout */
                 Uint64.valueOf(ElanConstants.COOKIE_ELAN_KNOWN_DMAC.toJava().add(BigInteger.valueOf(elanTag))),
-                mkMatches, mkInstructions);
+                mkMatches, mkInstructionsMap);
     }
 
     private ListenableFuture<Void> buildEtreeDmacFlowForExternalRemoteMacWithBatch(

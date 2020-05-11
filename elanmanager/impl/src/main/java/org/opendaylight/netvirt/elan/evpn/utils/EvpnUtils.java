@@ -44,7 +44,6 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
-import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
@@ -351,14 +350,16 @@ public class EvpnUtils {
             LOG.info("No DC gateways configured while programming the l2vni table.");
             return tunnelInterfaceNameList;
         }
-        List<DcGatewayIp> dcGatewayIps = dcGatewayIpListOptional.get().nonnullDcGatewayIp();
+        List<DcGatewayIp> dcGatewayIps
+                = new ArrayList<DcGatewayIp>(dcGatewayIpListOptional.get().nonnullDcGatewayIp().values());
 
         Optional<ExternalTunnelList> externalTunnelListOptional = getExternalTunnelList();
         if (!externalTunnelListOptional.isPresent()) {
             LOG.info("No External Tunnel Configured while programming the l2vni table.");
             return tunnelInterfaceNameList;
         }
-        List<ExternalTunnel> externalTunnels = externalTunnelListOptional.get().nonnullExternalTunnel();
+        List<ExternalTunnel> externalTunnels
+                = new ArrayList<ExternalTunnel>(externalTunnelListOptional.get().nonnullExternalTunnel().values());
 
         dcGatewayIps.forEach(dcIp -> externalTunnels
                 .stream()
@@ -383,7 +384,7 @@ public class EvpnUtils {
                     NwConstants.ELAN_SERVICE_INDEX, NwConstants.COOKIE_ELAN_INGRESS_TABLE, instructions);
             InstanceIdentifier<BoundServices> bindServiceId = ElanUtils.buildServiceId(interfaceName, elanServiceIndex);
             if (!tx.read(bindServiceId).get().isPresent()) {
-                tx.put(bindServiceId, serviceInfo, WriteTransaction.CREATE_MISSING_PARENTS);
+                tx.mergeParentStructurePut(bindServiceId, serviceInfo);
             }
         }), LOG, "Error binding an ELAN service to an external tunnel");
     }

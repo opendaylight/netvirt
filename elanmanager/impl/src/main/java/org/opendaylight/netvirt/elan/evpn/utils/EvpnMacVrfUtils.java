@@ -11,6 +11,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
@@ -37,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.macvrfentries.MacVrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.macvrfentries.MacVrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.EvpnRdToNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.rd.to.networks.EvpnRdToNetwork;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.rd.to.networks.EvpnRdToNetworkKey;
@@ -131,11 +133,11 @@ public class EvpnMacVrfUtils {
                 if (!vrfTablesOptional.isPresent()) {
                     return null;
                 }
-                List<MacVrfEntry> macVrfEntries = vrfTablesOptional.get().getMacVrfEntry();
-                if (macVrfEntries == null || macVrfEntries.isEmpty()) {
+                Map<MacVrfEntryKey, MacVrfEntry> keyMacVrfEntryMap = vrfTablesOptional.get().getMacVrfEntry();
+                if (keyMacVrfEntryMap == null || keyMacVrfEntryMap.isEmpty()) {
                     return null;
                 }
-                for (MacVrfEntry macVrfEntry : macVrfEntries) {
+                for (MacVrfEntry macVrfEntry : keyMacVrfEntryMap.values()) {
                     InstanceIdentifier<MacVrfEntry> macVrfEntryIid = getMacVrfEntryIid(rd, macVrfEntry);
                     if (install) {
                         addEvpnDmacFlowOnAttach(macVrfEntryIid, macVrfEntry, elanInstance);

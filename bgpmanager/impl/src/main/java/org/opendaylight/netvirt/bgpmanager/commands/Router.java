@@ -8,7 +8,7 @@
 
 package org.opendaylight.netvirt.bgpmanager.commands;
 
-import java.util.List;
+import java.util.Map;
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
@@ -16,6 +16,7 @@ import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.netvirt.bgpmanager.BgpManager;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.Neighbors;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.NeighborsKey;
 
 @Command(scope = "odl", name = "bgp-rtr",
         description = "Add or delete BGP router instance")
@@ -113,9 +114,9 @@ public class Router extends OsgiCommandSupport {
                     session.getConsole().println("error : no BGP configs present");
                     break;
                 }
-                List<Neighbors> nbrs = conf.getNeighborsContainer() == null ? null
+                Map<NeighborsKey, Neighbors> keyNeighborsMap = conf.getNeighborsContainer() == null ? null
                         : conf.getNeighborsContainer().getNeighbors();
-                if (nbrs != null && nbrs.size() > 0) {
+                if (keyNeighborsMap != null && keyNeighborsMap.size() > 0) {
                     session.getConsole().println("error: all BGP congiguration must be deleted "
                             + "before stopping the router instance");
                     break;
