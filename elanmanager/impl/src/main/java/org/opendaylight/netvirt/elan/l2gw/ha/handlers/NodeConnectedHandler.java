@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.elan.l2gw.ha.handlers;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import java.util.List;
 import java.util.Optional;
@@ -180,7 +179,7 @@ public class NodeConnectedHandler {
         globalNodeMerger.mergeConfigData(nodeBuilder, srcNode, childPath);
         nodeBuilder.addAugmentation(HwvtepGlobalAugmentation.class, dstBuilder.build());
         Node dstNode = nodeBuilder.build();
-        tx.put(childPath, dstNode, CREATE_MISSING_PARENTS);
+        tx.mergeParentStructurePut(childPath, dstNode);
     }
 
     /**
@@ -216,7 +215,7 @@ public class NodeConnectedHandler {
         haBuilder.setDbVersion(childData.getDbVersion());
         haNodeBuilder.addAugmentation(HwvtepGlobalAugmentation.class, haBuilder.build());
         Node haNode = haNodeBuilder.build();
-        tx.merge(haNodePath, haNode, CREATE_MISSING_PARENTS);
+        tx.mergeParentStructureMerge(haNodePath, haNode);
     }
 
     /**
@@ -257,7 +256,7 @@ public class NodeConnectedHandler {
 
         childPsBuilder.addAugmentation(PhysicalSwitchAugmentation.class, dstBuilder.build());
         Node childPSNode = childPsBuilder.build();
-        tx.put(childPsPath, childPSNode, CREATE_MISSING_PARENTS);
+        tx.mergeParentStructurePut(childPsPath, childPSNode);
     }
 
     /**
@@ -289,7 +288,7 @@ public class NodeConnectedHandler {
 
         haPSNodeBuilder.addAugmentation(PhysicalSwitchAugmentation.class, dstBuilder.build());
         Node haPsNode = haPSNodeBuilder.build();
-        tx.merge(haPspath, haPsNode, CREATE_MISSING_PARENTS);
+        tx.mergeParentStructureMerge(haPspath, haPsNode);
     }
 
 }

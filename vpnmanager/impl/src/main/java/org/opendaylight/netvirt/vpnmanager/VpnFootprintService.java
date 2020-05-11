@@ -9,7 +9,6 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -147,7 +146,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                     VpnToDpnListBuilder vpnToDpnListBuilder = new VpnToDpnListBuilder(vpnToDpnList);
                     vpnToDpnListBuilder.setDpnState(VpnToDpnList.DpnState.Active).setVpnInterfaces(vpnInterfaces);
 
-                    tx.put(id, vpnToDpnListBuilder.build(), CREATE_MISSING_PARENTS);
+                    tx.mergeParentStructurePut(id, vpnToDpnListBuilder.build());
                     /*
                      * If earlier state was inactive, it is considered new DPN coming back to the
                      * same VPN
@@ -163,7 +162,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                     VpnToDpnListBuilder vpnToDpnListBuilder = new VpnToDpnListBuilder().setDpnId(dpnId);
                     vpnToDpnListBuilder.setDpnState(VpnToDpnList.DpnState.Active).setVpnInterfaces(vpnInterfaces);
 
-                    tx.put(id, vpnToDpnListBuilder.build(), CREATE_MISSING_PARENTS);
+                    tx.mergeParentStructurePut(id, vpnToDpnListBuilder.build());
                     newDpnOnVpn.set(true);
                     LOG.debug("createOrUpdateVpnToDpnList: Creating vpn footprint for vpn {} vpnId {} interface {}"
                             + " on dpn {}", vpnName, vpnId, intfName, dpnId);
@@ -219,7 +218,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                     VpnToDpnListBuilder vpnToDpnListBuilder = new VpnToDpnListBuilder(vpnToDpnList);
                     vpnToDpnListBuilder.setDpnState(VpnToDpnList.DpnState.Active).setIpAddresses(ipAddresses);
 
-                    tx.put(id, vpnToDpnListBuilder.build(), CREATE_MISSING_PARENTS);
+                    tx.mergeParentStructurePut(id, vpnToDpnListBuilder.build());
                     /*
                      * If earlier state was inactive, it is considered new DPN coming back to the
                      * same VPN
@@ -232,7 +231,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                     ipAddresses.add(ipAddressesBldr.build());
                     VpnToDpnListBuilder vpnToDpnListBuilder = new VpnToDpnListBuilder().setDpnId(dpnId);
                     vpnToDpnListBuilder.setDpnState(VpnToDpnList.DpnState.Active).setIpAddresses(ipAddresses);
-                    tx.put(id, vpnToDpnListBuilder.build(), CREATE_MISSING_PARENTS);
+                    tx.mergeParentStructurePut(id, vpnToDpnListBuilder.build());
                     newDpnOnVpn.set(true);
                 }
 
@@ -297,7 +296,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                             }
                             LOG.debug("removeOrUpdateVpnToDpnList: Removing vpn footprint for vpn {} vpnId {} "
                                     + "interface {}, on dpn {}", vpnName, vpnName, intfName, dpnId);
-                            tx.put(id, dpnInVpnBuilder.build(), CREATE_MISSING_PARENTS);
+                            tx.mergeParentStructurePut(id, dpnInVpnBuilder.build());
 
                         } else {
                             tx.delete(id.child(VpnInterfaces.class, new VpnInterfacesKey(intfName)));
@@ -369,7 +368,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                             LOG.warn("ip addresses are empty but vpn interfaces are present for the vpn {} in "
                                     + "dpn {}", vpnName, dpnId);
                         }
-                        tx.put(id, dpnInVpnBuilder.build(), CREATE_MISSING_PARENTS);
+                        tx.mergeParentStructurePut(id, dpnInVpnBuilder.build());
 
                     } else {
                         tx.delete(id.child(IpAddresses.class, new IpAddressesKey(ipAddressSourceValuePair.getValue())));

@@ -111,8 +111,7 @@ public class SubnetOpDpnManagerTest {
         vpnIntfList.add(vpnIntfs);
         SubnetToDpn subnetToDpnLocal = new SubnetToDpnBuilder().setDpnId(dpId).withKey(new SubnetToDpnKey(dpId))
                 .setVpnInterfaces(vpnIntfList).build();
-        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, dpnOpId, subnetToDpnLocal,
-                WriteTransaction.CREATE_MISSING_PARENTS);
+        verify(mockWriteTx).mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, dpnOpId, subnetToDpnLocal);
 
     }
 
@@ -121,8 +120,7 @@ public class SubnetOpDpnManagerTest {
 
         subOpDpnManager.addPortOpDataEntry(infName, subnetId, dpId);
 
-        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, portOpIdentifier, portOp,
-                WriteTransaction.CREATE_MISSING_PARENTS);
+        verify(mockWriteTx).mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, portOpIdentifier, portOp);
     }
 
     @Test
@@ -133,8 +131,7 @@ public class SubnetOpDpnManagerTest {
 
         subOpDpnManager.addPortOpDataEntry(infName, subnetId, dpId);
 
-        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, portOpIdentifier, portOp,
-                WriteTransaction.CREATE_MISSING_PARENTS);
+        verify(mockWriteTx).mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, portOpIdentifier, portOp);
     }
 
     @Test

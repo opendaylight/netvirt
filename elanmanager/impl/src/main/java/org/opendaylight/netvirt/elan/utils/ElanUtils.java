@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.elan.utils;
 
 import static java.util.Collections.emptyList;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -1185,11 +1184,11 @@ public class ElanUtils {
                 .withKey(new ElanKey(elanInstanceName)).build();
 
         // Add the ElanState in the elan-state operational data-store
-        operTx.put(getElanInstanceOperationalDataPath(elanInstanceName), elanInfo, CREATE_MISSING_PARENTS);
+        operTx.mergeParentStructurePut(getElanInstanceOperationalDataPath(elanInstanceName), elanInfo);
 
         // Add the ElanMacTable in the elan-mac-table operational data-store
         MacTable elanMacTable = new MacTableBuilder().withKey(new MacTableKey(elanInstanceName)).build();
-        operTx.put(getElanMacTableOperationalDataPath(elanInstanceName), elanMacTable, CREATE_MISSING_PARENTS);
+        operTx.mergeParentStructurePut(getElanMacTableOperationalDataPath(elanInstanceName), elanMacTable);
 
         ElanTagNameBuilder elanTagNameBuilder = new ElanTagNameBuilder().setElanTag(elanTag)
                 .withKey(new ElanTagNameKey(elanTag)).setName(elanInstanceName);
@@ -1224,8 +1223,7 @@ public class ElanUtils {
         ElanInstance elanInstanceWithTag = elanInstanceBuilder.build();
         LOG.trace("Updated elan Operational DS for elan: {} with elanTag: {} and interfaces: {}", elanInstanceName,
                 elanTag, elanInterfaces);
-        confTx.merge(ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName), elanInstanceWithTag,
-            CREATE_MISSING_PARENTS);
+        confTx.mergeParentStructureMerge(ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName), elanInstanceWithTag);
         return elanInstanceWithTag;
     }
 
