@@ -125,7 +125,8 @@ public class ShowVpnIpToPort extends OsgiCommandSupport {
         if (!optionalNeutronVpnPort.isPresent()) {
             System.out.println("No NeutronVpnPortIpToPortData configured.");
         } else {
-            vpnPortipToPortList = optionalNeutronVpnPort.get().getVpnPortipToPort();
+            vpnPortipToPortList
+                    = new ArrayList<VpnPortipToPort>(optionalNeutronVpnPort.get().getVpnPortipToPort().values());
         }
     }
 

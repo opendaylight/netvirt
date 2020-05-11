@@ -30,7 +30,6 @@ import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
@@ -194,7 +193,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                 if (!isVlanOrFlatProviderIface && oldMacEntry == null) {
                     InstanceIdentifier<MacEntry> elanMacEntryId =
                             ElanUtils.getMacEntryOperationalDataPath(elanName, physAddress);
-                    tx.put(elanMacEntryId, newMacEntry, WriteTransaction.CREATE_MISSING_PARENTS);
+                    tx.mergeParentStructurePut(elanMacEntryId, newMacEntry);
                 }
             })));
     }
@@ -224,7 +223,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                         macAddress, !isVlanOrFlatProviderIface, tx);
                     InstanceIdentifier<MacEntry> macEntryId =
                         ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
-                    operTx.put(macEntryId, newMacEntry, WriteTransaction.CREATE_MISSING_PARENTS);
+                    operTx.mergeParentStructurePut(macEntryId, newMacEntry);
                 }));
             }));
             return futures;

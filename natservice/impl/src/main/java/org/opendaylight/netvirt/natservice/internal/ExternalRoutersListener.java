@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -115,6 +114,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.RouterIdName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.ExternalCounters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.external.counters.ExternalIpCounter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
@@ -408,7 +408,8 @@ public class ExternalRoutersListener extends AbstractAsyncDataTreeChangeListener
 
     protected void subnetRegisterMapping(Routers routerEntry, Uint32 segmentId) {
         LOG.debug("subnetRegisterMapping : Fetching values from extRouters model");
-        List<String> externalIps = NatUtil.getIpsListFromExternalIps(routerEntry.getExternalIps());
+        List<String> externalIps = NatUtil.getIpsListFromExternalIps(
+                new ArrayList<ExternalIps>(routerEntry.getExternalIps().values()));
         int counter = 0;
         int extIpCounter = externalIps.size();
         LOG.debug("subnetRegisterMapping : counter values before looping counter {} and extIpCounter {}",
@@ -509,7 +510,7 @@ public class ExternalRoutersListener extends AbstractAsyncDataTreeChangeListener
                     bgpVpnId, bgpVpnName);
                 RouterIds rtrs = new RouterIdsBuilder().withKey(new RouterIdsKey(bgpVpnId))
                     .setRouterId(bgpVpnId).setRouterName(bgpVpnName).build();
-                confTx.put(getRoutersIdentifier(bgpVpnId), rtrs, CREATE_MISSING_PARENTS);
+                confTx.mergeParentStructurePut(getRoutersIdentifier(bgpVpnId), rtrs);
             }
             if (create) {
                 addDefaultFibRouteForSnatWithBgpVpn(routerName, routerId, bgpVpnId, confTx);
@@ -1019,7 +1020,8 @@ public class ExternalRoutersListener extends AbstractAsyncDataTreeChangeListener
             LOG.error("handleSnatReverseTraffic : networkId is null for the router ID {}", routerId);
             return;
         }
-        Collection<Uuid> externalSubnetList = NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps());
+        Collection<Uuid> externalSubnetList = NatUtil.getExternalSubnetIdsFromExternalIps(
+                new ArrayList<ExternalIps>(router.getExternalIps().values()));
         // FLAT/VLAN case having external-subnet as VPN
         String externalSubnetVpn = null;
         if (externalSubnetList != null && !externalSubnetList.isEmpty()) {
@@ -1346,8 +1348,10 @@ public class ExternalRoutersListener extends AbstractAsyncDataTreeChangeListener
                     }
                     //Check if the Update is on External IPs
                     LOG.debug("update : Checking if this is update on External IPs for router {}", routerName);
-                    List<String> originalExternalIps = NatUtil.getIpsListFromExternalIps(original.getExternalIps());
-                    List<String> updatedExternalIps = NatUtil.getIpsListFromExternalIps(update.getExternalIps());
+                    List<String> originalExternalIps = NatUtil.getIpsListFromExternalIps(
+                            new ArrayList<ExternalIps>(original.getExternalIps().values()));
+                    List<String> updatedExternalIps = NatUtil.getIpsListFromExternalIps(
+                            new ArrayList<ExternalIps>(update.getExternalIps().values()));
 
                     //Check if the External IPs are removed during the update.
                     Set<String> removedExternalIps = new HashSet<>(originalExternalIps);
@@ -1436,9 +1440,9 @@ public class ExternalRoutersListener extends AbstractAsyncDataTreeChangeListener
 
                             if (ipPortMapping.isPresent()) {
                                 for (IntextIpProtocolType intextIpProtocolType :
-                                        ipPortMapping.get().nonnullIntextIpProtocolType()) {
+                                        ipPortMapping.get().nonnullIntextIpProtocolType().values()) {
                                     ProtocolTypes protoType = intextIpProtocolType.getProtocol();
-                                    for (IpPortMap ipPortMap : intextIpProtocolType.nonnullIpPortMap()) {
+                                    for (IpPortMap ipPortMap : intextIpProtocolType.nonnullIpPortMap().values()) {
                                         IpPortExternal ipPortExternal = ipPortMap.getIpPortExternal();
                                         if (ipPortExternal.getIpAddress().equals(externalIp)) {
                                             List<String> removedInternalIpPorts =
@@ -1657,8 +1661,8 @@ public class ExternalRoutersListener extends AbstractAsyncDataTreeChangeListener
         }
         if (externalCountersData.isPresent()) {
             ExternalIpsCounter externalIpsCounters = externalCountersData.get();
-            for (ExternalCounters ext : externalIpsCounters.nonnullExternalCounters()) {
-                for (ExternalIpCounter externalIpCount : ext.nonnullExternalIpCounter()) {
+            for (ExternalCounters ext : externalIpsCounters.nonnullExternalCounters().values()) {
+                for (ExternalIpCounter externalIpCount : ext.nonnullExternalIpCounter().values()) {
                     if (externalIpCount.getExternalIp().equals(externalIp)) {
                         if (externalIpCount.getCounter().toJava() != 0) {
                             return true;
@@ -1848,7 +1852,8 @@ public class ExternalRoutersListener extends AbstractAsyncDataTreeChangeListener
                 LOG.error("handleDisableSnat : External Network Provider Type missing");
                 return;
             }
-            Collection<Uuid> externalSubnetList = NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps());
+            Collection<Uuid> externalSubnetList = NatUtil.getExternalSubnetIdsFromExternalIps(
+                    new ArrayList<ExternalIps>(router.getExternalIps().values()));
             removeNaptFlowsFromActiveSwitch(routerId, routerName, naptSwitchDpnId, networkUuid, vpnName, externalIps,
                     externalSubnetList, removeFlowInvTx, extNwProvType);
             removeFlowsFromNonActiveSwitches(routerId, routerName, naptSwitchDpnId, removeFlowInvTx);
@@ -2087,9 +2092,9 @@ public class ExternalRoutersListener extends AbstractAsyncDataTreeChangeListener
             return;
         }
 
-        for (IntextIpProtocolType intextIpProtocolType : ipPortMapping.nonnullIntextIpProtocolType()) {
+        for (IntextIpProtocolType intextIpProtocolType : ipPortMapping.nonnullIntextIpProtocolType().values()) {
             String protocol = intextIpProtocolType.getProtocol().name();
-            for (IpPortMap ipPortMap : intextIpProtocolType.nonnullIpPortMap()) {
+            for (IpPortMap ipPortMap : intextIpProtocolType.nonnullIpPortMap().values()) {
                 String ipPortInternal = ipPortMap.getIpPortInternal();
                 String[] ipPortParts = ipPortInternal.split(":");
                 if (ipPortParts.length != 2) {
@@ -2198,9 +2203,9 @@ public class ExternalRoutersListener extends AbstractAsyncDataTreeChangeListener
                 LOG.error("removeNaptFlowsFromActiveSwitchInternetVpn : Unable to retrieve the IpPortMapping");
                 return;
             }
-            for (IntextIpProtocolType intextIpProtocolType : ipPortMapping.nonnullIntextIpProtocolType()) {
+            for (IntextIpProtocolType intextIpProtocolType : ipPortMapping.nonnullIntextIpProtocolType().values()) {
                 String protocol = intextIpProtocolType.getProtocol().name();
-                for (IpPortMap ipPortMap : intextIpProtocolType.nonnullIpPortMap()) {
+                for (IpPortMap ipPortMap : intextIpProtocolType.nonnullIpPortMap().values()) {
                     String ipPortInternal = ipPortMap.getIpPortInternal();
                     String[] ipPortParts = ipPortInternal.split(":");
                     if (ipPortParts.length != 2) {
@@ -2814,8 +2819,8 @@ public class ExternalRoutersListener extends AbstractAsyncDataTreeChangeListener
                     routerId);
             return;
         }
-        for (IntextIpProtocolType intextIpProtocolType : ipPortMapping.nonnullIntextIpProtocolType()) {
-            for (IpPortMap ipPortMap : intextIpProtocolType.nonnullIpPortMap()) {
+        for (IntextIpProtocolType intextIpProtocolType : ipPortMapping.nonnullIntextIpProtocolType().values()) {
+            for (IpPortMap ipPortMap : intextIpProtocolType.nonnullIpPortMap().values()) {
                 String ipPortInternal = ipPortMap.getIpPortInternal();
                 String[] ipPortParts = ipPortInternal.split(":");
                 if (ipPortParts.length != 2) {

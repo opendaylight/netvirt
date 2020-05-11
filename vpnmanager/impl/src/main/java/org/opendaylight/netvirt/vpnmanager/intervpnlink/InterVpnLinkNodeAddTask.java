@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
@@ -116,8 +115,8 @@ public class InterVpnLinkNodeAddTask implements Callable<List<? extends Listenab
                     .setFirstEndpointState(firstEndPointState).setSecondEndpointState(secondEndPointState)
                     .build();
         return txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx ->
-            tx.merge(InterVpnLinkUtil.getInterVpnLinkStateIid(interVpnLinkState.getInterVpnLinkName()),
-                    newInterVpnLinkState, CREATE_MISSING_PARENTS));
+            tx.mergeParentStructureMerge(InterVpnLinkUtil.getInterVpnLinkStateIid(interVpnLinkState.getInterVpnLinkName()),
+                    newInterVpnLinkState));
     }
 
     private void installLPortDispatcherTable(InterVpnLinkState interVpnLinkState, List<Uint64> firstDpnList,
