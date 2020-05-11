@@ -49,7 +49,9 @@ public final class CountersUtils {
 
     private static final Collection<String> UNACCUMULATED_COUNTER_GROUPS = ImmutableSet.of("Duration");
 
-    private CountersUtils() { }
+    private CountersUtils() {
+
+    }
 
     public static String getNodeId(BigInteger dpId) {
         return IfmConstants.OF_URI_PREFIX + dpId;

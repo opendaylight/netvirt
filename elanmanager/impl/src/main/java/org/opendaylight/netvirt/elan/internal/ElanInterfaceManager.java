@@ -11,7 +11,6 @@ import static java.util.Collections.emptyList;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 import static org.opendaylight.infrautils.utils.concurrent.LoggingFutures.addErrorLogging;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlanNetworkOrVxlanSegment;
 
 import com.google.common.base.Preconditions;
@@ -119,6 +118,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan._interface.forwarding.entries.ElanInterfaceMac;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfacesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfacesKey;
@@ -128,6 +128,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntries;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntriesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.state.Elan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.state.ElanBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.state.ElanKey;
@@ -435,10 +436,10 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
                 LOG.debug("Removing the Interface:{} from elan:{}", interfaceName, elanName);
                 if (interfaceInfo != null) {
                     if (existingElanInterfaceMac.isPresent()) {
-                        List<MacEntry> existingMacEntries = existingElanInterfaceMac.get().getMacEntry();
+                        Map<MacEntryKey, MacEntry> existingMacEntries = existingElanInterfaceMac.get().getMacEntry();
                         if (existingMacEntries != null) {
                             List<PhysAddress> macAddresses = new ArrayList<>();
-                            for (MacEntry macEntry : existingMacEntries) {
+                            for (MacEntry macEntry : existingMacEntries.values()) {
                                 PhysAddress macAddress = macEntry.getMacAddress();
                                 LOG.debug("removing the  mac-entry:{} present on elanInterface:{}",
                                         macAddress.getValue(), interfaceName);
@@ -465,9 +466,9 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
                 } else if (existingElanInterfaceMac.isPresent()) {
                     // Interface does not exist in ConfigDS, so lets remove everything
                     // about that interface related to Elan
-                    List<MacEntry> macEntries = existingElanInterfaceMac.get().getMacEntry();
+                    Map<MacEntryKey, MacEntry> macEntries = existingElanInterfaceMac.get().getMacEntry();
                     if (macEntries != null) {
-                        for (MacEntry macEntry : macEntries) {
+                        for (MacEntry macEntry : macEntries.values()) {
                             PhysAddress macAddress = macEntry.getMacAddress();
                             if (elanUtils.getMacEntryForElanInstance(elanName, macAddress).isPresent()) {
                                 interfaceTx.delete(ElanUtils.getMacEntryOperationalDataPath(elanName, macAddress));
@@ -527,7 +528,7 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
                         if (macs == null || macs.getMacEntry() == null) {
                             continue;
                         }
-                        for (MacEntry mac : macs.getMacEntry()) {
+                        for (MacEntry mac : new ArrayList<MacEntry>(macs.getMacEntry().values())) {
                             removeTheMacFlowInTheDPN(dpId, elanTag, mac, confTx);
                             removeEtreeMacFlowInTheDPN(dpId, elanTag, mac, confTx);
                         }
@@ -579,8 +580,10 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
         LOG.info("Update static mac entries for elan interface {} in elan instance {}", interfaceName, elanName);
         EVENT_LOGGER.debug("ELAN-Interface, UPDATE {} Instance {}", original.getName(), elanName);
 
-        List<StaticMacEntries> originalStaticMacEntries = original.getStaticMacEntries();
-        List<StaticMacEntries> updatedStaticMacEntries = update.getStaticMacEntries();
+        List<StaticMacEntries> originalStaticMacEntries = new ArrayList<StaticMacEntries>(original
+                .getStaticMacEntries().values());
+        List<StaticMacEntries> updatedStaticMacEntries = new ArrayList<StaticMacEntries>(update
+                .getStaticMacEntries().values());
         List<StaticMacEntries> deletedEntries = ElanUtils.diffOf(originalStaticMacEntries, updatedStaticMacEntries);
         List<StaticMacEntries> updatedEntries = ElanUtils.diffOf(updatedStaticMacEntries, originalStaticMacEntries);
 
@@ -682,7 +685,7 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
                 .getElanDpnInterfacesList(elanInstance.getElanInstanceName());
         List<DpnInterfaces> dpnInterfaceLists = null;
         if (elanDpnInterfacesList != null) {
-            dpnInterfaceLists = elanDpnInterfacesList.getDpnInterfaces();
+            dpnInterfaceLists = new ArrayList<DpnInterfaces>(elanDpnInterfacesList.getDpnInterfaces().values());
         }
         if (dpnInterfaceLists != null && !dpnInterfaceLists.isEmpty()) {
             Uint64 dstDpId = interfaceInfo.getDpId();
@@ -706,8 +709,8 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
                 if (elanIfMac == null || remoteInterface == null) {
                     continue;
                 }
-                List<MacEntry> remoteMacEntries = elanIfMac.nonnullMacEntry();
-                for (MacEntry macEntry : remoteMacEntries) {
+                Map<MacEntryKey, MacEntry> remoteMacEntries = elanIfMac.nonnullMacEntry();
+                for (MacEntry macEntry : remoteMacEntries.values()) {
                     String macAddress = macEntry.getMacAddress().getValue();
                     LOG.info("Programming remote dmac {} on the newly added DPN {} for elan {}", macAddress,
                             dstDpId, elanInstance.getElanInstanceName());
@@ -835,8 +838,8 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
             // ELAN's 1st ElanInterface added to this DPN
             LOG.debug("Adding dpn into operational dpn list {}", holder.dpId);
             futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, operTx -> {
-                operTx.put(ElanUtils.getElanDpnInterfaceOperationalDataPath(elanInstanceName, holder.dpId),
-                        holder.dpnInterfaces, CREATE_MISSING_PARENTS);
+                operTx.mergeParentStructurePut(ElanUtils.getElanDpnInterfaceOperationalDataPath(elanInstanceName,
+                        holder.dpId), holder.dpnInterfaces);
             }));
         } else {
             LOG.debug("Updated dpn into operational dpn list {}", holder.dpId);
@@ -860,11 +863,11 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
                 installEntriesForElanInterface(elanInstance, elanInterface, interfaceInfo,
                     isFirstInterfaceInDpn, confTx);
 
-                List<StaticMacEntries> staticMacEntriesList = elanInterface.getStaticMacEntries();
+                Map<StaticMacEntriesKey, StaticMacEntries> staticMacEntriesList = elanInterface.getStaticMacEntries();
                 List<PhysAddress> staticMacAddresses = Lists.newArrayList();
 
-                if (ElanUtils.isNotEmpty(staticMacEntriesList)) {
-                    for (StaticMacEntries staticMacEntry : staticMacEntriesList) {
+                if (ElanUtils.isNotEmpty(staticMacEntriesList.values())) {
+                    for (StaticMacEntries staticMacEntry : staticMacEntriesList.values()) {
                         InstanceIdentifier<MacEntry> macId = getMacEntryOperationalDataPath(elanInstanceName,
                             staticMacEntry.getMacAddress());
                         Optional<MacEntry> existingMacEntry = ElanUtils.read(broker,
@@ -896,7 +899,7 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
                     if (isInterfaceOperational) {
                         // Add MAC in TOR's remote MACs via OVSDB. Outside of the loop
                         // on purpose.
-                        for (StaticMacEntries staticMacEntry : staticMacEntriesList) {
+                        for (StaticMacEntries staticMacEntry : staticMacEntriesList.values()) {
                             staticMacAddresses.add(staticMacEntry.getMacAddress());
                         }
                         elanL2GatewayUtils.scheduleAddDpnMacInExtDevices(elanInstance.getElanInstanceName(), dpId,
@@ -1139,10 +1142,10 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
         String interfaceName = interfaceInfo.getInterfaceName();
         ElanInterfaceMac elanInterfaceMac = elanUtils.getElanInterfaceMacByInterfaceName(interfaceName);
         if (elanInterfaceMac != null && elanInterfaceMac.getMacEntry() != null) {
-            List<MacEntry> macEntries = elanInterfaceMac.getMacEntry();
+            Map<MacEntryKey, MacEntry> macEntries = elanInterfaceMac.getMacEntry();
             return Collections.singletonList(ElanUtils.waitForTransactionToComplete(
                 txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
-                    for (MacEntry macEntry : macEntries) {
+                    for (MacEntry macEntry : macEntries.values()) {
                         String macAddress = macEntry.getMacAddress().getValue();
                         LOG.info("Installing remote dmac for mac address {} and interface {}", macAddress,
                             interfaceName);
@@ -1465,7 +1468,7 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
         Optional<BoundServices> existingElanService = ElanUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
                 bindServiceId);
         if (!existingElanService.isPresent()) {
-            tx.put(bindServiceId, serviceInfo, CREATE_MISSING_PARENTS);
+            tx.mergeParentStructurePut(bindServiceId, serviceInfo);
             LOG.trace("Done binding elan service for elan: {} for interface: {}", elanInstanceName, interfaceName);
         }
     }
@@ -1527,8 +1530,8 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
             List<String> interfaceNames, TypedWriteTransaction<Operational> tx) {
         DpnInterfaces dpnInterface = new DpnInterfacesBuilder().setDpId(dpId).setInterfaces(interfaceNames)
                 .withKey(new DpnInterfacesKey(dpId)).build();
-        tx.put(ElanUtils.getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId), dpnInterface,
-                CREATE_MISSING_PARENTS);
+        tx.mergeParentStructurePut(ElanUtils
+                .getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId), dpnInterface);
         LOG.trace("Updated operational dpn interfaces for elan: {} with interfaces: {}", elanInstanceName,
                 interfaceNames);
         return dpnInterface;
@@ -1577,7 +1580,7 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
 
             Elan elanState = new ElanBuilder().setName(elanInstanceName).setElanInterfaces(interfaceLists)
                     .withKey(new ElanKey(elanInstanceName)).build();
-            tx.put(ElanUtils.getElanInstanceOperationalDataPath(elanInstanceName), elanState, CREATE_MISSING_PARENTS);
+            tx.mergeParentStructurePut(ElanUtils.getElanInstanceOperationalDataPath(elanInstanceName), elanState);
             LOG.trace("Updated operational elan state for elan: {} with interfaces: {}", elanInstanceName,
                     interfaceLists);
         }
@@ -1595,8 +1598,9 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
         if (dpnInterfaceLists == null) {
             return;
         }
-        List<ElanDpnInterfacesList> elanDpnIf = dpnInterfaceLists.nonnullElanDpnInterfacesList();
-        for (ElanDpnInterfacesList elanDpns : elanDpnIf) {
+        Map<ElanDpnInterfacesListKey, ElanDpnInterfacesList> elanDpnIf = dpnInterfaceLists
+                .nonnullElanDpnInterfacesList();
+        for (ElanDpnInterfacesList elanDpns : elanDpnIf.values()) {
             int cnt = 0;
             String elanName = elanDpns.getElanInstanceName();
             ElanInstance elanInfo = elanInstanceCache.get(elanName).orElse(null);
@@ -1609,12 +1613,12 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
                 LOG.debug("Ignoring internal tunnel state event for Flat/Vlan elan {}", elanName);
                 continue;
             }
-            List<DpnInterfaces> dpnInterfaces = elanDpns.getDpnInterfaces();
+            Map<DpnInterfacesKey, DpnInterfaces> dpnInterfaces = elanDpns.getDpnInterfaces();
             if (dpnInterfaces == null) {
                 continue;
             }
             DpnInterfaces dstDpnIf = null;
-            for (DpnInterfaces dpnIf : dpnInterfaces) {
+            for (DpnInterfaces dpnIf : dpnInterfaces.values()) {
                 Uint64 dpnIfDpId = dpnIf.getDpId();
                 if (Objects.equals(dpnIfDpId, srcDpId)) {
                     cnt++;
@@ -1687,8 +1691,9 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
         if (dpnInterfaceLists == null) {
             return;
         }
-        List<ElanDpnInterfacesList> elanDpnIf = dpnInterfaceLists.nonnullElanDpnInterfacesList();
-        for (ElanDpnInterfacesList elanDpns : elanDpnIf) {
+        Map<ElanDpnInterfacesListKey, ElanDpnInterfacesList> elanDpnIf
+                = dpnInterfaceLists.nonnullElanDpnInterfacesList();
+        for (ElanDpnInterfacesList elanDpns : elanDpnIf.values()) {
             String elanName = elanDpns.getElanInstanceName();
             ElanInstance elanInfo = elanInstanceCache.get(elanName).orElse(null);
 

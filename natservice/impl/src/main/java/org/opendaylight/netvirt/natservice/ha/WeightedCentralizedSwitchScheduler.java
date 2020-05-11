@@ -44,6 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIpsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchKey;
@@ -131,7 +132,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
             RouterToNaptSwitch routerToNaptSwitch = SingleTransactionDataBroker.syncRead(dataBroker,
                     LogicalDatastoreType.CONFIGURATION, id);
             boolean isSnatEnabled = newRouter.isEnableSnat();
-            List<ExternalIps> updateExternalIps = newRouter.getExternalIps();
+            Map<ExternalIpsKey, ExternalIps> updateExternalIps = newRouter.getExternalIps();
             if (updateExternalIps == null || updateExternalIps.isEmpty()) {
                 isSnatEnabled = false;
             }
@@ -266,8 +267,8 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
 
             if (optRouters.isPresent()) {
                 // Get the list of routers and verify if any routers do not have primarySwitch allocated.
-                for (Routers router : optRouters.get().getRouters()) {
-                    List<ExternalIps> externalIps = router.getExternalIps();
+                for (Routers router : optRouters.get().getRouters().values()) {
+                    Map<ExternalIpsKey, ExternalIps> externalIps = router.getExternalIps();
                     if (router.isEnableSnat() && externalIps != null && !externalIps.isEmpty()) {
                         // Check if the primarySwitch is allocated for the router.
                         if (!isPrimarySwitchAllocatedForRouter(router.getRouterName())) {
@@ -306,7 +307,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
             if (natMode == NatserviceConfig.NatMode.Conntrack
                     && !INITIAL_SWITCH_WEIGHT.equals(switchWeightMap.get(dpnId))) {
                 NaptSwitches naptSwitches = getNaptSwitches();
-                for (RouterToNaptSwitch routerToNaptSwitch : naptSwitches.getRouterToNaptSwitch()) {
+                for (RouterToNaptSwitch routerToNaptSwitch : naptSwitches.getRouterToNaptSwitch().values()) {
                     if (dpnId.equals(routerToNaptSwitch.getPrimarySwitchId())) {
                         Routers router = NatUtil.getRoutersFromConfigDS(dataBroker, routerToNaptSwitch.getRouterName());
                         releaseCentralizedSwitch(router);
