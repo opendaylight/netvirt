@@ -9,8 +9,6 @@ package org.opendaylight.netvirt.statistics;
 
 import java.math.BigInteger;
 import java.util.List;
-
-import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -18,6 +16,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 
 public abstract class AbstractCountersService {
 

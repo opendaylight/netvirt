@@ -163,7 +163,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
     @NonNull
     protected List<AdjacencyResult> resolveAdjacency(final Uint64 remoteDpnId, final Uint32 vpnId,
                                                      final VrfEntry vrfEntry, String rd) {
-        List<RoutePaths> routePaths = new ArrayList<>(vrfEntry.nonnullRoutePaths());
+        List<RoutePaths> routePaths = new ArrayList<RoutePaths>(vrfEntry.nonnullRoutePaths().values());
         FibHelper.sortIpAddress(routePaths);
         List<AdjacencyResult> adjacencyList = new ArrayList<>();
         List<String> prefixIpList;
@@ -313,7 +313,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         }
 
         if (addOrRemove == NwConstants.ADD_FLOW) {
-            tx.put(LogicalDatastoreType.CONFIGURATION, flowInstanceId, flow, true);
+            tx.mergeParentStructurePut(LogicalDatastoreType.CONFIGURATION, flowInstanceId, flow);
         } else {
             tx.delete(LogicalDatastoreType.CONFIGURATION, flowInstanceId);
         }
@@ -481,7 +481,8 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                 LOG.error(
                         "Failed to retrieve egress action for prefix {} route-paths {} interface {}. "
                                 + "Aborting remote FIB entry creation.",
-                        vrfEntry.getDestPrefix(), vrfEntry.getRoutePaths(), egressInterface);
+                        vrfEntry.getDestPrefix(), new ArrayList<RoutePaths>(vrfEntry.getRoutePaths().values()),
+                        egressInterface);
                 return;
             }
             actionInfos.addAll(egressActions);

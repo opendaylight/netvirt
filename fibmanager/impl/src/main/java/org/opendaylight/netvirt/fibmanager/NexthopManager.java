@@ -93,6 +93,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.Tun
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.DcGatewayIpList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.dc.gateway.ip.list.DcGatewayIp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetEgressActionsForTunnelInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetEgressActionsForTunnelOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetInternalOrExternalInterfaceNameInputBuilder;
@@ -282,7 +283,7 @@ public class NexthopManager implements AutoCloseable {
                             ifName, rpcResult.getErrors());
                     return Collections.emptyList();
                 } else {
-                    actions = rpcResult.getResult().nonnullAction();
+                    actions = new ArrayList<Action>(rpcResult.getResult().nonnullAction().values());
                 }
             } else {
                 RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = odlInterfaceRpcService
@@ -293,7 +294,7 @@ public class NexthopManager implements AutoCloseable {
                                     + "Errors {}", ifName, vpnId, destIpPrefix, rpcResult.getErrors());
                     return Collections.emptyList();
                 } else {
-                    actions = rpcResult.getResult().nonnullAction();
+                    actions = new ArrayList<Action>(rpcResult.getResult().nonnullAction().values());
                 }
             }
             List<ActionInfo> listActionInfo = new ArrayList<>();
@@ -467,9 +468,9 @@ public class NexthopManager implements AutoCloseable {
 
                     } else {
                         // Ignore adding new prefix , if it already exists
-                        List<IpAdjacencies> prefixesList = nexthop.getIpAdjacencies();
+                        Map<IpAdjacenciesKey, IpAdjacencies> keyIpAdjacenciesMap = nexthop.getIpAdjacencies();
                         IpAdjacencies prefix = new IpAdjacenciesBuilder().setIpAdjacency(currDestIpPrefix).build();
-                        if (prefixesList != null && prefixesList.contains(prefix)) {
+                        if (keyIpAdjacenciesMap != null && keyIpAdjacenciesMap.values().contains(prefix)) {
                             LOG.trace("Prefix {} is already present in l3nextHop {} ", currDestIpPrefix, nexthop);
                         } else {
                             IpAdjacenciesBuilder ipPrefixesBuilder =
@@ -564,9 +565,9 @@ public class NexthopManager implements AutoCloseable {
             return null;
         }
         if (vpnNexthops.isPresent()) {
-            // get nexthops list for vpn
-            List<VpnNexthop> nexthops = vpnNexthops.get().nonnullVpnNexthop();
-            for (VpnNexthop nexthop : nexthops) {
+            // get keyVpnNexthopMap list for vpn
+            Map<VpnNexthopKey, VpnNexthop> keyVpnNexthopMap = vpnNexthops.get().nonnullVpnNexthop();
+            for (VpnNexthop nexthop : keyVpnNexthopMap.values()) {
                 if (Objects.equals(nexthop.getIpAddress(), ipAddress)) {
                     // return nexthop
                     LOG.trace("VpnNextHop : {}", nexthop);
@@ -623,7 +624,7 @@ public class NexthopManager implements AutoCloseable {
             if (FibUtil.lockCluster(lockManager, nextHopLockStr, WAIT_TIME_TO_ACQUIRE_LOCK)) {
                 VpnNexthop nh = getVpnNexthop(vpnId, primaryIpAddress);
                 if (nh != null) {
-                    List<IpAdjacencies> prefixesList = new ArrayList<>(nh.nonnullIpAdjacencies());
+                    List<IpAdjacencies> prefixesList = new ArrayList<IpAdjacencies>(nh.nonnullIpAdjacencies().values());
                     IpAdjacencies prefix = new IpAdjacenciesBuilder().setIpAdjacency(currDestIpPrefix).build();
                     prefixesList.remove(prefix);
                     if (prefixesList.isEmpty()) { //remove the group only if there are no more flows using this group
@@ -1147,7 +1148,7 @@ public class NexthopManager implements AutoCloseable {
         if (dcGatewayIpListConfig == null) {
             return Collections.emptyList();
         }
-        return dcGatewayIpListConfig.getDcGatewayIp()
+        return new ArrayList<DcGatewayIp>(dcGatewayIpListConfig.getDcGatewayIp().values())
                 .stream()
                 .filter(dcGwIp -> dcGwIp.getTunnnelType().equals(TunnelTypeMplsOverGre.class))
                 .map(dcGwIp -> dcGwIp.getIpAddress().stringValue()).sorted()
@@ -1185,7 +1186,7 @@ public class NexthopManager implements AutoCloseable {
                 LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}",
                         interfaceName, rpcResult.getErrors());
             } else {
-                actions = rpcResult.getResult().nonnullAction();
+                actions = new ArrayList<Action>(rpcResult.getResult().nonnullAction().values());
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Exception when egress actions for interface {}", interfaceName, e);

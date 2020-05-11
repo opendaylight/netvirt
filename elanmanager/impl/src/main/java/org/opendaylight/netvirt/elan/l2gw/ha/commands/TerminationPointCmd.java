@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,7 +38,7 @@ public class TerminationPointCmd extends MergeCommand<TerminationPoint, NodeBuil
     @Nullable
     public List<TerminationPoint> getData(Node node) {
         if (node != null) {
-            return node.getTerminationPoint();
+            return new ArrayList<>(node.getTerminationPoint().values());
         }
         return null;
     }
@@ -71,7 +72,7 @@ public class TerminationPointCmd extends MergeCommand<TerminationPoint, NodeBuil
                 new HwvtepPhysicalPortAugmentationBuilder(augmentation);
 
         if (augmentation.getVlanBindings() != null && augmentation.getVlanBindings().size() > 0) {
-            tpAugmentationBuilder.setVlanBindings(augmentation.getVlanBindings().stream().map(
+            tpAugmentationBuilder.setVlanBindings(augmentation.getVlanBindings().values().stream().map(
                 vlanBindings -> {
                     VlanBindingsBuilder vlanBindingsBuilder = new VlanBindingsBuilder(vlanBindings);
                     vlanBindingsBuilder.setLogicalSwitchRef(
@@ -108,8 +109,10 @@ public class TerminationPointCmd extends MergeCommand<TerminationPoint, NodeBuil
                 .augmentation(HwvtepPhysicalPortAugmentation.class);
         HwvtepPhysicalPortAugmentation origAugmentation = orig.augmentation(HwvtepPhysicalPortAugmentation.class);
 
-        List<VlanBindings> up = updatedAugmentation != null ? updatedAugmentation.getVlanBindings() : null;
-        List<VlanBindings> or = origAugmentation != null ? origAugmentation.getVlanBindings() : null;
+        List<VlanBindings> up
+                = updatedAugmentation != null ? new ArrayList<>(updatedAugmentation.getVlanBindings().values()) : null;
+        List<VlanBindings> or
+                = origAugmentation != null ? new ArrayList<>(origAugmentation.getVlanBindings().values()) : null;
         if (!areSameSize(up, or)) {
             return false;
         }

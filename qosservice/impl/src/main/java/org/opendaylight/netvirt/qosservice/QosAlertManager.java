@@ -9,9 +9,8 @@
 package org.opendaylight.netvirt.qosservice;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,6 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.qosalert.config.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.qosalert.config.rev170301.QosalertConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.port.statistics.rev131214.node.connector.statistics.and.port.number.map.NodeConnectorStatisticsAndPortNumberMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.port.statistics.rev131214.node.connector.statistics.and.port.number.map.NodeConnectorStatisticsAndPortNumberMapKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint64;
@@ -281,8 +281,8 @@ public final class QosAlertManager implements Runnable {
                 .build();
 
         ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
-            tx -> tx.put(path, qosAlertConfig,
-                    CREATE_MISSING_PARENTS)), LOG, "Error writing to the config data store");
+            tx -> tx.mergeParentStructurePut(path,
+                    qosAlertConfig)), LOG, "Error writing to the config data store");
     }
 
     private void pollDirectStatisticsForAllNodes() {
@@ -312,11 +312,13 @@ public final class QosAlertManager implements Runnable {
 
                 GetNodeConnectorStatisticsOutput nodeConnectorStatisticsOutput = rpcResult.getResult();
 
-                List<NodeConnectorStatisticsAndPortNumberMap> nodeConnectorStatisticsAndPortNumberMapList =
+                Map<NodeConnectorStatisticsAndPortNumberMapKey, NodeConnectorStatisticsAndPortNumberMap>
+                        nodeConnectorStatisticsAndPortNumberMap =
                         nodeConnectorStatisticsOutput.getNodeConnectorStatisticsAndPortNumberMap();
 
                 ConcurrentMap<String, QosAlertPortData> portDataMap = entry.getValue();
-                for (NodeConnectorStatisticsAndPortNumberMap stats : nodeConnectorStatisticsAndPortNumberMapList) {
+                for (NodeConnectorStatisticsAndPortNumberMap stats
+                        : nodeConnectorStatisticsAndPortNumberMap.values()) {
                     QosAlertPortData portData = portDataMap.get(stats.getNodeConnectorId().getValue());
                     if (portData != null) {
                         portData.updatePortStatistics(stats);

@@ -238,7 +238,7 @@ public class Ipv6RouterAdvt {
             buf.putInt((int)pdu.getMtu().longValue());
         }
 
-        for (PrefixList prefix : pdu.nonnullPrefixList()) {
+        for (PrefixList prefix : new ArrayList<PrefixList>(pdu.nonnullPrefixList().values())) {
             buf.put((byte)prefix.getOptionType().shortValue());
             buf.put((byte)prefix.getOptionLength().shortValue());
             buf.put((byte)prefix.getPrefixLength().shortValue());

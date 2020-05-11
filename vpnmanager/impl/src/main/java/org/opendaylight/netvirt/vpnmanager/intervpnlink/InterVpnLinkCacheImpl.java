@@ -68,7 +68,7 @@ public class InterVpnLinkCacheImpl implements InterVpnLinkCache {
                 return; // Nothing to be added to cache
             }
             InterVpnLinks interVpnLinks = optIVpnLinksOpData.get();
-            for (InterVpnLink interVpnLink : interVpnLinks.nonnullInterVpnLink()) {
+            for (InterVpnLink interVpnLink : interVpnLinks.nonnullInterVpnLink().values()) {
                 addInterVpnLinkToCaches(interVpnLink);
             }
 
@@ -83,7 +83,7 @@ public class InterVpnLinkCacheImpl implements InterVpnLinkCache {
                 return;
             }
             InterVpnLinkStates interVpnLinkStates = optIVpnLinkStateOpData.get();
-            for (InterVpnLinkState interVpnLinkState : interVpnLinkStates.nonnullInterVpnLinkState()) {
+            for (InterVpnLinkState interVpnLinkState : interVpnLinkStates.nonnullInterVpnLinkState().values()) {
                 addInterVpnLinkStateToCaches(interVpnLinkState);
             }
         } catch (ExecutionException | InterruptedException e) {

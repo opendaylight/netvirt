@@ -7,16 +7,14 @@
  */
 package org.opendaylight.netvirt.cloudservicechain.listeners;
 
-import java.util.Optional;
 import java.math.BigInteger;
 import java.util.List;
-
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.netvirt.cloudservicechain.CloudServiceChainConstants;
 import org.opendaylight.netvirt.cloudservicechain.VPNServiceChainHandler;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnServiceChainUtils;

@@ -8,12 +8,13 @@
 
 package org.opendaylight.netvirt.elan.internal;
 
-import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -83,7 +84,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntriesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.state.Elan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntryKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -392,7 +395,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                 ElanInterfaceMac elanInterfaceMac = elanUtils.getElanInterfaceMacByInterfaceName(elanInterface);
                 if (elanInterfaceMac != null && elanInterfaceMac.getMacEntry() != null
                         && elanInterfaceMac.getMacEntry().size() > 0) {
-                    macAddress.addAll(elanInterfaceMac.getMacEntry());
+                    macAddress.addAll(elanInterfaceMac.getMacEntry().values());
                 }
             }
         }
@@ -412,8 +415,8 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         for (String elanInterface : elanInterfaces) {
             ElanInterfaceMac elanInterfaceMac = elanUtils.getElanInterfaceMacByInterfaceName(elanInterface);
             if (elanInterfaceMac.getMacEntry() != null && elanInterfaceMac.getMacEntry().size() > 0) {
-                List<MacEntry> macEntries = elanInterfaceMac.getMacEntry();
-                for (MacEntry macEntry : macEntries) {
+                Map<MacEntryKey, MacEntry> macEntries = elanInterfaceMac.getMacEntry();
+                for (MacEntry macEntry : macEntries.values()) {
                     deleteStaticMacAddress(elanInterface, macEntry.getMacAddress().getValue());
                 }
             }
@@ -431,8 +434,8 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     public List<ElanInstance> getElanInstances() {
         InstanceIdentifier<ElanInstances> elanInstancesIdentifier = InstanceIdentifier.builder(ElanInstances.class)
                 .build();
-        return ElanUtils.read(broker, LogicalDatastoreType.CONFIGURATION, elanInstancesIdentifier).map(
-                ElanInstances::getElanInstance).orElse(emptyList());
+        return new ArrayList<>(ElanUtils.read(broker, LogicalDatastoreType.CONFIGURATION, elanInstancesIdentifier).map(
+                ElanInstances::getElanInstance).orElse(emptyMap()).values());
     }
 
     @Override
@@ -446,8 +449,8 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         if (!elanInterfacesOptional.isPresent()) {
             return elanInterfaces;
         }
-        List<ElanInterface> elanInterfaceList = elanInterfacesOptional.get().nonnullElanInterface();
-        for (ElanInterface elanInterface : elanInterfaceList) {
+        Map<ElanInterfaceKey, ElanInterface> elanInterfaceList = elanInterfacesOptional.get().nonnullElanInterface();
+        for (ElanInterface elanInterface : elanInterfaceList.values()) {
             if (Objects.equals(elanInterface.getElanInstanceName(), elanInstanceName)) {
                 elanInterfaces.add(elanInterface.getName());
             }
@@ -810,14 +813,14 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             return;
         }
 
-        List<Node> nodes = southboundUtils.getOvsdbNodes();
+        Map<NodeKey, Node> nodes = southboundUtils.getOvsdbNodes();
         if (nodes == null || nodes.isEmpty()) {
             LOG.trace("No OVS nodes found while creating external network for ELAN {}",
                     elanInstance.getElanInstanceName());
             return;
         }
 
-        for (Node node : nodes) {
+        for (Node node : nodes.values()) {
             if (bridgeMgr.isIntegrationBridge(node)) {
                 if (update && !elanInstance.isExternal()) {
                     DpnInterfaces dpnInterfaces = elanUtils.getElanInterfaceInfoByElanDpn(elanInstanceName,
@@ -869,12 +872,21 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             return;
         }
         String flowId = ArpResponderUtil.getFlowId(lportTag, ipAddress);
+        Map<org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionKey,
+                org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction>
+                arpResponderInputInstructionsMap = new HashMap<>();
+        int instructionKey = 0;
+        for (org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction
+                instructionObj : arpResponderInput.getInstructions()) {
+            arpResponderInputInstructionsMap.put(new org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types
+                    .rev131026.instruction.list.InstructionKey(++instructionKey), instructionObj);
+        }
         Flow flowEntity =
             MDSALUtil.buildFlowNew(NwConstants.ARP_RESPONDER_TABLE, flowId, NwConstants.DEFAULT_ARP_FLOW_PRIORITY,
                 flowId, 0, 0,
                 ArpResponderUtil.generateCookie(lportTag, ipAddress),
                 ArpResponderUtil.getMatchCriteria(lportTag, elanInstance, ipAddress),
-                arpResponderInput.getInstructions());
+                    arpResponderInputInstructionsMap);
         LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
             tx -> mdsalManager.addFlow(tx, dpnId, flowEntity)), LOG, "Error adding flow {}", flowEntity);
         LOG.info("Installed the ARP Responder flow for Interface {}", ingressInterfaceName);
@@ -897,12 +909,23 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
 
         int lportTag = arpResponderInput.getLportTag();
         String flowId = ArpResponderUtil.getFlowId(lportTag, ipAddress);
+
+        Map<org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionKey,
+                org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction>
+                arpResponderInputInstructionsMap = new HashMap<>();
+        int instructionKey = 0;
+        for (org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction
+                instructionObj : arpResponderInput.getInstructions()) {
+            arpResponderInputInstructionsMap.put(new org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types
+                    .rev131026.instruction.list.InstructionKey(++instructionKey), instructionObj);
+        }
+
         Flow flowEntity =
             MDSALUtil.buildFlowNew(NwConstants.ARP_RESPONDER_TABLE, flowId, NwConstants.DEFAULT_ARP_FLOW_PRIORITY,
                 flowId, 0, 0,
                 ArpResponderUtil.generateCookie(lportTag, ipAddress),
                 ArpResponderUtil.getMatchCriteria(lportTag, elanInstance, ipAddress),
-                arpResponderInput.getInstructions());
+                    arpResponderInputInstructionsMap);
         LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
             tx -> mdsalManager.addFlow(tx, dpnId, flowEntity)), LOG, "Error adding flow {}", flowEntity);
         LOG.trace("Installed the ExternalTunnel ARP Responder flow for ElanInstance {}", elanInstanceName);

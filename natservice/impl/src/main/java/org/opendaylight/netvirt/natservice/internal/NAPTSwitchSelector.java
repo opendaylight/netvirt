@@ -111,7 +111,7 @@ public class NAPTSwitchSelector {
         if (optNaptSwitches.isPresent()) {
             NaptSwitches naptSwitches = optNaptSwitches.get();
 
-            for (RouterToNaptSwitch naptSwitch : naptSwitches.nonnullRouterToNaptSwitch()) {
+            for (RouterToNaptSwitch naptSwitch : naptSwitches.nonnullRouterToNaptSwitch().values()) {
                 Uint64 primarySwitch = naptSwitch.getPrimarySwitchId();
                 //update weight
                 Integer weight = switchWeights.get(primarySwitch);
