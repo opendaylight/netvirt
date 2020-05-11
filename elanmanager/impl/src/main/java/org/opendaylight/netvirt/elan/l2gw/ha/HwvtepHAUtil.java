@@ -7,17 +7,10 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha;
 
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.base.Strings;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.Nullable;
@@ -37,12 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hw
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepPhysicalLocatorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LogicalSwitches;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LogicalSwitchesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.Managers;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.ManagersBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.ManagersKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.Switches;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.managers.ManagerOtherConfigs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.managers.ManagerOtherConfigsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.managers.ManagerOtherConfigsKey;
@@ -294,9 +282,9 @@ public final class HwvtepHAUtil {
         }
         HwvtepGlobalAugmentation globalAugmentation = node.augmentation(HwvtepGlobalAugmentation.class);
         if (globalAugmentation != null) {
-            List<Managers> managers = globalAugmentation.getManagers();
+            Map<ManagersKey, Managers> managers = globalAugmentation.getManagers();
             if (managers != null && !managers.isEmpty() && managers.get(0).getManagerOtherConfigs() != null) {
-                for (ManagerOtherConfigs configs : managers.get(0).getManagerOtherConfigs()) {
+                for (ManagerOtherConfigs configs : managers.get(0).getManagerOtherConfigs().values()) {
                     if (HA_ID.equals(configs.getOtherConfigKey())) {
                         return configs.getOtherConfigValue();
                     }
@@ -325,7 +313,7 @@ public final class HwvtepHAUtil {
             if (null == managers.getManagerOtherConfigs()) {
                 return childNodeIds;
             }
-            for (ManagerOtherConfigs otherConfigs : managers.getManagerOtherConfigs()) {
+            for (ManagerOtherConfigs otherConfigs : managers.getManagerOtherConfigs().values()) {
                 if (HA_CHILDREN.equals(otherConfigs.getOtherConfigKey())) {
                     String nodeIdsVal = otherConfigs.getOtherConfigValue();
                     if (nodeIdsVal != null) {
@@ -416,7 +404,7 @@ public final class HwvtepHAUtil {
         if (!switchesAlreadyPresent) {
             HwvtepGlobalAugmentation augmentation = childNode.augmentation(HwvtepGlobalAugmentation.class);
             if (augmentation != null && augmentation.getSwitches() != null) {
-                List<Switches> src = augmentation.getSwitches();
+                Map<SwitchesKey, Switches> src = augmentation.getSwitches();
                 if (src != null && src.size() > 0) {
                     psList.add(new SwitchesCmd().transform(haNodePath, src.get(0)));
                 }
@@ -446,7 +434,7 @@ public final class HwvtepHAUtil {
         nodeBuilder.setNodeId(haNodePath.firstKeyOf(Node.class).getNodeId());
         nodeBuilder.addAugmentation(HwvtepGlobalAugmentation.class, hwvtepGlobalBuilder.build());
         Node configHANode = nodeBuilder.build();
-        tx.merge(haNodePath, configHANode, CREATE_MISSING_PARENTS);
+        tx.mergeParentStructureMerge(haNodePath, configHANode);
     }
 
     public static <D extends Datastore> void deleteNodeIfPresent(TypedReadWriteTransaction<D> tx,
@@ -472,9 +460,9 @@ public final class HwvtepHAUtil {
             return;
         }
         HashMap<InstanceIdentifier<Node>,Boolean> deleted = new HashMap<>();
-        List<Switches> switches = globalAugmentation.getSwitches();
+        Map<SwitchesKey, Switches> switches = globalAugmentation.getSwitches();
         if (switches != null) {
-            for (Switches switche : switches) {
+            for (Switches switche : switches.values()) {
                 InstanceIdentifier<Node> psId = (InstanceIdentifier<Node>)switche.getSwitchRef().getValue();
                 deleteNodeIfPresent(tx, psId);
                 deleted.put(psId, Boolean.TRUE);
@@ -486,7 +474,7 @@ public final class HwvtepHAUtil {
         if (topologyOptional.isPresent()) {
             Topology topology = topologyOptional.get();
             if (topology.getNode() != null) {
-                for (Node psNode : topology.getNode()) {
+                for (Node psNode : topology.getNode().values()) {
                     PhysicalSwitchAugmentation ps = psNode.augmentation(PhysicalSwitchAugmentation.class);
                     if (ps != null) {
                         InstanceIdentifier<Node> iid = (InstanceIdentifier<Node>)ps.getManagedBy().getValue();

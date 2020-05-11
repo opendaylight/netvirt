@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -509,7 +508,7 @@ public class ExternalRoutersListener extends AbstractAsyncDataTreeChangeListener
                     bgpVpnId, bgpVpnName);
                 RouterIds rtrs = new RouterIdsBuilder().withKey(new RouterIdsKey(bgpVpnId))
                     .setRouterId(bgpVpnId).setRouterName(bgpVpnName).build();
-                confTx.put(getRoutersIdentifier(bgpVpnId), rtrs, CREATE_MISSING_PARENTS);
+                confTx.mergeParentStructurePut(getRoutersIdentifier(bgpVpnId), rtrs);
             }
             if (create) {
                 addDefaultFibRouteForSnatWithBgpVpn(routerName, routerId, bgpVpnId, confTx);

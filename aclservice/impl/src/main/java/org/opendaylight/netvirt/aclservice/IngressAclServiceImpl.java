@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.aclservice;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.collect.Lists;
 
@@ -111,8 +110,8 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
                     serviceIndex, serviceMode);
 
             return Collections.singletonList(
-                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> tx.put(
-                            path, serviceInfo, CREATE_MISSING_PARENTS)));
+                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> tx.mergeParentStructurePut(
+                            path, serviceInfo)));
         });
     }
 

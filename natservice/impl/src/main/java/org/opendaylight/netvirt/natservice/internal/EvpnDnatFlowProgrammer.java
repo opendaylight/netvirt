@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -256,7 +255,7 @@ public class EvpnDnatFlowProgrammer {
                             floatingIpInterface);
                     InstanceIdentifier<VpnInterfaceOpDataEntry> vpnIfIdentifierOpDataEntry =
                             NatUtil.getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);
-                    tx.put(vpnIfIdentifierOpDataEntry, vpnIfOpDataEntryBuilder.build(), CREATE_MISSING_PARENTS);
+                    tx.mergeParentStructurePut(vpnIfIdentifierOpDataEntry, vpnIfOpDataEntryBuilder.build());
                     break;
                 }
             }), LOG, "onAddFloatingIp : Could not write Interface {}, vpnName {}", interfaceName, vpnName);

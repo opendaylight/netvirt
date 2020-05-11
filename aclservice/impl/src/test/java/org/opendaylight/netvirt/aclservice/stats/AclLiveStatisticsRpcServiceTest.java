@@ -17,6 +17,7 @@ import static org.opendaylight.netvirt.aclservice.tests.StateInterfaceBuilderHel
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Future;
 import javax.inject.Inject;
 import org.eclipse.xtext.xbase.lib.Pair;
@@ -48,6 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.acl.live.statistics
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.acl.live.statistics.rev161129.GetAclPortStatisticsInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.acl.live.statistics.rev161129.GetAclPortStatisticsOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.acl.live.statistics.rev161129.acl.stats.output.AclPortStats;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.acl.live.statistics.rev161129.acl.stats.output.AclPortStatsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.acl.live.statistics.rev161129.acl.stats.output.acl.port.stats.AclDropStats;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig.SecurityGroupMode;
@@ -203,10 +205,10 @@ public class AclLiveStatisticsRpcServiceTest {
         GetAclPortStatisticsOutput aclPortStats = output.getResult();
         assertNotNull(aclPortStats);
 
-        List<AclPortStats> lstAclPortStats = aclPortStats.getAclPortStats();
+        Map<AclPortStatsKey, AclPortStats> lstAclPortStats = aclPortStats.getAclPortStats();
         assertNotNull(lstAclPortStats);
         assertFalse(lstAclPortStats.isEmpty());
-        for (AclPortStats stats : lstAclPortStats) {
+        for (AclPortStats stats : lstAclPortStats.values()) {
             List<AclDropStats> aclDropStats = stats.getAclDropStats();
             if (stats.getInterfaceName().equals(PORT_1)) {
                 assertNotNull(aclDropStats);
