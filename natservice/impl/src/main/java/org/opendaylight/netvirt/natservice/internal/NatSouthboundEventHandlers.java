@@ -344,7 +344,7 @@ public class NatSouthboundEventHandlers {
                     + "and port name {}", routerId, portName);
             return Collections.emptyList();
         }
-        return port.get().nonnullInternalToExternalPortMap();
+        return new ArrayList<InternalToExternalPortMap>(port.get().nonnullInternalToExternalPortMap().values());
     }
 
     @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",

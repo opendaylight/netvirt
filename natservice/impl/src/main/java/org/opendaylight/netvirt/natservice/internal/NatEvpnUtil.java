@@ -9,7 +9,9 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
@@ -34,6 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
@@ -181,9 +184,14 @@ public final class NatEvpnUtil {
                 NwConstants.L3_GW_MAC_TABLE, NwConstants.INBOUND_NAPT_TABLE, vpnId, macAddress, dpnId);
         // Install the flow entry in L3_GW_MAC_TABLE
         String flowRef = NatUtil.getFlowRef(dpnId, NwConstants.L3_GW_MAC_TABLE, vpnId, macAddress);
+        Map<InstructionKey, Instruction> customInstructionsMap = new HashMap<InstructionKey, Instruction>();
+        int instructionKey = 0;
+        for (Instruction instructionObj : customInstructions) {
+            customInstructionsMap.put(new InstructionKey(++instructionKey), instructionObj);
+        }
         Flow l3GwMacTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_GW_MAC_TABLE,
                 flowRef, 21, flowRef, 0, 0,
-                NwConstants.COOKIE_L3_GW_MAC_TABLE, matchInfo, customInstructions);
+                NwConstants.COOKIE_L3_GW_MAC_TABLE, matchInfo, customInstructionsMap);
 
         mdsalManager.addFlow(confTx, dpnId, l3GwMacTableFlowEntity);
         LOG.debug("makeL3GwMacTableEntry : Successfully created flow entity {} on DPN = {}",

@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.vpnmanager.api.intervpnlink;
 
 import java.util.List;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
-
 import org.opendaylight.yangtools.yang.common.Uint32;
 
 public interface IVpnLinkService {

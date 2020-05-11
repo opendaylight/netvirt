@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -37,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.TcpMd5SignaturePasswordType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NetworksContainer;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.Neighbors;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.NeighborsKey;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.networkscontainer.Networks;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.networkscontainer.NetworksKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
@@ -125,19 +127,19 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     }
 
     public  void getAllPeerStatus() {
-        List<Neighbors> nbrList = null;
+        Map<NeighborsKey, Neighbors> keyNeighborsMap = null;
         Bgp bgp = getConfig();
         if (bgp != null && bgp.getNeighborsContainer() != null) {
-            nbrList = bgp.getNeighborsContainer().getNeighbors();
+            keyNeighborsMap = bgp.getNeighborsContainer().getNeighbors();
         } else {
             LOG.error("BGP Neighbor configuration NOT exist");
             return;
         }
-        if (nbrList == null) {
+        if (keyNeighborsMap == null) {
             return;
         }
 
-        for (Neighbors nbr : nbrList) {
+        for (Neighbors nbr : keyNeighborsMap.values()) {
             try {
                 LOG.trace("nbr {} checking status, AS num: {}", nbr.getAddress().getValue(), nbr.getRemoteAs());
                 bcm.getPeerStatus(nbr.getAddress().getValue(), nbr.getRemoteAs().toJava());
@@ -307,7 +309,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
             return null;
         }
         List<Neighbors> nbrs = conf.getNeighborsContainer() == null ? null
-                : conf.getNeighborsContainer().getNeighbors();
+                : new ArrayList<Neighbors>(conf.getNeighborsContainer().getNeighbors().values());
         if (nbrs == null) {
             return null;
         }

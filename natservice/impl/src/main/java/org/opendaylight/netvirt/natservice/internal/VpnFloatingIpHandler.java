@@ -18,7 +18,9 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -62,6 +64,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.Fl
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.SendArpRequestInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.SendArpRequestInputBuilder;
@@ -441,7 +444,11 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         } else {
             mkMatches.add(new MatchTunnelId(Uint64.valueOf(serviceId)));
         }
-
+        Map<InstructionKey, Instruction> customInstructionsMap = new HashMap<InstructionKey, Instruction>();
+        int instructionKey = 0;
+        for (Instruction instructionObj : customInstructions) {
+            customInstructionsMap.put(new InstructionKey(++instructionKey), instructionObj);
+        }
         Flow terminatingServiceTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE,
             getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, serviceId, ""), flowPriority,
             String.format("%s:%s", "TST Flow Entry ", serviceId),
@@ -457,21 +464,23 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         matches.add(MatchEthernetType.MPLS_UNICAST);
         matches.add(new MatchMplsLabel(serviceId.longValue()));
 
-        List<Instruction> instructions = new ArrayList<>();
+        Map<InstructionKey, Instruction> instructionMap = new HashMap<InstructionKey, Instruction>();
+        int instructionKey = 0;
         List<ActionInfo> actionsInfos = new ArrayList<>();
         //NAT is required for IPv4 only. Hence always etherType will be IPv4
         actionsInfos.add(new ActionPopMpls(NwConstants.ETHTYPE_IPV4));
         actionsInfos.add(new ActionSetFieldEthernetDestination(new MacAddress(floatingIpPortMacAddress)));
         Instruction writeInstruction = new InstructionApplyActions(actionsInfos).buildInstruction(0);
-        instructions.add(writeInstruction);
-        instructions.add(new InstructionGotoTable(tableId).buildInstruction(1));
+        instructionMap.put(new InstructionKey(++instructionKey), writeInstruction);
+        instructionMap.put(new InstructionKey(++instructionKey),
+                new InstructionGotoTable(tableId).buildInstruction(1));
 
         // Install the flow entry in L3_LFIB_TABLE
         String flowRef = getFlowRef(dpId, NwConstants.L3_LFIB_TABLE, serviceId, "");
 
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_LFIB_TABLE, flowRef,
             10, flowRef, 0, 0,
-            NwConstants.COOKIE_VM_LFIB_TABLE, matches, instructions);
+            NwConstants.COOKIE_VM_LFIB_TABLE, matches, instructionMap);
 
         mdsalManager.addFlow(confTx, dpId, flowEntity);
 

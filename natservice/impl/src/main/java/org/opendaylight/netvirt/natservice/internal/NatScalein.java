@@ -89,8 +89,8 @@ public class NatScalein {
                 .syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                     LogicalDatastoreType.OPERATIONAL, dpnRoutersListIdentifier);
         if (optionalDpnRoutersList.isPresent()) {
-            List<RoutersList> routersListFromDs = optionalDpnRoutersList.get()
-                .getRoutersList();
+            List<RoutersList> routersListFromDs = new ArrayList<RoutersList>(optionalDpnRoutersList.get()
+                .getRoutersList().values());
             routersListFromDs.forEach(router -> {
                 String routerName = router.getRouter();
                 Routers extRouters = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);

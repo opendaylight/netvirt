@@ -8,8 +8,8 @@
 package org.opendaylight.netvirt.elan.utils;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -25,9 +25,11 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -104,6 +106,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.ta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
@@ -180,6 +183,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ElanSegments;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ElanSegmentsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntries;
@@ -564,8 +568,8 @@ public class ElanUtils {
         if (!existingElanDpnInterfaces.isPresent()) {
             return dpIds;
         }
-        List<DpnInterfaces> dpnInterfaces = existingElanDpnInterfaces.get().nonnullDpnInterfaces();
-        for (DpnInterfaces dpnInterface : dpnInterfaces) {
+        Map<DpnInterfacesKey, DpnInterfaces> dpnInterfaces = existingElanDpnInterfaces.get().nonnullDpnInterfaces();
+        for (DpnInterfaces dpnInterface : dpnInterfaces.values()) {
             dpIds.add(dpnInterface.getDpId());
         }
         return dpIds;
@@ -776,11 +780,12 @@ public class ElanUtils {
      *            external)
      * @return the Instruction
      */
-    public List<Instruction> getInstructionsInPortForOutGroup(String ifName) {
-        List<Instruction> mkInstructions = new ArrayList<>();
+    public Map<InstructionKey, Instruction> getInstructionsInPortForOutGroup(String ifName) {
+        int instructionsKey = 0;
+        Map<InstructionKey, Instruction> mkInstructions = new HashMap<>();
         List<Action> actions = getEgressActionsForInterface(ifName, /* tunnelKey */ null);
 
-        mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));
+        mkInstructions.put(new InstructionKey(++instructionsKey), MDSALUtil.buildApplyActionsInstruction(actions));
         return mkInstructions;
     }
 
@@ -812,7 +817,7 @@ public class ElanUtils {
                 LOG.debug("RPC Call to Get egress actions for interface {} returned with Errors {}", ifName,
                         rpcResult.getErrors());
             } else {
-                listAction = rpcResult.getResult().nonnullAction();
+                listAction = new ArrayList<Action>(rpcResult.getResult().nonnullAction().values());
             }
         } catch (Exception e) {
             LOG.warn("Exception when egress actions for interface {}", ifName, e);
@@ -876,8 +881,9 @@ public class ElanUtils {
     public List<DpnInterfaces> getElanDPNByName(String elanInstanceName) {
         InstanceIdentifier<ElanDpnInterfacesList> elanIdentifier = getElanDpnOperationDataPath(elanInstanceName);
         try {
-            return SingleTransactionDataBroker.syncReadOptional(broker, LogicalDatastoreType.OPERATIONAL,
-                    elanIdentifier).map(ElanDpnInterfacesList::getDpnInterfaces).orElse(emptyList());
+            return new ArrayList<DpnInterfaces>((SingleTransactionDataBroker.syncReadOptional(broker,
+                    LogicalDatastoreType.OPERATIONAL, elanIdentifier).map(ElanDpnInterfacesList::getDpnInterfaces)
+                    .orElse(emptyMap())).values());
         } catch (ExecutionException | InterruptedException e) {
             LOG.error("getElanDPNByName: Exception while reading elanDpnInterfaceList DS for the elan "
                     + "instance {}", elanInstanceName, e);
@@ -948,9 +954,9 @@ public class ElanUtils {
             MetaDataUtil.METADATA_MASK_SERVICE));
         mkMatches.add(new MatchEthernetDestination(new MacAddress(macAddress)));
 
-        List<Instruction> mkInstructions = new ArrayList<>();
+        Map<InstructionKey, Instruction> mkInstructions = new HashMap<>();
         List<Action> actions = getEgressActionsForInterface(ifName, /* tunnelKey */ null);
-        mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));
+        mkInstructions.put(new InstructionKey(0), MDSALUtil.buildApplyActionsInstruction(actions));
         Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE,
                 getKnownDynamicmacFlowRef(elanTag, macAddress), 20,
                 elanInfo.getElanInstanceName(), 0, 0,
@@ -1028,7 +1034,7 @@ public class ElanUtils {
             MetaDataUtil.METADATA_MASK_SERVICE));
         mkMatches.add(new MatchEthernetDestination(new MacAddress(macAddress)));
 
-        List<Instruction> mkInstructions = new ArrayList<>();
+        Map<InstructionKey, Instruction> mkInstructions = new HashMap<>();
 
         // List of Action for the provided Source and Destination DPIDs
         try {
@@ -1043,7 +1049,7 @@ public class ElanUtils {
                 }
                 actions = getEgressActionsForInterface(interfaceName, null);
             }
-            mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));
+            mkInstructions.put(new InstructionKey(0), MDSALUtil.buildApplyActionsInstruction(actions));
         } catch (Exception e) {
             LOG.error("Could not get egress actions to add to flow for srcDpId {}, destDpId {}, lportTag/VNI {}",
                     srcDpId,  destDpId, lportTagOrVni, e);
@@ -1185,11 +1191,11 @@ public class ElanUtils {
                 .withKey(new ElanKey(elanInstanceName)).build();
 
         // Add the ElanState in the elan-state operational data-store
-        operTx.put(getElanInstanceOperationalDataPath(elanInstanceName), elanInfo, CREATE_MISSING_PARENTS);
+        operTx.mergeParentStructurePut(getElanInstanceOperationalDataPath(elanInstanceName), elanInfo);
 
         // Add the ElanMacTable in the elan-mac-table operational data-store
         MacTable elanMacTable = new MacTableBuilder().withKey(new MacTableKey(elanInstanceName)).build();
-        operTx.put(getElanMacTableOperationalDataPath(elanInstanceName), elanMacTable, CREATE_MISSING_PARENTS);
+        operTx.mergeParentStructurePut(getElanMacTableOperationalDataPath(elanInstanceName), elanMacTable);
 
         ElanTagNameBuilder elanTagNameBuilder = new ElanTagNameBuilder().setElanTag(elanTag)
                 .withKey(new ElanTagNameKey(elanTag)).setName(elanInstanceName);
@@ -1224,8 +1230,8 @@ public class ElanUtils {
         ElanInstance elanInstanceWithTag = elanInstanceBuilder.build();
         LOG.trace("Updated elan Operational DS for elan: {} with elanTag: {} and interfaces: {}", elanInstanceName,
                 elanTag, elanInterfaces);
-        confTx.merge(ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName), elanInstanceWithTag,
-            CREATE_MISSING_PARENTS);
+        confTx.mergeParentStructureMerge(ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName),
+                elanInstanceWithTag);
         return elanInstanceWithTag;
     }
 
@@ -1441,9 +1447,9 @@ public class ElanUtils {
 
     private static boolean isVxlanSegment(@Nullable ElanInstance elanInstance) {
         if (elanInstance != null) {
-            List<ElanSegments> elanSegments = elanInstance.getElanSegments();
+            Map<ElanSegmentsKey, ElanSegments> elanSegments = elanInstance.getElanSegments();
             if (elanSegments != null) {
-                for (ElanSegments segment : elanSegments) {
+                for (ElanSegments segment : elanSegments.values()) {
                     if (segment != null && segment.getSegmentType().isAssignableFrom(SegmentTypeVxlan.class)
                             && segment.getSegmentationId() != null
                             && segment.getSegmentationId().longValue() != 0) {
@@ -1470,7 +1476,7 @@ public class ElanUtils {
                 && elanInstance.getSegmentationId() != null && elanInstance.getSegmentationId().longValue() != 0) {
             segmentationId = elanInstance.getSegmentationId();
         } else {
-            for (ElanSegments segment: elanInstance.getElanSegments()) {
+            for (ElanSegments segment: elanInstance.getElanSegments().values()) {
                 if (segment != null && segment.getSegmentType().isAssignableFrom(SegmentTypeVxlan.class)
                     && segment.getSegmentationId() != null
                     && segment.getSegmentationId().longValue() != 0) {
@@ -1634,7 +1640,7 @@ public class ElanUtils {
         if (macTable == null) {
             return emptyList();
         }
-        return macTable.getMacEntry();
+        return new ArrayList<MacEntry>(macTable.getMacEntry().values());
     }
 
     public boolean isTunnelInLogicalGroup(String interfaceName) {
@@ -1685,7 +1691,7 @@ public class ElanUtils {
         Optional<Subnetmaps> subnetMapsData =
                 read(dataBroker, LogicalDatastoreType.CONFIGURATION, buildSubnetMapsWildCardPath());
         if (subnetMapsData.isPresent()) {
-            List<Subnetmap> subnetMapList = subnetMapsData.get().getSubnetmap();
+            List<Subnetmap> subnetMapList = new ArrayList<>(subnetMapsData.get().getSubnetmap().values());
             if (subnetMapList != null && !subnetMapList.isEmpty()) {
                 for (Subnetmap subnet : subnetMapList) {
                     if (subnet.getNetworkId().getValue().equals(elanInstanceName)) {
@@ -1732,8 +1738,8 @@ public class ElanUtils {
             LOG.debug("Buckets are not sent for group {}. Skipping merge operation", groupIdInfo);
             return;
         }
-        List<Bucket> newBuckets = newGroup.getBuckets().getBucket();
-        List<Bucket> existingBuckets = existingGroup.getBucket();
+        List<Bucket> newBuckets = new ArrayList<Bucket>(newGroup.getBuckets().getBucket().values());
+        List<Bucket> existingBuckets = new ArrayList<Bucket>(existingGroup.getBucket().values());
         Set<Bucket> toMergeBucketsWithoutId = new LinkedHashSet<>();
 
         existingBuckets.stream()

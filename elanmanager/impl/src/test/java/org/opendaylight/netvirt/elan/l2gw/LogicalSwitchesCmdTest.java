@@ -103,8 +103,7 @@ public class LogicalSwitchesCmdTest extends AbstractConcurrentDataBrokerTest {
         originalData = getData(new LogicalSwitches[]{logicalSwitches[0], logicalSwitches[1]});
         updatedData = getData(new LogicalSwitches[]{logicalSwitches[0], logicalSwitches[1], logicalSwitches[2]});
         cmd.mergeOpUpdate(existingData, updatedData, originalData, haNodePath, tx);
-        Mockito.verify(tx).put(LogicalDatastoreType.OPERATIONAL, ids[2], logicalSwitches[2],
-                WriteTransaction.CREATE_MISSING_PARENTS);
+        Mockito.verify(tx).put(LogicalDatastoreType.OPERATIONAL, ids[2], logicalSwitches[2]);
     }
 
     @Test
@@ -114,10 +113,8 @@ public class LogicalSwitchesCmdTest extends AbstractConcurrentDataBrokerTest {
         updatedData = getData(new LogicalSwitches[]{logicalSwitches[0],
                 logicalSwitches[1], logicalSwitches[2], logicalSwitches[3]});
         cmd.mergeOpUpdate(existingData, updatedData, originalData, haNodePath, tx);
-        Mockito.verify(tx).put(LogicalDatastoreType.OPERATIONAL, ids[2], logicalSwitches[2],
-                WriteTransaction.CREATE_MISSING_PARENTS);
-        Mockito.verify(tx).put(LogicalDatastoreType.OPERATIONAL, ids[3], logicalSwitches[3],
-                WriteTransaction.CREATE_MISSING_PARENTS);
+        Mockito.verify(tx).put(LogicalDatastoreType.OPERATIONAL, ids[2], logicalSwitches[2]);
+        Mockito.verify(tx).put(LogicalDatastoreType.OPERATIONAL, ids[3], logicalSwitches[3]);
     }
 
     @Test
@@ -148,10 +145,8 @@ public class LogicalSwitchesCmdTest extends AbstractConcurrentDataBrokerTest {
         originalData = getData(new LogicalSwitches[]{logicalSwitches[0], logicalSwitches[1]});
         updatedData = getData(new LogicalSwitches[]{logicalSwitches[2], logicalSwitches[3]});
         cmd.mergeOpUpdate(existingData, updatedData, originalData, haNodePath, tx);
-        Mockito.verify(tx).put(LogicalDatastoreType.OPERATIONAL, ids[2], logicalSwitches[2],
-                WriteTransaction.CREATE_MISSING_PARENTS);
-        Mockito.verify(tx).put(LogicalDatastoreType.OPERATIONAL, ids[3], logicalSwitches[3],
-                WriteTransaction.CREATE_MISSING_PARENTS);
+        Mockito.verify(tx).put(LogicalDatastoreType.OPERATIONAL, ids[2], logicalSwitches[2]);
+        Mockito.verify(tx).put(LogicalDatastoreType.OPERATIONAL, ids[3], logicalSwitches[3]);
         Mockito.verify(tx).delete(LogicalDatastoreType.OPERATIONAL, ids[0]);
         Mockito.verify(tx).delete(LogicalDatastoreType.OPERATIONAL, ids[1]);
     }
