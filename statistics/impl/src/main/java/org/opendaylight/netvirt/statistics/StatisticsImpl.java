@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.statistics;
 
-import java.util.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -22,17 +21,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.ReadTransaction;
-import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
-import org.opendaylight.mdsal.binding.api.WriteTransaction;
-import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
@@ -41,6 +35,12 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.netvirt.statistics.api.ICountersInterfaceChangeHandler;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -885,8 +885,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
         IngressElementCountersRequestConfigBuilder ecrcb = new IngressElementCountersRequestConfigBuilder();
         ecrcb.setCounterRequests(counterRequests);
         requestConfig = ecrcb.build();
-        transaction.put(LogicalDatastoreType.CONFIGURATION, ecrcIdentifier, requestConfig,
-                WriteTransaction.CREATE_MISSING_PARENTS);
+        transaction.mergeParentStructurePut(LogicalDatastoreType.CONFIGURATION, ecrcIdentifier, requestConfig);
     }
 
     private void putEgressElementCounterRequestInConfig(AcquireElementCountersRequestHandlerInput input,
@@ -909,8 +908,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
         EgressElementCountersRequestConfigBuilder ecrcb = new EgressElementCountersRequestConfigBuilder();
         ecrcb.setCounterRequests(counterRequests);
         requestConfig = ecrcb.build();
-        transaction.put(LogicalDatastoreType.CONFIGURATION, ecrcIdentifier, requestConfig,
-                WriteTransaction.CREATE_MISSING_PARENTS);
+        transaction.put(LogicalDatastoreType.CONFIGURATION, ecrcIdentifier, requestConfig);
     }
 
     private void creatIngressEelementCountersContainerInConfig(ReadWriteTransaction transaction,
@@ -919,8 +917,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
         List<CounterRequests> counterRequests = new ArrayList<>();
         iecrcb.setCounterRequests(counterRequests);
         IngressElementCountersRequestConfig iecrc = iecrcb.build();
-        transaction.put(LogicalDatastoreType.CONFIGURATION, ecrcIdentifier, iecrc,
-                WriteTransaction.CREATE_MISSING_PARENTS);
+        transaction.put(LogicalDatastoreType.CONFIGURATION, ecrcIdentifier, iecrc);
     }
 
     private void creatEgressEelementCountersContainerInConfig(ReadWriteTransaction transaction,
@@ -929,8 +926,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
         List<CounterRequests> counterRequests = new ArrayList<>();
         eecrcb.setCounterRequests(counterRequests);
         EgressElementCountersRequestConfig eecrc = eecrcb.build();
-        transaction.put(LogicalDatastoreType.CONFIGURATION, ecrcIdentifier, eecrc,
-                WriteTransaction.CREATE_MISSING_PARENTS);
+        transaction.put(LogicalDatastoreType.CONFIGURATION, ecrcIdentifier, eecrc);
     }
 
     private Integer allocateId(String idKey) {

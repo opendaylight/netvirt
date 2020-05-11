@@ -22,6 +22,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+
 @Singleton
 public class DhcpConfigListener extends AbstractClusteredAsyncDataTreeChangeListener<DhcpConfig> {
 
@@ -75,7 +77,7 @@ public class DhcpConfigListener extends AbstractClusteredAsyncDataTreeChangeList
             dhcpManager.setDefaultDomain(DhcpMConstants.DEFAULT_DOMAIN_NAME);
             return;
         }
-        Configs config = update.getConfigs().get(0);
+        Configs config = new ArrayList<Configs>(update.getConfigs().values()).get(0);
         if (config.getLeaseDuration() != null) {
             dhcpManager.setLeaseDuration(config.getLeaseDuration());
         }

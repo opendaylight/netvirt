@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -80,10 +81,12 @@ public class VpnDpnToTransportZoneListener
 
         boolean shouldCreateVtep;
         if (original.getVpnInterfaces() != null && !original.getVpnInterfaces().isEmpty()) {
-            shouldCreateVtep = transportZoneNotificationUtil.shouldCreateVtep(update.getVpnInterfaces().stream()
-                    .filter(vi -> !original.getVpnInterfaces().contains(vi)).collect(Collectors.toList()));
+            shouldCreateVtep = transportZoneNotificationUtil
+                    .shouldCreateVtep(update.getVpnInterfaces().values().stream()
+                    .filter(vi -> !original.getVpnInterfaces().values().contains(vi)).collect(Collectors.toList()));
         } else {
-            shouldCreateVtep = transportZoneNotificationUtil.shouldCreateVtep(update.getVpnInterfaces());
+            shouldCreateVtep = transportZoneNotificationUtil.shouldCreateVtep(
+                    new ArrayList<>(update.getVpnInterfaces().values()));
         }
 
         if (shouldCreateVtep) {
@@ -99,7 +102,8 @@ public class VpnDpnToTransportZoneListener
         }
         LOG.debug("Vpn dpn {} add detected, updating transport zones", add.getDpnId());
 
-        boolean shouldCreateVtep = transportZoneNotificationUtil.shouldCreateVtep(add.getVpnInterfaces());
+        boolean shouldCreateVtep = transportZoneNotificationUtil.shouldCreateVtep(
+                new ArrayList<>(add.getVpnInterfaces().values()));
         if (shouldCreateVtep) {
             String vrfId = identifier.firstKeyOf(VpnInstanceOpDataEntry.class).getVrfId();
             transportZoneNotificationUtil.updateTransportZone(vrfId, add.getDpnId());

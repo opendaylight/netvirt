@@ -9,10 +9,7 @@ package org.opendaylight.netvirt.vpnmanager.api;
 
 import static java.util.stream.Collectors.toList;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.eclipse.jdt.annotation.Nullable;
@@ -110,14 +107,16 @@ public final class VpnExtraRouteHelper {
             LOG.error("getUsedRds: failed to read Used Rds for vpn {} destprefix {} due to exception", vpnId,
                     destPrefix, e);
         }
-        return usedRds.isPresent() && usedRds.get().getAllocatedRds() != null ? usedRds.get().getAllocatedRds().stream()
+        return usedRds.isPresent() && usedRds.get().getAllocatedRds() != null
+                ? usedRds.get().getAllocatedRds().values().stream()
                 .map(AllocatedRds::getRd).distinct().collect(toList()) : new ArrayList<>();
     }
 
     public static  List<String> getUsedRds(TypedReadTransaction<Configuration> confTx, Uint32 vpnId, String destPrefix)
             throws ExecutionException, InterruptedException {
         Optional<DestPrefixes> usedRds = confTx.read(getUsedRdsIdentifier(vpnId, destPrefix)).get();
-        return usedRds.isPresent() && usedRds.get().getAllocatedRds() != null ? usedRds.get().getAllocatedRds().stream()
+        return usedRds.isPresent() && usedRds.get().getAllocatedRds() != null
+                ? usedRds.get().getAllocatedRds().values().stream()
             .map(AllocatedRds::getRd).distinct().collect(toList()) : new ArrayList<>();
     }
 
@@ -173,8 +172,9 @@ public final class VpnExtraRouteHelper {
         try {
             Optional<ExtrarouteRds> optionalExtraRoutes = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION,
                     getUsedRdsIdentifier(vpnId));
-            List<DestPrefixes> prefixes = optionalExtraRoutes.map(ExtrarouteRds::getDestPrefixes).orElse(null);
-            return prefixes == null ? Collections.emptyList() : prefixes;
+            Map<DestPrefixesKey, DestPrefixes> prefixesMap
+                    = optionalExtraRoutes.map(ExtrarouteRds::getDestPrefixes).orElse(null);
+            return prefixesMap == null ? Collections.emptyList() : new ArrayList<DestPrefixes>(prefixesMap.values());
         } catch (ExecutionException | InterruptedException e) {
             LOG.error("getExtraRouteDestPrefixes: failed to read ExRoutesRdsMap for vpn {} due to exception", vpnId, e);
         }

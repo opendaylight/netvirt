@@ -47,6 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.sub
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.SubnetToDpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.SubnetToDpnKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
@@ -484,7 +485,8 @@ public class VpnSubnetRouteHandler {
             }
             SubnetOpDataEntry subnetOpDataEntry = optionalSubs.get();
             SubnetOpDataEntryBuilder subOpBuilder = new SubnetOpDataEntryBuilder(subnetOpDataEntry);
-            subOpBuilder.setSubnetToDpn(concat(subnetOpDataEntry.getSubnetToDpn(), subDpn));
+            subOpBuilder.setSubnetToDpn(concat(new ArrayList<SubnetToDpn>(subnetOpDataEntry.getSubnetToDpn().values()),
+                    subDpn));
             if (subOpBuilder.getRouteAdvState() != TaskState.Advertised) {
                 if (subOpBuilder.getNhDpnId() == null) {
                     // No nexthop selected yet, elect one now
@@ -620,7 +622,8 @@ public class VpnSubnetRouteHandler {
                     subOpBuilder.getRouteAdvState(), subOpBuilder.getLastAdvState());
             boolean isExternalSubnetVpn = VpnUtil.isExternalSubnetVpn(subnetOpDataEntry.getVpnName(),
                     subnetId.getValue());
-            subOpBuilder.setSubnetToDpn(concat(subnetOpDataEntry.getSubnetToDpn(), subDpn));
+            subOpBuilder.setSubnetToDpn(concat(new ArrayList<SubnetToDpn>(subnetOpDataEntry.getSubnetToDpn().values()),
+                    subDpn));
             if (subOpBuilder.getRouteAdvState() != TaskState.Advertised) {
                 if (subOpBuilder.getNhDpnId() == null) {
                     // No nexthop selected yet, elect one now
@@ -988,9 +991,9 @@ public class VpnSubnetRouteHandler {
 
         String nhTepIp = null;
         Uint64 nhDpnId = null;
-        List<SubnetToDpn> subDpnList = subOpBuilder.getSubnetToDpn();
-        if (subDpnList != null) {
-            for (SubnetToDpn subnetToDpn : subDpnList) {
+        Map<SubnetToDpnKey, SubnetToDpn> toDpnKeySubnetToDpnMap = subOpBuilder.getSubnetToDpn();
+        if (toDpnKeySubnetToDpnMap != null) {
+            for (SubnetToDpn subnetToDpn : toDpnKeySubnetToDpnMap.values()) {
                 if (subnetToDpn.getDpnId().equals(oldDpnId)) {
                     // Is this same is as input dpnId, then ignore it
                     continue;
