@@ -383,7 +383,7 @@ public class EvpnUtils {
                     NwConstants.ELAN_SERVICE_INDEX, NwConstants.COOKIE_ELAN_INGRESS_TABLE, instructions);
             InstanceIdentifier<BoundServices> bindServiceId = ElanUtils.buildServiceId(interfaceName, elanServiceIndex);
             if (!tx.read(bindServiceId).get().isPresent()) {
-                tx.put(bindServiceId, serviceInfo, WriteTransaction.CREATE_MISSING_PARENTS);
+                tx.put(bindServiceId, serviceInfo);
             }
         }), LOG, "Error binding an ELAN service to an external tunnel");
     }

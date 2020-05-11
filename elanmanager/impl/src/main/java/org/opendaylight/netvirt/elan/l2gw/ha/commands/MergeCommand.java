@@ -106,7 +106,7 @@ public abstract class MergeCommand<T extends DataObject, Y extends Builder, Z ex
                 T transformedItem = transform(nodePath, addedItem);
                 String nodeId = transformedId.firstKeyOf(Node.class).getNodeId().getValue();
                 LOG.trace("adding {} {} {}", getDescription(), nodeId, getKey(transformedItem));
-                tx.put(datastoreType, transformedId, transformedItem, WriteTransaction.CREATE_MISSING_PARENTS);
+                tx.put(datastoreType, transformedId, transformedItem);
             }
         }
         List<T> removed = new ArrayList<>(orig);

@@ -11,7 +11,6 @@ import static java.util.Collections.emptyList;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 import static org.opendaylight.infrautils.utils.concurrent.LoggingFutures.addErrorLogging;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlanNetworkOrVxlanSegment;
 
 import com.google.common.base.Preconditions;
@@ -836,7 +835,7 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
             LOG.debug("Adding dpn into operational dpn list {}", holder.dpId);
             futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, operTx -> {
                 operTx.put(ElanUtils.getElanDpnInterfaceOperationalDataPath(elanInstanceName, holder.dpId),
-                        holder.dpnInterfaces, CREATE_MISSING_PARENTS);
+                        holder.dpnInterfaces);
             }));
         } else {
             LOG.debug("Updated dpn into operational dpn list {}", holder.dpId);
@@ -1465,7 +1464,7 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
         Optional<BoundServices> existingElanService = ElanUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
                 bindServiceId);
         if (!existingElanService.isPresent()) {
-            tx.put(bindServiceId, serviceInfo, CREATE_MISSING_PARENTS);
+            tx.put(bindServiceId, serviceInfo);
             LOG.trace("Done binding elan service for elan: {} for interface: {}", elanInstanceName, interfaceName);
         }
     }
@@ -1527,8 +1526,7 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
             List<String> interfaceNames, TypedWriteTransaction<Operational> tx) {
         DpnInterfaces dpnInterface = new DpnInterfacesBuilder().setDpId(dpId).setInterfaces(interfaceNames)
                 .withKey(new DpnInterfacesKey(dpId)).build();
-        tx.put(ElanUtils.getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId), dpnInterface,
-                CREATE_MISSING_PARENTS);
+        tx.put(ElanUtils.getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId), dpnInterface);
         LOG.trace("Updated operational dpn interfaces for elan: {} with interfaces: {}", elanInstanceName,
                 interfaceNames);
         return dpnInterface;
@@ -1577,7 +1575,7 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
 
             Elan elanState = new ElanBuilder().setName(elanInstanceName).setElanInterfaces(interfaceLists)
                     .withKey(new ElanKey(elanInstanceName)).build();
-            tx.put(ElanUtils.getElanInstanceOperationalDataPath(elanInstanceName), elanState, CREATE_MISSING_PARENTS);
+            tx.put(ElanUtils.getElanInstanceOperationalDataPath(elanInstanceName), elanState);
             LOG.trace("Updated operational elan state for elan: {} with interfaces: {}", elanInstanceName,
                     interfaceLists);
         }

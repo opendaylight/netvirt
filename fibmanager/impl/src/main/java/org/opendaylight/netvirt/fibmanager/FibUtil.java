@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.fibmanager;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
@@ -349,7 +348,7 @@ public class FibUtil {
         }
         buildVpnEncapSpecificInfo(vrfEntryBuilder, encapType, label, l3vni, macAddress, gatewayMacAddress, nextHopList);
         if (writeConfigTxn != null) {
-            writeConfigTxn.merge(vrfEntryId, vrfEntryBuilder.build(), CREATE_MISSING_PARENTS);
+            writeConfigTxn.merge(vrfEntryId, vrfEntryBuilder.build());
         } else {
             MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntryBuilder.build());
         }
@@ -375,7 +374,7 @@ public class FibUtil {
                 .addAugmentation(RouterInterface.class, routerInterface).build();
 
             if (writeConfigTxn != null) {
-                writeConfigTxn.merge(vrfEntryId, vrfEntry, CREATE_MISSING_PARENTS);
+                writeConfigTxn.merge(vrfEntryId, vrfEntry);
             } else {
                 MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
             }
@@ -515,7 +514,7 @@ public class FibUtil {
             if (nextHopAdd) {
                 RoutePaths routePaths = FibHelper.buildRoutePath(nextHop, label);
                 if (writeConfigTxn != null) {
-                    writeConfigTxn.put(routePathId, routePaths, CREATE_MISSING_PARENTS);
+                    writeConfigTxn.put(routePathId, routePaths);
                 } else {
                     MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routePathId, routePaths);
                 }
