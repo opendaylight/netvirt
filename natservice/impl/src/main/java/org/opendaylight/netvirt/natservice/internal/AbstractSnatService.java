@@ -275,7 +275,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         String routerName = routers.getRouterName();
         Uint32 routerId = NatUtil.getVpnId(dataBroker, routerName);
         addDefaultFibRouteForSNAT(confTx, dpnId, routerId);
-        for (ExternalIps externalIp : routers.nonnullExternalIps()) {
+        for (ExternalIps externalIp : routers.nonnullExternalIps().values()) {
             if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
                 // In this class we handle only IPv4 use-cases.
                 continue;
@@ -293,7 +293,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         String routerName = routers.getRouterName();
         Uint32 routerId = NatUtil.getVpnId(dataBroker, routerName);
         removeDefaultFibRouteForSNAT(confTx, dpnId, routerId);
-        for (ExternalIps externalIp : routers.nonnullExternalIps()) {
+        for (ExternalIps externalIp : routers.nonnullExternalIps().values()) {
             if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
                 // In this class we handle only IPv4 use-cases.
                 continue;
@@ -309,7 +309,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         String routerName = routers.getRouterName();
         Uint32 routerId = NatUtil.getVpnId(dataBroker, routerName);
         String externalGwMac = routers.getExtGwMacAddress();
-        for (ExternalIps externalIp : routers.nonnullExternalIps()) {
+        for (ExternalIps externalIp : routers.nonnullExternalIps().values()) {
             if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
                 // In this class we handle only IPv4 use-cases.
                 continue;
@@ -326,7 +326,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         Routers routers, Uint64 dpnId) throws ExecutionException, InterruptedException {
         String routerName = routers.getRouterName();
         Uint32 routerId = NatUtil.getVpnId(confTx, routerName);
-        for (ExternalIps externalIp : routers.nonnullExternalIps()) {
+        for (ExternalIps externalIp : routers.nonnullExternalIps().values()) {
             if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
                 // In this class we handle only IPv4 use-cases.
                 continue;
@@ -599,7 +599,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     private void removeMipAdjacencies(Routers routers) {
         LOG.info("removeMipAdjacencies for router {}", routers.getRouterName());
         String externalSubNetId  = null;
-        for (ExternalIps externalIp : routers.nonnullExternalIps()) {
+        for (ExternalIps externalIp : routers.nonnullExternalIps().values()) {
             if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
                 // In this class we handle only IPv4 use-cases.
                 continue;
@@ -618,11 +618,11 @@ public abstract class AbstractSnatService implements SnatServiceListener {
             VpnInterfaces vpnInterfaces = SingleTransactionDataBroker.syncRead(dataBroker,
                     LogicalDatastoreType.CONFIGURATION, vpnInterfacesId);
             List<VpnInterface> updatedVpnInterface = new ArrayList<>();
-            for (VpnInterface vpnInterface : vpnInterfaces.nonnullVpnInterface()) {
+            for (VpnInterface vpnInterface : vpnInterfaces.nonnullVpnInterface().values()) {
                 List<Adjacency> updatedAdjacencies = new ArrayList<>();
                 Adjacencies adjacencies = vpnInterface.augmentation(Adjacencies.class);
                 if (null != adjacencies) {
-                    for (Adjacency adjacency : adjacencies.nonnullAdjacency()) {
+                    for (Adjacency adjacency : adjacencies.nonnullAdjacency().values()) {
                         if (!adjacency.getSubnetId().getValue().equals(externalSubNetId)) {
                             updatedAdjacencies.add(adjacency);
                         }
@@ -662,7 +662,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
                 learntVpnVipToPortList.add(learntVpnVipToPort);
             } else {
                 String externalSubNetId = null;
-                for (ExternalIps externalIp : routers.nonnullExternalIps()) {
+                for (ExternalIps externalIp : routers.nonnullExternalIps().values()) {
                     if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
                         // In this class we handle only IPv4 use-cases.
                         continue;

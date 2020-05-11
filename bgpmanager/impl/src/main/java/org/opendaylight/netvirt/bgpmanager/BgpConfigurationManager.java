@@ -141,6 +141,7 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfscontainer.VrfsKey;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfscontainer.vrfs.AddressFamiliesVrf;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfscontainer.vrfs.AddressFamiliesVrfBuilder;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfscontainer.vrfs.AddressFamiliesVrfKey;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.tcp.security.option.grouping.TcpSecurityOption;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.tcp.security.option.grouping.tcp.security.option.TcpMd5SignatureOption;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.tcp.security.option.grouping.tcp.security.option.TcpMd5SignatureOptionBuilder;
@@ -662,11 +663,11 @@ public class BgpConfigurationManager implements EbgpService {
                 }
                 LOG.debug("Removing external routes from FIB");
                 deleteExternalFibRoutes();
-                List<Neighbors> nbrs = conf.getNeighborsContainer() == null ? null
+                Map<NeighborsKey, Neighbors> keyNeighborsMap = conf.getNeighborsContainer() == null ? null
                         : conf.getNeighborsContainer().getNeighbors();
-                if (nbrs != null && nbrs.size() > 0) {
+                if (keyNeighborsMap != null && keyNeighborsMap.size() > 0) {
                     LOG.error("Tring to remove the as-id when neighbor config is already present");
-                    for (Neighbors nbr : nbrs) {
+                    for (Neighbors nbr : keyNeighborsMap.values()) {
                         LOG.debug("Removing Neighbor {} from Data store", nbr.getAddress().getValue());
                         delNeighbor(nbr.getAddress().getValue());
                     }
@@ -865,7 +866,7 @@ public class BgpConfigurationManager implements EbgpService {
                                     val.getUpdateSource().getSourceIp().getValue();
                 int nhops = (val.getEbgpMultihop() == null) ? 0 :
                                     val.getEbgpMultihop().getNhops().intValue();
-                List<AddressFamilies> afs = val.getAddressFamilies();
+                Map<AddressFamiliesKey, AddressFamilies> keyAddressFamiliesMap = val.getAddressFamilies();
                 long as = val.getRemoteAs().toJava();
                 final String md5Secret = extractMd5Secret(val);
                 BgpRouter br = getClient(YANG_OBJ);
@@ -883,8 +884,8 @@ public class BgpConfigurationManager implements EbgpService {
                     if (sourceIp != null) {
                         br.addUpdateSource(peerIp, sourceIp);
                     }
-                    if (afs != null) {
-                        for (AddressFamilies af : afs) {
+                    if (keyAddressFamiliesMap != null) {
+                        for (AddressFamilies af : keyAddressFamiliesMap.values()) {
                             af_afi afi = af_afi.findByValue(af.getAfi().intValue());
                             af_safi safi = af_safi.findByValue(af.getSafi().intValue());
                             br.addAddressFamily(af.getPeerIp().getValue(), afi, safi);
@@ -1296,8 +1297,9 @@ public class BgpConfigurationManager implements EbgpService {
                     return;
                 }
                 try {
-                    List<AddressFamiliesVrf> vrfAddrFamilyList = vrfs.getAddressFamiliesVrf();
-                    for (AddressFamiliesVrf vrfAddrFamily : vrfAddrFamilyList) {
+                    Map<AddressFamiliesVrfKey, AddressFamiliesVrf> keyAddressFamiliesVrfMap
+                            = vrfs.getAddressFamiliesVrf();
+                    for (AddressFamiliesVrf vrfAddrFamily : keyAddressFamiliesVrfMap.values()) {
                         /*add to br the new vrfs arguments*/
                         br.addVrf(BgpUtil.getLayerType(vrfAddrFamily), rd, vrfs.getImportRts(),
                                 vrfs.getExportRts(), vrfAddrFamily.getAfi().toJava(), vrfAddrFamily.getSafi().toJava());
@@ -1309,7 +1311,7 @@ public class BgpConfigurationManager implements EbgpService {
                     }
 
                     for (AddressFamiliesVrf adf : vrfAddrFamilyListFromMap) {
-                        if (vrfAddrFamilyList.contains(adf)) {
+                        if (keyAddressFamiliesVrfMap.values().contains(adf)) {
                             mapNewAdFamily.remove(rd);
                         } else  if (adf != null) {
 
@@ -1347,7 +1349,7 @@ public class BgpConfigurationManager implements EbgpService {
                 try {
                     List<AddressFamiliesVrf> adf = mapNewAdFamily.get(rd);
                     adf = adf != null ? adf : new ArrayList<>();
-                    for (AddressFamiliesVrf s : val.getAddressFamiliesVrf()) {
+                    for (AddressFamiliesVrf s : val.getAddressFamiliesVrf().values()) {
                         br.delVrf(rd, s.getAfi().toJava(), s.getSafi().toJava());
                         adf.remove(s);// remove in the map the vrf in waiting for advertise quagga
                     }
@@ -1380,11 +1382,13 @@ public class BgpConfigurationManager implements EbgpService {
             List<AddressFamiliesVrf> newlistAdFamilies = new ArrayList<>();
             if (oldval != null) {
                 oldlistAdFamilies = oldval.getAddressFamiliesVrf() == null
-                        ? new ArrayList<>() : oldval.getAddressFamiliesVrf();
+                        ? new ArrayList<>()
+                        : new ArrayList<AddressFamiliesVrf>(oldval.getAddressFamiliesVrf().values());
             }
             if (newval != null) {
                 newlistAdFamilies = newval.getAddressFamiliesVrf() == null
-                        ? new ArrayList<>() : newval.getAddressFamiliesVrf();
+                        ? new ArrayList<>()
+                        : new ArrayList<AddressFamiliesVrf>(newval.getAddressFamiliesVrf().values());
             }
             /*find old AddressFamily to remove from new configuration*/
             for (AddressFamiliesVrf adVrf : oldlistAdFamilies) {
@@ -2161,10 +2165,11 @@ public class BgpConfigurationManager implements EbgpService {
                     }
                 }
 
-                //afs
-                List<AddressFamilies> afs = replayNbr.getNbr().getAddressFamilies();
-                if (afs != null) {
-                    for (AddressFamilies af : afs) {
+                //keyAddressFamiliesMap
+                Map<AddressFamiliesKey, AddressFamilies> keyAddressFamiliesMap
+                        = replayNbr.getNbr().getAddressFamilies();
+                if (keyAddressFamiliesMap != null) {
+                    for (AddressFamilies af : keyAddressFamiliesMap.values()) {
                         af_afi afi = af_afi.findByValue(af.getAfi().intValue());
                         af_safi safi = af_safi.findByValue(af.getSafi().intValue());
                         try {
@@ -2342,11 +2347,13 @@ public class BgpConfigurationManager implements EbgpService {
             }
         }
 
-        List<Neighbors> neighbors = config.getNeighborsContainer() == null ? null
+        Map<NeighborsKey, Neighbors> keyNeighborsMap = config.getNeighborsContainer() == null ? null
                 : config.getNeighborsContainer().getNeighbors();
-        if (neighbors != null) {
-            LOG.error("configuring existing Neighbors present for replay total neighbors {}", neighbors.size());
-            boolean neighborConfigReplayResult = replayNbrConfig(neighbors, br);
+        if (keyNeighborsMap != null) {
+            LOG.error("configuring existing Neighbors present for replay total keyNeighborsMap {}",
+                    keyNeighborsMap.values().size());
+            boolean neighborConfigReplayResult
+                    = replayNbrConfig(new ArrayList<Neighbors>(keyNeighborsMap.values()), br);
             if (neighborConfigReplayResult == false) {
                 replaySucceded = false;
             }
@@ -2371,13 +2378,13 @@ public class BgpConfigurationManager implements EbgpService {
         } catch (Exception e) {
             LOG.error("Replay:addGr() received exception: ", e);
         }
-        List<Vrfs> vrfs = config.getVrfsContainer() == null ? null
+        Map<VrfsKey, Vrfs> keyVrfsMap = config.getVrfsContainer() == null ? null
                 : config.getVrfsContainer().getVrfs();
-        if (vrfs == null) {
-            vrfs = new ArrayList<>();
+        if (keyVrfsMap == null) {
+            keyVrfsMap = new HashMap<VrfsKey, Vrfs>();
         }
-        for (Vrfs vrf : vrfs) {
-            for (AddressFamiliesVrf adf : vrf.getAddressFamiliesVrf()) {
+        for (Vrfs vrf : keyVrfsMap.values()) {
+            for (AddressFamiliesVrf adf : vrf.getAddressFamiliesVrf().values()) {
                 try {
                     br.addVrf(BgpUtil.getLayerType(adf), vrf.getRd(), vrf.getImportRts(),
                             vrf.getExportRts(), adf.getAfi().toJava(), adf.getSafi().toJava());
@@ -2388,10 +2395,10 @@ public class BgpConfigurationManager implements EbgpService {
         }
 
 
-        List<Networks> ln = config.getNetworksContainer() == null ? null
+        Map<NetworksKey, Networks> keyNetworksMap = config.getNetworksContainer() == null ? null
                 : config.getNetworksContainer().getNetworks();
-        if (ln != null) {
-            for (Networks net : ln) {
+        if (keyNetworksMap != null) {
+            for (Networks net : keyNetworksMap.values()) {
                 String rd = net.getRd();
                 String pfxlen = net.getPrefixLen();
                 String nh = net.getNexthop().getValue();
@@ -2422,11 +2429,11 @@ public class BgpConfigurationManager implements EbgpService {
         }
 
 
-        List<Multipath> multipaths = config.getMultipathContainer() == null ? null
+        Map<MultipathKey, Multipath> keyMultipathMap = config.getMultipathContainer() == null ? null
                 : config.getMultipathContainer().getMultipath();
 
-        if (multipaths != null) {
-            for (Multipath multipath : multipaths) {
+        if (keyMultipathMap != null) {
+            for (Multipath multipath : keyMultipathMap.values()) {
                 if (multipath != null) {
                     af_afi afi = af_afi.findByValue(multipath.getAfi().intValue());
                     af_safi safi = af_safi.findByValue(multipath.getSafi().intValue());
@@ -2438,15 +2445,15 @@ public class BgpConfigurationManager implements EbgpService {
                             br.disableMultipath(afi, safi);
                         }
                     } catch (TException | BgpRouterException e) {
-                        LOG.info("Replay:multipaths() received exception", e);
+                        LOG.info("Replay:keyMultipathMap() received exception", e);
                     }
                 }
             }
         }
-        List<VrfMaxpath> vrfMaxpaths = config.getVrfMaxpathContainer() == null ? null
+        Map<VrfMaxpathKey, VrfMaxpath> keyVrfMaxpathMap = config.getVrfMaxpathContainer() == null ? null
                 : config.getVrfMaxpathContainer().getVrfMaxpath();
-        if (vrfMaxpaths != null) {
-            for (VrfMaxpath vrfMaxpath : vrfMaxpaths) {
+        if (keyVrfMaxpathMap != null) {
+            for (VrfMaxpath vrfMaxpath : keyVrfMaxpathMap.values()) {
                 try {
                     br.multipaths(vrfMaxpath.getRd(), vrfMaxpath.getMaxpaths().toJava());
                 } catch (TException | BgpRouterException e) {
@@ -2639,7 +2646,7 @@ public class BgpConfigurationManager implements EbgpService {
         Vrfs vrf = bgpUtil.getVrfFromRd(rd);
         List<AddressFamiliesVrf> adfList = new ArrayList<>(1);
         if (vrf != null) {
-            adfList = vrf.getAddressFamiliesVrf();
+            adfList = new ArrayList<AddressFamiliesVrf>(vrf.getAddressFamiliesVrf().values());
         }
         AddressFamiliesVrfBuilder adfBuilder = new AddressFamiliesVrfBuilder();
         if (addressFamily.equals(AddressFamily.IPV4)) {
@@ -2841,7 +2848,7 @@ public class BgpConfigurationManager implements EbgpService {
 
         //** update or delete the vrfs with the rest of AddressFamilies already present in the last list
         AddressFamiliesVrf adfToDel = adfBuilder.build();
-        List<AddressFamiliesVrf> adfListOriginal = new ArrayList<>(vrfOriginal.nonnullAddressFamiliesVrf());
+        List<AddressFamiliesVrf> adfListOriginal = new ArrayList<>(vrfOriginal.nonnullAddressFamiliesVrf().values());
         List<AddressFamiliesVrf> adfListToRemoveFromOriginal = new ArrayList<>();
         adfListOriginal.forEach(adf -> {
             if (adf.equals(adfToDel)) {

@@ -94,7 +94,8 @@ public class NeutronRouterChangeListener extends AbstractAsyncDataTreeChangeList
         on vpn operational data to release Lport tag in case of L3VPN over VxLAN*/
         if (input.getExternalGatewayInfo() != null) {
             Uuid extNetId = input.getExternalGatewayInfo().getExternalNetworkId();
-            List<ExternalFixedIps> externalFixedIps = input.getExternalGatewayInfo().getExternalFixedIps();
+            List<ExternalFixedIps> externalFixedIps
+                    = new ArrayList<ExternalFixedIps>(input.getExternalGatewayInfo().getExternalFixedIps().values());
             jobCoordinator.enqueueJob(input.getUuid().toString(), () -> {
                 nvpnNatManager.removeExternalNetworkFromRouter(extNetId, input, externalFixedIps);
                 return Collections.emptyList();
@@ -120,8 +121,8 @@ public class NeutronRouterChangeListener extends AbstractAsyncDataTreeChangeList
         if (vpnId == null) {
             vpnId = routerId;
         }
-        List<Routes> oldRoutes = new ArrayList<>(original.nonnullRoutes());
-        List<Routes> newRoutes = new ArrayList<>(update.nonnullRoutes());
+        List<Routes> oldRoutes = new ArrayList<>(original.nonnullRoutes().values());
+        List<Routes> newRoutes = new ArrayList<>(update.nonnullRoutes().values());
         if (!oldRoutes.equals(newRoutes)) {
             Iterator<Routes> iterator = newRoutes.iterator();
             while (iterator.hasNext()) {

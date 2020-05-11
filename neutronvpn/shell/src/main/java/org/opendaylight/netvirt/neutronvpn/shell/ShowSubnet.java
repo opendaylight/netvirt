@@ -19,7 +19,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
@@ -208,9 +207,9 @@ public class ShowSubnet extends OsgiCommandSupport {
             InstanceIdentifier<Subnetmaps> subMapIdentifier = InstanceIdentifier.builder(Subnetmaps.class).build();
             Optional<Subnetmaps> optionalSubnetmaps =  syncReadOptional(dataBroker, CONFIGURATION, subMapIdentifier);
             if (optionalSubnetmaps.isPresent()) {
-                List<Subnetmap> subnetMapList = optionalSubnetmaps.get().getSubnetmap();
-                System.out.println("number of subnetmaps found are : " + subnetMapList.size() + "\n");
-                subnetMapList.forEach(sn -> {
+                Map<SubnetmapKey, Subnetmap> keySubnetmapMap = optionalSubnetmaps.get().getSubnetmap();
+                System.out.println("number of subnetmaps found are : " + keySubnetmapMap.size() + "\n");
+                keySubnetmapMap.values().forEach(sn -> {
                     if (sn != null) {
                         System.out.println("Fetching subnetmap for given subnetId\n");
                         System.out.println("------------------------"
@@ -260,7 +259,7 @@ public class ShowSubnet extends OsgiCommandSupport {
         if (!optionalSubnetmaps.isPresent()) {
             System.out.println("No Subnetmaps configured.");
         } else {
-            subnetmapList = optionalSubnetmaps.get().getSubnetmap();
+            subnetmapList = new ArrayList<Subnetmap>(optionalSubnetmaps.get().getSubnetmap().values());
         }
 
         Optional<SubnetOpData> optionalSubnetOpData = syncReadOptional(dataBroker, OPERATIONAL, subOpIdentifier);

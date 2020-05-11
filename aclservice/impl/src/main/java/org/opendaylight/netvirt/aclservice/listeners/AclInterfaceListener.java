@@ -35,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.SubnetInfo;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -213,7 +214,9 @@ public class AclInterfaceListener extends AbstractAsyncDataTreeChangeListener<In
                 sgs = aclInPort.getSecurityGroups();
                 builder.portSecurityEnabled(aclInPort.isPortSecurityEnabled())
                         .interfaceType(aclInPort.getInterfaceType()).securityGroups(sgs)
-                        .allowedAddressPairs(aclInPort.getAllowedAddressPairs()).subnetInfo(aclInPort.getSubnetInfo());
+                        .allowedAddressPairs(new ArrayList<AllowedAddressPairs>(aclInPort
+                                .getAllowedAddressPairs().values())).subnetInfo(new ArrayList<SubnetInfo>(aclInPort
+                        .getSubnetInfo().values()));
             }
 
             if ((prevAclInterface == null || prevAclInterface.getLPortTag() == null) && interfaceState != null) {

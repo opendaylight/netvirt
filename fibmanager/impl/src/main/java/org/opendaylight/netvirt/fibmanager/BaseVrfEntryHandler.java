@@ -313,7 +313,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         }
 
         if (addOrRemove == NwConstants.ADD_FLOW) {
-            tx.put(LogicalDatastoreType.CONFIGURATION, flowInstanceId, flow, true);
+            tx.mergeParentStructurePut(LogicalDatastoreType.CONFIGURATION, flowInstanceId, flow);
         } else {
             tx.delete(LogicalDatastoreType.CONFIGURATION, flowInstanceId);
         }
