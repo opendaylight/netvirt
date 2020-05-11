@@ -16,6 +16,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -113,11 +114,11 @@ public final class FibHelper {
     }
 
     public static List<String> getNextHopListFromRoutePaths(final VrfEntry vrfEntry) {
-        List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
+        Map<RoutePathsKey, RoutePaths> routePaths = vrfEntry.getRoutePaths();
         if (routePaths == null || routePaths.isEmpty()) {
             return new ArrayList<>();
         }
-        return routePaths.stream()
+        return routePaths.values().stream()
                 .map(RoutePaths::getNexthopAddress)
                 .collect(Collectors.toList());
     }

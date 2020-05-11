@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.elan.l2gw.utils;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlanNetworkOrVxlanSegment;
 
 import com.google.common.collect.Lists;
@@ -17,11 +18,8 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.PreDestroy;
@@ -51,6 +49,7 @@ import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.DevicesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.L2gatewayConnections;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.l2gatewayconnections.L2gatewayConnection;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateways.attributes.L2gateways;
@@ -59,6 +58,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev15071
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LocalUcastMacs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LocalUcastMacsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LogicalSwitches;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
@@ -144,8 +144,9 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
     public static List<L2gateway> getL2gatewayList(DataBroker broker) {
         InstanceIdentifier<L2gateways> inst = InstanceIdentifier.create(Neutron.class).child(L2gateways.class);
         try {
-            return SingleTransactionDataBroker.syncReadOptional(broker, LogicalDatastoreType.CONFIGURATION, inst).map(
-                    L2gateways::getL2gateway).orElse(emptyList());
+            return new ArrayList<>((SingleTransactionDataBroker.syncReadOptional(broker,
+                    LogicalDatastoreType.CONFIGURATION, inst).map(L2gateways::getL2gateway)
+                    .orElse(emptyMap())).values());
         } catch (ExecutionException | InterruptedException e) {
             LOG.error("getNeutronL2gateway: Exception while reading L2gateway DS", e);
         }
@@ -157,8 +158,9 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
         InstanceIdentifier<L2gatewayConnections> inst = InstanceIdentifier.create(Neutron.class)
                 .child(L2gatewayConnections.class);
         try {
-            return SingleTransactionDataBroker.syncReadOptional(broker, LogicalDatastoreType.CONFIGURATION, inst).map(
-                    L2gatewayConnections::getL2gatewayConnection).orElse(emptyList());
+            return new ArrayList<>((SingleTransactionDataBroker.syncReadOptional(broker,
+                    LogicalDatastoreType.CONFIGURATION, inst).map(L2gatewayConnections::getL2gatewayConnection)
+                    .orElse(emptyMap())).values());
         } catch (ExecutionException | InterruptedException e) {
             LOG.error("getNeutronL2gateway: Exception while reading L2gateway DS", e);
         }
@@ -274,7 +276,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
                 LOG.error("Failed to find the l2gateway for the connection {}", input.getUuid());
                 return;
             } else if (l2Gateway.getDevices() != null) {
-                l2gwDevicesToBeDeleted.addAll(l2Gateway.getDevices());
+                l2gwDevicesToBeDeleted.addAll(l2Gateway.getDevices().values());
             }
         }
         for (Devices l2Device : l2gwDevicesToBeDeleted) {
@@ -313,7 +315,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
         String elanName = elanInstance.getElanInstanceName();
         Integer defaultVlan = input.getSegmentId();
         Uuid l2GwConnId = input.key().getUuid();
-        List<Devices> l2Devices = l2Gateway.getDevices();
+        Map<DevicesKey, Devices> l2Devices = l2Gateway.getDevices();
 
         LOG.trace("Associating ELAN {} with L2Gw Conn Id {} having below L2Gw devices {}", elanName, l2GwConnId,
                 l2Devices);
@@ -322,7 +324,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
             return;
         }
 
-        for (Devices l2Device : l2Devices) {
+        for (Devices l2Device : l2Devices.values()) {
             String l2DeviceName = l2Device.getDeviceName();
             // L2gateway can have more than one L2 Gw devices. Configure Logical Switch, VLAN mappings,...
             // only on the switch which has come up just now and exclude all other devices from
@@ -402,7 +404,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
                     if (nodeOptional.isPresent()) {
                         Node node = nodeOptional.get();
                         if (node.augmentation(HwvtepGlobalAugmentation.class) != null) {
-                            List<LocalUcastMacs> localUcastMacs =
+                            Map<LocalUcastMacsKey, LocalUcastMacs> localUcastMacs =
                                     node.augmentation(HwvtepGlobalAugmentation.class).getLocalUcastMacs();
                             if (localUcastMacs == null) {
                                 return;
@@ -411,7 +413,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
                                     new LocalUcastMacListener(broker, haOpClusteredListener,
                                             elanL2GatewayUtils, jobCoordinator, elanInstanceCache, hwvtepNodeHACache,
                                             l2GatewayServiceRecoveryHandler, serviceRecoveryRegistry);
-                            localUcastMacs.stream()
+                            localUcastMacs.values().stream()
                                     .filter((mac) -> macBelongsToLogicalSwitch(mac, elanName))
                                     .forEach((mac) -> {
                                         InstanceIdentifier<LocalUcastMacs> macIid = getMacIid(nodeIid, mac);

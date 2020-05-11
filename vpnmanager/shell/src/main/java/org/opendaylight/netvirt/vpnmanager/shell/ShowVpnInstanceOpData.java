@@ -23,6 +23,7 @@ import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances.VpnInstance;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -73,9 +74,9 @@ public class ShowVpnInstanceOpData extends OsgiCommandSupport {
                     "------------------------------------------------------------------------------");
             VpnInstanceOpDataEntry check = vpnInstanceOpDataEntryMap.get(detail);
             Long intfCount = 0L;
-            List<VpnToDpnList> dpnToVpns = check.getVpnToDpnList();
-            if (dpnToVpns != null) {
-                for (VpnToDpnList dpn : dpnToVpns) {
+            Map<VpnToDpnListKey, VpnToDpnList> vpnToDpnListKeyVpnToDpnListMap = check.getVpnToDpnList();
+            if (vpnToDpnListKeyVpnToDpnListMap != null) {
+                for (VpnToDpnList dpn : vpnToDpnListKeyVpnToDpnListMap.values()) {
                     if (dpn.getVpnInterfaces() != null) {
                         intfCount = intfCount + dpn.getVpnInterfaces().size();
                     }
@@ -104,7 +105,7 @@ public class ShowVpnInstanceOpData extends OsgiCommandSupport {
             LOG.trace("No VPNInstances configured.");
             session.getConsole().println("No VPNInstances configured.");
         } else {
-            vpnInstanceList = optionalVpnInstances.get().getVpnInstance();
+            vpnInstanceList = new ArrayList<VpnInstance>(optionalVpnInstances.get().getVpnInstance().values());
         }
 
         Optional<VpnInstanceOpData> optionalOpData = read(LogicalDatastoreType.OPERATIONAL,
@@ -114,7 +115,8 @@ public class ShowVpnInstanceOpData extends OsgiCommandSupport {
             LOG.trace("No VPNInstanceOpDataEntry present.");
             session.getConsole().println("No VPNInstanceOpDataEntry present.");
         } else {
-            vpnInstanceOpDataEntryList = optionalOpData.get().getVpnInstanceOpDataEntry();
+            vpnInstanceOpDataEntryList = new ArrayList<VpnInstanceOpDataEntry>(optionalOpData.get()
+                    .getVpnInstanceOpDataEntry().values());
         }
 
         for (VpnInstanceOpDataEntry vpnInstanceOpDataEntry : vpnInstanceOpDataEntryList) {

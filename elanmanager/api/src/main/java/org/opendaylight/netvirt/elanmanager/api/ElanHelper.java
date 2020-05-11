@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.elanmanager.api;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,6 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesListKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -60,8 +62,8 @@ public final class ElanHelper {
             ElanDpnInterfacesList existingElanDpnInterfaces = SingleTransactionDataBroker.syncRead(broker,
                     LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId);
             if (existingElanDpnInterfaces != null) {
-                return existingElanDpnInterfaces.getDpnInterfaces().stream().flatMap(v -> v.getInterfaces().stream())
-                        .collect(Collectors.toList());
+                return new ArrayList<DpnInterfaces>(existingElanDpnInterfaces.getDpnInterfaces().values()).stream()
+                        .flatMap(v -> v.getInterfaces().stream()).collect(Collectors.toList());
             }
         } catch (ExpectedDataObjectNotFoundException e) {
             LOG.warn("Failed to read ElanDpnInterfacesList with error {}", e.getMessage());

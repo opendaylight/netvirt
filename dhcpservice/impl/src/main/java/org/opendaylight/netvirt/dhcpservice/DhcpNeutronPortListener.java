@@ -138,9 +138,9 @@ public class DhcpNeutronPortListener extends AbstractClusteredAsyncDataTreeChang
         //With Ipv6 changes we can get ipv4 subnets later. The below check is to support such scenario.
         if (original.nonnullFixedIps().size() < update.nonnullFixedIps().size()) {
             final String interfaceName = update.getUuid().getValue();
-            List<FixedIps> updatedFixedIps = new ArrayList<>(update.nonnullFixedIps());
+            List<FixedIps> updatedFixedIps = new ArrayList<>(update.nonnullFixedIps().values());
             // Need to check only the newly added fixed ip.
-            updatedFixedIps.removeAll(original.nonnullFixedIps());
+            updatedFixedIps.removeAll(original.nonnullFixedIps().values());
             Subnet subnet = dhcpManager.getNeutronSubnet(updatedFixedIps);
             if (null == subnet || !subnet.isEnableDhcp()) {
                 LOG.trace("Subnet is null/not ipv4 or not enabled {}", subnet);

@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.locks.ReentrantLock;
@@ -46,6 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTarget;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTargetKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.Vpn;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -239,11 +241,11 @@ public class VpnOpStatusListener extends AbstractAsyncDataTreeChangeListener<Vpn
                        vpnName, primaryRd);
                 return;
             }
-            List<VpnTarget> vpnTargetList = update.getVpnTargets().getVpnTarget();
+            Map<VpnTargetKey, VpnTarget> vpnTargetMap = update.getVpnTargets().getVpnTarget();
             List<String> ertList = new ArrayList<>();
             List<String> irtList = new ArrayList<>();
-            if (vpnTargetList != null) {
-                for (VpnTarget vpnTarget : vpnTargetList) {
+            if (vpnTargetMap != null) {
+                for (VpnTarget vpnTarget : vpnTargetMap.values()) {
                     if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ExportExtcommunity) {
                         ertList.add(vpnTarget.getVrfRTValue());
                     }
