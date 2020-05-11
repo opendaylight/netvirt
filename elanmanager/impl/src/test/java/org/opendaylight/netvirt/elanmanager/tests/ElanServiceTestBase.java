@@ -48,6 +48,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.ta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.Instructions;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.InstructionsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.ApplyActionsCase;
@@ -285,7 +286,8 @@ public class ElanServiceTestBase {
         FlowBuilder flowBuilder = new FlowBuilder(flow);
         Instructions instructions = flowBuilder.getInstructions();
         InstructionsBuilder builder = new InstructionsBuilder();
-        InstructionBuilder instructionBuilder = new InstructionBuilder(instructions.getInstruction().get(0));
+        InstructionBuilder instructionBuilder = new InstructionBuilder(
+                new ArrayList<Instruction>(instructions.getInstruction().values()).get(0));
         instructionBuilder.setInstruction(sortActions(instructionBuilder.getInstruction()));
         builder.setInstruction(Lists.newArrayList(instructionBuilder.build()));
         return flowBuilder.setInstructions(builder.build()).build();
@@ -294,7 +296,8 @@ public class ElanServiceTestBase {
     org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.Instruction
         sortActions(org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.Instruction input) {
         if (input instanceof  ApplyActionsCase) {
-            List<Action> action = new ArrayList<>(((ApplyActionsCase)input).getApplyActions().getAction());
+            List<Action> action = new ArrayList<Action>(((ApplyActionsCase)input)
+                    .getApplyActions().getAction().values());
             action.sort(Comparator.comparing(Ordered::getOrder));
 
             ApplyActions actions = new ApplyActionsBuilder().setAction(action).build();

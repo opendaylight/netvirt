@@ -14,6 +14,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -42,6 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeVlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.trunks.rev170118.trunk.attributes.SubPorts;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.trunks.rev170118.trunk.attributes.SubPortsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.trunks.rev170118.trunks.attributes.Trunks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.trunks.rev170118.trunks.attributes.trunks.Trunk;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -84,9 +86,9 @@ public class NeutronTrunkChangeListener extends AbstractAsyncDataTreeChangeListe
     public void add(InstanceIdentifier<Trunk> identifier, Trunk input) {
         Preconditions.checkNotNull(input.getPortId());
         LOG.trace("Adding Trunk : key: {}, value={}", identifier, input);
-        List<SubPorts> subPorts = input.getSubPorts();
-        if (subPorts != null) {
-            subPorts.forEach(subPort -> createSubPortInterface(input, subPort));
+        Map<SubPortsKey, SubPorts> keySubPortsMap = input.getSubPorts();
+        if (keySubPortsMap != null) {
+            keySubPortsMap.values().forEach(subPort -> createSubPortInterface(input, subPort));
         }
     }
 
@@ -94,19 +96,19 @@ public class NeutronTrunkChangeListener extends AbstractAsyncDataTreeChangeListe
     public void remove(InstanceIdentifier<Trunk> identifier, Trunk input) {
         Preconditions.checkNotNull(input.getPortId());
         LOG.trace("Removing Trunk : key: {}, value={}", identifier, input);
-        List<SubPorts> subPorts = input.getSubPorts();
-        if (subPorts != null) {
-            subPorts.forEach(this::deleteSubPortInterface);
+        Map<SubPortsKey, SubPorts> keySubPortsMap = input.getSubPorts();
+        if (keySubPortsMap != null) {
+            keySubPortsMap.values().forEach(this::deleteSubPortInterface);
         }
     }
 
     @Override
     public void update(InstanceIdentifier<Trunk> identifier, Trunk original, Trunk update) {
-        List<SubPorts> updatedSubPorts = update.getSubPorts();
+        List<SubPorts> updatedSubPorts = new ArrayList<SubPorts>(update.getSubPorts().values());
         if (updatedSubPorts == null) {
             updatedSubPorts = Collections.emptyList();
         }
-        List<SubPorts> originalSubPorts = original.getSubPorts();
+        List<SubPorts> originalSubPorts = new ArrayList<SubPorts>(original.getSubPorts().values());
         if (originalSubPorts == null) {
             originalSubPorts = Collections.emptyList();
         }

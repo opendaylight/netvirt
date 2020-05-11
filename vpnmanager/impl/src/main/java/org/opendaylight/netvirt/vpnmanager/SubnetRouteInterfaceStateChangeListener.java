@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.vpnmanager;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.PreDestroy;
@@ -34,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.interfaces.vpn._interface.VpnInstanceNames;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIpsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint64;
@@ -162,7 +164,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AbstractAsyncDataTr
                             }
                             boolean interfaceDownEligible = false;
                             for (VpnInstanceNames vpnInterfaceVpnInstance :
-                                    cfgVpnInterface.get().nonnullVpnInstanceNames()) {
+                                    cfgVpnInterface.get().nonnullVpnInstanceNames().values()) {
                                 String vpnName = vpnInterfaceVpnInstance.getVpnName();
                                 InstanceIdentifier<VpnInterfaceOpDataEntry> idOper = VpnUtil
                                         .getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);
@@ -228,7 +230,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AbstractAsyncDataTr
                             }
                             boolean interfaceChangeEligible = false;
                             for (VpnInstanceNames vpnInterfaceVpnInstance :
-                                    cfgVpnInterface.get().nonnullVpnInstanceNames()) {
+                                    cfgVpnInterface.get().nonnullVpnInstanceNames().values()) {
                                 String vpnName = vpnInterfaceVpnInstance.getVpnName();
                                 InstanceIdentifier<VpnInterfaceOpDataEntry> idOper = VpnUtil
                                         .getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);
@@ -295,9 +297,9 @@ public class SubnetRouteInterfaceStateChangeListener extends AbstractAsyncDataTr
         if (port == null) {
             return listSubnetIds;
         }
-        List<FixedIps> portIps = port.getFixedIps();
-        if (portIps != null) {
-            for (FixedIps portIp : portIps) {
+        Map<FixedIpsKey, FixedIps> portIpsMap = port.getFixedIps();
+        if (portIpsMap != null) {
+            for (FixedIps portIp : portIpsMap.values()) {
                 listSubnetIds.add(portIp.getSubnetId());
             }
         }

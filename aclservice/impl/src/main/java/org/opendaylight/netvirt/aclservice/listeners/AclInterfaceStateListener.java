@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.aclservice.listeners;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
@@ -36,6 +37,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.SubnetInfo;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -156,7 +159,9 @@ public class AclInterfaceStateListener extends AbstractAsyncDataTreeChangeListen
             aclInterfaceCache.addOrUpdate(added.getName(), (prevAclInterface, builder) -> {
                 builder.portSecurityEnabled(aclInPort.isPortSecurityEnabled())
                     .interfaceType(aclInPort.getInterfaceType()).securityGroups(aclInPort.getSecurityGroups())
-                    .allowedAddressPairs(aclInPort.getAllowedAddressPairs()).subnetInfo(aclInPort.getSubnetInfo());
+                        .allowedAddressPairs(new ArrayList<AllowedAddressPairs>(aclInPort
+                                .getAllowedAddressPairs().values())).subnetInfo(new ArrayList<SubnetInfo>(aclInPort
+                        .getSubnetInfo().values()));
             });
         }
         AclInterface aclInterface = aclInterfaceCache.addOrUpdate(added.getName(), (prevAclInterface, builder) -> {

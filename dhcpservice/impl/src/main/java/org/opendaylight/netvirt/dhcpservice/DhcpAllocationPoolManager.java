@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EventListener;
 import java.util.List;
@@ -119,7 +120,8 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
             return null;
         }
         Network networkConfData = optionalNetworkConfData.get();
-        List<AllocationPool> allocationPoolList = networkConfData.getAllocationPool();
+        List<AllocationPool> allocationPoolList = new ArrayList<AllocationPool>(networkConfData
+                .getAllocationPool().values());
         // if network has allocation pool list - get the first element
         // as we have no info about a specific subnet
         if (allocationPoolList != null && !allocationPoolList.isEmpty()) {
@@ -148,7 +150,7 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
             return Collections.emptyMap();
         }
 
-        return elanDpnIfacesOpc.get().nonnullDpnInterfaces().stream()
+        return elanDpnIfacesOpc.get().nonnullDpnInterfaces().values().stream()
             .collect(Collectors.toMap(DpnInterfaces::getDpId,
                 value -> value.getInterfaces() != null ? value.getInterfaces() : Collections.emptyList()));
     }

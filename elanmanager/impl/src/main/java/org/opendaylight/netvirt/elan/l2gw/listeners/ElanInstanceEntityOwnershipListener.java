@@ -10,7 +10,7 @@ package org.opendaylight.netvirt.elan.l2gw.listeners;
 import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.OPERATIONAL;
 import static org.opendaylight.netvirt.elan.utils.ElanConstants.ELAN_EOS_DELAY;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledFuture;
@@ -29,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfacesKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,13 +88,14 @@ public class ElanInstanceEntityOwnershipListener implements EntityOwnershipListe
                                 elanDpnInterfacesInstanceIdentifier);
                         if (optional.isPresent() && optional.get().getElanDpnInterfacesList() != null) {
                             LOG.debug("Found elan dpn interfaces list");
-                            optional.get().getElanDpnInterfacesList().forEach(elanDpnInterfacesList -> {
-                                List<DpnInterfaces> dpnInterfaces = elanDpnInterfacesList.getDpnInterfaces();
+                            optional.get().getElanDpnInterfacesList().values().forEach(elanDpnInterfacesList -> {
+                                Map<DpnInterfacesKey, DpnInterfaces> dpnInterfaces
+                                        = elanDpnInterfacesList.getDpnInterfaces();
                                 InstanceIdentifier<ElanDpnInterfacesList> parentIid = InstanceIdentifier
                                         .builder(ElanDpnInterfaces.class).child(ElanDpnInterfacesList.class,
                                                 new ElanDpnInterfacesListKey(elanDpnInterfacesList
                                                         .getElanInstanceName())).build();
-                                for (DpnInterfaces dpnInterface : dpnInterfaces) {
+                                for (DpnInterfaces dpnInterface : dpnInterfaces.values()) {
                                     LOG.debug("Found elan dpn interfaces");
                                     elanDpnInterfaceClusteredListener.add(parentIid
                                                     .child(DpnInterfaces.class, dpnInterface.key()),

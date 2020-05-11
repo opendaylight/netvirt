@@ -171,13 +171,13 @@ public class InterVpnLinkLocatorTest extends AbstractConcurrentDataBrokerTest {
                 .setVrfId(vpn.vpnOpData.getVrfId())
                 .build();
             WriteTransaction writeTx1 = broker.newWriteOnlyTransaction();
-            writeTx1.merge(LogicalDatastoreType.CONFIGURATION,
+            writeTx1.mergeParentStructureMerge(LogicalDatastoreType.CONFIGURATION,
                           VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpn.vpnCfgData.getVpnInstanceName()),
-                          vpnInstance, true);
+                          vpnInstance);
             writeTx1.commit().get();
             WriteTransaction writeTx2 = broker.newWriteOnlyTransaction();
-            writeTx2.merge(LogicalDatastoreType.OPERATIONAL,
-                          VpnUtil.getVpnInstanceOpDataIdentifier(vpn.vpnOpData.getVrfId()), vpn.vpnOpData, true);
+            writeTx2.mergeParentStructureMerge(LogicalDatastoreType.OPERATIONAL,
+                          VpnUtil.getVpnInstanceOpDataIdentifier(vpn.vpnOpData.getVrfId()), vpn.vpnOpData);
             writeTx2.commit().get();
         }
     }

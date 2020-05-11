@@ -51,7 +51,7 @@ public class ElanExtnTepConfigListener
     @Override
     public void add(InstanceIdentifier<ExternalTeps> iid, ExternalTeps tep) {
         LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
-            tx.put(iid, tep, true);
+            tx.mergeParentStructurePut(iid, tep);
         }), LOG, "Failed to update operational external teps {}", iid);
     }
 
