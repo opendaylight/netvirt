@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.elan.l2gw.ha.merge;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -147,7 +146,7 @@ public abstract class MergeCommandsAggregator<BuilderTypeT extends Builder, AugT
                 if (create) {
                     if (isDataUpdated(existingDataOptional, transformedItem)) {
                         LOG.debug("Copy to {} {} {}", destination, datastoreType, transformedId);
-                        tx.put(transformedId, transformedItem, CREATE_MISSING_PARENTS);
+                        tx.put(transformedId, transformedItem);
                     } else {
                         LOG.debug("Data not updated skip copy to {}", transformedId);
                     }

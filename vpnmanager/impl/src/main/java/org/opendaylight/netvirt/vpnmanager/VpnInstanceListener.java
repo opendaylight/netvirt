@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -255,12 +254,12 @@ public class VpnInstanceListener extends AbstractAsyncDataTreeChangeListener<Vpn
             vpnInstanceToVpnId = VpnUtil.getVpnInstanceToVpnId(vpnInstanceName, vpnId, primaryRd);
 
         writeConfigTxn.put(VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnInstanceName),
-            vpnInstanceToVpnId, CREATE_MISSING_PARENTS);
+            vpnInstanceToVpnId);
 
         VpnIds vpnIdToVpnInstance = VpnUtil.getVpnIdToVpnInstance(vpnId, value.getVpnInstanceName(),
             primaryRd, VpnUtil.isBgpVpn(vpnInstanceName, primaryRd));
 
-        writeConfigTxn.put(VpnUtil.getVpnIdToVpnInstanceIdentifier(vpnId), vpnIdToVpnInstance, CREATE_MISSING_PARENTS);
+        writeConfigTxn.put(VpnUtil.getVpnIdToVpnInstanceIdentifier(vpnId), vpnIdToVpnInstance);
 
         try {
             String cachedTransType = fibManager.getConfTransType();
@@ -317,7 +316,7 @@ public class VpnInstanceListener extends AbstractAsyncDataTreeChangeListener<Vpn
         } else {
             builder.setBgpvpnType(VpnInstanceOpDataEntry.BgpvpnType.VPN);
         }
-        writeOperTxn.merge(VpnUtil.getVpnInstanceOpDataIdentifier(primaryRd), builder.build(), CREATE_MISSING_PARENTS);
+        writeOperTxn.merge(VpnUtil.getVpnInstanceOpDataIdentifier(primaryRd), builder.build());
         LOG.info("{} addVpnInstance: VpnInstanceOpData populated successfully for vpn {} rd {}", LOGGING_PREFIX_ADD,
                 vpnInstanceName, primaryRd);
     }

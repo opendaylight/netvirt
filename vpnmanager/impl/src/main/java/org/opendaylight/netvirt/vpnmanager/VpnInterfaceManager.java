@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.vpnmanager;
 import static java.util.Collections.emptyList;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
@@ -920,7 +919,7 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
               VpnUtil.getVpnInterfaceOpDataEntry(interfaceName, vpnName, aug, dpnId, lportTag, gwMac, gwIp);
         InstanceIdentifier<VpnInterfaceOpDataEntry> interfaceId = VpnUtil
             .getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);
-        writeOperTxn.put(interfaceId, opInterface, CREATE_MISSING_PARENTS);
+        writeOperTxn.put(interfaceId, opInterface);
         LOG.info("addVpnInterfaceToOperational: Added VPN Interface {} on dpn {} vpn {} to operational datastore",
                 interfaceName, dpnId, vpnName);
     }
@@ -1027,7 +1026,7 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
                 .addAugmentation(AdjacenciesOp.class, aug).build();
         InstanceIdentifier<VpnInterfaceOpDataEntry> interfaceId =
                 VpnUtil.getVpnInterfaceOpDataEntryIdentifier(vpnInterface.getName(), vpnName);
-        writeOperTxn.put(interfaceId, opInterface, CREATE_MISSING_PARENTS);
+        writeOperTxn.put(interfaceId, opInterface);
         LOG.info("updateVpnInterfaceOnTepAdd: interface {} updated successully on tep add on dpn {} vpn {}",
                 vpnInterface.getName(), srcDpnId, vpnName);
 
@@ -1129,7 +1128,7 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
                     .addAugmentation(AdjacenciesOp.class, aug).build();
             InstanceIdentifier<VpnInterfaceOpDataEntry> interfaceId =
                     VpnUtil.getVpnInterfaceOpDataEntryIdentifier(vpnInterface.getName(), vpnName);
-            writeOperTxn.put(interfaceId, opInterface, CREATE_MISSING_PARENTS);
+            writeOperTxn.put(interfaceId, opInterface);
             LOG.info("updateVpnInterfaceOnTepDelete: interface {} updated successully on tep delete on dpn {} vpn {}",
                          vpnInterface.getName(), srcDpnId, vpnName);
         }
@@ -1941,7 +1940,7 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
         InstanceIdentifier<VrfTables> vrfTableId = idBuilder.build();
         VrfTables vrfTableNew = new VrfTablesBuilder().setRouteDistinguisher(rd).setVrfEntry(vrfEntryList).build();
         if (writeConfigTxn != null) {
-            writeConfigTxn.merge(vrfTableId, vrfTableNew, CREATE_MISSING_PARENTS);
+            writeConfigTxn.merge(vrfTableId, vrfTableNew);
         } else {
             vpnUtil.syncUpdate(LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTableNew);
         }
@@ -2082,7 +2081,7 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
                         VpnUtil.getVpnInterfaceOpDataEntry(currVpnIntf.getName(), currVpnIntf.getVpnInstanceName(),
                                 aug, dpnId, currVpnIntf.getLportTag().toJava(),
                                 currVpnIntf.getGatewayMacAddress(), currVpnIntf.getGatewayIpAddress());
-                writeOperTxn.merge(identifier, newVpnIntf, CREATE_MISSING_PARENTS);
+                writeOperTxn.merge(identifier, newVpnIntf);
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("addNewAdjToVpnInterface: Failed to read data store for interface {} dpn {} vpn {} rd {} ip "

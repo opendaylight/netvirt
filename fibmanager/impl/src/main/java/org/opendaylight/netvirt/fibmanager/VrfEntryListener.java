@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.fibmanager;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 import static org.opendaylight.genius.mdsalutil.NWUtil.isIpv4Address;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -1066,7 +1065,7 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
             .child(Node.class, nodeDpn.key()).augmentation(FlowCapableNode.class)
             .child(Table.class, new TableKey(terminatingServiceTableFlowEntity.getTableId()))
             .child(Flow.class, flowKey).build();
-        tx.put(flowInstanceId, flowbld.build(), CREATE_MISSING_PARENTS);
+        tx.put(flowInstanceId, flowbld.build());
     }
 
     private void removeTunnelTableEntry(Uint64 dpId, Uint32 label, TypedWriteTransaction<Configuration> tx) {
@@ -1691,7 +1690,7 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
             .child(Table.class, new TableKey(flow.getTableId())).child(Flow.class, flowKey).build();
 
         if (addOrRemove == NwConstants.ADD_FLOW) {
-            tx.put(flowInstanceId, flow, CREATE_MISSING_PARENTS);
+            tx.put(flowInstanceId, flow);
         } else {
             tx.delete(flowInstanceId);
         }

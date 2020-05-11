@@ -101,7 +101,7 @@ public class NeutronEvpnUtils {
             }
 
             elanInstanceBuilder.addAugmentation(EvpnAugmentation.class, evpnAugmentationBuilder.build());
-            tx.put(elanIid, elanInstanceBuilder.build(), WriteTransaction.CREATE_MISSING_PARENTS);
+            tx.put(elanIid, elanInstanceBuilder.build());
         }), LOG, "Error updating ELAN with VPN info {}, {}, {}", elanInstanceName, vpnInstance, operation);
     }
 
@@ -123,7 +123,7 @@ public class NeutronEvpnUtils {
                     LOG.info("updating Evpn {} with elaninstance {} and rd {}",
                             vpnInstance.getVpnInstanceName(), elanInstanceName, rd);
                     tx.put(rdToNetworkIdentifier,
-                            evpnRdToNetworkBuilder.build(), WriteTransaction.CREATE_MISSING_PARENTS);
+                            evpnRdToNetworkBuilder.build());
                 }
             })));
     }

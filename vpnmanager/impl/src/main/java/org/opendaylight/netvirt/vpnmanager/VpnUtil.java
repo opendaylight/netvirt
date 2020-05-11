@@ -1632,7 +1632,7 @@ public final class VpnUtil {
                     tx.put(InterfaceUtils.buildServiceId(interfaceName,
                             ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME,
                                     NwConstants.L3VPN_SERVICE_INDEX)),
-                            serviceInfo, WriteTransaction.CREATE_MISSING_PARENTS);
+                            serviceInfo);
                 })), SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
     }
 
@@ -1957,8 +1957,7 @@ public final class VpnUtil {
     ListenableFuture<Void> unsetScheduledToRemoveForVpnInterface(String interfaceName) {
         VpnInterfaceBuilder builder = new VpnInterfaceBuilder().withKey(new VpnInterfaceKey(interfaceName));
         return txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> tx.merge(
-                VpnUtil.getVpnInterfaceIdentifier(interfaceName), builder.build(),
-                WriteTransaction.CREATE_MISSING_PARENTS));
+                VpnUtil.getVpnInterfaceIdentifier(interfaceName), builder.build()));
     }
 
     /**

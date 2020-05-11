@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.vpnmanager.populator.impl;
 
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 import static org.opendaylight.infrautils.utils.concurrent.ListenableFutures.addErrorLogging;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.base.Preconditions;
 import java.util.Collections;
@@ -197,7 +196,7 @@ public abstract class L3vpnPopulator implements VpnPopulator {
                     LabelRouteInfo lri = lriBuilder.build();
                     InstanceIdentifier<LabelRouteInfo> lriIid = InstanceIdentifier.builder(LabelRouteMap.class)
                             .child(LabelRouteInfo.class, new LabelRouteInfoKey(label)).build();
-                    tx.merge(lriIid, lri, CREATE_MISSING_PARENTS);
+                    tx.merge(lriIid, lri);
                     LOG.info("addToLabelMapper: Added label route info to label {} prefix {} nextHopList {} vpnId {}"
                             + " interface {} rd {} elantag {}", labelStr, prefix, nextHopIpList, vpnId,
                             vpnInterfaceName, rd, elanTag);

@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.elan.l2gw.ha.handlers;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -127,7 +126,7 @@ public class NodeCopier {
                     confTx -> haBuilder.getManagers().forEach(manager -> {
                         InstanceIdentifier<Managers> managerIid =
                             dstPath.augmentation(HwvtepGlobalAugmentation.class).child(Managers.class, manager.key());
-                        confTx.put(managerIid, manager, CREATE_MISSING_PARENTS);
+                        confTx.put(managerIid, manager);
                     })), LOG, "Error updating the manager section in config");
 
         } else {
@@ -139,9 +138,9 @@ public class NodeCopier {
         haNodeBuilder.addAugmentation(HwvtepGlobalAugmentation.class, haBuilder.build());
         Node haNode = haNodeBuilder.build();
         if (Operational.class.equals(datastoreType)) {
-            tx.merge(dstPath, haNode, CREATE_MISSING_PARENTS);
+            tx.merge(dstPath, haNode);
         } else {
-            tx.put(dstPath, haNode, CREATE_MISSING_PARENTS);
+            tx.put(dstPath, haNode);
         }
     }
 
@@ -199,7 +198,7 @@ public class NodeCopier {
 
         dstPsNodeBuilder.addAugmentation(PhysicalSwitchAugmentation.class, dstPsAugmentationBuilder.build());
         Node dstPsNode = dstPsNodeBuilder.build();
-        tx.merge(dstPsPath, dstPsNode, CREATE_MISSING_PARENTS);
+        tx.merge(dstPsPath, dstPsNode);
         LOG.debug("Copied {} physical switch node from {} to {}", datastoreType, srcPsPath, dstPsPath);
     }
 
