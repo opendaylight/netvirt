@@ -10,12 +10,14 @@ package org.opendaylight.netvirt.neutronvpn.shell;
 
 import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.CONFIGURATION;
 
+import java.util.ArrayList;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DhcpConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.dhcp.config.Configs;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,8 +40,8 @@ public class DhcpShowCommand extends OsgiCommandSupport {
         InstanceIdentifier<DhcpConfig> iid = InstanceIdentifier.create(DhcpConfig.class);
         DhcpConfig dhcpConfig = SingleTransactionDataBroker.syncRead(dataBroker, CONFIGURATION, iid);
         if (isDhcpConfigAvailable(dhcpConfig)) {
-            leaseDuration = dhcpConfig.getConfigs().get(0).getLeaseDuration();
-            defDomain = dhcpConfig.getConfigs().get(0).getDefaultDomain();
+            leaseDuration = new ArrayList<Configs>(dhcpConfig.getConfigs().values()).get(0).getLeaseDuration();
+            defDomain = new ArrayList<Configs>(dhcpConfig.getConfigs().values()).get(0).getDefaultDomain();
         } else {
             session.getConsole().println("DHCP Config not present");
             LOG.error("doExecute: DHCP Config not present");

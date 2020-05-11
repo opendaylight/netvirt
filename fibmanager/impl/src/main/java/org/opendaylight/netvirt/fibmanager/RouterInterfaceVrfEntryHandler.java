@@ -10,7 +10,7 @@ package org.opendaylight.netvirt.fibmanager;
 import static org.opendaylight.genius.mdsalutil.NWUtil.isIpv4Address;
 
 import com.google.common.base.Preconditions;
-import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -28,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListKey;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
@@ -75,25 +76,25 @@ public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler {
         final ReentrantLock lock = JvmGlobalLocks.getLockForString(vpnInstance.getVpnInstanceName());
         lock.lock();
         try {
-            final Collection<VpnToDpnList> vpnToDpnList;
+            final Map<VpnToDpnListKey, VpnToDpnList> keyVpnToDpnListMap;
             if (vrfEntry.getParentVpnRd() != null
                     && FibHelper.isControllerManagedNonSelfImportedRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
                 VpnInstanceOpDataEntry parentVpnInstance =
                         getFibUtil().getVpnInstance(vrfEntry.getParentVpnRd());
-                vpnToDpnList = parentVpnInstance != null ? parentVpnInstance.getVpnToDpnList()
+                keyVpnToDpnListMap = parentVpnInstance != null ? parentVpnInstance.getVpnToDpnList()
                         : vpnInstance.getVpnToDpnList();
             } else {
-                vpnToDpnList = vpnInstance.getVpnToDpnList();
+                keyVpnToDpnListMap = vpnInstance.getVpnToDpnList();
             }
             final Uint32 vpnId = vpnInstance.getVpnId();
 
-            if (vpnToDpnList != null) {
+            if (keyVpnToDpnListMap != null) {
                 String routerId = routerInterface.getUuid();
                 String macAddress = routerInterface.getMacAddress();
                 String ipValue = routerInterface.getIpAddress();
                 LOG.trace("createFibEntries - Router augmented vrfentry found for for router uuid:{}, ip:{}, mac:{}",
                         routerId, ipValue, macAddress);
-                for (VpnToDpnList vpnDpn : vpnToDpnList) {
+                for (VpnToDpnList vpnDpn : keyVpnToDpnListMap.values()) {
                     if (vpnDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
                         installRouterFibEntry(vrfEntry, vpnDpn.getDpnId(), vpnId, ipValue,
                                 new MacAddress(macAddress), addOrRemove);

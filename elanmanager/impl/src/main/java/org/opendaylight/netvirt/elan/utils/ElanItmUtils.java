@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.utils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -212,7 +213,7 @@ public class ElanItmUtils {
                 Future<RpcResult<GetEgressActionsForTunnelOutput>> egressActionsOutputItm =
                         itmRpcService.getEgressActionsForTunnel(getEgressActInputItm);
                 if (egressActionsOutputItm.get().isSuccessful()) {
-                    return egressActionsOutputItm.get().getResult().getAction();
+                    return new ArrayList<Action>(egressActionsOutputItm.get().getResult().getAction().values());
                 }
             } else {
                 GetEgressActionsForInterfaceInput getEgressActInput = new GetEgressActionsForInterfaceInputBuilder()
@@ -220,7 +221,7 @@ public class ElanItmUtils {
                 Future<RpcResult<GetEgressActionsForInterfaceOutput>> egressActionsOutputFuture =
                         interfaceManagerRpcService.getEgressActionsForInterface(getEgressActInput);
                 if (egressActionsOutputFuture.get().isSuccessful()) {
-                    return egressActionsOutputFuture.get().getResult().getAction();
+                    return new ArrayList<Action>(egressActionsOutputFuture.get().getResult().getAction().values());
                 }
             }
         } catch (Exception e) {

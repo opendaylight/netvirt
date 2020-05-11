@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.elan.utils;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
@@ -104,7 +103,7 @@ public class ElanForwardingEntriesHandler {
             MacEntry macEntry = new MacEntryBuilder().setMacAddress(mac.getMacAddress()).setIpPrefix(mac.getIpPrefix())
                     .setInterface(interfaceName)
                     .setIsStaticAddress(true).withKey(new MacEntryKey(mac.getMacAddress())).build();
-            tx.put(existingMacEntryId, macEntry, CREATE_MISSING_PARENTS);
+            tx.mergeParentStructurePut(existingMacEntryId, macEntry);
         }
     }
 
@@ -127,7 +126,7 @@ public class ElanForwardingEntriesHandler {
                 macEntry.getMacAddress());
         Optional<MacEntry> existingMacEntry = tx.read(macEntryId).get();
         if (!existingMacEntry.isPresent() && elanUtils.getElanMacTable(elanName) != null) {
-            tx.put(macEntryId, macEntry, CREATE_MISSING_PARENTS);
+            tx.mergeParentStructurePut(macEntryId, macEntry);
         }
     }
 

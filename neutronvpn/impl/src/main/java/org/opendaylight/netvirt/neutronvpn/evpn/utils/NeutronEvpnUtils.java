@@ -12,14 +12,12 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
@@ -101,7 +99,7 @@ public class NeutronEvpnUtils {
             }
 
             elanInstanceBuilder.addAugmentation(EvpnAugmentation.class, evpnAugmentationBuilder.build());
-            tx.put(elanIid, elanInstanceBuilder.build(), WriteTransaction.CREATE_MISSING_PARENTS);
+            tx.mergeParentStructurePut(elanIid, elanInstanceBuilder.build());
         }), LOG, "Error updating ELAN with VPN info {}, {}, {}", elanInstanceName, vpnInstance, operation);
     }
 
@@ -122,8 +120,8 @@ public class NeutronEvpnUtils {
                     evpnRdToNetworkBuilder.setNetworkId(elanInstanceName);
                     LOG.info("updating Evpn {} with elaninstance {} and rd {}",
                             vpnInstance.getVpnInstanceName(), elanInstanceName, rd);
-                    tx.put(rdToNetworkIdentifier,
-                            evpnRdToNetworkBuilder.build(), WriteTransaction.CREATE_MISSING_PARENTS);
+                    tx.mergeParentStructurePut(rdToNetworkIdentifier,
+                            evpnRdToNetworkBuilder.build());
                 }
             })));
     }

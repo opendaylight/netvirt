@@ -15,6 +15,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
@@ -29,8 +30,11 @@ import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.VrfEntryBase.EncapType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePathsKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,13 +108,13 @@ public class ShowFibCommand extends OsgiCommandSupport {
             try {
                 FibEntries fibEntries = singleTxDb.syncRead(LogicalDatastoreType.CONFIGURATION, id);
 
-                List<VrfTables> vrfTablesList = fibEntries.getVrfTables();
-                if (vrfTablesList == null || vrfTablesList.isEmpty()) {
+                Map<VrfTablesKey, VrfTables> keyVrfTablesMap = fibEntries.getVrfTables();
+                if (keyVrfTablesMap == null || keyVrfTablesMap.isEmpty()) {
                     console.println(" No Fib entries found");
                     return null;
                 }
 
-                for (VrfTables vrfTable : vrfTablesList) {
+                for (VrfTables vrfTable : keyVrfTablesMap.values()) {
                     printVrfTable(vrfTable, console);
                 }
             } catch (ExpectedDataObjectNotFoundException e404) {
@@ -161,13 +165,13 @@ public class ShowFibCommand extends OsgiCommandSupport {
                 try {
                     FibEntries fibEntries = singleTxDb.syncRead(LogicalDatastoreType.CONFIGURATION, id);
 
-                    List<VrfTables> vrfTablesList = fibEntries.getVrfTables();
-                    if (vrfTablesList == null || vrfTablesList.isEmpty()) {
+                    Map<VrfTablesKey, VrfTables> keyVrfTablesMap = fibEntries.getVrfTables();
+                    if (keyVrfTablesMap == null || keyVrfTablesMap.isEmpty()) {
                         console.println(" No Fib entries found");
                         return null;
                     }
 
-                    for (VrfTables vrfTable : vrfTablesList) {
+                    for (VrfTables vrfTable : keyVrfTablesMap.values()) {
                         printVrfTable(vrfTable, console, isIpv4, isIpv6, isL2vpn, prefixOrSubnet);
                     }
                 } catch (ExpectedDataObjectNotFoundException e404) {
@@ -192,13 +196,13 @@ public class ShowFibCommand extends OsgiCommandSupport {
     private void printVrfTable(VrfTables vrfTable, PrintStream console, boolean isIpv4, boolean isIpv6,
             boolean isL2vpn, @Nullable String inputPrefixOrSubnet) {
 
-        List<VrfEntry> vrfEntries = vrfTable.getVrfEntry();
-        if (vrfEntries == null) {
-            LOG.warn("Null vrfEntries found for VPN with rd={}", vrfTable.getRouteDistinguisher());
+        Map<VrfEntryKey, VrfEntry> keyVrfEntryMap = vrfTable.getVrfEntry();
+        if (keyVrfEntryMap == null) {
+            LOG.warn("Null keyVrfEntryMap found for VPN with rd={}", vrfTable.getRouteDistinguisher());
             return;
         }
 
-        for (VrfEntry vrfEntry : vrfEntries) {
+        for (VrfEntry vrfEntry : keyVrfEntryMap.values()) {
             boolean showIt = false;
             if (isIpv4 && isIpv6 && isL2vpn) {
                 showIt = true;
@@ -223,15 +227,15 @@ public class ShowFibCommand extends OsgiCommandSupport {
             if (!showIt) {
                 continue;
             }
-            List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
-            if (routePaths == null || routePaths.isEmpty()) {
+            Map<RoutePathsKey, RoutePaths> routePathsMap = vrfEntry.getRoutePaths();
+            if (routePathsMap == null || routePathsMap.isEmpty()) {
                 console.println(String.format(TABULAR_FORMAT,
                                               vrfTable.getRouteDistinguisher(), vrfEntry.getDestPrefix(),
-                                              "local", routePaths == null ? "<not set>" : "<empty>",
+                                              "local", routePathsMap == null ? "<not set>" : "<empty>",
                                               vrfEntry.getOrigin()));
                 continue;
             }
-            for (RoutePaths routePath : routePaths) {
+            for (RoutePaths routePath : routePathsMap.values()) {
                 console.println(String.format(TABULAR_FORMAT,
                                               vrfTable.getRouteDistinguisher(), vrfEntry.getDestPrefix(),
                                               routePath.getNexthopAddress(), routePath.getLabel(),

@@ -192,7 +192,7 @@ public class NeutronNetworkChangeListener extends AbstractAsyncDataTreeChangeLis
         if (providerExtension == null || providerExtension.getSegments() == null) {
             return Collections.emptyList();
         }
-        return providerExtension.getSegments().stream()
+        return providerExtension.getSegments().values().stream()
                 .map(segment -> new ElanSegmentsBuilder()
                         .setSegmentationIndex(segment.getSegmentationIndex())
                         .setSegmentationId(getSegmentationId(input, segment))

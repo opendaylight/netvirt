@@ -112,7 +112,7 @@ public class NatInterfaceStateChangeListener
                 LOG.warn("remove : Interface {} is not a VPN Interface, ignoring.", interfaceName);
                 return;
             }
-            for (VpnInstanceNames vpnInterfaceVpnInstance : cfgVpnInterface.get().nonnullVpnInstanceNames()) {
+            for (VpnInstanceNames vpnInterfaceVpnInstance : cfgVpnInterface.get().nonnullVpnInstanceNames().values()) {
                 String vpnName  = vpnInterfaceVpnInstance.getVpnName();
                 InstanceIdentifier<VpnInterfaceOpDataEntry> idOper = NatUtil
                       .getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);
@@ -160,7 +160,7 @@ public class NatInterfaceStateChangeListener
                 LOG.warn("update : Interface {} is not a VPN Interface, ignoring.", interfaceName);
                 return;
             }
-            for (VpnInstanceNames vpnInterfaceVpnInstance : cfgVpnInterface.get().nonnullVpnInstanceNames()) {
+            for (VpnInstanceNames vpnInterfaceVpnInstance : cfgVpnInterface.get().nonnullVpnInstanceNames().values()) {
                 String vpnName  = vpnInterfaceVpnInstance.getVpnName();
                 InstanceIdentifier<VpnInterfaceOpDataEntry> idOper = NatUtil
                       .getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);

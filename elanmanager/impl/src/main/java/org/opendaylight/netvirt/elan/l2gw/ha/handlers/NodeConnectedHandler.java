@@ -8,9 +8,8 @@
 package org.opendaylight.netvirt.elan.l2gw.ha.handlers;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.genius.infra.Datastore.Configuration;
@@ -33,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hw
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.Switches;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.SwitchesKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -117,9 +117,9 @@ public class NodeConnectedHandler {
         LOG.info("HA ps node not present cleanup child {}" , childNode);
         HwvtepGlobalAugmentation augmentation = childNode.augmentation(HwvtepGlobalAugmentation.class);
         if (augmentation != null) {
-            List<Switches> switches = augmentation.getSwitches();
+            Map<SwitchesKey, Switches> switches = augmentation.getSwitches();
             if (switches != null) {
-                for (Switches ps : switches) {
+                for (Switches ps : switches.values()) {
                     HwvtepHAUtil.deleteNodeIfPresent(tx, ps.getSwitchRef().getValue());
                 }
             }
@@ -143,12 +143,14 @@ public class NodeConnectedHandler {
         if (childGlobalNode == null || childGlobalNode.augmentation(HwvtepGlobalAugmentation.class) == null) {
             return;
         }
-        List<Switches> switches = childGlobalNode.augmentation(HwvtepGlobalAugmentation.class).getSwitches();
-        if (switches == null) {
+        Map<SwitchesKey, Switches> keySwitchesMap
+                = childGlobalNode.augmentation(HwvtepGlobalAugmentation.class).getSwitches();
+        if (keySwitchesMap == null) {
             return;
         }
-        for (Switches ps : switches) {
-            Node childPsNode = tx.read((InstanceIdentifier<Node>) ps.getSwitchRef().getValue()).get().orElse(null);
+        for (Switches ps : keySwitchesMap.values()) {
+            Node childPsNode = tx.read((InstanceIdentifier<Node>) ps.getSwitchRef().getValue()).get()
+                    .orElse(null);
             if (childPsNode != null) {
                 InstanceIdentifier<Node> haPsPath = HwvtepHAUtil.convertPsPath(childPsNode, haNodePath);
                 copyChildPSOpToHAPS(childPsNode, haNodePath, haPsPath, tx);
@@ -180,7 +182,7 @@ public class NodeConnectedHandler {
         globalNodeMerger.mergeConfigData(nodeBuilder, srcNode, childPath);
         nodeBuilder.addAugmentation(HwvtepGlobalAugmentation.class, dstBuilder.build());
         Node dstNode = nodeBuilder.build();
-        tx.put(childPath, dstNode, CREATE_MISSING_PARENTS);
+        tx.mergeParentStructurePut(childPath, dstNode);
     }
 
     /**
@@ -216,7 +218,7 @@ public class NodeConnectedHandler {
         haBuilder.setDbVersion(childData.getDbVersion());
         haNodeBuilder.addAugmentation(HwvtepGlobalAugmentation.class, haBuilder.build());
         Node haNode = haNodeBuilder.build();
-        tx.merge(haNodePath, haNode, CREATE_MISSING_PARENTS);
+        tx.mergeParentStructureMerge(haNodePath, haNode);
     }
 
     /**
@@ -257,7 +259,7 @@ public class NodeConnectedHandler {
 
         childPsBuilder.addAugmentation(PhysicalSwitchAugmentation.class, dstBuilder.build());
         Node childPSNode = childPsBuilder.build();
-        tx.put(childPsPath, childPSNode, CREATE_MISSING_PARENTS);
+        tx.mergeParentStructurePut(childPsPath, childPSNode);
     }
 
     /**
@@ -289,7 +291,7 @@ public class NodeConnectedHandler {
 
         haPSNodeBuilder.addAugmentation(PhysicalSwitchAugmentation.class, dstBuilder.build());
         Node haPsNode = haPSNodeBuilder.build();
-        tx.merge(haPspath, haPsNode, CREATE_MISSING_PARENTS);
+        tx.mergeParentStructureMerge(haPspath, haPsNode);
     }
 
 }

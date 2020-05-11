@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
@@ -27,8 +28,8 @@ public class LogicalSwitchesCmd extends MergeCommand<LogicalSwitches,
     @Override
     @Nullable
     public List<LogicalSwitches> getData(HwvtepGlobalAugmentation node) {
-        if (node != null) {
-            return node.getLogicalSwitches();
+        if (node != null && node.getLogicalSwitches() != null) {
+            return new ArrayList<LogicalSwitches>(node.getLogicalSwitches().values());
         }
         return null;
     }

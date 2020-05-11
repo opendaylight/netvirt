@@ -67,7 +67,7 @@ public final class ManagerListener extends AbstractClusteredAsyncDataTreeChangeL
         InstanceIdentifier<Node> parent = key.firstIdentifierOf(Node.class);
         if (managers.key().getTarget().getValue().contains(HwvtepHAUtil.MANAGER_KEY)
                 && managers.getManagerOtherConfigs() != null) {
-            managers.getManagerOtherConfigs().stream()
+            managers.getManagerOtherConfigs().values().stream()
                 .filter(otherConfig -> otherConfig.key().getOtherConfigKey().contains(HwvtepHAUtil.HA_CHILDREN))
                 .flatMap(otherConfig -> Arrays.stream(otherConfig.getOtherConfigValue().split(",")))
                 .map(HwvtepHAUtil::convertToInstanceIdentifier)
