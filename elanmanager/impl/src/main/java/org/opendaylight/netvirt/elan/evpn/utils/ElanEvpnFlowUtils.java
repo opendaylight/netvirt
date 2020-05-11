@@ -12,7 +12,9 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.genius.infra.Datastore;
@@ -33,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.Fl
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeLeafTagName;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
@@ -56,17 +59,17 @@ public class ElanEvpnFlowUtils {
     public Flow evpnBuildDmacFlowForExternalRemoteMac(EvpnDmacFlow evpnDmacFlow) {
         List<MatchInfo> mkMatches = ElanUtils.buildMatchesForElanTagShFlagAndDstMac(evpnDmacFlow.getElanTag(), false,
                 evpnDmacFlow.getDstMacAddress());
-        List<Instruction> mkInstructions = new ArrayList<>();
+        Map<InstructionKey, Instruction> mkInstructionsMap = new HashMap<>();
         List<Action> actions = elanItmUtils.getExternalTunnelItmEgressAction(evpnDmacFlow.getDpId(),
                 evpnDmacFlow.getNexthopIP(), evpnDmacFlow.getVni());
-        mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));
+        mkInstructionsMap.put(new InstructionKey(0), MDSALUtil.buildApplyActionsInstruction(actions));
         Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE,
                 ElanUtils.getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, evpnDmacFlow.getDpId(),
                         evpnDmacFlow.getNexthopIP(), evpnDmacFlow.getDstMacAddress(), evpnDmacFlow.getElanTag(), false),
                 20, evpnDmacFlow.getElanName(), 0, 0,
                 Uint64.valueOf(ElanConstants.COOKIE_ELAN_KNOWN_DMAC.toJava()
                     .add(BigInteger.valueOf(evpnDmacFlow.getElanTag()))),
-                mkMatches, mkInstructions);
+                mkMatches, mkInstructionsMap);
 
         return flow;
     }

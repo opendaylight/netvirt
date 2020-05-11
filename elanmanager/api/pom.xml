@@ -33,10 +33,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <groupId>org.opendaylight.mdsal.binding.model.ietf</groupId>
             <artifactId>rfc7223</artifactId>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.opendaylight.mdsal.model</groupId>
             <artifactId>yang-ext</artifactId>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>org.opendaylight.genius</groupId>
             <artifactId>idmanager-api</artifactId>

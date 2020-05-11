@@ -11,7 +11,7 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>single-feature-parent</artifactId>
-        <version>6.0.4</version>
+        <version>7.0.1</version>
         <relativePath/>
     </parent>
 
@@ -23,13 +23,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <dependencies>
-        <dependency>
+        <!--dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>odl-mdsal-broker</artifactId>
             <version>1.11.0</version>
             <type>xml</type>
             <classifier>features</classifier>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>org.opendaylight.genius</groupId>
             <artifactId>odl-genius</artifactId>

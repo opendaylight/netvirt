@@ -9,7 +9,6 @@
 package org.opendaylight.netvirt.natservice.api;
 
 import java.util.Set;
-
 import org.opendaylight.yangtools.yang.common.Uint64;
 
 public final class SwitchInfo {

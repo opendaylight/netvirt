@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.cloudservicechain.matchers;
 
 import java.util.List;
-
 import org.mockito.ArgumentMatcher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;

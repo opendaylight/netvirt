@@ -52,9 +52,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.vpnmap.RouterIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.l3.attributes.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.l3.attributes.RoutesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.RouterKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -310,7 +314,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
         String vpn2Endpoint = vpnLink.getOtherEndpointIpAddr(vpn2Uuid);
         List<VrfEntry> allVpnVrfEntries = vpnUtil.getAllVrfEntries(vpn1Rd);
         for (VrfEntry vrfEntry : allVpnVrfEntries) {
-            vrfEntry.nonnullRoutePaths().stream()
+            vrfEntry.nonnullRoutePaths().values().stream()
                     .filter(routePath -> Objects.equals(routePath.getNexthopAddress(), vpn2Endpoint))
                     .forEach(routePath -> {
                         // Vpn1 has a route pointing to Vpn2's endpoint. Forcing the leaking of the route will update
@@ -362,12 +366,13 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
             return new HashMap<>();
         }
         Map<String,String> vmap = new HashMap<>();
-        final List<VpnMap> VpnMapList = optVpnMaps.get().nonnullVpnMap();
-        for (VpnMap map : VpnMapList) {
+        final Map<VpnMapKey, VpnMap> keyVpnMapMap = optVpnMaps.get().nonnullVpnMap();
+        for (VpnMap map : keyVpnMapMap.values()) {
             if (map.getRouterIds() == null) {
                 continue;
             }
-            final List<Uuid> vpnRouterIds = NeutronUtils.getVpnMapRouterIdsListUuid(map.getRouterIds());
+            final List<Uuid> vpnRouterIds = NeutronUtils.getVpnMapRouterIdsListUuid(
+                    new ArrayList<RouterIds>(map.getRouterIds().values()));
             for (Uuid routerId : vpnRouterIds) {
                 if (map.getVpnId().getValue().equalsIgnoreCase(routerId.getValue())) {
                     break; // VPN is internal
@@ -403,16 +408,16 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
         if (!routerOpData.isPresent()) {
             return;
         }
-        List<Router> routers = routerOpData.get().nonnullRouter();
-        for (Router router : routers) {
+        Map<RouterKey, Router> keyRouterMap = routerOpData.get().nonnullRouter();
+        for (Router router : keyRouterMap.values()) {
             String vpnId = routerXL3VpnMap.get(router.getUuid().getValue());
             if (vpnId == null) {
                 LOG.warn("Could not find suitable VPN for router {}", router.getUuid());
                 continue; // with next router
             }
-            List<Routes> routerRoutes = router.getRoutes();
-            if (routerRoutes != null) {
-                for (Routes route : routerRoutes) {
+            Map<RoutesKey, Routes> routesKeyRoutesMap = router.getRoutes();
+            if (routesKeyRoutesMap != null) {
+                for (Routes route : routesKeyRoutesMap.values()) {
                     handleStaticRoute(vpnId, route, ivpnLink);
                 }
             }
