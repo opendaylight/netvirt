@@ -349,7 +349,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
             if (clientIp != null && serverIp != null) {
                 List<HostRoutes> subnetHostRoutes = new ArrayList<>();
                 if (subnet.getHostRoutes() != null && !subnet.getHostRoutes().isEmpty()) {
-                    for (HostRoutes hostRoute : subnet.getHostRoutes()) {
+                    for (HostRoutes hostRoute : subnet.getHostRoutes().values()) {
                         if (!hostRoute.getNexthop().stringValue().equals(clientIp)) {
                             subnetHostRoutes.add(hostRoute);
                         }
@@ -383,7 +383,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
     @Nullable
     private static String getIpv4Address(Port port) {
 
-        for (FixedIps fixedIp : port.nonnullFixedIps()) {
+        for (FixedIps fixedIp : port.nonnullFixedIps().values()) {
             if (isIpv4Address(fixedIp.getIpAddress())) {
                 return fixedIp.getIpAddress().getIpv4Address().getValue();
             }

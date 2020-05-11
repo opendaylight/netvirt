@@ -9,9 +9,7 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import javax.annotation.PreDestroy;
@@ -33,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.vpnmap.RouterIds;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.vpnmap.RouterIdsKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
@@ -79,7 +78,7 @@ public class NatVpnMapsChangeListener extends AbstractAsyncDataTreeChangeListene
         Uuid vpnUuid = vpnMap.getVpnId();
         String vpnName = vpnUuid.getValue();
         if (vpnMap.getRouterIds() != null) {
-            vpnMap.getRouterIds().stream()
+            vpnMap.getRouterIds().values().stream()
                 .filter(router -> !(Objects.equals(router.getRouterId(), vpnUuid)))
                 .forEach(router -> {
                     String routerName = router.getRouterId().getValue();
@@ -94,7 +93,7 @@ public class NatVpnMapsChangeListener extends AbstractAsyncDataTreeChangeListene
         Uuid vpnUuid = vpnMap.getVpnId();
         String vpnName = vpnUuid.getValue();
         if (vpnMap.getRouterIds() != null) {
-            vpnMap.getRouterIds().stream()
+            vpnMap.getRouterIds().values().stream()
                 .filter(router -> !(Objects.equals(router.getRouterId(), vpnUuid)))
                 .forEach(router -> {
                     String routerName = router.getRouterId().getValue();
@@ -109,8 +108,8 @@ public class NatVpnMapsChangeListener extends AbstractAsyncDataTreeChangeListene
         Uuid vpnUuid = updated.getVpnId();
         String vpnName = vpnUuid.getValue();
 
-        List<RouterIds> updatedRouterIdList = updated.getRouterIds();
-        List<RouterIds> originalRouterIdList = original.getRouterIds();
+        List<RouterIds> updatedRouterIdList = new ArrayList<RouterIds>(updated.getRouterIds().values());
+        List<RouterIds> originalRouterIdList = new ArrayList<RouterIds>(original.getRouterIds().values());
         List<RouterIds> routersAddedList = null;
         List<RouterIds> routersRemovedList = null;
 
@@ -231,7 +230,7 @@ public class NatVpnMapsChangeListener extends AbstractAsyncDataTreeChangeListene
             return;
         }
         Uuid networkId = Uuid.getDefaultInstance(externalNetwork);
-        for (Ports port : optRouterPorts.get().nonnullPorts()) {
+        for (Ports port : optRouterPorts.get().nonnullPorts().values()) {
             String portName = port.getPortName();
             Uint64 dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
             if (dpnId.equals(Uint64.ZERO)) {
@@ -240,7 +239,7 @@ public class NatVpnMapsChangeListener extends AbstractAsyncDataTreeChangeListene
                 continue;
             }
 
-            for (InternalToExternalPortMap intExtPortMap : port.nonnullInternalToExternalPortMap()) {
+            for (InternalToExternalPortMap intExtPortMap : port.nonnullInternalToExternalPortMap().values()) {
                 //remove all NAT related entries with routerName
                 //floatingIpListener.removeNATOnlyFlowEntries(dpnId, portName, routerName, null,
                 // intExtPortMap.getInternalIp(), externalIp);
@@ -263,7 +262,7 @@ public class NatVpnMapsChangeListener extends AbstractAsyncDataTreeChangeListene
             return;
         }
         Uuid networkId = Uuid.getDefaultInstance(externalNetwork);
-        for (Ports port : optRouterPorts.get().nonnullPorts()) {
+        for (Ports port : optRouterPorts.get().nonnullPorts().values()) {
             String portName = port.getPortName();
             Uint64 dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
             if (dpnId.equals(Uint64.ZERO)) {
@@ -271,7 +270,7 @@ public class NatVpnMapsChangeListener extends AbstractAsyncDataTreeChangeListene
                         + "skip handling of router {} association with vpn {}", portName, routerName, vpnName);
                 continue;
             }
-            for (InternalToExternalPortMap intExtPortMap : port.nonnullInternalToExternalPortMap()) {
+            for (InternalToExternalPortMap intExtPortMap : port.nonnullInternalToExternalPortMap().values()) {
                 //remove all NAT related entries with routerName
                 //floatingIpListener.removeNATOnlyFlowEntries(dpnId, portName, routerName, vpnName,
                 // intExtPortMap.getInternalIp(), externalIp);

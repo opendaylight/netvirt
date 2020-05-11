@@ -692,7 +692,7 @@ public class NatTunnelInterfaceStateListener extends AbstractAsyncDataTreeChange
                 l3Vni = natOverVxlanUtil.getInternetVpnVni(vpnName, routerId);
             }
         }
-        for (Ports port : routerPorts.nonnullPorts()) {
+        for (Ports port : routerPorts.nonnullPorts().values()) {
             //Get the DPN on which this interface resides
             final String interfaceName = port.getPortName();
             final Uint64 fipCfgdDpnId = NatUtil.getDpnForInterface(interfaceService, interfaceName);
@@ -707,7 +707,7 @@ public class NatTunnelInterfaceStateListener extends AbstractAsyncDataTreeChange
                     tepAddedDpnId, fipCfgdDpnId, interfaceName);
                 continue;
             }
-            for (InternalToExternalPortMap intExtPortMap : port.nonnullInternalToExternalPortMap()) {
+            for (InternalToExternalPortMap intExtPortMap : port.nonnullInternalToExternalPortMap().values()) {
                 final String internalIp = intExtPortMap.getInternalIp();
                 final String externalIp = intExtPortMap.getExternalIp();
                 LOG.debug("hndlTepAddForDnatInEachRtr : DNAT -> Advertising the FIB route to the floating IP {} "

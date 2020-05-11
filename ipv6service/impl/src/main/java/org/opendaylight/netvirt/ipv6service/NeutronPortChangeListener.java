@@ -8,10 +8,13 @@
 package org.opendaylight.netvirt.ipv6service;
 
 import com.google.common.base.Strings;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -69,7 +72,7 @@ public class NeutronPortChangeListener extends AbstractClusteredAsyncDataTreeCha
         }
 
         LOG.debug("Add port notification handler is invoked for port {} ", port);
-        for (FixedIps fixedip : port.nonnullFixedIps()) {
+        for (FixedIps fixedip : port.nonnullFixedIps().values()) {
             if (fixedip.getIpAddress().getIpv4Address() != null) {
                 continue;
             }
@@ -107,17 +110,17 @@ public class NeutronPortChangeListener extends AbstractClusteredAsyncDataTreeCha
 
         LOG.debug("update port notification handler is invoked for port {} ", update);
 
-        Set<FixedIps> ipsBefore = getFixedIpSet(original.getFixedIps());
-        Set<FixedIps> ipsAfter = getFixedIpSet(update.getFixedIps());
+        Set<FixedIps> ipsBefore = getFixedIpSet(new ArrayList<FixedIps>(original.getFixedIps().values()));
+        Set<FixedIps> ipsAfter = getFixedIpSet(new ArrayList<FixedIps>(update.getFixedIps().values()));
 
-        Set<FixedIps> deletedIps = new HashSet<>(ipsBefore);
+        Set<FixedIps> deletedIps = new HashSet<FixedIps>(ipsBefore);
         deletedIps.removeAll(ipsAfter);
 
         if (!ipsBefore.equals(ipsAfter)) {
             Boolean portIncludesV6Address = Boolean.FALSE;
             ifMgr.clearAnyExistingSubnetInfo(update.getUuid());
 
-            Set<FixedIps> remainingIps = new HashSet<>(ipsAfter);
+            Set<FixedIps> remainingIps = new HashSet<FixedIps>(ipsAfter);
             remainingIps.removeAll(deletedIps);
             for (FixedIps fixedip : remainingIps) {
                 if (fixedip.getIpAddress().getIpv4Address() != null) {
@@ -128,8 +131,8 @@ public class NeutronPortChangeListener extends AbstractClusteredAsyncDataTreeCha
             }
 
             if (update.getDeviceOwner().equalsIgnoreCase(Ipv6ServiceConstants.NETWORK_ROUTER_INTERFACE)) {
-                ifMgr.updateRouterIntf(update.getUuid(), new Uuid(update.getDeviceId()), update.getFixedIps(),
-                        deletedIps);
+                ifMgr.updateRouterIntf(update.getUuid(), new Uuid(update.getDeviceId()),
+                        new ArrayList<FixedIps>(update.getFixedIps().values()), deletedIps);
             } else {
                 ifMgr.updateHostIntf(update.getUuid(), portIncludesV6Address);
             }
@@ -137,7 +140,7 @@ public class NeutronPortChangeListener extends AbstractClusteredAsyncDataTreeCha
         //Neutron Port update with proper device owner information
         if ((Strings.isNullOrEmpty(original.getDeviceOwner()) || Strings.isNullOrEmpty(original.getDeviceId()))
                 && !Strings.isNullOrEmpty(update.getDeviceOwner()) && !Strings.isNullOrEmpty(update.getDeviceId())) {
-            for (FixedIps fixedip : update.nonnullFixedIps()) {
+            for (FixedIps fixedip : update.nonnullFixedIps().values()) {
                 if (fixedip.getIpAddress().getIpv4Address() != null) {
                     continue;
                 }
