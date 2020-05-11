@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.dhcpservice;
 
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -18,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -85,6 +85,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfacesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMapKey;
@@ -272,7 +273,7 @@ public final class DhcpServiceUtils {
     @NonNull
     private static List<Uint64> extractDpnsFromNodes(Optional<Nodes> optionalNodes) {
         return optionalNodes.map(
-            nodes -> nodes.nonnullNode().stream().map(Node::getId).filter(Objects::nonNull).map(
+            nodes -> nodes.nonnullNode().values().stream().map(Node::getId).filter(Objects::nonNull).map(
                     MDSALUtil::getDpnIdFromNodeName).collect(
                     Collectors.toList())).orElse(Collections.emptyList());
     }
@@ -293,8 +294,8 @@ public final class DhcpServiceUtils {
             return Collections.emptyList();
         }
         if (elanDpnOptional.isPresent()) {
-            List<DpnInterfaces> dpns = elanDpnOptional.get().nonnullDpnInterfaces();
-            for (DpnInterfaces dpnInterfaces : dpns) {
+            Map<DpnInterfacesKey, DpnInterfaces> dpns = elanDpnOptional.get().nonnullDpnInterfaces();
+            for (DpnInterfaces dpnInterfaces : dpns.values()) {
                 elanDpns.add(dpnInterfaces.getDpId());
             }
         }
@@ -349,7 +350,7 @@ public final class DhcpServiceUtils {
                 getBoundServices(String.format("%s.%s", "dhcp", interfaceName),
                         serviceIndex, DhcpMConstants.DEFAULT_FLOW_PRIORITY,
                         DhcpMConstants.COOKIE_VM_INGRESS_TABLE, instructions);
-        tx.put(buildServiceId(interfaceName, serviceIndex), serviceInfo, CREATE_MISSING_PARENTS);
+        tx.mergeParentStructurePut(buildServiceId(interfaceName, serviceIndex), serviceInfo);
     }
 
     public static void unbindDhcpService(String interfaceName, TypedWriteTransaction<Configuration> tx) {
@@ -458,7 +459,7 @@ public final class DhcpServiceUtils {
         if (port.getFixedIps() == null) {
             return java.util.Optional.empty();
         }
-        return port.getFixedIps().stream().filter(DhcpServiceUtils::isIpV4AddressAvailable)
+        return port.getFixedIps().values().stream().filter(DhcpServiceUtils::isIpV4AddressAvailable)
                 .map(v -> v.getIpAddress().getIpv4Address().getValue()).findFirst();
     }
 
@@ -466,7 +467,7 @@ public final class DhcpServiceUtils {
         if (port.getFixedIps() == null) {
             return java.util.Optional.empty();
         }
-        return port.getFixedIps().stream().filter(DhcpServiceUtils::isIpV4AddressAvailable)
+        return port.getFixedIps().values().stream().filter(DhcpServiceUtils::isIpV4AddressAvailable)
                 .map(v -> v.getSubnetId().getValue()).findFirst();
     }
 
@@ -492,7 +493,7 @@ public final class DhcpServiceUtils {
                     new InterfaceNameMacAddressBuilder()
                             .withKey(new InterfaceNameMacAddressKey(interfaceName))
                             .setInterfaceName(interfaceName).setMacAddress(vmMacAddress).build();
-            tx.merge(instanceIdentifier, interfaceNameMacAddress, CREATE_MISSING_PARENTS);
+            tx.mergeParentStructureMerge(instanceIdentifier, interfaceNameMacAddress);
             return vmMacAddress;
         }
         return existingEntry.get().getMacAddress();

@@ -51,7 +51,6 @@ public class AddVpnPseudoPortDataJob extends VpnPseudoPortDataBaseJob {
         InstanceIdentifier<VpnToPseudoPortData> path = VpnServiceChainUtils.getVpnToPseudoPortTagIid(vpnRd);
 
         return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-            tx -> tx.put(LogicalDatastoreType.CONFIGURATION, path, newValue,
-                    WriteTransaction.CREATE_MISSING_PARENTS)));
+            tx -> tx.mergeParentStructurePut(LogicalDatastoreType.CONFIGURATION, path, newValue)));
     }
 }
