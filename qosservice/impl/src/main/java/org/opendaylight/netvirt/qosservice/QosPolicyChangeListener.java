@@ -250,14 +250,16 @@ public class QosPolicyChangeListener extends AbstractClusteredAsyncDataTreeChang
         }
 
         @NonNull List<BandwidthLimitRules> nonnullBandwidthLimitRules =
-            qosNeutronUtils.getQosPolicyMap().get(policyUuid).nonnullBandwidthLimitRules();
+            new ArrayList<BandwidthLimitRules>(qosNeutronUtils.getQosPolicyMap().get(policyUuid)
+                    .nonnullBandwidthLimitRules().values());
         if (!nonnullBandwidthLimitRules.isEmpty()) {
             BandwidthLimitRules bandwidthLimitRules = nonnullBandwidthLimitRules.get(0);
             update(policyUuid, bandwidthLimitRules);
         }
 
         @NonNull List<DscpmarkingRules> nonnullDscpmarkingRules =
-            qosNeutronUtils.getQosPolicyMap().get(policyUuid).nonnullDscpmarkingRules();
+            new ArrayList<DscpmarkingRules>(qosNeutronUtils.getQosPolicyMap().get(policyUuid)
+                    .nonnullDscpmarkingRules().values());
         if (!nonnullDscpmarkingRules.isEmpty()) {
             DscpmarkingRules dscpmarkingRules = nonnullDscpmarkingRules.get(0);
             update(policyUuid, dscpmarkingRules);

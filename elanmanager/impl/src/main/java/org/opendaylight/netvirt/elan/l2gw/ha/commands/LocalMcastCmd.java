@@ -35,8 +35,8 @@ public class LocalMcastCmd
     @Override
     @Nullable
     public List<LocalMcastMacs> getData(HwvtepGlobalAugmentation node) {
-        if (node != null) {
-            return node.getLocalMcastMacs();
+        if (node != null && node.getLocalMcastMacs() != null) {
+            return new ArrayList<LocalMcastMacs>(node.getLocalMcastMacs().values());
         }
         return null;
     }

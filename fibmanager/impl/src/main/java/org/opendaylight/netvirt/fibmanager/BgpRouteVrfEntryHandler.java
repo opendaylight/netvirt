@@ -10,8 +10,8 @@ package org.opendaylight.netvirt.fibmanager;
 import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -56,6 +56,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.Routes;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -192,9 +193,9 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
             LOG.error("Vpn Instance not availabe {}", vrfTableKey.getRouteDistinguisher());
             return;
         }
-        final Collection<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
-        if (vpnToDpnList != null) {
-            for (VpnToDpnList vpnDpn : vpnToDpnList) {
+        final Map<VpnToDpnListKey, VpnToDpnList> keyVpnToDpnListMap = vpnInstance.getVpnToDpnList();
+        if (keyVpnToDpnListMap != null) {
+            for (VpnToDpnList vpnDpn : keyVpnToDpnListMap.values()) {
                 LOG.trace("Dpnstate is {} for dpn {} in vpn {}", vpnDpn.getDpnState(), vpnDpn.getDpnId(),
                     vpnInstance.getVpnId());
                 if (vpnDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
@@ -223,8 +224,8 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
             return;
         }
         String vpnName = getFibUtil().getVpnNameFromId(vpnInstance.getVpnId());
-        final Collection<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
-        if (vpnToDpnList != null) {
+        final Map<VpnToDpnListKey, VpnToDpnList> keyVpnToDpnListMap = vpnInstance.getVpnToDpnList();
+        if (keyVpnToDpnListMap != null) {
             List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker,
                     vpnInstance.getVpnId(), vrfEntry.getDestPrefix());
             Optional<Routes> extraRouteOptional;
@@ -240,7 +241,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
             } else {
                 extraRouteOptional = Optional.empty();
             }
-            for (VpnToDpnList curDpn : vpnToDpnList) {
+            for (VpnToDpnList curDpn : keyVpnToDpnListMap.values()) {
                 if (curDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
                     deleteRemoteRoute(Uint64.ZERO, curDpn.getDpnId(), vpnInstance.getVpnId(),
                             vrfTableKey, vrfEntry, extraRouteOptional, writeTx, subTxns);
@@ -375,7 +376,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
             final Uint64 dpnId, final Uint32 vpnId, final String rd,
             final String remoteNextHopIp, final Optional<VrfTables> vrfTable,
             WriteTransaction writeCfgTxn, List<SubTransaction> subTxns) {
-        return vrfEntry -> vrfEntry.nonnullRoutePaths().stream()
+        return vrfEntry -> vrfEntry.nonnullRoutePaths().values().stream()
                 .filter(routes -> !routes.getNexthopAddress().isEmpty()
                         && remoteNextHopIp.trim().equals(routes.getNexthopAddress().trim()))
                 .findFirst()
@@ -391,7 +392,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
             final Uint64 dpnId, final Uint32 vpnId,
             final String remoteNextHopIp, final Optional<VrfTables> vrfTable,
             WriteTransaction writeCfgTxn, List<SubTransaction> subTxns) {
-        return vrfEntry -> vrfEntry.nonnullRoutePaths().stream()
+        return vrfEntry -> vrfEntry.nonnullRoutePaths().values().stream()
                 .filter(routes -> !routes.getNexthopAddress().isEmpty()
                         && remoteNextHopIp.trim().equals(routes.getNexthopAddress().trim()))
                 .findFirst()

@@ -14,6 +14,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
@@ -35,6 +36,7 @@ import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.DevicesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.devices.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.l2gatewayconnections.L2gatewayConnection;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateways.attributes.l2gateways.L2gateway;
@@ -167,11 +169,11 @@ public class HwvtepTerminationPointListener
             } else {
                 String logicalSwitchName = ElanL2GatewayUtils.getLogicalSwitchFromElan(
                         l2GwConn.getNetworkId().getValue());
-                List<Devices> l2Devices = l2Gateway.nonnullDevices();
-                for (Devices l2Device : l2Devices) {
+                Map<DevicesKey, Devices> l2Devices = l2Gateway.nonnullDevices();
+                for (Devices l2Device : l2Devices.values()) {
                     String l2DeviceName = l2Device.getDeviceName();
                     if (l2DeviceName != null && l2DeviceName.equals(psName)) {
-                        for (Interfaces deviceInterface : l2Device.nonnullInterfaces()) {
+                        for (Interfaces deviceInterface : l2Device.nonnullInterfaces().values()) {
                             if (Objects.equals(deviceInterface.getInterfaceName(), newPortId)) {
                                 if (deviceInterface.getSegmentationIds() != null
                                         && !deviceInterface.getSegmentationIds().isEmpty()) {

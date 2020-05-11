@@ -12,13 +12,14 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
@@ -47,6 +48,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
@@ -371,14 +373,14 @@ public final class ArpResponderUtil {
             try {
                 RpcResult result = itmRpcService.getEgressActionsForTunnel(new GetEgressActionsForTunnelInputBuilder()
                         .setIntfName(ifName).build()).get();
-                List<Action> listActions = new ArrayList<>();
+                Map<ActionKey, Action> listActions = new HashMap<ActionKey, Action>();
                 if (!result.isSuccessful()) {
                     LOG.error("getEgressActionsForInterface: RPC Call to Get egress actions for interface {} "
                             + "returned with Errors {}", ifName, result.getErrors());
                 } else {
                     listActions = ((GetEgressActionsForTunnelOutput) result.getResult()).getAction();
                 }
-                return listActions;
+                return new ArrayList<Action>(listActions.values());
             } catch (InterruptedException | ExecutionException e) {
                 LOG.error("getEgressActionsForInterface: Exception when egress actions for interface {}", ifName, e);
             }

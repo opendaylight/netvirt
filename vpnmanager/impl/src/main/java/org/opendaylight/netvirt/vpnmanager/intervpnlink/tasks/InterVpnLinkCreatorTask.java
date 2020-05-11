@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.vpnmanager.intervpnlink.tasks;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collections;
@@ -44,8 +43,8 @@ public class InterVpnLinkCreatorTask implements Callable<List<? extends Listenab
             interVpnLinkToPersist.getSecondEndpoint().getIpAddress());
 
         return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx ->
-            tx.merge(InterVpnLinkUtil.getInterVpnLinkPath(interVpnLinkToPersist.getName()),
-                    interVpnLinkToPersist, CREATE_MISSING_PARENTS)));
+            tx.mergeParentStructureMerge(InterVpnLinkUtil.getInterVpnLinkPath(interVpnLinkToPersist.getName()),
+                    interVpnLinkToPersist)));
     }
 
 }

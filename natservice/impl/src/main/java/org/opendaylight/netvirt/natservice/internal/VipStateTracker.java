@@ -49,9 +49,9 @@ public class VipStateTracker extends DataObjectCache<String, VipState> {
 
     public FluentFuture<Void> writeVipState(VipState vipState) {
         return txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
-            tx.put(InstanceIdentifier.builder(NeutronVipStates.class)
+            tx.mergeParentStructurePut(InstanceIdentifier.builder(NeutronVipStates.class)
                             .child(VipState.class, vipState.key()).build(),
-                    vipState, true);
+                    vipState);
         });
     }
 }

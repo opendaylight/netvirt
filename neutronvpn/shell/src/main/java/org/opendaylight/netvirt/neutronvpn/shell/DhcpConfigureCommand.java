@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.neutronvpn.shell;
 
 import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.CONFIGURATION;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.karaf.shell.commands.Command;
@@ -58,7 +59,7 @@ public class DhcpConfigureCommand extends OsgiCommandSupport {
         DhcpConfig currentConfig = SingleTransactionDataBroker.syncRead(dataBroker, CONFIGURATION, iid);
         if (currentConfig != null && currentConfig.getConfigs() != null
             && !currentConfig.getConfigs().isEmpty()) {
-            Configs dhcpConfig = currentConfig.getConfigs().get(0);
+            Configs dhcpConfig = new ArrayList<Configs>(currentConfig.getConfigs().values()).get(0);
             if (dhcpConfig.getLeaseDuration() != null) {
                 currLeaseDuration = dhcpConfig.getLeaseDuration();
             }

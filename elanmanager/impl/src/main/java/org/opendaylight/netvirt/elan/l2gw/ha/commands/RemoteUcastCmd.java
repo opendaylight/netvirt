@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.eclipse.jdt.annotation.Nullable;
@@ -32,8 +33,8 @@ public class RemoteUcastCmd extends MergeCommand<RemoteUcastMacs,
     @Override
     @Nullable
     public List<RemoteUcastMacs> getData(HwvtepGlobalAugmentation node) {
-        if (node != null) {
-            return node.getRemoteUcastMacs();
+        if (node != null && node.getRemoteUcastMacs() != null) {
+            return new ArrayList<RemoteUcastMacs>(node.getRemoteUcastMacs().values());
         }
         return null;
     }

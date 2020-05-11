@@ -165,7 +165,7 @@ public class NeutronEvpnManager {
             List<String> rd = vpnInstance.getRouteDistinguisher();
             List<String> ertList = new ArrayList<>();
             List<String> irtList = new ArrayList<>();
-            for (VpnTarget vpnTarget : vpnInstance.getVpnTargets().nonnullVpnTarget()) {
+            for (VpnTarget vpnTarget : vpnInstance.getVpnTargets().nonnullVpnTarget().values()) {
                 if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ExportExtcommunity) {
                     ertList.add(vpnTarget.getVrfRTValue());
                 }

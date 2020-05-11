@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.elan.l2gw.nodehandlertest;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
@@ -16,6 +17,8 @@ import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.Managers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.managers.ManagerOtherConfigs;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -50,8 +53,9 @@ final class TestUtil {
 
 
     static void verifyHAconfigNode(Node haConfig, Node d1Node) {
-        String haid = haConfig.augmentation(HwvtepGlobalAugmentation.class).getManagers()
-                .get(0).getManagerOtherConfigs().get(0).getOtherConfigValue();
+        String haid = new ArrayList<ManagerOtherConfigs>(new ArrayList<Managers>(haConfig
+                .augmentation(HwvtepGlobalAugmentation.class).getManagers().values())
+                .get(0).getManagerOtherConfigs().values()).get(0).getOtherConfigValue();
         String d1id = d1Node.getNodeId().getValue();
         assertEquals("Other config should contain D1 as child manager", haid, d1id);
     }

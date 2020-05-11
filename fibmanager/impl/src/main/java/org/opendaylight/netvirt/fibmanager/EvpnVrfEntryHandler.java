@@ -13,6 +13,7 @@ import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
@@ -43,6 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.Routes;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -82,15 +84,15 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler {
                 + " has null vpnId!");
         if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.CONNECTED) {
             SubnetRoute subnetRoute = vrfEntry.augmentation(SubnetRoute.class);
-            final List<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
+            final Map<VpnToDpnListKey, VpnToDpnList> keyVpnToDpnListMap = vpnInstance.getVpnToDpnList();
             final long elanTag = subnetRoute.getElantag().toJava();
             LOG.trace("SubnetRoute augmented vrfentry found for rd {} prefix {} with elantag {}",
                     rd, vrfEntry.getDestPrefix(), elanTag);
-            if (vpnToDpnList != null) {
+            if (keyVpnToDpnListMap != null) {
                 jobCoordinator.enqueueJob("FIB-" + rd + "-" + vrfEntry.getDestPrefix(),
                     () -> Collections.singletonList(
                         txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
-                            for (final VpnToDpnList curDpn : vpnToDpnList) {
+                            for (final VpnToDpnList curDpn : keyVpnToDpnListMap.values()) {
                                 if (curDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
                                     vrfEntryListener.installSubnetRouteInFib(curDpn.getDpnId(), elanTag, rd,
                                         vpnId, vrfEntry, tx);
@@ -192,11 +194,11 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler {
                                        List<Uint64> localDpnId, VrfTablesKey vrfTableKey, boolean isNatPrefix) {
         LOG.info("Creating remote EVPN flows for prefix {} rd {} route-paths {} evi {}",
             vrfEntry.getDestPrefix(), rd, vrfEntry.getRoutePaths(), vrfEntry.getL3vni());
-        List<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
-        if (vpnToDpnList != null) {
+        Map<VpnToDpnListKey, VpnToDpnList> keyVpnToDpnListMap = vpnInstance.getVpnToDpnList();
+        if (keyVpnToDpnListMap != null) {
             jobCoordinator.enqueueJob("FIB" + rd + vrfEntry.getDestPrefix(),
                 () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-                    for (VpnToDpnList vpnDpn : vpnToDpnList) {
+                    for (VpnToDpnList vpnDpn : keyVpnToDpnListMap.values()) {
                         if (!localDpnId.contains(vpnDpn.getDpnId())) {
                             if (vpnDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
                                 createRemoteFibEntry(vpnDpn.getDpnId(), vpnInstance.getVpnId(),
@@ -282,14 +284,14 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler {
     @SuppressWarnings("ForbidCertainMethod")
     private void deleteRemoteEvpnFlows(String rd, VrfEntry vrfEntry, VpnInstanceOpDataEntry vpnInstance,
                                        VrfTablesKey vrfTableKey, List<Uint64> localDpnIdList) {
-        List<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
+        Map<VpnToDpnListKey, VpnToDpnList> keyVpnToDpnListMap = vpnInstance.getVpnToDpnList();
         List<SubTransaction> subTxns =  new ArrayList<>();
-        if (vpnToDpnList != null) {
+        if (keyVpnToDpnListMap != null) {
             jobCoordinator.enqueueJob("FIB" + rd + vrfEntry.getDestPrefix(),
                 () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
                     final Optional<Routes> extraRouteOptional = Optional.empty();
                     if (localDpnIdList.size() <= 0) {
-                        for (VpnToDpnList curDpn1 : vpnToDpnList) {
+                        for (VpnToDpnList curDpn1 : keyVpnToDpnListMap.values()) {
                             if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP) {
                                 if (curDpn1.getDpnState() == VpnToDpnList.DpnState.Active) {
                                     bgpRouteVrfEntryHandler.deleteRemoteRoute(Uint64.ZERO,
@@ -305,7 +307,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler {
                         }
                     } else {
                         for (Uint64 localDpnId : localDpnIdList) {
-                            for (VpnToDpnList curDpn2 : vpnToDpnList) {
+                            for (VpnToDpnList curDpn2 : keyVpnToDpnListMap.values()) {
                                 if (!Objects.equals(curDpn2.getDpnId(), localDpnId)) {
                                     if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP) {
                                         if (curDpn2.getDpnState() == VpnToDpnList.DpnState.Active) {
