@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -72,7 +73,8 @@ public class DhcpL2GwUtil {
             if (!CONTAINS_GLOBAL_AUGMENTATION.test(nodeOptional)) {
                 return null;
             }
-            List<Switches> switchIids = nodeOptional.get().augmentation(HwvtepGlobalAugmentation.class).getSwitches();
+            List<Switches> switchIids = new ArrayList<Switches>(nodeOptional.get()
+                    .augmentation(HwvtepGlobalAugmentation.class).getSwitches().values());
             if (EMPTY_LIST.test(switchIids)) {
                 return null;
             }
@@ -82,8 +84,8 @@ public class DhcpL2GwUtil {
             if (!CONTAINS_SWITCH_AUGMENTATION.test(nodeOptional)) {
                 return null;
             }
-            List<TunnelIps> tunnelIps = nodeOptional.get().augmentation(PhysicalSwitchAugmentation.class)
-                    .getTunnelIps();
+            List<TunnelIps> tunnelIps = new ArrayList<TunnelIps>(nodeOptional.get()
+                    .augmentation(PhysicalSwitchAugmentation.class).getTunnelIps().values());
             if (EMPTY_LIST.test(tunnelIps)) {
                 return null;
             }

@@ -411,7 +411,7 @@ public class BgpUtil implements AutoCloseable {
         InstanceIdentifier<DpnEndpoints> iid = InstanceIdentifier.builder(DpnEndpoints.class).build();
         Optional<DpnEndpoints> dpnEndpoints = MDSALUtil.read(LogicalDatastoreType.CONFIGURATION, iid, dataBroker);
         if (dpnEndpoints.isPresent()) {
-            return dpnEndpoints.get().getDPNTEPsInfo();
+            return new ArrayList<DPNTEPsInfo>(dpnEndpoints.get().getDPNTEPsInfo().values());
         } else {
             return new ArrayList<>();
         }

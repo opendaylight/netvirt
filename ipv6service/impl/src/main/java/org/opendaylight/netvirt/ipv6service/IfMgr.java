@@ -1064,7 +1064,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
                 LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}",
                         interfaceName, rpcResult.getErrors());
             } else {
-                actions = rpcResult.getResult().getAction();
+                actions = new ArrayList<Action>(rpcResult.getResult().getAction().values());
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Exception when egress actions for interface {}", interfaceName, e);

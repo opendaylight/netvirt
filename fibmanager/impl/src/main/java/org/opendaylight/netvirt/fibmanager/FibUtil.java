@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.fibmanager;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
@@ -18,6 +17,7 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -91,6 +91,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePathsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.L3vpnDcGws;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.L3vpnLbNexthops;
@@ -349,7 +350,7 @@ public class FibUtil {
         }
         buildVpnEncapSpecificInfo(vrfEntryBuilder, encapType, label, l3vni, macAddress, gatewayMacAddress, nextHopList);
         if (writeConfigTxn != null) {
-            writeConfigTxn.merge(vrfEntryId, vrfEntryBuilder.build(), CREATE_MISSING_PARENTS);
+            writeConfigTxn.mergeParentStructureMerge(vrfEntryId, vrfEntryBuilder.build());
         } else {
             MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntryBuilder.build());
         }
@@ -375,7 +376,7 @@ public class FibUtil {
                 .addAugmentation(RouterInterface.class, routerInterface).build();
 
             if (writeConfigTxn != null) {
-                writeConfigTxn.merge(vrfEntryId, vrfEntry, CREATE_MISSING_PARENTS);
+                writeConfigTxn.mergeParentStructureMerge(vrfEntryId, vrfEntry);
             } else {
                 MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
             }
@@ -462,7 +463,7 @@ public class FibUtil {
                     prefix, rd, nextHopToRemove, e);
         }
         if (entry.isPresent()) {
-            final List<RoutePaths> routePaths = entry.get().getRoutePaths();
+            final List<RoutePaths> routePaths = new ArrayList<RoutePaths>(entry.get().getRoutePaths().values());
             if (routePaths == null || routePaths.isEmpty()) {
                 LOG.warn("routePaths is null/empty for given rd {}, prefix {}", rd, prefix);
                 return;
@@ -515,7 +516,7 @@ public class FibUtil {
             if (nextHopAdd) {
                 RoutePaths routePaths = FibHelper.buildRoutePath(nextHop, label);
                 if (writeConfigTxn != null) {
-                    writeConfigTxn.put(routePathId, routePaths, CREATE_MISSING_PARENTS);
+                    writeConfigTxn.mergeParentStructurePut(routePathId, routePaths);
                 } else {
                     MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routePathId, routePaths);
                 }
@@ -586,23 +587,25 @@ public class FibUtil {
     }
 
     public static java.util.Optional<Uint32> getLabelFromRoutePaths(final VrfEntry vrfEntry) {
-        List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
-        if (routePaths == null || routePaths.isEmpty() || vrfEntry.getRoutePaths().get(0).getLabel() == null) {
+        List<RoutePaths> routePaths = new ArrayList<RoutePaths>(vrfEntry.getRoutePaths().values());
+        if (routePaths == null || routePaths.isEmpty()
+                || new ArrayList<RoutePaths>(vrfEntry.getRoutePaths().values()).get(0).getLabel() == null) {
             return java.util.Optional.empty();
         }
-        return java.util.Optional.of(vrfEntry.getRoutePaths().get(0).getLabel());
+        return java.util.Optional.of(new ArrayList<RoutePaths>(vrfEntry.getRoutePaths().values()).get(0).getLabel());
     }
 
     public static java.util.Optional<String> getFirstNextHopAddress(final VrfEntry vrfEntry) {
-        List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
+        List<RoutePaths> routePaths = new ArrayList<RoutePaths>(vrfEntry.getRoutePaths().values());
         if (routePaths == null || routePaths.isEmpty()) {
             return java.util.Optional.empty();
         }
-        return java.util.Optional.of(vrfEntry.getRoutePaths().get(0).getNexthopAddress());
+        return java.util.Optional.of(new ArrayList<RoutePaths>(vrfEntry.getRoutePaths().values())
+                .get(0).getNexthopAddress());
     }
 
     public static java.util.Optional<Uint32> getLabelForNextHop(final VrfEntry vrfEntry, String nextHopIp) {
-        List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
+        List<RoutePaths> routePaths = new ArrayList<RoutePaths>(vrfEntry.getRoutePaths().values());
         if (routePaths == null || routePaths.isEmpty()) {
             return java.util.Optional.empty();
         }
@@ -856,7 +859,7 @@ public class FibUtil {
         if (!dcGwsOpt.isPresent()) {
             return Collections.emptyList();
         }
-        return dcGwsOpt.get().getDcGateway().stream().map(DcGateway::getIpAddress).collect(toList());
+        return dcGwsOpt.get().getDcGateway().values().stream().map(DcGateway::getIpAddress).collect(toList());
     }
 
     static boolean isVxlanNetwork(NetworkType networkType) {
@@ -1000,8 +1003,8 @@ public class FibUtil {
             return false;
         }
         if (entry.isPresent()) {
-            List<RoutePaths> paths = entry.get().getRoutePaths();
-            for (RoutePaths path: paths) {
+            Map<RoutePathsKey, RoutePaths> pathsMap = entry.get().getRoutePaths();
+            for (RoutePaths path: pathsMap.values()) {
                 if (path.getNexthopAddress().equals(nextHopIp)) {
                     return true;
                 }

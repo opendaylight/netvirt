@@ -11,7 +11,9 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -32,6 +34,7 @@ import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CleanupDpnForVpnInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CleanupDpnForVpnOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CleanupDpnForVpnOutputBuilder;
@@ -86,9 +89,9 @@ public class FibRpcServiceImpl implements FibRpcService {
         String vpnRd = getVpnRd(dataBroker, vpnName);
         String ipAddress = input.getIpAddress();
         LOG.info("Create custom FIB entry - {} on dpn {} for VPN {} ", ipAddress, dpnId, vpnName);
-        List<Instruction> instructions = input.getInstruction();
+        Map<InstructionKey, Instruction> instructionMap = input.getInstruction();
         LOG.info("ADD: Adding Custom Fib Entry rd {} prefix {} label {}", vpnRd, ipAddress, input.getServiceId());
-        makeLocalFibEntry(vpnId, dpnId, ipAddress, instructions);
+        makeLocalFibEntry(vpnId, dpnId, ipAddress, new ArrayList<Instruction>(instructionMap.values()));
         IpAddresses.IpAddressSource ipAddressSource = IpAddresses.IpAddressSource
                 .forValue(input.getIpAddressSource().getIntValue());
         vpnFootprintService.updateVpnToDpnMapping(dpnId, vpnName, vpnRd, null /* interfaceName*/,
@@ -199,9 +202,14 @@ public class FibRpcServiceImpl implements FibRpcService {
 
 
         int priority = FibConstants.DEFAULT_FIB_FLOW_PRIORITY + prefixLength;
+        Map<InstructionKey, Instruction> customInstructionsMap = new HashMap<InstructionKey, Instruction>();
+        int instructionKey = 0;
+        for (Instruction instructionObj : customInstructions) {
+            customInstructionsMap.put(new InstructionKey(++instructionKey), instructionObj);
+        }
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_FIB_TABLE, flowRef,
             priority, flowRef, 0, 0,
-            NwConstants.COOKIE_VM_FIB_TABLE, matches, customInstructions);
+            NwConstants.COOKIE_VM_FIB_TABLE, matches, customInstructionsMap);
         mdsalManager.installFlow(dpnId, flowEntity);
 
         LOG.debug("FIB entry for route {} on dpn {} installed successfully - flow {}", ipAddress, dpnId, flowEntity);

@@ -7,15 +7,12 @@
  */
 package org.opendaylight.netvirt.cloudservicechain.utils;
 
-import java.util.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
-import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -35,6 +32,9 @@ import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchMplsLabel;
 import org.opendaylight.genius.utils.ServiceIndex;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.netvirt.cloudservicechain.CloudServiceChainConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
@@ -71,7 +71,9 @@ public final class VpnServiceChainUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnServiceChainUtils.class);
 
-    private VpnServiceChainUtils() { }
+    private VpnServiceChainUtils() {
+
+    }
 
     public static BigInteger getMetadataSCF(long scfTag) { // TODO: Move to a common place
         return new BigInteger("FF", 16).and(BigInteger.valueOf(scfTag)).shiftLeft(32);
