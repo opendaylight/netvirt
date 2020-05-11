@@ -28,16 +28,22 @@ import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepLogicalSwitchRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepPhysicalLocatorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepPhysicalPortAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LocalMcastMacs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LocalMcastMacsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LocalUcastMacs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LocalUcastMacsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LogicalSwitches;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteMcastMacs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteMcastMacsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteUcastMacs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteUcastMacsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.Switches;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.SwitchesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical.locator.set.attributes.LocatorSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical.port.attributes.VlanBindings;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
@@ -47,6 +53,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPointKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
@@ -101,7 +108,7 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
                 Optional<Topology> topologyOptional = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                         LogicalDatastoreType.OPERATIONAL, createHwvtepTopologyInstanceIdentifier());
                 if (topologyOptional.isPresent()) {
-                    nodes.addAll(topologyOptional.get().nonnullNode());
+                    nodes.addAll(topologyOptional.get().nonnullNode().values());
                 }
             } else {
                 Optional<Node> nodeOptional = SingleTransactionDataBroker.syncReadOptional(dataBroker,
@@ -118,9 +125,9 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
                         LogicalDatastoreType.CONFIGURATION,
                         InstanceIdentifier.builder(ElanInstances.class).build());
                 if (elanInstancesOptional.isPresent()) {
-                    List<ElanInstance> elans = elanInstancesOptional.get().getElanInstance();
+                    Map<ElanInstanceKey, ElanInstance> elans = elanInstancesOptional.get().getElanInstance();
                     if (elans != null) {
-                        for (ElanInstance elan : elans) {
+                        for (ElanInstance elan : elans.values()) {
                             networks.add(elan.getElanInstanceName());
                         }
                     }
@@ -204,12 +211,12 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
         if (hwvtepNode == null || hwvtepNode.augmentation(HwvtepGlobalAugmentation.class) == null) {
             return;
         }
-        List<RemoteUcastMacs> remoteUcastMacs =
+        Map<RemoteUcastMacsKey, RemoteUcastMacs> remoteUcastMacs =
                 hwvtepNode.augmentation(HwvtepGlobalAugmentation.class).getRemoteUcastMacs();
         if (remoteUcastMacs == null || remoteUcastMacs.isEmpty()) {
             return;
         }
-        for (RemoteUcastMacs remoteMac : remoteUcastMacs) {
+        for (RemoteUcastMacs remoteMac : remoteUcastMacs.values()) {
             String lsFromRemoteMac = getLogicalSwitchValue(remoteMac.getLogicalSwitchRef());
             if (elanName.equals(lsFromRemoteMac)) {
                 String mac = remoteMac.getMacEntryKey().getValue();
@@ -228,12 +235,12 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
         if (hwvtepNode == null || hwvtepNode.augmentation(HwvtepGlobalAugmentation.class) == null) {
             return;
         }
-        List<LocalUcastMacs> localUcastMacs =
+        Map<LocalUcastMacsKey, LocalUcastMacs> localUcastMacs =
                 hwvtepNode.augmentation(HwvtepGlobalAugmentation.class).getLocalUcastMacs();
         if (localUcastMacs == null || localUcastMacs.isEmpty()) {
             return;
         }
-        for (LocalUcastMacs localMac : localUcastMacs) {
+        for (LocalUcastMacs localMac : localUcastMacs.values()) {
             String lsFromLocalMac = getLogicalSwitchValue(localMac.getLogicalSwitchRef());
             if (elanName.equals(lsFromLocalMac)) {
                 String mac = localMac.getMacEntryKey().getValue();
@@ -252,12 +259,12 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
         if (hwvtepNode == null || hwvtepNode.augmentation(HwvtepGlobalAugmentation.class) == null) {
             return;
         }
-        List<LocalMcastMacs> localMcastMacs =
+        Map<LocalMcastMacsKey, LocalMcastMacs> localMcastMacs =
                 hwvtepNode.augmentation(HwvtepGlobalAugmentation.class).getLocalMcastMacs();
         if (localMcastMacs == null || localMcastMacs.isEmpty()) {
             return;
         }
-        for (LocalMcastMacs localMac : localMcastMacs) {
+        for (LocalMcastMacs localMac : localMcastMacs.values()) {
             String lsFromLocalMac = getLogicalSwitchValue(localMac.getLogicalSwitchRef());
             if (elanName.equals(lsFromLocalMac)) {
                 String mac = localMac.getMacEntryKey().getValue();
@@ -279,12 +286,12 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
         if (hwvtepNode == null || hwvtepNode.augmentation(HwvtepGlobalAugmentation.class) == null) {
             return;
         }
-        List<RemoteMcastMacs> remoteMcastMacs =
+        Map<RemoteMcastMacsKey, RemoteMcastMacs> remoteMcastMacs =
                 hwvtepNode.augmentation(HwvtepGlobalAugmentation.class).getRemoteMcastMacs();
         if (remoteMcastMacs == null || remoteMcastMacs.isEmpty()) {
             return;
         }
-        for (RemoteMcastMacs remoteMac : remoteMcastMacs) {
+        for (RemoteMcastMacs remoteMac : remoteMcastMacs.values()) {
             String lsFromremoteMac = getLogicalSwitchValue(remoteMac.getLogicalSwitchRef());
             if (elanName.equals(lsFromremoteMac)) {
                 String mac = remoteMac.getMacEntryKey().getValue();
@@ -306,17 +313,17 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
         if (psNode == null) {
             return;
         }
-        List<TerminationPoint> terminationPoints = psNode.getTerminationPoint();
+        Map<TerminationPointKey, TerminationPoint> terminationPoints = psNode.getTerminationPoint();
         if (terminationPoints == null || terminationPoints.isEmpty()) {
             return;
         }
-        for (TerminationPoint terminationPoint : terminationPoints) {
+        for (TerminationPoint terminationPoint : terminationPoints.values()) {
             HwvtepPhysicalPortAugmentation aug =
                     terminationPoint.augmentation(HwvtepPhysicalPortAugmentation.class);
             if (aug == null || aug.getVlanBindings() == null) {
                 continue;
             }
-            for (VlanBindings vlanBindings : aug.getVlanBindings()) {
+            for (VlanBindings vlanBindings : aug.getVlanBindings().values()) {
                 String lsFromremoteMac = getLogicalSwitchValue(vlanBindings.getLogicalSwitchRef());
                 if (elanName.equals(lsFromremoteMac)) {
                     session.getConsole().println(terminationPoint.getTpId().getValue()
@@ -350,10 +357,10 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
     Node getPSnode(Node hwvtepNode, LogicalDatastoreType datastoreType) throws ExecutionException,
             InterruptedException {
         if (hwvtepNode.augmentation(HwvtepGlobalAugmentation.class) != null) {
-            List<Switches> switches = hwvtepNode.augmentation(HwvtepGlobalAugmentation.class).getSwitches();
+            Map<SwitchesKey, Switches> switches = hwvtepNode.augmentation(HwvtepGlobalAugmentation.class).getSwitches();
             if (switches != null) {
                 return HwvtepUtils.getHwVtepNode(dataBroker, datastoreType,
-                    switches.iterator().next().getSwitchRef().getValue().firstKeyOf(Node.class).getNodeId());
+                    switches.values().iterator().next().getSwitchRef().getValue().firstKeyOf(Node.class).getNodeId());
             }
         }
         return null;

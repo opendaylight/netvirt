@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
@@ -760,7 +759,8 @@ public class VpnManagerImpl implements IVpnManager {
                          *            (2) iRT=A eRT=B subnet-range=S1; OK
                          *            (3) iRT=B eRT=A subnet-range=S2; NOK
                          * Check if (1) and (2) are importing the same subnet-range routes to (3) */
-                        List<AssociatedVpn> multipleAssociatedVpn = associatedSubnet.getAssociatedVpn();
+                        List<AssociatedVpn> multipleAssociatedVpn
+                                = new ArrayList<AssociatedVpn>(associatedSubnet.getAssociatedVpn().values());
                         if (multipleAssociatedVpn != null && multipleAssociatedVpn.size() > 1) {
                             LOG.error("doesExistingVpnsHaveConflictingSubnet: There is an indirect complete  overlap"
                                     + " for subnet CIDR {} for rt {} rtType {}", subnetCidr, routerTarget.getRt(),
@@ -791,7 +791,7 @@ public class VpnManagerImpl implements IVpnManager {
                                         routerTarget.getRt(), RouteTarget.RtType.ERT));
                         if (indirectRts.isPresent() && indirectRts.get().getAssociatedSubnet() != null
                                 && routerTarget.getAssociatedSubnet() != null) {
-                            for (AssociatedSubnet associatedSubnet : indirectRts.get().getAssociatedSubnet()) {
+                            for (AssociatedSubnet associatedSubnet : indirectRts.get().getAssociatedSubnet().values()) {
                                 if (VpnUtil.areSubnetsOverlapping(associatedSubnet.getCidr(), subnetCidr)) {
                                     LOG.error("doesExistingVpnsHaveConflictingSubnet: There is an indirect overlap for"
                                             + " subnet CIDR {} for rt {} rtType {}", subnetCidr, routerTarget.getRt(),
@@ -825,7 +825,8 @@ public class VpnManagerImpl implements IVpnManager {
                 tx.read(VpnUtil.getAssociatedSubnetIdentifier(rt, rtType, cidr)).get();
             boolean deleteParent = false;
             if (associatedSubnet.isPresent()) {
-                List<AssociatedVpn> associatedVpns = new ArrayList<>(associatedSubnet.get().nonnullAssociatedVpn());
+                List<AssociatedVpn> associatedVpns
+                        = new ArrayList<>(associatedSubnet.get().nonnullAssociatedVpn().values());
                 if (associatedVpns == null || associatedVpns.isEmpty()) {
                     deleteParent = true;
                 } else {
@@ -852,8 +853,8 @@ public class VpnManagerImpl implements IVpnManager {
             }
         } else {
             //Add RT-Subnet-Vpn Association
-            tx.put(VpnUtil.getAssociatedSubnetAndVpnIdentifier(rt, rtType, cidr, vpnName),
-                    VpnUtil.buildAssociatedSubnetAndVpn(vpnName), CREATE_MISSING_PARENTS);
+            tx.mergeParentStructurePut(VpnUtil.getAssociatedSubnetAndVpnIdentifier(rt, rtType, cidr, vpnName),
+                    VpnUtil.buildAssociatedSubnetAndVpn(vpnName));
         }
     }
 
@@ -867,7 +868,7 @@ public class VpnManagerImpl implements IVpnManager {
         Optional<RouteTarget> rtToSubnetsAssociation = tx.read(rtIdentifier).get();
         if (rtToSubnetsAssociation.isPresent()) {
             List<AssociatedSubnet> associatedSubnets = new ArrayList<>(rtToSubnetsAssociation.get()
-                    .nonnullAssociatedSubnet());
+                    .nonnullAssociatedSubnet().values());
             if (associatedSubnets != null && !associatedSubnets.isEmpty()) {
                 for (Iterator<AssociatedSubnet> iterator = associatedSubnets.iterator(); iterator.hasNext(); ) {
                     if (Objects.equals(iterator.next().getCidr(), cidr)) {
