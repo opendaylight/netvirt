@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.bgpmanager.oam;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager;
 import org.opendaylight.netvirt.bgpmanager.thrift.client.BgpRouterException;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.Neighbors;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.NeighborsKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,9 +40,9 @@ public class BgpAlarms implements Runnable, AutoCloseable {
         alarmAgent.registerMbean();
         Bgp bgp = bgpMgr.getConfig();
         if (bgp != null && bgp.getNeighborsContainer() != null) {
-            List<Neighbors> nbrs = bgp.getNeighborsContainer().getNeighbors();
-            if (nbrs != null) {
-                for (Neighbors nbr : nbrs) {
+            Map<NeighborsKey, Neighbors> keyNeighborsMap = bgp.getNeighborsContainer().getNeighbors();
+            if (keyNeighborsMap != null) {
+                for (Neighbors nbr : keyNeighborsMap.values()) {
                     LOG.trace("Clearing Neighbor DOWN alarm at the startup for Neighbor {}",
                             nbr.getAddress().getValue());
                     clearBgpNbrDownAlarm(nbr.getAddress().getValue());
@@ -66,7 +68,7 @@ public class BgpAlarms implements Runnable, AutoCloseable {
             bgpMgr.getBgpCounters().fetchCmdOutputs(BgpCounters.BGP_VPNV4_SUMMARY_FILE,
                     "show ip bgp vpnv4 all summary");
             if (bgpMgr.getConfig() != null) {
-                nbrList = bgpMgr.getConfig().getNeighborsContainer().getNeighbors();
+                nbrList = new ArrayList<Neighbors>(bgpMgr.getConfig().getNeighborsContainer().getNeighbors().values());
             }
             BgpCounters.parseIpBgpVpnv4AllSummary(neighborStatusMap);
 

@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -20,7 +19,9 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
@@ -68,6 +69,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.interfaces.VpnInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.interfaces.vpn._interface.VpnInstanceNames;
@@ -229,7 +231,7 @@ public class EvpnDnatFlowProgrammer {
                         LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier);
         if (optionalVpnInterface.isPresent()) {
             ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
-                for (VpnInstanceNames vpnInstance : optionalVpnInterface.get().nonnullVpnInstanceNames()) {
+                for (VpnInstanceNames vpnInstance : optionalVpnInterface.get().nonnullVpnInstanceNames().values()) {
                     if (!vpnName.equals(vpnInstance.getVpnName())) {
                         continue;
                     }
@@ -238,10 +240,11 @@ public class EvpnDnatFlowProgrammer {
                     VpnInterfaceOpDataEntryBuilder vpnIfOpDataEntryBuilder = new VpnInterfaceOpDataEntryBuilder();
                     vpnIfOpDataEntryBuilder.withKey(new VpnInterfaceOpDataEntryKey(interfaceName, vpnName));
 
-                    List<Adjacency> adjacencyList =
-                        adjs != null && adjs.getAdjacency() != null ? adjs.getAdjacency() : new ArrayList<>();
+                    Map<AdjacencyKey, Adjacency> keyAdjacencyMap =
+                        adjs != null && adjs.getAdjacency() != null ? adjs.getAdjacency()
+                                : new HashMap<AdjacencyKey, Adjacency>();
                     List<Adjacency> adjacencyListToImport = new ArrayList<>();
-                    for (Adjacency adj : adjacencyList) {
+                    for (Adjacency adj : keyAdjacencyMap.values()) {
                         Subnetmap sn = VpnHelper.getSubnetmapFromItsUuid(dataBroker, adj.getSubnetId());
                         if (!VpnHelper.isSubnetPartOfVpn(sn, vpnName)) {
                             continue;
@@ -256,7 +259,7 @@ public class EvpnDnatFlowProgrammer {
                             floatingIpInterface);
                     InstanceIdentifier<VpnInterfaceOpDataEntry> vpnIfIdentifierOpDataEntry =
                             NatUtil.getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);
-                    tx.put(vpnIfIdentifierOpDataEntry, vpnIfOpDataEntryBuilder.build(), CREATE_MISSING_PARENTS);
+                    tx.mergeParentStructurePut(vpnIfIdentifierOpDataEntry, vpnIfOpDataEntryBuilder.build());
                     break;
                 }
             }), LOG, "onAddFloatingIp : Could not write Interface {}, vpnName {}", interfaceName, vpnName);
@@ -348,7 +351,7 @@ public class EvpnDnatFlowProgrammer {
                         LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier);
         if (optionalVpnInterface.isPresent()) {
             ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
-                for (VpnInstanceNames vpnInstance : optionalVpnInterface.get().nonnullVpnInstanceNames()) {
+                for (VpnInstanceNames vpnInstance : optionalVpnInterface.get().nonnullVpnInstanceNames().values()) {
                     if (!vpnName.equals(vpnInstance.getVpnName())) {
                         continue;
                     }

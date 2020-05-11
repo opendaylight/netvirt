@@ -11,7 +11,9 @@ import static org.opendaylight.netvirt.neutronvpn.NeutronvpnUtils.buildfloatingI
 
 import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -147,7 +149,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AbstractAsync
             }
             if (fixedNeutronPortName != null) {
                 List<Ports> portsList = routerPortsBuilder.getPorts() != null
-                        ? new ArrayList<>(routerPortsBuilder.getPorts()) : new ArrayList<>();
+                        ? new ArrayList<Ports>(routerPortsBuilder.getPorts().values()) : new ArrayList<Ports>();
                 PortsBuilder fixedNeutronPortBuilder = null;
                 for (Ports neutronPort : portsList) {
                     if (neutronPort.getPortName().equals(fixedNeutronPortName)) {
@@ -160,8 +162,9 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AbstractAsync
                             .setPortName(fixedNeutronPortName);
                 }
                 if (fixedIpAddress != null) {
-                    List<InternalToExternalPortMap> intExtPortMapList = fixedNeutronPortBuilder
-                            .getInternalToExternalPortMap();
+                    List<InternalToExternalPortMap> intExtPortMapList
+                            = new ArrayList<InternalToExternalPortMap>(fixedNeutronPortBuilder
+                            .getInternalToExternalPortMap().values());
                     if (intExtPortMapList == null) {
                         intExtPortMapList = new ArrayList<>();
                     }
@@ -203,19 +206,20 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AbstractAsync
                             routerPortsIdentifierBuilder.build());
             if (optionalRouterPorts.isPresent()) {
                 RouterPorts routerPorts = optionalRouterPorts.get();
-                List<Ports> portsList = routerPorts.nonnullPorts();
-                List<InternalToExternalPortMap> intExtPortMap = new ArrayList<>();
-                for (Ports ports : portsList) {
+                Map<PortsKey, Ports> keyPortsMap = routerPorts.nonnullPorts();
+                Map<InternalToExternalPortMapKey, InternalToExternalPortMap> keyInternalToExternalPortMapMap
+                        = new HashMap<InternalToExternalPortMapKey, InternalToExternalPortMap>();
+                for (Ports ports : keyPortsMap.values()) {
                     if (Objects.equals(ports.getPortName(), fixedNeutronPortName)) {
-                        intExtPortMap = ports.nonnullInternalToExternalPortMap();
+                        keyInternalToExternalPortMapMap = ports.nonnullInternalToExternalPortMap();
                         break;
                     }
                 }
-                if (intExtPortMap.size() == 1) {
-                    removeRouterPortsOrPortsNode(routerName, routerPortsIdentifierBuilder, portsList,
-                            fixedNeutronPortName);
+                if (keyInternalToExternalPortMapMap.size() == 1) {
+                    removeRouterPortsOrPortsNode(routerName, routerPortsIdentifierBuilder,
+                            new ArrayList<Ports>(keyPortsMap.values()), fixedNeutronPortName);
                 } else {
-                    for (InternalToExternalPortMap intToExtMap : intExtPortMap) {
+                    for (InternalToExternalPortMap intToExtMap : keyInternalToExternalPortMapMap.values()) {
                         if (Objects.equals(intToExtMap.getInternalIp(), fixedIpAddress)) {
                             InstanceIdentifier<InternalToExternalPortMap> intExtPortMapIdentifier =
                                     routerPortsIdentifierBuilder.child(Ports
@@ -228,13 +232,14 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AbstractAsync
                                 }
 
                                 // remove particular internal-to-external-port-map
-                                LOG.debug("removing particular internal-to-external-port-map {}", intExtPortMap);
+                                LOG.debug("removing particular internal-to-external-port-map {}",
+                                        keyInternalToExternalPortMapMap);
                                 try {
                                     MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
                                         intExtPortMapIdentifier);
                                 } catch (Exception e) {
-                                    LOG.error("Failure in deletion of internal-to-external-port-map {}", intExtPortMap,
-                                        e);
+                                    LOG.error("Failure in deletion of internal-to-external-port-map {}",
+                                            keyInternalToExternalPortMapMap, e);
                                 }
                             }
                         }
@@ -258,19 +263,19 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AbstractAsync
                     SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
                             floatingIpInfoIdentifierBuilder.build());
             if (optionalFloatingIPInfo.isPresent()) {
-                List<RouterPorts> routerPortsList = optionalFloatingIPInfo.get().getRouterPorts();
-                if (routerPortsList != null && !routerPortsList.isEmpty()) {
-                    for (RouterPorts routerPorts : routerPortsList) {
-                        List<Ports> portsList = routerPorts.getPorts();
-                        if (portsList != null && !portsList.isEmpty()) {
-                            for (Ports ports : portsList) {
+                Map<RouterPortsKey, RouterPorts> keyRouterPortsMap = optionalFloatingIPInfo.get().getRouterPorts();
+                if (keyRouterPortsMap != null && !keyRouterPortsMap.isEmpty()) {
+                    for (RouterPorts routerPorts : keyRouterPortsMap.values()) {
+                        Map<PortsKey, Ports> keyPortsMap = routerPorts.getPorts();
+                        if (keyPortsMap != null && !keyPortsMap.isEmpty()) {
+                            for (Ports ports : keyPortsMap.values()) {
                                 if (Objects.equals(ports.getPortName(), fixedNeutronPortName)) {
                                     String routerName = routerPorts.getRouterId();
                                     InstanceIdentifier.InstanceIdentifierBuilder<RouterPorts>
                                         routerPortsIdentifierBuilder = floatingIpInfoIdentifierBuilder
                                         .child(RouterPorts.class, new RouterPortsKey(routerName));
-                                    removeRouterPortsOrPortsNode(routerName, routerPortsIdentifierBuilder, portsList,
-                                            fixedNeutronPortName);
+                                    removeRouterPortsOrPortsNode(routerName, routerPortsIdentifierBuilder,
+                                            new ArrayList<Ports>(keyPortsMap.values()), fixedNeutronPortName);
                                     LOG.debug("Deletion from FloatingIpInfo DS successful for fixedIP neutron port {} ",
                                             fixedNeutronPortName);
                                     break;

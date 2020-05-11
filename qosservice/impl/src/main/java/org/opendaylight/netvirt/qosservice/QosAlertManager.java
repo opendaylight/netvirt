@@ -9,7 +9,6 @@
 package org.opendaylight.netvirt.qosservice;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import java.util.List;
 import java.util.Map.Entry;
@@ -281,8 +280,8 @@ public final class QosAlertManager implements Runnable {
                 .build();
 
         ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
-            tx -> tx.put(path, qosAlertConfig,
-                    CREATE_MISSING_PARENTS)), LOG, "Error writing to the config data store");
+            tx -> tx.mergeParentStructurePut(path,
+                    qosAlertConfig)), LOG, "Error writing to the config data store");
     }
 
     private void pollDirectStatisticsForAllNodes() {

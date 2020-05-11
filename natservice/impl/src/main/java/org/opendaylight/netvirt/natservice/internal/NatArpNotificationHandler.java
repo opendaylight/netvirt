@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -21,6 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.Ma
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntries;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntriesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.neutron.vip.states.VipState;
 import org.slf4j.Logger;
@@ -125,12 +126,12 @@ public class NatArpNotificationHandler implements OdlArputilListener {
             return false;
         }
 
-        List<StaticMacEntries> staticMacEntries = elanInterface.getStaticMacEntries();
-        if (null == staticMacEntries) {
+        Map<StaticMacEntriesKey, StaticMacEntries> keyStaticMacEntriesMap = elanInterface.getStaticMacEntries();
+        if (null == keyStaticMacEntriesMap) {
             return false;
         }
 
-        for (StaticMacEntries staticMacEntry :  staticMacEntries) {
+        for (StaticMacEntries staticMacEntry :  keyStaticMacEntriesMap.values()) {
             if (Objects.equals(staticMacEntry.getIpPrefix(), ip)) {
                 return true;
             }

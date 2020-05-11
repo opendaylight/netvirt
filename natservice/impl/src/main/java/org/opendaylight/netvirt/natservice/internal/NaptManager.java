@@ -440,9 +440,10 @@ public class NaptManager {
     @NonNull
     public static List<IpMap> getIpMapList(DataBroker broker, Uint32 routerId) {
         InstanceIdentifier<IpMapping> id = getIpMapList(routerId);
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+        return new ArrayList<IpMap>(SingleTransactionDataBroker
+                .syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
                 LogicalDatastoreType.OPERATIONAL, id).map(IpMapping::getIpMap).orElse(
-                Collections.emptyList());
+                Collections.emptyMap()).values());
     }
 
     protected static InstanceIdentifier<IpMapping> getIpMapList(Uint32 routerId) {
@@ -511,7 +512,7 @@ public class NaptManager {
                     segmentId, internalIp, e);
         }
         if (ipMapping.isPresent()) {
-            for (IpMap ipMap : ipMapping.get().nonnullIpMap()) {
+            for (IpMap ipMap : ipMapping.get().nonnullIpMap().values()) {
                 if (Objects.equals(ipMap.getInternalIp(), internalIp)) {
                     LOG.debug("checkIpMap : IpMap : {}", ipMap);
                     externalIp = ipMap.getExternalIp();
@@ -670,7 +671,7 @@ public class NaptManager {
                     segmentId, e);
         }
         if (ipMapping.isPresent()) {
-            for (IpMap ipMap : ipMapping.get().nonnullIpMap()) {
+            for (IpMap ipMap : ipMapping.get().nonnullIpMap().values()) {
                 String externalIp = ipMap.getExternalIp();
                 LOG.debug("removeIpMappingForRouterID : externalIP is {}", externalIp);
                 if (externalIp != null) {
@@ -730,7 +731,7 @@ public class NaptManager {
         LOG.debug("initialiseExternalCounter : Initialise External IPs counter");
 
         //update the new counter value for this externalIp
-        for (ExternalIps externalIp : routers.nonnullExternalIps()) {
+        for (ExternalIps externalIp : routers.nonnullExternalIps().values()) {
             String[] ipSplit = externalIp.getIpAddress().split("/");
             String extIp = ipSplit[0];
             String extPrefix = Short.toString(NatConstants.DEFAULT_PREFIX);

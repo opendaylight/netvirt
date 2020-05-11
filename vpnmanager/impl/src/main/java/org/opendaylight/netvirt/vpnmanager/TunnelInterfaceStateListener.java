@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import static java.util.Collections.emptyList;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
@@ -72,6 +71,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.interfaces.vpn._interface.VpnInstanceNames;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -188,7 +188,7 @@ public class TunnelInterfaceStateListener extends AbstractAsyncDataTreeChangeLis
         }
         vpnInstanceOpData.stream()
                 .filter(opData -> opData.getVpnToDpnList() != null
-                        && opData.getVpnToDpnList().stream().anyMatch(
+                        && opData.getVpnToDpnList().values().stream().anyMatch(
                             vpnToDpn -> Objects.equals(vpnToDpn.getDpnId(), srcDpnId)))
                 .forEach(opData -> {
                     List<DestPrefixes> prefixes = VpnExtraRouteHelper.getExtraRouteDestPrefixes(dataBroker,
@@ -364,7 +364,8 @@ public class TunnelInterfaceStateListener extends AbstractAsyncDataTreeChangeLis
                      vpnUtil.getConfiguredVpnInterface(intfName);
                 if (vpnInterface != null) {
                     listVpnName.addAll(VpnHelper
-                        .getVpnInterfaceVpnInstanceNamesString(vpnInterface.getVpnInstanceNames()));
+                        .getVpnInterfaceVpnInstanceNamesString(
+                                new ArrayList<VpnInstanceNames>(vpnInterface.getVpnInstanceNames().values())));
                     handleTunnelEventForDPNVpn(stateTunnelList, vpnIdRdMap,
                             tunnelAction, isTepDeletedOnDpn,
                             subnetList, TunnelEventProcessingMethod.POPULATESUBNETS,
@@ -467,7 +468,7 @@ public class TunnelInterfaceStateListener extends AbstractAsyncDataTreeChangeLis
             return;
         }
         try {
-            for (VpnInstanceNames vpnInstance : cfgVpnInterface.getVpnInstanceNames()) {
+            for (VpnInstanceNames vpnInstance : cfgVpnInterface.getVpnInstanceNames().values()) {
                 String vpnName = vpnInstance.getVpnName();
                 if (method == TunnelEventProcessingMethod.POPULATESUBNETS) {
                     Optional<VpnInterfaceOpDataEntry> opVpnInterface = vpnUtil
@@ -508,9 +509,9 @@ public class TunnelInterfaceStateListener extends AbstractAsyncDataTreeChangeLis
                     if (opVpnInterface.isPresent()) {
                         VpnInterfaceOpDataEntry vpnInterface  = opVpnInterface.get();
                         AdjacenciesOp adjacencies = vpnInterface.augmentation(AdjacenciesOp.class);
-                        List<Adjacency> adjList =
+                        Map<AdjacencyKey, Adjacency> adjacencyKeyAdjacencyMap =
                             adjacencies != null && adjacencies.getAdjacency() != null ? adjacencies.getAdjacency()
-                                : emptyList();
+                                : Collections.<AdjacencyKey, Adjacency>emptyMap();
                         String prefix = null;
                         Uint32 vpnId = vpnUtil.getVpnId(vpnInterface.getVpnInstanceName());
                         if (vpnIdRdMap.containsKey(vpnId)) {
@@ -518,7 +519,7 @@ public class TunnelInterfaceStateListener extends AbstractAsyncDataTreeChangeLis
                             LOG.info("handleTunnelEventForDPN: Remote DpnId {} VpnId {} rd {} VpnInterface {}"
                                     + " srcTepIp {} destTepIp {}", remoteDpnId, vpnId, rd , vpnInterface, srcTepIp,
                                     destTepIp);
-                            for (Adjacency adj : adjList) {
+                            for (Adjacency adj : adjacencyKeyAdjacencyMap.values()) {
                                 prefix = adj.getIpAddress();
                                 Uint32 label = adj.getLabel();
                                 if (tunnelAction == TunnelAction.TUNNEL_EP_ADD
