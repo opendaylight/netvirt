@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.eclipse.jdt.annotation.Nullable;
@@ -27,7 +28,7 @@ public class TunnelIpCmd extends
     @Nullable
     public List<TunnelIps> getData(PhysicalSwitchAugmentation node) {
         if (node != null) {
-            return node.getTunnelIps();
+            return new ArrayList<>(node.getTunnelIps().values());
         }
         return null;
     }

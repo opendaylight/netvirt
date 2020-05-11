@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
@@ -466,7 +465,7 @@ public class InterVpnLinkListener extends AbstractAsyncDataTreeChangeListener<In
                 .setErrorDescription(errorMsg)
                 .build();
         ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx ->
-            tx.put(vpnLinkStateIid, vpnLinkErrorState, CREATE_MISSING_PARENTS)),
+            tx.mergeParentStructurePut(vpnLinkStateIid, vpnLinkErrorState)),
                 LOG, "Error storing the VPN link error state for {}, {}", vpnLinkStateIid, vpnLinkErrorState);
 
         // Sending out an error Notification

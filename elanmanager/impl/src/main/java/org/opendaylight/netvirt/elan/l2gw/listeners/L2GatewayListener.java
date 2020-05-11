@@ -117,7 +117,7 @@ public class L2GatewayListener extends AbstractClusteredAsyncDataTreeChangeListe
     public void add(final InstanceIdentifier<L2gateway> identifier, final L2gateway input) {
         LOG.info("Adding L2gateway with ID: {}", input.getUuid());
 
-        for (Devices l2Device : input.nonnullDevices()) {
+        for (Devices l2Device : input.nonnullDevices().values()) {
             LOG.trace("Adding L2gateway device: {}", l2Device);
             addL2Device(l2Device, input);
         }
@@ -137,7 +137,7 @@ public class L2GatewayListener extends AbstractClusteredAsyncDataTreeChangeListe
         }), new FutureCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
-                for (Devices l2Device : input.nonnullDevices()) {
+                for (Devices l2Device : input.nonnullDevices().values()) {
                     LOG.trace("Removing L2gateway device: {}", l2Device);
                     removeL2Device(l2Device, input);
                 }
@@ -168,7 +168,7 @@ public class L2GatewayListener extends AbstractClusteredAsyncDataTreeChangeListe
         jobCoordinator.enqueueJob("l2gw.update", () -> {
             ListenableFuture<Void> future = txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
                 DeviceInterfaces updatedDeviceInterfaces = new DeviceInterfaces(update);
-                original.getDevices()
+                original.getDevices().values()
                         .stream()
                         .filter((originalDevice) -> originalDevice.getInterfaces() != null)
                         .forEach((originalDevice) -> {
@@ -176,7 +176,7 @@ public class L2GatewayListener extends AbstractClusteredAsyncDataTreeChangeListe
                             L2GatewayDevice l2GwDevice = l2GatewayCache.get(deviceName);
                             NodeId physicalSwitchNodeId = HwvtepSouthboundUtils.createManagedNodeId(
                                     new NodeId(l2GwDevice.getHwvtepNodeId()), deviceName);
-                            originalDevice.getInterfaces()
+                            originalDevice.getInterfaces().values()
                                     .stream()
                                     .filter((intf) -> !updatedDeviceInterfaces.containsInterface(
                                             deviceName, intf.getInterfaceName()))
@@ -288,10 +288,10 @@ public class L2GatewayListener extends AbstractClusteredAsyncDataTreeChangeListe
 
         DeviceInterfaces(L2gateway l2gateway) {
             if (l2gateway.getDevices() != null) {
-                l2gateway.getDevices().forEach((device) -> {
+                l2gateway.getDevices().values().forEach((device) -> {
                     deviceInterfacesMap.putIfAbsent(device.getDeviceName(), new HashMap<>());
                     if (device.getInterfaces() != null) {
-                        device.getInterfaces().forEach((intf) ->
+                        device.getInterfaces().values().forEach((intf) ->
                                 deviceInterfacesMap.get(device.getDeviceName()).put(intf.getInterfaceName(), intf));
                     }
                 });

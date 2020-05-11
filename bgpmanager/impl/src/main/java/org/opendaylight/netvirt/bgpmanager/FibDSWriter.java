@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.bgpmanager;
 
 import com.google.common.base.Preconditions;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

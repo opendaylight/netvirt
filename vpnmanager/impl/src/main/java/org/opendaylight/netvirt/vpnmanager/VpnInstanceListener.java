@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -20,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -254,13 +254,13 @@ public class VpnInstanceListener extends AbstractAsyncDataTreeChangeListener<Vpn
         org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance
             vpnInstanceToVpnId = VpnUtil.getVpnInstanceToVpnId(vpnInstanceName, vpnId, primaryRd);
 
-        writeConfigTxn.put(VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnInstanceName),
-            vpnInstanceToVpnId, CREATE_MISSING_PARENTS);
+        writeConfigTxn.mergeParentStructurePut(VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnInstanceName),
+            vpnInstanceToVpnId);
 
         VpnIds vpnIdToVpnInstance = VpnUtil.getVpnIdToVpnInstance(vpnId, value.getVpnInstanceName(),
             primaryRd, VpnUtil.isBgpVpn(vpnInstanceName, primaryRd));
 
-        writeConfigTxn.put(VpnUtil.getVpnIdToVpnInstanceIdentifier(vpnId), vpnIdToVpnInstance, CREATE_MISSING_PARENTS);
+        writeConfigTxn.mergeParentStructurePut(VpnUtil.getVpnIdToVpnInstanceIdentifier(vpnId), vpnIdToVpnInstance);
 
         try {
             String cachedTransType = fibManager.getConfTransType();
@@ -296,9 +296,11 @@ public class VpnInstanceListener extends AbstractAsyncDataTreeChangeListener<Vpn
             }
             VpnTargets vpnTargets = value.getVpnTargets();
             if (vpnTargets != null) {
-                List<VpnTarget> vpnTargetList = vpnTargets.getVpnTarget();
-                if (vpnTargetList != null) {
-                    for (VpnTarget vpnTarget : vpnTargetList) {
+                @Nullable Map<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn
+                        .instances.vpn.instance.vpntargets.VpnTargetKey, VpnTarget> vpnTargetListMap
+                        = vpnTargets.getVpnTarget();
+                if (vpnTargetListMap != null) {
+                    for (VpnTarget vpnTarget : vpnTargetListMap.values()) {
                         VpnTargetBuilder vpnTargetBuilder =
                             new VpnTargetBuilder().withKey(new VpnTargetKey(vpnTarget.key().getVrfRTValue()))
                                 .setVrfRTType(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
@@ -317,7 +319,7 @@ public class VpnInstanceListener extends AbstractAsyncDataTreeChangeListener<Vpn
         } else {
             builder.setBgpvpnType(VpnInstanceOpDataEntry.BgpvpnType.VPN);
         }
-        writeOperTxn.merge(VpnUtil.getVpnInstanceOpDataIdentifier(primaryRd), builder.build(), CREATE_MISSING_PARENTS);
+        writeOperTxn.mergeParentStructureMerge(VpnUtil.getVpnInstanceOpDataIdentifier(primaryRd), builder.build());
         LOG.info("{} addVpnInstance: VpnInstanceOpData populated successfully for vpn {} rd {}", LOGGING_PREFIX_ADD,
                 vpnInstanceName, primaryRd);
     }
@@ -389,7 +391,9 @@ public class VpnInstanceListener extends AbstractAsyncDataTreeChangeListener<Vpn
         @SuppressWarnings("checkstyle:IllegalCatch")
         private boolean addBgpVrf() {
             String primaryRd = vpnUtil.getPrimaryRd(vpnName);
-            List<VpnTarget> vpnTargetList = vpnInstance.getVpnTargets().getVpnTarget();
+            @Nullable Map<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn
+                    .instances.vpn.instance.vpntargets.VpnTargetKey, VpnTarget> vpnTargetList
+                    = vpnInstance.getVpnTargets().getVpnTarget();
 
             if (vpnTargetList == null) {
                 log.error("{} addBgpVrf: vpn target list is empty for vpn {} RD {}", LOGGING_PREFIX_ADD,

@@ -12,7 +12,7 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -54,6 +54,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.I
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical._switch.attributes.TunnelIps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical._switch.attributes.TunnelIpsKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -81,7 +82,7 @@ public class HwvtepPhysicalSwitchListener
                         globalIid.firstKeyOf(Node.class).getNodeId().getValue());
 
     private static final Predicate<PhysicalSwitchAugmentation> TUNNEL_IP_AVAILABLE =
-        phySwitch -> !HwvtepHAUtil.isEmpty(phySwitch.getTunnelIps());
+        phySwitch -> !HwvtepHAUtil.isEmpty(phySwitch.getTunnelIps().values());
 
     private static final Predicate<PhysicalSwitchAugmentation> TUNNEL_IP_NOT_AVAILABLE = TUNNEL_IP_AVAILABLE.negate();
 
@@ -318,9 +319,9 @@ public class HwvtepPhysicalSwitchListener
             l2GwDevice.setConnected(true);
             l2GwDevice.setHwvtepNodeId(globalNodeId);
 
-            List<TunnelIps> tunnelIps = phySwitchAdded.getTunnelIps();
+            Map<TunnelIpsKey, TunnelIps> tunnelIps = phySwitchAdded.getTunnelIps();
             if (tunnelIps != null) {
-                for (TunnelIps tunnelIp : tunnelIps) {
+                for (TunnelIps tunnelIp : tunnelIps.values()) {
                     IpAddress tunnelIpAddr = tunnelIp.getTunnelIpsKey();
                     l2GwDevice.addTunnelIp(tunnelIpAddr);
                 }

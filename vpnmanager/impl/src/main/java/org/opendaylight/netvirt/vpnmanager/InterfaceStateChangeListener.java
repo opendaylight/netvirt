@@ -43,6 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.lea
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.interfaces.vpn._interface.VpnInstanceNames;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -135,7 +136,7 @@ public class InterfaceStateChangeListener extends AbstractAsyncDataTreeChangeLis
                                         final VpnInterface vpnIf = vpnUtil.getConfiguredVpnInterface(interfaceName);
                                         if (vpnIf != null) {
                                             for (VpnInstanceNames vpnInterfaceVpnInstance :
-                                                    vpnIf.nonnullVpnInstanceNames()) {
+                                                    vpnIf.nonnullVpnInstanceNames().values()) {
                                                 String vpnName = vpnInterfaceVpnInstance.getVpnName();
                                                 String primaryRd = vpnUtil.getPrimaryRd(vpnName);
                                                 if (!vpnInterfaceManager.isVpnInstanceReady(vpnName)) {
@@ -223,7 +224,7 @@ public class InterfaceStateChangeListener extends AbstractAsyncDataTreeChangeLis
                                             return;
                                         }
                                         for (VpnInstanceNames vpnInterfaceVpnInstance :
-                                                cfgVpnInterface.nonnullVpnInstanceNames()) {
+                                                cfgVpnInterface.nonnullVpnInstanceNames().values()) {
                                             String vpnName = vpnInterfaceVpnInstance.getVpnName();
                                             Optional<VpnInterfaceOpDataEntry> optVpnInterface =
                                                 vpnUtil.getVpnInterfaceOpDataEntry(ifName, vpnName);
@@ -308,7 +309,7 @@ public class InterfaceStateChangeListener extends AbstractAsyncDataTreeChangeLis
                                                 if (state.equals(IntfTransitionState.STATE_UP)
                                                         && vpnIf.getVpnInstanceNames() != null) {
                                                     for (VpnInstanceNames vpnInterfaceVpnInstance :
-                                                            vpnIf.getVpnInstanceNames()) {
+                                                            vpnIf.getVpnInstanceNames().values()) {
                                                         String vpnName = vpnInterfaceVpnInstance.getVpnName();
                                                         String primaryRd = vpnUtil.getPrimaryRd(vpnName);
                                                         Set<String> prefixes = new HashSet<>();
@@ -332,7 +333,7 @@ public class InterfaceStateChangeListener extends AbstractAsyncDataTreeChangeLis
                                                 } else if (state.equals(IntfTransitionState.STATE_DOWN)
                                                         && vpnIf.getVpnInstanceNames() != null) {
                                                     for (VpnInstanceNames vpnInterfaceVpnInstance :
-                                                            vpnIf.getVpnInstanceNames()) {
+                                                            vpnIf.getVpnInstanceNames().values()) {
                                                         String vpnName = vpnInterfaceVpnInstance.getVpnName();
                                                         LOG.info("VPN Interface update event - intfName {} "
                                                             + " onto vpnName {} running oper-driven DOWN",
@@ -376,9 +377,9 @@ public class InterfaceStateChangeListener extends AbstractAsyncDataTreeChangeLis
         String interfaceName = cfgVpnInterface.getName();
         Adjacencies adjacencies = cfgVpnInterface.augmentation(Adjacencies.class);
         if (adjacencies != null) {
-            List<Adjacency> adjacencyList = adjacencies.getAdjacency();
-            if (!adjacencyList.isEmpty()) {
-                for (Adjacency adj : adjacencyList) {
+            Map<AdjacencyKey, Adjacency> adjacencyMap = adjacencies.getAdjacency();
+            if (!adjacencyMap.isEmpty()) {
+                for (Adjacency adj : adjacencyMap.values()) {
                     if (adj.getAdjacencyType() != Adjacency.AdjacencyType.PrimaryAdjacency) {
                         String ipAddress = adj.getIpAddress();
                         String prefix = ipAddress.split("/")[0];
