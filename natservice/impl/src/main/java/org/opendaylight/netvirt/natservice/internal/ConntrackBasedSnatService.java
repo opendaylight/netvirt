@@ -97,7 +97,7 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
 
         String extGwMacAddress = NatUtil.getExtGwMacAddFromRouterName(confTx, routerName);
         addOutboundTblTrackEntry(confTx, dpnId, routerId, extGwMacAddress);
-        for (ExternalIps externalIp : routers.nonnullExternalIps()) {
+        for (ExternalIps externalIp : routers.nonnullExternalIps().values()) {
             if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
                 // In this class we handle only IPv4 use-cases.
                 continue;
@@ -140,7 +140,7 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
         removeSnatMissEntryForPrimrySwch(confTx, dpnId, routerId);
 
         removeOutboundTblTrackEntry(confTx, dpnId, routerId);
-        for (ExternalIps externalIp : routers.nonnullExternalIps()) {
+        for (ExternalIps externalIp : routers.nonnullExternalIps().values()) {
             if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
                 // In this class we handle only IPv4 use-cases.
                 continue;

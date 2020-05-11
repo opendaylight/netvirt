@@ -12,6 +12,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.List;
+import java.util.Map;
 import org.apache.felix.service.command.CommandSession;
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
@@ -23,13 +24,19 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.GracefulRestart;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Logging;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.multipathcontainer.Multipath;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.multipathcontainer.MultipathKey;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.Neighbors;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.NeighborsKey;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.neighbors.AddressFamilies;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.neighbors.AddressFamiliesKey;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.neighbors.EbgpMultihop;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighborscontainer.neighbors.UpdateSource;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.networkscontainer.Networks;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.networkscontainer.NetworksKey;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfmaxpathcontainer.VrfMaxpath;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfmaxpathcontainer.VrfMaxpathKey;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfscontainer.Vrfs;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfscontainer.VrfsKey;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfscontainer.vrfs.AddressFamiliesVrf;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 
@@ -175,11 +182,11 @@ public class Cache extends OsgiCommandSupport {
                         LLSTR, logging.getLevel());
             }
 
-            List<Neighbors> neighbors = (config.getNeighborsContainer() ==  null) ? null
+            Map<NeighborsKey, Neighbors> keyNeighborsMap = (config.getNeighborsContainer() ==  null) ? null
                     : config.getNeighborsContainer().getNeighbors();
-            if (neighbors != null) {
+            if (keyNeighborsMap != null) {
                 ps.printf("%nNeighbors%n");
-                for (Neighbors nbr : neighbors) {
+                for (Neighbors nbr : keyNeighborsMap.values()) {
                     ps.printf("\t%s%n\t\t%-16s  %d%n", nbr.getAddress().getValue(),
                             ASSTR, nbr.getRemoteAs());
                     EbgpMultihop en = nbr.getEbgpMultihop();
@@ -191,9 +198,9 @@ public class Cache extends OsgiCommandSupport {
                         ps.printf("\t\t%-16s  %s%n", USSTR, us.getSourceIp().getValue());
                     }
                     ps.printf("\t\t%-16s  IPv4-Labeled-VPN", AFSTR);
-                    List<AddressFamilies> afs = nbr.getAddressFamilies();
-                    if (afs != null) {
-                        for (AddressFamilies af : afs) {
+                    Map<AddressFamiliesKey, AddressFamilies> keyAddressFamiliesMap = nbr.getAddressFamilies();
+                    if (keyAddressFamiliesMap != null) {
+                        for (AddressFamilies af : keyAddressFamiliesMap.values()) {
                              // Should not print "unknown" in vpnv4 case
                             if (!(af.getSafi().intValue() == 5 && af.getAfi().intValue() == 1)) {
                                 if (af.getSafi().intValue() == 4 && af.getAfi().intValue() == 1) {
@@ -213,10 +220,11 @@ public class Cache extends OsgiCommandSupport {
             }
 
             if (listVrfs) {
-                List<Vrfs> vrfs = (config.getVrfsContainer() == null) ? null : config.getVrfsContainer().getVrfs();
-                if (vrfs != null) {
+                Map<VrfsKey, Vrfs> keyVrfsMap
+                        = (config.getVrfsContainer() == null) ? null : config.getVrfsContainer().getVrfs();
+                if (keyVrfsMap != null) {
                     ps.printf("%nVRFs%n");
-                    for (Vrfs vrf : vrfs) {
+                    for (Vrfs vrf : keyVrfsMap.values()) {
                         ps.printf("\t%s%n", vrf.getRd());
                         ps.printf("\t\t%s  ", IRSTR);
                         for (String rt : vrf.getImportRts()) {
@@ -226,7 +234,7 @@ public class Cache extends OsgiCommandSupport {
                         for (String rt : vrf.getExportRts()) {
                             ps.printf("%s ", rt);
                         }
-                        for (AddressFamiliesVrf adf : vrf.getAddressFamiliesVrf()) {
+                        for (AddressFamiliesVrf adf : vrf.getAddressFamiliesVrf().values()) {
                             ps.printf("%n\t\tafi %d safi %d", adf.getAfi(), adf.getSafi());
                         }
                         ps.printf("%n");
@@ -235,11 +243,11 @@ public class Cache extends OsgiCommandSupport {
             }
 
             if (listNets) {
-                List<Networks> ln = (config.getNetworksContainer() == null) ? null
+                Map<NetworksKey, Networks> keyNetworksMap = (config.getNetworksContainer() == null) ? null
                         : config.getNetworksContainer().getNetworks();
-                if (ln != null) {
+                if (keyNetworksMap != null) {
                     ps.printf("%nNetworks%n");
-                    for (Networks net : ln) {
+                    for (Networks net : keyNetworksMap.values()) {
                         String rd = net.getRd();
                         String pfxlen = net.getPrefixLen();
                         String nh = net.getNexthop().getValue();
@@ -250,13 +258,13 @@ public class Cache extends OsgiCommandSupport {
                 }
             }
 
-            List<Multipath> mp = config.getMultipathContainer() == null ? null
+            Map<MultipathKey, Multipath> keyMultipathMap = config.getMultipathContainer() == null ? null
                     : config.getMultipathContainer().getMultipath();
-            List<VrfMaxpath> vrfm = config.getVrfMaxpathContainer() == null ? null
+            Map<VrfMaxpathKey, VrfMaxpath> keyVrfMaxpathMap = config.getVrfMaxpathContainer() == null ? null
                     : config.getVrfMaxpathContainer().getVrfMaxpath();
-            if (mp != null) {
+            if (keyMultipathMap != null) {
                 ps.printf("%nMultipath%n");
-                for (Multipath multipath : mp) {
+                for (Multipath multipath : keyMultipathMap.values()) {
                     int afi = multipath.getAfi().intValue();
                     int safi = multipath.getSafi().intValue();
                     Boolean enabled = multipath.isMultipathEnabled();
@@ -270,9 +278,9 @@ public class Cache extends OsgiCommandSupport {
                         } else {
                             ps.printf("\t%-16s  %s%n%n", AFSTR, "Unknown");
                         }
-                        if (vrfm != null) {
+                        if (keyVrfMaxpathMap != null) {
                             ps.printf("\t%-16s  %s%n", RDSTR, MPSTR);
-                            for (VrfMaxpath vrfMaxpath : vrfm) {
+                            for (VrfMaxpath vrfMaxpath : keyVrfMaxpathMap.values()) {
                                 String rd = vrfMaxpath.getRd();
                                 int maxpath = vrfMaxpath.getMaxpaths().toJava();
                                 ps.printf("\t%-16s  %d%n", rd, maxpath);

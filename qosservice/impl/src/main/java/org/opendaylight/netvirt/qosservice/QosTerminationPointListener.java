@@ -186,12 +186,12 @@ public class QosTerminationPointListener extends
                     tpAugmentationBuilder.setIngressPolicingRate(bwRule.getMaxKbps().longValue());
                     tpAugmentationBuilder.setIngressPolicingBurst(bwRule.getMaxBurstKbps().longValue());
 
-                    tx.merge(InstanceIdentifier.create(NetworkTopology.class)
+                    tx.mergeParentStructureMerge(InstanceIdentifier.create(NetworkTopology.class)
                             .child(Topology.class, new TopologyKey(SouthboundUtils.OVSDB_TOPOLOGY_ID))
                             .child(Node.class, identifier.firstKeyOf(Node.class))
                             .child(TerminationPoint.class, identifier.firstKeyOf(TerminationPoint.class))
                             .augmentation(OvsdbTerminationPointAugmentation.class),
-                            tpAugmentationBuilder.build(), true);
+                            tpAugmentationBuilder.build());
 
                 })));
     }
@@ -199,7 +199,7 @@ public class QosTerminationPointListener extends
     @Nullable
     private String getIfaceId(OvsdbTerminationPointAugmentation tpAugmentation) {
         if (tpAugmentation.getInterfaceExternalIds() != null) {
-            for (InterfaceExternalIds entry: tpAugmentation.getInterfaceExternalIds()) {
+            for (InterfaceExternalIds entry: tpAugmentation.getInterfaceExternalIds().values()) {
                 if (EXTERNAL_ID_INTERFACE_ID.equals(entry.getExternalIdKey())) {
                     return entry.getExternalIdValue();
                 }

@@ -13,6 +13,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -45,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.util.rev1702
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.ExternalGatewayInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIpsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -126,8 +128,8 @@ public class NeutronSubnetGwMacResolver {
             return;
         }
 
-        List<FixedIps> fixedIps = extPort.getFixedIps();
-        if (fixedIps == null || fixedIps.isEmpty()) {
+        Map<FixedIpsKey, FixedIps> keyFixedIpsMap = extPort.getFixedIps();
+        if (keyFixedIpsMap == null || keyFixedIpsMap.isEmpty()) {
             LOG.trace("External GW port {} for router {} has no fixed IPs", extPort.getUuid().getValue(),
                     router.getUuid().getValue());
             return;
@@ -140,7 +142,7 @@ public class NeutronSubnetGwMacResolver {
             return;
         }
 
-        for (FixedIps fixIp : fixedIps) {
+        for (FixedIps fixIp : keyFixedIpsMap.values()) {
             Uuid subnetId = fixIp.getSubnetId();
             IpAddress srcIpAddress = fixIp.getIpAddress();
             IpAddress dstIpAddress = getExternalGwIpAddress(subnetId);
