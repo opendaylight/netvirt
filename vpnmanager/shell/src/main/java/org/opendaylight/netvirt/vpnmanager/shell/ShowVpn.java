@@ -70,7 +70,7 @@ public class ShowVpn extends OsgiCommandSupport {
             Set<String> vpnInstances = new HashSet<>();
             for (VpnInterface vpnInterface : vpnInterfaceConfigList) {
                 if (vpnInterface.getVpnInstanceNames() != null) {
-                    for (VpnInstanceNames vpnInterfaceVpnInstance : vpnInterface.getVpnInstanceNames()) {
+                    for (VpnInstanceNames vpnInterfaceVpnInstance : vpnInterface.getVpnInstanceNames().values()) {
                         String vpnName = vpnInterfaceVpnInstance.getVpnName();
                         if (vpnName != null) {
                             vpnInstances.add(vpnName);
@@ -127,7 +127,8 @@ public class ShowVpn extends OsgiCommandSupport {
             showVpn();
             session.getConsole().println("Present Config VpnInterfaces are:");
             for (VpnInterface vpnInterface : vpnInterfaceConfigList) {
-                if (VpnHelper.doesVpnInterfaceBelongToVpnInstance(detail, vpnInterface.getVpnInstanceNames())) {
+                if (VpnHelper.doesVpnInterfaceBelongToVpnInstance(detail,
+                        new ArrayList<VpnInstanceNames>(vpnInterface.getVpnInstanceNames().values()))) {
                     session.getConsole().println(vpnInterface.getName());
                 }
             }
@@ -160,7 +161,7 @@ public class ShowVpn extends OsgiCommandSupport {
             LOG.trace("No VPNInstances configured.");
             session.getConsole().println("No VPNInstances configured.");
         } else {
-            vpnInstanceList = optionalVpnInstances.get().getVpnInstance();
+            vpnInstanceList = new ArrayList<VpnInstance>(optionalVpnInstances.get().getVpnInstance().values());
         }
 
         Optional<VpnInterfaces> optionalVpnInterfacesConfig =
@@ -170,7 +171,8 @@ public class ShowVpn extends OsgiCommandSupport {
             LOG.trace("No Config VpnInterface is present");
             session.getConsole().println("No Config VpnInterface is present");
         } else {
-            vpnInterfaceConfigList = optionalVpnInterfacesConfig.get().getVpnInterface();
+            vpnInterfaceConfigList = new ArrayList<VpnInterface>(optionalVpnInterfacesConfig.get()
+                    .getVpnInterface().values());
         }
 
 
@@ -181,7 +183,8 @@ public class ShowVpn extends OsgiCommandSupport {
             LOG.trace("No Oper VpnInterface is present");
             session.getConsole().println("No Oper VpnInterface is present");
         } else {
-            vpnInterfaceOpList = optionalVpnInterfacesOper.get().getVpnInterfaceOpDataEntry();
+            vpnInterfaceOpList = new ArrayList<VpnInterfaceOpDataEntry>(optionalVpnInterfacesOper.get()
+                    .getVpnInterfaceOpDataEntry().values());
         }
     }
 

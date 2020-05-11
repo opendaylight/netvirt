@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import static java.util.Collections.emptyList;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
@@ -36,7 +35,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.net.util.SubnetUtils;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.sal.common.util.Arguments;
+//import org.opendaylight.controller.sal.common.util.Arguments;
 import org.opendaylight.genius.datastoreutils.ExpectedDataObjectNotFoundException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
@@ -179,6 +178,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddressesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalIpsCounter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
@@ -196,6 +196,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIpsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.ExternalCounters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.ExternalCountersKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.external.counters.ExternalIpCounter;
@@ -248,6 +249,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPortKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.router.interfaces.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.router.interfaces.InterfacesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
@@ -736,7 +739,9 @@ public final class NatUtil {
             LOG.error("getRouterIdfromVpnInstance : Router not found for vpn : {}", vpnName);
             return null;
         }
-        List<Uuid> routerIdsList = NeutronUtils.getVpnMapRouterIdsListUuid(optionalVpnMap.get().getRouterIds());
+        List<Uuid> routerIdsList = NeutronUtils.getVpnMapRouterIdsListUuid(
+                new ArrayList<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602
+                        .vpnmaps.vpnmap.RouterIds>(optionalVpnMap.get().getRouterIds().values()));
         if (routerIdsList != null && !routerIdsList.isEmpty()) {
             for (Uuid routerUuid : routerIdsList) {
                 InstanceIdentifier<Routers> id = buildRouterIdentifier(routerUuid.getValue());
@@ -767,11 +772,13 @@ public final class NatUtil {
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
                         LogicalDatastoreType.CONFIGURATION, vpnMapsIdentifier);
         if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().getVpnMap() != null) {
-            for (VpnMap vpnMap : optionalVpnMaps.get().nonnullVpnMap()) {
+            for (VpnMap vpnMap : optionalVpnMaps.get().nonnullVpnMap().values()) {
                 if (routerId.equals(vpnMap.getVpnId().getValue())) {
                     continue;
                 }
-                List<Uuid> routerIdsList = NeutronUtils.getVpnMapRouterIdsListUuid(vpnMap.getRouterIds());
+                List<Uuid> routerIdsList = NeutronUtils.getVpnMapRouterIdsListUuid(
+                        new ArrayList<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602
+                                .vpnmaps.vpnmap.RouterIds>(vpnMap.getRouterIds().values()));
                 if (routerIdsList.isEmpty()) {
                     continue;
                 }
@@ -1047,7 +1054,7 @@ public final class NatUtil {
         // Ensure there are no duplicates
         Collection<String> externalIps = new HashSet<>();
         if (ipMappingOptional.isPresent()) {
-            for (IpMap ipMap : ipMappingOptional.get().nonnullIpMap()) {
+            for (IpMap ipMap : ipMappingOptional.get().nonnullIpMap().values()) {
                 externalIps.add(ipMap.getExternalIp());
             }
         }
@@ -1058,7 +1065,8 @@ public final class NatUtil {
     public static List<String> getExternalIpsForRouter(DataBroker dataBroker, String routerName) {
         Routers routerData = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
         if (routerData != null) {
-            return NatUtil.getIpsListFromExternalIps(routerData.getExternalIps());
+            return NatUtil.getIpsListFromExternalIps(
+                    new ArrayList<ExternalIps>(routerData.getExternalIps().values()));
         }
 
         return emptyList();
@@ -1072,7 +1080,7 @@ public final class NatUtil {
                         LogicalDatastoreType.OPERATIONAL, getIpMappingBuilder(routerId));
         Map<String, Uint32> externalIpsLabel = new HashMap<>();
         if (ipMappingOptional.isPresent()) {
-            for (IpMap ipMap : ipMappingOptional.get().nonnullIpMap()) {
+            for (IpMap ipMap : ipMappingOptional.get().nonnullIpMap().values()) {
                 externalIpsLabel.put(ipMap.getExternalIp(), ipMap.getLabel());
             }
         }
@@ -1097,7 +1105,7 @@ public final class NatUtil {
         if (externalCountersData.isPresent()) {
             ExternalCounters externalCounter = externalCountersData.get();
             short countOfLstLoadExtIp = 32767;
-            for (ExternalIpCounter externalIpCounter : externalCounter.nonnullExternalIpCounter()) {
+            for (ExternalIpCounter externalIpCounter : externalCounter.nonnullExternalIpCounter().values()) {
                 String curExternalIp = externalIpCounter.getExternalIp();
                 short countOfCurExtIp = externalIpCounter.getCounter().toJava();
                 if (countOfCurExtIp < countOfLstLoadExtIp) {
@@ -1160,7 +1168,8 @@ public final class NatUtil {
                         LogicalDatastoreType.OPERATIONAL, id);
         List<Uint64> dpns = new ArrayList<>();
         if (routerDpnListData.isPresent()) {
-            for (DpnVpninterfacesList dpnVpnInterface : routerDpnListData.get().nonnullDpnVpninterfacesList()) {
+            for (DpnVpninterfacesList dpnVpnInterface
+                    : routerDpnListData.get().nonnullDpnVpninterfacesList().values()) {
                 dpns.add(dpnVpnInterface.getDpnId());
             }
         }
@@ -1213,10 +1222,10 @@ public final class NatUtil {
         if (optionalDpnVpninterfacesList.isPresent()) {
             LOG.debug("addToNeutronRouterDpnsMap : RouterDpnList already present for the Router {} and DPN {} for the "
                     + "Interface {} in the ODL-L3VPN : NeutronRouterDpn map", routerName, dpId, interfaceName);
-            operTx.merge(dpnVpnInterfacesListIdentifier
+            operTx.mergeParentStructureMerge(dpnVpnInterfacesListIdentifier
                     .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router
                             .dpns.router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces.class,
-                            new RouterInterfacesKey(interfaceName)), routerInterface, CREATE_MISSING_PARENTS);
+                            new RouterInterfacesKey(interfaceName)), routerInterface);
         } else {
             LOG.debug("addToNeutronRouterDpnsMap : Building new RouterDpnList for the Router {} and DPN {} for the "
                     + "Interface {} in the ODL-L3VPN : NeutronRouterDpn map", routerName, dpId, interfaceName);
@@ -1228,7 +1237,7 @@ public final class NatUtil {
             routerInterfaces.add(routerInterface);
             dpnVpnList.setRouterInterfaces(routerInterfaces);
             routerDpnListBuilder.setDpnVpninterfacesList(Collections.singletonList(dpnVpnList.build()));
-            operTx.merge(getRouterId(routerName), routerDpnListBuilder.build(), CREATE_MISSING_PARENTS);
+            operTx.mergeParentStructureMerge(getRouterId(routerName), routerDpnListBuilder.build());
         }
     }
 
@@ -1249,12 +1258,12 @@ public final class NatUtil {
         if (optionalDpnRoutersList.isPresent()) {
             RoutersList routersList = new RoutersListBuilder().withKey(new RoutersListKey(routerName))
                     .setRouter(routerName).build();
-            List<RoutersList> routersListFromDs = optionalDpnRoutersList.get().nonnullRoutersList();
-            if (!routersListFromDs.contains(routersList)) {
+            Map<RoutersListKey, RoutersList> keyroutersMapFromDs = optionalDpnRoutersList.get().nonnullRoutersList();
+            if (!keyroutersMapFromDs.values().contains(routersList)) {
                 LOG.debug("addToDpnRoutersMap : Router {} not present for the DPN {}"
                         + " in the ODL-L3VPN : DPNRouters map", routerName, dpId);
-                operTx.merge(dpnRoutersListIdentifier
-                        .child(RoutersList.class, new RoutersListKey(routerName)), routersList, CREATE_MISSING_PARENTS);
+                operTx.mergeParentStructureMerge(dpnRoutersListIdentifier
+                        .child(RoutersList.class, new RoutersListKey(routerName)), routersList);
             } else {
                 LOG.debug("addToDpnRoutersMap : Router {} already mapped to the DPN {} in the ODL-L3VPN : "
                         + "DPNRouters map", routerName, dpId);
@@ -1267,7 +1276,7 @@ public final class NatUtil {
             RoutersListBuilder routersListBuilder = new RoutersListBuilder();
             routersListBuilder.setRouter(routerName);
             dpnRoutersListBuilder.setRoutersList(Collections.singletonList(routersListBuilder.build()));
-            operTx.merge(getDpnRoutersId(dpId), dpnRoutersListBuilder.build(), CREATE_MISSING_PARENTS);
+            operTx.mergeParentStructureMerge(getDpnRoutersId(dpId), dpnRoutersListBuilder.build());
         }
     }
 
@@ -1303,7 +1312,7 @@ public final class NatUtil {
         if (optionalRouterDpnList.isPresent()) {
             List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns
                     .router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces> routerInterfaces =
-                    new ArrayList<>(optionalRouterDpnList.get().nonnullRouterInterfaces());
+                    new ArrayList<>(optionalRouterDpnList.get().nonnullRouterInterfaces().values());
             org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn
                     .list.dpn.vpninterfaces.list.RouterInterfaces routerInterface =
                     new RouterInterfacesBuilder().withKey(new RouterInterfacesKey(vpnInterfaceName))
@@ -1375,9 +1384,9 @@ public final class NatUtil {
         }
 
         //Get the VM interfaces for the router on the current DPN only.
-        List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces
-            .map.router.interfaces.Interfaces> vmInterfaces = routerInterfacesData.get().getInterfaces();
-        if (vmInterfaces == null) {
+        Map<InterfacesKey, Interfaces> vmInterfacesMap
+                = routerInterfacesData.get().getInterfaces();
+        if (vmInterfacesMap == null) {
             LOG.debug("removeFromDpnRoutersMap : VM interfaces are not present for the router {} in the "
                 + "NeutronVPN - router-interfaces-map", routerName);
             return;
@@ -1386,7 +1395,7 @@ public final class NatUtil {
         // If the removed VPN interface is the only interface through which the router is connected to the DPN,
         // then remove RouterList.
         for (org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map
-                 .router.interfaces.Interfaces vmInterface : vmInterfaces) {
+                 .router.interfaces.Interfaces vmInterface : vmInterfacesMap.values()) {
             String vmInterfaceName = vmInterface.getInterfaceId();
             Uint64 vmDpnId = getDpnForInterface(ifaceMgrRpcService, vmInterfaceName);
             if (vmDpnId.equals(Uint64.ZERO) || !vmDpnId.equals(curDpnId)) {
@@ -1533,7 +1542,7 @@ public final class NatUtil {
             return emptyList();
         }
 
-        return portsOptional.get().getPort();
+        return new ArrayList<Port>(portsOptional.get().getPort().values());
     }
 
     @Nullable
@@ -1543,7 +1552,7 @@ public final class NatUtil {
 
         for (Port port : ports) {
             if (deviceType.equals(port.getDeviceOwner()) && port.getFixedIps() != null) {
-                for (FixedIps ip : port.getFixedIps()) {
+                for (FixedIps ip : port.getFixedIps().values()) {
                     if (Objects.equals(ip.getIpAddress(), targetIP)) {
                         return port;
                     }
@@ -1560,7 +1569,7 @@ public final class NatUtil {
             LOG.error("getSubnetIdForFloatingIp : port is null");
             return null;
         }
-        for (FixedIps ip : port.nonnullFixedIps()) {
+        for (FixedIps ip : port.nonnullFixedIps().values()) {
             if (Objects.equals(ip.getIpAddress(), targetIP)) {
                 return ip.getSubnetId();
             }
@@ -1832,9 +1841,10 @@ public final class NatUtil {
     @NonNull
     public static List<Ports> getFloatingIpPortsForRouter(DataBroker broker, Uuid routerUuid) {
         InstanceIdentifier<RouterPorts> routerPortsIdentifier = getRouterPortsId(routerUuid.getValue());
-        List<Ports> portsList = SingleTransactionDataBroker
+        List<Ports> portsList = new ArrayList<Ports>(SingleTransactionDataBroker
                 .syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker, LogicalDatastoreType.CONFIGURATION,
-                routerPortsIdentifier).map(RouterPorts::getPorts).orElse(emptyList());
+                        routerPortsIdentifier).map(RouterPorts::getPorts).orElse(Collections.emptyMap()).values());
+
         if (!portsList.isEmpty()) {
             portsList = new ArrayList<>(portsList);
         }
@@ -1848,7 +1858,7 @@ public final class NatUtil {
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
                         LogicalDatastoreType.CONFIGURATION, externalNwIdentifier);
         if (externalNwData.isPresent()) {
-            for (Networks externalNw : externalNwData.get().nonnullNetworks()) {
+            for (Networks externalNw : externalNwData.get().nonnullNetworks().values()) {
                 if (externalNw.getVpnid() != null && externalNw.getVpnid().equals(vpnUuid)) {
                     @Nullable List<Uuid> routerIds = externalNw.getRouterIds();
                     return routerIds != null ? new ArrayList<>(routerIds) : emptyList();
@@ -1892,7 +1902,8 @@ public final class NatUtil {
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                         LogicalDatastoreType.CONFIGURATION, id);
         if (routerData.isPresent()) {
-            return NatUtil.getExternalSubnetIdsFromExternalIps(routerData.get().getExternalIps());
+            return NatUtil.getExternalSubnetIdsFromExternalIps(
+                    new ArrayList<ExternalIps>(routerData.get().getExternalIps().values()));
         } else {
             LOG.warn("getExternalSubnetIdsForRouter : No external router data for router {}", routerName);
             return Collections.emptySet();
@@ -1972,7 +1983,7 @@ public final class NatUtil {
     @Nullable
     protected static Uuid getExternalSubnetForRouterExternalIp(String externalIpAddress, Routers router) {
         externalIpAddress = validateAndAddNetworkMask(externalIpAddress);
-        for (ExternalIps extIp : router.nonnullExternalIps()) {
+        for (ExternalIps extIp : router.nonnullExternalIps().values()) {
             String extIpString = validateAndAddNetworkMask(extIp.getIpAddress());
             if (extIpString.equals(externalIpAddress)) {
                 return extIp.getSubnetId();
@@ -2086,10 +2097,10 @@ public final class NatUtil {
             LOG.debug("isFloatingIpPresentForDpn : vpn-to-dpn-list is not empty for vpnName {}, dpn id {}, "
                     + "rd {} and floatingIp {}", vpnName, dpnId, rd, externalIp);
             try {
-                List<IpAddresses> ipAddressList = dpnInVpn.get().getIpAddresses();
-                if (ipAddressList != null && !ipAddressList.isEmpty()) {
+                Map<IpAddressesKey, IpAddresses> keyIpAddressesMap = dpnInVpn.get().getIpAddresses();
+                if (keyIpAddressesMap != null && !keyIpAddressesMap.isEmpty()) {
                     int floatingIpPresentCount = 0;
-                    for (IpAddresses ipAddress: ipAddressList) {
+                    for (IpAddresses ipAddress: keyIpAddressesMap.values()) {
                         if (!Objects.equals(ipAddress.getIpAddress(), externalIp)
                                 && IpAddresses.IpAddressSource.FloatingIP.equals(ipAddress.getIpAddressSource())) {
                             floatingIpPresentCount++;
@@ -2216,17 +2227,17 @@ public final class NatUtil {
     public static void installRouterGwFlows(ManagedNewTransactionRunner txRunner, IVpnManager vpnManager,
             Routers router, Uint64 primarySwitchId, int addOrRemove) {
         ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
-            List<ExternalIps> externalIps = router.getExternalIps();
+            Map<ExternalIpsKey, ExternalIps> keyExternalIpsMap = router.getExternalIps();
             List<String> externalIpsSting = new ArrayList<>();
 
-            if (externalIps == null || externalIps.isEmpty()) {
+            if (keyExternalIpsMap == null || keyExternalIpsMap.isEmpty()) {
                 LOG.error("installRouterGwFlows: setupRouterGwFlows no externalIP present");
                 return;
             }
-            for (ExternalIps externalIp : externalIps) {
+            for (ExternalIps externalIp : keyExternalIpsMap.values()) {
                 externalIpsSting.add(externalIp.getIpAddress());
             }
-            Uuid subnetVpnName = externalIps.get(0).getSubnetId();
+            Uuid subnetVpnName = keyExternalIpsMap.get(0).getSubnetId();
             if (addOrRemove == NwConstants.ADD_FLOW) {
                 vpnManager.addRouterGwMacFlow(router.getRouterName(), router.getExtGwMacAddress(), primarySwitchId,
                         router.getNetworkId(), subnetVpnName.getValue(), tx);
@@ -2676,7 +2687,7 @@ public final class NatUtil {
         }
 
         if (ovsdbNode != null && ovsdbNode.getOpenvswitchOtherConfigs() != null) {
-            for (OpenvswitchOtherConfigs openvswitchOtherConfigs : ovsdbNode.getOpenvswitchOtherConfigs()) {
+            for (OpenvswitchOtherConfigs openvswitchOtherConfigs : ovsdbNode.getOpenvswitchOtherConfigs().values()) {
                 if (Objects.equals(openvswitchOtherConfigs.getOtherConfigKey(), key)) {
                     return openvswitchOtherConfigs.getOtherConfigValue();
                 }

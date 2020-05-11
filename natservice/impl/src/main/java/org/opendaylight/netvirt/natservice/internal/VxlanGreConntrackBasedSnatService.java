@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.natservice.internal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.infra.Datastore.Configuration;
@@ -52,6 +53,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.Group
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIpsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.types.rev160517.IpPrefixOrAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.action.rev140421.NxActionNatFlags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.action.rev140421.NxActionNatRangePresent;
@@ -201,21 +203,23 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         Uint32 extNetVpnId = NatUtil.getVpnId(dataBroker, vpnUuid.getValue());
         LOG.info("installSnatSpecificEntriesForNaptSwitch: external network vpn_id {} for router {}",
             extNetVpnId, routers.getRouterName());
-        List<ExternalIps> externalIps = routers.getExternalIps();
+        Map<ExternalIpsKey, ExternalIps> keyExternalIpsMap = routers.getExternalIps();
         addOutboundTblTrackEntryForVxlanGre(confTx, dpnId, routerId, extNetVpnId);
-        addOutboundTblEntryForVxlanGre(confTx, dpnId, routerId, extNetVpnId, externalIps, elanId);
+        addOutboundTblEntryForVxlanGre(confTx, dpnId, routerId, extNetVpnId,
+                new ArrayList<ExternalIps>(keyExternalIpsMap.values()), elanId);
         addNaptPfibFlowForVxlanGre(confTx, routers, dpnId, extNetVpnId);
         addNaptPfibEntry(confTx, dpnId, routerId);
 
         //Install Inbound NAT entries
-        addInboundEntryForVxlanGre(confTx, dpnId, routerId, extNetVpnId, externalIps, elanId);
-        if (externalIps.isEmpty()) {
+        addInboundEntryForVxlanGre(confTx, dpnId, routerId, extNetVpnId,
+                new ArrayList<ExternalIps>(keyExternalIpsMap.values()), elanId);
+        if (keyExternalIpsMap.isEmpty()) {
             LOG.error("installSnatSpecificEntriesForNaptSwitch: No externalIP present for router {}",
                 routerName);
             return;
         }
         //The logic now handle only one external IP per router, others if present will be ignored.
-        String externalIp = NatUtil.validateAndAddNetworkMask(externalIps.get(0).getIpAddress());
+        String externalIp = NatUtil.validateAndAddNetworkMask(keyExternalIpsMap.get(0).getIpAddress());
         externalRouterListener.handleSnatReverseTraffic(confTx, dpnId, routers, routerId, routerName, externalIp);
     }
 
@@ -241,21 +245,22 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         Uint32 extNetVpnId = NatUtil.getVpnId(dataBroker, vpnUuid.getValue());
         LOG.info("installSnatSpecificEntriesForNaptSwitch: external network vpn_id {} for router {}",
             extNetVpnId, routers.getRouterName());
-        List<ExternalIps> externalIps = routers.getExternalIps();
+        Map<ExternalIpsKey, ExternalIps> keyExternalIpsMap = routers.getExternalIps();
         removeOutboundTblTrackEntryForVxlanGre(confTx, dpnId, routerId);
-        removeOutboundTblEntryForVxlanGre(confTx, dpnId, routerId, externalIps);
+        removeOutboundTblEntryForVxlanGre(confTx, dpnId, routerId,
+                new ArrayList<ExternalIps>(keyExternalIpsMap.values()));
         removeNaptPfibFlowForVxlanGre(confTx, routers, dpnId, extNetVpnId);
         removeNaptPfibEntry(confTx, dpnId, routerId);
 
         //Install Inbound NAT entries
-        removeInboundEntryForVxlanGre(confTx, dpnId, routerId, externalIps);
-        if (externalIps.isEmpty()) {
+        removeInboundEntryForVxlanGre(confTx, dpnId, routerId, new ArrayList<ExternalIps>(keyExternalIpsMap.values()));
+        if (keyExternalIpsMap.isEmpty()) {
             LOG.error("installSnatSpecificEntriesForNaptSwitch: No externalIP present for router {}",
                 routerName);
             return;
         }
         //The logic now handle only one external IP per router, others if present will be ignored.
-        String externalIp = NatUtil.validateAndAddNetworkMask(externalIps.get(0).getIpAddress());
+        String externalIp = NatUtil.validateAndAddNetworkMask(keyExternalIpsMap.get(0).getIpAddress());
         externalRouterListener.clearFibTsAndReverseTraffic(dpnId, routerId, routers.getNetworkId(),
             Collections.singletonList(externalIp), null, routers.getExtGwMacAddress(), confTx);
     }

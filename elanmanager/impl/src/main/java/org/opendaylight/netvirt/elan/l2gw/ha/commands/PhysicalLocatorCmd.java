@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.eclipse.jdt.annotation.Nullable;
@@ -26,7 +27,7 @@ public class PhysicalLocatorCmd extends MergeCommand<TerminationPoint, NodeBuild
     @Nullable
     public List<TerminationPoint> getData(Node node) {
         if (node != null) {
-            return node.getTerminationPoint();
+            return new ArrayList<>(node.getTerminationPoint().values());
         }
         return null;
     }
