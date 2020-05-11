@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.nodehandlertest;
 
-import static org.opendaylight.mdsal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -81,7 +80,7 @@ public class NodeConnectedHandlerUtils {
         nodeBuilder.setTerminationPoint(PhysicalSwitchHelper
                 .addPhysicalSwitchTerminationPoints(path, portNameList));
 
-        tx.put(path, nodeBuilder.build(), CREATE_MISSING_PARENTS);
+        tx.mergeParentStructurePut(path, nodeBuilder.build());
     }
 
     private static NodeBuilder prepareOperationalNode(InstanceIdentifier<Node> iid) {

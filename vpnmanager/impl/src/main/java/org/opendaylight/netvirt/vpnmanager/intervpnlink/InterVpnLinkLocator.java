@@ -11,6 +11,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -27,6 +28,7 @@ import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnTargets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTarget;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTargetKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
 import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
@@ -161,12 +163,12 @@ public class InterVpnLinkLocator {
             LOG.trace("vpn targets not available for {}", name);
             return new ArrayList<>();
         }
-        List<VpnTarget> vpnTargets = targets.getVpnTarget();
+        Map<VpnTargetKey, VpnTarget> vpnTargets = targets.getVpnTarget();
         if (vpnTargets == null) {
             LOG.trace("vpnTarget values not available for {}", name);
             return new ArrayList<>();
         }
-        return vpnTargets.stream()
+        return vpnTargets.values().stream()
             .filter(target -> Objects.equals(target.getVrfRTType(), rtType)
                 || Objects.equals(target.getVrfRTType(), VpnTarget.VrfRTType.Both))
             .map(VpnTarget::getVrfRTValue)

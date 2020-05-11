@@ -10,7 +10,9 @@ package org.opendaylight.netvirt.vpnmanager;
 import com.google.common.primitives.Ints;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
@@ -53,7 +55,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.sub
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIpsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.interfaces.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.interfaces.vpn._interface.VpnInstanceNames;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
@@ -279,13 +283,14 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             return;
         }
         if (VpnHelper.doesVpnInterfaceBelongToVpnInstance(vpnIdVpnInstanceName,
-               vmVpnInterface.getVpnInstanceNames())
+               new ArrayList<VpnInstanceNames>(vmVpnInterface.getVpnInstanceNames().values()))
                && !vpnUtil.isBgpVpnInternet(vpnIdVpnInstanceName)) {
             LOG.trace("Unknown IP is in internal network");
             handlePacketToInternalNetwork(dstIp, dstIpStr, elanTag, srcIpStr);
         } else {
             LOG.trace("Unknown IP is in external network");
-            String vpnName = vpnUtil.getInternetVpnFromVpnInstanceList(vmVpnInterface.getVpnInstanceNames());
+            String vpnName = vpnUtil.getInternetVpnFromVpnInstanceList(
+                    new ArrayList<VpnInstanceNames>(vmVpnInterface.getVpnInstanceNames().values()));
             if (vpnName != null) {
                 handlePacketToExternalNetwork(new Uuid(vpnIdVpnInstanceName), vpnName, dstIp, dstIpStr, elanTag);
             } else {
@@ -398,8 +403,8 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             return;
         }
 
-        List<ExternalIps> externalIps = externalRouter.getExternalIps();
-        if (externalIps == null || externalIps.isEmpty()) {
+        Map<ExternalIpsKey, ExternalIps> externalIpsMap = externalRouter.getExternalIps();
+        if (externalIpsMap == null || externalIpsMap.isEmpty()) {
             Counter counter = packetInCounter.label(CounterUtility.subnet_route_packet_failed.toString())
                     .label("." + dstIpStr);
             counter.increment();
@@ -408,7 +413,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             return;
         }
 
-        java.util.Optional<ExternalIps> externalIp = externalRouter.getExternalIps().stream()
+        java.util.Optional<ExternalIps> externalIp = externalRouter.getExternalIps().values().stream()
                 .filter(eip -> vpnInstanceNameUuid.equals(eip.getSubnetId())).findFirst();
         if (!externalIp.isPresent()) {
             Counter counter = packetInCounter.label(CounterUtility.subnet_route_packet_failed.toString())

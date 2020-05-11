@@ -72,7 +72,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.IpPortMapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.ip.port.mapping.IntextIpProtocolType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.ip.port.mapping.IntextIpProtocolTypeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.ip.port.mapping.intext.ip.protocol.type.IpPortMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.ip.port.mapping.intext.ip.protocol.type.IpPortMapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.ip.port.mapping.intext.ip.protocol.type.ip.port.map.IpPortExternal;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchBuilder;
@@ -305,8 +307,9 @@ public class NaptSwitchHA {
             return;
         }
         Uint64 cookieSnatFlow = NatUtil.getCookieNaptFlow(routerId);
-        List<IntextIpProtocolType> intextIpProtocolTypes = ipPortMapping.getIntextIpProtocolType();
-        for (IntextIpProtocolType intextIpProtocolType : intextIpProtocolTypes) {
+        Map<IntextIpProtocolTypeKey, IntextIpProtocolType> keyIntextIpProtocolTypeMap
+                = ipPortMapping.getIntextIpProtocolType();
+        for (IntextIpProtocolType intextIpProtocolType : keyIntextIpProtocolTypeMap.values()) {
             if (intextIpProtocolType.getIpPortMap() == null || intextIpProtocolType.getIpPortMap().isEmpty()) {
                 LOG.debug("removeSnatFlowsInOldNaptSwitch : No {} session associated to router {},"
                         + "no flows need to be removed in oldNaptSwitch {}",
@@ -314,8 +317,8 @@ public class NaptSwitchHA {
                 continue;
             }
             String protocol = intextIpProtocolType.getProtocol().name();
-            List<IpPortMap> ipPortMaps = intextIpProtocolType.getIpPortMap();
-            for (IpPortMap ipPortMap : ipPortMaps) {
+            Map<IpPortMapKey, IpPortMap> keyIpPortMapMap = intextIpProtocolType.getIpPortMap();
+            for (IpPortMap ipPortMap : keyIpPortMapMap.values()) {
                 String ipPortInternal = ipPortMap.getIpPortInternal();
                 String[] ipPortParts = ipPortInternal.split(":");
                 if (ipPortParts.length != 2) {
@@ -593,13 +596,13 @@ public class NaptSwitchHA {
                     routerId);
             return false;
         }
-        for (IntextIpProtocolType protocolType : ipPortMapping.getIntextIpProtocolType()) {
+        for (IntextIpProtocolType protocolType : ipPortMapping.getIntextIpProtocolType().values()) {
             if (protocolType.getIpPortMap() == null || protocolType.getIpPortMap().isEmpty()) {
                 LOG.debug("handleNatFlowsInNewNaptSwitch : No {} session associated to router {}",
                         protocolType.getProtocol(), routerId);
                 return true;
             }
-            for (IpPortMap intIpPortMap : protocolType.getIpPortMap()) {
+            for (IpPortMap intIpPortMap : protocolType.getIpPortMap().values()) {
                 String internalIpAddress = intIpPortMap.getIpPortInternal().split(":")[0];
                 String intportnum = intIpPortMap.getIpPortInternal().split(":")[1];
                 LOG.debug("handleNatFlowsInNewNaptSwitch : Found Internal IP Address {} and Port Number {}",

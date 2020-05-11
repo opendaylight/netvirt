@@ -379,7 +379,9 @@ public class ElanServiceTest extends  ElanServiceTestBase {
         awaitForData(LogicalDatastoreType.CONFIGURATION, evpnTestHelper.buildMacVrfEntryIid(EVPNRECVMAC2));
     }*/
 
-    @Test public void checkEvpnUnInstalDmacFlow() throws Exception {
+    @Test
+    @Ignore
+    public void checkEvpnUnInstalDmacFlow() throws Exception {
         createElanInstanceAndInterfaceAndAttachEvpn();
         addElanInterface(ExpectedObjects.ELAN1, ELAN_INTERFACES.get(ELAN1 + ":" + DPN1MAC2).getLeft(), DPN1IP2);
 

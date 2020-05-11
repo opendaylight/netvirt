@@ -10,7 +10,8 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.PreDestroy;
@@ -31,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIpsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint64;
@@ -130,13 +132,13 @@ public class CentralizedSwitchChangeListener
         Uuid extNetworkId = router.getNetworkId();
         String extGwMacAddress = router.getExtGwMacAddress();
         String routerName = router.getRouterName();
-        List<ExternalIps> externalIps = router.getExternalIps();
-        if (externalIps.isEmpty()) {
+        Map<ExternalIpsKey, ExternalIps> externalIpsMap = router.getExternalIps();
+        if (externalIpsMap.isEmpty()) {
             LOG.error("CentralizedSwitchChangeListener: setupRouterGwFlows no externalIP present");
             return;
         }
 
-        for (ExternalIps extIp : router.nonnullExternalIps()) {
+        for (ExternalIps extIp : router.nonnullExternalIps().values()) {
             Uuid subnetVpnName = extIp.getSubnetId();
             if (addOrRemove == NwConstants.ADD_FLOW) {
                 vpnManager.addRouterGwMacFlow(routerName, extGwMacAddress, primarySwitchId, extNetworkId,
@@ -151,11 +153,11 @@ public class CentralizedSwitchChangeListener
 
         if (addOrRemove == NwConstants.ADD_FLOW) {
             vpnManager.addArpResponderFlowsToExternalNetworkIps(routerName,
-                    VpnUtil.getIpsListFromExternalIps(router.getExternalIps()),
+                    VpnUtil.getIpsListFromExternalIps(new ArrayList<ExternalIps>(router.getExternalIps().values())),
                     extGwMacAddress, primarySwitchId, extNetworkId);
         } else {
             vpnManager.removeArpResponderFlowsToExternalNetworkIps(routerName,
-                    VpnUtil.getIpsListFromExternalIps(router.getExternalIps()),
+                    VpnUtil.getIpsListFromExternalIps(new ArrayList<ExternalIps>(router.getExternalIps().values())),
                     extGwMacAddress, primarySwitchId, extNetworkId);
         }
     }
