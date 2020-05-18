@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e91f19b8_87d49da8",
+        "filename": "dhcpservice/impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2020-05-18T02:28:27Z",
+      "side": 1,
+      "message": "Can you please rename it to \"map\" in all the places across modules?",
+      "revId": "2df85dba2773a5a4e132b442f86272ba93cc52a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
