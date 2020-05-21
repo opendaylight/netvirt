@@ -607,8 +607,12 @@ public class ExternalRoutersListener extends AbstractAsyncDataTreeChangeListener
     }
 
     public String getFlowRefOutbound(Uint64 dpnId, short tableId, Uint32 routerID, int protocol) {
-        return NatConstants.NAPT_FLOWID_PREFIX + dpnId + NatConstants.FLOWID_SEPARATOR + tableId + NatConstants
-                .FLOWID_SEPARATOR + routerID + NatConstants.FLOWID_SEPARATOR + protocol;
+	String suffixToUse = "";
+        if (tableId == NwConstants.INTERNAL_TUNNEL_TABLE) {
+            suffixToUse = NatConstants.TST_FLOW_ID_SUFFIX;
+        }
+        return NatConstants.NAPT_FLOWID_PREFIX + suffixToUse + dpnId + NatConstants.FLOWID_SEPARATOR + tableId
+		+ NatConstants.FLOWID_SEPARATOR + routerID + NatConstants.FLOWID_SEPARATOR + protocol;
     }
 
     private String getFlowRefNaptPreFib(Uint64 dpnId, short tableId, Uint32 vpnId) {

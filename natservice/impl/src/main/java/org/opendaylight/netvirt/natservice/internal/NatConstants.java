@@ -51,6 +51,7 @@ public interface NatConstants {
     int NAT_DJC_MAX_RETRIES = 3;
     int DEFAULT_VPN_INTERNAL_TUNNEL_TABLE_PRIORITY = 8;
     String NETWORK_ROUTER_INTERFACE = "network:router_interface";
+    String TST_FLOW_ID_SUFFIX = "TST.";
     // Flow Actions
     int ADD_FLOW = 0;
     int DEL_FLOW = 1;
