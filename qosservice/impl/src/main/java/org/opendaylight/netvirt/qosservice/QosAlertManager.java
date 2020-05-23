@@ -10,6 +10,10 @@ package org.opendaylight.netvirt.qosservice;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -22,6 +26,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.apache.felix.service.command.CommandSession;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
@@ -201,6 +206,43 @@ public final class QosAlertManager implements Runnable {
             unprocessedInterfaceIds.add(ifaceId);
         } else {
             addToQosAlertCache(interfaceInfo);
+        }
+    }
+
+    public void displayConfig(CommandSession session) {
+
+        session.getConsole().println("Qos Alert Configuration Details");
+        session.getConsole().println("Threshold: " + alertThresholdSupplier.get().shortValue());
+        session.getConsole().println("AlertEnabled: " + alertEnabled);
+        session.getConsole().println("Poll Interval: " + pollInterval);
+
+        Uint64 dpnId;
+        String portData;
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        if (qosAlertDpnPortNumberMap.isEmpty()) {
+            session.getConsole().println("\nQosAlert Cache not found\n");
+            return;
+        } else {
+            session.getConsole().println("\nDPN Map");
+            JsonObject jsonObject;
+            JsonArray jsonArray;
+            JsonArray jsonArrayOuter = new JsonArray();
+            for (Entry<Uint64, ConcurrentMap<String, QosAlertPortData>> dpnEntry
+                    : qosAlertDpnPortNumberMap.entrySet()) {
+                dpnId = dpnEntry.getKey();
+                jsonObject = new JsonObject();
+                jsonObject.addProperty("DpnId", dpnId.toString());
+                ConcurrentMap<String, QosAlertPortData> portInnerMap = qosAlertDpnPortNumberMap.get(dpnId);
+                jsonArray = new JsonArray();
+                for (ConcurrentMap.Entry<String, QosAlertPortData> portEntry : portInnerMap.entrySet()) {
+                    portData = "Port_number: " + portEntry.getKey() + ", " + portEntry.getValue();
+                    jsonArray.add(portData);
+                }
+                jsonObject.add("QosAlertPortData Cache", jsonArray);
+                jsonArrayOuter.add(jsonObject);
+            }
+            session.getConsole().println(gson.toJson(jsonArrayOuter));
+            session.getConsole().println();
         }
     }
 
