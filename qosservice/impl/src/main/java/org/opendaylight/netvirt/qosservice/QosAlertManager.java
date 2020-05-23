@@ -11,7 +11,11 @@ package org.opendaylight.netvirt.qosservice;
 import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
+import java.io.StringWriter;
+import java.math.BigInteger;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,6 +27,11 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.json.Json;
+import javax.json.JsonValue;
+import javax.json.stream.JsonGenerator;
+import javax.json.stream.JsonGeneratorFactory;
+import org.apache.felix.service.command.CommandSession;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
@@ -203,6 +212,47 @@ public final class QosAlertManager implements Runnable {
             addToQosAlertCache(interfaceInfo);
         }
     }
+
+    public void displayConfig(CommandSession session) {
+
+        session.getConsole().println("Qos Alert Configuration Details");
+        session.getConsole().println("Threshold: " + alertThresholdSupplier.get().shortValue());
+        session.getConsole().println("AlertEnabled: " + alertEnabled);
+        session.getConsole().println("Poll Interval: " + pollInterval);
+
+        Uint64 dpnId;
+        String portData;
+
+        Map<String, Object> properties = new HashMap<>(1);
+        properties.put(JsonGenerator.PRETTY_PRINTING, true);
+        JsonGeneratorFactory jsonGeneratorFactory = Json.createGeneratorFactory(properties);
+        StringWriter stringWriter = new StringWriter();
+        JsonGenerator generator = jsonGeneratorFactory.createGenerator(stringWriter);
+        JsonGenerator arrayGenerator;
+        stringWriter.getBuffer().setLength(0);
+
+        generator.writeStartArray();
+        if (!(qosAlertDpnPortNumberMap.isEmpty())) {
+            session.getConsole().println("Dpn Map");
+            for (Entry<Uint64, ConcurrentMap<String, QosAlertPortData>> dpnEntry
+                    : qosAlertDpnPortNumberMap.entrySet()) {
+                dpnId = dpnEntry.getKey();
+                generator.writeStartObject().write("DpnId", (JsonValue) dpnId);
+                arrayGenerator = generator.writeStartArray("Ports");
+                ConcurrentMap<String, QosAlertPortData> portInnerMap = qosAlertDpnPortNumberMap.get(dpnId);
+                for (ConcurrentMap.Entry<String, QosAlertPortData> portEntry : portInnerMap.entrySet()) {
+                    portData = "Port_number: " + portEntry.getKey() + ", " + portEntry.getValue();
+                    arrayGenerator.write(portData);
+                }
+                arrayGenerator.writeEnd();
+                generator.writeEnd();
+            }
+            generator.writeEnd();
+            generator.close();
+        }
+        session.getConsole().println(stringWriter.toString());
+    }
+
 
     public void processInterfaceUpEvent(String ifaceId) {
         LOG.trace("processInterfaceUpEvent {}", ifaceId);

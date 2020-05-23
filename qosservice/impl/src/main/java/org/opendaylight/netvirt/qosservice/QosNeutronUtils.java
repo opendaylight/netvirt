@@ -11,9 +11,11 @@ import static java.util.Collections.emptyList;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import com.google.common.base.Optional;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,6 +25,11 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.json.Json;
+import javax.json.JsonValue;
+import javax.json.stream.JsonGenerator;
+import javax.json.stream.JsonGeneratorFactory;
+import org.apache.felix.service.command.CommandSession;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -102,6 +109,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint64;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -173,6 +181,160 @@ public class QosNeutronUtils {
         if (qosNetworksMap.containsKey(qosUuid) && qosNetworksMap.get(qosUuid).containsKey(network.getUuid())) {
             qosNetworksMap.get(qosUuid).remove(network.getUuid(), network);
         }
+    }
+
+    public void displayConfig(CommandSession session) {
+
+        Map<String, Object> properties = new HashMap<>(1);
+        properties.put(JsonGenerator.PRETTY_PRINTING, true);
+        JsonGeneratorFactory jsonGeneratorFactory = Json.createGeneratorFactory(properties);
+        StringWriter stringWriter = new StringWriter();
+
+        session.getConsole().println("QosClusterOwner: " + qosEosHandler.isQosClusterOwner());
+        if (qosPolicyMap.isEmpty() && qosPortsMap.isEmpty() && qosNetworksMap.isEmpty()) {
+            session.getConsole().println("No cache found");
+            return;
+        }
+        if (!(qosPolicyMap.isEmpty())) {
+            displayQosPolicyMap(session, jsonGeneratorFactory, stringWriter);
+        }
+        if (!(qosPortsMap.isEmpty())) {
+            displayQosPortsMap(session, jsonGeneratorFactory, stringWriter);
+        }
+        if (!(qosNetworksMap.isEmpty())) {
+            displayQosNetworksMap(session, jsonGeneratorFactory, stringWriter);
+        }
+    }
+
+    private void displayQosPolicyMap(CommandSession session, JsonGeneratorFactory jsonGeneratorFactory,
+                    StringWriter stringWriter) {
+        session.getConsole().println("\nQOS Policy Map");
+        String uuid;
+        String policyName;
+        String dscpUuid;
+        String bandwidthUuid;
+        Long maxRate;
+        Long maxBurstRate;
+        @Nullable Uint8 dscpValue;
+        Uuid policyUuid;
+        JsonGenerator generator = jsonGeneratorFactory.createGenerator(stringWriter);
+        stringWriter.getBuffer().setLength(0);
+        generator.writeStartArray();
+
+        for (ConcurrentMap.Entry<Uuid, QosPolicy> policyEntry : qosPolicyMap.entrySet()) {
+            dscpUuid = "null";
+            bandwidthUuid = "null";
+            maxRate = 0L;
+            maxBurstRate = 0L;
+            dscpValue = Uint8.valueOf(0);
+            policyUuid = policyEntry.getKey();
+            uuid = policyEntry.getKey().getValue();
+            policyName = qosPolicyMap.get(policyUuid).getName();
+            if (!(qosPolicyMap.get(policyUuid).getBandwidthLimitRules().isEmpty())) {
+                BandwidthLimitRules bandwidthLimitRules = qosPolicyMap.get(policyUuid).getBandwidthLimitRules().get(0);
+                bandwidthUuid = bandwidthLimitRules.getUuid().getValue();
+                maxRate = bandwidthLimitRules.getMaxKbps().longValue();
+                maxBurstRate = bandwidthLimitRules.getMaxBurstKbps().longValue();
+            }
+            if (!(qosPolicyMap.get(policyUuid).getDscpmarkingRules().isEmpty())) {
+                dscpUuid = qosPolicyMap.get(policyUuid).getDscpmarkingRules().get(0).getUuid().getValue();
+                dscpValue = qosPolicyMap.get(policyUuid).getDscpmarkingRules().get(0).getDscpMark();
+            }
+            generator.writeStartObject().write("Policy uuid", uuid)
+                    .write("Policy Name", policyName)
+                    .write("Bandwidth uuid", bandwidthUuid)
+                    .write("max_kbps", maxRate)
+                    .write("max_burst_kbps", maxBurstRate)
+                    .write("Dscp uuid", dscpUuid)
+                    .write("Dscp Value", (JsonValue) dscpValue).writeEnd();
+        }
+        generator.writeEnd();
+        generator.close();
+        session.getConsole().println(stringWriter.toString());
+    }
+
+    private void displayQosPortsMap(CommandSession session, JsonGeneratorFactory jsonGeneratorFactory,
+                    StringWriter stringWriter) {
+        session.getConsole().println("\nQOS Ports Map");
+        String policyId;
+        String policyName;
+        String portUuid;
+        String portName;
+        String portDetails;
+        Uuid policyUuid;
+        Uuid portId;
+        JsonGenerator generator = jsonGeneratorFactory.createGenerator(stringWriter);
+        JsonGenerator arrayGenerator;
+        stringWriter.getBuffer().setLength(0);
+        generator.writeStartArray();
+
+        for (ConcurrentMap.Entry<Uuid, ConcurrentMap<Uuid, Port>> policyEntry : qosPortsMap.entrySet()) {
+            policyUuid = policyEntry.getKey();
+            policyId = policyUuid.getValue();
+            policyName = qosPolicyMap.get(policyUuid).getName();
+            generator.writeStartObject().write("Policy Uuid", policyId).write("PolicyName", policyName);
+            arrayGenerator = generator.writeStartArray("Port Details");
+            ConcurrentMap<Uuid, Port> portInnerMap = qosPortsMap.get(policyUuid);
+            for (ConcurrentMap.Entry<Uuid, Port> portEntry : portInnerMap.entrySet()) {
+                portId = portEntry.getKey();
+                if (portId != null) {
+                    portUuid = portInnerMap.get(portId).getUuid().getValue();
+                    portName = portInnerMap.get(portId).getName();
+                    if (portName == null) {
+                        portName = "null";
+                    }
+                    portDetails = portUuid + " : " + portName;
+                    arrayGenerator.write(portDetails);
+                }
+            }
+            arrayGenerator.writeEnd();
+            generator.writeEnd();
+        }
+        generator.writeEnd();
+        generator.close();
+        session.getConsole().println(stringWriter.toString());
+    }
+
+    private void displayQosNetworksMap(CommandSession session, JsonGeneratorFactory jsonGeneratorFactory,
+                    StringWriter stringWriter) {
+        session.getConsole().println("\nQos Networks Map");
+        String policyId;
+        String policyName;
+        String networkId;
+        String networkName;
+        String networkDetails;
+        Uuid policyUuid;
+        Uuid networkUuid;
+        JsonGenerator generator = jsonGeneratorFactory.createGenerator(stringWriter);
+        JsonGenerator arrayGenerator;
+        stringWriter.getBuffer().setLength(0);
+        generator.writeStartArray();
+
+        for (ConcurrentMap.Entry<Uuid, ConcurrentMap<Uuid, Network>> policyEntry: qosNetworksMap.entrySet()) {
+            policyUuid = policyEntry.getKey();
+            policyId = policyUuid.getValue();
+            policyName = qosPolicyMap.get(policyUuid).getName();
+            generator.writeStartObject().write("Policy Uuid", policyId).write("PolicyName", policyName);
+            arrayGenerator = generator.writeStartArray("Network Details");
+            ConcurrentMap<Uuid, Network> networkInnerMap = qosNetworksMap.get(policyUuid);
+            for (ConcurrentMap.Entry<Uuid, Network> networkEntry : networkInnerMap.entrySet()) {
+                networkUuid =  networkEntry.getKey();
+                if (networkUuid != null) {
+                    networkId = networkInnerMap.get(networkUuid).getUuid().getValue();
+                    networkName = networkInnerMap.get(networkUuid).getName();
+                    if (networkName == null) {
+                        networkName = "null";
+                    }
+                    networkDetails = networkId + " : " + networkName;
+                    arrayGenerator.write(networkDetails);
+                }
+            }
+            arrayGenerator.writeEnd();
+            generator.writeEnd();
+        }
+        generator.writeEnd();
+        generator.close();
+        session.getConsole().println(stringWriter.toString());
     }
 
     @NonNull
