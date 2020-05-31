@@ -57,9 +57,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
                  we currently cannot easily, by a simple CLI command, add additional features from new remote
                  repos.)
              -->
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>features-mdsal-trace</artifactId>
-            <version>1.11.0</version>
+            <groupId>org.opendaylight.mdsal</groupId>
+            <artifactId>odl-mdsal-trace</artifactId>
+            <version>6.0.1</version>
             <classifier>features</classifier>
             <type>xml</type>
             <scope>runtime</scope>
@@ -68,8 +68,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
         <dependency>
             <!-- This ensures we have odl-jolokia in the distribution -->
             <groupId>org.opendaylight.controller</groupId>
-            <artifactId>features-extras</artifactId>
-            <version>1.14.0</version>
+            <artifactId>odl-jolokia</artifactId>
+            <version>2.0.1</version>
             <type>xml</type>
             <classifier>features</classifier>
             <scope>runtime</scope>
