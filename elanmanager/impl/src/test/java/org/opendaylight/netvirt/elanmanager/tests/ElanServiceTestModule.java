@@ -10,10 +10,7 @@ package org.opendaylight.netvirt.elanmanager.tests;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mock;
 
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Optional;
-import java.util.concurrent.Executors;
 import org.mockito.Mockito;
 import org.opendaylight.daexim.DataImportBootReady;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
@@ -35,8 +32,7 @@ import org.opendaylight.infrautils.inject.guice.testutils.AbstractGuiceJsr250Mod
 import org.opendaylight.infrautils.metrics.MetricProvider;
 import org.opendaylight.infrautils.metrics.testimpl.TestMetricProviderImpl;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractBaseDataBrokerTest;
-import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractDataBrokerTestCustomizer;
+import org.opendaylight.mdsal.binding.testutils.DataBrokerTestModule;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
 import org.opendaylight.mdsal.eos.common.api.EntityOwnershipState;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
@@ -61,6 +57,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev16041
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
+import org.opendaylight.yangtools.yang.common.Uint16;
 
 
 /**
@@ -72,20 +69,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Pa
 public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
 
     @Override
-    protected void configureBindings() throws Exception {
-        AbstractBaseDataBrokerTest test = new AbstractBaseDataBrokerTest() {
-            @Override
-            protected AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
-                return new AbstractDataBrokerTestCustomizer() {
-                    @Override
-                    public ListeningExecutorService getCommitCoordinatorExecutor() {
-                        return MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
-                    }
-                };
-            }
-        };
-        test.setup();
-        DataBroker dataBroker = test.getDataBroker();
+    protected void configureBindings() {
+        DataBroker dataBroker = DataBrokerTestModule.dataBroker();
         EntityOwnershipService mockedEntityOwnershipService = mock(EntityOwnershipService.class);
         EntityOwnershipState mockedEntityOwnershipState = EntityOwnershipState.IS_OWNER;
         Mockito.when(mockedEntityOwnershipService.getOwnershipState(Mockito.any()))
@@ -102,7 +87,7 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
         // Bindings for external services to "real" implementations
         bind(LockManagerService.class).to(LockManagerServiceImpl.class);
         bind(ElanConfig.class).toInstance(new ElanConfigBuilder().setIntBridgeGenMac(true)
-                        .setTempSmacLearnTimeout(10).build());
+                        .setTempSmacLearnTimeout(Uint16.TEN).build());
         bind(MetricProvider.class).toInstance(new TestMetricProviderImpl());
 
         // Bindings of all listeners (which are not directly referenced in the code)
