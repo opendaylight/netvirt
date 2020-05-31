@@ -31,10 +31,6 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.mdsal</groupId>
-            <artifactId>mdsal-binding-dom-adapter</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.opendaylight.genius</groupId>
             <artifactId>interfacemanager-api</artifactId>
             <version>${genius.version}</version>

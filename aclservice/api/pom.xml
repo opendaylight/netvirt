@@ -22,10 +22,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <modelVersion>4.0.0</modelVersion>
 
     <dependencies>
-        <!--dependency>
-            <groupId>org.opendaylight.mdsal.model</groupId>
-            <artifactId>ietf-access-control-list</artifactId>
-        </dependency-->
         <dependency>
             <groupId>org.opendaylight.mdsal.binding.model.ietf</groupId>
             <artifactId>rfc7223</artifactId>
@@ -34,10 +30,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <groupId>org.opendaylight.mdsal.binding.model.ietf</groupId>
             <artifactId>rfc6991</artifactId>
         </dependency>
-        <!--dependency>
-            <groupId>org.opendaylight.mdsal.model</groupId>
-            <artifactId>yang-ext</artifactId>
-        </dependency-->
         <dependency>
             <groupId>org.opendaylight.genius</groupId>
             <artifactId>mdsalutil-api</artifactId>

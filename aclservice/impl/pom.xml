@@ -32,10 +32,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.mdsal</groupId>
-            <artifactId>mdsal-binding-dom-adapter</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.opendaylight.genius</groupId>
             <artifactId>mdsalutil-api</artifactId>
             <version>${genius.version}</version>
@@ -126,14 +122,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal</groupId>
-            <artifactId>mdsal-binding-dom-adapter</artifactId>
-            <scope>test</scope>
-            <type>test-jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.mdsal</groupId>
             <artifactId>mdsal-binding-test-utils</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.immutables</groupId>

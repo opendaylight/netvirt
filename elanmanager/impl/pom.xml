@@ -37,6 +37,10 @@ this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.opendaylight.mdsal</groupId>
+            <artifactId>mdsal-binding-util</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.opendaylight.genius</groupId>
             <artifactId>interfacemanager-api</artifactId>
             <version>${genius.version}</version>
@@ -75,10 +79,6 @@ this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
             <artifactId>neutronvpn-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-       <dependency>
-            <groupId>org.opendaylight.mdsal</groupId>
-            <artifactId>mdsal-binding-dom-adapter</artifactId>
-       </dependency>
         <dependency>
             <groupId>org.opendaylight.ovsdb</groupId>
             <artifactId>hwvtepsouthbound-api</artifactId>
@@ -158,14 +158,7 @@ this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
         </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal</groupId>
-            <artifactId>mdsal-binding-dom-adapter</artifactId>
-            <scope>test</scope>
-            <type>test-jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.mdsal</groupId>
             <artifactId>mdsal-binding-test-utils</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.genius</groupId>
