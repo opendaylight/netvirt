@@ -22,10 +22,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <modelVersion>4.0.0</modelVersion>
 
     <dependencies>
-<!--        <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>sal-binding-api</artifactId>
-        </dependency>-->
         <dependency>
             <groupId>org.opendaylight.genius</groupId>
             <artifactId>mdsalutil-api</artifactId>

@@ -23,13 +23,6 @@
     <modelVersion>4.0.0</modelVersion>
 
     <dependencies>
-        <!--dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>odl-mdsal-broker</artifactId>
-            <version>1.11.0</version>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency-->
         <dependency>
             <groupId>org.opendaylight.genius</groupId>
             <artifactId>odl-genius</artifactId>
