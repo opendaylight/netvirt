@@ -147,7 +147,7 @@ public abstract class AclServiceTestBase {
         putNewStateInterface(dataBroker, "port1", PORT_MAC_1);
 
         asyncEventsWaiter.awaitEventsConsumption();
-        Thread.sleep(1000);
+
         // Then
         newInterfaceCheck();
         LOG.info("newInterface - end");
@@ -161,10 +161,8 @@ public abstract class AclServiceTestBase {
 
         newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1),
                 Collections.singletonList(SUBNET_INFO_1));
-        asyncEventsWaiter.awaitEventsConsumption();
         newAllowedAddressPair(PORT_2, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_2),
                 Collections.singletonList(SUBNET_INFO_1));
-        asyncEventsWaiter.awaitEventsConsumption();
 
         Matches matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED,
                 AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, AclConstants.DEST_LOWER_PORT_UNSPECIFIED,
@@ -180,15 +178,12 @@ public abstract class AclServiceTestBase {
         dataBrokerUtil.put(
                 new IdentifiedAceBuilder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_2).newMatches(matches)
                         .newDirection(DirectionIngress.class).newRemoteGroupId(new Uuid(SG_UUID_1)).build());
-        asyncEventsWaiter.awaitEventsConsumption();
         // When
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
-        asyncEventsWaiter.awaitEventsConsumption();
         putNewStateInterface(dataBroker, PORT_2, PORT_MAC_2);
-        asyncEventsWaiter.awaitEventsConsumption();
 
         asyncEventsWaiter.awaitEventsConsumption();
-        Thread.sleep(1000);
+
         // Then
         newInterfaceWithEtherTypeAclCheck();
         LOG.info("newInterfaceWithEtherTypeAcl - end");
@@ -229,7 +224,7 @@ public abstract class AclServiceTestBase {
         asyncEventsWaiter.awaitEventsConsumption();
 
         asyncEventsWaiter.awaitEventsConsumption();
-        Thread.sleep(1000);
+
         // Then
         newInterfaceWithEtherTypeAclCheck();
 
@@ -262,7 +257,6 @@ public abstract class AclServiceTestBase {
         asyncEventsWaiter.awaitEventsConsumption();
 
         asyncEventsWaiter.awaitEventsConsumption();
-        Thread.sleep(1000);
         newInterfaceWithMultipleAclCheck();
     }
 
@@ -303,7 +297,7 @@ public abstract class AclServiceTestBase {
         asyncEventsWaiter.awaitEventsConsumption();
 
         asyncEventsWaiter.awaitEventsConsumption();
-        Thread.sleep(1000);
+
         // Then
         newInterfaceWithTcpDstAclCheck();
         LOG.info("newInterfaceWithTcpDstAcl - end");
@@ -347,7 +341,7 @@ public abstract class AclServiceTestBase {
         asyncEventsWaiter.awaitEventsConsumption();
 
         asyncEventsWaiter.awaitEventsConsumption();
-        Thread.sleep(1000);
+
         // Then
         newInterfaceWithUdpDstAclCheck();
         LOG.info("newInterfaceWithUdpDstAcl - end");
@@ -375,7 +369,7 @@ public abstract class AclServiceTestBase {
         asyncEventsWaiter.awaitEventsConsumption();
 
         asyncEventsWaiter.awaitEventsConsumption();
-        Thread.sleep(1000);
+
         // Then
         newInterfaceWithIcmpAclCheck();
         LOG.info("newInterfaceWithIcmpAcl - end");
@@ -410,7 +404,7 @@ public abstract class AclServiceTestBase {
         asyncEventsWaiter.awaitEventsConsumption();
 
         asyncEventsWaiter.awaitEventsConsumption();
-        Thread.sleep(1000);
+
         // Then
         newInterfaceWithDstPortRangeCheck();
         LOG.info("newInterfaceWithDstPortRange - end");
@@ -445,7 +439,7 @@ public abstract class AclServiceTestBase {
         asyncEventsWaiter.awaitEventsConsumption();
 
         asyncEventsWaiter.awaitEventsConsumption();
-        Thread.sleep(1000);
+
         // Then
         newInterfaceWithDstAllPortsCheck();
         LOG.info("newInterfaceWithDstAllPorts - end");
@@ -491,7 +485,7 @@ public abstract class AclServiceTestBase {
         asyncEventsWaiter.awaitEventsConsumption();
 
         asyncEventsWaiter.awaitEventsConsumption();
-        Thread.sleep(1000);
+
         // Then
         newInterfaceWithTwoAclsHavingSameRulesCheck();
         LOG.info("newInterfaceWithTwoAclsHavingSameRules - end");
@@ -517,7 +511,7 @@ public abstract class AclServiceTestBase {
         asyncEventsWaiter.awaitEventsConsumption();
 
         asyncEventsWaiter.awaitEventsConsumption();
-        Thread.sleep(1000);
+
         // Then
         newInterfaceWithIcmpAclCheck();
     }
@@ -543,7 +537,7 @@ public abstract class AclServiceTestBase {
         asyncEventsWaiter.awaitEventsConsumption();
 
         asyncEventsWaiter.awaitEventsConsumption();
-        Thread.sleep(1000);
+
         // Then
         newInterfaceWithAapIpv4AllCheck();
         LOG.info("newInterfaceWithAapIpv4All test - end");
@@ -570,7 +564,7 @@ public abstract class AclServiceTestBase {
         asyncEventsWaiter.awaitEventsConsumption();
 
         asyncEventsWaiter.awaitEventsConsumption();
-        Thread.sleep(1000);
+
         // Then
         newInterfaceWithAapCheck();
         LOG.info("newInterfaceWithAap test - end");
