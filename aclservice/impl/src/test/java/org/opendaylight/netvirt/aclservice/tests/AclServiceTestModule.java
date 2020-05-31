@@ -12,18 +12,14 @@ import static org.opendaylight.yangtools.testutils.mockito.MoreAnswers.realOrExc
 
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.AbstractModule;
-import java.util.concurrent.Executors;
 import org.mockito.Mockito;
 import org.opendaylight.genius.datastoreutils.testutils.JobCoordinatorEventsWaiter;
 import org.opendaylight.genius.datastoreutils.testutils.TestableJobCoordinatorEventsWaiter;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractBaseDataBrokerTest;
-import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractDataBrokerTestCustomizer;
+import org.opendaylight.mdsal.binding.testutils.DataBrokerTestModule;
 import org.opendaylight.netvirt.aclservice.AclInterfaceCacheImpl;
 import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.stats.TestOdlDirectStatisticsService;
@@ -66,26 +62,9 @@ public class AclServiceTestModule extends AbstractModule {
         this.securityGroupMode = securityGroupMode;
     }
 
-    @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
     protected void configure() {
-        AbstractBaseDataBrokerTest test = new AbstractBaseDataBrokerTest() {
-            @Override
-            protected AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
-                return new AbstractDataBrokerTestCustomizer() {
-                    @Override
-                    public ListeningExecutorService getCommitCoordinatorExecutor() {
-                        return MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
-                    }
-                };
-            }
-        };
-        try {
-            test.setup();
-        } catch (Exception e) {
-            LOG.trace("Exception", e.getMessage());
-        }
-        bind(DataBroker.class).toInstance(test.getDataBroker());
+        bind(DataBroker.class).toInstance(DataBrokerTestModule.dataBroker());
         bind(AclserviceConfig.class).toInstance(aclServiceConfig());
         bind(AclDataUtil.class).toInstance(aclDataUtil());
         bind(AclClusterUtil.class).toInstance(() -> true);
@@ -110,7 +89,7 @@ public class AclServiceTestModule extends AbstractModule {
         return aclServiceConfig;
     }
 
-    private AclDataUtil aclDataUtil() {
+    private static AclDataUtil aclDataUtil() {
         AclDataUtil aclDataUtil = new AclDataUtil();
         aclDataUtil.addAclTag("85cc3048-abc3-43cc-89b3-377341426ac5", 2);
         aclDataUtil.addAclTag("85cc3048-abc3-43cc-89b3-377341426ac8", 4);
