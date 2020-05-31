@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4c95257c_80bcdaf9",
+        "filename": "features/odl-netvirt-impl/pom.xml",
+        "patchSetId": 36
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-05-31T20:33:03Z",
+      "side": 1,
+      "message": "what is the point of commenting these out, when you introduce them below?",
+      "range": {
+        "startLine": 189,
+        "startChar": 12,
+        "endLine": 189,
+        "endChar": 33
+      },
+      "revId": "f7161508d40f7a18ec85b5a921c1e40b1543e443",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
