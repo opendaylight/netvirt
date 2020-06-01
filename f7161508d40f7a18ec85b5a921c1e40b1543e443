@@ -22,6 +22,30 @@
       "revId": "f7161508d40f7a18ec85b5a921c1e40b1543e443",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d70be56d_47a4783b",
+        "filename": "features/odl-netvirt-impl/pom.xml",
+        "patchSetId": 36
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 7802
+      },
+      "writtenOn": "2020-06-01T07:16:10Z",
+      "side": 1,
+      "message": "removed commented lines from here and followed same procedure by adding type xml down as followed for other modules.(like vpn, qos)",
+      "parentUuid": "4c95257c_80bcdaf9",
+      "range": {
+        "startLine": 189,
+        "startChar": 12,
+        "endLine": 189,
+        "endChar": 33
+      },
+      "revId": "f7161508d40f7a18ec85b5a921c1e40b1543e443",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
