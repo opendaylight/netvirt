@@ -67,7 +67,7 @@ public final class VpnHelper {
         InstanceIdentifier<VpnInstances> id = InstanceIdentifier.builder(VpnInstances.class).build();
         Optional<VpnInstances> optVpnInstances = read(broker, LogicalDatastoreType.CONFIGURATION, id);
         if (optVpnInstances.isPresent() && optVpnInstances.get().getVpnInstance() != null) {
-            return new ArrayList<VpnInstance>(optVpnInstances.get().getVpnInstance().values());
+            return new ArrayList<VpnInstance>(optVpnInstances.get().nonnullVpnInstance().values());
         } else {
             return Collections.emptyList();
         }
@@ -119,7 +119,7 @@ public final class VpnHelper {
 
     @Nullable
     public static String getFirstVpnNameFromVpnInterface(final VpnInterface original) {
-        List<VpnInstanceNames> optList = new ArrayList<VpnInstanceNames>(original.getVpnInstanceNames().values());
+        List<VpnInstanceNames> optList = new ArrayList<VpnInstanceNames>(original.nonnullVpnInstanceNames().values());
         if (optList != null && !optList.isEmpty()) {
             return optList.get(0).getVpnName();
         } else {

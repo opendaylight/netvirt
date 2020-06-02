@@ -67,7 +67,8 @@ public class BgpAlarms implements Runnable, AutoCloseable {
         if (bgpMgr.getBgpCounters() != null) {
             bgpMgr.getBgpCounters().fetchCmdOutputs(BgpCounters.BGP_VPNV4_SUMMARY_FILE,
                     "show ip bgp vpnv4 all summary");
-            if (bgpMgr.getConfig() != null) {
+            if (bgpMgr.getConfig() != null && bgpMgr.getConfig().getNeighborsContainer() != null
+                    && bgpMgr.getConfig().getNeighborsContainer().getNeighbors() != null) {
                 nbrList = new ArrayList<Neighbors>(bgpMgr.getConfig().getNeighborsContainer().getNeighbors().values());
             }
             BgpCounters.parseIpBgpVpnv4AllSummary(neighborStatusMap);

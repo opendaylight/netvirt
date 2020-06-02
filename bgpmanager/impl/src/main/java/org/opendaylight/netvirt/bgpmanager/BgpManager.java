@@ -308,7 +308,8 @@ public class BgpManager implements AutoCloseable, IBgpManager {
         if (conf == null) {
             return null;
         }
-        List<Neighbors> nbrs = conf.getNeighborsContainer() == null ? null
+        List<Neighbors> nbrs = conf.getNeighborsContainer() == null
+                || conf.getNeighborsContainer().getNeighbors() == null ? null
                 : new ArrayList<Neighbors>(conf.getNeighborsContainer().getNeighbors().values());
         if (nbrs == null) {
             return null;

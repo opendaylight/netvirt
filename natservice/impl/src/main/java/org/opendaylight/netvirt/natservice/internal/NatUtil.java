@@ -742,7 +742,7 @@ public final class NatUtil {
         }
         List<Uuid> routerIdsList = NeutronUtils.getVpnMapRouterIdsListUuid(
                 new ArrayList<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602
-                        .vpnmaps.vpnmap.RouterIds>(optionalVpnMap.get().getRouterIds().values()));
+                        .vpnmaps.vpnmap.RouterIds>(optionalVpnMap.get().nonnullRouterIds().values()));
         if (routerIdsList != null && !routerIdsList.isEmpty()) {
             for (Uuid routerUuid : routerIdsList) {
                 InstanceIdentifier<Routers> id = buildRouterIdentifier(routerUuid.getValue());
@@ -779,7 +779,7 @@ public final class NatUtil {
                 }
                 List<Uuid> routerIdsList = NeutronUtils.getVpnMapRouterIdsListUuid(
                         new ArrayList<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602
-                                .vpnmaps.vpnmap.RouterIds>(vpnMap.getRouterIds().values()));
+                                .vpnmaps.vpnmap.RouterIds>(vpnMap.nonnullRouterIds().values()));
                 if (routerIdsList.isEmpty()) {
                     continue;
                 }
@@ -1067,7 +1067,7 @@ public final class NatUtil {
         Routers routerData = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
         if (routerData != null) {
             return NatUtil.getIpsListFromExternalIps(
-                    new ArrayList<ExternalIps>(routerData.getExternalIps().values()));
+                    new ArrayList<ExternalIps>(routerData.nonnullExternalIps().values()));
         }
 
         return emptyList();
@@ -1386,7 +1386,7 @@ public final class NatUtil {
 
         //Get the VM interfaces for the router on the current DPN only.
         Map<InterfacesKey, Interfaces> vmInterfacesMap
-                = routerInterfacesData.get().getInterfaces();
+                = routerInterfacesData.get().nonnullInterfaces();
         if (vmInterfacesMap == null) {
             LOG.debug("removeFromDpnRoutersMap : VM interfaces are not present for the router {} in the "
                 + "NeutronVPN - router-interfaces-map", routerName);
@@ -1543,7 +1543,7 @@ public final class NatUtil {
             return emptyList();
         }
 
-        return new ArrayList<Port>(portsOptional.get().getPort().values());
+        return new ArrayList<Port>(portsOptional.get().nonnullPort().values());
     }
 
     @Nullable
@@ -1553,7 +1553,7 @@ public final class NatUtil {
 
         for (Port port : ports) {
             if (deviceType.equals(port.getDeviceOwner()) && port.getFixedIps() != null) {
-                for (FixedIps ip : port.getFixedIps().values()) {
+                for (FixedIps ip : port.nonnullFixedIps().values()) {
                     if (Objects.equals(ip.getIpAddress(), targetIP)) {
                         return port;
                     }
@@ -1844,7 +1844,7 @@ public final class NatUtil {
         InstanceIdentifier<RouterPorts> routerPortsIdentifier = getRouterPortsId(routerUuid.getValue());
         List<Ports> portsList = new ArrayList<Ports>(SingleTransactionDataBroker
                 .syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker, LogicalDatastoreType.CONFIGURATION,
-                        routerPortsIdentifier).map(RouterPorts::getPorts).orElse(Collections.emptyMap()).values());
+                        routerPortsIdentifier).map(RouterPorts::nonnullPorts).orElse(Collections.emptyMap()).values());
 
         if (!portsList.isEmpty()) {
             portsList = new ArrayList<>(portsList);
@@ -1904,7 +1904,7 @@ public final class NatUtil {
                         LogicalDatastoreType.CONFIGURATION, id);
         if (routerData.isPresent()) {
             return NatUtil.getExternalSubnetIdsFromExternalIps(
-                    new ArrayList<ExternalIps>(routerData.get().getExternalIps().values()));
+                    new ArrayList<ExternalIps>(routerData.get().nonnullExternalIps().values()));
         } else {
             LOG.warn("getExternalSubnetIdsForRouter : No external router data for router {}", routerName);
             return Collections.emptySet();
@@ -2689,7 +2689,8 @@ public final class NatUtil {
         }
 
         if (ovsdbNode != null && ovsdbNode.getOpenvswitchOtherConfigs() != null) {
-            for (OpenvswitchOtherConfigs openvswitchOtherConfigs : ovsdbNode.getOpenvswitchOtherConfigs().values()) {
+            for (OpenvswitchOtherConfigs openvswitchOtherConfigs
+                    : ovsdbNode.nonnullOpenvswitchOtherConfigs().values()) {
                 if (Objects.equals(openvswitchOtherConfigs.getOtherConfigKey(), key)) {
                     return openvswitchOtherConfigs.getOtherConfigValue();
                 }

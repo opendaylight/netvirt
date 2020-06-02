@@ -274,6 +274,9 @@ public final class DhcpServiceUtils {
 
     @NonNull
     private static List<Uint64> extractDpnsFromNodes(Optional<Nodes> optionalNodes) {
+        if (optionalNodes.get().nonnullNode() == null) {
+            return Collections.emptyList();
+        }
         return optionalNodes.map(
             nodes -> nodes.nonnullNode().values().stream().map(Node::getId).filter(Objects::nonNull).map(
                     MDSALUtil::getDpnIdFromNodeName).collect(
@@ -295,7 +298,7 @@ public final class DhcpServiceUtils {
                     elanInstanceName, e);
             return Collections.emptyList();
         }
-        if (elanDpnOptional.isPresent()) {
+        if (elanDpnOptional.isPresent() && elanDpnOptional.get().nonnullDpnInterfaces() != null) {
             Map<DpnInterfacesKey, DpnInterfaces> dpnInterfacesMap = elanDpnOptional.get().nonnullDpnInterfaces();
             for (DpnInterfaces dpnInterfaces : dpnInterfacesMap.values()) {
                 elanDpns.add(dpnInterfaces.getDpId());

@@ -40,7 +40,7 @@ public class NatSwitchCacheListenerImpl implements NatSwitchCacheListener {
     public void switchAddedToCache(SwitchInfo switchInfo) {
         ExternalSubnets externalSubnets = NatUtil.getExternalSubnets(dataBroker);
         if (externalSubnets != null) {
-            for (Subnets externalSubnet : externalSubnets.getSubnets().values()) {
+            for (Subnets externalSubnet : externalSubnets.nonnullSubnets().values()) {
                 Uuid externalNetworkUuid = externalSubnet.getExternalNetworkId();
                 String providerNet = NatUtil.getElanInstancePhysicalNetwok(externalNetworkUuid.getValue(),
                         dataBroker);

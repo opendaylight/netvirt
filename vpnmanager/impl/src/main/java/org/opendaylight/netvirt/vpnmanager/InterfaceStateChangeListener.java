@@ -377,7 +377,7 @@ public class InterfaceStateChangeListener extends AbstractAsyncDataTreeChangeLis
         String interfaceName = cfgVpnInterface.getName();
         Adjacencies adjacencies = cfgVpnInterface.augmentation(Adjacencies.class);
         if (adjacencies != null) {
-            Map<AdjacencyKey, Adjacency> adjacencyMap = adjacencies.getAdjacency();
+            Map<AdjacencyKey, Adjacency> adjacencyMap = adjacencies.nonnullAdjacency();
             if (!adjacencyMap.isEmpty()) {
                 for (Adjacency adj : adjacencyMap.values()) {
                     if (adj.getAdjacencyType() != Adjacency.AdjacencyType.PrimaryAdjacency) {
