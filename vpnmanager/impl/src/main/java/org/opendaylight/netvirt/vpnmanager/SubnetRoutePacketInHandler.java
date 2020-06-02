@@ -283,14 +283,14 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             return;
         }
         if (VpnHelper.doesVpnInterfaceBelongToVpnInstance(vpnIdVpnInstanceName,
-               new ArrayList<VpnInstanceNames>(vmVpnInterface.getVpnInstanceNames().values()))
+               new ArrayList<VpnInstanceNames>(vmVpnInterface.nonnullVpnInstanceNames().values()))
                && !vpnUtil.isBgpVpnInternet(vpnIdVpnInstanceName)) {
             LOG.trace("Unknown IP is in internal network");
             handlePacketToInternalNetwork(dstIp, dstIpStr, elanTag, srcIpStr);
         } else {
             LOG.trace("Unknown IP is in external network");
             String vpnName = vpnUtil.getInternetVpnFromVpnInstanceList(
-                    new ArrayList<VpnInstanceNames>(vmVpnInterface.getVpnInstanceNames().values()));
+                    new ArrayList<VpnInstanceNames>(vmVpnInterface.nonnullVpnInstanceNames().values()));
             if (vpnName != null) {
                 handlePacketToExternalNetwork(new Uuid(vpnIdVpnInstanceName), vpnName, dstIp, dstIpStr, elanTag);
             } else {

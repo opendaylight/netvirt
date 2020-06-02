@@ -908,7 +908,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
         EgressElementCountersRequestConfigBuilder ecrcb = new EgressElementCountersRequestConfigBuilder();
         ecrcb.setCounterRequests(counterRequests);
         requestConfig = ecrcb.build();
-        transaction.put(LogicalDatastoreType.CONFIGURATION, ecrcIdentifier, requestConfig);
+        transaction.mergeParentStructurePut(LogicalDatastoreType.CONFIGURATION, ecrcIdentifier, requestConfig);
     }
 
     private void creatIngressEelementCountersContainerInConfig(ReadWriteTransaction transaction,
@@ -917,7 +917,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
         List<CounterRequests> counterRequests = new ArrayList<>();
         iecrcb.setCounterRequests(counterRequests);
         IngressElementCountersRequestConfig iecrc = iecrcb.build();
-        transaction.put(LogicalDatastoreType.CONFIGURATION, ecrcIdentifier, iecrc);
+        transaction.mergeParentStructurePut(LogicalDatastoreType.CONFIGURATION, ecrcIdentifier, iecrc);
     }
 
     private void creatEgressEelementCountersContainerInConfig(ReadWriteTransaction transaction,
@@ -926,7 +926,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
         List<CounterRequests> counterRequests = new ArrayList<>();
         eecrcb.setCounterRequests(counterRequests);
         EgressElementCountersRequestConfig eecrc = eecrcb.build();
-        transaction.put(LogicalDatastoreType.CONFIGURATION, ecrcIdentifier, eecrc);
+        transaction.mergeParentStructurePut(LogicalDatastoreType.CONFIGURATION, ecrcIdentifier, eecrc);
     }
 
     private Integer allocateId(String idKey) {

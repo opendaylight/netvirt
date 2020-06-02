@@ -151,7 +151,7 @@ public class DhcpManager {
     public Subnet getNeutronSubnet(Port port) {
         if (port != null) {
             // DHCP Service is only interested in IPv4 IPs/Subnets
-            return getNeutronSubnet(new ArrayList<FixedIps>(port.getFixedIps().values()));
+            return getNeutronSubnet(new ArrayList<FixedIps>(port.nonnullFixedIps().values()));
         }
         return null;
     }

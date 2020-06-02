@@ -686,7 +686,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             }
             if (router != null) {
                 RouterIds vpnRouterId = new RouterIdsBuilder().setRouterId(router).build();
-                List<RouterIds> rtrIds = builder.getRouterIds().values() != null
+                List<RouterIds> rtrIds = builder.getRouterIds() != null
                         ? new ArrayList<>(builder.getRouterIds().values()) : null;
                 if (rtrIds == null) {
                     rtrIds = Collections.singletonList(vpnRouterId);

@@ -80,7 +80,7 @@ public class NatVpnMapsChangeListener extends AbstractAsyncDataTreeChangeListene
         Uuid vpnUuid = vpnMap.getVpnId();
         String vpnName = vpnUuid.getValue();
         if (vpnMap.getRouterIds() != null) {
-            vpnMap.getRouterIds().values().stream()
+            vpnMap.nonnullRouterIds().values().stream()
                 .filter(router -> !(Objects.equals(router.getRouterId(), vpnUuid)))
                 .forEach(router -> {
                     String routerName = router.getRouterId().getValue();
@@ -95,7 +95,7 @@ public class NatVpnMapsChangeListener extends AbstractAsyncDataTreeChangeListene
         Uuid vpnUuid = vpnMap.getVpnId();
         String vpnName = vpnUuid.getValue();
         if (vpnMap.getRouterIds() != null) {
-            vpnMap.getRouterIds().values().stream()
+            vpnMap.nonnullRouterIds().values().stream()
                 .filter(router -> !(Objects.equals(router.getRouterId(), vpnUuid)))
                 .forEach(router -> {
                     String routerName = router.getRouterId().getValue();
@@ -110,8 +110,8 @@ public class NatVpnMapsChangeListener extends AbstractAsyncDataTreeChangeListene
         Uuid vpnUuid = updated.getVpnId();
         String vpnName = vpnUuid.getValue();
 
-        List<RouterIds> updatedRouterIdList = new ArrayList<RouterIds>(updated.getRouterIds().values());
-        List<RouterIds> originalRouterIdList = new ArrayList<RouterIds>(original.getRouterIds().values());
+        List<RouterIds> updatedRouterIdList = new ArrayList<RouterIds>(updated.nonnullRouterIds().values());
+        List<RouterIds> originalRouterIdList = new ArrayList<RouterIds>(original.nonnullRouterIds().values());
         List<RouterIds> routersAddedList = null;
         List<RouterIds> routersRemovedList = null;
 

@@ -178,7 +178,7 @@ public class NatTepChangeListener extends AbstractAsyncDataTreeChangeListener<Tu
                 .syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                     LogicalDatastoreType.OPERATIONAL, dpnRoutersListId);
         if (optionalRouterDpnList.isPresent()) {
-            routersList = new ArrayList<RoutersList>(optionalRouterDpnList.get().getRoutersList().values());
+            routersList = new ArrayList<RoutersList>(optionalRouterDpnList.get().nonnullRoutersList().values());
         } else {
             LOG.debug(
                 "NAT Service : RouterDpnList is empty for DPN {}. Hence ignoring TEP DEL event",
@@ -278,7 +278,7 @@ public class NatTepChangeListener extends AbstractAsyncDataTreeChangeListener<Tu
                 l3Vni = natOverVxlanUtil.getInternetVpnVni(vpnName, routerId);
             }
         }
-        Map<PortsKey, Ports> interfacesMap = routerPorts.getPorts();
+        Map<PortsKey, Ports> interfacesMap = routerPorts.nonnullPorts();
         for (Ports port : interfacesMap.values()) {
             //Get the DPN on which this interface resides
             String interfaceName = port.getPortName();
@@ -298,7 +298,7 @@ public class NatTepChangeListener extends AbstractAsyncDataTreeChangeListener<Tu
             }
             isFipExists = Boolean.TRUE;
             Map<InternalToExternalPortMapKey, InternalToExternalPortMap> keyInternalToExternalPortMapMap
-                    = port.getInternalToExternalPortMap();
+                    = port.nonnullInternalToExternalPortMap();
             for (InternalToExternalPortMap intExtPortMap : keyInternalToExternalPortMapMap.values()) {
                 String internalIp = intExtPortMap.getInternalIp();
                 String externalIp = intExtPortMap.getExternalIp();
