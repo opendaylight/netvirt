@@ -62,7 +62,7 @@ public class Ipv6SubnetFlowProgrammer {
     public void addSubnetSpecificFlows(TypedReadWriteTransaction<Configuration> confTx, Uint64 dpnId,
                                        Uint32 routerId, Routers routers, Uint64 routerMetadata) {
         String extGwMacAddress = NatUtil.getExtGwMacAddFromRouterName(dataBroker, routers.getRouterName());
-        for (ExternalIps externalIp : routers.getExternalIps().values()) {
+        for (ExternalIps externalIp : routers.nonnullExternalIps().values()) {
             if (NWUtil.isIpv4Address(externalIp.getIpAddress())) {
                 // Skip ipv4 subnets in the external network
                 continue;
@@ -109,7 +109,7 @@ public class Ipv6SubnetFlowProgrammer {
     public void removeSubnetSpecificFlows(TypedReadWriteTransaction<Configuration> confTx, Uint64 dpnId,
                                           Uint32 routerId, Routers routers)
             throws ExecutionException, InterruptedException {
-        for (ExternalIps externalIp : routers.getExternalIps().values()) {
+        for (ExternalIps externalIp : routers.nonnullExternalIps().values()) {
             if (NWUtil.isIpv4Address(externalIp.getIpAddress())) {
                 // Skip ipv4 subnets in the external network
                 continue;

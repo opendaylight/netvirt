@@ -160,8 +160,8 @@ public class AclInterfaceStateListener extends AbstractAsyncDataTreeChangeListen
                 builder.portSecurityEnabled(aclInPort.isPortSecurityEnabled())
                     .interfaceType(aclInPort.getInterfaceType()).securityGroups(aclInPort.getSecurityGroups())
                         .allowedAddressPairs(new ArrayList<AllowedAddressPairs>(aclInPort
-                                .getAllowedAddressPairs().values())).subnetInfo(new ArrayList<SubnetInfo>(aclInPort
-                        .getSubnetInfo().values()));
+                                .nonnullAllowedAddressPairs().values())).subnetInfo(new ArrayList<SubnetInfo>(aclInPort
+                        .nonnullSubnetInfo().values()));
             });
         }
         AclInterface aclInterface = aclInterfaceCache.addOrUpdate(added.getName(), (prevAclInterface, builder) -> {

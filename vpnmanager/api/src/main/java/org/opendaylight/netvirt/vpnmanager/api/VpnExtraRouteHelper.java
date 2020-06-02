@@ -112,7 +112,7 @@ public final class VpnExtraRouteHelper {
                     destPrefix, e);
         }
         return usedRds.isPresent() && usedRds.get().getAllocatedRds() != null
-                ? usedRds.get().getAllocatedRds().values().stream()
+                ? usedRds.get().nonnullAllocatedRds().values().stream()
                 .map(AllocatedRds::getRd).distinct().collect(toList()) : new ArrayList<>();
     }
 
@@ -120,7 +120,7 @@ public final class VpnExtraRouteHelper {
             throws ExecutionException, InterruptedException {
         Optional<DestPrefixes> usedRds = confTx.read(getUsedRdsIdentifier(vpnId, destPrefix)).get();
         return usedRds.isPresent() && usedRds.get().getAllocatedRds() != null
-                ? usedRds.get().getAllocatedRds().values().stream()
+                ? usedRds.get().nonnullAllocatedRds().values().stream()
             .map(AllocatedRds::getRd).distinct().collect(toList()) : new ArrayList<>();
     }
 

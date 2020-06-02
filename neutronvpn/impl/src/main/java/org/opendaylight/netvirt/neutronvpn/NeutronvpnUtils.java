@@ -768,8 +768,8 @@ public class NeutronvpnUtils {
         // Update the allowed address pair with the IPv6 LLA that is auto configured on the port.
         aclAllowedAddressPairs.add(NeutronvpnUtils.updateIPv6LinkLocalAddressForAclService(port.getMacAddress()));
         List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs>
-            portAllowedAddressPairs = new ArrayList<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports
-                .rev150712.port.attributes.AllowedAddressPairs>(port.getAllowedAddressPairs().values());
+                portAllowedAddressPairs = new ArrayList<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports
+                .rev150712.port.attributes.AllowedAddressPairs>(port.nonnullAllowedAddressPairs().values());
         if (portAllowedAddressPairs != null) {
             aclAllowedAddressPairs.addAll(NeutronvpnUtils.getAllowedAddressPairsForAclService(portAllowedAddressPairs));
         }

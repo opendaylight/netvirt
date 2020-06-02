@@ -308,7 +308,7 @@ public class NaptSwitchHA {
         }
         Uint64 cookieSnatFlow = NatUtil.getCookieNaptFlow(routerId);
         Map<IntextIpProtocolTypeKey, IntextIpProtocolType> keyIntextIpProtocolTypeMap
-                = ipPortMapping.getIntextIpProtocolType();
+                = ipPortMapping.nonnullIntextIpProtocolType();
         for (IntextIpProtocolType intextIpProtocolType : keyIntextIpProtocolTypeMap.values()) {
             if (intextIpProtocolType.getIpPortMap() == null || intextIpProtocolType.getIpPortMap().isEmpty()) {
                 LOG.debug("removeSnatFlowsInOldNaptSwitch : No {} session associated to router {},"
@@ -317,7 +317,7 @@ public class NaptSwitchHA {
                 continue;
             }
             String protocol = intextIpProtocolType.getProtocol().name();
-            Map<IpPortMapKey, IpPortMap> keyIpPortMapMap = intextIpProtocolType.getIpPortMap();
+            Map<IpPortMapKey, IpPortMap> keyIpPortMapMap = intextIpProtocolType.nonnullIpPortMap();
             for (IpPortMap ipPortMap : keyIpPortMapMap.values()) {
                 String ipPortInternal = ipPortMap.getIpPortInternal();
                 String[] ipPortParts = ipPortInternal.split(":");
@@ -596,13 +596,13 @@ public class NaptSwitchHA {
                     routerId);
             return false;
         }
-        for (IntextIpProtocolType protocolType : ipPortMapping.getIntextIpProtocolType().values()) {
+        for (IntextIpProtocolType protocolType : ipPortMapping.nonnullIntextIpProtocolType().values()) {
             if (protocolType.getIpPortMap() == null || protocolType.getIpPortMap().isEmpty()) {
                 LOG.debug("handleNatFlowsInNewNaptSwitch : No {} session associated to router {}",
                         protocolType.getProtocol(), routerId);
                 return true;
             }
-            for (IpPortMap intIpPortMap : protocolType.getIpPortMap().values()) {
+            for (IpPortMap intIpPortMap : protocolType.nonnullIpPortMap().values()) {
                 String internalIpAddress = intIpPortMap.getIpPortInternal().split(":")[0];
                 String intportnum = intIpPortMap.getIpPortInternal().split(":")[1];
                 LOG.debug("handleNatFlowsInNewNaptSwitch : Found Internal IP Address {} and Port Number {}",

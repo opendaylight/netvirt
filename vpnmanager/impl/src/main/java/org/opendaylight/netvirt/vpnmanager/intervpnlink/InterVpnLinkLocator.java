@@ -163,7 +163,7 @@ public class InterVpnLinkLocator {
             LOG.trace("vpn targets not available for {}", name);
             return new ArrayList<>();
         }
-        Map<VpnTargetKey, VpnTarget> vpnTargets = targets.getVpnTarget();
+        Map<VpnTargetKey, VpnTarget> vpnTargets = targets.nonnullVpnTarget();
         if (vpnTargets == null) {
             LOG.trace("vpnTarget values not available for {}", name);
             return new ArrayList<>();
