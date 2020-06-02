@@ -163,6 +163,10 @@ public class BaseVrfEntryHandler implements AutoCloseable {
     @NonNull
     protected List<AdjacencyResult> resolveAdjacency(final Uint64 remoteDpnId, final Uint32 vpnId,
                                                      final VrfEntry vrfEntry, String rd) {
+        if (vrfEntry.nonnullRoutePaths() == null) {
+            LOG.trace("Failed to remove adjacency as route paths is null for vrf {}", vrfEntry);
+            return Collections.EMPTY_LIST;
+        }
         List<RoutePaths> routePaths = new ArrayList<RoutePaths>(vrfEntry.nonnullRoutePaths().values());
         FibHelper.sortIpAddress(routePaths);
         List<AdjacencyResult> adjacencyList = new ArrayList<>();
@@ -477,7 +481,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
             }
             List<ActionInfo> egressActions = nextHopManager.getEgressActionsForInterface(egressInterface,
                     actionInfos.size(), true, vpnId, vrfEntry.getDestPrefix());
-            if (egressActions.isEmpty()) {
+            if (egressActions.isEmpty() && vrfEntry.getRoutePaths() == null) {
                 LOG.error(
                         "Failed to retrieve egress action for prefix {} route-paths {} interface {}. "
                                 + "Aborting remote FIB entry creation.",

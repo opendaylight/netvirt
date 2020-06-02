@@ -1145,7 +1145,7 @@ public class NexthopManager implements AutoCloseable {
             LOG.error("getDcGwIps: Exception while reading DcGatewayIpList DS", e);
             return Collections.emptyList();
         }
-        if (dcGatewayIpListConfig == null) {
+        if (dcGatewayIpListConfig == null || dcGatewayIpListConfig.getDcGatewayIp() == null) {
             return Collections.emptyList();
         }
         return new ArrayList<DcGatewayIp>(dcGatewayIpListConfig.getDcGatewayIp().values())
@@ -1182,7 +1182,7 @@ public class NexthopManager implements AutoCloseable {
             Future<RpcResult<GetEgressActionsForInterfaceOutput>> result =
                     odlInterfaceRpcService.getEgressActionsForInterface(egressAction.build());
             RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = result.get();
-            if (!rpcResult.isSuccessful()) {
+            if (!rpcResult.isSuccessful() || rpcResult.getResult().nonnullAction() != null) {
                 LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}",
                         interfaceName, rpcResult.getErrors());
             } else {

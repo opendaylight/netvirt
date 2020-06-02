@@ -136,7 +136,8 @@ public class DhcpNeutronPortListener extends AbstractClusteredAsyncDataTreeChang
         }
         LOG.trace("Port changed to {}", update);
         //With Ipv6 changes we can get ipv4 subnets later. The below check is to support such scenario.
-        if (original.nonnullFixedIps().size() < update.nonnullFixedIps().size()) {
+        if (original.nonnullFixedIps() != null  && update.nonnullFixedIps() != null
+                && original.nonnullFixedIps().size() < update.nonnullFixedIps().size()) {
             final String interfaceName = update.getUuid().getValue();
             List<FixedIps> updatedFixedIps = new ArrayList<>(update.nonnullFixedIps().values());
             // Need to check only the newly added fixed ip.

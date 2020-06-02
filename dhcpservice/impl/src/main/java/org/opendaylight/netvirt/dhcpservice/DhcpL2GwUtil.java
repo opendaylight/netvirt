@@ -73,6 +73,9 @@ public class DhcpL2GwUtil {
             if (!CONTAINS_GLOBAL_AUGMENTATION.test(nodeOptional)) {
                 return null;
             }
+            if (nodeOptional.get().augmentation(HwvtepGlobalAugmentation.class).getSwitches() == null) {
+                return null;
+            }
             List<Switches> switchIids = new ArrayList<Switches>(nodeOptional.get()
                     .augmentation(HwvtepGlobalAugmentation.class).getSwitches().values());
             if (EMPTY_LIST.test(switchIids)) {
@@ -82,6 +85,9 @@ public class DhcpL2GwUtil {
             nodeOptional = SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL,
                     psIid);
             if (!CONTAINS_SWITCH_AUGMENTATION.test(nodeOptional)) {
+                return null;
+            }
+            if (nodeOptional.get().augmentation(PhysicalSwitchAugmentation.class).getTunnelIps() != null) {
                 return null;
             }
             List<TunnelIps> tunnelIps = new ArrayList<TunnelIps>(nodeOptional.get()

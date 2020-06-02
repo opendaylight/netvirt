@@ -2387,7 +2387,7 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
     public void updateVpnInterfacesForUnProcessAdjancencies(String vpnName) {
         String primaryRd = vpnUtil.getVpnRd(vpnName);
         VpnInstanceOpDataEntry vpnInstanceOpData = vpnUtil.getVpnInstanceOpData(primaryRd);
-        if (vpnInstanceOpData == null) {
+        if (vpnInstanceOpData == null || vpnInstanceOpData.getVpnToDpnList() == null) {
             return;
         }
         List<VpnToDpnList> vpnToDpnLists = new ArrayList<VpnToDpnList>(vpnInstanceOpData.getVpnToDpnList().values());

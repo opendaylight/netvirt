@@ -120,6 +120,10 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
             return null;
         }
         Network networkConfData = optionalNetworkConfData.get();
+        if (networkConfData.getAllocationPool() == null) {
+            LOG.warn("Allocation pool not available for network {}", networkId);
+            return null;
+        }
         List<AllocationPool> allocationPoolList = new ArrayList<AllocationPool>(networkConfData
                 .getAllocationPool().values());
         // if network has allocation pool list - get the first element
@@ -150,7 +154,9 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
             return Collections.emptyMap();
         }
 
-        return elanDpnIfacesOpc.get().nonnullDpnInterfaces().values().stream()
+        return elanDpnIfacesOpc.get().nonnullDpnInterfaces().values() == null
+                ? Collections.<Uint64, List<String>>emptyMap()
+                : elanDpnIfacesOpc.get().nonnullDpnInterfaces().values().stream()
             .collect(Collectors.toMap(DpnInterfaces::getDpId,
                 value -> value.getInterfaces() != null ? value.getInterfaces() : Collections.emptyList()));
     }

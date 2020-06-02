@@ -16,6 +16,7 @@ import com.google.common.net.InetAddresses;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -462,7 +463,7 @@ public class FibUtil {
             LOG.error("removeOrUpdateFibEntry: Exception while reading vrfEntry for the prefix {} rd {} nexthop {}",
                     prefix, rd, nextHopToRemove, e);
         }
-        if (entry.isPresent()) {
+        if (entry.isPresent() && entry.get().nonnullRoutePaths() != null) {
             final List<RoutePaths> routePaths = new ArrayList<RoutePaths>(entry.get().getRoutePaths().values());
             if (routePaths == null || routePaths.isEmpty()) {
                 LOG.warn("routePaths is null/empty for given rd {}, prefix {}", rd, prefix);
@@ -587,29 +588,33 @@ public class FibUtil {
     }
 
     public static java.util.Optional<Uint32> getLabelFromRoutePaths(final VrfEntry vrfEntry) {
-        List<RoutePaths> routePaths = new ArrayList<RoutePaths>(vrfEntry.getRoutePaths().values());
-        if (routePaths == null || routePaths.isEmpty()
-                || new ArrayList<RoutePaths>(vrfEntry.getRoutePaths().values()).get(0).getLabel() == null) {
+        Map<RoutePathsKey, RoutePaths> routePathsMap
+                = new HashMap<RoutePathsKey, RoutePaths>(vrfEntry.getRoutePaths());
+        if (routePathsMap == null || routePathsMap.isEmpty() || routePathsMap.values() == null
+                || new ArrayList<RoutePaths>(routePathsMap.values()).get(0).getLabel() == null) {
             return java.util.Optional.empty();
         }
-        return java.util.Optional.of(new ArrayList<RoutePaths>(vrfEntry.getRoutePaths().values()).get(0).getLabel());
+        return java.util.Optional.of(
+                new ArrayList<RoutePaths>(routePathsMap.values()).get(0).getLabel());
     }
 
     public static java.util.Optional<String> getFirstNextHopAddress(final VrfEntry vrfEntry) {
-        List<RoutePaths> routePaths = new ArrayList<RoutePaths>(vrfEntry.getRoutePaths().values());
-        if (routePaths == null || routePaths.isEmpty()) {
+        Map<RoutePathsKey, RoutePaths> routePathsMap
+                = new HashMap<RoutePathsKey, RoutePaths>(vrfEntry.getRoutePaths());
+        if (routePathsMap == null || routePathsMap.isEmpty() || routePathsMap.values() == null) {
             return java.util.Optional.empty();
         }
-        return java.util.Optional.of(new ArrayList<RoutePaths>(vrfEntry.getRoutePaths().values())
+        return java.util.Optional.of(new ArrayList<RoutePaths>(routePathsMap.values())
                 .get(0).getNexthopAddress());
     }
 
     public static java.util.Optional<Uint32> getLabelForNextHop(final VrfEntry vrfEntry, String nextHopIp) {
-        List<RoutePaths> routePaths = new ArrayList<RoutePaths>(vrfEntry.getRoutePaths().values());
-        if (routePaths == null || routePaths.isEmpty()) {
+        Map<RoutePathsKey, RoutePaths> routePathsMap
+                = new HashMap<RoutePathsKey, RoutePaths>(vrfEntry.getRoutePaths());
+        if (routePathsMap == null || routePathsMap.isEmpty() || routePathsMap.values() == null) {
             return java.util.Optional.empty();
         }
-        return routePaths.stream()
+        return routePathsMap.values().stream()
                 .filter(routePath -> Objects.equals(routePath.getNexthopAddress(), nextHopIp))
                 .findFirst()
                 .map(RoutePaths::getLabel);
@@ -856,7 +861,7 @@ public class FibUtil {
             LOG.error("getNexthops: Exception while reading L3vpnDcGws DS", e);
             return Collections.emptyList();
         }
-        if (!dcGwsOpt.isPresent()) {
+        if (!dcGwsOpt.isPresent() || dcGwsOpt.get().getDcGateway() == null) {
             return Collections.emptyList();
         }
         return dcGwsOpt.get().getDcGateway().values().stream().map(DcGateway::getIpAddress).collect(toList());
@@ -1002,7 +1007,7 @@ public class FibUtil {
                     prefix, rd, nextHopIp, e);
             return false;
         }
-        if (entry.isPresent()) {
+        if (entry.isPresent() && entry.get().getRoutePaths() != null) {
             Map<RoutePathsKey, RoutePaths> pathsMap = entry.get().getRoutePaths();
             for (RoutePaths path: pathsMap.values()) {
                 if (path.getNexthopAddress().equals(nextHopIp)) {
