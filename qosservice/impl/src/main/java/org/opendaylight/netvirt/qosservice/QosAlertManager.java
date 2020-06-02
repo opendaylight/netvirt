@@ -314,7 +314,7 @@ public final class QosAlertManager implements Runnable {
 
                 Map<NodeConnectorStatisticsAndPortNumberMapKey, NodeConnectorStatisticsAndPortNumberMap>
                         nodeConnectorStatisticsAndPortNumberMap =
-                        nodeConnectorStatisticsOutput.getNodeConnectorStatisticsAndPortNumberMap();
+                        nodeConnectorStatisticsOutput.nonnullNodeConnectorStatisticsAndPortNumberMap();
 
                 ConcurrentMap<String, QosAlertPortData> portDataMap = entry.getValue();
                 for (NodeConnectorStatisticsAndPortNumberMap stats

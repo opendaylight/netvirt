@@ -108,8 +108,8 @@ public class NeutronPortChangeListener extends AbstractClusteredAsyncDataTreeCha
 
         LOG.debug("update port notification handler is invoked for port {} ", update);
 
-        Set<FixedIps> ipsBefore = getFixedIpSet(new ArrayList<FixedIps>(original.getFixedIps().values()));
-        Set<FixedIps> ipsAfter = getFixedIpSet(new ArrayList<FixedIps>(update.getFixedIps().values()));
+        Set<FixedIps> ipsBefore = getFixedIpSet(new ArrayList<FixedIps>(original.nonnullFixedIps().values()));
+        Set<FixedIps> ipsAfter = getFixedIpSet(new ArrayList<FixedIps>(update.nonnullFixedIps().values()));
 
         Set<FixedIps> deletedIps = new HashSet<FixedIps>(ipsBefore);
         deletedIps.removeAll(ipsAfter);
@@ -130,7 +130,7 @@ public class NeutronPortChangeListener extends AbstractClusteredAsyncDataTreeCha
 
             if (update.getDeviceOwner().equalsIgnoreCase(Ipv6ServiceConstants.NETWORK_ROUTER_INTERFACE)) {
                 ifMgr.updateRouterIntf(update.getUuid(), new Uuid(update.getDeviceId()),
-                        new ArrayList<FixedIps>(update.getFixedIps().values()), deletedIps);
+                        new ArrayList<FixedIps>(update.nonnullFixedIps().values()), deletedIps);
             } else {
                 ifMgr.updateHostIntf(update.getUuid(), portIncludesV6Address);
             }

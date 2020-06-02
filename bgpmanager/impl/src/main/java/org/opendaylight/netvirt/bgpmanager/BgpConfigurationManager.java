@@ -1299,7 +1299,7 @@ public class BgpConfigurationManager implements EbgpService {
                 }
                 try {
                     Map<AddressFamiliesVrfKey, AddressFamiliesVrf> keyAddressFamiliesVrfMap
-                            = vrfs.getAddressFamiliesVrf();
+                            = vrfs.nonnullAddressFamiliesVrf();
                     for (AddressFamiliesVrf vrfAddrFamily : keyAddressFamiliesVrfMap.values()) {
                         /*add to br the new vrfs arguments*/
                         br.addVrf(BgpUtil.getLayerType(vrfAddrFamily), rd, vrfs.getImportRts(),
@@ -1350,7 +1350,7 @@ public class BgpConfigurationManager implements EbgpService {
                 try {
                     List<AddressFamiliesVrf> adf = mapNewAdFamily.get(rd);
                     adf = adf != null ? adf : new ArrayList<>();
-                    for (AddressFamiliesVrf s : val.getAddressFamiliesVrf().values()) {
+                    for (AddressFamiliesVrf s : val.nonnullAddressFamiliesVrf().values()) {
                         br.delVrf(rd, s.getAfi().toJava(), s.getSafi().toJava());
                         adf.remove(s);// remove in the map the vrf in waiting for advertise quagga
                     }
@@ -2647,7 +2647,7 @@ public class BgpConfigurationManager implements EbgpService {
         Vrfs vrf = bgpUtil.getVrfFromRd(rd);
         List<AddressFamiliesVrf> adfList = new ArrayList<>(1);
         if (vrf != null) {
-            adfList = new ArrayList<AddressFamiliesVrf>(vrf.getAddressFamiliesVrf().values());
+            adfList = new ArrayList<AddressFamiliesVrf>(vrf.nonnullAddressFamiliesVrf().values());
         }
         AddressFamiliesVrfBuilder adfBuilder = new AddressFamiliesVrfBuilder();
         if (addressFamily.equals(AddressFamily.IPV4)) {
@@ -2962,7 +2962,7 @@ public class BgpConfigurationManager implements EbgpService {
             Optional<FibEntries> fibEntries = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                     LogicalDatastoreType.CONFIGURATION, id);
             if (fibEntries.isPresent()) {
-                Map<VrfTablesKey, VrfTables> staleVrfTablesMap = fibEntries.get().getVrfTables();
+                Map<VrfTablesKey, VrfTables> staleVrfTablesMap = fibEntries.get().nonnullVrfTables();
                 for (VrfTables vrfTable : staleVrfTablesMap.values()) {
                     Map<String, Uint32> staleFibEntMap = new HashMap<>();
                     for (VrfEntry vrfEntry : vrfTable.getVrfEntry().values()) {

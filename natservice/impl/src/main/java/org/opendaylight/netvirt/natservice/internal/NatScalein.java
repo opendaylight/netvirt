@@ -90,7 +90,7 @@ public class NatScalein {
                     LogicalDatastoreType.OPERATIONAL, dpnRoutersListIdentifier);
         if (optionalDpnRoutersList.isPresent()) {
             List<RoutersList> routersListFromDs = new ArrayList<RoutersList>(optionalDpnRoutersList.get()
-                .getRoutersList().values());
+                .nonnullRoutersList().values());
             routersListFromDs.forEach(router -> {
                 String routerName = router.getRouter();
                 Routers extRouters = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
