@@ -126,10 +126,10 @@ public abstract class HwvtepNodeBaseListener<D extends Datastore>
         List<Managers> up = null;
         List<Managers> be = null;
         if (updatedAugmentaion != null) {
-            up = new ArrayList<Managers>(updatedAugmentaion.getManagers().values());
+            up = new ArrayList<Managers>(updatedAugmentaion.nonnullManagers().values());
         }
         if (beforeAugmentaion != null) {
-            be = new ArrayList<Managers>(beforeAugmentaion.getManagers().values());
+            be = new ArrayList<Managers>(beforeAugmentaion.nonnullManagers().values());
         }
 
         if (up != null) {

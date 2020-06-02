@@ -416,7 +416,7 @@ public class ElanL2GatewayMulticastUtils {
         if (operElanInstance == null) {
             return emptyList();
         }
-        Map<ExternalTepsKey, ExternalTeps> teps = operElanInstance.getExternalTeps();
+        Map<ExternalTepsKey, ExternalTeps> teps = operElanInstance.nonnullExternalTeps();
         if (teps == null || teps.isEmpty()) {
             return emptyList();
         }

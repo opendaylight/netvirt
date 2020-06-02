@@ -349,7 +349,7 @@ public class ElanBridgeManager {
         if (bridgeAug != null) {
             DatapathId dpId = bridgeAug.getDatapathId();
             if (dpId != null) {
-                otherConfigs = new ArrayList<>(bridgeAug.getBridgeOtherConfigs().values());
+                otherConfigs = new ArrayList<>(bridgeAug.nonnullBridgeOtherConfigs().values());
                 if (otherConfigs == null) {
                     otherConfigs = Lists.newArrayList();
                 }
