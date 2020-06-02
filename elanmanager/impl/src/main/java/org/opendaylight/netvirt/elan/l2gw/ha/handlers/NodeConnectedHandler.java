@@ -117,7 +117,7 @@ public class NodeConnectedHandler {
         LOG.info("HA ps node not present cleanup child {}" , childNode);
         HwvtepGlobalAugmentation augmentation = childNode.augmentation(HwvtepGlobalAugmentation.class);
         if (augmentation != null) {
-            Map<SwitchesKey, Switches> switches = augmentation.getSwitches();
+            Map<SwitchesKey, Switches> switches = augmentation.nonnullSwitches();
             if (switches != null) {
                 for (Switches ps : switches.values()) {
                     HwvtepHAUtil.deleteNodeIfPresent(tx, ps.getSwitchRef().getValue());
@@ -144,7 +144,7 @@ public class NodeConnectedHandler {
             return;
         }
         Map<SwitchesKey, Switches> keySwitchesMap
-                = childGlobalNode.augmentation(HwvtepGlobalAugmentation.class).getSwitches();
+                = childGlobalNode.augmentation(HwvtepGlobalAugmentation.class).nonnullSwitches();
         if (keySwitchesMap == null) {
             return;
         }

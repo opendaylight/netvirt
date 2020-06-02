@@ -82,7 +82,7 @@ public class HwvtepPhysicalSwitchListener
                         globalIid.firstKeyOf(Node.class).getNodeId().getValue());
 
     private static final Predicate<PhysicalSwitchAugmentation> TUNNEL_IP_AVAILABLE =
-        phySwitch -> !HwvtepHAUtil.isEmpty(phySwitch.getTunnelIps().values());
+        phySwitch -> !HwvtepHAUtil.isEmpty(phySwitch.nonnullTunnelIps().values());
 
     private static final Predicate<PhysicalSwitchAugmentation> TUNNEL_IP_NOT_AVAILABLE = TUNNEL_IP_AVAILABLE.negate();
 
@@ -319,7 +319,7 @@ public class HwvtepPhysicalSwitchListener
             l2GwDevice.setConnected(true);
             l2GwDevice.setHwvtepNodeId(globalNodeId);
 
-            Map<TunnelIpsKey, TunnelIps> tunnelIps = phySwitchAdded.getTunnelIps();
+            Map<TunnelIpsKey, TunnelIps> tunnelIps = phySwitchAdded.nonnullTunnelIps();
             if (tunnelIps != null) {
                 for (TunnelIps tunnelIp : tunnelIps.values()) {
                     IpAddress tunnelIpAddr = tunnelIp.getTunnelIpsKey();

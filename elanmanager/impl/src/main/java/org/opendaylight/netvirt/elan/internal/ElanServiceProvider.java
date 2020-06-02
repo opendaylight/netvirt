@@ -395,7 +395,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                 ElanInterfaceMac elanInterfaceMac = elanUtils.getElanInterfaceMacByInterfaceName(elanInterface);
                 if (elanInterfaceMac != null && elanInterfaceMac.getMacEntry() != null
                         && elanInterfaceMac.getMacEntry().size() > 0) {
-                    macAddress.addAll(elanInterfaceMac.getMacEntry().values());
+                    macAddress.addAll(elanInterfaceMac.nonnullMacEntry().values());
                 }
             }
         }
@@ -415,7 +415,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         for (String elanInterface : elanInterfaces) {
             ElanInterfaceMac elanInterfaceMac = elanUtils.getElanInterfaceMacByInterfaceName(elanInterface);
             if (elanInterfaceMac.getMacEntry() != null && elanInterfaceMac.getMacEntry().size() > 0) {
-                Map<MacEntryKey, MacEntry> macEntries = elanInterfaceMac.getMacEntry();
+                Map<MacEntryKey, MacEntry> macEntries = elanInterfaceMac.nonnullMacEntry();
                 for (MacEntry macEntry : macEntries.values()) {
                     deleteStaticMacAddress(elanInterface, macEntry.getMacAddress().getValue());
                 }
@@ -435,7 +435,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         InstanceIdentifier<ElanInstances> elanInstancesIdentifier = InstanceIdentifier.builder(ElanInstances.class)
                 .build();
         return new ArrayList<>(ElanUtils.read(broker, LogicalDatastoreType.CONFIGURATION, elanInstancesIdentifier).map(
-                ElanInstances::getElanInstance).orElse(emptyMap()).values());
+                ElanInstances::nonnullElanInstance).orElse(emptyMap()).values());
     }
 
     @Override

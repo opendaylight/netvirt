@@ -27,7 +27,7 @@ public class PhysicalLocatorCmd extends MergeCommand<TerminationPoint, NodeBuild
     @Nullable
     public List<TerminationPoint> getData(Node node) {
         if (node != null && node.getTerminationPoint() != null) {
-            return new ArrayList<TerminationPoint>(node.getTerminationPoint().values());
+            return new ArrayList<TerminationPoint>(node.nonnullTerminationPoint().values());
         }
         return null;
     }

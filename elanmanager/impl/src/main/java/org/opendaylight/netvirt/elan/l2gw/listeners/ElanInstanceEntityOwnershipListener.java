@@ -88,9 +88,9 @@ public class ElanInstanceEntityOwnershipListener implements EntityOwnershipListe
                                 elanDpnInterfacesInstanceIdentifier);
                         if (optional.isPresent() && optional.get().getElanDpnInterfacesList() != null) {
                             LOG.debug("Found elan dpn interfaces list");
-                            optional.get().getElanDpnInterfacesList().values().forEach(elanDpnInterfacesList -> {
+                            optional.get().nonnullElanDpnInterfacesList().values().forEach(elanDpnInterfacesList -> {
                                 Map<DpnInterfacesKey, DpnInterfaces> dpnInterfaces
-                                        = elanDpnInterfacesList.getDpnInterfaces();
+                                        = elanDpnInterfacesList.nonnullDpnInterfaces();
                                 InstanceIdentifier<ElanDpnInterfacesList> parentIid = InstanceIdentifier
                                         .builder(ElanDpnInterfaces.class).child(ElanDpnInterfacesList.class,
                                                 new ElanDpnInterfacesListKey(elanDpnInterfacesList
