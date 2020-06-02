@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1c4028c9_d6bb153e",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/cli/l2gw/L2GwValidateCli.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2020-06-02T01:49:24Z",
+      "side": 1,
+      "message": "It\u0027s better to add null check for getLogicalSwitches before getting .values as its possible a node can have empty LS.",
+      "range": {
+        "startLine": 276,
+        "startChar": 15,
+        "endLine": 276,
+        "endChar": 112
+      },
+      "revId": "cf1ea9172b94fc17e45391b62bf4ca24ac5c5fe0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37023a42_fae586dc",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/cli/l2gw/L2GwValidateCli.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2020-06-02T01:49:24Z",
+      "side": 1,
+      "message": "Always use nonNull version of this API call before calling values()",
+      "range": {
+        "startLine": 505,
+        "startChar": 76,
+        "endLine": 505,
+        "endChar": 116
+      },
+      "revId": "cf1ea9172b94fc17e45391b62bf4ca24ac5c5fe0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4457e82_52c03c16",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/cli/l2gw/NetworkL2gwDeviceInfoCli.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2020-06-02T01:49:24Z",
+      "side": 1,
+      "message": "Always use nonNull version of this API before calling .values(). What is getRemoteMcastMacs() is null(can cause NPE with .values())",
+      "range": {
+        "startLine": 289,
+        "startChar": 8,
+        "endLine": 290,
+        "endChar": 93
+      },
+      "revId": "cf1ea9172b94fc17e45391b62bf4ca24ac5c5fe0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
