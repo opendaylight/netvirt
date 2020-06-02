@@ -116,7 +116,7 @@ public class ShowVpnInstanceOpData extends OsgiCommandSupport {
             session.getConsole().println("No VPNInstanceOpDataEntry present.");
         } else {
             vpnInstanceOpDataEntryList = new ArrayList<VpnInstanceOpDataEntry>(optionalOpData.get()
-                    .getVpnInstanceOpDataEntry().values());
+                    .nonnullVpnInstanceOpDataEntry().values());
         }
 
         for (VpnInstanceOpDataEntry vpnInstanceOpDataEntry : vpnInstanceOpDataEntryList) {

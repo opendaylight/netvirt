@@ -153,11 +153,11 @@ public class CentralizedSwitchChangeListener
 
         if (addOrRemove == NwConstants.ADD_FLOW) {
             vpnManager.addArpResponderFlowsToExternalNetworkIps(routerName,
-                    VpnUtil.getIpsListFromExternalIps(new ArrayList<ExternalIps>(router.getExternalIps().values())),
+                    VpnUtil.getIpsListFromExternalIps(new ArrayList<ExternalIps>(router.nonnullExternalIps().values())),
                     extGwMacAddress, primarySwitchId, extNetworkId);
         } else {
             vpnManager.removeArpResponderFlowsToExternalNetworkIps(routerName,
-                    VpnUtil.getIpsListFromExternalIps(new ArrayList<ExternalIps>(router.getExternalIps().values())),
+                    VpnUtil.getIpsListFromExternalIps(new ArrayList<ExternalIps>(router.nonnullExternalIps().values())),
                     extGwMacAddress, primarySwitchId, extNetworkId);
         }
     }

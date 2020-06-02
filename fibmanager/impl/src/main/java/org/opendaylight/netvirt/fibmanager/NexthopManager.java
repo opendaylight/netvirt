@@ -1148,7 +1148,7 @@ public class NexthopManager implements AutoCloseable {
         if (dcGatewayIpListConfig == null) {
             return Collections.emptyList();
         }
-        return new ArrayList<DcGatewayIp>(dcGatewayIpListConfig.getDcGatewayIp().values())
+        return new ArrayList<DcGatewayIp>(dcGatewayIpListConfig.nonnullDcGatewayIp().values())
                 .stream()
                 .filter(dcGwIp -> dcGwIp.getTunnnelType().equals(TunnelTypeMplsOverGre.class))
                 .map(dcGwIp -> dcGwIp.getIpAddress().stringValue()).sorted()

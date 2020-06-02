@@ -485,8 +485,8 @@ public class VpnSubnetRouteHandler {
             }
             SubnetOpDataEntry subnetOpDataEntry = optionalSubs.get();
             SubnetOpDataEntryBuilder subOpBuilder = new SubnetOpDataEntryBuilder(subnetOpDataEntry);
-            subOpBuilder.setSubnetToDpn(concat(new ArrayList<SubnetToDpn>(subnetOpDataEntry.getSubnetToDpn().values()),
-                    subDpn));
+            subOpBuilder.setSubnetToDpn(concat(new ArrayList<SubnetToDpn>(subnetOpDataEntry
+                            .nonnullSubnetToDpn().values()), subDpn));
             if (subOpBuilder.getRouteAdvState() != TaskState.Advertised) {
                 if (subOpBuilder.getNhDpnId() == null) {
                     // No nexthop selected yet, elect one now
@@ -622,8 +622,8 @@ public class VpnSubnetRouteHandler {
                     subOpBuilder.getRouteAdvState(), subOpBuilder.getLastAdvState());
             boolean isExternalSubnetVpn = VpnUtil.isExternalSubnetVpn(subnetOpDataEntry.getVpnName(),
                     subnetId.getValue());
-            subOpBuilder.setSubnetToDpn(concat(new ArrayList<SubnetToDpn>(subnetOpDataEntry.getSubnetToDpn().values()),
-                    subDpn));
+            subOpBuilder.setSubnetToDpn(concat(new ArrayList<SubnetToDpn>(subnetOpDataEntry
+                            .nonnullSubnetToDpn().values()), subDpn));
             if (subOpBuilder.getRouteAdvState() != TaskState.Advertised) {
                 if (subOpBuilder.getNhDpnId() == null) {
                     // No nexthop selected yet, elect one now

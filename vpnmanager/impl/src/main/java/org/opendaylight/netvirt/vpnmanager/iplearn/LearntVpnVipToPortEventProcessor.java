@@ -182,7 +182,7 @@ public class LearntVpnVipToPortEventProcessor
                 }
                 Adjacencies configAdjacencies = optVpnInterface.get().augmentation(Adjacencies.class);
                 List<Adjacency> adjacencyList = configAdjacencies == null ? new ArrayList<>()
-                        : new ArrayList<>(configAdjacencies.getAdjacency().values());
+                        : new ArrayList<>(configAdjacencies.nonnullAdjacency().values());
 
                 String ip = VpnUtil.getIpPrefix(srcPrefix);
                 AdjacencyBuilder newAdjBuilder;

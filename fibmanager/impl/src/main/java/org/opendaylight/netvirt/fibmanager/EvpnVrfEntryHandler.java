@@ -84,7 +84,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler {
                 + " has null vpnId!");
         if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.CONNECTED) {
             SubnetRoute subnetRoute = vrfEntry.augmentation(SubnetRoute.class);
-            final Map<VpnToDpnListKey, VpnToDpnList> keyVpnToDpnListMap = vpnInstance.getVpnToDpnList();
+            final Map<VpnToDpnListKey, VpnToDpnList> keyVpnToDpnListMap = vpnInstance.nonnullVpnToDpnList();
             final long elanTag = subnetRoute.getElantag().toJava();
             LOG.trace("SubnetRoute augmented vrfentry found for rd {} prefix {} with elantag {}",
                     rd, vrfEntry.getDestPrefix(), elanTag);
@@ -194,7 +194,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler {
                                        List<Uint64> localDpnId, VrfTablesKey vrfTableKey, boolean isNatPrefix) {
         LOG.info("Creating remote EVPN flows for prefix {} rd {} route-paths {} evi {}",
             vrfEntry.getDestPrefix(), rd, vrfEntry.getRoutePaths(), vrfEntry.getL3vni());
-        Map<VpnToDpnListKey, VpnToDpnList> keyVpnToDpnListMap = vpnInstance.getVpnToDpnList();
+        Map<VpnToDpnListKey, VpnToDpnList> keyVpnToDpnListMap = vpnInstance.nonnullVpnToDpnList();
         if (keyVpnToDpnListMap != null) {
             jobCoordinator.enqueueJob("FIB" + rd + vrfEntry.getDestPrefix(),
                 () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
@@ -284,7 +284,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler {
     @SuppressWarnings("ForbidCertainMethod")
     private void deleteRemoteEvpnFlows(String rd, VrfEntry vrfEntry, VpnInstanceOpDataEntry vpnInstance,
                                        VrfTablesKey vrfTableKey, List<Uint64> localDpnIdList) {
-        Map<VpnToDpnListKey, VpnToDpnList> keyVpnToDpnListMap = vpnInstance.getVpnToDpnList();
+        Map<VpnToDpnListKey, VpnToDpnList> keyVpnToDpnListMap = vpnInstance.nonnullVpnToDpnList();
         List<SubTransaction> subTxns =  new ArrayList<>();
         if (keyVpnToDpnListMap != null) {
             jobCoordinator.enqueueJob("FIB" + rd + vrfEntry.getDestPrefix(),
