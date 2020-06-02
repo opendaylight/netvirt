@@ -299,6 +299,11 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
         }
 
         if (RouteOrigin.value(update.getOrigin()) == RouteOrigin.STATIC) {
+            if (original == null || original.getRoutePaths() == null
+                    || update == null && update.getRoutePaths() == null) {
+                LOG.info("UPDATE: Null value in Original route-path {} update route-path {} ", original, update);
+                return;
+            }
             List<RoutePaths> originalRoutePath = new ArrayList<RoutePaths>(original.getRoutePaths().values());
             List<RoutePaths> updateRoutePath = new ArrayList<RoutePaths>(update.getRoutePaths().values());
             LOG.info("UPDATE: Original route-path {} update route-path {} ", originalRoutePath, updateRoutePath);
@@ -390,12 +395,12 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
                 && FibHelper.isControllerManagedNonSelfImportedRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
             // This block MUST BE HIT only for PNF (Physical Network Function) FIB Entries.
             VpnInstanceOpDataEntry parentVpnInstance = fibUtil.getVpnInstance(vrfEntry.getParentVpnRd());
-            keyVpnToDpnListMap = parentVpnInstance != null ? parentVpnInstance.getVpnToDpnList() :
+            keyVpnToDpnListMap = parentVpnInstance != null ? parentVpnInstance.nonnullVpnToDpnList() :
                 vpnInstance.getVpnToDpnList();
             LOG.info("createFibEntries: Processing creation of PNF FIB entry with rd {} prefix {}",
                     vrfEntry.getParentVpnRd(), vrfEntry.getDestPrefix());
         } else {
-            keyVpnToDpnListMap = vpnInstance.getVpnToDpnList();
+            keyVpnToDpnListMap = vpnInstance.nonnullVpnToDpnList();
         }
         final Uint32 vpnId = vpnInstance.getVpnId();
         final String rd = vrfTableKey.getRouteDistinguisher();

@@ -1300,6 +1300,9 @@ public class BgpConfigurationManager implements EbgpService {
                 try {
                     Map<AddressFamiliesVrfKey, AddressFamiliesVrf> keyAddressFamiliesVrfMap
                             = vrfs.getAddressFamiliesVrf();
+                    if (keyAddressFamiliesVrfMap == null) {
+                        return;
+                    }
                     for (AddressFamiliesVrf vrfAddrFamily : keyAddressFamiliesVrfMap.values()) {
                         /*add to br the new vrfs arguments*/
                         br.addVrf(BgpUtil.getLayerType(vrfAddrFamily), rd, vrfs.getImportRts(),
@@ -1349,7 +1352,7 @@ public class BgpConfigurationManager implements EbgpService {
                 }
                 try {
                     List<AddressFamiliesVrf> adf = mapNewAdFamily.get(rd);
-                    adf = adf != null ? adf : new ArrayList<>();
+                    adf = adf != null && val.getAddressFamiliesVrf() != null ? adf : new ArrayList<>();
                     for (AddressFamiliesVrf s : val.getAddressFamiliesVrf().values()) {
                         br.delVrf(rd, s.getAfi().toJava(), s.getSafi().toJava());
                         adf.remove(s);// remove in the map the vrf in waiting for advertise quagga
@@ -2646,7 +2649,7 @@ public class BgpConfigurationManager implements EbgpService {
     public void addVrf(String rd, List<String> irts, List<String> erts, AddressFamily addressFamily) {
         Vrfs vrf = bgpUtil.getVrfFromRd(rd);
         List<AddressFamiliesVrf> adfList = new ArrayList<>(1);
-        if (vrf != null) {
+        if (vrf != null && vrf.getAddressFamiliesVrf() != null) {
             adfList = new ArrayList<AddressFamiliesVrf>(vrf.getAddressFamiliesVrf().values());
         }
         AddressFamiliesVrfBuilder adfBuilder = new AddressFamiliesVrfBuilder();
@@ -2849,7 +2852,9 @@ public class BgpConfigurationManager implements EbgpService {
 
         //** update or delete the vrfs with the rest of AddressFamilies already present in the last list
         AddressFamiliesVrf adfToDel = adfBuilder.build();
-        List<AddressFamiliesVrf> adfListOriginal = new ArrayList<>(vrfOriginal.nonnullAddressFamiliesVrf().values());
+        List<AddressFamiliesVrf> adfListOriginal = vrfOriginal.nonnullAddressFamiliesVrf() != null
+                ? new ArrayList<>(vrfOriginal.nonnullAddressFamiliesVrf().values())
+                : new ArrayList<AddressFamiliesVrf>();
         List<AddressFamiliesVrf> adfListToRemoveFromOriginal = new ArrayList<>();
         adfListOriginal.forEach(adf -> {
             if (adf.equals(adfToDel)) {
@@ -2961,7 +2966,7 @@ public class BgpConfigurationManager implements EbgpService {
 
             Optional<FibEntries> fibEntries = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                     LogicalDatastoreType.CONFIGURATION, id);
-            if (fibEntries.isPresent()) {
+            if (fibEntries.isPresent() && fibEntries.get().getVrfTables() != null) {
                 Map<VrfTablesKey, VrfTables> staleVrfTablesMap = fibEntries.get().getVrfTables();
                 for (VrfTables vrfTable : staleVrfTablesMap.values()) {
                     Map<String, Uint32> staleFibEntMap = new HashMap<>();

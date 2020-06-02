@@ -185,7 +185,8 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
             LOG.error("initilizeCaches: Exception while reading the DesignatedSwitchesForExternalTunnels DS", e);
             return;
         }
-        if (designatedSwitchForTunnelOptional.isPresent()) {
+        if (designatedSwitchForTunnelOptional.isPresent()
+                && designatedSwitchForTunnelOptional.get().nonnullDesignatedSwitchForTunnel() != null) {
             Map<DesignatedSwitchForTunnelKey, DesignatedSwitchForTunnel> keyDesignatedSwitchForTunnelMap =
                 designatedSwitchForTunnelOptional.get().nonnullDesignatedSwitchForTunnel();
             for (DesignatedSwitchForTunnel designatedSwitchForTunnel : keyDesignatedSwitchForTunnelMap.values()) {
@@ -213,7 +214,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
             LOG.error("initilizeCaches: Exception while reading the Ports DS", e);
             return;
         }
-        if (optionalPorts.isPresent()) {
+        if (optionalPorts.isPresent() && optionalPorts.get().nonnullPort() != null) {
             Map<PortKey, Port> portKeyPortMap = optionalPorts.get().nonnullPort();
             for (Port port : portKeyPortMap.values()) {
                 if (NeutronUtils.isPortVnicTypeNormal(port)) {
@@ -381,7 +382,8 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
                     + "DS for the dpId {}", dpId, e);
             return false;
         }
-        if (designatedSwitchForTunnelOptional.isPresent()) {
+        if (designatedSwitchForTunnelOptional.isPresent()
+                && designatedSwitchForTunnelOptional.get().nonnullDesignatedSwitchForTunnel() != null) {
             Map<DesignatedSwitchForTunnelKey, DesignatedSwitchForTunnel> keyDesignatedSwitchForTunnelMap =
                     designatedSwitchForTunnelOptional.get().nonnullDesignatedSwitchForTunnel();
             for (DesignatedSwitchForTunnel designatedSwitchForTunnel : keyDesignatedSwitchForTunnelMap.values()) {

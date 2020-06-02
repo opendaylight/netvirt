@@ -85,11 +85,14 @@ public class FibRpcServiceImpl implements FibRpcService {
 
         Uint64 dpnId = input.getSourceDpid();
         String vpnName = input.getVpnName();
-        Uint32 vpnId = getVpnId(dataBroker, vpnName);
-        String vpnRd = getVpnRd(dataBroker, vpnName);
         String ipAddress = input.getIpAddress();
         LOG.info("Create custom FIB entry - {} on dpn {} for VPN {} ", ipAddress, dpnId, vpnName);
-        Map<InstructionKey, Instruction> instructionMap = input.getInstruction();
+        Map<InstructionKey, Instruction> instructionMap = new HashMap<InstructionKey, Instruction>();
+        if (input.getInstruction() != null) {
+            instructionMap = input.getInstruction();
+        }
+        Uint32 vpnId = getVpnId(dataBroker, vpnName);
+        String vpnRd = getVpnRd(dataBroker, vpnName);
         LOG.info("ADD: Adding Custom Fib Entry rd {} prefix {} label {}", vpnRd, ipAddress, input.getServiceId());
         makeLocalFibEntry(vpnId, dpnId, ipAddress, new ArrayList<Instruction>(instructionMap.values()));
         IpAddresses.IpAddressSource ipAddressSource = IpAddresses.IpAddressSource

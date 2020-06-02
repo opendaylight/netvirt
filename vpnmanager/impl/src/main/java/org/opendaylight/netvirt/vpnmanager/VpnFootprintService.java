@@ -285,7 +285,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                     VpnInterfaces currVpnInterface = new VpnInterfacesBuilder().setInterfaceName(intfName).build();
                     if (vpnInterfaces.remove(currVpnInterface)) {
                         if (vpnInterfaces.isEmpty()) {
-                            Map<IpAddressesKey, IpAddresses> ipAddressesMap = dpnInVpn.getIpAddresses();
+                            Map<IpAddressesKey, IpAddresses> ipAddressesMap = dpnInVpn.nonnullIpAddresses();
                             VpnToDpnListBuilder dpnInVpnBuilder =
                                     new VpnToDpnListBuilder(dpnInVpn).setVpnInterfaces(Collections.EMPTY_LIST);
                             if (ipAddressesMap == null || ipAddressesMap.isEmpty()) {
@@ -360,7 +360,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                         .setIpAddressSource(ipAddressSourceValuePair.getKey()).build();
                 if (ipAddresses.remove(currIpAddress)) {
                     if (ipAddresses.isEmpty()) {
-                        Map<VpnInterfacesKey, VpnInterfaces> vpnInterfacesMap = dpnInVpn.getVpnInterfaces();
+                        Map<VpnInterfacesKey, VpnInterfaces> vpnInterfacesMap = dpnInVpn.nonnullVpnInterfaces();
                         VpnToDpnListBuilder dpnInVpnBuilder =
                                 new VpnToDpnListBuilder(dpnInVpn).setIpAddresses(Collections.<IpAddresses>emptyList());
                         if (vpnInterfacesMap == null || vpnInterfacesMap.isEmpty()) {

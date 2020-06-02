@@ -750,7 +750,7 @@ public class VpnManagerImpl implements IVpnManager {
             if (routerTarget.getAssociatedSubnet() != null) {
                 for (int i = 0; i < routerTarget.getAssociatedSubnet().size(); i++) {
                     AssociatedSubnet associatedSubnet =
-                            new ArrayList<AssociatedSubnet>(routerTarget.getAssociatedSubnet().values()).get(i);
+                            new ArrayList<AssociatedSubnet>(routerTarget.nonnullAssociatedSubnet().values()).get(i);
                     if (VpnUtil.areSubnetsOverlapping(associatedSubnet.getCidr(), subnetCidr)) {
                         return true;
                     }
@@ -761,7 +761,7 @@ public class VpnManagerImpl implements IVpnManager {
                          *            (3) iRT=B eRT=A subnet-range=S2; NOK
                          * Check if (1) and (2) are importing the same subnet-range routes to (3) */
                         List<AssociatedVpn> multipleAssociatedVpn
-                                = new ArrayList<AssociatedVpn>(associatedSubnet.getAssociatedVpn().values());
+                                = new ArrayList<AssociatedVpn>(associatedSubnet.nonnullAssociatedVpn().values());
                         if (multipleAssociatedVpn != null && multipleAssociatedVpn.size() > 1) {
                             LOG.error("doesExistingVpnsHaveConflictingSubnet: There is an indirect complete  overlap"
                                     + " for subnet CIDR {} for rt {} rtType {}", subnetCidr, routerTarget.getRt(),
@@ -770,7 +770,7 @@ public class VpnManagerImpl implements IVpnManager {
                         }
                         for (int j = i + 1; j < routerTarget.getAssociatedSubnet().size(); j++) {
                             if (VpnUtil.areSubnetsOverlapping(associatedSubnet.getCidr(),
-                                    new ArrayList<AssociatedSubnet>(routerTarget.getAssociatedSubnet()
+                                    new ArrayList<AssociatedSubnet>(routerTarget.nonnullAssociatedSubnet()
                                             .values()).get(j).getCidr())) {
                                 LOG.error("doesExistingVpnsHaveConflictingSubnet: There is an indirect paartial"
                                                 + " overlap for subnet CIDR {} for rt {} rtType {}", subnetCidr,

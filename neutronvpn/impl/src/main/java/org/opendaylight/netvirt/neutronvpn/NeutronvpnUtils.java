@@ -767,11 +767,18 @@ public class NeutronvpnUtils {
                 port.getMacAddress(), new ArrayList<FixedIps>(port.getFixedIps().values()));
         // Update the allowed address pair with the IPv6 LLA that is auto configured on the port.
         aclAllowedAddressPairs.add(NeutronvpnUtils.updateIPv6LinkLocalAddressForAclService(port.getMacAddress()));
-        List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs>
-            portAllowedAddressPairs = new ArrayList<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports
-                .rev150712.port.attributes.AllowedAddressPairs>(port.getAllowedAddressPairs().values());
-        if (portAllowedAddressPairs != null) {
-            aclAllowedAddressPairs.addAll(NeutronvpnUtils.getAllowedAddressPairsForAclService(portAllowedAddressPairs));
+        @Nullable Map<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes
+                .AllowedAddressPairsKey, org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port
+                .attributes.AllowedAddressPairs> portAllowedAddressPairsMap = port.getAllowedAddressPairs();
+        if (portAllowedAddressPairsMap != null) {
+            List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes
+                    .AllowedAddressPairs> portAllowedAddressPairs
+                    = new ArrayList<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports
+                    .rev150712.port.attributes.AllowedAddressPairs>(portAllowedAddressPairsMap.values());
+            if (portAllowedAddressPairs != null) {
+                aclAllowedAddressPairs.addAll(NeutronvpnUtils
+                        .getAllowedAddressPairsForAclService(portAllowedAddressPairs));
+            }
         }
         interfaceAclBuilder.setAllowedAddressPairs(aclAllowedAddressPairs);
         interfaceAclBuilder.setInterfaceType(InterfaceAcl.InterfaceType.AccessPort);

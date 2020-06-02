@@ -383,9 +383,11 @@ public class DhcpPktHandler implements PacketProcessingListener {
     @Nullable
     private static String getIpv4Address(Port port) {
 
-        for (FixedIps fixedIp : port.nonnullFixedIps().values()) {
-            if (isIpv4Address(fixedIp.getIpAddress())) {
-                return fixedIp.getIpAddress().getIpv4Address().getValue();
+        if (port.nonnullFixedIps() != null) {
+            for (FixedIps fixedIp : port.nonnullFixedIps().values()) {
+                if (isIpv4Address(fixedIp.getIpAddress())) {
+                    return fixedIp.getIpAddress().getIpv4Address().getValue();
+                }
             }
         }
         LOG.error("Could not find ipv4 address for port {}", port);
@@ -814,7 +816,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
                 egressAction.setTunnelKey(tunnelId.longValue());
                 RpcResult<GetEgressActionsForTunnelOutput> rpcResult =
                         itmRpcService.getEgressActionsForTunnel(egressAction.build()).get();
-                if (!rpcResult.isSuccessful()) {
+                if (!rpcResult.isSuccessful() || rpcResult.getResult().getAction() == null) {
                     LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}",
                             interfaceName, rpcResult.getErrors());
                 } else {
@@ -829,7 +831,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
                 Future<RpcResult<GetEgressActionsForInterfaceOutput>> result =
                         interfaceManagerRpc.getEgressActionsForInterface(egressAction.build());
                 RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = result.get();
-                if (!rpcResult.isSuccessful()) {
+                if (!rpcResult.isSuccessful() || rpcResult.getResult().getAction() == null) {
                     LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}",
                             interfaceName, rpcResult.getErrors());
                 } else {

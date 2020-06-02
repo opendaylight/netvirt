@@ -156,6 +156,11 @@ public class AclInterfaceStateListener extends AbstractAsyncDataTreeChangeListen
                         added.getName());
                 return;
             }
+            if (aclInPort.getAllowedAddressPairs() == null || aclInPort.getSubnetInfo() == null) {
+                LOG.trace("Interface {} is not having AAP or SubnetInfo, ignoring ADD interfaceState event",
+                        added.getName());
+                return;
+            }
             aclInterfaceCache.addOrUpdate(added.getName(), (prevAclInterface, builder) -> {
                 builder.portSecurityEnabled(aclInPort.isPortSecurityEnabled())
                     .interfaceType(aclInPort.getInterfaceType()).securityGroups(aclInPort.getSecurityGroups())

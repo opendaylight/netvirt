@@ -210,7 +210,7 @@ public class AclInterfaceListener extends AbstractAsyncDataTreeChangeListener<In
                 .@Nullable Interface interfaceState) {
         AclInterface aclInterface = aclInterfaceCache.addOrUpdate(interfaceId, (prevAclInterface, builder) -> {
             List<Uuid> sgs = new ArrayList<>();
-            if (aclInPort != null) {
+            if (aclInPort != null && aclInPort.getAllowedAddressPairs() != null && aclInPort.getSubnetInfo() != null) {
                 sgs = aclInPort.getSecurityGroups();
                 builder.portSecurityEnabled(aclInPort.isPortSecurityEnabled())
                         .interfaceType(aclInPort.getInterfaceType()).securityGroups(sgs)
