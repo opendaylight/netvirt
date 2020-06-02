@@ -33,8 +33,8 @@ public class RemoteUcastCmd extends MergeCommand<RemoteUcastMacs,
     @Override
     @Nullable
     public List<RemoteUcastMacs> getData(HwvtepGlobalAugmentation node) {
-        if (node != null && node.getRemoteUcastMacs() != null) {
-            return new ArrayList<RemoteUcastMacs>(node.getRemoteUcastMacs().values());
+        if (node != null && node.nonnullRemoteUcastMacs() != null) {
+            return new ArrayList<RemoteUcastMacs>(node.nonnullRemoteUcastMacs().values());
         }
         return null;
     }

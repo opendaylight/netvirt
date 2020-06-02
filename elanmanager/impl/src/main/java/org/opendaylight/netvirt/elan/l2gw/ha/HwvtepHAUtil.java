@@ -295,9 +295,9 @@ public final class HwvtepHAUtil {
         }
         HwvtepGlobalAugmentation globalAugmentation = node.augmentation(HwvtepGlobalAugmentation.class);
         if (globalAugmentation != null) {
-            List<Managers> managers = new ArrayList<Managers>(globalAugmentation.getManagers().values());
+            List<Managers> managers = new ArrayList<Managers>(globalAugmentation.nonnullManagers().values());
             if (managers != null && !managers.isEmpty() && managers.get(0).getManagerOtherConfigs() != null) {
-                for (ManagerOtherConfigs configs : managers.get(0).getManagerOtherConfigs().values()) {
+                for (ManagerOtherConfigs configs : managers.get(0).nonnullManagerOtherConfigs().values()) {
                     if (HA_ID.equals(configs.getOtherConfigKey())) {
                         return configs.getOtherConfigValue();
                     }
@@ -322,11 +322,11 @@ public final class HwvtepHAUtil {
                 haGlobalConfigNodeOptional.get().augmentation(HwvtepGlobalAugmentation.class);
         if (augmentation != null && augmentation.getManagers() != null
                 && augmentation.getManagers().size() > 0) {
-            Managers managers = new ArrayList<Managers>(augmentation.getManagers().values()).get(0);
+            Managers managers = new ArrayList<Managers>(augmentation.nonnullManagers().values()).get(0);
             if (null == managers.getManagerOtherConfigs()) {
                 return childNodeIds;
             }
-            for (ManagerOtherConfigs otherConfigs : managers.getManagerOtherConfigs().values()) {
+            for (ManagerOtherConfigs otherConfigs : managers.nonnullManagerOtherConfigs().values()) {
                 if (HA_CHILDREN.equals(otherConfigs.getOtherConfigKey())) {
                     String nodeIdsVal = otherConfigs.getOtherConfigValue();
                     if (nodeIdsVal != null) {
@@ -417,7 +417,7 @@ public final class HwvtepHAUtil {
         if (!switchesAlreadyPresent) {
             HwvtepGlobalAugmentation augmentation = childNode.augmentation(HwvtepGlobalAugmentation.class);
             if (augmentation != null && augmentation.getSwitches() != null) {
-                List<Switches> src = new ArrayList<Switches>(augmentation.getSwitches().values());
+                List<Switches> src = new ArrayList<Switches>(augmentation.nonnullSwitches().values());
                 if (src != null && src.size() > 0) {
                     psList.add(new SwitchesCmd().transform(haNodePath, src.get(0)));
                 }
@@ -473,7 +473,7 @@ public final class HwvtepHAUtil {
             return;
         }
         HashMap<InstanceIdentifier<Node>,Boolean> deleted = new HashMap<>();
-        Map<SwitchesKey, Switches> switches = globalAugmentation.getSwitches();
+        Map<SwitchesKey, Switches> switches = globalAugmentation.nonnullSwitches();
         if (switches != null) {
             for (Switches switche : switches.values()) {
                 InstanceIdentifier<Node> psId = (InstanceIdentifier<Node>)switche.getSwitchRef().getValue();
@@ -487,7 +487,7 @@ public final class HwvtepHAUtil {
         if (topologyOptional.isPresent()) {
             Topology topology = topologyOptional.get();
             if (topology.getNode() != null) {
-                for (Node psNode : topology.getNode().values()) {
+                for (Node psNode : topology.nonnullNode().values()) {
                     PhysicalSwitchAugmentation ps = psNode.augmentation(PhysicalSwitchAugmentation.class);
                     if (ps != null) {
                         InstanceIdentifier<Node> iid = (InstanceIdentifier<Node>)ps.getManagedBy().getValue();

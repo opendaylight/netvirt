@@ -148,7 +148,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
         InstanceIdentifier<L2gateways> inst = InstanceIdentifier.create(Neutron.class).child(L2gateways.class);
         try {
             return new ArrayList<>((SingleTransactionDataBroker.syncReadOptional(broker,
-                    LogicalDatastoreType.CONFIGURATION, inst).map(L2gateways::getL2gateway)
+                    LogicalDatastoreType.CONFIGURATION, inst).map(L2gateways::nonnullL2gateway)
                     .orElse(emptyMap())).values());
         } catch (ExecutionException | InterruptedException e) {
             LOG.error("getNeutronL2gateway: Exception while reading L2gateway DS", e);
@@ -162,7 +162,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
                 .child(L2gatewayConnections.class);
         try {
             return new ArrayList<>((SingleTransactionDataBroker.syncReadOptional(broker,
-                    LogicalDatastoreType.CONFIGURATION, inst).map(L2gatewayConnections::getL2gatewayConnection)
+                    LogicalDatastoreType.CONFIGURATION, inst).map(L2gatewayConnections::nonnullL2gatewayConnection)
                     .orElse(emptyMap())).values());
         } catch (ExecutionException | InterruptedException e) {
             LOG.error("getNeutronL2gateway: Exception while reading L2gateway DS", e);
@@ -278,8 +278,8 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
             if (l2Gateway == null) {
                 LOG.error("Failed to find the l2gateway for the connection {}", input.getUuid());
                 return;
-            } else if (l2Gateway.getDevices() != null) {
-                l2gwDevicesToBeDeleted.addAll(l2Gateway.getDevices().values());
+            } else if (l2Gateway.nonnullDevices() != null) {
+                l2gwDevicesToBeDeleted.addAll(l2Gateway.nonnullDevices().values());
             }
         }
         for (Devices l2Device : l2gwDevicesToBeDeleted) {
@@ -318,7 +318,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
         String elanName = elanInstance.getElanInstanceName();
         Integer defaultVlan = input.getSegmentId();
         Uuid l2GwConnId = input.key().getUuid();
-        Map<DevicesKey, Devices> l2Devices = l2Gateway.getDevices();
+        Map<DevicesKey, Devices> l2Devices = l2Gateway.nonnullDevices();
 
         LOG.trace("Associating ELAN {} with L2Gw Conn Id {} having below L2Gw devices {}", elanName, l2GwConnId,
                 l2Devices);
@@ -408,7 +408,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
                         Node node = nodeOptional.get();
                         if (node.augmentation(HwvtepGlobalAugmentation.class) != null) {
                             Map<LocalUcastMacsKey, LocalUcastMacs> localUcastMacs =
-                                    node.augmentation(HwvtepGlobalAugmentation.class).getLocalUcastMacs();
+                                    node.augmentation(HwvtepGlobalAugmentation.class).nonnullLocalUcastMacs();
                             if (localUcastMacs == null) {
                                 return;
                             }

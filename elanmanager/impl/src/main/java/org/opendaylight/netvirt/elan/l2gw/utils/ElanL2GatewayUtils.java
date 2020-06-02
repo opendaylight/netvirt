@@ -183,8 +183,8 @@ public class ElanL2GatewayUtils {
         List<PhysAddress> result = new ArrayList<>();
         for (String interfaceName : lstElanInterfaceNames) {
             ElanInterfaceMac elanInterfaceMac = ElanUtils.getElanInterfaceMacByInterfaceName(broker, interfaceName);
-            if (elanInterfaceMac != null && elanInterfaceMac.getMacEntry() != null) {
-                for (MacEntry macEntry : new ArrayList<>(elanInterfaceMac.getMacEntry().values())) {
+            if (elanInterfaceMac != null && elanInterfaceMac.nonnullMacEntry() != null) {
+                for (MacEntry macEntry : new ArrayList<>(elanInterfaceMac.nonnullMacEntry().values())) {
                     result.add(macEntry.getMacAddress());
                 }
             }
@@ -527,9 +527,9 @@ public class ElanL2GatewayUtils {
                         if (configNode != null && configNode.isPresent()) {
                             HwvtepGlobalAugmentation augmentation = configNode.get().augmentation(
                                     HwvtepGlobalAugmentation.class);
-                            if (augmentation != null && augmentation.getLocalUcastMacs() != null) {
+                            if (augmentation != null && augmentation.nonnullLocalUcastMacs() != null) {
                                 macs.addAll(new ArrayList<>(augmentation
-                                        .getLocalUcastMacs().values()).stream()
+                                        .nonnullLocalUcastMacs().values()).stream()
                                         .filter(mac -> getLogicalSwitchName(mac).equals(elanName))
                                         .map(HwvtepMacTableGenericAttributes::getMacEntryKey)
                                         .collect(Collectors.toSet()));
@@ -621,7 +621,7 @@ public class ElanL2GatewayUtils {
         if (hwvtepNode != null) {
             Map<RemoteUcastMacsKey, RemoteUcastMacs> keyRemoteUcastMacsMap
                     = hwvtepNode.augmentation(HwvtepGlobalAugmentation.class)
-                    .getRemoteUcastMacs();
+                    .nonnullRemoteUcastMacs();
             if (keyRemoteUcastMacsMap != null && !keyRemoteUcastMacsMap.isEmpty()) {
                 // Filtering keyRemoteUcastMacsMap based on the logical switch and
                 // forming a list of MacAddress
@@ -739,7 +739,7 @@ public class ElanL2GatewayUtils {
             return lstRemoteUcastMacs;
         }
 
-        for (MacEntry macEntry : new ArrayList<>(macTable.getMacEntry().values())) {
+        for (MacEntry macEntry : new ArrayList<>(macTable.nonnullMacEntry().values())) {
             Uint64 dpnId = getDpidFromInterface(macEntry.getInterface());
             if (dpnId == null) {
                 LOG.error("DPN ID not found for interface {}", macEntry.getInterface());
@@ -811,7 +811,7 @@ public class ElanL2GatewayUtils {
         return txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
             for (org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712
                     .l2gateway.attributes.devices.Interfaces deviceInterface : new ArrayList<>(hwVtepDevice
-                    .getInterfaces().values())) {
+                    .nonnullInterfaces().values())) {
                 //Removed the check for checking terminationPoint present in OP or not
                 //for coniguring vlan bindings
                 //As we are not any more dependent on it , plugin takes care of this
@@ -878,7 +878,7 @@ public class ElanL2GatewayUtils {
         return txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
             for (org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712
                     .l2gateway.attributes.devices.Interfaces deviceInterface : new ArrayList<>(hwVtepDevice
-                    .getInterfaces().values())) {
+                    .nonnullInterfaces().values())) {
                 String phyPortName = deviceInterface.getInterfaceName();
                 if (deviceInterface.getSegmentationIds() != null && !deviceInterface.getSegmentationIds().isEmpty()) {
                     for (Integer vlanId : deviceInterface.getSegmentationIds()) {
@@ -997,7 +997,7 @@ public class ElanL2GatewayUtils {
             String psNodeId = globalNodeId + HwvtepHAUtil.PHYSICALSWITCH + psName;
             tzonesoptional.get().nonnullTransportZone().stream()
                 .filter(zone -> zone.getDeviceVteps() != null)
-                .flatMap(zone -> new ArrayList<>(zone.getDeviceVteps().values()).stream())
+                .flatMap(zone -> new ArrayList<>(zone.nonnullDeviceVteps().values()).stream())
                 .filter(deviceVteps -> Objects.equals(getPsName(deviceVteps), psName)) //get device with same ps name
                 .filter(deviceVteps -> !Objects.equals(psNodeId, deviceVteps.getNodeId())
                         || !Objects.equals(tunnelIp, deviceVteps.getIpAddress()))//node id or tunnel ip is changed
@@ -1144,7 +1144,7 @@ public class ElanL2GatewayUtils {
         if (configNode.isPresent()) {
             HwvtepGlobalAugmentation augmentation = configNode.get().augmentation(HwvtepGlobalAugmentation.class);
             if (augmentation != null && augmentation.getLocalUcastMacs() != null) {
-                macs.addAll(augmentation.getLocalUcastMacs().values().stream()
+                macs.addAll(augmentation.nonnullLocalUcastMacs().values().stream()
                         .filter(mac -> getLogicalSwitchName(mac).equals(elanName))
                         .map(HwvtepMacTableGenericAttributes::getMacEntryKey)
                         .collect(Collectors.toSet()));

@@ -213,7 +213,7 @@ public class ElanItmUtils {
                 Future<RpcResult<GetEgressActionsForTunnelOutput>> egressActionsOutputItm =
                         itmRpcService.getEgressActionsForTunnel(getEgressActInputItm);
                 if (egressActionsOutputItm.get().isSuccessful()) {
-                    return new ArrayList<Action>(egressActionsOutputItm.get().getResult().getAction().values());
+                    return new ArrayList<Action>(egressActionsOutputItm.get().getResult().nonnullAction().values());
                 }
             } else {
                 GetEgressActionsForInterfaceInput getEgressActInput = new GetEgressActionsForInterfaceInputBuilder()
@@ -221,7 +221,7 @@ public class ElanItmUtils {
                 Future<RpcResult<GetEgressActionsForInterfaceOutput>> egressActionsOutputFuture =
                         interfaceManagerRpcService.getEgressActionsForInterface(getEgressActInput);
                 if (egressActionsOutputFuture.get().isSuccessful()) {
-                    return new ArrayList<Action>(egressActionsOutputFuture.get().getResult().getAction().values());
+                    return new ArrayList<Action>(egressActionsOutputFuture.get().getResult().nonnullAction().values());
                 }
             }
         } catch (Exception e) {

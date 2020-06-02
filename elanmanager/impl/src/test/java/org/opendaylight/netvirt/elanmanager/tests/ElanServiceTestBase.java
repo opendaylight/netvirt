@@ -287,7 +287,7 @@ public class ElanServiceTestBase {
         Instructions instructions = flowBuilder.getInstructions();
         InstructionsBuilder builder = new InstructionsBuilder();
         InstructionBuilder instructionBuilder = new InstructionBuilder(
-                new ArrayList<Instruction>(instructions.getInstruction().values()).get(0));
+                new ArrayList<Instruction>(instructions.nonnullInstruction().values()).get(0));
         instructionBuilder.setInstruction(sortActions(instructionBuilder.getInstruction()));
         builder.setInstruction(Lists.newArrayList(instructionBuilder.build()));
         return flowBuilder.setInstructions(builder.build()).build();
@@ -297,7 +297,7 @@ public class ElanServiceTestBase {
         sortActions(org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.Instruction input) {
         if (input instanceof  ApplyActionsCase) {
             List<Action> action = new ArrayList<Action>(((ApplyActionsCase)input)
-                    .getApplyActions().getAction().values());
+                    .getApplyActions().nonnullAction().values());
             action.sort(Comparator.comparing(Ordered::getOrder));
 
             ApplyActions actions = new ApplyActionsBuilder().setAction(action).build();

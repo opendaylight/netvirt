@@ -353,7 +353,7 @@ public class TransportZoneNotificationUtil {
     }
 
     private List<String> getTepTransportZoneNames(TunnelEndPoints tep) {
-        List<TzMembership> tzMembershipList = new ArrayList<TzMembership>(tep.getTzMembership().values());
+        List<TzMembership> tzMembershipList = new ArrayList<TzMembership>(tep.nonnullTzMembership().values());
         if (tzMembershipList == null) {
             LOG.debug("No TZ membership exist for TEP ip {}", tep.getIpAddress().stringValue());
             return Collections.emptyList();

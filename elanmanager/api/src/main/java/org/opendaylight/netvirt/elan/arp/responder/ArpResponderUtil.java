@@ -378,7 +378,7 @@ public final class ArpResponderUtil {
                     LOG.error("getEgressActionsForInterface: RPC Call to Get egress actions for interface {} "
                             + "returned with Errors {}", ifName, result.getErrors());
                 } else {
-                    listActions = ((GetEgressActionsForTunnelOutput) result.getResult()).getAction();
+                    listActions = ((GetEgressActionsForTunnelOutput) result.getResult()).nonnullAction();
                 }
                 return new ArrayList<Action>(listActions.values());
             } catch (InterruptedException | ExecutionException e) {

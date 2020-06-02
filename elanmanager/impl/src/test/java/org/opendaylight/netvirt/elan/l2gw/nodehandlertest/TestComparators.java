@@ -54,7 +54,8 @@ public final class TestComparators {
     }
 
     public static void verifySwitches(Node globalOpNode, Node psOpNode) {
-        for (Switches switches : globalOpNode.augmentation(HwvtepGlobalAugmentation.class).getSwitches().values()) {
+        for (Switches switches : globalOpNode.augmentation(HwvtepGlobalAugmentation.class)
+            .nonnullSwitches().values()) {
             String switchValue = switches.getSwitchRef().getValue().firstKeyOf(Node.class).getNodeId().getValue();
             assertEquals("Switch Name should be equal", switchValue, psOpNode.getNodeId().getValue());
         }
@@ -66,11 +67,11 @@ public final class TestComparators {
         HwvtepGlobalAugmentation haAug = dst.augmentation(HwvtepGlobalAugmentation.class);
 
         List<LogicalSwitches> d1Values =
-                d1Aug.getLogicalSwitches() != null ? new ArrayList<LogicalSwitches>(d1Aug.getLogicalSwitches().values())
-                        : new ArrayList<>();
+                d1Aug.getLogicalSwitches() != null
+                    ? new ArrayList<LogicalSwitches>(d1Aug.nonnullLogicalSwitches().values()) : new ArrayList<>();
         List<LogicalSwitches> result1 = cmd.transform(nodePath, d1Values);
         List<LogicalSwitches> result2 = cmd.transform(nodePath,
-                new ArrayList<LogicalSwitches>(haAug.getLogicalSwitches().values()));
+                new ArrayList<LogicalSwitches>(haAug.nonnullLogicalSwitches().values()));
 
         Set<LogicalSwitches> set1 = Sets.newHashSet(result1);
         Set<LogicalSwitches> set2 = Sets.newHashSet(result2);
@@ -85,19 +86,19 @@ public final class TestComparators {
         HwvtepGlobalAugmentation haAug = ha.augmentation(HwvtepGlobalAugmentation.class);
 
         List<LogicalSwitches> d1Values =
-                d1Aug.getLogicalSwitches() != null ? new ArrayList<LogicalSwitches>(d1Aug.getLogicalSwitches().values())
-                        : new ArrayList<>();
+                d1Aug.getLogicalSwitches() != null
+                    ? new ArrayList<LogicalSwitches>(d1Aug.nonnullLogicalSwitches().values()) : new ArrayList<>();
         List<LogicalSwitches> result1 = cmd.transform(nodePath, d1Values);
         List<LogicalSwitches> d2Values =
-                d2Aug.getLogicalSwitches() != null ? new ArrayList<LogicalSwitches>(d2Aug.getLogicalSwitches().values())
-                        : new ArrayList<>();
+                d2Aug.getLogicalSwitches() != null
+                    ? new ArrayList<LogicalSwitches>(d2Aug.nonnullLogicalSwitches().values()) : new ArrayList<>();
         List<LogicalSwitches> result2 = cmd.transform(nodePath, d2Values);
         //Merge data of both d1 and d2 logical switch info should be same as ha
         Set<LogicalSwitches> set1 = new HashSet<>();
         set1.addAll(result1);
         set1.addAll(result2);
         List<LogicalSwitches> result = cmd.transform(nodePath,
-                new ArrayList<LogicalSwitches>(haAug.getLogicalSwitches().values()));
+                new ArrayList<LogicalSwitches>(haAug.nonnullLogicalSwitches().values()));
         Set<LogicalSwitches> set2 = Sets.newHashSet(result);
         assertEquals("should have equal logical switches", 0, Sets.symmetricDifference(set1, set2).size());
 
@@ -108,11 +109,11 @@ public final class TestComparators {
         HwvtepGlobalAugmentation d1Aug = src.augmentation(HwvtepGlobalAugmentation.class);
         HwvtepGlobalAugmentation haAug = dst.augmentation(HwvtepGlobalAugmentation.class);
         List<RemoteUcastMacs> d1Values =
-                d1Aug.getRemoteUcastMacs() != null ? new ArrayList<RemoteUcastMacs>(d1Aug.getRemoteUcastMacs().values())
-                        : new ArrayList<>();
+                d1Aug.getRemoteUcastMacs() != null
+                    ? new ArrayList<RemoteUcastMacs>(d1Aug.nonnullRemoteUcastMacs().values()) : new ArrayList<>();
         List<RemoteUcastMacs> result1 = cmd.transform(nodePath, d1Values);
         List<RemoteUcastMacs> result2 = cmd.transform(nodePath,
-                new ArrayList<RemoteUcastMacs>(haAug.getRemoteUcastMacs().values()));
+                new ArrayList<RemoteUcastMacs>(haAug.nonnullRemoteUcastMacs().values()));
 
         RemoteUcastMacs mac1 = result1.get(0);
         RemoteUcastMacs mac2 = result2.get(0);
@@ -130,19 +131,19 @@ public final class TestComparators {
         HwvtepGlobalAugmentation haAug = ha.augmentation(HwvtepGlobalAugmentation.class);
 
         List<RemoteUcastMacs> d1Values =
-                d1Aug.getRemoteUcastMacs() != null ? new ArrayList<RemoteUcastMacs>(d1Aug.getRemoteUcastMacs().values())
-                        : new ArrayList<>();
+                d1Aug.getRemoteUcastMacs() != null
+                    ? new ArrayList<RemoteUcastMacs>(d1Aug.nonnullRemoteUcastMacs().values()) : new ArrayList<>();
         List<RemoteUcastMacs> result1 = cmd.transform(nodePath, d1Values);
 
         List<RemoteUcastMacs> d2Values =
-                d2Aug.getRemoteUcastMacs() != null ? new ArrayList<RemoteUcastMacs>(d2Aug.getRemoteUcastMacs().values())
-                        : new ArrayList<>();
+                d2Aug.getRemoteUcastMacs() != null
+                    ? new ArrayList<RemoteUcastMacs>(d2Aug.nonnullRemoteUcastMacs().values()) : new ArrayList<>();
         List<RemoteUcastMacs> result2 = cmd.transform(nodePath, d2Values);
         List<RemoteUcastMacs> ruMacList = new ArrayList<>();
         ruMacList.addAll(result1);
         ruMacList.addAll(result2);
         List<RemoteUcastMacs> result = cmd.transform(nodePath,
-                new ArrayList<RemoteUcastMacs>(haAug.getRemoteUcastMacs().values()));
+                new ArrayList<RemoteUcastMacs>(haAug.nonnullRemoteUcastMacs().values()));
 
         Set<RemoteUcastMacs> set1 = Sets.newHashSet(ruMacList);
         Set<RemoteUcastMacs> set2 = Sets.newHashSet(result);
@@ -155,11 +156,11 @@ public final class TestComparators {
         HwvtepGlobalAugmentation d1Aug = src.augmentation(HwvtepGlobalAugmentation.class);
         HwvtepGlobalAugmentation haAug = dst.augmentation(HwvtepGlobalAugmentation.class);
         List<RemoteMcastMacs> d1Values =
-                d1Aug.getRemoteMcastMacs() != null ? new ArrayList<RemoteMcastMacs>(d1Aug.getRemoteMcastMacs().values())
-                        : new ArrayList<>();
+                d1Aug.getRemoteMcastMacs() != null
+                    ? new ArrayList<RemoteMcastMacs>(d1Aug.nonnullRemoteMcastMacs().values()) : new ArrayList<>();
         List<RemoteMcastMacs> result1 = cmd.transform(nodePath, d1Values);
         List<RemoteMcastMacs> result2 = cmd.transform(nodePath,
-                new ArrayList<RemoteMcastMacs>(haAug.getRemoteMcastMacs().values()));
+                new ArrayList<RemoteMcastMacs>(haAug.nonnullRemoteMcastMacs().values()));
 
         Set<RemoteMcastMacs> set1 = Sets.newHashSet(result1);
         Set<RemoteMcastMacs> set2 = Sets.newHashSet(result2);
@@ -174,20 +175,20 @@ public final class TestComparators {
         HwvtepGlobalAugmentation haAug = ha.augmentation(HwvtepGlobalAugmentation.class);
 
         List<RemoteMcastMacs> d1Values =
-                d1Aug.getRemoteMcastMacs() != null ? new ArrayList<RemoteMcastMacs>(d1Aug.getRemoteMcastMacs().values())
-                        : new ArrayList<>();
+                d1Aug.getRemoteMcastMacs() != null
+                    ? new ArrayList<RemoteMcastMacs>(d1Aug.nonnullRemoteMcastMacs().values()) : new ArrayList<>();
         List<RemoteMcastMacs> result1 = cmd.transform(nodePath, d1Values);
 
         List<RemoteMcastMacs> d2Values =
-                d2Aug.getRemoteMcastMacs() != null ? new ArrayList<RemoteMcastMacs>(d2Aug.getRemoteMcastMacs().values())
-                        : new ArrayList<>();
+                d2Aug.getRemoteMcastMacs() != null
+                    ? new ArrayList<RemoteMcastMacs>(d2Aug.nonnullRemoteMcastMacs().values()) : new ArrayList<>();
         List<RemoteMcastMacs> result2 = cmd.transform(nodePath, d2Values);
         List<RemoteMcastMacs> rmMacList = new ArrayList<>();
         rmMacList.addAll(result1);
         rmMacList.addAll(result2);
 
         List<RemoteMcastMacs> result = cmd.transform(nodePath,
-                new ArrayList<RemoteMcastMacs>(haAug.getRemoteMcastMacs().values()));
+                new ArrayList<RemoteMcastMacs>(haAug.nonnullRemoteMcastMacs().values()));
 
         Set<RemoteMcastMacs> set1 = Sets.newHashSet(rmMacList);
         Set<RemoteMcastMacs> set2 = Sets.newHashSet(result);
@@ -200,11 +201,11 @@ public final class TestComparators {
         HwvtepGlobalAugmentation d1Aug = src.augmentation(HwvtepGlobalAugmentation.class);
         HwvtepGlobalAugmentation haAug = dst.augmentation(HwvtepGlobalAugmentation.class);
         List<LocalUcastMacs> d1Values =
-                d1Aug.getLocalUcastMacs() != null ? new ArrayList<LocalUcastMacs>(d1Aug.getLocalUcastMacs().values())
-                        : new ArrayList<>();
+                d1Aug.getLocalUcastMacs() != null
+                    ? new ArrayList<LocalUcastMacs>(d1Aug.nonnullLocalUcastMacs().values()) : new ArrayList<>();
         List<LocalUcastMacs> result1 = cmd.transform(nodePath, d1Values);
         List<LocalUcastMacs> result2 = cmd.transform(nodePath,
-                new ArrayList<LocalUcastMacs>(haAug.getLocalUcastMacs().values()));
+                new ArrayList<LocalUcastMacs>(haAug.nonnullLocalUcastMacs().values()));
 
         Set<LocalUcastMacs> set1 = Sets.newHashSet(result1);
         Set<LocalUcastMacs> set2 = Sets.newHashSet(result2);
@@ -219,16 +220,16 @@ public final class TestComparators {
         HwvtepGlobalAugmentation haAug = ha.augmentation(HwvtepGlobalAugmentation.class);
 
         List<LocalUcastMacs> d1Values =
-                d1Aug.getLocalUcastMacs() != null ? new ArrayList<LocalUcastMacs>(d1Aug.getLocalUcastMacs().values())
-                        : new ArrayList<>();
+                d1Aug.getLocalUcastMacs() != null
+                    ? new ArrayList<LocalUcastMacs>(d1Aug.nonnullLocalUcastMacs().values()) : new ArrayList<>();
         List<LocalUcastMacs> result1 = cmd.transform(nodePath, d1Values);
         List<LocalUcastMacs> d2Values =
-                d2Aug.getLocalUcastMacs() != null ? new ArrayList<LocalUcastMacs>(d2Aug.getLocalUcastMacs().values())
-                        : new ArrayList<>();
+                d2Aug.getLocalUcastMacs() != null
+                    ? new ArrayList<LocalUcastMacs>(d2Aug.nonnullLocalUcastMacs().values()) : new ArrayList<>();
         List<LocalUcastMacs> result2 = cmd.transform(nodePath, d2Values);
 
         List<LocalUcastMacs> result = cmd.transform(nodePath,
-                new ArrayList<LocalUcastMacs>(haAug.getLocalUcastMacs().values()));
+                new ArrayList<LocalUcastMacs>(haAug.nonnullLocalUcastMacs().values()));
 
         List<LocalUcastMacs> luMacList = new ArrayList<>();
         luMacList.addAll(result1);
@@ -244,11 +245,11 @@ public final class TestComparators {
         HwvtepGlobalAugmentation d1Aug = src.augmentation(HwvtepGlobalAugmentation.class);
         HwvtepGlobalAugmentation haAug = dst.augmentation(HwvtepGlobalAugmentation.class);
         List<LocalMcastMacs> d1Values =
-                d1Aug.getLocalUcastMacs() != null ? new ArrayList<LocalMcastMacs>(d1Aug.getLocalMcastMacs().values())
-                        : new ArrayList<>();
+                d1Aug.getLocalUcastMacs() != null
+                    ? new ArrayList<LocalMcastMacs>(d1Aug.nonnullLocalMcastMacs().values()) : new ArrayList<>();
         List<LocalMcastMacs> result1 = cmd.transform(nodePath, d1Values);
         List<LocalMcastMacs> result2 = cmd.transform(nodePath,
-                new ArrayList<LocalMcastMacs>(haAug.getLocalMcastMacs().values()));
+                new ArrayList<LocalMcastMacs>(haAug.nonnullLocalMcastMacs().values()));
 
         Set<LocalMcastMacs> set1 = Sets.newHashSet(result1);
         Set<LocalMcastMacs> set2 = Sets.newHashSet(result2);
@@ -262,16 +263,16 @@ public final class TestComparators {
         HwvtepGlobalAugmentation d2Aug = d2.augmentation(HwvtepGlobalAugmentation.class);
         HwvtepGlobalAugmentation haAug = ha.augmentation(HwvtepGlobalAugmentation.class);
         List<LocalMcastMacs> d1Values =
-                d1Aug.getLocalUcastMacs() != null ? new ArrayList<LocalMcastMacs>(d1Aug.getLocalMcastMacs().values())
-                        : new ArrayList<>();
+                d1Aug.nonnullLocalMcastMacs() != null
+                    ? new ArrayList<LocalMcastMacs>(d1Aug.nonnullLocalMcastMacs().values()) : new ArrayList<>();
         List<LocalMcastMacs> result1 = cmd.transform(nodePath, d1Values);
         List<LocalMcastMacs> d2Values =
-                d2Aug.getLocalUcastMacs() != null ? new ArrayList<LocalMcastMacs>(d2Aug.getLocalMcastMacs().values())
-                        : new ArrayList<>();
+                d2Aug.nonnullLocalMcastMacs() != null
+                    ? new ArrayList<LocalMcastMacs>(d2Aug.nonnullLocalMcastMacs().values()) : new ArrayList<>();
         List<LocalMcastMacs> result2 = cmd.transform(nodePath, d2Values);
 
         List<LocalMcastMacs> result = cmd.transform(nodePath,
-                new ArrayList<LocalMcastMacs>(haAug.getLocalMcastMacs().values()));
+                new ArrayList<LocalMcastMacs>(haAug.nonnullLocalMcastMacs().values()));
 
         List<LocalMcastMacs> lmMacList = new ArrayList<>();
         lmMacList.addAll(result1);
@@ -309,15 +310,15 @@ public final class TestComparators {
                 managerhaPs.getValue().firstKeyOf(Node.class).getNodeId().getValue() + "/physicalswitch/" + switchName);
 
         assertEquals("Should have equal number TunnelIps",
-                d1PsAug.getTunnelIps().size(), haPsAug.getTunnelIps().size());
+                d1PsAug.nonnullTunnelIps().size(), haPsAug.nonnullTunnelIps().size());
         assertEquals("Should have equal number TunnelIps",
-                d2PsAug.getTunnelIps().size(), haPsAug.getTunnelIps().size());
-        if (d1PsAug.getTunnelIps().size() == haPsAug.getTunnelIps().size()
-                && d2PsAug.getTunnelIps().size() == haPsAug.getTunnelIps().size()) {
-            assertTrue(d1PsAug.getTunnelIps().values().containsAll(
-                    new ArrayList<TunnelIps>(haPsAug.getTunnelIps().values())));
-            assertTrue(d2PsAug.getTunnelIps().values().containsAll(
-                    new ArrayList<TunnelIps>(haPsAug.getTunnelIps().values())));
+                d2PsAug.nonnullTunnelIps().size(), haPsAug.nonnullTunnelIps().size());
+        if (d1PsAug.nonnullTunnelIps().size() == haPsAug.nonnullTunnelIps().size()
+                && d2PsAug.nonnullTunnelIps().size() == haPsAug.nonnullTunnelIps().size()) {
+            assertTrue(d1PsAug.nonnullTunnelIps().values().containsAll(
+                    new ArrayList<TunnelIps>(haPsAug.nonnullTunnelIps().values())));
+            assertTrue(d2PsAug.nonnullTunnelIps().values().containsAll(
+                    new ArrayList<TunnelIps>(haPsAug.nonnullTunnelIps().values())));
         }
 
         //Compare Termination point
@@ -345,11 +346,11 @@ public final class TestComparators {
         assertEquals("Managers should be equal for ha ", haps.getNodeId().getValue(),
                 managerhaPs.getValue().firstKeyOf(Node.class).getNodeId().getValue() + "/physicalswitch/" + switchName);
 
-        assertEquals("Should have equal number TunnelIps", d1PsAug.getTunnelIps().size(),
-                haPsAug.getTunnelIps().size());
-        if (d1PsAug.getTunnelIps().size() == haPsAug.getTunnelIps().size()) {
-            assertTrue(d1PsAug.getTunnelIps().values().containsAll(
-                    new ArrayList<TunnelIps>(haPsAug.getTunnelIps().values())));
+        assertEquals("Should have equal number TunnelIps", d1PsAug.nonnullTunnelIps().size(),
+                haPsAug.nonnullTunnelIps().size());
+        if (d1PsAug.nonnullTunnelIps().size() == haPsAug.nonnullTunnelIps().size()) {
+            assertTrue(d1PsAug.nonnullTunnelIps().values().containsAll(
+                    new ArrayList<TunnelIps>(haPsAug.nonnullTunnelIps().values())));
         }
 
         //Compare Termination point
@@ -379,9 +380,9 @@ public final class TestComparators {
                     hwvtepPhysicalPortAugmentationHa.getHwvtepNodeName());
 
             List<VlanBindings> vlanBindingsesD
-                    = new ArrayList<VlanBindings>(hwvtepPhysicalPortAugmentationD.getVlanBindings().values());
+                    = new ArrayList<VlanBindings>(hwvtepPhysicalPortAugmentationD.nonnullVlanBindings().values());
             List<VlanBindings> vlanBindingsesHa
-                    = new ArrayList<VlanBindings>(hwvtepPhysicalPortAugmentationHa.getVlanBindings().values());
+                    = new ArrayList<VlanBindings>(hwvtepPhysicalPortAugmentationHa.nonnullVlanBindings().values());
             assertEquals("Size of VlanBindings should be same", vlanBindingsesD.size(), vlanBindingsesHa.size());
 
             List<Integer> vlanKeysD = new ArrayList<>();

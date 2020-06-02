@@ -27,8 +27,8 @@ public class TunnelIpCmd extends
     @Override
     @Nullable
     public List<TunnelIps> getData(PhysicalSwitchAugmentation node) {
-        if (node != null && node.getTunnelIps() != null) {
-            return new ArrayList<TunnelIps>(node.getTunnelIps().values());
+        if (node != null && node.nonnullTunnelIps() != null) {
+            return new ArrayList<TunnelIps>(node.nonnullTunnelIps().values());
         }
         return null;
     }
