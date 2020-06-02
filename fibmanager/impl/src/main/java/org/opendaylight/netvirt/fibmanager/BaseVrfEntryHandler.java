@@ -481,7 +481,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                 LOG.error(
                         "Failed to retrieve egress action for prefix {} route-paths {} interface {}. "
                                 + "Aborting remote FIB entry creation.",
-                        vrfEntry.getDestPrefix(), new ArrayList<RoutePaths>(vrfEntry.getRoutePaths().values()),
+                        vrfEntry.getDestPrefix(), new ArrayList<RoutePaths>(vrfEntry.nonnullRoutePaths().values()),
                         egressInterface);
                 return;
             }

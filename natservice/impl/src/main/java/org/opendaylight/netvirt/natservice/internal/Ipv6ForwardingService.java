@@ -433,7 +433,7 @@ public class Ipv6ForwardingService implements SnatServiceListener {
     }
 
     protected boolean routerHasIpv6ExtSubnet(Routers routers) {
-        for (ExternalIps externalIp : routers.getExternalIps().values()) {
+        for (ExternalIps externalIp : routers.nonnullExternalIps().values()) {
             if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
                 LOG.debug("router {}, has an external IPv6 subnet {}",
                         routers.getRouterName(), externalIp.getIpAddress());

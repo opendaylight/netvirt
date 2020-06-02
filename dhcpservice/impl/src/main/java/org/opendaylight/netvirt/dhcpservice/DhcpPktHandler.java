@@ -818,7 +818,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
                     LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}",
                             interfaceName, rpcResult.getErrors());
                 } else {
-                    return new ArrayList<Action>(rpcResult.getResult().getAction().values());
+                    return new ArrayList<Action>(rpcResult.getResult().nonnullAction().values());
                 }
             } else {
                 GetEgressActionsForInterfaceInputBuilder egressAction =
@@ -833,7 +833,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
                     LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}",
                             interfaceName, rpcResult.getErrors());
                 } else {
-                    return new ArrayList<Action>(rpcResult.getResult().getAction().values());
+                    return new ArrayList<Action>(rpcResult.getResult().nonnullAction().values());
                 }
             }
         } catch (InterruptedException | ExecutionException e) {

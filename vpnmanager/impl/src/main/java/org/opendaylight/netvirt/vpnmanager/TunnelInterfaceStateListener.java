@@ -365,7 +365,7 @@ public class TunnelInterfaceStateListener extends AbstractAsyncDataTreeChangeLis
                 if (vpnInterface != null) {
                     listVpnName.addAll(VpnHelper
                         .getVpnInterfaceVpnInstanceNamesString(
-                                new ArrayList<VpnInstanceNames>(vpnInterface.getVpnInstanceNames().values())));
+                                new ArrayList<VpnInstanceNames>(vpnInterface.nonnullVpnInstanceNames().values())));
                     handleTunnelEventForDPNVpn(stateTunnelList, vpnIdRdMap,
                             tunnelAction, isTepDeletedOnDpn,
                             subnetList, TunnelEventProcessingMethod.POPULATESUBNETS,

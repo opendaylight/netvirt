@@ -203,7 +203,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         Uint32 extNetVpnId = NatUtil.getVpnId(dataBroker, vpnUuid.getValue());
         LOG.info("installSnatSpecificEntriesForNaptSwitch: external network vpn_id {} for router {}",
             extNetVpnId, routers.getRouterName());
-        Map<ExternalIpsKey, ExternalIps> keyExternalIpsMap = routers.getExternalIps();
+        Map<ExternalIpsKey, ExternalIps> keyExternalIpsMap = routers.nonnullExternalIps();
         addOutboundTblTrackEntryForVxlanGre(confTx, dpnId, routerId, extNetVpnId);
         addOutboundTblEntryForVxlanGre(confTx, dpnId, routerId, extNetVpnId,
                 new ArrayList<ExternalIps>(keyExternalIpsMap.values()), elanId);
@@ -246,7 +246,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         Uint32 extNetVpnId = NatUtil.getVpnId(dataBroker, vpnUuid.getValue());
         LOG.info("installSnatSpecificEntriesForNaptSwitch: external network vpn_id {} for router {}",
             extNetVpnId, routers.getRouterName());
-        Map<ExternalIpsKey, ExternalIps> keyExternalIpsMap = routers.getExternalIps();
+        Map<ExternalIpsKey, ExternalIps> keyExternalIpsMap = routers.nonnullExternalIps();
         removeOutboundTblTrackEntryForVxlanGre(confTx, dpnId, routerId);
         removeOutboundTblEntryForVxlanGre(confTx, dpnId, routerId,
                 new ArrayList<ExternalIps>(keyExternalIpsMap.values()));

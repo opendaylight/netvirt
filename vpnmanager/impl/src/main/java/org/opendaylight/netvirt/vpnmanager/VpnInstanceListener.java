@@ -300,7 +300,7 @@ public class VpnInstanceListener extends AbstractAsyncDataTreeChangeListener<Vpn
             if (vpnTargets != null) {
                 @Nullable Map<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn
                         .instances.vpn.instance.vpntargets.VpnTargetKey, VpnTarget> vpnTargetListMap
-                        = vpnTargets.getVpnTarget();
+                        = vpnTargets.nonnullVpnTarget();
                 if (vpnTargetListMap != null) {
                     for (VpnTarget vpnTarget : vpnTargetListMap.values()) {
                         VpnTargetBuilder vpnTargetBuilder =

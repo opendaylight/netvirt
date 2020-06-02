@@ -496,7 +496,7 @@ public final class VpnUtil {
         InstanceIdentifier<Adjacencies> path = identifier.augmentation(Adjacencies.class);
         Optional<Adjacencies> adjacencies = read(LogicalDatastoreType.CONFIGURATION, path);
         if (adjacencies.isPresent()) {
-            return new ArrayList<Adjacency>(adjacencies.get().getAdjacency().values());
+            return new ArrayList<Adjacency>(adjacencies.get().nonnullAdjacency().values());
         }
         return null;
     }
@@ -802,7 +802,7 @@ public final class VpnUtil {
             VpnInterface cfgVpnInterface = optConfiguredVpnInterface.get();
             java.util.Optional<List<VpnInstanceNames>> optVpnInstanceList =
                  java.util.Optional.ofNullable(
-                         new ArrayList<VpnInstanceNames>(cfgVpnInterface.getVpnInstanceNames().values()));
+                         new ArrayList<VpnInstanceNames>(cfgVpnInterface.nonnullVpnInstanceNames().values()));
             if (optVpnInstanceList.isPresent()) {
                 List<String> vpnList = new ArrayList<>();
                 for (VpnInstanceNames vpnInstance : optVpnInstanceList.get()) {
