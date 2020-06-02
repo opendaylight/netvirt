@@ -215,8 +215,8 @@ public class AclInterfaceListener extends AbstractAsyncDataTreeChangeListener<In
                 builder.portSecurityEnabled(aclInPort.isPortSecurityEnabled())
                         .interfaceType(aclInPort.getInterfaceType()).securityGroups(sgs)
                         .allowedAddressPairs(new ArrayList<AllowedAddressPairs>(aclInPort
-                                .getAllowedAddressPairs().values())).subnetInfo(new ArrayList<SubnetInfo>(aclInPort
-                        .getSubnetInfo().values()));
+                                .nonnullAllowedAddressPairs().values())).subnetInfo(new ArrayList<SubnetInfo>(aclInPort
+                        .nonnullSubnetInfo().values()));
             }
 
             if ((prevAclInterface == null || prevAclInterface.getLPortTag() == null) && interfaceState != null) {

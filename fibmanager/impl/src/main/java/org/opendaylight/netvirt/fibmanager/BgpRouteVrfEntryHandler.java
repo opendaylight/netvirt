@@ -193,7 +193,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
             LOG.error("Vpn Instance not availabe {}", vrfTableKey.getRouteDistinguisher());
             return;
         }
-        final Map<VpnToDpnListKey, VpnToDpnList> keyVpnToDpnListMap = vpnInstance.getVpnToDpnList();
+        final Map<VpnToDpnListKey, VpnToDpnList> keyVpnToDpnListMap = vpnInstance.nonnullVpnToDpnList();
         if (keyVpnToDpnListMap != null) {
             for (VpnToDpnList vpnDpn : keyVpnToDpnListMap.values()) {
                 LOG.trace("Dpnstate is {} for dpn {} in vpn {}", vpnDpn.getDpnState(), vpnDpn.getDpnId(),
@@ -224,7 +224,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
             return;
         }
         String vpnName = getFibUtil().getVpnNameFromId(vpnInstance.getVpnId());
-        final Map<VpnToDpnListKey, VpnToDpnList> keyVpnToDpnListMap = vpnInstance.getVpnToDpnList();
+        final Map<VpnToDpnListKey, VpnToDpnList> keyVpnToDpnListMap = vpnInstance.nonnullVpnToDpnList();
         if (keyVpnToDpnListMap != null) {
             List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker,
                     vpnInstance.getVpnId(), vrfEntry.getDestPrefix());

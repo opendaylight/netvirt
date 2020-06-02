@@ -121,7 +121,7 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
         }
         Network networkConfData = optionalNetworkConfData.get();
         List<AllocationPool> allocationPoolList = new ArrayList<AllocationPool>(networkConfData
-                .getAllocationPool().values());
+                .nonnullAllocationPool().values());
         // if network has allocation pool list - get the first element
         // as we have no info about a specific subnet
         if (allocationPoolList != null && !allocationPoolList.isEmpty()) {
@@ -150,7 +150,9 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
             return Collections.emptyMap();
         }
 
-        return elanDpnIfacesOpc.get().nonnullDpnInterfaces().values().stream()
+        return elanDpnIfacesOpc.get().nonnullDpnInterfaces().values() == null
+                ? Collections.<Uint64, List<String>>emptyMap()
+                : elanDpnIfacesOpc.get().nonnullDpnInterfaces().values().stream()
             .collect(Collectors.toMap(DpnInterfaces::getDpId,
                 value -> value.getInterfaces() != null ? value.getInterfaces() : Collections.emptyList()));
     }
