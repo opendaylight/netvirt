@@ -372,7 +372,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
                 continue;
             }
             final List<Uuid> vpnRouterIds = NeutronUtils.getVpnMapRouterIdsListUuid(
-                    new ArrayList<RouterIds>(map.getRouterIds().values()));
+                    new ArrayList<RouterIds>(map.nonnullRouterIds().values()));
             for (Uuid routerId : vpnRouterIds) {
                 if (map.getVpnId().getValue().equalsIgnoreCase(routerId.getValue())) {
                     break; // VPN is internal
@@ -415,7 +415,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
                 LOG.warn("Could not find suitable VPN for router {}", router.getUuid());
                 continue; // with next router
             }
-            Map<RoutesKey, Routes> routesKeyRoutesMap = router.getRoutes();
+            Map<RoutesKey, Routes> routesKeyRoutesMap = router.nonnullRoutes();
             if (routesKeyRoutesMap != null) {
                 for (Routes route : routesKeyRoutesMap.values()) {
                     handleStaticRoute(vpnId, route, ivpnLink);

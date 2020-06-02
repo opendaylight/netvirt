@@ -74,7 +74,7 @@ public class DhcpL2GwUtil {
                 return null;
             }
             List<Switches> switchIids = new ArrayList<Switches>(nodeOptional.get()
-                    .augmentation(HwvtepGlobalAugmentation.class).getSwitches().values());
+                    .augmentation(HwvtepGlobalAugmentation.class).nonnullSwitches().values());
             if (EMPTY_LIST.test(switchIids)) {
                 return null;
             }
@@ -85,7 +85,7 @@ public class DhcpL2GwUtil {
                 return null;
             }
             List<TunnelIps> tunnelIps = new ArrayList<TunnelIps>(nodeOptional.get()
-                    .augmentation(PhysicalSwitchAugmentation.class).getTunnelIps().values());
+                    .augmentation(PhysicalSwitchAugmentation.class).nonnullTunnelIps().values());
             if (EMPTY_LIST.test(tunnelIps)) {
                 return null;
             }

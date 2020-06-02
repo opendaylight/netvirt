@@ -267,7 +267,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
 
             if (optRouters.isPresent()) {
                 // Get the list of routers and verify if any routers do not have primarySwitch allocated.
-                for (Routers router : optRouters.get().getRouters().values()) {
+                for (Routers router : optRouters.get().nonnullRouters().values()) {
                     Map<ExternalIpsKey, ExternalIps> keyExternalIpsMap = router.getExternalIps();
                     if (router.isEnableSnat() && keyExternalIpsMap != null && !keyExternalIpsMap.isEmpty()) {
                         // Check if the primarySwitch is allocated for the router.
@@ -307,7 +307,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
             if (natMode == NatserviceConfig.NatMode.Conntrack
                     && !INITIAL_SWITCH_WEIGHT.equals(switchWeightMap.get(dpnId))) {
                 NaptSwitches naptSwitches = getNaptSwitches();
-                for (RouterToNaptSwitch routerToNaptSwitch : naptSwitches.getRouterToNaptSwitch().values()) {
+                for (RouterToNaptSwitch routerToNaptSwitch : naptSwitches.nonnullRouterToNaptSwitch().values()) {
                     if (dpnId.equals(routerToNaptSwitch.getPrimarySwitchId())) {
                         Routers router = NatUtil.getRoutersFromConfigDS(dataBroker, routerToNaptSwitch.getRouterName());
                         releaseCentralizedSwitch(router);

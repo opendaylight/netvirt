@@ -89,7 +89,7 @@ public class FibRpcServiceImpl implements FibRpcService {
         String vpnRd = getVpnRd(dataBroker, vpnName);
         String ipAddress = input.getIpAddress();
         LOG.info("Create custom FIB entry - {} on dpn {} for VPN {} ", ipAddress, dpnId, vpnName);
-        Map<InstructionKey, Instruction> instructionMap = input.getInstruction();
+        Map<InstructionKey, Instruction> instructionMap = input.nonnullInstruction();
         LOG.info("ADD: Adding Custom Fib Entry rd {} prefix {} label {}", vpnRd, ipAddress, input.getServiceId());
         makeLocalFibEntry(vpnId, dpnId, ipAddress, new ArrayList<Instruction>(instructionMap.values()));
         IpAddresses.IpAddressSource ipAddressSource = IpAddresses.IpAddressSource

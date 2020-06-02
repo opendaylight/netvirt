@@ -242,7 +242,7 @@ public class EvpnDnatFlowProgrammer {
                     vpnIfOpDataEntryBuilder.withKey(new VpnInterfaceOpDataEntryKey(interfaceName, vpnName));
 
                     Map<AdjacencyKey, Adjacency> keyAdjacencyMap =
-                        adjs != null && adjs.getAdjacency() != null ? adjs.getAdjacency()
+                        adjs != null && adjs.getAdjacency() != null ? adjs.nonnullAdjacency()
                                 : new HashMap<AdjacencyKey, Adjacency>();
                     List<Adjacency> adjacencyListToImport = new ArrayList<>();
                     for (Adjacency adj : keyAdjacencyMap.values()) {

@@ -104,11 +104,11 @@ public class NeutronTrunkChangeListener extends AbstractAsyncDataTreeChangeListe
 
     @Override
     public void update(InstanceIdentifier<Trunk> identifier, Trunk original, Trunk update) {
-        List<SubPorts> updatedSubPorts = new ArrayList<SubPorts>(update.getSubPorts().values());
+        List<SubPorts> updatedSubPorts = new ArrayList<SubPorts>(update.nonnullSubPorts().values());
         if (updatedSubPorts == null) {
             updatedSubPorts = Collections.emptyList();
         }
-        List<SubPorts> originalSubPorts = new ArrayList<SubPorts>(original.getSubPorts().values());
+        List<SubPorts> originalSubPorts = new ArrayList<SubPorts>(original.nonnullSubPorts().values());
         if (originalSubPorts == null) {
             originalSubPorts = Collections.emptyList();
         }

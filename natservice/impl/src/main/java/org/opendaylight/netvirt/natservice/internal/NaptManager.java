@@ -442,7 +442,7 @@ public class NaptManager {
         InstanceIdentifier<IpMapping> id = getIpMapList(routerId);
         return new ArrayList<IpMap>(SingleTransactionDataBroker
                 .syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.OPERATIONAL, id).map(IpMapping::getIpMap).orElse(
+                LogicalDatastoreType.OPERATIONAL, id).map(IpMapping::nonnullIpMap).orElse(
                 Collections.emptyMap()).values());
     }
 

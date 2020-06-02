@@ -81,10 +81,10 @@ public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler {
                     && FibHelper.isControllerManagedNonSelfImportedRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
                 VpnInstanceOpDataEntry parentVpnInstance =
                         getFibUtil().getVpnInstance(vrfEntry.getParentVpnRd());
-                keyVpnToDpnListMap = parentVpnInstance != null ? parentVpnInstance.getVpnToDpnList()
-                        : vpnInstance.getVpnToDpnList();
+                keyVpnToDpnListMap = parentVpnInstance != null ? parentVpnInstance.nonnullVpnToDpnList()
+                        : vpnInstance.nonnullVpnToDpnList();
             } else {
-                keyVpnToDpnListMap = vpnInstance.getVpnToDpnList();
+                keyVpnToDpnListMap = vpnInstance.nonnullVpnToDpnList();
             }
             final Uint32 vpnId = vpnInstance.getVpnId();
 

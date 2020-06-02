@@ -247,8 +247,8 @@ public class NeutronPortChangeListener extends AbstractAsyncDataTreeChangeListen
                 handleFloatingIpPortUpdated(original, update);
             }
         } else {
-            Set<FixedIps> oldIPs = getFixedIpSet(new ArrayList<FixedIps>(original.getFixedIps().values()));
-            Set<FixedIps> newIPs = getFixedIpSet(new ArrayList<FixedIps>(update.getFixedIps().values()));
+            Set<FixedIps> oldIPs = getFixedIpSet(new ArrayList<FixedIps>(original.nonnullFixedIps().values()));
+            Set<FixedIps> newIPs = getFixedIpSet(new ArrayList<FixedIps>(update.nonnullFixedIps().values()));
             if (!oldIPs.equals(newIPs)) {
                 handleNeutronPortUpdated(original, update);
             }
