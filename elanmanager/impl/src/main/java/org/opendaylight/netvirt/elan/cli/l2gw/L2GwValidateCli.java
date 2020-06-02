@@ -155,7 +155,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
                     InstanceIdentifier.builder(ElanInstances.class).build()).get();
 
             if (elanInstancesOptional.isPresent() && elanInstancesOptional.get().getElanInstance() != null) {
-                for (ElanInstance elanInstance : elanInstancesOptional.get().getElanInstance().values()) {
+                for (ElanInstance elanInstance : elanInstancesOptional.get().nonnullElanInstance().values()) {
                     elanInstanceMap.put(elanInstance.getElanInstanceName(), elanInstance);
                 }
             }
@@ -273,7 +273,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
     private static boolean containsLogicalSwitch(Node node) {
         if (node == null || node.augmentation(HwvtepGlobalAugmentation.class) == null
                 || HwvtepHAUtil.isEmptyList(
-                new ArrayList(node.augmentation(HwvtepGlobalAugmentation.class).getLogicalSwitches().values()))) {
+                new ArrayList(node.augmentation(HwvtepGlobalAugmentation.class).nonnullLogicalSwitches().values()))) {
             return false;
         }
         return true;
@@ -502,7 +502,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
             return false;
         }
         for (org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712
-                 .l2gateway.attributes.devices.Interfaces deviceInterface : hwVtepDevice.getInterfaces().values()) {
+                 .l2gateway.attributes.devices.Interfaces deviceInterface : hwVtepDevice.nonnullInterfaces().values()) {
 
             NodeId switchNodeId = HwvtepSouthboundUtils.createManagedNodeId(nodeId, hwVtepDevice.getDeviceName());
             InstanceIdentifier<Node> physicalSwitchNodeIid = topoIid.child(Node.class, new NodeKey(switchNodeId));
@@ -539,7 +539,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
             HwvtepPhysicalPortAugmentation portAugmentation = configTerminationPoint.augmentation(
                     HwvtepPhysicalPortAugmentation.class);
             if (portAugmentation == null || HwvtepHAUtil.isEmptyList(
-                    new ArrayList(portAugmentation.getVlanBindings().values()))) {
+                    new ArrayList(portAugmentation.nonnullVlanBindings().values()))) {
                 pw.println("Failed to find the config vlan bindings for port " + deviceInterface.getInterfaceName()
                         + " for node " + hwVtepDevice.getDeviceName() +  " for logical switch " + logicalSwitchName
                         + " nodeid " + nodeId.getValue());
@@ -548,7 +548,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
             }
             portAugmentation = operationalTerminationPoint.augmentation(HwvtepPhysicalPortAugmentation.class);
             if (portAugmentation == null || HwvtepHAUtil.isEmptyList(
-                    new ArrayList(portAugmentation.getVlanBindings().values()))) {
+                    new ArrayList(portAugmentation.nonnullVlanBindings().values()))) {
                 pw.println("Failed to find the operational vlan bindings for port " + deviceInterface.getInterfaceName()
                         + " for node " + hwVtepDevice.getDeviceName() +  " for logical switch " + logicalSwitchName
                         + " nodeid " + nodeId.getValue());

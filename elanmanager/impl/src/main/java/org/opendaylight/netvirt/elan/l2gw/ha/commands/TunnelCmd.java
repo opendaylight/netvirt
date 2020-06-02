@@ -31,8 +31,8 @@ public class TunnelCmd  extends MergeCommand<Tunnels, PhysicalSwitchAugmentation
     @Override
     @Nullable
     public List<Tunnels> getData(PhysicalSwitchAugmentation node) {
-        if (node != null && node.getTunnels() != null) {
-            return new ArrayList<Tunnels>(node.getTunnels().values());
+        if (node != null && node.nonnullTunnels() != null) {
+            return new ArrayList<Tunnels>(node.nonnullTunnels().values());
         }
         return null;
     }

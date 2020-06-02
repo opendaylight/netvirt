@@ -882,7 +882,7 @@ public class ElanUtils {
         InstanceIdentifier<ElanDpnInterfacesList> elanIdentifier = getElanDpnOperationDataPath(elanInstanceName);
         try {
             return new ArrayList<DpnInterfaces>((SingleTransactionDataBroker.syncReadOptional(broker,
-                    LogicalDatastoreType.OPERATIONAL, elanIdentifier).map(ElanDpnInterfacesList::getDpnInterfaces)
+                    LogicalDatastoreType.OPERATIONAL, elanIdentifier).map(ElanDpnInterfacesList::nonnullDpnInterfaces)
                     .orElse(emptyMap())).values());
         } catch (ExecutionException | InterruptedException e) {
             LOG.error("getElanDPNByName: Exception while reading elanDpnInterfaceList DS for the elan "
@@ -1355,7 +1355,7 @@ public class ElanUtils {
     public List<ExternalTunnel> getAllExternalTunnels(LogicalDatastoreType datastoreType) {
         InstanceIdentifier<ExternalTunnelList> iid = InstanceIdentifier.builder(ExternalTunnelList.class).build();
         return new ArrayList<ExternalTunnel>(read(broker, datastoreType, iid).map(ExternalTunnelList
-                ::getExternalTunnel).orElse(Collections.emptyMap()).values());
+                ::nonnullExternalTunnel).orElse(Collections.emptyMap()).values());
     }
 
     public static List<MatchInfo> buildMatchesForElanTagShFlagAndDstMac(long elanTag, boolean shFlag, String macAddr) {
@@ -1447,7 +1447,7 @@ public class ElanUtils {
 
     private static boolean isVxlanSegment(@Nullable ElanInstance elanInstance) {
         if (elanInstance != null) {
-            Map<ElanSegmentsKey, ElanSegments> elanSegments = elanInstance.getElanSegments();
+            Map<ElanSegmentsKey, ElanSegments> elanSegments = elanInstance.nonnullElanSegments();
             if (elanSegments != null) {
                 for (ElanSegments segment : elanSegments.values()) {
                     if (segment != null && segment.getSegmentType().isAssignableFrom(SegmentTypeVxlan.class)
@@ -1476,7 +1476,7 @@ public class ElanUtils {
                 && elanInstance.getSegmentationId() != null && elanInstance.getSegmentationId().longValue() != 0) {
             segmentationId = elanInstance.getSegmentationId();
         } else {
-            for (ElanSegments segment: elanInstance.getElanSegments().values()) {
+            for (ElanSegments segment: elanInstance.nonnullElanSegments().values()) {
                 if (segment != null && segment.getSegmentType().isAssignableFrom(SegmentTypeVxlan.class)
                     && segment.getSegmentationId() != null
                     && segment.getSegmentationId().longValue() != 0) {
@@ -1640,7 +1640,7 @@ public class ElanUtils {
         if (macTable == null) {
             return emptyList();
         }
-        return new ArrayList<MacEntry>(macTable.getMacEntry().values());
+        return new ArrayList<MacEntry>(macTable.nonnullMacEntry().values());
     }
 
     public boolean isTunnelInLogicalGroup(String interfaceName) {
@@ -1691,7 +1691,7 @@ public class ElanUtils {
         Optional<Subnetmaps> subnetMapsData =
                 read(dataBroker, LogicalDatastoreType.CONFIGURATION, buildSubnetMapsWildCardPath());
         if (subnetMapsData.isPresent()) {
-            List<Subnetmap> subnetMapList = new ArrayList<>(subnetMapsData.get().getSubnetmap().values());
+            List<Subnetmap> subnetMapList = new ArrayList<>(subnetMapsData.get().nonnullSubnetmap().values());
             if (subnetMapList != null && !subnetMapList.isEmpty()) {
                 for (Subnetmap subnet : subnetMapList) {
                     if (subnet.getNetworkId().getValue().equals(elanInstanceName)) {
@@ -1738,8 +1738,8 @@ public class ElanUtils {
             LOG.debug("Buckets are not sent for group {}. Skipping merge operation", groupIdInfo);
             return;
         }
-        List<Bucket> newBuckets = new ArrayList<Bucket>(newGroup.getBuckets().getBucket().values());
-        List<Bucket> existingBuckets = new ArrayList<Bucket>(existingGroup.getBucket().values());
+        List<Bucket> newBuckets = new ArrayList<Bucket>(newGroup.getBuckets().nonnullBucket().values());
+        List<Bucket> existingBuckets = new ArrayList<Bucket>(existingGroup.nonnullBucket().values());
         Set<Bucket> toMergeBucketsWithoutId = new LinkedHashSet<>();
 
         existingBuckets.stream()

@@ -250,8 +250,8 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
     private static Set<LocalUcastMacs> getMacs(@Nullable Node node) {
         if (node != null) {
             HwvtepGlobalAugmentation augmentation = node.augmentation(HwvtepGlobalAugmentation.class);
-            if (augmentation != null && augmentation.getLocalUcastMacs() != null) {
-                return new HashSet<>(augmentation.getLocalUcastMacs().values());
+            if (augmentation != null && augmentation.nonnullLocalUcastMacs() != null) {
+                return new HashSet<>(augmentation.nonnullLocalUcastMacs().values());
             }
         }
         return Collections.emptySet();

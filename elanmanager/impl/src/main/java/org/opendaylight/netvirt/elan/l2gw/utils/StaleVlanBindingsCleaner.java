@@ -159,7 +159,7 @@ public class StaleVlanBindingsCleaner {
 
     private static Map<String, List<InstanceIdentifier<VlanBindings>>> getVlansByLogicalSwitchOnDevice(
             final Node configPsNode) {
-        Map<TerminationPointKey, TerminationPoint> ports = configPsNode.getTerminationPoint();
+        Map<TerminationPointKey, TerminationPoint> ports = configPsNode.nonnullTerminationPoint();
         if (ports == null) {
             return Collections.emptyMap();
         }
@@ -167,7 +167,7 @@ public class StaleVlanBindingsCleaner {
         ports.values().stream()
                 .filter(CONTAINS_VLANBINDINGS)
                 .forEach((port) -> port.augmentation(HwvtepPhysicalPortAugmentation.class)
-                        .getVlanBindings().values()
+                        .nonnullVlanBindings().values()
                         .forEach((binding) -> putVlanBindingVsLogicalSwitch(configPsNode, vlans, port, binding)));
         return vlans;
     }
@@ -211,7 +211,7 @@ public class StaleVlanBindingsCleaner {
             return Collections.emptyList();
         }
         return augmentation
-                .getLogicalSwitches().values()
+                .nonnullLogicalSwitches().values()
                 .stream()
                 .map((ls) -> ls.getHwvtepNodeName().getValue())
                 .collect(Collectors.toList());
