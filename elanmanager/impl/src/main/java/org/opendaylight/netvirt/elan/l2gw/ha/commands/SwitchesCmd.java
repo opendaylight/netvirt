@@ -28,8 +28,8 @@ public class SwitchesCmd extends MergeCommand<Switches, HwvtepGlobalAugmentation
     @Override
     @Nullable
     public List<Switches> getData(HwvtepGlobalAugmentation node) {
-        if (node != null && node.getSwitches() != null) {
-            return new ArrayList<Switches>(node.getSwitches().values());
+        if (node != null && node.nonnullSwitches() != null) {
+            return new ArrayList<Switches>(node.nonnullSwitches().values());
         }
         return null;
     }

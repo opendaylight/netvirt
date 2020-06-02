@@ -134,7 +134,7 @@ public class EvpnMacVrfUtils {
                 if (!vrfTablesOptional.isPresent()) {
                     return null;
                 }
-                Map<MacVrfEntryKey, MacVrfEntry> keyMacVrfEntryMap = vrfTablesOptional.get().getMacVrfEntry();
+                Map<MacVrfEntryKey, MacVrfEntry> keyMacVrfEntryMap = vrfTablesOptional.get().nonnullMacVrfEntry();
                 if (keyMacVrfEntryMap == null || keyMacVrfEntryMap.isEmpty()) {
                     return null;
                 }
@@ -170,7 +170,7 @@ public class EvpnMacVrfUtils {
         List<DpnInterfaces> dpnInterfaceLists = elanUtils.getElanDPNByName(elanName);
         if (checkEvpnAttachedToNet(elanName)) {
             //TODO(Riyaz) : Check if accessing first nexthop address is right solution
-            String nexthopIP = new ArrayList<RoutePaths>(macVrfEntry.getRoutePaths().values())
+            String nexthopIP = new ArrayList<RoutePaths>(macVrfEntry.nonnullRoutePaths().values())
                     .get(0).getNexthopAddress();
             IpAddress ipAddress = new IpAddress(new Ipv4Address(nexthopIP));
             Uint32 elanTag = getElanTagByMacvrfiid(instanceIdentifier);
@@ -209,7 +209,7 @@ public class EvpnMacVrfUtils {
 
         //if (checkEvpnAttachedToNet(elanName)) {
         //TODO(Riyaz) : Check if accessing first nexthop address is right
-        String nexthopIP = new ArrayList<RoutePaths>(macVrfEntry.getRoutePaths().values()).get(0).getNexthopAddress();
+        String nexthopIP = new ArrayList<RoutePaths>(macVrfEntry.nonnullRoutePaths().values()).get(0).getNexthopAddress();
         IpAddress ipAddress = new IpAddress(new Ipv4Address(nexthopIP));
         Uint32 elanTag = getElanTagByMacvrfiid(instanceIdentifier);
         if (elanTag == null) {
@@ -276,7 +276,7 @@ public class EvpnMacVrfUtils {
             LOG.debug("RoutePaths is null or empty for macvrfentry {}", macVrfEntry);
             return null;
         }
-        return new ArrayList<RoutePaths>(macVrfEntry.getRoutePaths().values()).get(0).getNexthopAddress();
+        return new ArrayList<RoutePaths>(macVrfEntry.nonnullRoutePaths().values()).get(0).getNexthopAddress();
     }
 
     public void removeEvpnDmacFlowOnDetach(InstanceIdentifier<MacVrfEntry> instanceIdentifier, MacVrfEntry macVrfEntry,

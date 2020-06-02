@@ -37,8 +37,8 @@ public class TerminationPointCmd extends MergeCommand<TerminationPoint, NodeBuil
     @Override
     @Nullable
     public List<TerminationPoint> getData(Node node) {
-        if (node != null && node.getTerminationPoint() != null) {
-            return new ArrayList<TerminationPoint>(node.getTerminationPoint().values());
+        if (node != null && node.nonnullTerminationPoint() != null) {
+            return new ArrayList<TerminationPoint>(node.nonnullTerminationPoint().values());
         }
         return null;
     }
@@ -72,7 +72,7 @@ public class TerminationPointCmd extends MergeCommand<TerminationPoint, NodeBuil
                 new HwvtepPhysicalPortAugmentationBuilder(augmentation);
 
         if (augmentation.getVlanBindings() != null && augmentation.getVlanBindings().size() > 0) {
-            tpAugmentationBuilder.setVlanBindings(augmentation.getVlanBindings().values().stream().map(
+            tpAugmentationBuilder.setVlanBindings(augmentation.nonnullVlanBindings().values().stream().map(
                 vlanBindings -> {
                     VlanBindingsBuilder vlanBindingsBuilder = new VlanBindingsBuilder(vlanBindings);
                     vlanBindingsBuilder.setLogicalSwitchRef(
@@ -110,9 +110,9 @@ public class TerminationPointCmd extends MergeCommand<TerminationPoint, NodeBuil
         HwvtepPhysicalPortAugmentation origAugmentation = orig.augmentation(HwvtepPhysicalPortAugmentation.class);
 
         List<VlanBindings> up
-                = updatedAugmentation != null ? new ArrayList<>(updatedAugmentation.getVlanBindings().values()) : null;
+                = updatedAugmentation != null ? new ArrayList<>(updatedAugmentation.nonnullVlanBindings().values()) : null;
         List<VlanBindings> or
-                = origAugmentation != null ? new ArrayList<>(origAugmentation.getVlanBindings().values()) : null;
+                = origAugmentation != null ? new ArrayList<>(origAugmentation.nonnullVlanBindings().values()) : null;
         if (!areSameSize(up, or)) {
             return false;
         }

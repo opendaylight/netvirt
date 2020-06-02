@@ -438,7 +438,7 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
                 LOG.debug("Removing the Interface:{} from elan:{}", interfaceName, elanName);
                 if (interfaceInfo != null) {
                     if (existingElanInterfaceMac.isPresent()) {
-                        Map<MacEntryKey, MacEntry> existingMacEntries = existingElanInterfaceMac.get().getMacEntry();
+                        Map<MacEntryKey, MacEntry> existingMacEntries = existingElanInterfaceMac.get().nonnullMacEntry();
                         if (existingMacEntries != null) {
                             List<PhysAddress> macAddresses = new ArrayList<>();
                             for (MacEntry macEntry : existingMacEntries.values()) {
@@ -468,7 +468,7 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
                 } else if (existingElanInterfaceMac.isPresent()) {
                     // Interface does not exist in ConfigDS, so lets remove everything
                     // about that interface related to Elan
-                    Map<MacEntryKey, MacEntry> macEntries = existingElanInterfaceMac.get().getMacEntry();
+                    Map<MacEntryKey, MacEntry> macEntries = existingElanInterfaceMac.get().nonnullMacEntry();
                     if (macEntries != null) {
                         for (MacEntry macEntry : macEntries.values()) {
                             PhysAddress macAddress = macEntry.getMacAddress();
@@ -530,7 +530,7 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
                         if (macs == null || macs.getMacEntry() == null) {
                             continue;
                         }
-                        for (MacEntry mac : new ArrayList<MacEntry>(macs.getMacEntry().values())) {
+                        for (MacEntry mac : new ArrayList<MacEntry>(macs.nonnullMacEntry().values())) {
                             removeTheMacFlowInTheDPN(dpId, elanTag, mac, confTx);
                             removeEtreeMacFlowInTheDPN(dpId, elanTag, mac, confTx);
                         }
@@ -583,9 +583,9 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
         EVENT_LOGGER.debug("ELAN-Interface, UPDATE {} Instance {}", original.getName(), elanName);
 
         List<StaticMacEntries> originalStaticMacEntries = new ArrayList<StaticMacEntries>(original
-                .getStaticMacEntries().values());
+                .nonnullStaticMacEntries().values());
         List<StaticMacEntries> updatedStaticMacEntries = new ArrayList<StaticMacEntries>(update
-                .getStaticMacEntries().values());
+                .nonnullStaticMacEntries().values());
         List<StaticMacEntries> deletedEntries = ElanUtils.diffOf(originalStaticMacEntries, updatedStaticMacEntries);
         List<StaticMacEntries> updatedEntries = ElanUtils.diffOf(updatedStaticMacEntries, originalStaticMacEntries);
 
@@ -687,7 +687,7 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
                 .getElanDpnInterfacesList(elanInstance.getElanInstanceName());
         List<DpnInterfaces> dpnInterfaceLists = null;
         if (elanDpnInterfacesList != null) {
-            dpnInterfaceLists = new ArrayList<DpnInterfaces>(elanDpnInterfacesList.getDpnInterfaces().values());
+            dpnInterfaceLists = new ArrayList<DpnInterfaces>(elanDpnInterfacesList.nonnullDpnInterfaces().values());
         }
         if (dpnInterfaceLists != null && !dpnInterfaceLists.isEmpty()) {
             Uint64 dstDpId = interfaceInfo.getDpId();
@@ -865,7 +865,7 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
                 installEntriesForElanInterface(elanInstance, elanInterface, interfaceInfo,
                     isFirstInterfaceInDpn, confTx);
 
-                Map<StaticMacEntriesKey, StaticMacEntries> staticMacEntriesList = elanInterface.getStaticMacEntries();
+                Map<StaticMacEntriesKey, StaticMacEntries> staticMacEntriesList = elanInterface.nonnullStaticMacEntries();
                 List<PhysAddress> staticMacAddresses = Lists.newArrayList();
 
                 if (ElanUtils.isNotEmpty(staticMacEntriesList.values())) {
@@ -1149,7 +1149,7 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
         String interfaceName = interfaceInfo.getInterfaceName();
         ElanInterfaceMac elanInterfaceMac = elanUtils.getElanInterfaceMacByInterfaceName(interfaceName);
         if (elanInterfaceMac != null && elanInterfaceMac.getMacEntry() != null) {
-            Map<MacEntryKey, MacEntry> macEntries = elanInterfaceMac.getMacEntry();
+            Map<MacEntryKey, MacEntry> macEntries = elanInterfaceMac.nonnullMacEntry();
             return Collections.singletonList(ElanUtils.waitForTransactionToComplete(
                 txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
                     for (MacEntry macEntry : macEntries.values()) {
@@ -1620,7 +1620,7 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
                 LOG.debug("Ignoring internal tunnel state event for Flat/Vlan elan {}", elanName);
                 continue;
             }
-            Map<DpnInterfacesKey, DpnInterfaces> dpnInterfaces = elanDpns.getDpnInterfaces();
+            Map<DpnInterfacesKey, DpnInterfaces> dpnInterfaces = elanDpns.nonnullDpnInterfaces();
             if (dpnInterfaces == null) {
                 continue;
             }

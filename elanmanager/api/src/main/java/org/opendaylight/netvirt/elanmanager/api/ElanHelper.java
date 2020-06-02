@@ -62,7 +62,7 @@ public final class ElanHelper {
             ElanDpnInterfacesList existingElanDpnInterfaces = SingleTransactionDataBroker.syncRead(broker,
                     LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId);
             if (existingElanDpnInterfaces != null) {
-                return new ArrayList<DpnInterfaces>(existingElanDpnInterfaces.getDpnInterfaces().values()).stream()
+                return new ArrayList<DpnInterfaces>(existingElanDpnInterfaces.nonnullDpnInterfaces().values()).stream()
                         .flatMap(v -> v.getInterfaces().stream()).collect(Collectors.toList());
             }
         } catch (ExpectedDataObjectNotFoundException e) {

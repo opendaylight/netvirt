@@ -125,7 +125,7 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
                         LogicalDatastoreType.CONFIGURATION,
                         InstanceIdentifier.builder(ElanInstances.class).build());
                 if (elanInstancesOptional.isPresent()) {
-                    Map<ElanInstanceKey, ElanInstance> elans = elanInstancesOptional.get().getElanInstance();
+                    Map<ElanInstanceKey, ElanInstance> elans = elanInstancesOptional.get().nonnullElanInstance();
                     if (elans != null) {
                         for (ElanInstance elan : elans.values()) {
                             networks.add(elan.getElanInstanceName());
@@ -212,7 +212,7 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
             return;
         }
         Map<RemoteUcastMacsKey, RemoteUcastMacs> remoteUcastMacs =
-                hwvtepNode.augmentation(HwvtepGlobalAugmentation.class).getRemoteUcastMacs();
+                hwvtepNode.augmentation(HwvtepGlobalAugmentation.class).nonnullRemoteUcastMacs();
         if (remoteUcastMacs == null || remoteUcastMacs.isEmpty()) {
             return;
         }
@@ -236,7 +236,7 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
             return;
         }
         Map<LocalUcastMacsKey, LocalUcastMacs> localUcastMacs =
-                hwvtepNode.augmentation(HwvtepGlobalAugmentation.class).getLocalUcastMacs();
+                hwvtepNode.augmentation(HwvtepGlobalAugmentation.class).nonnullLocalUcastMacs();
         if (localUcastMacs == null || localUcastMacs.isEmpty()) {
             return;
         }
@@ -260,7 +260,7 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
             return;
         }
         Map<LocalMcastMacsKey, LocalMcastMacs> localMcastMacs =
-                hwvtepNode.augmentation(HwvtepGlobalAugmentation.class).getLocalMcastMacs();
+                hwvtepNode.augmentation(HwvtepGlobalAugmentation.class).nonnullLocalMcastMacs();
         if (localMcastMacs == null || localMcastMacs.isEmpty()) {
             return;
         }
@@ -287,7 +287,7 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
             return;
         }
         Map<RemoteMcastMacsKey, RemoteMcastMacs> remoteMcastMacs =
-                hwvtepNode.augmentation(HwvtepGlobalAugmentation.class).getRemoteMcastMacs();
+                hwvtepNode.augmentation(HwvtepGlobalAugmentation.class).nonnullRemoteMcastMacs();
         if (remoteMcastMacs == null || remoteMcastMacs.isEmpty()) {
             return;
         }
@@ -313,7 +313,7 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
         if (psNode == null) {
             return;
         }
-        Map<TerminationPointKey, TerminationPoint> terminationPoints = psNode.getTerminationPoint();
+        Map<TerminationPointKey, TerminationPoint> terminationPoints = psNode.nonnullTerminationPoint();
         if (terminationPoints == null || terminationPoints.isEmpty()) {
             return;
         }
@@ -357,7 +357,7 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
     Node getPSnode(Node hwvtepNode, LogicalDatastoreType datastoreType) throws ExecutionException,
             InterruptedException {
         if (hwvtepNode.augmentation(HwvtepGlobalAugmentation.class) != null) {
-            Map<SwitchesKey, Switches> switches = hwvtepNode.augmentation(HwvtepGlobalAugmentation.class).getSwitches();
+            Map<SwitchesKey, Switches> switches = hwvtepNode.augmentation(HwvtepGlobalAugmentation.class).nonnullSwitches();
             if (switches != null) {
                 return HwvtepUtils.getHwVtepNode(dataBroker, datastoreType,
                     switches.values().iterator().next().getSwitchRef().getValue().firstKeyOf(Node.class).getNodeId());

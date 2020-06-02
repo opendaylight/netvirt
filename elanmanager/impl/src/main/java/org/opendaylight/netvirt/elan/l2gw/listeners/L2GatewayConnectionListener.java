@@ -82,8 +82,8 @@ public class L2GatewayConnectionListener extends AbstractClusteredAsyncDataTreeC
 
     private static final Predicate<Node> IS_HA_PARENT_NODE = (node) -> {
         HwvtepGlobalAugmentation augmentation = node.augmentation(HwvtepGlobalAugmentation.class);
-        if (augmentation != null && augmentation.getManagers() != null) {
-            return augmentation.getManagers().values().stream().anyMatch(
+        if (augmentation != null && augmentation.nonnullManagers() != null) {
+            return augmentation.nonnullManagers().values().stream().anyMatch(
                 manager -> manager.key().getTarget().getValue().equals(HwvtepHAUtil.MANAGER_KEY));
         }
         return false;
@@ -187,7 +187,7 @@ public class L2GatewayConnectionListener extends AbstractClusteredAsyncDataTreeC
                 @Override
                 public void onSuccess(Optional<Topology> topologyOptional) {
                     if (topologyOptional != null && topologyOptional.isPresent()) {
-                        loadL2GwDeviceCache(new ArrayList<Node>(topologyOptional.get().getNode().values()));
+                        loadL2GwDeviceCache(new ArrayList<Node>(topologyOptional.get().nonnullNode().values()));
                     }
                     registerListener();
                 }
@@ -256,7 +256,7 @@ public class L2GatewayConnectionListener extends AbstractClusteredAsyncDataTreeC
         }
         if (optional.isPresent() && optional.get().getL2gatewayConnection() != null) {
             LOG.trace("Found some connections to fill in l2gw connection cache");
-            new ArrayList<>(optional.get().getL2gatewayConnection().values())
+            new ArrayList<>(optional.get().nonnullL2gatewayConnection().values())
                     .forEach(connection -> {
                         add(parentIid.child(L2gatewayConnection.class, connection.key()), connection);
                     });
@@ -271,7 +271,7 @@ public class L2GatewayConnectionListener extends AbstractClusteredAsyncDataTreeC
         l2GwDevice.setHwvtepNodeId(globalNode.getNodeId().getValue());
 
         List<TunnelIps> tunnelIps = psNode.augmentation(PhysicalSwitchAugmentation.class) != null
-                ? new ArrayList<>(psNode.augmentation(PhysicalSwitchAugmentation.class).getTunnelIps().values()) : null;
+                ? new ArrayList<>(psNode.augmentation(PhysicalSwitchAugmentation.class).nonnullTunnelIps().values()) : null;
         if (tunnelIps != null) {
             for (TunnelIps tunnelIp : tunnelIps) {
                 IpAddress tunnelIpAddr = tunnelIp.getTunnelIpsKey();
