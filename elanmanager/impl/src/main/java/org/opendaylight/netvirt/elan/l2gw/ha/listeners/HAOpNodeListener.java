@@ -236,13 +236,14 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener<Operational> implem
         String childGlobalNodeId = childNode.getNodeId().getValue();
         List<InstanceIdentifier> childPsIids = new ArrayList<>();
         HwvtepGlobalAugmentation hwvtepGlobalAugmentation = childNode.augmentation(HwvtepGlobalAugmentation.class);
-        if (hwvtepGlobalAugmentation == null || HwvtepHAUtil.isEmpty(hwvtepGlobalAugmentation.getSwitches().values())) {
+        if (hwvtepGlobalAugmentation == null
+            || HwvtepHAUtil.isEmpty(hwvtepGlobalAugmentation.nonnullSwitches().values())) {
             haOpClusteredListener.getConnectedNodes()
                     .stream()
                     .filter((connectedIid) -> IS_PS_CHILD_TO_GLOBAL_NODE.test(childGlobalNodeId, connectedIid))
                     .forEach(childPsIids::add);
         } else {
-            hwvtepGlobalAugmentation.getSwitches().values().forEach(
+            hwvtepGlobalAugmentation.nonnullSwitches().values().forEach(
                 (switches) -> childPsIids.add(switches.getSwitchRef().getValue()));
         }
         if (childPsIids.isEmpty()) {

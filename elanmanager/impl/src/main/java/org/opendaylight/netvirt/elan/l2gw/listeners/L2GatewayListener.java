@@ -168,7 +168,7 @@ public class L2GatewayListener extends AbstractClusteredAsyncDataTreeChangeListe
         jobCoordinator.enqueueJob("l2gw.update", () -> {
             ListenableFuture<Void> future = txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
                 DeviceInterfaces updatedDeviceInterfaces = new DeviceInterfaces(update);
-                original.getDevices().values()
+                original.nonnullDevices().values()
                         .stream()
                         .filter((originalDevice) -> originalDevice.getInterfaces() != null)
                         .forEach((originalDevice) -> {
@@ -176,7 +176,7 @@ public class L2GatewayListener extends AbstractClusteredAsyncDataTreeChangeListe
                             L2GatewayDevice l2GwDevice = l2GatewayCache.get(deviceName);
                             NodeId physicalSwitchNodeId = HwvtepSouthboundUtils.createManagedNodeId(
                                     new NodeId(l2GwDevice.getHwvtepNodeId()), deviceName);
-                            originalDevice.getInterfaces().values()
+                            originalDevice.nonnullInterfaces().values()
                                     .stream()
                                     .filter((intf) -> !updatedDeviceInterfaces.containsInterface(
                                             deviceName, intf.getInterfaceName()))
@@ -287,11 +287,11 @@ public class L2GatewayListener extends AbstractClusteredAsyncDataTreeChangeListe
         Map<String, Map<String, Interfaces>> deviceInterfacesMap = new HashMap<>();
 
         DeviceInterfaces(L2gateway l2gateway) {
-            if (l2gateway.getDevices() != null) {
-                l2gateway.getDevices().values().forEach((device) -> {
+            if (l2gateway.nonnullDevices() != null) {
+                l2gateway.nonnullDevices().values().forEach((device) -> {
                     deviceInterfacesMap.putIfAbsent(device.getDeviceName(), new HashMap<>());
-                    if (device.getInterfaces() != null) {
-                        device.getInterfaces().values().forEach((intf) ->
+                    if (device.nonnullInterfaces() != null) {
+                        device.nonnullInterfaces().values().forEach((intf) ->
                                 deviceInterfacesMap.get(device.getDeviceName()).put(intf.getInterfaceName(), intf));
                     }
                 });

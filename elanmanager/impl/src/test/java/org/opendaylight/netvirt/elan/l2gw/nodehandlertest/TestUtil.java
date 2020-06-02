@@ -54,8 +54,8 @@ final class TestUtil {
 
     static void verifyHAconfigNode(Node haConfig, Node d1Node) {
         String haid = new ArrayList<ManagerOtherConfigs>(new ArrayList<Managers>(haConfig
-                .augmentation(HwvtepGlobalAugmentation.class).getManagers().values())
-                .get(0).getManagerOtherConfigs().values()).get(0).getOtherConfigValue();
+                .augmentation(HwvtepGlobalAugmentation.class).nonnullManagers().values())
+                .get(0).nonnullManagerOtherConfigs().values()).get(0).getOtherConfigValue();
         String d1id = d1Node.getNodeId().getValue();
         assertEquals("Other config should contain D1 as child manager", haid, d1id);
     }

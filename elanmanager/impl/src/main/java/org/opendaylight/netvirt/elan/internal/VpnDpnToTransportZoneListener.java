@@ -82,11 +82,11 @@ public class VpnDpnToTransportZoneListener
         boolean shouldCreateVtep;
         if (original.getVpnInterfaces() != null && !original.getVpnInterfaces().isEmpty()) {
             shouldCreateVtep = transportZoneNotificationUtil
-                    .shouldCreateVtep(update.getVpnInterfaces().values().stream()
-                    .filter(vi -> !original.getVpnInterfaces().values().contains(vi)).collect(Collectors.toList()));
+                    .shouldCreateVtep(update.nonnullVpnInterfaces().values().stream()
+                    .filter(vi -> !original.nonnullVpnInterfaces().values().contains(vi)).collect(Collectors.toList()));
         } else {
             shouldCreateVtep = transportZoneNotificationUtil.shouldCreateVtep(
-                    new ArrayList<>(update.getVpnInterfaces().values()));
+                    new ArrayList<>(update.nonnullVpnInterfaces().values()));
         }
 
         if (shouldCreateVtep) {
@@ -103,7 +103,7 @@ public class VpnDpnToTransportZoneListener
         LOG.debug("Vpn dpn {} add detected, updating transport zones", add.getDpnId());
 
         boolean shouldCreateVtep = transportZoneNotificationUtil.shouldCreateVtep(
-                new ArrayList<>(add.getVpnInterfaces().values()));
+                new ArrayList<>(add.nonnullVpnInterfaces().values()));
         if (shouldCreateVtep) {
             String vrfId = identifier.firstKeyOf(VpnInstanceOpDataEntry.class).getVrfId();
             transportZoneNotificationUtil.updateTransportZone(vrfId, add.getDpnId());
