@@ -149,7 +149,7 @@ public class RouterDpnChangeListener extends AbstractAsyncDataTreeChangeListener
                             extNetGroupInstaller.installExtNetGroupEntries(networkId, dpnId);
                             installDefaultNatRouteForRouterExternalSubnets(dpnId,
                                     NatUtil.getExternalSubnetIdsFromExternalIps(
-                                            new ArrayList<ExternalIps>(router.getExternalIps().values())));
+                                            new ArrayList<ExternalIps>(router.nonnullExternalIps().values())));
                             return Collections.emptyList();
                         });
                     }

@@ -138,7 +138,7 @@ public class UpgradeStateListener extends AbstractClusteredSyncDataTreeChangeLis
         }
 
         for (Routers router : routers.nonnullRouters().values()) {
-            Map<ExternalIpsKey, ExternalIps> keyExternalIpsMap = router.getExternalIps();
+            Map<ExternalIpsKey, ExternalIps> keyExternalIpsMap = router.nonnullExternalIps();
             if (router.isEnableSnat() && keyExternalIpsMap != null && !keyExternalIpsMap.isEmpty()) {
                 centralizedSwitchScheduler.scheduleCentralizedSwitch(router);
             }

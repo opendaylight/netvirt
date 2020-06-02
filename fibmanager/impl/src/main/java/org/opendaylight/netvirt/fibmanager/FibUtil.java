@@ -463,7 +463,7 @@ public class FibUtil {
                     prefix, rd, nextHopToRemove, e);
         }
         if (entry.isPresent()) {
-            final List<RoutePaths> routePaths = new ArrayList<RoutePaths>(entry.get().getRoutePaths().values());
+            final List<RoutePaths> routePaths = new ArrayList<RoutePaths>(entry.get().nonnullRoutePaths().values());
             if (routePaths == null || routePaths.isEmpty()) {
                 LOG.warn("routePaths is null/empty for given rd {}, prefix {}", rd, prefix);
                 return;
@@ -587,25 +587,27 @@ public class FibUtil {
     }
 
     public static java.util.Optional<Uint32> getLabelFromRoutePaths(final VrfEntry vrfEntry) {
-        List<RoutePaths> routePaths = new ArrayList<RoutePaths>(vrfEntry.getRoutePaths().values());
+        List<RoutePaths> routePaths = new ArrayList<RoutePaths>(vrfEntry.nonnullRoutePaths().values());
         if (routePaths == null || routePaths.isEmpty()
-                || new ArrayList<RoutePaths>(vrfEntry.getRoutePaths().values()).get(0).getLabel() == null) {
+                || new ArrayList<RoutePaths>(vrfEntry.nonnullRoutePaths().values()).get(0).getLabel() == null) {
             return java.util.Optional.empty();
         }
-        return java.util.Optional.of(new ArrayList<RoutePaths>(vrfEntry.getRoutePaths().values()).get(0).getLabel());
-    }
+        return java.util.Optional.of(new ArrayList<RoutePaths>(vrfEntry
+                .nonnullRoutePaths().values()).get(0).getLabel());
 
+    }
+    
     public static java.util.Optional<String> getFirstNextHopAddress(final VrfEntry vrfEntry) {
-        List<RoutePaths> routePaths = new ArrayList<RoutePaths>(vrfEntry.getRoutePaths().values());
+        List<RoutePaths> routePaths = new ArrayList<RoutePaths>(vrfEntry.nonnullRoutePaths().values());
         if (routePaths == null || routePaths.isEmpty()) {
             return java.util.Optional.empty();
         }
-        return java.util.Optional.of(new ArrayList<RoutePaths>(vrfEntry.getRoutePaths().values())
+        return java.util.Optional.of(new ArrayList<RoutePaths>(vrfEntry.nonnullRoutePaths().values())
                 .get(0).getNexthopAddress());
     }
 
     public static java.util.Optional<Uint32> getLabelForNextHop(final VrfEntry vrfEntry, String nextHopIp) {
-        List<RoutePaths> routePaths = new ArrayList<RoutePaths>(vrfEntry.getRoutePaths().values());
+        List<RoutePaths> routePaths = new ArrayList<RoutePaths>(vrfEntry.nonnullRoutePaths().values());
         if (routePaths == null || routePaths.isEmpty()) {
             return java.util.Optional.empty();
         }
@@ -859,7 +861,7 @@ public class FibUtil {
         if (!dcGwsOpt.isPresent()) {
             return Collections.emptyList();
         }
-        return dcGwsOpt.get().getDcGateway().values().stream().map(DcGateway::getIpAddress).collect(toList());
+        return dcGwsOpt.get().nonnullDcGateway().values().stream().map(DcGateway::getIpAddress).collect(toList());
     }
 
     static boolean isVxlanNetwork(NetworkType networkType) {
@@ -1003,7 +1005,7 @@ public class FibUtil {
             return false;
         }
         if (entry.isPresent()) {
-            Map<RoutePathsKey, RoutePaths> pathsMap = entry.get().getRoutePaths();
+            Map<RoutePathsKey, RoutePaths> pathsMap = entry.get().nonnullRoutePaths();
             for (RoutePaths path: pathsMap.values()) {
                 if (path.getNexthopAddress().equals(nextHopIp)) {
                     return true;

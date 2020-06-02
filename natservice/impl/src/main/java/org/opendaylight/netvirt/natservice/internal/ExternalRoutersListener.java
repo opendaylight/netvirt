@@ -410,7 +410,7 @@ public class ExternalRoutersListener extends AbstractAsyncDataTreeChangeListener
     protected void subnetRegisterMapping(Routers routerEntry, Uint32 segmentId) {
         LOG.debug("subnetRegisterMapping : Fetching values from extRouters model");
         List<String> externalIps = NatUtil.getIpsListFromExternalIps(
-                new ArrayList<ExternalIps>(routerEntry.getExternalIps().values()));
+                new ArrayList<ExternalIps>(routerEntry.nonnullExternalIps().values()));
         int counter = 0;
         int extIpCounter = externalIps.size();
         LOG.debug("subnetRegisterMapping : counter values before looping counter {} and extIpCounter {}",
@@ -1022,7 +1022,7 @@ public class ExternalRoutersListener extends AbstractAsyncDataTreeChangeListener
             return;
         }
         Collection<Uuid> externalSubnetList = NatUtil.getExternalSubnetIdsFromExternalIps(
-                new ArrayList<ExternalIps>(router.getExternalIps().values()));
+                new ArrayList<ExternalIps>(router.nonnullExternalIps().values()));
         // FLAT/VLAN case having external-subnet as VPN
         String externalSubnetVpn = null;
         if (externalSubnetList != null && !externalSubnetList.isEmpty()) {
@@ -1356,9 +1356,9 @@ public class ExternalRoutersListener extends AbstractAsyncDataTreeChangeListener
                     //Check if the Update is on External IPs
                     LOG.debug("update : Checking if this is update on External IPs for router {}", routerName);
                     List<String> originalExternalIps = NatUtil.getIpsListFromExternalIps(
-                            new ArrayList<ExternalIps>(original.getExternalIps().values()));
+                            new ArrayList<ExternalIps>(original.nonnullExternalIps().values()));
                     List<String> updatedExternalIps = NatUtil.getIpsListFromExternalIps(
-                            new ArrayList<ExternalIps>(update.getExternalIps().values()));
+                            new ArrayList<ExternalIps>(update.nonnullExternalIps().values()));
 
                     //Check if the External IPs are removed during the update.
                     Set<String> removedExternalIps = new HashSet<>(originalExternalIps);
@@ -1860,7 +1860,7 @@ public class ExternalRoutersListener extends AbstractAsyncDataTreeChangeListener
                 return;
             }
             Collection<Uuid> externalSubnetList = NatUtil.getExternalSubnetIdsFromExternalIps(
-                    new ArrayList<ExternalIps>(router.getExternalIps().values()));
+                    new ArrayList<ExternalIps>(router.nonnullExternalIps().values()));
             removeNaptFlowsFromActiveSwitch(routerId, routerName, naptSwitchDpnId, networkUuid, vpnName, externalIps,
                     externalSubnetList, removeFlowInvTx, extNwProvType);
             removeFlowsFromNonActiveSwitches(routerId, routerName, naptSwitchDpnId, removeFlowInvTx);
