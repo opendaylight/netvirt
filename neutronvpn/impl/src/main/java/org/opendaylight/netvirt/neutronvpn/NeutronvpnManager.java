@@ -2757,7 +2757,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         Uuid vpnId = input.getVpnId();
         Map<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.associaterouter
                 .input.RouterIdsKey, org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602
-                .associaterouter.input.RouterIds> keyRouterIdsMap = input.getRouterIds();
+                .associaterouter.input.RouterIds> keyRouterIdsMap = input.nonnullRouterIds();
         Preconditions.checkArgument(!keyRouterIdsMap.isEmpty(), "associateRouter: RouterIds list is empty!");
         Preconditions.checkNotNull(vpnId, "associateRouter; VpnId not found!");
         Preconditions.checkNotNull(vpnId, "associateRouter; RouterIds not found!");
@@ -2900,7 +2900,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         Uuid vpnId = input.getVpnId();
         Map<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.dissociaterouter.input
                 .RouterIdsKey, org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602
-                .dissociaterouter.input.RouterIds> keyRouterIdsMap = input.getRouterIds();
+                .dissociaterouter.input.RouterIds> keyRouterIdsMap = input.nonnullRouterIds();
         String routerIdsString = "";
         Preconditions.checkArgument(!keyRouterIdsMap.isEmpty(), "dissociateRouter: RouterIds list is empty!");
         Preconditions.checkNotNull(vpnId, "dissociateRouter: vpnId not found!");
