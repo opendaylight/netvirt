@@ -81,6 +81,48 @@
       "revId": "47c4c98d184251d31e09e69cd8797a7f4f96961a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ff9d5ce_e67883ee",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 890,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2020-06-04T08:05:07Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "1b3ca75d_3a5b5e38",
+      "revId": "47c4c98d184251d31e09e69cd8797a7f4f96961a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bd106392_00fb285f",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 890,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2020-06-04T08:05:07Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "62f53885_6032fb13",
+      "range": {
+        "startLine": 890,
+        "startChar": 88,
+        "endLine": 890,
+        "endChar": 99
+      },
+      "revId": "47c4c98d184251d31e09e69cd8797a7f4f96961a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
