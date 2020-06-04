@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a4a21969_e7db849a",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 890,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2020-06-04T07:54:18Z",
+      "side": 1,
+      "message": "nonnull change is not needed here?",
+      "range": {
+        "startLine": 890,
+        "startChar": 88,
+        "endLine": 890,
+        "endChar": 99
+      },
+      "revId": "47c4c98d184251d31e09e69cd8797a7f4f96961a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67451dac_b8671aa8",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 890,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2020-06-04T07:54:18Z",
+      "side": 1,
+      "message": "nonnull change is not needed here?",
+      "revId": "47c4c98d184251d31e09e69cd8797a7f4f96961a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
