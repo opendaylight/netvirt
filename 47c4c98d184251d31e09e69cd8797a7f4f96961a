@@ -39,6 +39,48 @@
       "revId": "47c4c98d184251d31e09e69cd8797a7f4f96961a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62f53885_6032fb13",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 890,
+      "author": {
+        "id": 7802
+      },
+      "writtenOn": "2020-06-04T07:58:36Z",
+      "side": 1,
+      "message": "portOriginal.getMacAddress(), portOriginal.getFixedIps(),  not needed as we are not calling .values() on it..\nwhile calling .values() on null it genrates null pointers",
+      "parentUuid": "a4a21969_e7db849a",
+      "range": {
+        "startLine": 890,
+        "startChar": 88,
+        "endLine": 890,
+        "endChar": 99
+      },
+      "revId": "47c4c98d184251d31e09e69cd8797a7f4f96961a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b3ca75d_3a5b5e38",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 890,
+      "author": {
+        "id": 7802
+      },
+      "writtenOn": "2020-06-04T07:58:36Z",
+      "side": 1,
+      "message": "portOriginal.getMacAddress(), portOriginal.getFixedIps(),  not needed as we are not calling .values() on it..\nwhile calling .values() on null it genrates null pointers.",
+      "parentUuid": "67451dac_b8671aa8",
+      "revId": "47c4c98d184251d31e09e69cd8797a7f4f96961a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
