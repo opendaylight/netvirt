@@ -8,7 +8,9 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
@@ -64,8 +66,8 @@ public class SubnetOpDpnManager {
                 return null;
             }
             SubnetToDpnBuilder subDpnBuilder = new SubnetToDpnBuilder().withKey(new SubnetToDpnKey(dpnId));
-            List<VpnInterfaces> vpnIntfList = new ArrayList<>();
-            subDpnBuilder.setVpnInterfaces(vpnIntfList);
+            Map<VpnInterfacesKey, VpnInterfaces> vpnInterfaceMap = new HashMap<>();
+            subDpnBuilder.setVpnInterfaces(vpnInterfaceMap);
             SubnetToDpn subDpn = subDpnBuilder.build();
             SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId, subDpn,
                     VpnUtil.SINGLE_TRANSACTION_BROKER_NO_RETRY);
@@ -127,14 +129,13 @@ public class SubnetOpDpnManager {
                 subDpn = optionalSubDpn.get();
             }
             SubnetToDpnBuilder subDpnBuilder = new SubnetToDpnBuilder(subDpn);
-            List<VpnInterfaces> vpnIntfList = new ArrayList<>();
-            vpnIntfList = subDpnBuilder.getVpnInterfaces() != null
-                    ? new ArrayList<>(subDpnBuilder.getVpnInterfaces().values()) : vpnIntfList;
-
+            Map<VpnInterfacesKey, VpnInterfaces> vpnInterfaceMap = new HashMap<>();
+            vpnInterfaceMap = subDpnBuilder.getVpnInterfaces() != null
+                    ? new HashMap<>(subDpnBuilder.getVpnInterfaces()) : vpnInterfaceMap;
             VpnInterfaces vpnIntfs =
                 new VpnInterfacesBuilder().withKey(new VpnInterfacesKey(intfName)).setInterfaceName(intfName).build();
-            vpnIntfList.add(vpnIntfs);
-            subDpnBuilder.setVpnInterfaces(vpnIntfList);
+            vpnInterfaceMap.put(vpnIntfs.key(), vpnIntfs);
+            subDpnBuilder.setVpnInterfaces(vpnInterfaceMap);
             subDpn = subDpnBuilder.build();
             SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId, subDpn,
                     VpnUtil.SINGLE_TRANSACTION_BROKER_NO_RETRY);
@@ -215,18 +216,19 @@ public class SubnetOpDpnManager {
             }
 
             SubnetToDpnBuilder subDpnBuilder = new SubnetToDpnBuilder(optionalSubDpn.get());
-            List<VpnInterfaces> vpnIntfList = new ArrayList<>();
-            vpnIntfList = (subDpnBuilder.getVpnInterfaces() != null && !subDpnBuilder.getVpnInterfaces().isEmpty())
-                    ? new ArrayList<>(subDpnBuilder.getVpnInterfaces().values()) : vpnIntfList;
+            Map<VpnInterfacesKey, VpnInterfaces> vpnInterfaceMap = new HashMap<>();
+
+            vpnInterfaceMap = (subDpnBuilder.getVpnInterfaces() != null && !subDpnBuilder.getVpnInterfaces().isEmpty())
+                    ? new HashMap<>(subDpnBuilder.getVpnInterfaces()) : vpnInterfaceMap;
             VpnInterfaces vpnIntfs =
                 new VpnInterfacesBuilder().withKey(new VpnInterfacesKey(intfName)).setInterfaceName(intfName).build();
-            vpnIntfList.remove(vpnIntfs);
-            if (vpnIntfList.isEmpty()) {
+            vpnInterfaceMap.remove(vpnIntfs.key());
+            if (vpnInterfaceMap.isEmpty()) {
                 // Remove the DPN as well
                 removeDpnFromSubnet(subnetId, dpnId);
                 dpnRemoved = true;
             } else {
-                subDpnBuilder.setVpnInterfaces(vpnIntfList);
+                subDpnBuilder.setVpnInterfaces(vpnInterfaceMap);
                 SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId,
                     subDpnBuilder.build(), VpnUtil.SINGLE_TRANSACTION_BROKER_NO_RETRY);
             }
