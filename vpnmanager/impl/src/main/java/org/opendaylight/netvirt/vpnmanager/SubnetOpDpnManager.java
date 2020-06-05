@@ -133,7 +133,9 @@ public class SubnetOpDpnManager {
 
             VpnInterfaces vpnIntfs =
                 new VpnInterfacesBuilder().withKey(new VpnInterfacesKey(intfName)).setInterfaceName(intfName).build();
-            vpnIntfList.add(vpnIntfs);
+            if (!vpnIntfList.contains(vpnIntfs)) {
+                vpnIntfList.add(vpnIntfs);
+            }
             subDpnBuilder.setVpnInterfaces(vpnIntfList);
             subDpn = subDpnBuilder.build();
             SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId, subDpn,
