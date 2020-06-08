@@ -616,7 +616,14 @@ public final class NatUtil {
 
     @Nullable
     public static String getRouterName(DataBroker broker, Uint32 routerId) {
-        return getVpnInstanceFromVpnIdentifier(broker, routerId);
+	InstanceIdentifier<RouterIds> id = buildRouterIdentifier(routerId);
+        String routerName = 
+		SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                LogicalDatastoreType.CONFIGURATION, id).map(RouterIds::getRouterName).orElse(null);
+        if (routerName == null) {
+            routerName = getVpnInstanceFromVpnIdentifier(broker, routerId);
+        }
+        return routerName;
     }
 
     static InstanceIdentifier<VpnInstanceOpDataEntry> getVpnInstanceOpDataIdentifier(String vrfId) {
