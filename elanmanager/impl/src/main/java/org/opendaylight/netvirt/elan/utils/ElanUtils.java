@@ -1760,9 +1760,11 @@ public class ElanUtils {
                 existingBuckets.size(), toMergeBucketsWithoutId.size(), dpnId, groupIdInfo);
         AtomicLong bucketIdValue = new AtomicLong(-1);
         //Change the bucket id of existing buckets
+        LOG.info("toMergeBucketsWithoutId : {}", toMergeBucketsWithoutId);
         List<Bucket> bucketsToBeAdded = toMergeBucketsWithoutId.stream()
                 .map(bucketWithoutId -> TO_BUCKET_WITH_ID.apply(bucketWithoutId, bucketIdValue))
                 .collect(Collectors.toList());
+        LOG.info("bucketsToBeAdded {}", bucketsToBeAdded);
 
         Group group = MDSALUtil.buildGroup(newGroup.getGroupId().getValue().toJava(), newGroup.getGroupName(),
                 GroupTypes.GroupAll, MDSALUtil.buildBucketLists(bucketsToBeAdded));
