@@ -1716,7 +1716,7 @@ public class ElanUtils {
     public void syncUpdateGroup(Uint64 dpnId, Group newGroup, long delayTime,
                                 TypedWriteTransaction<Datastore.Configuration> confTx) {
         Node nodeDpn = buildDpnNode(dpnId);
-        long groupIdInfo = newGroup.getGroupId().getValue().toJava();
+        long groupIdInfo = newGroup.getGroupId().getValue().longValue();
         GroupKey groupKey = new GroupKey(new GroupId(groupIdInfo));
         InstanceIdentifier<Group> groupInstanceId = InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class, nodeDpn.key()).augmentation(FlowCapableNode.class)
@@ -1764,7 +1764,7 @@ public class ElanUtils {
                 .map(bucketWithoutId -> TO_BUCKET_WITH_ID.apply(bucketWithoutId, bucketIdValue))
                 .collect(Collectors.toList());
 
-        Group group = MDSALUtil.buildGroup(newGroup.getGroupId().getValue().toJava(), newGroup.getGroupName(),
+        Group group = MDSALUtil.buildGroup(newGroup.getGroupId().getValue().longValue(), newGroup.getGroupName(),
                 GroupTypes.GroupAll, MDSALUtil.buildBucketLists(bucketsToBeAdded));
         mdsalManager.addGroup(confTx, dpnId, group);
         LOG.trace("Installed remote BC group for node {} with group {}", nodeDpn, group);

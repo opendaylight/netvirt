@@ -85,7 +85,7 @@ public class ElanGroupListener extends AbstractClusteredAsyncDataTreeChangeListe
             if (elanInstance.getElanTag() != null) {
                 long elanTag = elanInstance.getElanTag().longValue();
                 long elanBCGroupId = ElanUtils.getElanRemoteBroadCastGroupID(elanTag);
-                if (elanBCGroupId == update.getGroupId().getValue().toJava()) {
+                if (elanBCGroupId == update.getGroupId().getValue().longValue()) {
                     return elanInstance;
                 }
             }
