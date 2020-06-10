@@ -55,9 +55,11 @@ public class ElanGroupCache extends AbstractClusteredAsyncDataTreeChangeListener
 
     public synchronized void addJobToWaitList(InstanceIdentifier<Group> key,
                                               Runnable job) {
+        LOG.info("Adding job key : {}", key);
         if (groupsById.containsKey(key)) {
             job.run();
         } else {
+            LOG.info("Job key : {} added to waiting list", key);
             waitingJobs.putIfAbsent(key, new ArrayList<>());
             waitingJobs.get(key).add(job);
         }
@@ -70,21 +72,25 @@ public class ElanGroupCache extends AbstractClusteredAsyncDataTreeChangeListener
 
     @Override
     public void update(InstanceIdentifier<Group> key, Group old, Group updated) {
+        LOG.info("ElanGroupCache update : {}", updated);
         add(key, updated);
     }
 
     @Override
     public synchronized void add(InstanceIdentifier<Group> key, Group added) {
+        LOG.info("ElanGroupCache add : {}", added);
         if (groupsById.containsKey(key)) {
             groupsById.put(key, added);
-            return;
+            //return;
         }
         scheduler.getScheduledExecutorService().schedule(() -> {
             groupsById.put(key, added);
             Collection<Runnable> jobs = waitingJobs.remove(key);
             if (jobs == null) {
+                LOG.info("Job Size NULL for Group {}", added);
                 return;
             }
+            LOG.info("Job Size pending {} for Group {}", jobs.size(), added);
             for (Runnable job : jobs) {
                 job.run();
             }
