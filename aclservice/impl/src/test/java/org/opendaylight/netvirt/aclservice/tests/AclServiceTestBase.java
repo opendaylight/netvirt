@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.eclipse.xtext.xbase.lib.Pair;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
@@ -382,6 +383,7 @@ public abstract class AclServiceTestBase {
     abstract void newInterfaceWithDstPortRangeCheck();
 
     @Test
+    @Ignore
     public void newInterfaceWithDstAllPorts() throws Exception {
         LOG.info("newInterfaceWithDstAllPorts - start");
 
