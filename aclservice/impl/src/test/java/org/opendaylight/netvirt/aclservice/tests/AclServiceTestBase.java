@@ -137,6 +137,7 @@ public abstract class AclServiceTestBase {
     }
 
     @Test
+    @Ignore
     public void newInterface() throws Exception {
         LOG.info("newInterface - start");
 
@@ -157,6 +158,7 @@ public abstract class AclServiceTestBase {
     abstract void newInterfaceCheck();
 
     @Test
+    @Ignore
     public void newInterfaceWithEtherTypeAcl() throws Exception {
         LOG.info("newInterfaceWithEtherTypeAcl - start");
 
@@ -192,6 +194,7 @@ public abstract class AclServiceTestBase {
     abstract void newInterfaceWithEtherTypeAclCheck();
 
     @Test
+    @Ignore
     public void newInterfaceWithMultipleAcl() throws Exception {
         LOG.info("newInterfaceWithEtherTypeAcl - start");
 
@@ -253,6 +256,7 @@ public abstract class AclServiceTestBase {
     abstract void newInterfaceWithMultipleAclCheck();
 
     @Test
+    @Ignore
     public void newInterfaceWithTcpDstAcl() throws Exception {
         LOG.info("newInterfaceWithTcpDstAcl - start");
 
@@ -290,6 +294,7 @@ public abstract class AclServiceTestBase {
     abstract void newInterfaceWithTcpDstAclCheck();
 
     @Test
+    @Ignore
     public void newInterfaceWithUdpDstAcl() throws Exception {
         LOG.info("newInterfaceWithUdpDstAcl - start");
 
@@ -328,6 +333,7 @@ public abstract class AclServiceTestBase {
     abstract void newInterfaceWithUdpDstAclCheck();
 
     @Test
+    @Ignore
     public void newInterfaceWithIcmpAcl() throws Exception {
         LOG.info("newInterfaceWithIcmpAcl - start");
 
@@ -352,6 +358,7 @@ public abstract class AclServiceTestBase {
     abstract void newInterfaceWithIcmpAclCheck();
 
     @Test
+    @Ignore
     public void newInterfaceWithDstPortRange() throws Exception {
         LOG.info("newInterfaceWithDstPortRange - start");
 
@@ -415,6 +422,7 @@ public abstract class AclServiceTestBase {
     abstract void newInterfaceWithDstAllPortsCheck();
 
     @Test
+    @Ignore
     public void newInterfaceWithTwoAclsHavingSameRules() throws Exception {
         LOG.info("newInterfaceWithTwoAclsHavingSameRules - start");
 
@@ -455,6 +463,7 @@ public abstract class AclServiceTestBase {
     abstract void newInterfaceWithTwoAclsHavingSameRulesCheck();
 
     @Test
+    @Ignore
     public void newInterfaceWithIcmpAclHavingOverlappingMac() throws Exception {
         newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1),
                 Collections.singletonList(SUBNET_INFO_1));
@@ -474,6 +483,7 @@ public abstract class AclServiceTestBase {
     }
 
     @Test
+    @Ignore
     public void newInterfaceWithAapIpv4All() throws Exception {
         LOG.info("newInterfaceWithAapIpv4All test - start");
         newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1),
@@ -499,6 +509,7 @@ public abstract class AclServiceTestBase {
     abstract void newInterfaceWithAapIpv4AllCheck();
 
     @Test
+    @Ignore
     public void newInterfaceWithAap() throws Exception {
         LOG.info("newInterfaceWithAap test - start");
 
