@@ -41,7 +41,7 @@ import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.internal.ElanBridgeManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
-import org.opendaylight.ovsdb.utils.mdsal.utils.ControllerMdsalUtils;
+import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.BridgeRefInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.bridge.ref.info.BridgeRefEntry;
@@ -94,7 +94,7 @@ public class TransportZoneNotificationUtil {
         this.elanConfig = elanConfig;
         this.elanBridgeManager = elanBridgeManager;
         this.elanInstanceCache = elanInstanceCache;
-        southBoundUtils = new SouthboundUtils(new ControllerMdsalUtils(dbx));
+        southBoundUtils = new SouthboundUtils(new MdsalUtils(dbx));
     }
 
     public boolean shouldCreateVtep(List<VpnInterfaces> vpnInterfaces) {
