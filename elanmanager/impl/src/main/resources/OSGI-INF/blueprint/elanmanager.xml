@@ -58,7 +58,7 @@
     <argument ref="entityOwnershipService" />
   </bean>
 
-  <bean id="mdsalUtils" class="org.opendaylight.ovsdb.utils.mdsal.utils.ControllerMdsalUtils">
+  <bean id="mdsalUtils" class="org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils">
     <argument ref="dataBroker" />
   </bean>
 
