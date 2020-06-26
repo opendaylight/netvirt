@@ -38,6 +38,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -865,7 +866,17 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
             }
         }
-        return new AdjacenciesBuilder().setAdjacency(adjList).build();
+        return new AdjacenciesBuilder().setAdjacency(getAdjacencyMap(adjList)).build();
+    }
+
+    private Map<AdjacencyKey, Adjacency> getAdjacencyMap(List<Adjacency> adjList) {
+        //convert to set to remove duplicates.
+        Set<Adjacency> adjset = adjList.stream().collect(Collectors.toSet());
+        Map<AdjacencyKey, Adjacency> adjacencyMap = new HashMap<>();
+        for (Adjacency adj : adjset) {
+            adjacencyMap.put(new AdjacencyKey(adj.getIpAddress()), adj);
+        }
+        return adjacencyMap;
     }
 
     protected void createVpnInterface(Collection<Uuid> vpnIds, Port port,
@@ -947,7 +958,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
             }
         }
-        Adjacencies adjacencies = new AdjacenciesBuilder().setAdjacency(updatedAdjsList).build();
+        Adjacencies adjacencies = new AdjacenciesBuilder().setAdjacency(getAdjacencyMap(updatedAdjsList)).build();
         if (vpnId != null) {
             updateVpnInterfaceWithAdjacencies(vpnId, infName, adjacencies, wrtConfigTxn);
         }
@@ -2277,8 +2288,9 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                     .setNextHopIpList(nextHopList)
                                     .withKey(new AdjacencyKey(destination))
                                     .build();
+                            List<Adjacency> newAdjList = Collections.singletonList(newAdj);
                             Adjacencies erAdjs =
-                                    new AdjacenciesBuilder().setAdjacency(Collections.singletonList(newAdj)).build();
+                                    new AdjacenciesBuilder().setAdjacency(getAdjacencyMap(newAdjList)).build();
                             VpnInterface vpnIf = new VpnInterfaceBuilder().withKey(new VpnInterfaceKey(infName))
                                     .addAugmentation(Adjacencies.class, erAdjs).build();
                             SingleTransactionDataBroker.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION,
