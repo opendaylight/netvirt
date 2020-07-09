@@ -26,18 +26,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -98,6 +94,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
@@ -147,6 +144,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.Group
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group.Buckets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group.buckets.Bucket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group.buckets.BucketBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group.buckets.BucketKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.Group;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.GroupKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
@@ -199,6 +197,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forw
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nodes.node.group.buckets.bucket.action.action.NxActionRegLoadNodesNodeGroupBucketsBucketActionsCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nodes.node.table.flow.instructions.instruction.instruction.apply.actions._case.apply.actions.action.action.NxActionRegLoadNodesNodeTableFlowApplyActionsCase;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
@@ -255,15 +255,6 @@ public class ElanUtils {
     private final ElanInterfaceCache elanInterfaceCache;
     private final IITMProvider iitmProvider;
     private final ElanGroupCache elanGroupCache;
-
-    private static final Function<Bucket, Bucket> TO_BUCKET_WITHOUT_ID = (bucket) -> new BucketBuilder(bucket)
-            .setBucketId(new BucketId(0L))
-            .build();
-
-    private static final BiFunction<Bucket, AtomicLong, Bucket> TO_BUCKET_WITH_ID = (bucket, id)
-        -> new BucketBuilder(bucket)
-            .setBucketId(new BucketId(id.incrementAndGet()))
-            .build();
 
     public static final FutureCallback<CommitInfo> DEFAULT_CALLBACK = new FutureCallback<CommitInfo>() {
         @Override
@@ -1740,34 +1731,77 @@ public class ElanUtils {
         }
         List<Bucket> newBuckets = new ArrayList<Bucket>(newGroup.getBuckets().nonnullBucket().values());
         List<Bucket> existingBuckets = new ArrayList<Bucket>(existingGroup.nonnullBucket().values());
-        Set<Bucket> toMergeBucketsWithoutId = new LinkedHashSet<>();
+        LOG.debug("New Buckets {} and Existing Buckets {}", newBuckets, existingBuckets);
+        List<Bucket> combinedBuckets = new ArrayList<>(existingBuckets);
 
-        existingBuckets.stream()
-                .map(TO_BUCKET_WITHOUT_ID)
-                .forEach(bucketWithoutId -> toMergeBucketsWithoutId.add(bucketWithoutId));
-
-        newBuckets.stream()
-                .map(TO_BUCKET_WITHOUT_ID)
-                .forEach(bucketWithoutId -> toMergeBucketsWithoutId.add(bucketWithoutId));
-
-        if (toMergeBucketsWithoutId.size() == existingBuckets.size()) {
-            //no new buckets got added
-            //size matched and no extra buckets in existing buckets , rewrite the group
-            LOG.debug("Buckets did not change group {}. Skipping merge operation", groupIdInfo);
-            return;
-        }
-        LOG.debug("Old group buckets size {} New group buckets size {} Dpn id {} Group id {} ",
-                existingBuckets.size(), toMergeBucketsWithoutId.size(), dpnId, groupIdInfo);
+        Map<String,Bucket> ncBucketMap = new HashMap<>();
+        Map<String,Bucket> reg6ActionBucketMap = new HashMap<>();
+        // Add all buckets in the new group to a map with node connector/reg6 value as key
+        newBuckets.forEach(bucket -> {
+            List<Action> actionList = new ArrayList<Action>(bucket.getAction().values());
+            if (actionList != null && !actionList.isEmpty()) {
+                actionList.forEach(action -> {
+                    if (action.getAction() instanceof OutputActionCase) {
+                        OutputActionCase outputAction = (OutputActionCase)action.getAction();
+                        String nc = outputAction.getOutputAction().getOutputNodeConnector().getValue();
+                        ncBucketMap.put(nc, bucket);
+                    }
+                    if (action.getAction() instanceof NxActionRegLoadNodesNodeTableFlowApplyActionsCase) {
+                        NxActionRegLoadNodesNodeTableFlowApplyActionsCase regLoad =
+                                (NxActionRegLoadNodesNodeTableFlowApplyActionsCase)action.getAction();
+                        String regValue = regLoad.getNxRegLoad().getValue().toString();
+                        reg6ActionBucketMap.put(regValue, bucket);
+                    }
+                });
+            }
+        });
+        //Replace existing bucket if action has same node connector/reg6 value as stored in map
+        //First, remove buckets with same nc id/reg6 value as in hashmap from combinedBuckets
+        //Next, add all the buckets in hashmap to combined buckets
+        existingBuckets.forEach(existingBucket -> {
+            List<Action> actionList = new ArrayList<Action>(existingBucket.getAction().values());
+            if (actionList != null && !actionList.isEmpty()) {
+                actionList.forEach(action -> {
+                    if (action.getAction() instanceof OutputActionCase) {
+                        OutputActionCase outputAction = (OutputActionCase)action.getAction();
+                        String nc = outputAction.getOutputAction().getOutputNodeConnector().getValue();
+                        Bucket storedBucket = ncBucketMap.get(nc);
+                        if (storedBucket != null) {
+                            combinedBuckets.remove(existingBucket);
+                        }
+                    }
+                    if (action.getAction() instanceof NxActionRegLoadNodesNodeGroupBucketsBucketActionsCase) {
+                        NxActionRegLoadNodesNodeGroupBucketsBucketActionsCase regLoad = (
+                                NxActionRegLoadNodesNodeGroupBucketsBucketActionsCase)action.getAction();
+                        String regValue = regLoad.getNxRegLoad().getValue().toString();
+                        Bucket storedBucket = reg6ActionBucketMap.get(regValue);
+                        if (storedBucket != null) {
+                            combinedBuckets.remove(existingBucket);
+                        }
+                    }
+                });
+            }
+        });
         AtomicLong bucketIdValue = new AtomicLong(-1);
         //Change the bucket id of existing buckets
-        List<Bucket> bucketsToBeAdded = toMergeBucketsWithoutId.stream()
-                .map(bucketWithoutId -> TO_BUCKET_WITH_ID.apply(bucketWithoutId, bucketIdValue))
-                .collect(Collectors.toList());
-
+        List<Bucket> bucketsToBeAdded = new ArrayList<>();
+        bucketsToBeAdded.addAll(combinedBuckets.stream().map(bucket -> {
+            BucketId bucketId = new BucketId(bucketIdValue.incrementAndGet());
+            return new BucketBuilder(bucket).withKey(new BucketKey(bucketId)).setBucketId(bucketId).build();
+        }).collect(Collectors.toList()));
+        //Change the bucket id of remaining to be added to the combined buckets
+        bucketsToBeAdded.addAll(ncBucketMap.values().stream().map(bucket -> {
+            BucketId bucketId = new BucketId(bucketIdValue.incrementAndGet());
+            return new BucketBuilder(bucket).withKey(new BucketKey(bucketId)).setBucketId(bucketId).build();
+        }).collect(Collectors.toList()));
+        bucketsToBeAdded.addAll(reg6ActionBucketMap.values().stream().map(bucket -> {
+            BucketId bucketId = new BucketId(bucketIdValue.incrementAndGet());
+            return new BucketBuilder(bucket).withKey(new BucketKey(bucketId)).setBucketId(bucketId).build();
+        }).collect(Collectors.toList()));
         Group group = MDSALUtil.buildGroup(newGroup.getGroupId().getValue().longValue(), newGroup.getGroupName(),
                 GroupTypes.GroupAll, MDSALUtil.buildBucketLists(bucketsToBeAdded));
         mdsalManager.addGroup(confTx, dpnId, group);
-        LOG.trace("Installed remote BC group for node {} with group {}", nodeDpn, group);
+        LOG.trace("Installed remote BC group for node {} with group {} buckets {}", nodeDpn, group, bucketsToBeAdded);
     }
 
     static InstanceIdentifier<Subnetmaps> buildSubnetMapsWildCardPath() {
