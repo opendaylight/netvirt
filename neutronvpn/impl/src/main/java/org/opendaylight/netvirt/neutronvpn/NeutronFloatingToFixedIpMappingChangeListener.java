@@ -164,7 +164,8 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AbstractAsync
                 if (fixedIpAddress != null) {
                     List<InternalToExternalPortMap> intExtPortMapList
                             = new ArrayList<InternalToExternalPortMap>(fixedNeutronPortBuilder
-                            .getInternalToExternalPortMap().values());
+                            .getInternalToExternalPortMap().size() != 0 ? fixedNeutronPortBuilder
+                            .getInternalToExternalPortMap().values() : null);
                     if (intExtPortMapList == null) {
                         intExtPortMapList = new ArrayList<>();
                     }
