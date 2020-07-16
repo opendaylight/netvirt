@@ -16,7 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
@@ -485,8 +487,9 @@ public class VpnSubnetRouteHandler {
             }
             SubnetOpDataEntry subnetOpDataEntry = optionalSubs.get();
             SubnetOpDataEntryBuilder subOpBuilder = new SubnetOpDataEntryBuilder(subnetOpDataEntry);
-            subOpBuilder.setSubnetToDpn(concat(new ArrayList<SubnetToDpn>(subnetOpDataEntry
-                            .nonnullSubnetToDpn().values()), subDpn));
+            List<SubnetToDpn> subnetToDpnList = concat(new ArrayList<SubnetToDpn>(subnetOpDataEntry
+                    .nonnullSubnetToDpn().values()), subDpn);
+            subOpBuilder.setSubnetToDpn(getSubnetToDpnMap(subnetToDpnList));
             if (subOpBuilder.getRouteAdvState() != TaskState.Advertised) {
                 if (subOpBuilder.getNhDpnId() == null) {
                     // No nexthop selected yet, elect one now
@@ -622,8 +625,9 @@ public class VpnSubnetRouteHandler {
                     subOpBuilder.getRouteAdvState(), subOpBuilder.getLastAdvState());
             boolean isExternalSubnetVpn = VpnUtil.isExternalSubnetVpn(subnetOpDataEntry.getVpnName(),
                     subnetId.getValue());
-            subOpBuilder.setSubnetToDpn(concat(new ArrayList<SubnetToDpn>(subnetOpDataEntry
-                            .nonnullSubnetToDpn().values()), subDpn));
+            List<SubnetToDpn> subnetToDpnList = concat(new ArrayList<SubnetToDpn>(subnetOpDataEntry
+                    .nonnullSubnetToDpn().values()), subDpn);
+            subOpBuilder.setSubnetToDpn(getSubnetToDpnMap(subnetToDpnList));
             if (subOpBuilder.getRouteAdvState() != TaskState.Advertised) {
                 if (subOpBuilder.getNhDpnId() == null) {
                     // No nexthop selected yet, elect one now
@@ -653,6 +657,16 @@ public class VpnSubnetRouteHandler {
         } finally {
             vpnUtil.unlockSubnet(subnetId.getValue());
         }
+    }
+
+    private Map<SubnetToDpnKey, SubnetToDpn> getSubnetToDpnMap(List<SubnetToDpn> subnetToDpnList) {
+        //convert to set to remove duplicates.
+        Set<SubnetToDpn> subnetToDpnSet = subnetToDpnList.stream().collect(Collectors.toSet());
+        Map<SubnetToDpnKey, SubnetToDpn> subnetToDpnMap = new HashMap<>();
+        for (SubnetToDpn subnetToDpn : subnetToDpnSet) {
+            subnetToDpnMap.put(new SubnetToDpnKey(subnetToDpn.key()), subnetToDpn);
+        }
+        return subnetToDpnMap;
     }
 
     // TODO Clean up the exception handling

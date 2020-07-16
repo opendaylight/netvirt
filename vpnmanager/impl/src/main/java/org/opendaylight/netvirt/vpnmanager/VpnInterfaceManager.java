@@ -1405,7 +1405,7 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
             }
             AdjacenciesOp adjacencies = vpnInterfaceOpDataEnteryOptional.get().augmentation(AdjacenciesOp.class);
 
-            if (adjacencies != null && !adjacencies.getAdjacency().isEmpty()) {
+            if (adjacencies != null && adjacencies.getAdjacency() != null) {
                 Map<AdjacencyKey, Adjacency> nextHopsMap = adjacencies.nonnullAdjacency();
                 LOG.info("removeAdjacenciesFromVpn: NextHops for interface {} on dpn {} for vpn {} are {}",
                         interfaceName, dpnId, vpnName, nextHopsMap);
