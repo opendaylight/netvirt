@@ -11,6 +11,8 @@ import static org.opendaylight.netvirt.neutronvpn.NeutronvpnUtils.buildfloatingI
 
 import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -162,13 +164,12 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AbstractAsync
                             .setPortName(fixedNeutronPortName);
                 }
                 if (fixedIpAddress != null) {
-                    List<InternalToExternalPortMap> intExtPortMapList
-                            = new ArrayList<InternalToExternalPortMap>(fixedNeutronPortBuilder
-                            .getInternalToExternalPortMap() != null ? fixedNeutronPortBuilder
-                            .getInternalToExternalPortMap().values() : null);
-                    if (intExtPortMapList == null) {
-                        intExtPortMapList = new ArrayList<>();
-                    }
+                    Collection<InternalToExternalPortMap> intExtPortMapCollection = fixedNeutronPortBuilder
+                        .getInternalToExternalPortMap() != null ? fixedNeutronPortBuilder
+                        .getInternalToExternalPortMap().values() : null;
+                    List<InternalToExternalPortMap> intExtPortMapList =
+                        new ArrayList<InternalToExternalPortMap>(intExtPortMapCollection != null
+                            ? intExtPortMapCollection : Collections.emptyList());
                     InternalToExternalPortMap intExtPortMap = new InternalToExternalPortMapBuilder().withKey(new
                             InternalToExternalPortMapKey(fixedIpAddress)).setInternalIp(fixedIpAddress)
                             .setExternalIp(floatingIpAddress).setExternalId(floatingIpId).build();
