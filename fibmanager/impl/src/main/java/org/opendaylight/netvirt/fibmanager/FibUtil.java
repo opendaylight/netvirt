@@ -122,6 +122,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.ModifiedNodeDoesNotExistException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -432,8 +433,13 @@ public class FibUtil {
             LOG.error("removeFibEntry: Removed Fib Entry rd {} prefix {} source {} ",
                     rd, prefix, eventSource);
         } catch (RuntimeException e) {
-            LOG.error("removeFibEntry: Unable to remove Fib Entry for rd {} prefix {} source {} ",
-                    rd, prefix, eventSource);
+            if (e.getCause() instanceof ModifiedNodeDoesNotExistException) {
+                LOG.warn("removeFibEntry: Fib Entry prefix {} rd {} source {} is already deleted from the "
+                        + "vrf table.", prefix, rd, eventSource);
+            } else {
+                LOG.error("removeFibEntry: Unable to remove Fib Entry for rd {} prefix {} source {} ",
+                        rd, prefix, eventSource);
+            }
         }
     }
 
