@@ -34,7 +34,7 @@ import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
@@ -235,7 +235,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
         String requestKey = String.valueOf(intRequestKey);
         SettableFuture<RpcResult<AcquireElementCountersRequestHandlerOutput>> result = SettableFuture.create();
 
-        ListenableFutures.addErrorLogging(
+        LoggingFutures.addErrorLogging(
             txRunner.callWithNewReadWriteTransactionAndSubmit(transaction -> {
                 if (input.getIncomingTraffic() != null) {
                     Optional<EgressElementCountersRequestConfig> eecrcOpt =
@@ -310,7 +310,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
                         .child(CounterRequests.class, new CounterRequestsKey(input.getHandler())).build();
 
         SettableFuture<RpcResult<ReleaseElementCountersRequestHandlerOutput>> result = SettableFuture.create();
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+        LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
             Optional<IngressElementCountersRequestConfig> iecrcOpt =
                     tx.read(LogicalDatastoreType.CONFIGURATION, CountersServiceUtils.IECRC_IDENTIFIER).get();
             Optional<EgressElementCountersRequestConfig> eecrcOpt =
@@ -544,7 +544,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
     }
 
     private void deleteCounterRequest(CounterRequests counterRequest, ElementCountersDirection direction) {
-        ListenableFutures.addErrorLogging(
+        LoggingFutures.addErrorLogging(
             txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
                 if (ElementCountersDirection.INGRESS.equals(direction)) {
                     tx.delete(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier
@@ -580,7 +580,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
     }
 
     private void initializeCountrsConfigDataSrore() {
-        ListenableFutures.addErrorLogging(
+        LoggingFutures.addErrorLogging(
             txRunner.callWithNewReadWriteTransactionAndSubmit(transaction -> {
                 Optional<IngressElementCountersRequestConfig> iecrcOpt =
                         transaction.read(LogicalDatastoreType.CONFIGURATION,
