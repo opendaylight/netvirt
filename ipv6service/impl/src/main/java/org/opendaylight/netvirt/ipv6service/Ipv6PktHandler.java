@@ -28,7 +28,7 @@ import org.opendaylight.genius.ipv6util.api.decoders.Ipv6NaDecoder;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
-import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.netvirt.ipv6service.api.IIpv6PacketListener;
 import org.opendaylight.netvirt.ipv6service.utils.IpV6NAConfigHelper;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
@@ -204,7 +204,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             // Tx the packet out of the controller.
             if (pktService != null) {
                 LOG.debug("Transmitting the Neighbor Advt packet out on {}", packet.getIngress());
-                JdkFutures.addErrorLogging(pktService.transmitPacket(input), LOG, "transmitPacket");
+                LoggingFutures.addErrorLogging(pktService.transmitPacket(input), LOG, "transmitPacket");
                 pktProccessedCounter.incrementAndGet();
             }
         }

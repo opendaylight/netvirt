@@ -29,7 +29,7 @@ import org.opendaylight.infrautils.metrics.Counter;
 import org.opendaylight.infrautils.metrics.Labeled;
 import org.opendaylight.infrautils.metrics.MetricDescriptor;
 import org.opendaylight.infrautils.metrics.MetricProvider;
-import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.vpnmanager.api.ICentralizedSwitchProvider;
@@ -105,7 +105,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
 
         short tableId = notification.getTableId().getValue().toJava();
         LOG.trace("{} onPacketReceived: Packet punted from table {}", LOGGING_PREFIX, tableId);
-        if (!vpnUtil.isArpLearningEnabled()) {
+        if (!VpnUtil.isArpLearningEnabled()) {
             LOG.trace("Not handling packet as ARP Based Learning is disabled");
             return;
         }
@@ -283,14 +283,14 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             return;
         }
         if (VpnHelper.doesVpnInterfaceBelongToVpnInstance(vpnIdVpnInstanceName,
-               new ArrayList<VpnInstanceNames>(vmVpnInterface.nonnullVpnInstanceNames().values()))
+               new ArrayList<>(vmVpnInterface.nonnullVpnInstanceNames().values()))
                && !vpnUtil.isBgpVpnInternet(vpnIdVpnInstanceName)) {
             LOG.trace("Unknown IP is in internal network");
             handlePacketToInternalNetwork(dstIp, dstIpStr, elanTag, srcIpStr);
         } else {
             LOG.trace("Unknown IP is in external network");
             String vpnName = vpnUtil.getInternetVpnFromVpnInstanceList(
-                    new ArrayList<VpnInstanceNames>(vmVpnInterface.nonnullVpnInstanceNames().values()));
+                    new ArrayList<>(vmVpnInterface.nonnullVpnInstanceNames().values()));
             if (vpnName != null) {
                 handlePacketToExternalNetwork(new Uuid(vpnIdVpnInstanceName), vpnName, dstIp, dstIpStr, elanTag);
             } else {
@@ -315,7 +315,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             TransmitPacketInput packetInput =
                     ArpUtils.createArpRequestInput(dpnId, groupid, HexEncode.bytesFromHexString(sourceMac),
                             InetAddress.getByName(sourceIpAddress).getAddress(), dstIpBytes);
-            JdkFutures.addErrorLogging(packetService.transmitPacket(packetInput), LOG, "Transmit packet");
+            LoggingFutures.addErrorLogging(packetService.transmitPacket(packetInput), LOG, "Transmit packet");
         } else {
             // IPv6 case
             LOG.debug("Sending NS: srcIp={}, srcMac={}, dstIp={}, dpId={}, elan-tag={}, groupid={}", sourceIpAddress,

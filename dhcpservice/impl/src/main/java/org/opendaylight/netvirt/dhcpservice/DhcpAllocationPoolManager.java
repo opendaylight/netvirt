@@ -24,7 +24,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
-import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -120,8 +120,7 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
             return null;
         }
         Network networkConfData = optionalNetworkConfData.get();
-        List<AllocationPool> allocationPoolList = new ArrayList<AllocationPool>(networkConfData
-                .nonnullAllocationPool().values());
+        List<AllocationPool> allocationPoolList = new ArrayList<>(networkConfData.nonnullAllocationPool().values());
         // if network has allocation pool list - get the first element
         // as we have no info about a specific subnet
         if (allocationPoolList != null && !allocationPoolList.isEmpty()) {
@@ -189,7 +188,7 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
 
     private void releaseIdAllocation(String groupIdKey, String idKey) {
         ReleaseIdInput getIdInput = new ReleaseIdInputBuilder().setPoolName(groupIdKey).setIdKey(idKey).build();
-        JdkFutures.addErrorLogging(idManager.releaseId(getIdInput), LOG, "Release Id");
+        LoggingFutures.addErrorLogging(idManager.releaseId(getIdInput), LOG, "Release Id");
     }
 
     protected void createIdAllocationPool(String networkId, AllocationPool pool) {

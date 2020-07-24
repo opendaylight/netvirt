@@ -46,8 +46,8 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMplsLabel;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
-import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
@@ -444,7 +444,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         } else {
             mkMatches.add(new MatchTunnelId(Uint64.valueOf(serviceId)));
         }
-        Map<InstructionKey, Instruction> customInstructionsMap = new HashMap<InstructionKey, Instruction>();
+        Map<InstructionKey, Instruction> customInstructionsMap = new HashMap<>();
         int instructionKey = 0;
         for (Instruction instructionObj : customInstructions) {
             customInstructionsMap.put(new InstructionKey(++instructionKey), instructionObj);
@@ -464,7 +464,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         matches.add(MatchEthernetType.MPLS_UNICAST);
         matches.add(new MatchMplsLabel(serviceId.longValue()));
 
-        Map<InstructionKey, Instruction> instructionMap = new HashMap<InstructionKey, Instruction>();
+        Map<InstructionKey, Instruction> instructionMap = new HashMap<>();
         int instructionKey = 0;
         List<ActionInfo> actionsInfos = new ArrayList<>();
         //NAT is required for IPv4 only. Hence always etherType will be IPv4
@@ -529,7 +529,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
             SendArpRequestInput sendArpRequestInput = new SendArpRequestInputBuilder().setIpaddress(floatingIpAddress)
                 .setInterfaceAddress(interfaceAddresses).build();
 
-            JdkFutures.addErrorLogging(arpUtilService.sendArpRequest(sendArpRequestInput), LOG, "sendArpRequest");
+            LoggingFutures.addErrorLogging(arpUtilService.sendArpRequest(sendArpRequestInput), LOG, "sendArpRequest");
             natServiceCounters.garpSent();
         } catch (Exception e) {
             LOG.error("sendGarpOnInterface : Failed to send GARP request for floating ip {} from interface {}",
