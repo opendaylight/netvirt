@@ -41,7 +41,7 @@ import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.common.api.ReadFailedException;
@@ -288,7 +288,7 @@ public class NeutronPortChangeListener extends AbstractAsyncDataTreeChangeListen
                             LOG.warn("update: Interface {} is not present", portName);
                         }
                     });
-                ListenableFutures.addErrorLogging(future, LOG,
+                LoggingFutures.addErrorLogging(future, LOG,
                         "update: Failed to update interface {} with networkId {}", portName, network);
                 return Collections.singletonList(future);
             });
@@ -374,7 +374,7 @@ public class NeutronPortChangeListener extends AbstractAsyncDataTreeChangeListen
                     nvpnNatManager.handleSubnetsForExternalRouter(routerId);
                     return Collections.emptyList();
                 });
-                ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                     confTx -> {
                         String portInterfaceName = createOfPortInterface(routerPort, confTx);
                         createElanInterface(routerPort, portInterfaceName, confTx);
@@ -419,7 +419,7 @@ public class NeutronPortChangeListener extends AbstractAsyncDataTreeChangeListen
             nvpnManager.deleteVpnInterface(routerPort.getUuid().getValue(),
                                            null /* vpn-id */, null /* wrtConfigTxn*/);
             // update RouterInterfaces map
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+            LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                 confTx -> {
                     IpVersionChoice ipVersion = IpVersionChoice.UNDEFINED;
                     for (FixedIps portIP : keyFixedIpsMap.values()) {
@@ -697,7 +697,7 @@ public class NeutronPortChangeListener extends AbstractAsyncDataTreeChangeListen
                     }
                 }
             });
-            ListenableFutures.addErrorLogging(future, LOG,
+            LoggingFutures.addErrorLogging(future, LOG,
                     "handleNeutronPortCreated: Failed for port {} with networkId {}", portName, networkId);
             return Collections.singletonList(future);
         });
@@ -767,7 +767,7 @@ public class NeutronPortChangeListener extends AbstractAsyncDataTreeChangeListen
                 //dissociate fixedIP from floatingIP if associated
                 nvpnManager.dissociatefixedIPFromFloatingIP(port.getUuid().getValue());
             });
-            ListenableFutures.addErrorLogging(future, LOG,
+            LoggingFutures.addErrorLogging(future, LOG,
                     "handleNeutronPortDeleted: Failed to update interface {} with networkId", portName,
                     port.getNetworkId().getValue());
             return Collections.singletonList(future);

@@ -22,7 +22,7 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.natservice.api.SnatServiceManager;
@@ -99,7 +99,7 @@ public class SnatCentralizedSwitchChangeListener
         Uint64 primarySwitchId = routerToNaptSwitch.getPrimarySwitchId();
         Routers router = natDataUtil.getRouter(routerToNaptSwitch.getRouterName());
         if (router != null) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+            LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                 confTx -> snatServiceManger.notify(confTx, router, null, primarySwitchId, null,
                     SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL)), LOG,
                 "error handling SNAT centralized switch removal");
@@ -119,7 +119,7 @@ public class SnatCentralizedSwitchChangeListener
         }
         Uint64 origPrimarySwitchId = origRouterToNaptSwitch.getPrimarySwitchId();
         Uint64 updatedPrimarySwitchId = updatedRouterToNaptSwitch.getPrimarySwitchId();
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, confTx -> {
+        LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, confTx -> {
             Routers origRouter = NatUtil.getRoutersFromConfigDS(confTx, origRouterToNaptSwitch.getRouterName());
             Routers updatedRouter = NatUtil.getRoutersFromConfigDS(confTx, updatedRouterToNaptSwitch.getRouterName());
             if (!Objects.equals(origPrimarySwitchId, updatedPrimarySwitchId)) {
@@ -186,7 +186,7 @@ public class SnatCentralizedSwitchChangeListener
             LOG.warn("VpnId not unavailable for router {} yet", routerName);
             eventCallbacks.onAddOrUpdate(LogicalDatastoreType.CONFIGURATION,
                 NatUtil.getVpnInstanceToVpnIdIdentifier(routerName), (unused, newVpnId) -> {
-                    ListenableFutures.addErrorLogging(
+                    LoggingFutures.addErrorLogging(
                         txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                             innerConfTx -> handleAdd(innerConfTx, routerName, router, primarySwitchId,
                                     isEnableSnat)), LOG,
@@ -195,7 +195,7 @@ public class SnatCentralizedSwitchChangeListener
                 }, Duration.ofSeconds(5), iid -> LOG.error("VpnId not found for router {}", routerName));
             return;
         }
-        ListenableFutures.addErrorLogging(
+        LoggingFutures.addErrorLogging(
             txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                 confTx -> handleAdd(confTx, routerName, router, primarySwitchId,
                         isEnableSnat)), LOG, "Error handling router addition");

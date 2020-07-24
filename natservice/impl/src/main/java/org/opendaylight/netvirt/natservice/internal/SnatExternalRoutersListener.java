@@ -16,7 +16,7 @@ import javax.inject.Singleton;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.natservice.api.CentralizedSwitchScheduler;
@@ -128,7 +128,7 @@ public class SnatExternalRoutersListener extends AbstractAsyncDataTreeChangeList
         }
         if (!Objects.equals(original.getSubnetIds(), update.getSubnetIds())
                 || !Objects.equals(original.getExternalIps(), update.getExternalIps())) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+            LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                 confTx -> natServiceManager.notify(confTx, update, original, null, null,
                             SnatServiceManager.Action.SNAT_ROUTER_UPDATE)), LOG,
                     "error handling external router update");

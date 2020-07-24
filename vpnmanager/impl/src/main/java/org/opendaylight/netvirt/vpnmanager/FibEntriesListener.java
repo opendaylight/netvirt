@@ -18,7 +18,7 @@ import javax.inject.Singleton;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
@@ -111,7 +111,7 @@ public class FibEntriesListener extends AbstractAsyncDataTreeChangeListener<VrfE
                     routeIds.add(label);
                 }
             });
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx ->
+            LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx ->
                             tx.put(VpnUtil.getVpnInstanceOpDataIdentifier(rd),
                                     new VpnInstanceOpDataEntryBuilder(vpnInstanceOpData).setRouteEntryId(routeIds)
                                             .build())),
@@ -132,7 +132,7 @@ public class FibEntriesListener extends AbstractAsyncDataTreeChangeListener<VrfE
             } else {
                 LOG.debug("Removing label from vpn info - {}", labels);
                 routeIds.removeAll(labels);
-                ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx ->
+                LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx ->
                                 tx.put(VpnUtil.getVpnInstanceOpDataIdentifier(rd),
                                         new VpnInstanceOpDataEntryBuilder(vpnInstanceOpData).setRouteEntryId(routeIds)
                                                 .build())),

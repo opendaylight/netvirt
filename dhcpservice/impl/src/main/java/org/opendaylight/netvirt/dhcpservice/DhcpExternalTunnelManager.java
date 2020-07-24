@@ -52,7 +52,7 @@ import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -362,7 +362,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         }
         List<String> vmMacs = getAllVmMacs();
         LOG.trace("Installing drop actions to this new DPN {} VMs {}", dpId, vmMacs);
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
+        LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
             for (String vmMacAddress : vmMacs) {
                 installDhcpDropAction(dpId, vmMacAddress, tx);
             }
@@ -448,7 +448,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         if (setOfTunnelIpElanNamePairs == null || setOfTunnelIpElanNamePairs.isEmpty()) {
             LOG.trace("No tunnelIpElanName to handle for dpn {}. Returning", dpnId);
         } else {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
+            LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
                 if (!dpnId.equals(DhcpMConstants.INVALID_DPID)) {
                     List<String> listOfVms = getAllVmMacs();
                     for (String vmMacAddress : listOfVms) {

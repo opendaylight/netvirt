@@ -49,7 +49,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.natservice.api.CentralizedSwitchScheduler;
@@ -881,7 +881,7 @@ public class FloatingIPListener extends AbstractAsyncDataTreeChangeListener<Inte
             @Nullable TypedReadWriteTransaction<Configuration> confTx, boolean create)
             throws ExecutionException, InterruptedException {
         if (confTx == null) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+            LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                 newTx -> addOrDelDefaultFibRouteForDnat(dpnId, routerName, routerId, newTx, create)), LOG,
                 "Error handling default FIB route for DNAT");
             return;
