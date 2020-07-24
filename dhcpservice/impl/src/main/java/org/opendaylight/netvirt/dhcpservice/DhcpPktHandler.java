@@ -38,7 +38,7 @@ import org.opendaylight.infrautils.metrics.Counter;
 import org.opendaylight.infrautils.metrics.Labeled;
 import org.opendaylight.infrautils.metrics.MetricDescriptor;
 import org.opendaylight.infrautils.metrics.MetricProvider;
-import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.netvirt.dhcpservice.api.DHCP;
 import org.opendaylight.netvirt.dhcpservice.api.DHCPConstants;
@@ -75,7 +75,6 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 @Singleton
 public class DhcpPktHandler implements PacketProcessingListener {
@@ -254,7 +253,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
         }
         TransmitPacketInput output = MDSALUtil.getPacketOut(action, pktOut, dpnId);
         LOG.trace("Transmitting packet: {}", output);
-        JdkFutures.addErrorLogging(pktService.transmitPacket(output), LOG, "Transmit packet");
+        LoggingFutures.addErrorLogging(pktService.transmitPacket(output), LOG, "Transmit packet");
     }
 
     @Nullable
@@ -818,7 +817,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
                     LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}",
                             interfaceName, rpcResult.getErrors());
                 } else {
-                    return new ArrayList<Action>(rpcResult.getResult().nonnullAction().values());
+                    return new ArrayList<>(rpcResult.getResult().nonnullAction().values());
                 }
             } else {
                 GetEgressActionsForInterfaceInputBuilder egressAction =
@@ -833,7 +832,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
                     LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}",
                             interfaceName, rpcResult.getErrors());
                 } else {
-                    return new ArrayList<Action>(rpcResult.getResult().nonnullAction().values());
+                    return new ArrayList<>(rpcResult.getResult().nonnullAction().values());
                 }
             }
         } catch (InterruptedException | ExecutionException e) {

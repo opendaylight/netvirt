@@ -17,7 +17,7 @@ import javax.inject.Singleton;
 import org.opendaylight.genius.arputil.api.ArpConstants;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
-import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
@@ -137,7 +137,7 @@ public final class AlivenessMonitorUtils {
     void stopIpMonitoring(Uint32 monitorId) {
         MonitorStopInput input = new MonitorStopInputBuilder().setMonitorId(monitorId).build();
 
-        JdkFutures.addErrorLogging(alivenessManager.monitorStop(input), LOG, "Stop monitoring");
+        LoggingFutures.addErrorLogging(alivenessManager.monitorStop(input), LOG, "Stop monitoring");
 
         alivenessCache.remove(monitorId.toJava());
         return;

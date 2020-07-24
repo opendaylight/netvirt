@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.ipv6service;
 
 import static java.util.Objects.requireNonNull;
@@ -24,7 +23,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
-import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceConstants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
@@ -43,7 +42,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Tr
 import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 public class Ipv6RouterAdvt {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6RouterAdvt.class);
@@ -83,7 +81,7 @@ public class Ipv6RouterAdvt {
             input = MDSALUtil.getPacketOutDefault(lstActionInfo, txPayload, dpnId);
             LOG.debug("Transmitting the Router Advt packet out to ELAN Group ID {}", elanGroupId);
         }
-        JdkFutures.addErrorLogging(packetService.transmitPacket(input), LOG, "transmitPacket");
+        LoggingFutures.addErrorLogging(packetService.transmitPacket(input), LOG, "transmitPacket");
         return true;
     }
 
@@ -243,7 +241,7 @@ public class Ipv6RouterAdvt {
             buf.putInt((int)pdu.getMtu().longValue());
         }
 
-        for (PrefixList prefix : new ArrayList<PrefixList>(pdu.nonnullPrefixList().values())) {
+        for (PrefixList prefix : new ArrayList<>(pdu.nonnullPrefixList().values())) {
             buf.put((byte)prefix.getOptionType().shortValue());
             buf.put((byte)prefix.getOptionLength().shortValue());
             buf.put((byte)prefix.getPrefixLength().shortValue());
