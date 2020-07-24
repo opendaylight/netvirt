@@ -29,7 +29,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
@@ -363,7 +363,7 @@ public class InterVpnLinkListener extends AbstractAsyncDataTreeChangeListener<In
         // Removing the InterVpnLinkState
         InstanceIdentifier<InterVpnLinkState> interVpnLinkStateIid =
             InterVpnLinkUtil.getInterVpnLinkStateIid(del.getName());
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx ->
+        LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx ->
             tx.delete(interVpnLinkStateIid)), LOG, "Error deleting inter-VPN link state {}", interVpnLinkStateIid);
     }
 
@@ -464,7 +464,7 @@ public class InterVpnLinkListener extends AbstractAsyncDataTreeChangeListener<In
             new InterVpnLinkStateBuilder(vpnLinkState).setState(InterVpnLinkState.State.Error)
                 .setErrorDescription(errorMsg)
                 .build();
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx ->
+        LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx ->
             tx.mergeParentStructurePut(vpnLinkStateIid, vpnLinkErrorState)),
                 LOG, "Error storing the VPN link error state for {}, {}", vpnLinkStateIid, vpnLinkErrorState);
 

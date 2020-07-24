@@ -27,7 +27,7 @@ import org.opendaylight.genius.datastoreutils.ExpectedDataObjectNotFoundExceptio
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
@@ -190,7 +190,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
                 }
                 return NatUtil.getPrimaryRd(routerName, tx);
             }).get();
-            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx -> {
+            LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx -> {
                 for (Uuid subnetUuid : addedSubnetIds) {
                     Subnetmap subnetMapEntry = subnetMapEntries.get(subnetUuid);
                     Uuid routerPortUuid = subnetMapEntry.getRouterInterfacePortId();
@@ -218,7 +218,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
         try {
             String primaryRd = txRunner.applyWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                 tx -> NatUtil.getPrimaryRd(routerName, tx)).get();
-            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx -> {
+            LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx -> {
                 for (Uuid subnetUuid : deletedSubnetIds) {
                     String routerPort = subnetIdToRouterPortMap.remove(subnetUuid.getValue());
                     if (routerPort == null) {

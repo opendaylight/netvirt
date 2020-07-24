@@ -44,7 +44,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
@@ -477,7 +477,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
             eventCallbacks.onAddOrUpdate(LogicalDatastoreType.CONFIGURATION,
                     NatUtil.getGroupInstanceId(dpnId, groupId), (unused, newGroupId) -> {
                     LOG.info("group {} is created in the config", groupId);
-                    ListenableFutures.addErrorLogging(
+                    LoggingFutures.addErrorLogging(
                             txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                                 innerConfTx -> addSnatMissFlowForGroup(innerConfTx, dpnId, routerId, groupId)),
                             LOG, "Error adding flow for the group {}",groupId);
