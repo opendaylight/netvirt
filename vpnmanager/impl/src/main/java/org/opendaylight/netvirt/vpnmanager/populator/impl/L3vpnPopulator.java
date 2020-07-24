@@ -8,7 +8,7 @@
 package org.opendaylight.netvirt.vpnmanager.populator.impl;
 
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
-import static org.opendaylight.infrautils.utils.concurrent.ListenableFutures.addErrorLogging;
+import static org.opendaylight.infrautils.utils.concurrent.LoggingFutures.addErrorLogging;
 
 import com.google.common.base.Preconditions;
 import java.util.Collections;

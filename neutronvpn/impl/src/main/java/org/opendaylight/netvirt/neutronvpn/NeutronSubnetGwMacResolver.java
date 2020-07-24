@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.neutronvpn;
 
 import com.google.common.util.concurrent.JdkFutureAdapters;
@@ -26,7 +25,7 @@ import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.genius.arputil.api.ArpConstants;
 import org.opendaylight.genius.mdsalutil.NWUtil;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.vpnmanager.api.ICentralizedSwitchProvider;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -175,7 +174,7 @@ public class NeutronSubnetGwMacResolver {
             SendArpRequestInput sendArpRequestInput = new SendArpRequestInputBuilder().setIpaddress(dstIpAddress)
                     .setInterfaceAddress(Collections.singletonList(interfaceAddress)).build();
 
-            ListenableFutures.addErrorLogging(JdkFutureAdapters.listenInPoolThread(
+            LoggingFutures.addErrorLogging(JdkFutureAdapters.listenInPoolThread(
                     arpUtilService.sendArpRequest(sendArpRequestInput)), LOG, "Send ARP request");
         } catch (Exception e) {
             LOG.error("Failed to send ARP request to external GW {} from interface {}",

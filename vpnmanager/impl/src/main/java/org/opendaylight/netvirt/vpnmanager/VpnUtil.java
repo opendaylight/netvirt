@@ -71,7 +71,7 @@ import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -641,7 +641,7 @@ public final class VpnUtil {
         Optional<VrfTables> vrfTablesOpc = read(LogicalDatastoreType.CONFIGURATION, vpnVrfTableIid);
         if (vrfTablesOpc.isPresent()) {
             VrfTables vrfTables = vrfTablesOpc.get();
-            ListenableFutures.addErrorLogging(
+            LoggingFutures.addErrorLogging(
                     new ManagedNewTransactionRunnerImpl(dataBroker).callWithNewWriteOnlyTransactionAndSubmit(
                                                                             Datastore.CONFIGURATION, tx -> {
                             for (VrfEntry vrfEntry : vrfTables.nonnullVrfEntry().values()) {
@@ -672,7 +672,7 @@ public final class VpnUtil {
     public void removeVrfEntries(String rd, List<VrfEntry> vrfEntries) {
         InstanceIdentifier<VrfTables> vpnVrfTableIid =
             InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).build();
-        ListenableFutures.addErrorLogging(
+        LoggingFutures.addErrorLogging(
                 new ManagedNewTransactionRunnerImpl(dataBroker).callWithNewWriteOnlyTransactionAndSubmit(
                                                                             Datastore.CONFIGURATION, tx -> {
                         for (VrfEntry vrfEntry : vrfEntries) {

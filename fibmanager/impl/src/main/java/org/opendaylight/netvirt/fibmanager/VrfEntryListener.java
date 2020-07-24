@@ -72,7 +72,7 @@ import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.genius.utils.batching.SubTransaction;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
@@ -524,7 +524,7 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
     void installSubnetRouteInFib(final Uint64 dpnId, final long elanTag, final String rd,
             final Uint32 vpnId, final VrfEntry vrfEntry, TypedWriteTransaction<Configuration> tx) {
         if (tx == null) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+            LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                 newTx -> installSubnetRouteInFib(dpnId, elanTag, rd, vpnId, vrfEntry, newTx)), LOG,
                 "Error installing subnet route in FIB");
             return;
@@ -1218,7 +1218,7 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
     private void createRemoteFibEntry(final Uint64 remoteDpnId, final Uint32 vpnId, String rd,
             final VrfEntry vrfEntry, TypedWriteTransaction<Configuration> tx) {
         if (tx == null) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+            LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                 newTx -> createRemoteFibEntry(remoteDpnId, vpnId, rd, vrfEntry, newTx)), LOG,
                 "Error creating remote FIB entry");
             return;
@@ -1675,7 +1675,7 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
     private void makeLFibTableEntry(Uint64 dpId, Uint32 label, @Nullable List<InstructionInfo> instructions,
                                     int priority, int addOrRemove, TypedWriteTransaction<Configuration> tx) {
         if (tx == null) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+            LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                 newTx -> makeLFibTableEntry(dpId, label, instructions, priority, addOrRemove, newTx)), LOG,
                 "Error making LFIB table entry");
             return;
@@ -2123,7 +2123,7 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
         optLabel.ifPresent(label -> {
             LOG.trace("Removing flow in FIB table for interVpnLink {}", interVpnLinkName);
 
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
+            LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
                 for (Uint64 dpId : targetDpns) {
                     LOG.debug("Removing flow: VrfEntry=[prefix={} label={}] dpn {} for InterVpnLink {} in LFIB",
                             vrfEntry.getDestPrefix(), label, dpId, interVpnLinkName);

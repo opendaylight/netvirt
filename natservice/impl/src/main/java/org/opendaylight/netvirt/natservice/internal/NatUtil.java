@@ -68,7 +68,7 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
@@ -2228,7 +2228,7 @@ public final class NatUtil {
 
     public static void installRouterGwFlows(ManagedNewTransactionRunner txRunner, IVpnManager vpnManager,
             Routers router, Uint64 primarySwitchId, int addOrRemove) {
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
+        LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
             Map<ExternalIpsKey, ExternalIps> keyExternalIpsMap = router.getExternalIps();
             List<String> externalIpsSting = new ArrayList<>();
 

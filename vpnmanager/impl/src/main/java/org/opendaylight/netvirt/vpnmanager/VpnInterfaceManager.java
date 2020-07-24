@@ -53,7 +53,7 @@ import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.infrautils.caches.CacheProvider;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
@@ -350,7 +350,7 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
                                 LOG.info("addVpnInterface: Router interface {} for vpn {} on dpn {}", interfaceName,
                                     vpnName, vpnInterface.getDpnId());
                             });
-                        ListenableFutures.addErrorLogging(future, LOG,
+                        LoggingFutures.addErrorLogging(future, LOG,
                             "Error creating FIB entry for interface {} on VPN {}", vpnInterface.getName(), vpnName);
                         return Collections.singletonList(future);
                     });
@@ -1189,7 +1189,7 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
         for (VpnInstanceOpDataEntry vpn : vpnsToExportRoute) {
             List<VrfEntry> vrfEntries = vpnUtil.getAllVrfEntries(vpn.getVrfId());
             if (vrfEntries != null) {
-                ListenableFutures.addErrorLogging(
+                LoggingFutures.addErrorLogging(
                     txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, confTx -> {
                         for (VrfEntry vrfEntry : vrfEntries) {
                             try {
@@ -1259,7 +1259,7 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
                         deleteFibEntryForRouterInterface(vpnInterface, confTx, vpnName);
                         LOG.info("remove: Router interface {} for vpn {}", interfaceName, vpnName);
                     });
-                ListenableFutures.addErrorLogging(future, LOG, "Error removing call for interface {} on VPN {}",
+                LoggingFutures.addErrorLogging(future, LOG, "Error removing call for interface {} on VPN {}",
                         vpnInterface.getName(), vpnName);
                 return Collections.singletonList(future);
             }, DJC_MAX_RETRIES);
@@ -1897,7 +1897,7 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
                     MoreExecutors.directExecutor());
                 futures.add(configTxFuture);
                 for (ListenableFuture<Void> future : futures) {
-                    ListenableFutures.addErrorLogging(future, LOG, "update: failed for interface {} on vpn {}",
+                    LoggingFutures.addErrorLogging(future, LOG, "update: failed for interface {} on vpn {}",
                             update.getName(), update.getVpnInstanceNames());
                 }
             } else {

@@ -40,7 +40,7 @@ import org.opendaylight.genius.utils.batching.ActionableResources;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.batching.ResourceHandler;
 import org.opendaylight.genius.utils.batching.SubTransaction;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -330,7 +330,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
                                      WriteTransaction tx,
                                      List<SubTransaction> subTxns) {
         if (tx == null) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                 newTx -> createRemoteFibEntry(remoteDpnId, vpnId, rd, vrfEntry, newTx, subTxns)), LOG,
                 "Error creating remote FIB entry");
             return;
@@ -369,7 +369,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
                                   final VrfEntry vrfEntry, Optional<Routes> extraRouteOptional,
                                   @Nullable WriteTransaction tx, List<SubTransaction> subTxns) {
         if (tx == null) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                 newTx -> deleteRemoteRoute(localDpnId, remoteDpnId, vpnId, vrfTableKey, vrfEntry,
                         extraRouteOptional, newTx)), LOG, "Error deleting remote route");
             return;

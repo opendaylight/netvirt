@@ -19,7 +19,7 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
@@ -103,7 +103,7 @@ public class NatRouterInterfaceListener extends AbstractAsyncDataTreeChangeListe
             final ReentrantLock lock = NatUtil.lockForNat(dpId);
             lock.lock();
             try {
-                ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL,
+                LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL,
                     operTx -> {
                         NatUtil.addToNeutronRouterDpnsMap(routerId, interfaceName, dpId, operTx);
                         NatUtil.addToDpnRoutersMap(routerId, interfaceName, dpId, operTx);
@@ -141,7 +141,7 @@ public class NatRouterInterfaceListener extends AbstractAsyncDataTreeChangeListe
                     NatUtil.removeSnatEntriesForPort(dataBroker, naptManager, mdsalManager, neutronVpnService,
                         interfaceName, routerId);
                 }
-                ListenableFutures.addErrorLogging(
+                LoggingFutures.addErrorLogging(
                     txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, operTx -> {
                         //Delete the NeutronRouterDpnMap from the ODL:L3VPN operational model
                         NatUtil

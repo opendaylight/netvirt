@@ -14,7 +14,7 @@ import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
@@ -71,7 +71,7 @@ public class NodeListener extends AbstractAsyncDataTreeChangeListener<Node> {
         try {
             if (node[1] != null) {
                 Uint64 dpId = Uint64.valueOf(node[1]);
-                ListenableFutures.addErrorLogging(
+                LoggingFutures.addErrorLogging(
                         txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
                             tx -> dhcpManager.setupDefaultDhcpFlows(tx, dpId)),
                             LOG, "Error handling node addition for {}", add);
