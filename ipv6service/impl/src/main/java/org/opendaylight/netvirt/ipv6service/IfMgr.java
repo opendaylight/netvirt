@@ -38,7 +38,7 @@ import org.opendaylight.genius.ipv6util.api.Ipv6Util;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.ipv6service.api.ElementCache;
@@ -1286,8 +1286,8 @@ public class IfMgr implements ElementCache, AutoCloseable {
                 intf.getIntfUUID(), ndTargetAddr);
 
         //NITHI
-        //ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(Datastore.CONFIGURATION,
+        //LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+        LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(Datastore.CONFIGURATION,
             tx -> {
                 /*Exact VM vNIC interface IPv6 and MAC address match flow */
                 ipv6ServiceUtils.instIcmpv6NsMatchFlow(NwConstants.IPV6_TABLE, dpnId,
@@ -1312,7 +1312,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
             return;
         }
         Long elanTag = getNetworkElanTag(routerPort.getNetworkID());
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(Datastore.CONFIGURATION,
+        LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(Datastore.CONFIGURATION,
             tx -> {
                 ipv6ServiceUtils.installIcmpv6NsDefaultPuntFlow(NwConstants.IPV6_TABLE,
                      dpnIfaceInfo.getDpId(), elanTag, ndTarget,

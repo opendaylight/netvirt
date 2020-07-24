@@ -20,7 +20,7 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
@@ -239,7 +239,7 @@ public class SubnetmapChangeListener extends AbstractAsyncDataTreeChangeListener
     protected long getElanTag(String elanInstanceName) {
         final long[] elanTag = {0L};
 
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+        LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
             InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class)
                     .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
             ElanInstance elanInstance = tx.read(LogicalDatastoreType.CONFIGURATION, elanIdentifierId)

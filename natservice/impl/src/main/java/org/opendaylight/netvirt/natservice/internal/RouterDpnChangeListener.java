@@ -23,7 +23,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.natservice.api.SnatServiceManager;
@@ -127,7 +127,7 @@ public class RouterDpnChangeListener extends AbstractAsyncDataTreeChangeListener
                         LOG.debug("Skipping the notification recived for NAPT switch {}", routerUuid);
                         return;
                     }
-                    ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+                    LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                         confTx -> {
                             natServiceManager.notify(confTx, router, null, naptSwitch, dpnId,
                                     SnatServiceManager.Action.CNT_ROUTER_ENBL);
@@ -241,7 +241,7 @@ public class RouterDpnChangeListener extends AbstractAsyncDataTreeChangeListener
                         LOG.debug("Skipping the notification recived for NAPT switch {}", routerUuid);
                         return;
                     }
-                    ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+                    LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                         confTx -> {
                             natServiceManager.notify(confTx, router, null, naptSwitch, dpnId,
                                     SnatServiceManager.Action.CNT_ROUTER_DISBL);

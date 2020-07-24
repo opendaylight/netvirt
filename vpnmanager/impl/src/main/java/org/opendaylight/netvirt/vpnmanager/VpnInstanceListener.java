@@ -49,7 +49,7 @@ import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
@@ -216,7 +216,7 @@ public class VpnInstanceListener extends AbstractAsyncDataTreeChangeListener<Vpn
             futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, confTx -> {
                 ListenableFuture<Void> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, operTx ->
                         addVpnInstance(vpnInstance, confTx, operTx));
-                ListenableFutures.addErrorLogging(future, LOG, "{} call: error creating VPN {} rd {}",
+                LoggingFutures.addErrorLogging(future, LOG, "{} call: error creating VPN {} rd {}",
                         LOGGING_PREFIX_ADD, vpnInstance.getVpnInstanceName(),
                         vpnInstance.getRouteDistinguisher());
                 futures.add(future);
@@ -233,12 +233,12 @@ public class VpnInstanceListener extends AbstractAsyncDataTreeChangeListener<Vpn
     private void addVpnInstance(VpnInstance value, TypedWriteTransaction<Configuration> writeConfigTxn,
             TypedWriteTransaction<Operational> writeOperTxn) {
         if (writeConfigTxn == null) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx ->
+            LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx ->
                 addVpnInstance(value, tx, writeOperTxn)), LOG, "Error adding VPN instance {}", value);
             return;
         }
         if (writeOperTxn == null) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx ->
+            LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx ->
                 addVpnInstance(value, writeConfigTxn, tx)), LOG, "Error adding VPN instance {}", value);
             return;
         }
