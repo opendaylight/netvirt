@@ -64,7 +64,7 @@ import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.genius.mdsalutil.packet.TCP;
 import org.opendaylight.genius.mdsalutil.packet.UDP;
-import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.openflowplugin.libraries.liblldp.PacketException;
@@ -176,7 +176,7 @@ public class NaptEventHandler {
             LOG.trace("handleEvent : Time Elapsed before procesing snat ({}:{}) packet is {} ms,routerId: {},"
                     + "isPktProcessed:{}",
                               internalIpAddress, internalPort,
-                              (System.currentTimeMillis() - naptEntryEvent.getObjectCreationTime()), routerId,
+                              System.currentTimeMillis() - naptEntryEvent.getObjectCreationTime(), routerId,
                               naptEntryEvent.isPktProcessed());
             //Get the DPN ID
             Uint64 dpnId = NatUtil.getPrimaryNaptfromRouterId(dataBroker, routerId);
@@ -602,7 +602,7 @@ public class NaptEventHandler {
                 // reset the split-horizon bit to allow traffic from tunnel to be sent back to the provider port
                 instructionInfo.add(new InstructionWriteMetadata(MetaDataUtil.getVpnIdMetadata(vpnId.longValue()),
                     Uint64.fromLongBits(MetaDataUtil.METADATA_MASK_VRFID.longValue()
-                            | (MetaDataUtil.METADATA_MASK_SH_FLAG.longValue()))));
+                            | MetaDataUtil.METADATA_MASK_SH_FLAG.longValue())));
                 break;
 
             case NwConstants.INBOUND_NAPT_TABLE:
@@ -688,7 +688,7 @@ public class NaptEventHandler {
         TransmitPacketInput output = MDSALUtil.getPacketOut(actionInfos, pktOut, dpnID.longValue(), inPort);
         LOG.debug("sendNaptPacketOut : Transmitting packet: {}, inPort {}", output, inPort);
 
-        JdkFutures.addErrorLogging(pktService.transmitPacket(output), LOG, "Transmit packet");
+        LoggingFutures.addErrorLogging(pktService.transmitPacket(output), LOG, "Transmit packet");
     }
 
     private String getInterfaceNameFromTag(long portTag) {
