@@ -29,8 +29,8 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
-import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -413,7 +413,7 @@ public class InterVpnLinkListener extends AbstractAsyncDataTreeChangeListener<In
         ReleaseIdInput releaseIdInput =
             new ReleaseIdInputBuilder().setPoolName(VpnConstants.PSEUDO_LPORT_TAG_ID_POOL_NAME).setIdKey(idKey).build();
 
-        JdkFutures.addErrorLogging(idManager.releaseId(releaseIdInput), LOG, "Release Id");
+        LoggingFutures.addErrorLogging(idManager.releaseId(releaseIdInput), LOG, "Release Id");
     }
 
     @Override
