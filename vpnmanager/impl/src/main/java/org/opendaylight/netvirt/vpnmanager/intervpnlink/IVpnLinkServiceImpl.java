@@ -27,7 +27,7 @@ import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
@@ -192,7 +192,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
                               .child(VrfTables.class, new VrfTablesKey(dstVpnRd))
                               .child(VrfEntry.class, new VrfEntryKey(newVrfEntry.getDestPrefix()))
                               .build();
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx ->
+        LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx ->
             tx.put(newVrfEntryIid, newVrfEntry)), LOG, "Error adding VRF entry {}", newVrfEntry);
 
         // Finally, route is advertised it to the DC-GW. But while in the FibEntries the nexthop is the other

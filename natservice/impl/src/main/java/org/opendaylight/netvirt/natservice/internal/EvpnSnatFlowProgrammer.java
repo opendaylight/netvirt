@@ -34,7 +34,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
@@ -248,7 +248,7 @@ public class EvpnSnatFlowProgrammer {
             @Override
             public void onSuccess(@NonNull RpcResult<RemoveFibEntryOutput> result) {
                 if (result.isSuccessful()) {
-                    ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+                    LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                         innerConfTx -> {
                             LOG.info("evpnDelFibTsAndReverseTraffic : Successfully removed custom FIB routes for "
                                 + "External Fixed IP {} on DPN {} with l3Vni {}, ExternalVpnName {} for "

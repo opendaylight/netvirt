@@ -15,7 +15,7 @@ import java.util.concurrent.Callable;
 import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.iplearn.model.MacEntry;
@@ -68,7 +68,7 @@ public class IpMonitorStopTask implements Callable<List<? extends ListenableFutu
             vpnUtil.removeVpnPortFixedIpToPort(dataBroker, macEntry.getVpnName(),
                     macEntry.getIpAddress().getHostAddress(), null);
 
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                     Datastore.CONFIGURATION, tx -> vpnUtil.removeMipAdjacency(macEntry.getVpnName(),
                             macEntry.getInterfaceName(), macEntry.getIpAddress().getHostAddress(), tx)),
                     LOG, "ArpMonitorStopTask: Error writing to datastore for Vpn {} IP  {}",

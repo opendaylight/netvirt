@@ -43,7 +43,7 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
@@ -171,7 +171,7 @@ public class EvpnDnatFlowProgrammer {
         LOG.debug("onAddFloatingIp : Add Floating Ip {} , found associated to fixed port {}",
                 externalIp, interfaceName);
         if (floatingIpPortMacAddress != null) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
+            LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
                 vpnManager.addSubnetMacIntoVpnInstance(vpnName, null, floatingIpPortMacAddress, dpnId, tx);
                 vpnManager.addArpResponderFlowsToExternalNetworkIps(routerName,
                         Collections.singleton(externalIp),
@@ -190,7 +190,7 @@ public class EvpnDnatFlowProgrammer {
             @Override
             public void onSuccess(@NonNull RpcResult<CreateFibEntryOutput> result) {
                 if (result.isSuccessful()) {
-                    ListenableFutures.addErrorLogging(
+                    LoggingFutures.addErrorLogging(
                         txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, innerConfTx -> {
                             LOG.info("onAddFloatingIp : Successfully installed custom FIB routes for Floating "
                                 + "IP Prefix {} on DPN {}", externalIp, dpnId);
@@ -231,7 +231,7 @@ public class EvpnDnatFlowProgrammer {
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                         LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier);
         if (optionalVpnInterface.isPresent()) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
+            LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
                 for (VpnInstanceNames vpnInstance : optionalVpnInterface.get().nonnullVpnInstanceNames().values()) {
                     if (!vpnName.equals(vpnInstance.getVpnName())) {
                         continue;
@@ -323,7 +323,7 @@ public class EvpnDnatFlowProgrammer {
             @Override
             public void onSuccess(@NonNull RpcResult<RemoveFibEntryOutput> result) {
                 if (result.isSuccessful()) {
-                    ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+                    LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                         innerConfTx -> {
                             LOG.info("onRemoveFloatingIp : Successfully removed custom FIB routes for Floating "
                                 + "IP Prefix {} on DPN {}", externalIp, dpnId);
@@ -351,7 +351,7 @@ public class EvpnDnatFlowProgrammer {
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                         LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier);
         if (optionalVpnInterface.isPresent()) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
+            LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
                 for (VpnInstanceNames vpnInstance : optionalVpnInterface.get().nonnullVpnInstanceNames().values()) {
                     if (!vpnName.equals(vpnInstance.getVpnName())) {
                         continue;

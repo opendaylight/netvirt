@@ -23,7 +23,7 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
@@ -87,7 +87,7 @@ public class CentralizedSwitchChangeListener
     @Override
     public void remove(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch routerToNaptSwitch) {
         LOG.debug("Removing {}", routerToNaptSwitch);
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx ->
+        LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx ->
                                             setupRouterGwFlows(routerToNaptSwitch, tx, NwConstants.DEL_FLOW)), LOG,
                                                 "Error processing switch removal for {}", routerToNaptSwitch);
     }
@@ -98,7 +98,7 @@ public class CentralizedSwitchChangeListener
         LOG.debug("Updating old {} new {}", origRouterToNaptSwitch, updatedRouterToNaptSwitch);
         if (!Objects.equals(updatedRouterToNaptSwitch.getPrimarySwitchId(),
                 origRouterToNaptSwitch.getPrimarySwitchId())) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
+            LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
                 setupRouterGwFlows(origRouterToNaptSwitch, tx, NwConstants.DEL_FLOW);
                 setupRouterGwFlows(updatedRouterToNaptSwitch, tx, NwConstants.ADD_FLOW);
             }), LOG, "Error updating switch {} to {}", origRouterToNaptSwitch, updatedRouterToNaptSwitch);
@@ -108,7 +108,7 @@ public class CentralizedSwitchChangeListener
     @Override
     public void add(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch routerToNaptSwitch) {
         LOG.debug("Adding {}", routerToNaptSwitch);
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx ->
+        LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx ->
                         setupRouterGwFlows(routerToNaptSwitch, tx, NwConstants.ADD_FLOW)), LOG,
                 "Error processing switch addition for {}", routerToNaptSwitch);
     }
