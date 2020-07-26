@@ -47,11 +47,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <artifactId>srm-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.infrautils</groupId>
-            <artifactId>inject</artifactId>
-            <version>${infrautils.version}</version>
-        </dependency>
-        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>neutronvpn-api</artifactId>
             <version>${project.version}</version>
