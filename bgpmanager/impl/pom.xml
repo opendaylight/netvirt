@@ -85,6 +85,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <artifactId>metrics-api</artifactId>
             <version>${infrautils.version}</version>
         </dependency>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 
     <build>
