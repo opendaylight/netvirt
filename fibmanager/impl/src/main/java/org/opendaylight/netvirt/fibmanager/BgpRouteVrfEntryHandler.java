@@ -109,7 +109,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
 
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
-    private final BlockingQueue<ActionableResource> vrfEntryBufferQ = new LinkedBlockingQueue<>();
+    private final BlockingQueue<ActionableResource<?>> vrfEntryBufferQ = new LinkedBlockingQueue<>();
     private final ResourceBatchingManager resourceBatchingManager;
     private final NexthopManager nexthopManager;
 

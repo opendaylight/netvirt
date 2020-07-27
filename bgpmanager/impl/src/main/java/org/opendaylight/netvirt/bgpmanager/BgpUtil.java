@@ -89,7 +89,7 @@ public class BgpUtil implements AutoCloseable {
     private final IFibManager fibManager;
 
 
-    private final BlockingQueue<ActionableResource> bgpResourcesBufferQ = new LinkedBlockingQueue<>();
+    private final BlockingQueue<ActionableResource<?>> bgpResourcesBufferQ = new LinkedBlockingQueue<>();
 
     @Inject
     public BgpUtil(DataBroker dataBroker, final IFibManager fibManager) {
