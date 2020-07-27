@@ -343,7 +343,6 @@ public class InterfaceStateChangeListener extends AbstractAsyncDataTreeChangeLis
                                                         if (optVpnInterface.isPresent()) {
                                                             VpnInterfaceOpDataEntry vpnOpInterface =
                                                                 optVpnInterface.get();
-                                                            handleMipAdjRemoval(vpnIf, vpnName);
                                                             vpnInterfaceManager.processVpnInterfaceDown(dpnId,
                                                                 vpnIf.getName(), ifIndex, update.getPhysAddress()
                                                                 .getValue(), vpnOpInterface, true,
