@@ -127,6 +127,7 @@ public class NeutronSubnetChangeListener extends AbstractAsyncDataTreeChangeList
     private void handleNeutronSubnetDeleted(Uuid subnetId, Uuid networkId, String subnetCidr) {
         Uuid vpnId = neutronvpnUtils.getVpnForNetwork(networkId);
         if (vpnId != null) {
+            Set<VpnTarget> routeTargets = vpnManager.getRtListForVpn(vpnId.getValue());
             LOG.warn("Subnet {} deleted without disassociating network {} from VPN {}. Ideally, please disassociate "
                     + "network from VPN before deleting neutron subnet.", subnetId.getValue(), networkId.getValue(),
                     vpnId.getValue());
@@ -136,9 +137,8 @@ public class NeutronSubnetChangeListener extends AbstractAsyncDataTreeChangeList
             } else {
                 LOG.error("Subnetmap for subnet {} not found", subnetId.getValue());
             }
-            Set<VpnTarget> routeTargets = vpnManager.getRtListForVpn(vpnId.getValue());
             if (!routeTargets.isEmpty()) {
-                vpnManager.removeRouteTargetsToSubnetAssociation(routeTargets, subnetCidr, subnetId.getValue());
+                vpnManager.removeRouteTargetsToSubnetAssociation(routeTargets, subnetCidr, vpnId.getValue());
             }
         }
         if (networkId != null) {
