@@ -58,12 +58,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <dependency>
             <groupId>org.opendaylight.infrautils</groupId>
             <artifactId>inject</artifactId>
-            <version>${infrautils.version}</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.infrautils</groupId>
             <artifactId>jobcoordinator-impl</artifactId>
-            <version>${infrautils.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -81,14 +79,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <dependency>
             <groupId>org.opendaylight.infrautils</groupId>
             <artifactId>infrautils-testutils</artifactId>
-            <version>${infrautils.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.infrautils</groupId>
             <artifactId>inject.guice.testutils</artifactId>
-            <version>${infrautils.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.genius</groupId>

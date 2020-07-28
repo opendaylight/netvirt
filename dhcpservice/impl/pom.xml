@@ -59,7 +59,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <dependency>
             <groupId>org.opendaylight.infrautils</groupId>
             <artifactId>metrics-api</artifactId>
-            <version>${infrautils.version}</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.genius</groupId>

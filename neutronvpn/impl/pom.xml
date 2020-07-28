@@ -132,19 +132,16 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <dependency>
             <groupId>org.opendaylight.infrautils</groupId>
             <artifactId>caches-test</artifactId>
-            <version>${infrautils.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.infrautils</groupId>
             <artifactId>jobcoordinator-impl</artifactId>
-            <version>${infrautils.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.infrautils</groupId>
             <artifactId>metrics-impl-test</artifactId>
-            <version>${infrautils.version}</version>
+            <version>1.8.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
