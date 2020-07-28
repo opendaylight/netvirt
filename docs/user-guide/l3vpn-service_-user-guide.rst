@@ -362,7 +362,7 @@ Step 5: Create VPN Instance
             "ipv4-family": {
                 "route-distinguisher": "4000:1",
                 "export-route-policy": "4000:1,5000:1",
-                "import-route-policy": "4000:1,5000:1",
+                "import-route-policy": "4000:1,5000:1"
             }
         }
       ]
@@ -396,7 +396,7 @@ Step 5 : Create VPN-Interface and Local Adjacency
       "vpn-interface": [
         {
           "vpn-instance-name": "testVpn1",
-          "name": "dpn1-dp1.2",
+          "name": "dpn1-dp1.2"
         }
       ]
     }
@@ -424,8 +424,8 @@ Step 5 : Create VPN-Interface and Local Adjacency
            ]
        }
 
-    its a list, user can define more than one adjacency on a
-    vpn\_interface
+its a list, user can define more than one adjacency on a
+vpn\_interface
 
 Above steps can be carried out in a single step as following
 
@@ -439,7 +439,7 @@ Above steps can be carried out in a single step as following
                 "odl-l3vpn:adjacency": [
                     {
                         "odl-l3vpn:mac_address": "11:22:33:44:55:66",
-                        "odl-l3vpn:ip_address": "11.11.11.2",
+                        "odl-l3vpn:ip_address": "11.11.11.2"
                     }
                 ]
             }
