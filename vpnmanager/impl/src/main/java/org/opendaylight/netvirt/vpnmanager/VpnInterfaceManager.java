@@ -784,7 +784,7 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
         for (Adjacency nextHop : nextHopsMap.values()) {
             String rd = primaryRd;
             String nexthopIpValue = nextHop.getIpAddress().split("/")[0];
-            if (vpnInstanceOpData.getBgpvpnType() == VpnInstanceOpDataEntry.BgpvpnType.BGPVPNInternet
+            if (vpnInstanceOpData.getBgpvpnType() == VpnInstanceOpDataEntry.BgpvpnType.InternetBGPVPN
                     && NWUtil.isIpv4Address(nexthopIpValue)) {
                 String prefix = nextHop.getIpAddress() == null ?  "null" :
                       VpnUtil.getIpPrefix(nextHop.getIpAddress());
@@ -1708,7 +1708,7 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
                         String primaryRd = vpnUtil.getPrimaryRd(newVpnName);
                         VpnInstanceOpDataEntry vpnInstanceOpDataEntry = vpnUtil.getVpnInstanceOpData(primaryRd);
                         if (vpnInstanceOpDataEntry.getBgpvpnType() == VpnInstanceOpDataEntry
-                                .BgpvpnType.BGPVPNExternal) {
+                                .BgpvpnType.BGPVPN) {
                             externalBgpVpnList.add(newVpnName);
                             break;
                         }
@@ -1725,7 +1725,7 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
                         String primaryRd = vpnUtil.getPrimaryRd(newVpnName);
                         VpnInstanceOpDataEntry vpnInstanceOpDataEntry = vpnUtil.getVpnInstanceOpData(primaryRd);
                         if (vpnInstanceOpDataEntry.getBgpvpnType() == VpnInstanceOpDataEntry
-                                .BgpvpnType.VPN) {
+                                .BgpvpnType.BGPVPN) {
                             routerVpnList.add(newVpnName);
                             break;
                         }
