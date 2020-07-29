@@ -1917,8 +1917,7 @@ public final class VpnUtil {
     boolean isBgpVpnInternet(String vpnName) {
         String primaryRd = getVpnRd(vpnName);
         if (primaryRd == null) {
-            LOG.error("isBgpVpnInternet VPN {}."
-                      + "Primary RD not found", vpnName);
+            LOG.error("isBgpVpnInternet VPN {} Primary RD not found", vpnName);
             return false;
         }
         InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
@@ -1930,11 +1929,9 @@ public final class VpnUtil {
                      + "VpnInstanceOpDataEntry not found", vpnName);
             return false;
         }
-        LOG.debug("isBgpVpnInternet VPN {}."
-             + "Successfully VpnInstanceOpDataEntry.getBgpvpnType {}",
+        LOG.debug("isBgpVpnInternet VPN {} Successfully VpnInstanceOpDataEntry.getBgpvpnType {}",
              vpnName, vpnInstanceOpDataEntryOptional.get().getBgpvpnType());
-        if (vpnInstanceOpDataEntryOptional.get().getBgpvpnType() == VpnInstanceOpDataEntry
-               .BgpvpnType.BGPVPNInternet) {
+        if (vpnInstanceOpDataEntryOptional.get().getBgpvpnType() == VpnInstanceOpDataEntry.BgpvpnType.InternetBGPVPN) {
             return true;
         }
         return false;
@@ -2565,5 +2562,95 @@ public final class VpnUtil {
     private static ReentrantLock lockFor(String vpnName, String fixedIp) {
         // FIXME: is there some identifier we can use? LearntVpnVipToPortKey perhaps?
         return JvmGlobalLocks.getLockForString(vpnName + fixedIp);
+    }
+
+    public static InstanceIdentifier<VrfTables> buildVrfTableForPrimaryRd(String primaryRd) {
+        InstanceIdentifier.InstanceIdentifierBuilder<VrfTables> idBuilder =
+                InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(primaryRd));
+        return idBuilder.build();
+    }
+
+    public void setVpnInstanceOpDataWithAddressFamily(String vpnName,
+                                                      VpnInstance.IpAddressFamilyConfigured ipVersion,
+                                                      WriteTransaction writeOperTxn) {
+        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpDataEntryFromVpnName(vpnName);
+        if (vpnInstanceOpDataEntry == null) {
+            LOG.error("setVpnInstanceOpDataWithAddressFamily: Unable to set IP address family {} for the "
+                    + "VPN {}. Since VpnInstanceOpData is not yet ready", ipVersion, vpnName);
+            return;
+        }
+        if (vpnInstanceOpDataEntry.getType() == VpnInstanceOpDataEntry.Type.L2) {
+            LOG.error("setVpnInstanceOpDataWithAddressFamily: Unable to set IP address family {} for the "
+                    + "VPN {}. Since VPN type is L2 flavour. Do Nothing.", ipVersion, vpnName);
+            return;
+        }
+        synchronized (vpnName.intern()) {
+            VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder()
+                    .setVrfId(vpnInstanceOpDataEntry.getVrfId());
+            builder.setIpAddressFamilyConfigured(VpnInstanceOpDataEntry.IpAddressFamilyConfigured
+                    .forValue(ipVersion.getIntValue()));
+            InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
+                    .child(VpnInstanceOpDataEntry.class,
+                            new VpnInstanceOpDataEntryKey(vpnInstanceOpDataEntry.getVrfId())).build();
+            writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, id, builder.build());
+            LOG.info("setVpnInstanceOpDataWithAddressFamily: Successfully set vpnInstanceOpData with "
+                    + "IP Address family {} for VpnInstance {}", ipVersion.getName(), vpnName);
+        }
+    }
+
+    public void updateVpnInstanceOpDataWithVpnType(String vpnName,
+                                                   VpnInstance.BgpvpnType bgpvpnType,
+                                                   WriteTransaction writeOperTxn) {
+        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpDataEntryFromVpnName(vpnName);
+        if (vpnInstanceOpDataEntry == null) {
+            LOG.error("updateVpnInstanceOpDataWithVpnType: VpnInstance {} with BGPVPN Type {} update Failed."
+                    + "Since vpnInstanceOpData is not yet ready.", vpnName, bgpvpnType);
+            return;
+        }
+        if (vpnInstanceOpDataEntry.getType() == VpnInstanceOpDataEntry.Type.L2) {
+            LOG.error("updateVpnInstanceOpDataWithVpnType: Unable to update the VpnInstance {} with BGPVPN Type {}."
+                    + "Since VPN type is L2 flavour. Do Nothing.", vpnName, bgpvpnType);
+            return;
+        }
+        synchronized (vpnName.intern()) {
+            VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder()
+                    .setVrfId(vpnInstanceOpDataEntry.getVrfId());
+            builder.setBgpvpnType(VpnInstanceOpDataEntry.BgpvpnType.forValue(bgpvpnType.getIntValue()));
+            InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
+                    .child(VpnInstanceOpDataEntry.class,
+                            new VpnInstanceOpDataEntryKey(vpnInstanceOpDataEntry.getVrfId())).build();
+            writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, id, builder.build());
+            LOG.info("updateVpnInstanceOpDataWithVpnType: Successfully updated vpn-instance-op-data with BGPVPN type "
+                    + "{} for the Vpn {}", bgpvpnType, vpnName);
+        }
+    }
+
+    public VpnInstanceOpDataEntry getVpnInstanceOpDataEntryFromVpnName(String vpnName) {
+        String primaryRd = getVpnRd(vpnName);
+        if (primaryRd == null) {
+            LOG.error("getVpnInstanceOpDataEntryFromVpnName: Vpn Instance {} Primary RD not found", vpnName);
+            return null;
+        }
+        return getVpnInstanceOpData(primaryRd);
+    }
+
+    public void updateVpnInstanceOpDataWithRdList(String vpnName, List<String> updatedRdList,
+                                                  WriteTransaction writeOperTxn) {
+        String primaryRd = getVpnRd(vpnName);
+        if (primaryRd == null) {
+            LOG.error("updateVpnInstanceOpDataWithRdList: Unable to get primary RD for the VPN {}. Skip to process "
+                    + "the update RD list {} ", vpnName, updatedRdList);
+            return;
+        }
+        synchronized (vpnName.intern()) {
+            VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder().setVrfId(primaryRd);
+            builder.setRd(updatedRdList);
+            InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
+                    .child(VpnInstanceOpDataEntry.class,
+                            new VpnInstanceOpDataEntryKey(primaryRd)).build();
+            writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, id, builder.build());
+            LOG.info("updateVpnInstanceOpDataWithRdList: Successfully updated the VPN {} with list of RDs {}",
+                    vpnName, updatedRdList);
+        }
     }
 }

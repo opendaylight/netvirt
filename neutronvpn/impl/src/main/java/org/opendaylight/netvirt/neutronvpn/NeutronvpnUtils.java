@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableBiMap;
@@ -94,7 +93,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neu
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalSubnets;
@@ -1670,34 +1668,28 @@ public class NeutronvpnUtils {
         }
     }
 
-    public void updateVpnInstanceOpWithType(VpnInstanceOpDataEntry.BgpvpnType choice, @NonNull Uuid vpn) {
-        String primaryRd = getVpnRd(vpn.getValue());
-        if (primaryRd == null) {
-            LOG.debug("updateVpnInstanceOpWithType: Update BgpvpnType {} for {}."
-                    + "Primary RD not found", choice, vpn.getValue());
-            return;
-        }
-        InstanceIdentifier<VpnInstanceOpDataEntry> id = getVpnOpDataIdentifier(primaryRd);
-
-        Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
-            read(LogicalDatastoreType.OPERATIONAL, id);
-        if (!vpnInstanceOpDataEntryOptional.isPresent()) {
-            LOG.debug("updateVpnInstanceOpWithType: Update BgpvpnType {} for {}."
-                    + "VpnInstanceOpDataEntry not found", choice, vpn.getValue());
-            return;
-        }
-        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = vpnInstanceOpDataEntryOptional.get();
-        if (vpnInstanceOpDataEntry.getBgpvpnType().equals(choice)) {
-            LOG.debug("updateVpnInstanceOpWithType: Update BgpvpnType {} for {}."
-                    + "VpnInstanceOpDataEntry already set", choice, vpn.getValue());
-            return;
-        }
-        VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder(vpnInstanceOpDataEntry);
-        builder.setBgpvpnType(choice);
-        LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
-            tx.merge(id, builder.build());
-            LOG.debug("updateVpnInstanceOpWithType: sent merge to operDS BgpvpnType {} for {}", choice, vpn.getValue());
-        }), LOG, "Error updating VPN instance op {} with type {}", vpn, choice);
+    public void updateVpnInstanceWithBgpVpnType(VpnInstance.BgpvpnType bgpvpnType, @NonNull Uuid vpnName) {
+        jobCoordinator.enqueueJob("VPN-" + vpnName.getValue(), () -> {
+            VpnInstance vpnInstance = getVpnInstance(dataBroker, vpnName);
+            if (vpnInstance == null) {
+                LOG.error("updateVpnInstanceWithBgpVpnType: Failed to Update VpnInstance {} with BGP-VPN type {}."
+                        + "VpnInstance is does not exist in the CONFIG. Do nothing.", vpnName.getValue(), bgpvpnType);
+                return Collections.emptyList();
+            }
+            if (vpnInstance.isL2vpn()) {
+                LOG.error("updateVpnInstanceWithBgpVpnType: Failed to Update VpnInstance {} with BGP-VPN type {}."
+                        + "VpnInstance is L2 instance. Do nothing.", vpnName.getValue(), bgpvpnType);
+                return Collections.emptyList();
+            }
+            VpnInstanceBuilder builder = new VpnInstanceBuilder(vpnInstance);
+            builder.setBgpvpnType(bgpvpnType);
+            InstanceIdentifier<VpnInstance> vpnIdentifier = InstanceIdentifier.builder(VpnInstances.class)
+                    .child(VpnInstance.class, new VpnInstanceKey(vpnName.getValue())).build();
+            LOG.info("updateVpnInstanceWithBgpVpnType: Successfully updated the VpnInstance {} with BGP-VPN type {}",
+                    vpnName.getValue(), bgpvpnType);
+            return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                    CONFIGURATION, tx -> tx.merge(vpnIdentifier, builder.build())));
+        });
     }
 
     public static RouterIds getvpnInstanceRouterIds(Uuid routerId) {
