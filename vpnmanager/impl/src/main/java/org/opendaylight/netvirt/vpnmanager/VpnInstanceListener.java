@@ -17,9 +17,11 @@ import com.google.common.util.concurrent.MoreExecutors;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -51,9 +53,12 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.ExternalTunnelList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.external.tunnel.list.ExternalTunnel;
@@ -61,6 +66,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.ext
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.DcGatewayIpList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.dc.gateway.ip.list.DcGatewayIp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.dc.gateway.ip.list.DcGatewayIpKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryBuilder;
@@ -88,6 +94,7 @@ public class VpnInstanceListener extends AbstractAsyncDataTreeChangeListener<Vpn
     private final IdManagerService idManager;
     private final VpnInterfaceManager vpnInterfaceManager;
     private final IFibManager fibManager;
+    private final IBgpManager bgpManager;
     private final VpnOpDataSyncer vpnOpDataNotifier;
     private final IMdsalApiManager mdsalManager;
     private final JobCoordinator jobCoordinator;
@@ -96,7 +103,7 @@ public class VpnInstanceListener extends AbstractAsyncDataTreeChangeListener<Vpn
     @Inject
     public VpnInstanceListener(final DataBroker dataBroker, final IdManagerService idManager,
             final VpnInterfaceManager vpnInterfaceManager, final IFibManager fibManager,
-            final VpnOpDataSyncer vpnOpDataSyncer, final IMdsalApiManager mdsalManager,
+            final IBgpManager bgpManager, final VpnOpDataSyncer vpnOpDataSyncer, final IMdsalApiManager mdsalManager,
             final JobCoordinator jobCoordinator, VpnUtil vpnUtil) {
         super(dataBroker, LogicalDatastoreType.CONFIGURATION,
                 InstanceIdentifier.create(VpnInstances.class).child(VpnInstance.class),
@@ -106,6 +113,7 @@ public class VpnInstanceListener extends AbstractAsyncDataTreeChangeListener<Vpn
         this.idManager = idManager;
         this.vpnInterfaceManager = vpnInterfaceManager;
         this.fibManager = fibManager;
+        this.bgpManager = bgpManager;
         this.vpnOpDataNotifier = vpnOpDataSyncer;
         this.mdsalManager = mdsalManager;
         this.jobCoordinator = jobCoordinator;
@@ -176,17 +184,179 @@ public class VpnInstanceListener extends AbstractAsyncDataTreeChangeListener<Vpn
     public void update(InstanceIdentifier<VpnInstance> identifier,
         VpnInstance original, VpnInstance update) {
         LOG.trace("VPN-UPDATE: update: VPN event key: {}, value: {}.", identifier, update);
-        String vpnName = update.getVpnInstanceName();
-        if (original != null && update != null
-                && original.getRouteDistinguisher() != null
-                && update.getRouteDistinguisher() != null
-                && original.getRouteDistinguisher().size()
-                !=  update.getRouteDistinguisher().size()) {
-            LOG.debug("VPN-UPDATE: VpnInstance:{} updated with new RDs: {} from old RDs: {}", vpnName,
-                    update.getRouteDistinguisher(),  original.getRouteDistinguisher());
-            vpnUtil.updateVpnInstanceWithRdList(vpnName, update.getRouteDistinguisher());
+        if (Objects.equals(original, update)) {
+            return;
         }
-        vpnInterfaceManager.updateVpnInterfacesForUnProcessAdjancencies(vpnName);
+        jobCoordinator.enqueueJob("VPN-" + original.getVpnInstanceName(),
+                new UpdateVpnInstanceWorker(dataBroker, identifier, original, update));
+    }
+
+    private class UpdateVpnInstanceWorker implements Callable<List<? extends ListenableFuture<?>>> {
+        private final Logger log = LoggerFactory.getLogger(VpnInstanceListener.UpdateVpnInstanceWorker.class);
+        VpnInstance original;
+        VpnInstance update;
+        InstanceIdentifier<VpnInstance> vpnIdentifier;
+        DataBroker broker;
+        String vpnName;
+
+        UpdateVpnInstanceWorker(DataBroker broker,
+                                InstanceIdentifier<VpnInstance> identifier,
+                                VpnInstance original,
+                                VpnInstance update) {
+            this.broker = broker;
+            this.vpnIdentifier = identifier;
+            this.original = original;
+            this.update = update;
+            this.vpnName = update.getVpnInstanceName();
+        }
+
+        @Override
+        @SuppressWarnings("checkstyle:ForbidCertainMethod")
+        public List<ListenableFuture<Void>> call() {
+            WriteTransaction writeOperTxn = broker.newWriteOnlyTransaction();
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            String primaryRd = vpnUtil.getVpnRd(vpnName);
+            if (primaryRd == null) {
+                log.error("{}, failed to update VPN: PrimaryRD is null for vpnName {}", LOGGING_PREFIX_UPDATE, vpnName);
+                return futures;
+            }
+            updateVpnInstance(writeOperTxn, primaryRd);
+            try {
+                writeOperTxn.commit().get();
+            } catch (InterruptedException | ExecutionException e) {
+                log.error("{}, failed to update VPN: Exception in updating vpn {} rd {} ", LOGGING_PREFIX_UPDATE,
+                        vpnName, update.getRouteDistinguisher(), e);
+                futures.add(Futures.immediateFailedFuture(e));
+                return futures;
+            }
+            ListenableFuture<List<Void>> listenableFuture = Futures.allAsList(futures);
+            boolean isIpAddressFamilyUpdated = false;
+            if (original.getIpAddressFamilyConfigured() == VpnInstance.IpAddressFamilyConfigured.Undefined
+                    && update.getIpAddressFamilyConfigured() != original.getIpAddressFamilyConfigured()) {
+                isIpAddressFamilyUpdated = true;
+            }
+            Futures.addCallback(listenableFuture,
+                    new PostVpnInstanceChangeWorker(update , isIpAddressFamilyUpdated, primaryRd),
+                    MoreExecutors.directExecutor());
+            return futures;
+        }
+
+        private class PostVpnInstanceChangeWorker implements FutureCallback<List<Void>> {
+            private final Logger log = LoggerFactory.getLogger(PostVpnInstanceChangeWorker.class);
+            VpnInstance vpnInstance;
+            String vpnName;
+            boolean isIpAddressFamilyUpdated;
+            String primaryRd;
+
+            PostVpnInstanceChangeWorker(VpnInstance vpnInstance, boolean isIpAddressFamilyUpdated, String primaryRd) {
+                this.vpnInstance = vpnInstance;
+                this.vpnName = vpnInstance.getVpnInstanceName();
+                this.isIpAddressFamilyUpdated = isIpAddressFamilyUpdated;
+                this.primaryRd = primaryRd;
+            }
+
+            /**
+             * This implies that all the future instances have returned success. -- TODO: Confirm this
+             */
+            @Override
+            public void onSuccess(List<Void> voids) {
+                if (!VpnUtil.isBgpVpn(vpnName, primaryRd)) {
+                    // plain router
+                    notifyTask();
+                    vpnInterfaceManager.vpnInstanceIsReady(vpnName);
+                    return;
+                }
+                if (isIpAddressFamilyUpdated) {
+                    //bgpvpn
+                    notifyTask();
+                    vpnInterfaceManager.vpnInstanceIsReady(vpnName);
+                }
+            }
+
+            /**
+             * This method is used to handle failure callbacks.
+             * If more retry needed, the retrycount is decremented and mainworker is executed again.
+             * After retries completed, rollbackworker is executed.
+             * If rollbackworker fails, this is a double-fault. Double fault is logged and ignored.
+             */
+
+            @Override
+            public void onFailure(Throwable throwable) {
+                log.error("{} onFailure: Job for vpnInstance: {} with rd {} failed with exception:", LOGGING_PREFIX_ADD,
+                        vpnName, primaryRd, throwable);
+                vpnInterfaceManager.vpnInstanceFailed(vpnName);
+            }
+
+            private void notifyTask() {
+                vpnOpDataNotifier.notifyVpnOpDataReady(VpnOpDataSyncer.VpnOpDataType.vpnInstanceToId,
+                        vpnInstance.getVpnInstanceName());
+                vpnOpDataNotifier.notifyVpnOpDataReady(VpnOpDataSyncer.VpnOpDataType.vpnOpData,
+                        vpnInstance.getVpnInstanceName());
+            }
+        }
+
+        public void updateVpnInstance(WriteTransaction writeOperTxn, String primaryRd) {
+            log.trace("updateVpnInstance: VPN event key: {}, value: {}.", vpnIdentifier, update);
+            InstanceIdentifier<VrfTables> id = VpnUtil.buildVrfTableForPrimaryRd(primaryRd);
+            Optional<VrfTables> vrfTable;
+            try {
+                vrfTable = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, id);
+            } catch (ExecutionException | InterruptedException e) {
+                log.trace("updateVpnInstance: Exception while reading FIB VRF Table for VPN Instance {} with "
+                        + "Primary RD {}.", vpnName, primaryRd);
+                return;
+            }
+            //TODO Later if FIB VRF table is available we need to callback the vpnInstanceOpData Update to proceed
+            if (!vrfTable.isPresent()) {
+                log.error("updateVpnInstance: FIB VRF table is not present for the VPN Instance {} "
+                                + "with Primary RD {}. Unable to Proceed VpnInstanceOpData Update event {}",
+                        vpnName, primaryRd, update);
+                return;
+            }
+            List<String> vpnInstanceUpdatedRdList = Collections.EMPTY_LIST;
+            boolean isBgpVrfTableUpdateRequired = false;
+            boolean isVpnInstanceRdUpdated = false;
+            //Handle VpnInstance Address Family update
+            int originalIpAddrFamilyValue = original.getIpAddressFamilyConfigured().getIntValue();
+            int updateIpAddrFamilyValue = update.getIpAddressFamilyConfigured().getIntValue();
+            if (originalIpAddrFamilyValue != updateIpAddrFamilyValue) {
+                log.debug("updateVpnInstance: VpnInstance: {} updated with IP address family {} from IP address "
+                                + "family {}", vpnName, update.getIpAddressFamilyConfigured().getName(),
+                        original.getIpAddressFamilyConfigured().getName());
+                vpnUtil.setVpnInstanceOpDataWithAddressFamily(vpnName, update.getIpAddressFamilyConfigured(),
+                        writeOperTxn);
+            }
+            //Update VpnInstanceOpData with BGPVPN to Internet BGPVPN and vice-versa
+            if (original.getBgpvpnType() != update.getBgpvpnType()) {
+                log.debug("updateVpnInstance: VpnInstance: {} updated with BGP-VPN type: {} from BGP-VPN type: {}",
+                        vpnName, update.getBgpvpnType(), original.getBgpvpnType());
+                vpnUtil.updateVpnInstanceOpDataWithVpnType(vpnName, update.getBgpvpnType(), writeOperTxn);
+            }
+            //Handle BGP-VPN Instance RD Update
+            if ((update.getBgpvpnType() != VpnInstance.BgpvpnType.InternalVPN)) {
+                if (originalIpAddrFamilyValue < updateIpAddrFamilyValue) {
+                    isBgpVrfTableUpdateRequired = true;
+                }
+                if (original.getRouteDistinguisher().size() != update.getRouteDistinguisher().size()) {
+                    log.debug("updateVpnInstance: VpnInstance:{} updated with new RDs: {} from old RDs: {}", vpnName,
+                            update.getRouteDistinguisher(), original.getRouteDistinguisher());
+                    vpnUtil.updateVpnInstanceOpDataWithRdList(vpnName, update.getRouteDistinguisher(), writeOperTxn);
+                    /* Update BGP Vrf entry for newly added RD. VPN Instance does not support for
+                     * deleting the existing RDs
+                     */
+                    vpnInstanceUpdatedRdList = update.getRouteDistinguisher() != null
+                            ? new ArrayList<>(update.getRouteDistinguisher()) : new ArrayList<>();
+                    vpnInstanceUpdatedRdList.removeAll(original.getRouteDistinguisher());
+                    isBgpVrfTableUpdateRequired = true;
+                    isVpnInstanceRdUpdated = true;
+                }
+            }
+            //update Bgp VrfTable
+            if (isBgpVrfTableUpdateRequired) {
+                addBgpVrfTableForVpn(update, vpnName, vpnInstanceUpdatedRdList, isVpnInstanceRdUpdated);
+            }
+        }
     }
 
     @Override
@@ -289,7 +459,6 @@ public class VpnInstanceListener extends AbstractAsyncDataTreeChangeListener<Vpn
         if (VpnUtil.isBgpVpn(vpnInstanceName, primaryRd)) {
             List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn
                 .instance.op.data.entry.vpntargets.VpnTarget> opVpnTargetList = new ArrayList<>();
-            builder.setBgpvpnType(VpnInstanceOpDataEntry.BgpvpnType.BGPVPNExternal);
             if (value.getL3vni() != null) {
                 builder.setL3vni(value.getL3vni());
             }
@@ -318,9 +487,9 @@ public class VpnInstanceListener extends AbstractAsyncDataTreeChangeListener<Vpn
 
             List<String> rds = value.getRouteDistinguisher();
             builder.setRd(rds);
-        } else {
-            builder.setBgpvpnType(VpnInstanceOpDataEntry.BgpvpnType.VPN);
         }
+        // Get BGP-VPN type configured details from config vpn-instance
+        builder.setBgpvpnType(VpnInstanceOpDataEntry.BgpvpnType.forValue(value.getBgpvpnType().getIntValue()));
         writeOperTxn.mergeParentStructureMerge(VpnUtil.getVpnInstanceOpDataIdentifier(primaryRd), builder.build());
         LOG.info("{} addVpnInstance: VpnInstanceOpData populated successfully for vpn {} rd {}", LOGGING_PREFIX_ADD,
                 vpnInstanceName, primaryRd);
@@ -503,5 +672,72 @@ public class VpnInstanceListener extends AbstractAsyncDataTreeChangeListener<Vpn
     private String getFibFlowRef(Uint64 dpnId, short tableId, String vpnName, int priority) {
         return VpnConstants.FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId
                 + NwConstants.FLOWID_SEPARATOR + vpnName + NwConstants.FLOWID_SEPARATOR + priority;
+    }
+
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
+            justification = "https://github.com/spotbugs/spotbugs/issues/811")
+    private void addBgpVrfTableForVpn(VpnInstance vpnInstance, String vpnName, List<String> vpnInstanceUpdatedRdList,
+                                      boolean isVpnInstanceRdUpdated) {
+        String primaryRd = vpnUtil.getPrimaryRd(vpnName);
+        Collection<VpnTarget> vpnTargetCollection = (vpnInstance.getVpnTargets() != null)
+                ? vpnInstance.getVpnTargets().getVpnTarget().values() : null;
+        List<VpnTarget> vpnTargetList = new ArrayList<VpnTarget>(vpnTargetCollection != null ? vpnTargetCollection
+                : Collections.EMPTY_LIST);
+        List<String> exportRTList = new ArrayList<>();
+        List<String> importRTList = new ArrayList<>();
+        if (!vpnTargetList.isEmpty()) {
+            for (VpnTarget vpnTarget : vpnTargetList) {
+                if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ExportExtcommunity) {
+                    exportRTList.add(vpnTarget.getVrfRTValue());
+                }
+                if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ImportExtcommunity) {
+                    importRTList.add(vpnTarget.getVrfRTValue());
+                }
+                if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.Both) {
+                    exportRTList.add(vpnTarget.getVrfRTValue());
+                    importRTList.add(vpnTarget.getVrfRTValue());
+                }
+            }
+        }
+        synchronized (vpnName.intern()) {
+            List<String> rds = Collections.EMPTY_LIST;
+            //Vpn Instance RD Update for ECMP use case
+            if (isVpnInstanceRdUpdated) {
+                rds = vpnInstanceUpdatedRdList;
+            } else {
+                rds = vpnInstance.getRouteDistinguisher() != null
+                        ? new ArrayList<>(vpnInstance.getRouteDistinguisher()) : new ArrayList<>();
+            }
+            for (String rd : rds) {
+                List<String> irtList = rd.equals(primaryRd) ? importRTList : Collections.emptyList();
+                int ipAddrFamilyConfigured = vpnInstance.getIpAddressFamilyConfigured().getIntValue();
+                switch (ipAddrFamilyConfigured) {
+                    case 10:
+                        bgpManager.addVrf(rd, irtList, exportRTList, AddressFamily.IPV4);
+                        bgpManager.addVrf(rd, irtList, exportRTList, AddressFamily.IPV6);
+                        LOG.debug("addBgpVrfTableForVpn: ADD BGP VRF table for VPN {} with RD {}, ImportRTList {}, "
+                                + "ExportRTList {} for IPv4andIPv6 AddressFamily ", vpnName, rd, irtList, exportRTList);
+                        break;
+                    case 6:
+                        bgpManager.addVrf(rd, irtList, exportRTList, AddressFamily.IPV6);
+                        LOG.debug("addBgpVrfTableForVpn: ADD BGP VRF table for VPN {} with RD {}, ImportRTList {}, "
+                                + "ExportRTList {} for IPv6 AddressFamily ", vpnName, rd, irtList, exportRTList);
+                        break;
+                    case 4:
+                        bgpManager.addVrf(rd, irtList, exportRTList, AddressFamily.IPV4);
+                        LOG.debug("addBgpVrfTableForVpn: ADD BGP VRF table for VPN {} with RD {}, ImportRTList {}, "
+                                + "ExportRTList {} for IPv4 AddressFamily ", vpnName, rd, irtList, exportRTList);
+                        break;
+                    default:
+                        break;
+                }
+                //L2VPN Use case
+                if (vpnInstance.isL2vpn()) {
+                    bgpManager.addVrf(rd, importRTList, exportRTList, AddressFamily.L2VPN);
+                    LOG.debug("addBgpVrfTableForVpn: ADD BGP VRF table for VPN {} RD {}, ImportRTList {}, "
+                            + "ExportRTList {} for L2VPN AddressFamily ", vpnName, rd, irtList, exportRTList);
+                }
+            }
+        }
     }
 }

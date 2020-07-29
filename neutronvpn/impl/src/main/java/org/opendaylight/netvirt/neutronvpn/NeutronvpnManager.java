@@ -33,6 +33,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -72,7 +73,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry.BgpvpnType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
@@ -587,7 +587,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             LOG.debug("updating existing vpninstance node");
         } else {
             builder = new VpnInstanceBuilder().withKey(new VpnInstanceKey(vpnName)).setVpnInstanceName(vpnName)
-                    .setL2vpn(isL2Vpn).setL3vni(l3vni);
+                    .setL2vpn(isL2Vpn).setL3vni(l3vni).setBgpvpnType(VpnInstance.BgpvpnType.InternalVPN);
         }
         if (irt != null && !irt.isEmpty()) {
             if (ert != null && !ert.isEmpty()) {
@@ -622,7 +622,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
         VpnTargets vpnTargets = new VpnTargetsBuilder().setVpnTarget(vpnTargetList).build();
         if (rd != null && !rd.isEmpty()) {
-            builder.setRouteDistinguisher(rd).setVpnTargets(vpnTargets);
+            builder.setRouteDistinguisher(rd).setVpnTargets(vpnTargets).setBgpvpnType(VpnInstance.BgpvpnType.BGPVPN);
         }
 
         builder.setIpAddressFamilyConfigured(VpnInstance.IpAddressFamilyConfigured.forValue(ipVersion.choice));
@@ -2358,7 +2358,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             }
         }
         if (ipVersion != IpVersionChoice.UNDEFINED) {
-            LOG.debug("associateRouterToVpn: Updating vpnInstanceOpDataEntrywith ip address family {} for VPN {} ",
+            LOG.debug("associateRouterToVpn: Updating vpnInstance ip address family {} for VPN {} ",
                     ipVersion, vpnId);
             neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(), ipVersion, true);
         }
@@ -2399,7 +2399,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             updateVpnForSubnet(vpnId, routerId, sn.getId(), false);
         }
         if (ipVersion != IpVersionChoice.UNDEFINED) {
-            LOG.debug("dissociateRouterFromVpn; Updating vpnInstanceOpDataEntry with ip address family {} for VPN {} ",
+            LOG.debug("dissociateRouterFromVpn; Updating vpnInstance with ip address family {} for VPN {} ",
                     ipVersion, vpnId);
             neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(), ipVersion,
                     false);
@@ -2417,6 +2417,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     protected List<String> associateNetworksToVpn(@NonNull Uuid vpnId, @NonNull List<Uuid> networkList) {
         List<String> failedNwList = new ArrayList<>();
         HashSet<Uuid> passedNwList = new HashSet<>();
+        ConcurrentMap<Uuid, Network> extNwMap = new ConcurrentHashMap<>();
         boolean isExternalNetwork = false;
         if (networkList.isEmpty()) {
             LOG.error("associateNetworksToVpn: Failed as given networks list is empty, VPN Id: {}", vpnId.getValue());
@@ -2440,6 +2441,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 return failedNwList;
             }
             Set<VpnTarget> routeTargets = vpnManager.getRtListForVpn(vpnId.getValue());
+            boolean isIpFamilyUpdated = false;
             for (Uuid nw : networkList) {
                 Network network = neutronvpnUtils.getNeutronNetwork(nw);
                 if (network == null) {
@@ -2464,12 +2466,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                                    + "another VPN %s", nw.getValue(), networkVpnId.getValue()));
                     continue;
                 }
-                if (NeutronvpnUtils.getIsExternal(network) && !associateExtNetworkToVpn(vpnId, network)) {
-                    LOG.error("associateNetworksToVpn: Failed to associate Provider Network {} with VPN {}",
-                            nw.getValue(), vpnId.getValue());
-                    failedNwList.add(String.format("Failed to associate Provider Network %s with VPN %s",
-                            nw.getValue(), vpnId.getValue()));
-                    continue;
+                /* Handle association of external network(s) to Internet BGP-VPN use case outside of the
+                 * networkList iteration
+                 */
+                if (neutronvpnUtils.getIsExternal(network)) {
+                    extNwMap.put(nw, network);
                 }
                 if (NeutronvpnUtils.getIsExternal(network)) {
                     isExternalNetwork = true;
@@ -2489,10 +2490,12 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         ipVersion = ipVersion.addVersion(ipVers);
                     }
                 }
-                if (ipVersion != IpVersionChoice.UNDEFINED) {
-                    LOG.debug("associateNetworksToVpn: Updating vpnInstanceOpDataEntry with ip address family {}"
+                //Update vpnInstance for IP address family
+                if (ipVersion != IpVersionChoice.UNDEFINED && !isIpFamilyUpdated) {
+                    LOG.debug("associateNetworksToVpn: Updating vpnInstance with ip address family {}"
                             + " for VPN {} ", ipVersion, vpnId);
                     neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(), ipVersion, true);
+                    isIpFamilyUpdated = true;
                 }
                 for (Subnetmap subnetmap : subnetmapList) {
                     Uuid subnetId = subnetmap.getId();
@@ -2514,6 +2517,18 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     }
                 }
                 passedNwList.add(nw);
+                //Handle association of external network(s) to Internet BGP-VPN Instance use case
+                if (!extNwMap.isEmpty() || extNwMap != null) {
+                    for (Network extNw : extNwMap.values()) {
+                        if (!associateExtNetworkToVpn(vpnId, extNw, vpnInstance.getBgpvpnType())) {
+                            LOG.error("associateNetworksToVpn: Failed to associate Provider External Network {} with "
+                                    + "VPN {}", extNw, vpnId.getValue());
+                            failedNwList.add(String.format("Failed to associate Provider External Network %s with "
+                                            + "VPN %s", extNw, vpnId.getValue()));
+                            continue;
+                        }
+                    }
+                }
             }
         } catch (ExecutionException | InterruptedException e) {
             LOG.error("associateNetworksToVpn: Failed to associate VPN {} with networks {}: ", vpnId.getValue(),
@@ -2529,18 +2544,17 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         return failedNwList;
     }
 
-    private boolean associateExtNetworkToVpn(@NonNull Uuid vpnId, @NonNull Network extNet) {
+    private boolean associateExtNetworkToVpn(@NonNull Uuid vpnId, @NonNull Network extNet,
+                                             VpnInstance.BgpvpnType bgpVpnType) {
         if (!addExternalNetworkToVpn(extNet, vpnId)) {
             return false;
         }
-        VpnInstanceOpDataEntry vpnOpDataEntry = neutronvpnUtils.getVpnInstanceOpDataEntryFromVpnId(vpnId.getValue());
-        if (vpnOpDataEntry == null) {
-            LOG.error("associateExtNetworkToVpn: can not find VpnOpDataEntry for VPN {}", vpnId.getValue());
-            return false;
-        }
-        if (!vpnOpDataEntry.getBgpvpnType().equals(BgpvpnType.BGPVPNInternet)) {
-            LOG.info("associateExtNetworkToVpn: set type {} for VPN {}", BgpvpnType.BGPVPNInternet, vpnId.getValue());
-            neutronvpnUtils.updateVpnInstanceOpWithType(BgpvpnType.BGPVPNInternet, vpnId);
+        if (!bgpVpnType.equals(VpnInstance.BgpvpnType.InternetBGPVPN)) {
+            LOG.info("associateExtNetworkToVpn: External network {} is associated to VPN {}."
+                            + "Hence set vpnInstance type to {} from {} ", extNet.key().getUuid().getValue(),
+                    vpnId.getValue(), VpnInstance.BgpvpnType.InternetBGPVPN.getName(),
+                    VpnInstance.BgpvpnType.BGPVPN.getName());
+            neutronvpnUtils.updateVpnInstanceWithBgpVpnType(VpnInstance.BgpvpnType.InternetBGPVPN, vpnId);
         }
         //Update VpnMap with ext-nw is needed first before processing V6 internet default fallback flows
         List<Uuid> extNwList = Collections.singletonList(extNet.key().getUuid());
@@ -2582,6 +2596,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     protected List<String> dissociateNetworksFromVpn(@NonNull Uuid vpnId, @NonNull List<Uuid> networkList) {
         List<String> failedNwList = new ArrayList<>();
         HashSet<Uuid> passedNwList = new HashSet<>();
+        ConcurrentMap<Uuid, Network> extNwMap = new ConcurrentHashMap<>();
         if (networkList.isEmpty()) {
             LOG.error("dissociateNetworksFromVpn: Failed as networks list is empty");
             failedNwList.add(String.format("Failed to disassociate networks from VPN %s as networks list is empty",
@@ -2616,16 +2631,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                 vpnId.getValue()));
                 continue;
             }
-            if (NeutronvpnUtils.getIsExternal(network)) {
-                if (disassociateExtNetworkFromVpn(vpnId, network)) {
-                    passedNwList.add(nw);
-                } else {
-                    LOG.error("dissociateNetworksFromVpn: Failed to withdraw Provider Network {} from VPN {}",
-                              nw.getValue(), vpnId.getValue());
-                    failedNwList.add(String.format("Failed to withdraw Provider Network %s from VPN %s", nw.getValue(),
-                                                   vpnId.getValue()));
-                    continue;
-                }
+            /* Handle disassociation of external network(s) from Internet BGP-VPN use case outside of the
+             * networkList iteration
+             */
+            if (neutronvpnUtils.getIsExternal(network)) {
+                extNwMap.put(nw, network);
             }
             IpVersionChoice ipVersion = IpVersionChoice.UNDEFINED;
             for (Uuid subnet : networkSubnets) {
@@ -2653,9 +2663,23 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
             }
             if (ipVersion != IpVersionChoice.UNDEFINED) {
-                LOG.debug("dissociateNetworksFromVpn: Updating vpnInstanceOpDataEntryupdate with ip address family {}"
+                LOG.debug("dissociateNetworksFromVpn: Updating vpnInstance with ip address family {}"
                         + " for VPN {}", ipVersion, vpnId);
                 neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(), ipVersion, false);
+            }
+        }
+        //Handle disassociation of external network(s) from Internet BGP-VPN Instance use case
+        if (!extNwMap.isEmpty() || extNwMap != null) {
+            for (Network extNw : extNwMap.values()) {
+                if (disassociateExtNetworkFromVpn(vpnId, extNw)) {
+                    passedNwList.add(extNw.getUuid());
+                } else {
+                    LOG.error("dissociateNetworksFromVpn: Failed to withdraw External Provider Network {} from VPN {}",
+                            extNw, vpnId.getValue());
+                    failedNwList.add(String.format("Failed to withdraw External Provider Network %s from VPN %s",
+                            extNw, vpnId.getValue()));
+                    continue;
+                }
             }
         }
         clearFromVpnMaps(vpnId, null, new ArrayList<>(passedNwList));
@@ -2681,10 +2705,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
             }
         }
-        //Set VPN Type is BGPVPNExternal from BGPVPNInternet
-        LOG.info("disassociateExtNetworkFromVpn: set type {} for VPN {}",
-                VpnInstanceOpDataEntry.BgpvpnType.BGPVPNExternal, vpnId.getValue());
-        neutronvpnUtils.updateVpnInstanceOpWithType(VpnInstanceOpDataEntry.BgpvpnType.BGPVPNExternal, vpnId);
+        ///Set VPN Type is BGPVPN from InternetBGPVPN
+        LOG.info("disassociateExtNetworkFromVpn: Set BGP-VPN type with {} for VPN {} and update IPv6 address family. "
+                        + "Since external network is disassociated from VPN {}",
+                VpnInstance.BgpvpnType.BGPVPN, extNet, vpnId.getValue());
+        neutronvpnUtils.updateVpnInstanceWithBgpVpnType(VpnInstance.BgpvpnType.BGPVPN, vpnId);
         IpVersionChoice ipVersion = IpVersionChoice.UNDEFINED;
         for (Uuid snId : neutronvpnUtils.getPrivateSubnetsToExport(extNet, vpnId)) {
             Subnetmap sm = neutronvpnUtils.getSubnetmap(snId);
