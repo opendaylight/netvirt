@@ -292,17 +292,17 @@ module odl-l3vpn {
            }
            leaf bgpvpn-type {
               type enumeration {
-                 enum BGPVPNInternet {
+                 enum InternetBGPVPN {
                     value "0";
-                    description "BGPVPN Internet";
+                    description "Internet BGPVPN";
                  }
-                 enum BGPVPNExternal {
+                 enum BGPVPN {
                     value "1";
-                    description "BGPVPN External";
+                    description "BGPVPN";
                  }
-                 enum VPN {
+                 enum InternalVPN {
                     value "2";
-                    description "Default VPN";
+                    description "InternalVPN";
                  }
               }
            }
