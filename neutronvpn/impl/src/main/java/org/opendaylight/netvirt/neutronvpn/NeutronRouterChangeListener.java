@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -113,6 +114,9 @@ public class NeutronRouterChangeListener extends AbstractAsyncDataTreeChangeList
     @Override
     public void update(InstanceIdentifier<Router> identifier, Router original, Router update) {
         LOG.trace("Updating Router : key: {}, original value={}, update value={}", identifier, original, update);
+        if (Objects.equals(original, update)) {
+            return;
+        }
         neutronvpnUtils.addToRouterCache(update);
         Uuid routerId = update.getUuid();
         neutronvpnUtils.addToRouterCache(update);

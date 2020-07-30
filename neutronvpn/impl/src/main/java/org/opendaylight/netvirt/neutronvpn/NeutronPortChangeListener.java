@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -217,6 +218,9 @@ public class NeutronPortChangeListener extends AbstractAsyncDataTreeChangeListen
     @Override
     public void update(InstanceIdentifier<Port> identifier, Port original, Port update) {
         LOG.trace("Received port update event: original={}, update={}", original, update);
+        if (Objects.equals(original, update)) {
+            return;
+        }
         // Switchdev ports need to be bounded to a host before creation
         // in order to validate the supported vnic types from the hostconfig
         if (isPortTypeSwitchdev(original)

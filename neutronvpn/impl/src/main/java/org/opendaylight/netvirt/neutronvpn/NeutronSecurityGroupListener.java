@@ -11,6 +11,7 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Objects;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -83,6 +84,9 @@ public class NeutronSecurityGroupListener extends AbstractAsyncDataTreeChangeLis
     @Override
     public void update(InstanceIdentifier<SecurityGroup> key, SecurityGroup dataObjectModificationBefore,
         SecurityGroup dataObjectModificationAfter) {
+        if (Objects.equals(dataObjectModificationBefore, dataObjectModificationAfter)) {
+            return;
+        }
         LOG.debug("Do nothing");
     }
 
