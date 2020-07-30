@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.neutronvpn;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -18,6 +20,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.mdsal.binding.api.DataBroker;
@@ -101,6 +104,23 @@ public class NeutronNetworkChangeListener extends AbstractAsyncDataTreeChangeLis
             return;
         }
 
+        Collection<Segments> providerSegmentsCollection = input.augmentation(NetworkProviderExtension.class)
+                .getSegments().values();
+        List<Segments> providerSegments = new ArrayList<Segments>(providerSegmentsCollection != null
+                ? providerSegmentsCollection : Collections.emptyList());
+        if (providerSegments != null && providerSegments.size() > 0) {
+            for (Segments segment: providerSegments) {
+                Class<? extends NetworkTypeBase> segNetworktype = segment.getNetworkType();
+                if (NeutronvpnUtils.isVlanOrVxlanNetwork(segNetworktype)
+                        && segment.getSegmentationId() == null) {
+                    LOG.error("Segmentation ID is null for configured network {} of Segment provider type {}. "
+                                    + "Abandoning any further processing for the network", input.getUuid().getValue(),
+                            segNetworktype);
+                    return;
+                }
+            }
+        }
+
         neutronvpnUtils.addToNetworkCache(input);
         // Create ELAN instance for this network
         ElanInstance elanInstance = createElanInstance(input);
@@ -150,21 +170,25 @@ public class NeutronNetworkChangeListener extends AbstractAsyncDataTreeChangeLis
         }
         neutronvpnUtils.addToNetworkCache(update);
         String elanInstanceName = original.getUuid().getValue();
-        Class<? extends SegmentTypeBase> origSegmentType = NeutronvpnUtils.getSegmentTypeFromNeutronNetwork(original);
-        String origSegmentationId = NeutronvpnUtils.getSegmentationIdFromNeutronNetwork(original);
-        String origPhysicalNetwork = NeutronvpnUtils.getPhysicalNetworkName(original);
         Class<? extends SegmentTypeBase> updateSegmentType = NeutronvpnUtils.getSegmentTypeFromNeutronNetwork(update);
         String updateSegmentationId = NeutronvpnUtils.getSegmentationIdFromNeutronNetwork(update);
         String updatePhysicalNetwork = NeutronvpnUtils.getPhysicalNetworkName(update);
+
+        NetworkProviderExtension originalProviderExtension = original.augmentation(NetworkProviderExtension.class);
+        Collection<Segments> originalSegCollection = originalProviderExtension.getSegments().values();
+        List<Segments> originalSegments = new ArrayList<Segments>(originalSegCollection != null ? originalSegCollection
+                : Collections.emptyList());
+        NetworkProviderExtension updateProviderExtension = update.augmentation(NetworkProviderExtension.class);
+        Collection<Segments> updateSegCollection = updateProviderExtension.getSegments().values();
+        List<Segments> updateSegments = new ArrayList<Segments>(updateSegCollection != null ? updateSegCollection
+                : Collections.emptyList());
+
         Boolean origExternal = NeutronvpnUtils.getIsExternal(original);
         Boolean updateExternal = NeutronvpnUtils.getIsExternal(update);
         Boolean origIsFlatOrVlanNetwork = NeutronvpnUtils.isFlatOrVlanNetwork(original);
         Boolean updateIsFlatOrVlanNetwork = NeutronvpnUtils.isFlatOrVlanNetwork(update);
 
-        if (!Objects.equals(origSegmentType, updateSegmentType)
-                || !Objects.equals(origSegmentationId, updateSegmentationId)
-                || !Objects.equals(origPhysicalNetwork, updatePhysicalNetwork)
-                || !Objects.equals(origExternal, updateExternal)) {
+        if (!Objects.equals(originalSegments, updateSegments) || !Objects.equals(origExternal, updateExternal)) {
             if (origExternal && origIsFlatOrVlanNetwork && (!updateExternal || !updateIsFlatOrVlanNetwork)) {
                 nvpnManager.removeExternalVpnInterfaces(original.getUuid());
                 nvpnManager.removeVpn(original.getUuid());
@@ -200,6 +224,7 @@ public class NeutronNetworkChangeListener extends AbstractAsyncDataTreeChangeLis
                         .setSegmentationIndex(segment.getSegmentationIndex())
                         .setSegmentationId(getSegmentationId(input, segment))
                         .setSegmentType(elanSegmentTypeFromNetworkType(segment.getNetworkType()))
+                        .setPhysicalNetworkName(segment.getPhysicalNetwork())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -258,9 +283,22 @@ public class NeutronNetworkChangeListener extends AbstractAsyncDataTreeChangeLis
 
     private ElanInstanceBuilder createElanInstanceBuilder(String elanInstanceName, Class<? extends SegmentTypeBase>
             segmentType, String segmentationId, String physicalNetworkName, Network network) {
-        Boolean isExternal = NeutronvpnUtils.getIsExternal(network);
-        List<ElanSegments> segments = buildSegments(network);
-        ElanInstanceBuilder elanInstanceBuilder = new ElanInstanceBuilder().setElanInstanceName(elanInstanceName);
+        InstanceIdentifier<ElanInstance> id = createElanInstanceIdentifier(elanInstanceName);
+        Optional<ElanInstance> optionalElan;
+        try {
+            optionalElan = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, id);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("createElanInstanceBuilder: Exception while reading ElanInstance DS for the elan-Instance {}, "
+                            + "network {}", elanInstanceName, network.key().getUuid().getValue());
+            return null;
+        }
+        ElanInstanceBuilder elanInstanceBuilder;
+        if (optionalElan.isPresent()) {
+            elanInstanceBuilder = new ElanInstanceBuilder(optionalElan.get());
+        } else {
+            elanInstanceBuilder = new ElanInstanceBuilder().setElanInstanceName(elanInstanceName);
+        }
         if (segmentType != null) {
             elanInstanceBuilder.setSegmentType(segmentType);
             if (segmentationId != null) {
@@ -270,9 +308,15 @@ public class NeutronNetworkChangeListener extends AbstractAsyncDataTreeChangeLis
                 elanInstanceBuilder.setPhysicalNetworkName(physicalNetworkName);
             }
         }
+        List<ElanSegments> segments = buildSegments(network);
+        if (!segments.isEmpty()) {
+            elanInstanceBuilder.setSegmentType(null);
+            elanInstanceBuilder.setPhysicalNetworkName(null);
+            elanInstanceBuilder.setSegmentationId(Uint32.ZERO);
+        }
 
         elanInstanceBuilder.setElanSegments(segments);
-        elanInstanceBuilder.setExternal(isExternal);
+        elanInstanceBuilder.setExternal(NeutronvpnUtils.getIsExternal(network));
         elanInstanceBuilder.withKey(new ElanInstanceKey(elanInstanceName));
         return elanInstanceBuilder;
     }
@@ -289,7 +333,7 @@ public class NeutronNetworkChangeListener extends AbstractAsyncDataTreeChangeLis
         ElanInstance elanInstance = createElanInstanceBuilder(elanInstanceName, segmentType, segmentationId,
                 physicalNetworkName, network).build();
         InstanceIdentifier<ElanInstance> id = createElanInstanceIdentifier(elanInstanceName);
-        MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, id, elanInstance);
+        MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id, elanInstance);
         return elanInstance;
     }
 
