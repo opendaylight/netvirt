@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.neutronvpn;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -79,6 +80,9 @@ public class NeutronHostConfigChangeListener extends AbstractAsyncDataTreeChange
 
     @Override
     public void update(InstanceIdentifier<Node> identifier, Node original, Node update) {
+        if (Objects.equals(original, update)) {
+            return;
+        }
         updateHostConfig(update, Action.UPDATE);
     }
 
