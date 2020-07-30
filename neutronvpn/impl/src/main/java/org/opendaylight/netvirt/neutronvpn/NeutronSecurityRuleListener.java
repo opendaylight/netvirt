@@ -11,6 +11,7 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import com.google.common.collect.ImmutableBiMap;
 import java.util.Collections;
+import java.util.Objects;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -255,5 +256,8 @@ public class NeutronSecurityRuleListener extends AbstractAsyncDataTreeChangeList
                           SecurityRule oldSecurityRule, SecurityRule updatedSecurityRule) {
         // security rule updation is not supported from openstack, so no need to handle update.
         LOG.trace("updates on security rules not supported.");
+        if (Objects.equals(oldSecurityRule, updatedSecurityRule)) {
+            return;
+        }
     }
 }

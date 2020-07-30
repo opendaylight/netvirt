@@ -145,6 +145,9 @@ public class NeutronNetworkChangeListener extends AbstractAsyncDataTreeChangeLis
     @Override
     public void update(InstanceIdentifier<Network> identifier, Network original, Network update) {
         LOG.trace("Updating Network : key: {}, original value={}, update value={}", identifier, original, update);
+        if (Objects.equals(original, update)) {
+            return;
+        }
         neutronvpnUtils.addToNetworkCache(update);
         String elanInstanceName = original.getUuid().getValue();
         Class<? extends SegmentTypeBase> origSegmentType = NeutronvpnUtils.getSegmentTypeFromNeutronNetwork(original);
