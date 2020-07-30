@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.neutronvpn;
 
+import java.util.Objects;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
@@ -43,6 +44,9 @@ public class UpgradeStateListener extends AbstractClusteredSyncDataTreeChangeLis
     @Override
     public void update(@NonNull UpgradeConfig original, UpgradeConfig updated) {
         LOG.info("UpgradeStateListener update from {} to {}", original, updated);
+        if (Objects.equals(original, updated)) {
+            return;
+        }
         neutronSubnetGwMacResolver.sendArpRequestsToExtGateways();
     }
 }

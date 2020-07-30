@@ -111,6 +111,9 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AbstractAsync
     public void update(InstanceIdentifier<Floatingip> identifier, Floatingip original, Floatingip update) {
         LOG.trace("Handling FloatingIptoFixedIp mapping : key: {}, original value={}, update value={}", identifier,
                 original, update);
+        if (Objects.equals(original, update)) {
+            return;
+        }
         IpAddress oldFixedIp = original.getFixedIpAddress();
         IpAddress newFixedIp = update.getFixedIpAddress();
         String floatingIp = update.getFloatingIpAddress().getIpv4Address().getValue();
