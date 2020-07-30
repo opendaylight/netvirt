@@ -149,6 +149,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.portsecurity.rev150712.PortSecurityExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.NetworkProviderExtension;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.neutron.networks.network.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
@@ -994,9 +995,10 @@ public class NeutronvpnUtils {
         NetworkProviderExtension providerExtension = network.augmentation(NetworkProviderExtension.class);
         if (providerExtension != null) {
             Class<? extends NetworkTypeBase> networkType = providerExtension.getNetworkType();
-            segmentationId = NeutronUtils.getSegmentationIdFromNeutronNetwork(network, networkType);
+            if (networkType != null) {
+                segmentationId = NeutronUtils.getSegmentationIdFromNeutronNetwork(network, networkType);
+            }
         }
-
         return segmentationId;
     }
 
@@ -1127,7 +1129,25 @@ public class NeutronvpnUtils {
 
     static boolean isNetworkTypeSupported(Network network) {
         NetworkProviderExtension npe = network.augmentation(NetworkProviderExtension.class);
-        return npe != null && SUPPORTED_NETWORK_TYPES.contains(npe.getNetworkType());
+        if (npe != null) {
+            LOG.trace("NwProviderExtension is not null for network {}" ,network);
+            if (npe.getNetworkType() != null && SUPPORTED_NETWORK_TYPES.contains(npe.getNetworkType())) {
+                return true;
+            }
+            Collection<Segments> segmentsCollection = npe.getSegments().values();
+            List<Segments> segments = new ArrayList<Segments>(segmentsCollection != null ? segmentsCollection
+                    : Collections.emptyList());
+            if (segments != null && !segments.isEmpty()) {
+                for (Segments segment: segments) {
+                    if (!SUPPORTED_NETWORK_TYPES.contains(segment.getNetworkType())) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        LOG.trace("NwProviderExtension NULL for network {}" ,network);
+        return false;
     }
 
     static boolean isFlatOrVlanNetwork(Network network) {
