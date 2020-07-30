@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -197,6 +198,9 @@ public class NeutronBgpvpnChangeListener extends AbstractAsyncDataTreeChangeList
     @Override
     public void update(InstanceIdentifier<Bgpvpn> identifier, Bgpvpn original, Bgpvpn update) {
         LOG.trace("Update Bgpvpn : key: {}, value={}", identifier, update);
+        if (Objects.equals(original, update)) {
+            return;
+        }
         Uuid vpnId = update.getUuid();
         if (isBgpvpnTypeL3(update.getType())) {
             try {

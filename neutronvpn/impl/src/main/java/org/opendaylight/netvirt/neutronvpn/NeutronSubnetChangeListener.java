@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.neutronvpn;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -109,42 +110,57 @@ public class NeutronSubnetChangeListener extends AbstractAsyncDataTreeChangeList
     @Override
     public void update(InstanceIdentifier<Subnet> identifier, Subnet original, Subnet update) {
         LOG.trace("Updating Subnet : key: {}, original value={}, update value={}", identifier, original, update);
+        if (Objects.equals(original, update)) {
+            return;
+        }
         neutronvpnUtils.addToSubnetCache(update);
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatch")
     private void handleNeutronSubnetCreated(Subnet subnet, Network network) {
         Uuid networkId = network.getUuid();
         Uuid subnetId = subnet.getUuid();
         ProviderTypes providerType = NeutronvpnUtils.getProviderNetworkType(network);
         String segmentationId = NeutronvpnUtils.getSegmentationIdFromNeutronNetwork(network);
         boolean isExternalNetwork = NeutronvpnUtils.getIsExternal(network);
-        nvpnManager.createSubnetmapNode(subnetId, subnet.getCidr().stringValue(), subnet.getTenantId(), networkId,
-                providerType != null ? NetworkAttributes.NetworkType.valueOf(providerType.getName()) : null,
-                segmentationId != null ? Long.parseLong(segmentationId) : 0L, isExternalNetwork);
-        createSubnetToNetworkMapping(subnetId, networkId);
+        try {
+            nvpnManager.createSubnetmapNode(subnetId, subnet.getCidr().stringValue(), subnet.getTenantId(), networkId,
+                    providerType != null ? NetworkAttributes.NetworkType.valueOf(providerType.getName()) : null,
+                    segmentationId != null ? Long.parseLong(segmentationId) : 0L, isExternalNetwork);
+            createSubnetToNetworkMapping(subnetId, networkId);
+        } catch (Exception e) {
+            LOG.error("handleNeutronSubnetCreated: Failed for subnet {} with subnet IP {} and networkId {}",
+                    subnetId.getValue(), subnet.getCidr().stringValue(), networkId.getValue(), e);
+        }
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatch")
     private void handleNeutronSubnetDeleted(Uuid subnetId, Uuid networkId, String subnetCidr) {
-        Uuid vpnId = neutronvpnUtils.getVpnForNetwork(networkId);
-        if (vpnId != null) {
-            Set<VpnTarget> routeTargets = vpnManager.getRtListForVpn(vpnId.getValue());
-            LOG.warn("Subnet {} deleted without disassociating network {} from VPN {}. Ideally, please disassociate "
-                    + "network from VPN before deleting neutron subnet.", subnetId.getValue(), networkId.getValue(),
-                    vpnId.getValue());
-            Subnetmap subnetmap = neutronvpnUtils.getSubnetmap(subnetId);
-            if (subnetmap != null) {
-                nvpnManager.removeSubnetFromVpn(vpnId, subnetmap, null /* internet-vpn-id */);
-            } else {
-                LOG.error("Subnetmap for subnet {} not found", subnetId.getValue());
+        try {
+            Uuid vpnId = neutronvpnUtils.getVpnForNetwork(networkId);
+            if (vpnId != null) {
+                Set<VpnTarget> routeTargets = vpnManager.getRtListForVpn(vpnId.getValue());
+                LOG.warn("Subnet {} deleted without disassociating network {} from VPN {}. Ideally, please "
+                                + "disassociate network from VPN before deleting neutron subnet.",
+                        subnetId.getValue(), networkId.getValue(), vpnId.getValue());
+                Subnetmap subnetmap = neutronvpnUtils.getSubnetmap(subnetId);
+                if (subnetmap != null) {
+                    nvpnManager.removeSubnetFromVpn(vpnId, subnetmap, null /* internet-vpn-id */);
+                } else {
+                    LOG.error("Subnetmap for subnet {} not found", subnetId.getValue());
+                }
+                if (!routeTargets.isEmpty()) {
+                    vpnManager.removeRouteTargetsToSubnetAssociation(routeTargets, subnetCidr, vpnId.getValue());
+                }
             }
-            if (!routeTargets.isEmpty()) {
-                vpnManager.removeRouteTargetsToSubnetAssociation(routeTargets, subnetCidr, vpnId.getValue());
+            if (networkId != null) {
+                deleteSubnetToNetworkMapping(subnetId, networkId);
             }
+            nvpnManager.deleteSubnetMapNode(subnetId);
+        } catch (Exception e) {
+            LOG.error("handleNeutronSubnetDeleted: Failed for subnet {} with subnet IP {} and networkId {}",
+                    subnetId.getValue(), subnetCidr, networkId.getValue(), e);
         }
-        if (networkId != null) {
-            deleteSubnetToNetworkMapping(subnetId, networkId);
-        }
-        nvpnManager.deleteSubnetMapNode(subnetId);
     }
 
     // TODO Clean up the exception handling
