@@ -14,6 +14,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
+import com.google.common.util.concurrent.ListenableFuture;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -617,7 +618,18 @@ public final class NatUtil {
 
     @Nullable
     public static String getRouterName(DataBroker broker, Uint32 routerId) {
-        return getVpnInstanceFromVpnIdentifier(broker, routerId);
+        InstanceIdentifier<RouterIds> id = buildRouterIdentifier(routerId);
+        String routerName = null;
+        try {
+            routerName = SingleTransactionDataBroker.syncReadOptional(broker, LogicalDatastoreType.CONFIGURATION,
+                            id).map(RouterIds::getRouterName).orElse(null);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.warn("getRouterName: Exception while reading routerIds DS for the router {}", routerId);
+        }
+        if (routerName == null) {
+            routerName = getVpnInstanceFromVpnIdentifier(broker, routerId);
+        }
+        return routerName;
     }
 
     static InstanceIdentifier<VpnInstanceOpDataEntry> getVpnInstanceOpDataIdentifier(String vrfId) {
@@ -1663,7 +1675,7 @@ public final class NatUtil {
             .child(DpnRoutersList.class, new DpnRoutersListKey(dpnId)).build();
     }
 
-    static InstanceIdentifier<DpnVpninterfacesList> getRouterDpnId(String routerName, Uint64 dpnId) {
+    public static InstanceIdentifier<DpnVpninterfacesList> getRouterDpnId(String routerName, Uint64 dpnId) {
         return InstanceIdentifier.builder(NeutronRouterDpns.class)
             .child(RouterDpnList.class, new RouterDpnListKey(routerName))
             .child(DpnVpninterfacesList.class, new DpnVpninterfacesListKey(dpnId)).build();
@@ -2993,5 +3005,14 @@ public final class NatUtil {
             dpnID = Uint64.valueOf(dpnKey.split(NatConstants.COLON_SEPARATOR)[1]).toString();
         }
         return dpnID;
+    }
+
+    public static ListenableFuture<Void> waitForTransactionToComplete(ListenableFuture<Void> future) {
+        try {
+            future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error writing to datastore", e);
+        }
+        return future;
     }
 }
