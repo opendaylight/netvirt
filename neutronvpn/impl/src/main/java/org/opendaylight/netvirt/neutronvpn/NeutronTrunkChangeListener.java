@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -104,6 +105,9 @@ public class NeutronTrunkChangeListener extends AbstractAsyncDataTreeChangeListe
 
     @Override
     public void update(InstanceIdentifier<Trunk> identifier, Trunk original, Trunk update) {
+        if (Objects.equals(original, update)) {
+            return;
+        }
         List<SubPorts> updatedSubPorts = new ArrayList<SubPorts>(update.nonnullSubPorts().values());
         if (updatedSubPorts == null) {
             updatedSubPorts = Collections.emptyList();
