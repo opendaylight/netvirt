@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2018 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -10,13 +10,15 @@
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
 import java.util.concurrent.ConcurrentHashMap;
-import javax.annotation.PreDestroy;
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.infrautils.utils.concurrent.Executors;
-import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
+
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanForwardingTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.forwarding.tables.MacTable;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -24,42 +26,47 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class ElanMacTableCache extends AbstractClusteredAsyncDataTreeChangeListener<MacTable> {
+public class ElanMacTableCache extends AsyncClusteredDataTreeChangeListenerBase<MacTable, ElanMacTableCache> {
     private static final Logger LOG = LoggerFactory.getLogger(ElanMacTableCache.class);
     private final DataBroker dataBroker;
     private final ConcurrentHashMap<String, MacTable> macsByElan = new ConcurrentHashMap<>();
+    private final IdManagerService idManager;
 
     @Inject
-    public ElanMacTableCache(final DataBroker dataBroker) {
-        super(dataBroker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(ElanForwardingTables.class)
-                .child(MacTable.class),
-                Executors.newListeningSingleThreadExecutor("ElanMacTableCache", LOG));
+    public ElanMacTableCache(final DataBroker dataBroker, final IdManagerService idManager) {
+        super(MacTable.class, ElanMacTableCache.class);
         this.dataBroker = dataBroker;
+        this.idManager = idManager;
     }
 
+    @PostConstruct
     public void init() {
-        LOG.info("{} init", getClass().getSimpleName());
+        ResourceBatchingManager.getInstance().registerDefaultBatchHandlers(this.dataBroker);
+        this.registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
     @Override
-    @PreDestroy
-    public void close() {
-        super.close();
-        Executors.shutdownAndAwaitTermination(getExecutorService());
+    protected InstanceIdentifier<MacTable> getWildCardPath() {
+        return InstanceIdentifier.builder(ElanForwardingTables.class).child(MacTable.class).build();
     }
 
     @Override
-    public void remove(InstanceIdentifier<MacTable> key, MacTable mac) {
+    protected ElanMacTableCache getDataTreeChangeListener() {
+        return ElanMacTableCache.this;
+    }
+
+    @Override
+    protected void remove(InstanceIdentifier<MacTable> key, MacTable mac) {
         macsByElan.remove(mac.getElanInstanceName());
     }
 
     @Override
-    public void update(InstanceIdentifier<MacTable> key, MacTable old, MacTable mac) {
+    protected void update(InstanceIdentifier<MacTable> key, MacTable old, MacTable mac) {
         macsByElan.put(mac.getElanInstanceName(), mac);
     }
 
     @Override
-    public void add(InstanceIdentifier<MacTable> key, MacTable mac) {
+    protected void add(InstanceIdentifier<MacTable> key, MacTable mac) {
         macsByElan.put(mac.getElanInstanceName(), mac);
     }
 
@@ -67,3 +74,4 @@ public class ElanMacTableCache extends AbstractClusteredAsyncDataTreeChangeListe
         return macsByElan.get(name);
     }
 }
+

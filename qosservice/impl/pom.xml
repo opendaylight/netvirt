@@ -70,6 +70,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
         </dependency>
+      <dependency>
+        <groupId>javax.inject</groupId>
+        <artifactId>javax.inject</artifactId>
+        <version>RELEASE</version>
+        <scope>compile</scope>
+      </dependency>
     </dependencies>
 
     <build>

@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepPhysicalLocatorAugmentation;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
@@ -63,7 +62,7 @@ public class PhysicalLocatorCmd extends MergeCommand<TerminationPoint, NodeBuild
                 updated.augmentation(HwvtepPhysicalLocatorAugmentation.class);
         HwvtepPhysicalLocatorAugmentation origPhysicalLocator =
                 orig.augmentation(HwvtepPhysicalLocatorAugmentation.class);
-        return Objects.equals(updatedPhysicalLocator.getDstIp(), origPhysicalLocator.getDstIp())
+        return updatedPhysicalLocator.getDstIp().equals(origPhysicalLocator.getDstIp())
                 && updatedPhysicalLocator.getEncapsulationType() == origPhysicalLocator.getEncapsulationType();
     }
 

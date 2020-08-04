@@ -8,16 +8,18 @@
 package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 
 import java.util.Arrays;
-import javax.annotation.PreDestroy;
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
+
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
+import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
-import org.opendaylight.infrautils.utils.concurrent.Executors;
-import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
-import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.Managers;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
@@ -26,52 +28,57 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public final class ManagerListener extends AbstractClusteredAsyncDataTreeChangeListener<Managers> {
+public final class ManagerListener extends AsyncClusteredDataTreeChangeListenerBase<Managers, ManagerListener> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ManagerListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HAOpClusteredListener.class);
 
     private final DataBroker dataBroker;
-    private final HwvtepNodeHACache hwvtepNodeHACache;
+    private final IdManagerService idManager;
 
     @Inject
-    public ManagerListener(DataBroker dataBroker, HwvtepNodeHACache hwvtepNodeHACache) {
-        super(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                HwvtepSouthboundUtils.createHwvtepTopologyInstanceIdentifier().child(Node.class)
-                        .augmentation(HwvtepGlobalAugmentation.class).child(Managers.class),
-                Executors.newListeningSingleThreadExecutor("ManagerListener", LOG));
+    public ManagerListener(DataBroker dataBroker, final IdManagerService idManager) {
+        super(Managers.class, ManagerListener.class);
         this.dataBroker = dataBroker;
-        this.hwvtepNodeHACache = hwvtepNodeHACache;
+        this.idManager = idManager;
     }
 
+    @PostConstruct
     public void init() {
-        LOG.info("{} init", getClass().getSimpleName());
+        ResourceBatchingManager.getInstance().registerDefaultBatchHandlers(this.dataBroker);
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
-    @PreDestroy
-    public void close() {
-        super.close();
-        Executors.shutdownAndAwaitTermination(getExecutorService());
+    protected InstanceIdentifier<Managers> getWildCardPath() {
+        return HwvtepSouthboundUtils.createHwvtepTopologyInstanceIdentifier()
+                .child(Node.class)
+                .augmentation(HwvtepGlobalAugmentation.class)
+                .child(Managers.class);
     }
 
     @Override
-    public void remove(InstanceIdentifier<Managers> key, Managers managers) {
+    protected void remove(InstanceIdentifier<Managers> key, Managers managers) {
     }
 
     @Override
-    public void update(InstanceIdentifier<Managers> key, Managers before, Managers after) {
+    protected void update(InstanceIdentifier<Managers> key, Managers before, Managers after) {
     }
 
     @Override
-    public void add(InstanceIdentifier<Managers> key, Managers managers) {
+    protected void add(InstanceIdentifier<Managers> key, Managers managers) {
         InstanceIdentifier<Node> parent = key.firstIdentifierOf(Node.class);
-        if (managers.key().getTarget().getValue().contains(HwvtepHAUtil.MANAGER_KEY)
+        if (managers.getKey().getTarget().getValue().contains(HwvtepHAUtil.MANAGER_KEY)
                 && managers.getManagerOtherConfigs() != null) {
-            managers.nonnullManagerOtherConfigs().values().stream()
-                .filter(otherConfig -> otherConfig.key().getOtherConfigKey().contains(HwvtepHAUtil.HA_CHILDREN))
-                .flatMap(otherConfig -> Arrays.stream(otherConfig.getOtherConfigValue().split(",")))
+            managers.getManagerOtherConfigs().stream()
+                .filter(otherConfig -> otherConfig.getKey().getOtherConfigKey().contains(HwvtepHAUtil.HA_CHILDREN))
+                .flatMap(otherConfig -> Arrays.asList(otherConfig.getOtherConfigValue().split(",")).stream())
                 .map(HwvtepHAUtil::convertToInstanceIdentifier)
-                .forEach(childIid -> hwvtepNodeHACache.addChild(parent, childIid));
+                .forEach(childIid -> HwvtepHACache.getInstance().addChild(parent, childIid));
         }
+    }
+
+    @Override
+    protected ManagerListener getDataTreeChangeListener() {
+        return this;
     }
 }
