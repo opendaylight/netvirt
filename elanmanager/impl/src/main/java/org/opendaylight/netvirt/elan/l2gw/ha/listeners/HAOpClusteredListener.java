@@ -155,13 +155,14 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener<Operational>
                 .collect(Collectors.toSet());
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public synchronized void runAfterNodeIsConnected(InstanceIdentifier<Node> iid, Consumer<Optional<Node>> consumer) {
         if (connectedNodes.contains(iid)) {
             HAJobScheduler.getInstance().submitJob(() -> {
                 try (ReadTransaction tx = getDataBroker().newReadOnlyTransaction()) {
                     consumer.accept(tx.read(LogicalDatastoreType.OPERATIONAL, iid).get());
-                } catch (InterruptedException | ExecutionException e) {
-                    LOG.error("Failed to read oper ds {}", iid);
+                } catch (Exception e) {
+                    LOG.error("Failed job run after node {}", iid);
                 }
             });
         } else {
