@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -69,11 +70,18 @@ public class TerminationPointCmd extends MergeCommand<TerminationPoint, NodeBuil
         TerminationPointBuilder tpBuilder = new TerminationPointBuilder(src);
         tpBuilder.removeAugmentation(HwvtepPhysicalPortAugmentation.class);
         HwvtepPhysicalPortAugmentationBuilder tpAugmentationBuilder =
-                new HwvtepPhysicalPortAugmentationBuilder(augmentation);
-
+                new HwvtepPhysicalPortAugmentationBuilder();
+        tpAugmentationBuilder.setAclBindings(augmentation.getAclBindings());
+        tpAugmentationBuilder.setHwvtepNodeDescription(augmentation.getHwvtepNodeDescription());
+        tpAugmentationBuilder.setHwvtepNodeName(augmentation.getHwvtepNodeName());
+        tpAugmentationBuilder.setPhysicalPortUuid(augmentation.getPhysicalPortUuid());
+        tpAugmentationBuilder.setVlanStats(augmentation.getVlanStats());
         if (augmentation.getVlanBindings() != null && augmentation.getVlanBindings().size() > 0) {
             tpAugmentationBuilder.setVlanBindings(augmentation.nonnullVlanBindings().values().stream().map(
                 vlanBindings -> {
+                    if (vlanBindings.getLogicalSwitchRef() == null) {
+                        LOG.error("Failed to get logical switch ref for vlan binding {} {} ", path, src);
+                    }
                     VlanBindingsBuilder vlanBindingsBuilder = new VlanBindingsBuilder(vlanBindings);
                     vlanBindingsBuilder.setLogicalSwitchRef(
                             HwvtepHAUtil.convertLogicalSwitchRef(vlanBindings.getLogicalSwitchRef(), path));
@@ -81,7 +89,7 @@ public class TerminationPointCmd extends MergeCommand<TerminationPoint, NodeBuil
                 }).collect(Collectors.toList()));
         }
 
-        tpBuilder.addAugmentation(HwvtepPhysicalPortAugmentation.class, tpAugmentationBuilder.build());
+        tpBuilder.addAugmentation(tpAugmentationBuilder.build());
         return tpBuilder.build();
     }
 
@@ -112,7 +120,7 @@ public class TerminationPointCmd extends MergeCommand<TerminationPoint, NodeBuil
         List<VlanBindings> up = updatedAugmentation != null
             ? new ArrayList<>(updatedAugmentation.nonnullVlanBindings().values()) : null;
         List<VlanBindings> or = origAugmentation != null
-            ? new ArrayList<>(origAugmentation.nonnullVlanBindings().values()) : null;
+            ? new ArrayList<>((origAugmentation.nonnullVlanBindings().values())) : null;
         if (!areSameSize(up, or)) {
             return false;
         }
@@ -181,14 +189,14 @@ public class TerminationPointCmd extends MergeCommand<TerminationPoint, NodeBuil
         for (TerminationPoint origItem : orig) {
             boolean found = false;
             for (TerminationPoint newItem : updated) {
-                if (newItem.key().equals(origItem.key())) {
+                if (newItem.getKey().equals(origItem.getKey())) {
                     found = true;
                 }
             }
             if (!found) {
                 boolean existsInConfig = false;
                 for (TerminationPoint existingItem : existing) {
-                    if (existingItem.key().equals(origItem.key())) {
+                    if (existingItem.getKey().equals(origItem.getKey())) {
                         existsInConfig = true;
                     }
                 }

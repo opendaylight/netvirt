@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 public abstract class ChildListener<P extends DataObject, C extends DataObject, G>
         implements DataTreeChangeListener<P>, AutoCloseable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ChildListener.class);
+    public static final Logger LOG = LoggerFactory.getLogger(ChildListener.class);
     private static final long STARTUP_LOOP_TICK = 500;
     private static final int STARTUP_LOOP_MAX_RETRIES = 8;
 
@@ -54,14 +54,19 @@ public abstract class ChildListener<P extends DataObject, C extends DataObject, 
     }
 
     public void init() throws Exception {
-        registration = registerListener(LogicalDatastoreType.OPERATIONAL, getParentWildCardPath());
+        //registration = registerListener(LogicalDatastoreType.OPERATIONAL, getParentWildCardPath());
     }
 
     protected ListenerRegistration<?> registerListener(final LogicalDatastoreType dsType,
                                                  final InstanceIdentifier wildCard) throws Exception {
-        DataTreeIdentifier<P> treeId = DataTreeIdentifier.create(dsType, wildCard);
+        if (registration != null) {
+            LOG.error("LocalUcast listener already registered");
+            return registration;
+        }
+        DataTreeIdentifier<P> treeId = new DataTreeIdentifier<>(dsType, wildCard);
         TaskRetryLooper looper = new TaskRetryLooper(STARTUP_LOOP_TICK, STARTUP_LOOP_MAX_RETRIES);
-        return looper.loopUntilNoException(() -> dataBroker.registerDataTreeChangeListener(treeId, this));
+        registration = looper.loopUntilNoException(() -> dataBroker.registerDataTreeChangeListener(treeId, this));
+        return registration;
     }
 
     /**
@@ -116,6 +121,7 @@ public abstract class ChildListener<P extends DataObject, C extends DataObject, 
     public void close() {
         if (registration != null) {
             registration.close();
+            registration = null;
         }
     }
 
@@ -145,9 +151,6 @@ public abstract class ChildListener<P extends DataObject, C extends DataObject, 
                         case WRITE:
                             if (modification.getDataBefore() == null) {
                                 onParentAdded(change);
-                            } else {
-                                LOG.info("Unexpected write to parent before {}", modification.getDataBefore());
-                                LOG.info("Unexpected write to parent after {}", modification.getDataAfter());
                             }
                             extractDataChanged(iid, modification, updatedMacsGrouped, deletedMacsGrouped);
                             break;

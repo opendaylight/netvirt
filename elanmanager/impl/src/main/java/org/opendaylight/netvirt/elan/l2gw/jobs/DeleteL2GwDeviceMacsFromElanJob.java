@@ -13,9 +13,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
+
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager.ShardResource;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
@@ -31,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * The Job class to delete L2 gateway device local ucast macs from other Elan L2
  * gateway devices.
  */
-public class DeleteL2GwDeviceMacsFromElanJob implements Callable<List<? extends ListenableFuture<?>>> {
+public class DeleteL2GwDeviceMacsFromElanJob implements Callable<List<ListenableFuture<Void>>> {
 
     /** The Constant JOB_KEY_PREFIX. */
     private static final String JOB_KEY_PREFIX = "hwvtep:";
@@ -89,10 +90,13 @@ public class DeleteL2GwDeviceMacsFromElanJob implements Callable<List<? extends 
                 this.l2GwDevice.getHwvtepNodeId(), this.elanName);
         final String logicalSwitchName = ElanL2GatewayUtils.getLogicalSwitchFromElan(this.elanName);
         List<MacAddress> macs = new ArrayList<>();
-        macAddresses.forEach((mac) -> macs.add(new MacAddress(mac.getValue().toLowerCase(Locale.ENGLISH))));
+        macAddresses.forEach((mac) -> macs.add(new MacAddress(mac.getValue().toLowerCase())));
+
 
         List<ListenableFuture<Void>> futures = new ArrayList<>();
-        for (L2GatewayDevice otherDevice : ElanL2GwCacheUtils.getInvolvedL2GwDevices(this.elanName)) {
+        ConcurrentMap<String, L2GatewayDevice> elanL2GwDevices = ElanL2GwCacheUtils
+                .getInvolvedL2GwDevices(this.elanName);
+        for (L2GatewayDevice otherDevice : elanL2GwDevices.values()) {
             if (!otherDevice.getHwvtepNodeId().equals(this.l2GwDevice.getHwvtepNodeId())
                     && !ElanL2GatewayUtils.areMLAGDevices(this.l2GwDevice, otherDevice)) {
                 final String hwvtepId = otherDevice.getHwvtepNodeId();
@@ -112,7 +116,7 @@ public class DeleteL2GwDeviceMacsFromElanJob implements Callable<List<? extends 
      */
     public static List<ListenableFuture<Void>> deleteRemoteUcastMacs(final NodeId nodeId,
                                              String logicalSwitchName, final List<MacAddress> lstMac) {
-        if (lstMac != null) {
+        if (lstMac != null && !lstMac.isEmpty()) {
             return lstMac.stream()
                 .map(mac -> HwvtepSouthboundUtils.createRemoteUcastMacsInstanceIdentifier(
                         nodeId, logicalSwitchName, mac))

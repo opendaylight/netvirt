@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import static java.util.Collections.emptyMap;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
@@ -28,8 +29,8 @@ import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.genius.infra.Datastore;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.exceptions.InterfaceAlreadyExistsException;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -221,7 +222,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                 ElanInstance updateElanInstance = new ElanInstanceBuilder().setElanInstanceName(elanInstanceName)
                         .setDescription(description).setMacTimeout(macTimeout)
                         .withKey(new ElanInstanceKey(elanInstanceName))
-                        .addAugmentation(EtreeInstance.class, etreeInstance).build();
+                        .addAugmentation(etreeInstance).build();
                 MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
                         ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName), updateElanInstance);
                 LOG.debug("Updating the Etree Instance {} with MAC TIME-OUT {} and Description {} ",
@@ -232,7 +233,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             ElanInstance elanInstance = new ElanInstanceBuilder().setElanInstanceName(elanInstanceName)
                     .setMacTimeout(macTimeout).setDescription(description)
                     .withKey(new ElanInstanceKey(elanInstanceName))
-                    .addAugmentation(EtreeInstance.class, etreeInstance).build();
+                    .addAugmentation(etreeInstance).build();
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
                     ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName), elanInstance);
             LOG.debug("Creating the new Etree Instance {}", elanInstance);
@@ -290,14 +291,14 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             if (staticMacAddresses == null) {
                 elanInterface = new ElanInterfaceBuilder().setElanInstanceName(etreeInstanceName)
                         .setDescription(description).setName(interfaceName).withKey(new ElanInterfaceKey(interfaceName))
-                        .addAugmentation(EtreeInterface.class, etreeInterface).build();
+                        .addAugmentation(etreeInterface).build();
             } else {
                 List<StaticMacEntries> staticMacEntries = ElanUtils.getStaticMacEntries(staticMacAddresses);
                 elanInterface = new ElanInterfaceBuilder().setElanInstanceName(etreeInstanceName)
                         .setDescription(description).setName(interfaceName)
                         .setStaticMacEntries(staticMacEntries)
                         .withKey(new ElanInterfaceKey(interfaceName))
-                        .addAugmentation(EtreeInterface.class, etreeInterface).build();
+                        .addAugmentation(etreeInterface).build();
             }
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
                     ElanUtils.getElanInterfaceConfigurationDataPathId(interfaceName), elanInterface);
@@ -887,7 +888,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                 ArpResponderUtil.generateCookie(lportTag, ipAddress),
                 ArpResponderUtil.getMatchCriteria(lportTag, elanInstance, ipAddress),
                     arpResponderInputInstructionsMap);
-        LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
+        LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
             tx -> mdsalManager.addFlow(tx, dpnId, flowEntity)), LOG, "Error adding flow {}", flowEntity);
         LOG.info("Installed the ARP Responder flow for Interface {}", ingressInterfaceName);
     }

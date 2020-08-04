@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.elan.evpn.utils;
 
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
+
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,9 +19,8 @@ import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.genius.infra.Datastore;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.mdsal.binding.api.DataBroker;
@@ -181,7 +182,7 @@ public class EvpnMacVrfUtils {
             String dstMacAddress = macVrfEntry.getMac();
             long vni = macVrfEntry.getL2vni().toJava();
             jobCoordinator.enqueueJob(dstMacAddress, () -> Collections.singletonList(
-                txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
+                txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                     tx -> dpnInterfaceLists.forEach(dpnInterfaces -> {
                         Uint64 dpId = dpnInterfaces.getDpId();
                         LOG.info("ADD: Build DMAC flow with dpId {}, nexthopIP {}, elanTag {},"
@@ -255,7 +256,7 @@ public class EvpnMacVrfUtils {
             String dstMacAddress = macVrfEntry.getMac();
             long vni = macVrfEntry.getL2vni().toJava();
             jobCoordinator.enqueueJob(dstMacAddress, () -> Collections.singletonList(
-                txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
+                txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                     tx -> dpnInterfaceLists.forEach(dpnInterfaces -> {
                         Uint64 dpId = dpnInterfaces.getDpId();
                         LOG.info("ADD: Build DMAC flow with dpId {}, nexthopIP {}, elanTag {},"
