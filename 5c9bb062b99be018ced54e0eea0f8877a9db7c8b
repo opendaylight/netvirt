@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "81cb1cb0_e4503f97",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2020-08-04T11:27:53Z",
+      "side": 1,
+      "message": "Use Review title as single line as per the HEADLINE guideline",
+      "range": {
+        "startLine": 7,
+        "startChar": 23,
+        "endLine": 7,
+        "endChar": 24
+      },
+      "revId": "5c9bb062b99be018ced54e0eea0f8877a9db7c8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16b6b2ba_70cc8689",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2020-08-04T11:27:53Z",
+      "side": 1,
+      "message": "DO NOT USE Downstream specific keywords here",
+      "range": {
+        "startLine": 8,
+        "startChar": 57,
+        "endLine": 8,
+        "endChar": 67
+      },
+      "revId": "5c9bb062b99be018ced54e0eea0f8877a9db7c8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
