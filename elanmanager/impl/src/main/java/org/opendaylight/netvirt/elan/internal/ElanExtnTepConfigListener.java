@@ -32,7 +32,6 @@ public class ElanExtnTepConfigListener
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanExtnTepConfigListener.class);
 
-    private final DataBroker broker;
     private final ManagedNewTransactionRunner txRunner;
 
     @Inject
@@ -40,7 +39,6 @@ public class ElanExtnTepConfigListener
         super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(ElanInstances.class)
                 .child(ElanInstance.class).child(ExternalTeps.class),
                 Executors.newListeningSingleThreadExecutor("ElanExtnTepConfigListener", LOG));
-        this.broker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
     }
 

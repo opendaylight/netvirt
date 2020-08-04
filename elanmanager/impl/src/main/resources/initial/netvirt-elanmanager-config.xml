@@ -13,4 +13,5 @@
   <openstack-vni-semantics-enforced>true</openstack-vni-semantics-enforced>
   <l2gw-stale-vlan-cleanup-delay-secs>900</l2gw-stale-vlan-cleanup-delay-secs>
   <l2gw-logical-switch-delay-secs>20</l2gw-logical-switch-delay-secs>
+  <l2gw-stale-localucastmacs-cleanup-delay-secs>600</l2gw-stale-localucastmacs-cleanup-delay-secs>
 </elanmanager-config>

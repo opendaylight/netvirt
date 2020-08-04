@@ -64,7 +64,7 @@ public class PhysicalLocatorCmd extends MergeCommand<TerminationPoint, NodeBuild
         HwvtepPhysicalLocatorAugmentation origPhysicalLocator =
                 orig.augmentation(HwvtepPhysicalLocatorAugmentation.class);
         return Objects.equals(updatedPhysicalLocator.getDstIp(), origPhysicalLocator.getDstIp())
-                && updatedPhysicalLocator.getEncapsulationType() == origPhysicalLocator.getEncapsulationType();
+            && updatedPhysicalLocator.getEncapsulationType() == origPhysicalLocator.getEncapsulationType();
     }
 
     @Override

@@ -12,7 +12,7 @@ import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
+import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
@@ -48,11 +48,11 @@ public class NodeConnectedHandler {
     private final GlobalNodeMerger globalNodeMerger = GlobalNodeMerger.getInstance();
     private final PSNodeMerger psNodeMerger = PSNodeMerger.getInstance();
     private final ManagedNewTransactionRunner txRunner;
-    private final HwvtepNodeHACache hwvtepNodeHACache;
+    private final HwvtepHACache hwvtepHACache;
 
-    public NodeConnectedHandler(final DataBroker db, final HwvtepNodeHACache hwvtepNodeHACache) {
+    public NodeConnectedHandler(final DataBroker db, final HwvtepHACache hwvtepHACache) {
         this.txRunner = new ManagedNewTransactionRunnerImpl(db);
-        this.hwvtepNodeHACache = hwvtepNodeHACache;
+        this.hwvtepHACache = hwvtepHACache;
     }
 
     /**
@@ -94,7 +94,7 @@ public class NodeConnectedHandler {
                 HAJobScheduler.getInstance().submitJob(() -> {
                     LoggingFutures.addErrorLogging(
                         txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, jobTx -> {
-                            hwvtepNodeHACache.updateConnectedNodeStatus(childNodePath);
+                            hwvtepHACache.updateConnectedNodeStatus(childNodePath);
                             LOG.info("HA child reconnected handleNodeReConnected {}",
                                 childNode.getNodeId().getValue());
                             copyHAPSConfigToChildPS(haPSCfg.get(), childNodePath, jobTx);
@@ -180,7 +180,7 @@ public class NodeConnectedHandler {
 
         globalAugmentationMerger.mergeConfigData(dstBuilder, src, childPath);
         globalNodeMerger.mergeConfigData(nodeBuilder, srcNode, childPath);
-        nodeBuilder.addAugmentation(HwvtepGlobalAugmentation.class, dstBuilder.build());
+        nodeBuilder.addAugmentation(dstBuilder.build());
         Node dstNode = nodeBuilder.build();
         tx.mergeParentStructurePut(childPath, dstNode);
     }
@@ -216,7 +216,7 @@ public class NodeConnectedHandler {
         haBuilder.setManagers(HwvtepHAUtil.buildManagersForHANode(childNode, existingHANodeOptional));
         haBuilder.setSwitches(HwvtepHAUtil.buildSwitchesForHANode(childNode, haNodePath, existingHANodeOptional));
         haBuilder.setDbVersion(childData.getDbVersion());
-        haNodeBuilder.addAugmentation(HwvtepGlobalAugmentation.class, haBuilder.build());
+        haNodeBuilder.addAugmentation(haBuilder.build());
         Node haNode = haNodeBuilder.build();
         tx.mergeParentStructureMerge(haNodePath, haNode);
     }
@@ -257,7 +257,7 @@ public class NodeConnectedHandler {
         psAugmentationMerger.mergeConfigData(dstBuilder, src, childPath);
         psNodeMerger.mergeConfigData(childPsBuilder, haPsNode, childPath);
 
-        childPsBuilder.addAugmentation(PhysicalSwitchAugmentation.class, dstBuilder.build());
+        childPsBuilder.addAugmentation(dstBuilder.build());
         Node childPSNode = childPsBuilder.build();
         tx.mergeParentStructurePut(childPsPath, childPSNode);
     }
@@ -289,7 +289,7 @@ public class NodeConnectedHandler {
         psNodeMerger.mergeOperationalData(haPSNodeBuilder, existingHAPSNode, childPsNode, haPath);
         mergeOpManagedByAttributes(src, dstBuilder, haPath);
 
-        haPSNodeBuilder.addAugmentation(PhysicalSwitchAugmentation.class, dstBuilder.build());
+        haPSNodeBuilder.addAugmentation(dstBuilder.build());
         Node haPsNode = haPSNodeBuilder.build();
         tx.mergeParentStructureMerge(haPspath, haPsNode);
     }
