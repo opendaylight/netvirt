@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.recovery.impl;
 
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
+
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
@@ -15,7 +17,6 @@ import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.util.Datastore;
 import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
 import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -80,20 +81,14 @@ public class L2GatewayConnectionInstanceRecoveryHandler implements ServiceRecove
         }
         //l2GatewayConnectionUtils.addL2GatewayConnection(l2gatewayConnectionOptional.get());
 
-        if (l2gatewayConnectionOptional.isPresent()) {
-            L2gatewayConnection l2gatewayConnection = l2gatewayConnectionOptional.get();
+        L2gatewayConnection l2gatewayConnection = l2gatewayConnectionOptional.get();
 
-            try {
-                LOG.info("deleting l2 gateway connection {}",l2gatewayConnection.key());
-                txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
-                    tx -> tx.delete(connectionInstanceIdentifier)).get();
-                LOG.info("recreating l2 gateway connection {}, {}",entityId, l2gatewayConnection.key());
-                txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
-                    tx -> tx.put(connectionInstanceIdentifier, l2gatewayConnection)).get();
-            } catch (InterruptedException | ExecutionException e) {
-                LOG.error("Service recovery failed for l2gw connection {}", entityId);
-            }
-        }
+        LOG.info("deleting l2 gateway connection {}",l2gatewayConnection.key());
+        txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+            tx -> tx.delete(connectionInstanceIdentifier));
+        LOG.info("recreating l2 gateway connection {}, {}",entityId, l2gatewayConnection.key());
+        txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+            tx -> tx.put(connectionInstanceIdentifier,l2gatewayConnection));
     }
 
     public String buildServiceRegistryKey() {

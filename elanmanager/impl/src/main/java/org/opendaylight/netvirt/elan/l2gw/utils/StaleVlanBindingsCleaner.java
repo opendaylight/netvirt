@@ -45,7 +45,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPointKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,8 +59,12 @@ public class StaleVlanBindingsCleaner {
         (binding) -> binding.getLogicalSwitchRef().getValue().firstKeyOf(
                 LogicalSwitches.class).getHwvtepNodeName().getValue();
 
-    private static BiPredicate<List<String>, String> IS_STALE_LOGICAL_SWITCH =
-        (validNetworks, logicalSwitch) -> !validNetworks.contains(logicalSwitch);
+    private static BiPredicate<List<String>, String> IS_STALE_LOGICAL_SWITCH = (validNetworks, logicalSwitch) -> {
+        if (L2gwZeroDayConfigUtil.ZERO_DAY_LS_NAME.equals(logicalSwitch)) {
+            return false;
+        }
+        return !validNetworks.contains(logicalSwitch);
+    };
 
     private static Predicate<TerminationPoint> CONTAINS_VLANBINDINGS = (port) ->
             port.augmentation(HwvtepPhysicalPortAugmentation.class) != null
@@ -133,7 +136,7 @@ public class StaleVlanBindingsCleaner {
     private void cleanupStaleLogicalSwitches(final L2GatewayDevice l2GwDevice,
                                              final Node configNode,
                                              final Node configPsNode) {
-
+        LOG.trace("Cleanup stale logical switches");
         String globalNodeId = configNode.getNodeId().getValue();
         List<L2gatewayConnection> connectionsOfDevice = L2GatewayConnectionUtils.getAssociatedL2GwConnections(
                 broker, l2GwDevice.getL2GatewayIds());
@@ -142,33 +145,45 @@ public class StaleVlanBindingsCleaner {
                 .map((connection) -> connection.getNetworkId().getValue())
                 .filter(elan -> elanInstanceCache.get(elan).isPresent())
                 .collect(Collectors.toList());
-
         List<String> logicalSwitchesOnDevice = getLogicalSwitchesOnDevice(configNode);
 
+        //following condition handles:
+        //1. only stale vlan bindings present
+        //2. stale vlan bindings + stale logical switches present
+        Map<String, List<InstanceIdentifier<VlanBindings>>> vlansByLogicalSwitch = getVlansByLogicalSwitchOnDevice(
+                configPsNode);
+        vlansByLogicalSwitch.entrySet().stream()
+                .filter(entry -> IS_STALE_LOGICAL_SWITCH.test(validNetworks, entry.getKey()))
+                .forEach(entry -> cleanupStaleBindings(globalNodeId, vlansByLogicalSwitch, entry.getKey()));
+
+        //following condition handles:
+        //1. only stale logical switches are present
         List<String> staleLogicalSwitches = logicalSwitchesOnDevice.stream()
                 .filter((staleLogicalSwitch) -> IS_STALE_LOGICAL_SWITCH.test(validNetworks, staleLogicalSwitch))
                 .collect(Collectors.toList());
 
         if (!staleLogicalSwitches.isEmpty()) {
-            Map<String, List<InstanceIdentifier<VlanBindings>>> vlansByLogicalSwitch = getVlansByLogicalSwitchOnDevice(
-                    configPsNode);
-            staleLogicalSwitches.forEach((staleLogicalSwitch) -> cleanupStaleBindings(
-                    globalNodeId, vlansByLogicalSwitch, staleLogicalSwitch));
+            staleLogicalSwitches.forEach((staleLogicalSwitch) -> {
+                LOG.info("Cleaning the stale logical switch : {}", staleLogicalSwitch);
+                elanL2GatewayUtils.scheduleDeleteLogicalSwitch(new NodeId(globalNodeId),
+                        staleLogicalSwitch, true); });
         }
     }
 
-    private static Map<String, List<InstanceIdentifier<VlanBindings>>> getVlansByLogicalSwitchOnDevice(
+    private Map<String, List<InstanceIdentifier<VlanBindings>>> getVlansByLogicalSwitchOnDevice(
             final Node configPsNode) {
-        Map<TerminationPointKey, TerminationPoint> ports = configPsNode.nonnullTerminationPoint();
+        List<TerminationPoint> ports = new ArrayList<>(configPsNode.nonnullTerminationPoint().values());
         if (ports == null) {
             return Collections.emptyMap();
         }
         Map<String, List<InstanceIdentifier<VlanBindings>>> vlans = new HashMap<>();
-        ports.values().stream()
+        ports.stream()
                 .filter(CONTAINS_VLANBINDINGS)
-                .forEach((port) -> port.augmentation(HwvtepPhysicalPortAugmentation.class)
-                        .nonnullVlanBindings().values()
-                        .forEach((binding) -> putVlanBindingVsLogicalSwitch(configPsNode, vlans, port, binding)));
+                .forEach((port) -> {
+                    port.augmentation(HwvtepPhysicalPortAugmentation.class)
+                            .nonnullVlanBindings().values()
+                            .forEach((binding) -> putVlanBindingVsLogicalSwitch(configPsNode, vlans, port, binding));
+                });
         return vlans;
     }
 
@@ -182,8 +197,8 @@ public class StaleVlanBindingsCleaner {
     }
 
     private static InstanceIdentifier<VlanBindings> createVlanIid(final NodeId nodeId,
-                                                                  final TerminationPoint tp,
-                                                                  final VlanBindings vlanBinding) {
+                                                           final TerminationPoint tp,
+                                                           final VlanBindings vlanBinding) {
         return HwvtepSouthboundUtils.createInstanceIdentifier(nodeId)
                 .child(TerminationPoint.class, tp.key())
                 .augmentation(HwvtepPhysicalPortAugmentation.class)
@@ -202,7 +217,6 @@ public class StaleVlanBindingsCleaner {
                 }
             }),
             LOG, "Failed to delete stale vlan bindings from node {}", globalNodeId);
-        elanL2GatewayUtils.scheduleDeleteLogicalSwitch(new NodeId(globalNodeId), staleLogicalSwitch, true);
     }
 
     private static List<String> getLogicalSwitchesOnDevice(final Node globalConfigNode) {
