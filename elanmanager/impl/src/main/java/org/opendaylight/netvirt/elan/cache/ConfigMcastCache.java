@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.elan.cache;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.genius.mdsalutil.cache.InstanceIdDataObjectCache;
@@ -28,6 +30,7 @@ import org.slf4j.LoggerFactory;
 public class ConfigMcastCache extends InstanceIdDataObjectCache<RemoteMcastMacs> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigMcastCache.class);
+    private final Map<InstanceIdentifier, RemoteMcastMacs> lsCache = new ConcurrentHashMap<>();
 
     @Inject
     public ConfigMcastCache(DataBroker dataBroker, CacheProvider cacheProvider) {
@@ -36,5 +39,21 @@ public class ConfigMcastCache extends InstanceIdDataObjectCache<RemoteMcastMacs>
                         .child(Topology.class, new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID))
                         .child(Node.class).augmentation(HwvtepGlobalAugmentation.class)
                         .child(RemoteMcastMacs.class), cacheProvider);
+    }
+
+    @Override
+    public void added(InstanceIdentifier<RemoteMcastMacs> identifier, RemoteMcastMacs add) {
+        LOG.trace("Got mcast add {}", add);
+        lsCache.put(add.getLogicalSwitchRef().getValue(), add);
+    }
+
+    @Override
+    public void removed(InstanceIdentifier<RemoteMcastMacs> identifier, RemoteMcastMacs del) {
+        LOG.trace("Got mcast remove {}" , del);
+        lsCache.remove(del.getLogicalSwitchRef().getValue());
+    }
+
+    public RemoteMcastMacs getMac(InstanceIdentifier lsIid) {
+        return lsCache.get(lsIid);
     }
 }

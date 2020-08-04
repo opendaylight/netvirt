@@ -25,8 +25,7 @@ import org.opendaylight.genius.mdsalutil.internal.MDSALManager;
 import org.opendaylight.genius.testutils.TestInterfaceManager;
 import org.opendaylight.genius.testutils.TestItmProvider;
 import org.opendaylight.genius.testutils.itm.ItmRpcTestImpl;
-import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
-import org.opendaylight.genius.utils.hwvtep.internal.HwvtepNodeHACacheImpl;
+import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.infrautils.diagstatus.DiagStatusService;
 import org.opendaylight.infrautils.inject.guice.testutils.AbstractGuiceJsr250Module;
 import org.opendaylight.infrautils.metrics.MetricProvider;
@@ -39,6 +38,7 @@ import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.cache.impl.l2gw.L2GatewayCacheImpl;
 import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.elanmanager.api.IL2gwService;
 import org.opendaylight.netvirt.elanmanager.tests.utils.BgpManagerTestImpl;
 import org.opendaylight.netvirt.elanmanager.tests.utils.ElanEgressActionsHelper;
 import org.opendaylight.netvirt.elanmanager.tests.utils.IdHelper;
@@ -77,7 +77,7 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
                 .thenReturn(Optional.of(mockedEntityOwnershipState));
         bind(EntityOwnershipService.class).toInstance(mockedEntityOwnershipService);
         bind(L2GatewayCache.class).to(L2GatewayCacheImpl.class);
-        bind(HwvtepNodeHACache.class).to(HwvtepNodeHACacheImpl.class);
+        bind(HwvtepHACache.class).toInstance(mock(HwvtepHACache.class));
         bind(ServiceRecoveryRegistry.class).toInstance(mock(ServiceRecoveryRegistry.class));
         bind(INeutronVpnManager.class).toInstance(mock(NeutronvpnManagerImpl.class));
         IVpnManager ivpnManager = mock(VpnManagerTestImpl.class, CALLS_REAL_METHODS);
@@ -137,5 +137,6 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
         MdsalUtils mdsalUtils = new MdsalUtils(dataBroker);
         bind(MdsalUtils.class).toInstance(mdsalUtils);
         bind(SouthboundUtils.class).toInstance(new SouthboundUtils(mdsalUtils));
+        bind(IL2gwService.class).toInstance(mock(IL2gwService.class));
     }
 }

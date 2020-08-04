@@ -6,12 +6,13 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.netvirt.neutronvpn.l2gw;
+package org.opendaylight.netvirt.elan.l2gw.jobs;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
+import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.TransportZone;
@@ -34,6 +35,7 @@ public class AddL2GwDevicesToTransportZoneJob implements Callable<List<? extends
      *
      * @param itmRpcService the itm rpc service
      * @param transportZone the transport zone
+     * @param l2GatewayCache the l2gateway cache
      */
     public AddL2GwDevicesToTransportZoneJob(ItmRpcService itmRpcService, TransportZone transportZone,
             L2GatewayCache l2GatewayCache) {
@@ -59,7 +61,7 @@ public class AddL2GwDevicesToTransportZoneJob implements Callable<List<? extends
      */
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public List<ListenableFuture<Void>> call() {
+    public List<ListenableFuture<?>> call() {
         LOG.debug("Running AddL2GwDevicesToTransportZone job for {}", this.transportZone.getZoneName());
         try {
             // When vxlan transport zone is added, add all l2gw devices to that
