@@ -5,23 +5,22 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.aclservice.listeners;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 
 import java.util.Collections;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclNodeDefaultFlowsTxBuilder;
@@ -47,7 +46,6 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class AclNodeListener extends AbstractAsyncDataTreeChangeListener<FlowCapableNode>
         implements RecoverableListener {
-
     private static final Logger LOG = LoggerFactory.getLogger(AclNodeListener.class);
 
     private final IMdsalApiManager mdsalManager;
