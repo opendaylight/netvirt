@@ -7,8 +7,8 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.OPERATIONAL;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
@@ -26,11 +26,11 @@ import java.util.Set;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
@@ -53,10 +53,9 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class InterfaceStateChangeListener extends AbstractAsyncDataTreeChangeListener<Interface> {
-
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceStateChangeListener.class);
     private static final short DJC_MAX_RETRIES = 3;
-    private final DataBroker dataBroker;
+
     private final ManagedNewTransactionRunner txRunner;
     private final VpnInterfaceManager vpnInterfaceManager;
     private final VpnUtil vpnUtil;
@@ -91,7 +90,6 @@ public class InterfaceStateChangeListener extends AbstractAsyncDataTreeChangeLis
         super(dataBroker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(InterfacesState.class)
                 .child(Interface.class),
                 Executors.newListeningSingleThreadExecutor("InterfaceStateChangeListener", LOG));
-        this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.vpnInterfaceManager = vpnInterfaceManager;
         this.vpnUtil = vpnUtil;
@@ -121,15 +119,15 @@ public class InterfaceStateChangeListener extends AbstractAsyncDataTreeChangeLis
                 LOG.info("VPN Interface add event - intfName {} from InterfaceStateChangeListener",
                                 intrf.getName());
                 jobCoordinator.enqueueJob("VPNINTERFACE-" + intrf.getName(), () -> {
-                    List<ListenableFuture<Void>> futures = new ArrayList<>(3);
+                    List<ListenableFuture<?>> futures = new ArrayList<>(3);
                     futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, writeInvTxn -> {
                         //map of prefix and vpn name used, as entry in prefix-to-interface datastore
                         // is prerequisite for refresh Fib to avoid race condition leading to missing remote next hop
                         // in bucket actions on bgp-vpn delete
                         Map<String, Set<String>> mapOfRdAndPrefixesForRefreshFib = new HashMap<>();
-                        ListenableFuture<Void> configFuture
+                        ListenableFuture<?> configFuture
                             = txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, writeConfigTxn -> {
-                                ListenableFuture<Void> operFuture
+                                ListenableFuture<?> operFuture
                                     = txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, writeOperTxn -> {
                                         final String interfaceName = intrf.getName();
                                         LOG.info("Detected interface add event for interface {}", interfaceName);
@@ -211,8 +209,8 @@ public class InterfaceStateChangeListener extends AbstractAsyncDataTreeChangeLis
                 }
                 final Uint64 inputDpId = dpId;
                 jobCoordinator.enqueueJob("VPNINTERFACE-" + ifName, () -> {
-                    List<ListenableFuture<Void>> futures = new ArrayList<>(3);
-                    ListenableFuture<Void> configFuture =
+                    List<ListenableFuture<?>> futures = new ArrayList<>(3);
+                    ListenableFuture<?> configFuture =
                         txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                             writeConfigTxn -> futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL,
                                 writeOperTxn -> futures.add(
@@ -273,13 +271,13 @@ public class InterfaceStateChangeListener extends AbstractAsyncDataTreeChangeLis
                 LOG.info("VPN Interface update event - intfName {} from InterfaceStateChangeListener",
                         update.getName());
                 jobCoordinator.enqueueJob("VPNINTERFACE-" + ifName, () -> {
-                    List<ListenableFuture<Void>> futures = new ArrayList<>(3);
+                    List<ListenableFuture<?>> futures = new ArrayList<>(3);
                     futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, writeOperTxn -> {
                         //map of prefix and vpn name used, as entry in prefix-to-interface datastore
                         // is prerequisite for refresh Fib to avoid race condition leading to missing remote
                         // next hop in bucket actions on bgp-vpn delete
                         Map<String, Set<String>> mapOfRdAndPrefixesForRefreshFib = new HashMap<>();
-                        ListenableFuture<Void> configTxFuture =
+                        ListenableFuture<?> configTxFuture =
                                 txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, writeConfigTxn ->
                                     futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                                         writeInvTxn -> {
@@ -396,7 +394,7 @@ public class InterfaceStateChangeListener extends AbstractAsyncDataTreeChangeLis
         }
     }
 
-    private class PostVpnInterfaceThreadWorker implements FutureCallback<Void> {
+    private class PostVpnInterfaceThreadWorker implements FutureCallback<Object> {
         private final String interfaceName;
         private final boolean add;
         private final String txnDestination;
@@ -408,7 +406,7 @@ public class InterfaceStateChangeListener extends AbstractAsyncDataTreeChangeLis
         }
 
         @Override
-        public void onSuccess(Void voidObj) {
+        public void onSuccess(Object voidObj) {
             if (add) {
                 LOG.debug("InterfaceStateChangeListener: VrfEntries for {} stored into destination {} successfully",
                         interfaceName, txnDestination);
@@ -438,7 +436,7 @@ public class InterfaceStateChangeListener extends AbstractAsyncDataTreeChangeLis
         return transitionState;
     }
 
-    private class VpnInterfaceCallBackHandler implements FutureCallback<Void> {
+    private class VpnInterfaceCallBackHandler implements FutureCallback<Object> {
         private final Map<String, Set<String>> mapOfRdAndPrefixesForRefreshFib;
 
         VpnInterfaceCallBackHandler(Map<String, Set<String>> mapOfRdAndPrefixesForRefreshFib) {
@@ -446,7 +444,7 @@ public class InterfaceStateChangeListener extends AbstractAsyncDataTreeChangeLis
         }
 
         @Override
-        public void onSuccess(Void voidObj) {
+        public void onSuccess(Object voidObj) {
             mapOfRdAndPrefixesForRefreshFib.forEach((primaryRd, prefixes) -> {
                 prefixes.forEach(prefix -> {
                     fibManager.refreshVrfEntry(primaryRd, prefix);

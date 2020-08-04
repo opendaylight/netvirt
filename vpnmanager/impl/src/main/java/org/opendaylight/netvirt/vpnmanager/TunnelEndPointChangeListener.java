@@ -5,11 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.vpnmanager;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.OPERATIONAL;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -23,11 +22,11 @@ import java.util.Set;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
@@ -128,9 +127,9 @@ public class TunnelEndPointChangeListener
                                     return Collections.emptyList();
                                 }
                                 final int lPortTag = interfaceState.getIfIndex();
-                                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                                List<ListenableFuture<?>> futures = new ArrayList<>();
                                 Set<String> prefixesForRefreshFib = new HashSet<>();
-                                ListenableFuture<Void> writeConfigFuture =
+                                ListenableFuture<?> writeConfigFuture =
                                     txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                                         writeConfigTxn -> futures.add(
                                             txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL,
@@ -142,9 +141,9 @@ public class TunnelEndPointChangeListener
                                                                 writeConfigTxn, writeOperTxn, writeInvTxn,
                                                                 interfaceState, prefixesForRefreshFib)
                                                     )))));
-                                Futures.addCallback(writeConfigFuture, new FutureCallback<Void>() {
+                                Futures.addCallback(writeConfigFuture, new FutureCallback<Object>() {
                                     @Override
-                                    public void onSuccess(Void voidObj) {
+                                    public void onSuccess(Object voidObj) {
                                         prefixesForRefreshFib.forEach(prefix -> {
                                             fibManager.refreshVrfEntry(primaryRd, prefix);
                                         });

@@ -12,11 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
-import org.opendaylight.genius.infra.Datastore;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.Datastore;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.iplearn.model.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
@@ -26,10 +26,10 @@ import org.slf4j.LoggerFactory;
 
 public class IpMonitorStopTask implements Callable<List<? extends ListenableFuture<?>>> {
     private static final Logger LOG = LoggerFactory.getLogger(IpMonitorStopTask.class);
-    private MacEntry macEntry;
-    private DataBroker dataBroker;
+    private final MacEntry macEntry;
+    private final DataBroker dataBroker;
     private final AlivenessMonitorUtils alivenessMonitorUtils;
-    private boolean isRemoveMipAdjAndLearntIp;
+    private final boolean isRemoveMipAdjAndLearntIp;
     private final VpnUtil vpnUtil;
     private final ManagedNewTransactionRunner txRunner;
 
@@ -65,7 +65,7 @@ public class IpMonitorStopTask implements Callable<List<? extends ListenableFutu
             }
             vpnUtil.removeLearntVpnVipToPort(macEntry.getVpnName(),
                     macEntry.getIpAddress().getHostAddress(), null);
-            vpnUtil.removeVpnPortFixedIpToPort(dataBroker, macEntry.getVpnName(),
+            VpnUtil.removeVpnPortFixedIpToPort(dataBroker, macEntry.getVpnName(),
                     macEntry.getIpAddress().getHostAddress(), null);
 
             LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(

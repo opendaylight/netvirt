@@ -5,11 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.vpnmanager;
 
 import static java.util.Collections.emptyList;
-import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+import static org.opendaylight.mdsal.binding.util.Datastore.OPERATIONAL;
 
 import com.google.common.collect.Iterators;
 import com.google.common.net.InetAddresses;
@@ -43,14 +42,6 @@ import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
-import org.opendaylight.genius.infra.Datastore;
-import org.opendaylight.genius.infra.Datastore.Configuration;
-import org.opendaylight.genius.infra.Datastore.Operational;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.infra.TypedReadTransaction;
-import org.opendaylight.genius.infra.TypedReadWriteTransaction;
-import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.FlowEntityBuilder;
@@ -74,6 +65,14 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.binding.util.Datastore;
+import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
+import org.opendaylight.mdsal.binding.util.Datastore.Operational;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.mdsal.binding.util.TypedReadTransaction;
+import org.opendaylight.mdsal.binding.util.TypedReadWriteTransaction;
+import org.opendaylight.mdsal.binding.util.TypedWriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
@@ -423,7 +422,7 @@ public final class VpnUtil {
     public List<VrfEntry> getAllVrfEntries(String rd) {
         VrfTables vrfTables = getVrfTable(rd);
         if (vrfTables != null && vrfTables.getVrfEntry() != null) {
-            return new ArrayList<VrfEntry>(vrfTables.getVrfEntry().values());
+            return new ArrayList<>(vrfTables.getVrfEntry().values());
         }
         return emptyList();
     }
@@ -446,7 +445,7 @@ public final class VpnUtil {
             return
                     vpnInstanceOpDataOptional.isPresent() && vpnInstanceOpDataOptional.get()
                             .getVpnInstanceOpDataEntry() != null
-                            ? new ArrayList<VpnInstanceOpDataEntry>(vpnInstanceOpDataOptional.get()
+                            ? new ArrayList<>(vpnInstanceOpDataOptional.get()
                             .getVpnInstanceOpDataEntry().values()) : emptyList();
         } catch (Exception e) {
             LOG.error("getAllVpnInstanceOpData: Could not retrieve all vpn instance op data subtree...", e);
@@ -462,8 +461,7 @@ public final class VpnUtil {
         InstanceIdentifier<VpnToDpnList> dpnToVpnId = VpnHelper.getVpnToDpnListIdentifier(primaryRd, dpnId);
         Optional<VpnToDpnList> dpnInVpn = read(LogicalDatastoreType.OPERATIONAL, dpnToVpnId);
         return dpnInVpn.isPresent() && dpnInVpn.get().getVpnInterfaces() != null
-                ? new ArrayList<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op
-                        .data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces>(dpnInVpn.get()
+                ? new ArrayList<>(dpnInVpn.get()
                         .getVpnInterfaces().values())
             : emptyList();
     }
@@ -496,7 +494,7 @@ public final class VpnUtil {
         InstanceIdentifier<Adjacencies> path = identifier.augmentation(Adjacencies.class);
         Optional<Adjacencies> adjacencies = read(LogicalDatastoreType.CONFIGURATION, path);
         if (adjacencies.isPresent()) {
-            return new ArrayList<Adjacency>(adjacencies.get().nonnullAdjacency().values());
+            return new ArrayList<>(adjacencies.get().nonnullAdjacency().values());
         }
         return null;
     }
@@ -802,7 +800,7 @@ public final class VpnUtil {
             VpnInterface cfgVpnInterface = optConfiguredVpnInterface.get();
             java.util.Optional<List<VpnInstanceNames>> optVpnInstanceList =
                  java.util.Optional.ofNullable(
-                         new ArrayList<VpnInstanceNames>(cfgVpnInterface.nonnullVpnInstanceNames().values()));
+                         new ArrayList<>(cfgVpnInterface.nonnullVpnInstanceNames().values()));
             if (optVpnInstanceList.isPresent()) {
                 List<String> vpnList = new ArrayList<>();
                 for (VpnInstanceNames vpnInstance : optVpnInstanceList.get()) {
@@ -819,7 +817,7 @@ public final class VpnUtil {
     }
 
     static final FutureCallback<Void> DEFAULT_CALLBACK =
-        new FutureCallback<Void>() {
+        new FutureCallback<>() {
             @Override
             public void onSuccess(Void result) {
                 LOG.debug("Success in Datastore operation");
@@ -1959,7 +1957,7 @@ public final class VpnUtil {
         return IpVersionChoice.UNDEFINED;
     }
 
-    ListenableFuture<Void> unsetScheduledToRemoveForVpnInterface(String interfaceName) {
+    ListenableFuture<?> unsetScheduledToRemoveForVpnInterface(String interfaceName) {
         VpnInterfaceBuilder builder = new VpnInterfaceBuilder().withKey(new VpnInterfaceKey(interfaceName));
         return txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> tx.mergeParentStructureMerge(
                 VpnUtil.getVpnInterfaceIdentifier(interfaceName), builder.build()));
@@ -2062,7 +2060,7 @@ public final class VpnUtil {
                 elanInterfaceList = new ArrayList<>();
             } else {
                 dpnInterface = dpnInElanInterfaces.get();
-                elanInterfaceList = (dpnInterface.getInterfaces() != null && !dpnInterface.getInterfaces().isEmpty())
+                elanInterfaceList = dpnInterface.getInterfaces() != null && !dpnInterface.getInterfaces().isEmpty()
                         ? new ArrayList<>(dpnInterface.getInterfaces()) : elanInterfaceList;
             }
             if (!elanInterfaceList.contains(routerInterfacePortId)) {
@@ -2091,7 +2089,7 @@ public final class VpnUtil {
                 return;
             } else {
                 dpnInterface = dpnInElanInterfaces.get();
-                elanInterfaceList = (dpnInterface.getInterfaces() != null && !dpnInterface.getInterfaces().isEmpty())
+                elanInterfaceList = dpnInterface.getInterfaces() != null && !dpnInterface.getInterfaces().isEmpty()
                         ? new ArrayList<>(dpnInterface.getInterfaces()) : elanInterfaceList;
             }
             if (!elanInterfaceList.contains(routerInterfacePortId)) {
@@ -2188,7 +2186,7 @@ public final class VpnUtil {
         if (subnetMapsData.isPresent()) {
             List<Subnetmap> subnetMapList = new ArrayList<>();
             Subnetmaps subnetMaps = subnetMapsData.get();
-            subnetMapList = (subnetMaps.getSubnetmap() != null && !subnetMaps.getSubnetmap().isEmpty())
+            subnetMapList = subnetMaps.getSubnetmap() != null && !subnetMaps.getSubnetmap().isEmpty()
                     ? new ArrayList<>(subnetMaps.getSubnetmap().values()) : subnetMapList;
 
             if (subnetMapList != null && !subnetMapList.isEmpty()) {

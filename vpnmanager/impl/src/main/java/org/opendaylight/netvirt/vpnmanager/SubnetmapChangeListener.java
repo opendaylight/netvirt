@@ -5,8 +5,9 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.vpnmanager;
+
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,12 +17,12 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
@@ -239,14 +240,14 @@ public class SubnetmapChangeListener extends AbstractAsyncDataTreeChangeListener
     protected long getElanTag(String elanInstanceName) {
         final long[] elanTag = {0L};
 
-        LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+        LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
             InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class)
                     .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
-            ElanInstance elanInstance = tx.read(LogicalDatastoreType.CONFIGURATION, elanIdentifierId)
+            ElanInstance elanInstance = tx.read(elanIdentifierId)
                     .get().orElse(null);
             if (elanInstance != null) {
                 if (elanInstance.getElanTag() != null) {
-                    elanTag[0] =elanInstance.getElanTag().longValue();
+                    elanTag[0] = elanInstance.getElanTag().longValue();
                 } else {
                     LOG.error("Notification failed because of failure in fetching elanTag for ElanInstance {}",
                             elanInstanceName);

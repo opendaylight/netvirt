@@ -7,8 +7,8 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.OPERATIONAL;
 
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -29,13 +29,13 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
@@ -199,7 +199,7 @@ public class TunnelInterfaceStateListener extends AbstractAsyncDataTreeChangeLis
                         if (vrfEntry == null || vrfEntry.getRoutePaths() == null) {
                             return;
                         }
-                        List<RoutePaths> routePaths = new ArrayList<RoutePaths>(vrfEntry.getRoutePaths().values());
+                        List<RoutePaths> routePaths = new ArrayList<>(vrfEntry.getRoutePaths().values());
                         routePaths.forEach(routePath -> {
                             if (Objects.equals(routePath.getNexthopAddress(), srcTepIp)) {
                                 String prefix = destPrefix.getDestPrefix();
@@ -365,7 +365,7 @@ public class TunnelInterfaceStateListener extends AbstractAsyncDataTreeChangeLis
                 if (vpnInterface != null) {
                     listVpnName.addAll(VpnHelper
                         .getVpnInterfaceVpnInstanceNamesString(
-                                new ArrayList<VpnInstanceNames>(vpnInterface.nonnullVpnInstanceNames().values())));
+                                new ArrayList<>(vpnInterface.nonnullVpnInstanceNames().values())));
                     handleTunnelEventForDPNVpn(stateTunnelList, vpnIdRdMap,
                             tunnelAction, isTepDeletedOnDpn,
                             subnetList, TunnelEventProcessingMethod.POPULATESUBNETS,
@@ -428,8 +428,8 @@ public class TunnelInterfaceStateListener extends AbstractAsyncDataTreeChangeLis
                 listVpnName.forEach(vpnName -> {
                     Uint32 vpnId = vpnUtil.getVpnId(vpnName);
                     final String vrfId = vpnIdRdMap.get(vpnId);
-                    if ((tunnelAction == TunnelAction.TUNNEL_EP_ADD)
-                            && (tunTypeVal == VpnConstants.ITMTunnelLocType.External.getValue())) {
+                    if (tunnelAction == TunnelAction.TUNNEL_EP_ADD
+                            && tunTypeVal == VpnConstants.ITMTunnelLocType.External.getValue()) {
                         fibManager.populateExternalRoutesOnDpn(srcDpnId, vpnId, vrfId,
                                 srcTepIp, destTepIp);
                     }
@@ -560,8 +560,8 @@ public class TunnelInterfaceStateListener extends AbstractAsyncDataTreeChangeLis
         }
 
         @Override
-        public List<ListenableFuture<Void>> call() {
-            List<ListenableFuture<Void>> futures = new ArrayList<>(2);
+        public List<? extends ListenableFuture<?>> call() {
+            List<ListenableFuture<?>> futures = new ArrayList<>(2);
             futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, confTx ->
                 futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, operTx -> {
                     if (tunnelAction == TunnelAction.TUNNEL_EP_ADD) {

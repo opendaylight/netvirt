@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
@@ -16,10 +16,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.netvirt.vpnmanager.VpnFootprintService;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
@@ -68,8 +68,8 @@ public class InterVpnLinkNodeAddTask implements Callable<List<? extends Listenab
     }
 
     @Override
-    public List<ListenableFuture<Void>> call() {
-        List<ListenableFuture<Void>> result = new ArrayList<>();
+    public List<? extends ListenableFuture<?>> call() {
+        List<ListenableFuture<?>> result = new ArrayList<>();
         // check if there is any inter-vpn-link in with erroneous state
         int numberOfDpns = Integer.getInteger(NBR_OF_DPNS_PROPERTY_NAME, 1);
 
@@ -87,7 +87,6 @@ public class InterVpnLinkNodeAddTask implements Callable<List<? extends Listenab
     }
 
     private boolean shouldConfigureLinkIntoDpn(InterVpnLinkState interVpnLinkState, int numberOfDpns) {
-
         if (interVpnLinkState.getFirstEndpointState().getDpId() == null
                  || interVpnLinkState.getFirstEndpointState().getDpId().isEmpty()
             || interVpnLinkState.getSecondEndpointState().getDpId() == null
@@ -102,8 +101,7 @@ public class InterVpnLinkNodeAddTask implements Callable<List<? extends Listenab
         }
     }
 
-    private ListenableFuture<Void>
-        updateInterVpnLinkState(InterVpnLinkState interVpnLinkState, List<Uint64> firstDpnList,
+    private ListenableFuture<?> updateInterVpnLinkState(InterVpnLinkState interVpnLinkState, List<Uint64> firstDpnList,
                                 List<Uint64> secondDpnList) {
 
         FirstEndpointState firstEndPointState =

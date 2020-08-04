@@ -5,10 +5,9 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.vpnmanager;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -17,14 +16,14 @@ import java.util.concurrent.ExecutionException;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.genius.infra.Datastore.Configuration;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.mdsal.binding.util.TypedReadWriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
@@ -153,11 +152,11 @@ public class CentralizedSwitchChangeListener
 
         if (addOrRemove == NwConstants.ADD_FLOW) {
             vpnManager.addArpResponderFlowsToExternalNetworkIps(routerName,
-                    VpnUtil.getIpsListFromExternalIps(new ArrayList<ExternalIps>(router.nonnullExternalIps().values())),
+                    VpnUtil.getIpsListFromExternalIps(new ArrayList<>(router.nonnullExternalIps().values())),
                     extGwMacAddress, primarySwitchId, extNetworkId);
         } else {
             vpnManager.removeArpResponderFlowsToExternalNetworkIps(routerName,
-                    VpnUtil.getIpsListFromExternalIps(new ArrayList<ExternalIps>(router.nonnullExternalIps().values())),
+                    VpnUtil.getIpsListFromExternalIps(new ArrayList<>(router.nonnullExternalIps().values())),
                     extGwMacAddress, primarySwitchId, extNetworkId);
         }
     }

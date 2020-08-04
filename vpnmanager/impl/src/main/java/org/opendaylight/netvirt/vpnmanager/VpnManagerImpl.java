@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+import static org.opendaylight.mdsal.binding.util.Datastore.OPERATIONAL;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
@@ -28,13 +28,6 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
-import org.opendaylight.genius.infra.Datastore.Configuration;
-import org.opendaylight.genius.infra.Datastore.Operational;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.infra.TypedReadTransaction;
-import org.opendaylight.genius.infra.TypedReadWriteTransaction;
-import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
@@ -45,6 +38,13 @@ import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.infrautils.utils.function.InterruptibleCheckedConsumer;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
+import org.opendaylight.mdsal.binding.util.Datastore.Operational;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.mdsal.binding.util.TypedReadTransaction;
+import org.opendaylight.mdsal.binding.util.TypedReadWriteTransaction;
+import org.opendaylight.mdsal.binding.util.TypedWriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput;
@@ -680,7 +680,7 @@ public class VpnManagerImpl implements IVpnManager {
 
     @Override
     public Set<VpnTarget> getRtListForVpn(String vpnName) {
-        return vpnUtil.getRtListForVpn(dataBroker, vpnName);
+        return VpnUtil.getRtListForVpn(dataBroker, vpnName);
     }
 
     @Override
@@ -750,7 +750,7 @@ public class VpnManagerImpl implements IVpnManager {
             if (routerTarget.getAssociatedSubnet() != null) {
                 for (int i = 0; i < routerTarget.getAssociatedSubnet().size(); i++) {
                     AssociatedSubnet associatedSubnet =
-                            new ArrayList<AssociatedSubnet>(routerTarget.nonnullAssociatedSubnet().values()).get(i);
+                            new ArrayList<>(routerTarget.nonnullAssociatedSubnet().values()).get(i);
                     if (VpnUtil.areSubnetsOverlapping(associatedSubnet.getCidr(), subnetCidr)) {
                         return true;
                     }
@@ -761,7 +761,7 @@ public class VpnManagerImpl implements IVpnManager {
                          *            (3) iRT=B eRT=A subnet-range=S2; NOK
                          * Check if (1) and (2) are importing the same subnet-range routes to (3) */
                         List<AssociatedVpn> multipleAssociatedVpn
-                                = new ArrayList<AssociatedVpn>(associatedSubnet.nonnullAssociatedVpn().values());
+                                = new ArrayList<>(associatedSubnet.nonnullAssociatedVpn().values());
                         if (multipleAssociatedVpn != null && multipleAssociatedVpn.size() > 1) {
                             LOG.error("doesExistingVpnsHaveConflictingSubnet: There is an indirect complete  overlap"
                                     + " for subnet CIDR {} for rt {} rtType {}", subnetCidr, routerTarget.getRt(),
@@ -770,7 +770,7 @@ public class VpnManagerImpl implements IVpnManager {
                         }
                         for (int j = i + 1; j < routerTarget.getAssociatedSubnet().size(); j++) {
                             if (VpnUtil.areSubnetsOverlapping(associatedSubnet.getCidr(),
-                                    new ArrayList<AssociatedSubnet>(routerTarget.nonnullAssociatedSubnet()
+                                    new ArrayList<>(routerTarget.nonnullAssociatedSubnet()
                                             .values()).get(j).getCidr())) {
                                 LOG.error("doesExistingVpnsHaveConflictingSubnet: There is an indirect paartial"
                                                 + " overlap for subnet CIDR {} for rt {} rtType {}", subnetCidr,

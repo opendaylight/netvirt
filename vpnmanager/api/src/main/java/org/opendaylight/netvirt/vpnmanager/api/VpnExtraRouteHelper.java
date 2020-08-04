@@ -18,11 +18,11 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
-import org.opendaylight.genius.infra.Datastore.Configuration;
-import org.opendaylight.genius.infra.Datastore.Operational;
-import org.opendaylight.genius.infra.TypedReadTransaction;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
+import org.opendaylight.mdsal.binding.util.Datastore.Operational;
+import org.opendaylight.mdsal.binding.util.TypedReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelTypeInputBuilder;
@@ -178,7 +178,7 @@ public final class VpnExtraRouteHelper {
                     getUsedRdsIdentifier(vpnId));
             Map<DestPrefixesKey, DestPrefixes> prefixesMap
                     = optionalExtraRoutes.map(ExtrarouteRds::getDestPrefixes).orElse(null);
-            return prefixesMap == null ? Collections.emptyList() : new ArrayList<DestPrefixes>(prefixesMap.values());
+            return prefixesMap == null ? Collections.emptyList() : new ArrayList<>(prefixesMap.values());
         } catch (ExecutionException | InterruptedException e) {
             LOG.error("getExtraRouteDestPrefixes: failed to read ExRoutesRdsMap for vpn {} due to exception", vpnId, e);
         }

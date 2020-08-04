@@ -250,10 +250,10 @@ public final class InterVpnLinkUtil {
      * @param lportTagOfOtherEndpoint Dataplane identifier of the other endpoint of the InterVpnLink
      * @return the list of Futures for each and every flow that has been installed
      */
-    List<ListenableFuture<Void>> installLPortDispatcherTableFlow(String interVpnLinkName, List<Uint64> dpnList,
+    List<ListenableFuture<?>> installLPortDispatcherTableFlow(String interVpnLinkName, List<Uint64> dpnList,
                                                                  String vpnUuidOtherEndpoint,
                                                                  Long lportTagOfOtherEndpoint) {
-        List<ListenableFuture<Void>> result = new ArrayList<>();
+        List<ListenableFuture<?>> result = new ArrayList<>();
         Uint32 vpnId = vpnUtil.getVpnId(vpnUuidOtherEndpoint);
         for (Uint64 dpnId : dpnList) {
             // insert into LPortDispatcher table
@@ -307,7 +307,7 @@ public final class InterVpnLinkUtil {
 
     public static  Map<InstructionKey, Instruction> buildLportDispatcherTableInstructions(Uint32 vpnId) {
         int instructionKey = 0;
-        Map<InstructionKey, Instruction> instructions = new HashMap<InstructionKey, Instruction>();
+        Map<InstructionKey, Instruction> instructions = new HashMap<>();
         instructions.put(new InstructionKey(++instructionKey), MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil
                         .getVpnIdMetadata(vpnId.intValue()), MetaDataUtil.METADATA_MASK_VRFID, instructionKey));
         instructions.put(new InstructionKey(++instructionKey),
