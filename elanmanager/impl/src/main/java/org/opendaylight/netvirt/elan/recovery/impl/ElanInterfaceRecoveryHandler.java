@@ -7,16 +7,16 @@
  */
 package org.opendaylight.netvirt.elan.recovery.impl;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.serviceutils.srm.ServiceRecoveryInterface;

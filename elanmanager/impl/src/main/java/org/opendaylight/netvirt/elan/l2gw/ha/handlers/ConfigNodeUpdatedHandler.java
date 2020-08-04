@@ -7,9 +7,10 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.handlers;
 
-import org.opendaylight.genius.infra.Datastore.Configuration;
-import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.TypedReadWriteTransaction;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalAugmentationMerger;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalNodeMerger;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.PSAugmentationMerger;
@@ -34,10 +35,11 @@ public class ConfigNodeUpdatedHandler {
      */
     public void copyHAGlobalUpdateToChild(InstanceIdentifier<Node> haChildNodeId,
                                           DataObjectModification<Node> mod,
-                                          TypedReadWriteTransaction<Configuration> tx) {
+                                          TypedReadWriteTransaction<Configuration> tx,
+                                          ManagedNewTransactionRunner txRunner) {
         globalAugmentationMerger.mergeConfigUpdate(haChildNodeId,
-                mod.getModifiedAugmentation(HwvtepGlobalAugmentation.class), tx);
-        globalNodeMerger.mergeConfigUpdate(haChildNodeId, mod, tx);
+                mod.getModifiedAugmentation(HwvtepGlobalAugmentation.class), tx, txRunner);
+        globalNodeMerger.mergeConfigUpdate(haChildNodeId, mod, tx, txRunner);
     }
 
     /**
@@ -49,11 +51,12 @@ public class ConfigNodeUpdatedHandler {
      */
     public void copyHAPSUpdateToChild(InstanceIdentifier<Node> haChildNodeId,
                                       DataObjectModification<Node> mod,
-                                      TypedReadWriteTransaction<Configuration> tx) {
+                                      TypedReadWriteTransaction<Configuration> tx,
+                                      ManagedNewTransactionRunner txRunner) {
 
         psAugmentationMerger.mergeConfigUpdate(haChildNodeId,
-                mod.getModifiedAugmentation(PhysicalSwitchAugmentation.class), tx);
-        psNodeMerger.mergeConfigUpdate(haChildNodeId, mod, tx);
+                mod.getModifiedAugmentation(PhysicalSwitchAugmentation.class), tx, txRunner);
+        psNodeMerger.mergeConfigUpdate(haChildNodeId, mod, tx, txRunner);
     }
 
 }

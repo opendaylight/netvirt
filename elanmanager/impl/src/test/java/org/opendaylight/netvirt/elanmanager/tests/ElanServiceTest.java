@@ -44,22 +44,27 @@ import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceDpnsCache;
-import org.opendaylight.netvirt.elan.evpn.listeners.ElanMacEntryListener;
 import org.opendaylight.netvirt.elan.evpn.listeners.EvpnElanInstanceListener;
+import org.opendaylight.netvirt.elan.evpn.listeners.EvpnElanMacEntryListener;
 import org.opendaylight.netvirt.elan.evpn.listeners.MacVrfEntryListener;
 import org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils;
 import org.opendaylight.netvirt.elan.internal.ElanDpnInterfaceClusteredListener;
 import org.opendaylight.netvirt.elan.internal.ElanExtnTepConfigListener;
 import org.opendaylight.netvirt.elan.internal.ElanExtnTepListener;
 import org.opendaylight.netvirt.elan.internal.ElanInterfaceManager;
+import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpClusteredListener;
+import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpNodeListener;
 import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepPhysicalSwitchListener;
 import org.opendaylight.netvirt.elan.l2gw.listeners.L2GatewayConnectionListener;
 import org.opendaylight.netvirt.elan.l2gw.listeners.L2GatewayListener;
+import org.opendaylight.netvirt.elan.l2gw.listeners.L2GwTransportZoneListener;
 import org.opendaylight.netvirt.elan.l2gw.listeners.LocalUcastMacListener;
 import org.opendaylight.netvirt.elan.l2gw.nodehandlertest.DataProvider;
 //import org.opendaylight.netvirt.elan.l2gw.nodehandlertest.PhysicalSwitchHelper;
 import org.opendaylight.netvirt.elan.l2gw.recovery.impl.L2GatewayInstanceRecoveryHandler;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
+import org.opendaylight.netvirt.elan.l2gw.utils.L2gwZeroDayConfigUtil;
+import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.elanmanager.api.IL2gwService;
@@ -121,7 +126,7 @@ public class ElanServiceTest extends  ElanServiceTestBase {
     private @Inject IElanService elanService;
     private @Inject IdManagerService idManager;
     private @Inject EvpnElanInstanceListener evpnElanInstanceListener;
-    private @Inject ElanMacEntryListener elanMacEntryListener;
+    private @Inject EvpnElanMacEntryListener elanMacEntryListener;
     private @Inject MacVrfEntryListener macVrfEntryListener;
     private @Inject EvpnUtils evpnUtils;
     private @Inject IBgpManager bgpManager;
@@ -143,6 +148,10 @@ public class ElanServiceTest extends  ElanServiceTestBase {
     private @Inject CacheProvider cacheProvider;
     private @Inject L2GatewayInstanceRecoveryHandler l2GatewayInstanceRecoveryHandler;
     private @Inject ServiceRecoveryRegistry serviceRecoveryRegistry;
+    private @Inject HAOpNodeListener haOpNodeListener;
+    private @Inject HAOpClusteredListener haOpClusteredListener;
+    private @Inject ElanClusterUtils elanClusterUtils;
+    private @Inject ItmRpcService itmRpcService;
 
     private L2GatewayListener l2gwListener;
     private final MetricProvider metricProvider = new TestMetricProviderImpl();
@@ -179,9 +188,14 @@ public class ElanServiceTest extends  ElanServiceTestBase {
         l2gwBuilders = new L2gwBuilders(singleTxdataBroker);
         JobCoordinator jobCoordinator = new JobCoordinatorImpl(metricProvider);
 
-        l2gwListener = new L2GatewayListener(dataBroker, mockedEntityOwnershipService,
-                Mockito.mock(ItmRpcService.class), Mockito.mock(IL2gwService.class), jobCoordinator, l2GatewayCache,
-                l2GatewayInstanceRecoveryHandler,serviceRecoveryRegistry);
+        l2gwListener = new L2GatewayListener(dataBroker,
+            Mockito.mock(IL2gwService.class), l2GatewayCache,
+            haOpNodeListener, haOpClusteredListener, itmRpcService,
+            l2GatewayInstanceRecoveryHandler,
+            serviceRecoveryRegistry,
+            Mockito.mock(L2gwZeroDayConfigUtil.class),
+            Mockito.mock(L2GwTransportZoneListener.class),
+            elanClusterUtils);
         l2gwListener.init();
         setupItm();
         l2gwBuilders.buildTorNode(TOR2_NODE_ID, PS2, TOR2_TEPIP);

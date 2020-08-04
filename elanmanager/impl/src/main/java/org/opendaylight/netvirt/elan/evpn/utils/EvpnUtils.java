@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.evpn.utils;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -25,8 +25,6 @@ import java.util.function.Predicate;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.itm.globals.ITMConstants;
@@ -44,6 +42,8 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;

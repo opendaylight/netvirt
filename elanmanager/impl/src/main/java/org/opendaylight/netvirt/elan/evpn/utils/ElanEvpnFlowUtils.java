@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.elan.evpn.utils;
 
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
+
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -17,15 +19,14 @@ import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.genius.infra.Datastore;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.utils.concurrent.NamedSimpleReentrantLock.Acquired;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanEtreeUtils;
 import org.opendaylight.netvirt.elan.utils.ElanItmUtils;
@@ -74,8 +75,8 @@ public class ElanEvpnFlowUtils {
         return flow;
     }
 
-    public List<ListenableFuture<Void>> evpnDeleteDmacFlowsToExternalMac(EvpnDmacFlow evpnDmacFlow) {
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
+    public List<ListenableFuture<?>> evpnDeleteDmacFlowsToExternalMac(EvpnDmacFlow evpnDmacFlow) {
+        List<ListenableFuture<?>> futures = new ArrayList<>();
         try (Acquired lock = ElanUtils.lockElanMacDPN(evpnDmacFlow.getElanTag(), evpnDmacFlow.getDstMacAddress(),
                 evpnDmacFlow.getDpId())) {
             futures.addAll(
@@ -87,9 +88,9 @@ public class ElanEvpnFlowUtils {
         return futures;
     }
 
-    private List<ListenableFuture<Void>> evpnDeleteEtreeDmacFlowsToExternalMac(long elanTag, Uint64 dpId,
+    private List<ListenableFuture<?>> evpnDeleteEtreeDmacFlowsToExternalMac(long elanTag, Uint64 dpId,
             String nexthopIp, String macToRemove) {
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
+        List<ListenableFuture<?>> futures = new ArrayList<>();
         EtreeLeafTagName etreeLeafTag = elanEtreeUtils.getEtreeLeafTagByElanTag(elanTag);
         if (etreeLeafTag != null) {
             futures.addAll(
@@ -108,21 +109,21 @@ public class ElanEvpnFlowUtils {
         return String.valueOf(elanDmacTable) + elanTag + dpId + nexthopIp + dstMacAddress + shFlag;
     }
 
-    private List<ListenableFuture<Void>> evpnRemoveTheDropFlow(long elanTag, Uint64 dpId, String nexthopIp,
+    private List<ListenableFuture<?>> evpnRemoveTheDropFlow(long elanTag, Uint64 dpId, String nexthopIp,
             String macToRemove) {
         String flowId = ElanEvpnFlowUtils.evpnGetKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, nexthopIp,
                 macToRemove, elanTag, true);
         Flow flowToRemove = new FlowBuilder().setId(new FlowId(flowId)).setTableId(NwConstants.ELAN_DMAC_TABLE).build();
-        return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(Datastore.CONFIGURATION,
+        return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
             tx -> mdsalManager.removeFlow(tx, dpId, flowToRemove)));
     }
 
-    private List<ListenableFuture<Void>> evpnRemoveFlowThatSendsThePacketOnAnExternalTunnel(long elanTag,
+    private List<ListenableFuture<?>> evpnRemoveFlowThatSendsThePacketOnAnExternalTunnel(long elanTag,
             Uint64 dpId, String nexthopIp, String macToRemove) {
         String flowId = ElanEvpnFlowUtils.evpnGetKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, nexthopIp,
                 macToRemove, elanTag, false);
         Flow flowToRemove = new FlowBuilder().setId(new FlowId(flowId)).setTableId(NwConstants.ELAN_DMAC_TABLE).build();
-        return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(Datastore.CONFIGURATION,
+        return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
             tx -> mdsalManager.removeFlow(tx, dpId, flowToRemove)));
     }
 

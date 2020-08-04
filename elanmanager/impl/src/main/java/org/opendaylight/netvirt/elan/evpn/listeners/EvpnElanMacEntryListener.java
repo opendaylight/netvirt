@@ -26,15 +26,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class ElanMacEntryListener extends AbstractAsyncDataTreeChangeListener<MacEntry> {
+public class EvpnElanMacEntryListener extends AbstractAsyncDataTreeChangeListener<MacEntry> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ElanMacEntryListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EvpnElanMacEntryListener.class);
     private final DataBroker broker;
     private final EvpnUtils evpnUtils;
     private final ElanInstanceCache elanInstanceCache;
 
     @Inject
-    public ElanMacEntryListener(final DataBroker broker, final EvpnUtils evpnUtils,
+    public EvpnElanMacEntryListener(final DataBroker broker, final EvpnUtils evpnUtils,
             final ElanInstanceCache elanInstanceCache) {
         super(broker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(ElanForwardingTables.class)
                 .child(MacTable.class).child(MacEntry.class),

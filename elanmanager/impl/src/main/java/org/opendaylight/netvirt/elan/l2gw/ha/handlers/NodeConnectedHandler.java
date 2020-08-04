@@ -7,19 +7,19 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.handlers;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import org.opendaylight.genius.infra.Datastore.Configuration;
-import org.opendaylight.genius.infra.Datastore.Operational;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
+import org.opendaylight.mdsal.binding.util.Datastore.Operational;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.mdsal.binding.util.TypedReadWriteTransaction;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAJobScheduler;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalAugmentationMerger;
@@ -180,7 +180,7 @@ public class NodeConnectedHandler {
 
         globalAugmentationMerger.mergeConfigData(dstBuilder, src, childPath);
         globalNodeMerger.mergeConfigData(nodeBuilder, srcNode, childPath);
-        nodeBuilder.addAugmentation(HwvtepGlobalAugmentation.class, dstBuilder.build());
+        nodeBuilder.addAugmentation(dstBuilder.build());
         Node dstNode = nodeBuilder.build();
         tx.mergeParentStructurePut(childPath, dstNode);
     }
@@ -216,7 +216,7 @@ public class NodeConnectedHandler {
         haBuilder.setManagers(HwvtepHAUtil.buildManagersForHANode(childNode, existingHANodeOptional));
         haBuilder.setSwitches(HwvtepHAUtil.buildSwitchesForHANode(childNode, haNodePath, existingHANodeOptional));
         haBuilder.setDbVersion(childData.getDbVersion());
-        haNodeBuilder.addAugmentation(HwvtepGlobalAugmentation.class, haBuilder.build());
+        haNodeBuilder.addAugmentation(haBuilder.build());
         Node haNode = haNodeBuilder.build();
         tx.mergeParentStructureMerge(haNodePath, haNode);
     }
@@ -257,7 +257,7 @@ public class NodeConnectedHandler {
         psAugmentationMerger.mergeConfigData(dstBuilder, src, childPath);
         psNodeMerger.mergeConfigData(childPsBuilder, haPsNode, childPath);
 
-        childPsBuilder.addAugmentation(PhysicalSwitchAugmentation.class, dstBuilder.build());
+        childPsBuilder.addAugmentation(dstBuilder.build());
         Node childPSNode = childPsBuilder.build();
         tx.mergeParentStructurePut(childPsPath, childPSNode);
     }
@@ -289,7 +289,7 @@ public class NodeConnectedHandler {
         psNodeMerger.mergeOperationalData(haPSNodeBuilder, existingHAPSNode, childPsNode, haPath);
         mergeOpManagedByAttributes(src, dstBuilder, haPath);
 
-        haPSNodeBuilder.addAugmentation(PhysicalSwitchAugmentation.class, dstBuilder.build());
+        haPSNodeBuilder.addAugmentation(dstBuilder.build());
         Node haPsNode = haPSNodeBuilder.build();
         tx.mergeParentStructureMerge(haPspath, haPsNode);
     }
