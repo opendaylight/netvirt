@@ -1268,7 +1268,11 @@ public class ExternalRoutersListener extends AbstractAsyncDataTreeChangeListener
     }
 
     private String getFlowRef(Uint64 dpnId, short tableId, Uint32 id, String ipAddress) {
-        return NatConstants.SNAT_FLOWID_PREFIX + dpnId.toString() + NwConstants.FLOWID_SEPARATOR + tableId
+        String suffixToUse = "";
+        if (tableId == NwConstants.INTERNAL_TUNNEL_TABLE) {
+            suffixToUse = NatConstants.TST_FLOW_ID_SUFFIX;
+        }
+        return NatConstants.SNAT_FLOWID_PREFIX + suffixToUse + dpnId.toString() + NwConstants.FLOWID_SEPARATOR + tableId
                 + NwConstants.FLOWID_SEPARATOR + id + NwConstants.FLOWID_SEPARATOR + ipAddress;
     }
 

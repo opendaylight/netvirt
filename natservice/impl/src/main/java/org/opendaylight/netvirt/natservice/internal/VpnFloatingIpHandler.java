@@ -412,7 +412,12 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
     }
 
     private String getFlowRef(Uint64 dpnId, short tableId, Uint32 id, String ipAddress) {
-        return FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId + NwConstants.FLOWID_SEPARATOR + id
+        String suffixToUse = "";
+        if (tableId == NwConstants.INTERNAL_TUNNEL_TABLE) {
+            suffixToUse = NatConstants.TST_FLOW_ID_SUFFIX;
+        }
+        return FLOWID_PREFIX + suffixToUse + dpnId + NwConstants.FLOWID_SEPARATOR + tableId
+                + NwConstants.FLOWID_SEPARATOR + id
                 + NwConstants.FLOWID_SEPARATOR + ipAddress;
     }
 
