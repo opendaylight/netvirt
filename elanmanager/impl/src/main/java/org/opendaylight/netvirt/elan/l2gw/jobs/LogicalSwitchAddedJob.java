@@ -11,11 +11,10 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
+
+import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayBcGroupUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
-import org.opendaylight.netvirt.elan.l2gw.utils.ElanRefUtil;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
@@ -38,47 +37,69 @@ public class LogicalSwitchAddedJob implements Callable<List<? extends Listenable
     private final L2GatewayDevice elanL2GwDevice;
 
     /** The default vlan id. */
-    private final Integer defaultVlanId;
+    private Integer defaultVlanId;
 
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
-    private final ElanRefUtil elanRefUtil;
-    private final DataBroker dataBroker;
+    private final ElanL2GatewayBcGroupUtils elanL2GatewayBcGroupUtils;
 
     public LogicalSwitchAddedJob(ElanL2GatewayUtils elanL2GatewayUtils,
-                                 ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils, String logicalSwitchName,
-                                 Devices physicalDevice, L2GatewayDevice l2GatewayDevice, Integer defaultVlanId,
-                                 ElanRefUtil elanRefUtil, DataBroker dataBroker) {
+                                 ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
+                                 ElanL2GatewayBcGroupUtils elanL2GatewayBcGroupUtils,
+                                 String logicalSwitchName, Devices physicalDevice,
+                                 L2GatewayDevice l2GatewayDevice, Integer defaultVlanId) {
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
+        this.elanL2GatewayBcGroupUtils = elanL2GatewayBcGroupUtils;
         this.logicalSwitchName = logicalSwitchName;
         this.physicalDevice = physicalDevice;
         this.elanL2GwDevice = l2GatewayDevice;
         this.defaultVlanId = defaultVlanId;
-        this.elanRefUtil = elanRefUtil;
-        this.dataBroker = dataBroker;
         LOG.debug("created logical switch added job for {} {}", logicalSwitchName, elanL2GwDevice.getHwvtepNodeId());
     }
 
     public String getJobKey() {
-        return logicalSwitchName + HwvtepHAUtil.L2GW_JOB_KEY;
+//        return logicalSwitchName + HwvtepHAUtil.L2GW_JOB_KEY;
+        return logicalSwitchName + ":" + elanL2GwDevice.getHwvtepNodeId();
     }
 
     @Override
-    public List<ListenableFuture<?>> call() {
+    public List<ListenableFuture<?>> call() throws Exception {
         elanL2GatewayUtils.cancelDeleteLogicalSwitch(new NodeId(elanL2GwDevice.getHwvtepNodeId()), logicalSwitchName);
-        LOG.debug("running logical switch added job for {} {}", logicalSwitchName,
+        LOG.info("LogicalSwitchAddedJob Running logical switch added job for {} {}", logicalSwitchName,
                 elanL2GwDevice.getHwvtepNodeId());
         List<ListenableFuture<?>> futures = new ArrayList<>();
+        ListenableFuture<?> ft = null;
+        //String elan = elanL2GatewayUtils.getElanFromLogicalSwitch(logicalSwitchName);
 
-        LOG.info("creating vlan bindings for {} {}", logicalSwitchName, elanL2GwDevice.getHwvtepNodeId());
-        futures.add(elanL2GatewayUtils.updateVlanBindingsInL2GatewayDevice(
-            new NodeId(elanL2GwDevice.getHwvtepNodeId()), logicalSwitchName, physicalDevice, defaultVlanId));
-        LOG.info("creating mast mac entries for {} {}", logicalSwitchName, elanL2GwDevice.getHwvtepNodeId());
-        elanL2GatewayMulticastUtils.handleMcastForElanL2GwDeviceAdd(logicalSwitchName, elanL2GwDevice);
-        futures.add(elanL2GatewayUtils.installElanMacsInL2GatewayDevice(
+        LOG.trace("LogicalSwitchAddedJob Creating vlan bindings for {} {}",
+                logicalSwitchName, elanL2GwDevice.getHwvtepNodeId());
+        ft = elanL2GatewayUtils.updateVlanBindingsInL2GatewayDevice(
+                new NodeId(elanL2GwDevice.getHwvtepNodeId()), logicalSwitchName, physicalDevice, defaultVlanId);
+        futures.add(ft);
+        //logResultMsg(ft);
+        LOG.trace("LogicalSwitchAddedJob Creating mast mac entries and bc group for {} {}",
+                logicalSwitchName, elanL2GwDevice.getHwvtepNodeId());
+        elanL2GatewayBcGroupUtils.updateBcGroupForAllDpns(logicalSwitchName, elanL2GwDevice, true);
+        elanL2GatewayMulticastUtils.updateMcastMacsForAllElanDevices(logicalSwitchName, elanL2GwDevice, true);
+        futures.addAll(elanL2GatewayUtils.installElanMacsInL2GatewayDevice(
                 logicalSwitchName, elanL2GwDevice));
         return futures;
     }
+
+    /*private void logResultMsg(ListenableFuture<Void> ft) {
+        String portName = null;
+        if (physicalDevice.getInterfaces() != null && !physicalDevice.getInterfaces().isEmpty()) {
+            portName = physicalDevice.getInterfaces().get(0).getInterfaceName();
+            if (physicalDevice.getInterfaces().get(0).getSegmentationIds() != null
+                    && !physicalDevice.getInterfaces().get(0).getSegmentationIds().isEmpty()) {
+                defaultVlanId = physicalDevice.getInterfaces().get(0).getSegmentationIds().get(0);
+            }
+        }
+        if (portName != null && defaultVlanId != null) {
+            new FtCallback(ft, "Added vlan bindings {} logical switch {} to node {}",
+                    portName + ":" + defaultVlanId, logicalSwitchName, elanL2GwDevice.getHwvtepNodeId());
+        }
+    }*/
 
 }

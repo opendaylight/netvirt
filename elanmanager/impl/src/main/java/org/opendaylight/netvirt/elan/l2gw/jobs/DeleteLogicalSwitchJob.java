@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.elan.l2gw.jobs;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * The Class DeleteLogicalSwitchJob.
  */
 public class DeleteLogicalSwitchJob implements Callable<List<? extends ListenableFuture<?>>> {
-    private DataBroker broker;
+    private DataBroker dataBroker;
 
     /** The logical switch name. */
     private String logicalSwitchName;
@@ -46,9 +47,9 @@ public class DeleteLogicalSwitchJob implements Callable<List<? extends Listenabl
 
     private static final Logger LOG = LoggerFactory.getLogger(DeleteLogicalSwitchJob.class);
 
-    public DeleteLogicalSwitchJob(DataBroker broker, ElanL2GatewayUtils elanL2GatewayUtils,
+    public DeleteLogicalSwitchJob(DataBroker dataBroker, ElanL2GatewayUtils elanL2GatewayUtils,
                                   NodeId hwvtepNodeId, String logicalSwitchName, boolean clearUcast) {
-        this.broker = broker;
+        this.dataBroker = dataBroker;
         this.hwvtepNodeId = hwvtepNodeId;
         this.logicalSwitchName = logicalSwitchName;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
@@ -67,7 +68,7 @@ public class DeleteLogicalSwitchJob implements Callable<List<? extends Listenabl
     @Override
     public List<ListenableFuture<?>> call() {
         if (cancelled) {
-            LOG.info("Delete logical switch job cancelled ");
+            LOG.info("Delete logical switch job cancelled for {}", logicalSwitchName);
             return Collections.emptyList();
         }
         LOG.debug("running logical switch deleted job for {} in {}", logicalSwitchName, hwvtepNodeId);
@@ -76,13 +77,13 @@ public class DeleteLogicalSwitchJob implements Callable<List<? extends Listenabl
                 .createLogicalSwitchesInstanceIdentifier(hwvtepNodeId, new HwvtepNodeName(logicalSwitchName));
         RemoteMcastMacsKey remoteMcastMacsKey = new RemoteMcastMacsKey(new HwvtepLogicalSwitchRef(logicalSwitch),
                 new MacAddress(ElanConstants.UNKNOWN_DMAC));
-        HwvtepUtils.deleteRemoteMcastMac(broker, hwvtepNodeId, remoteMcastMacsKey);
+        HwvtepUtils.deleteRemoteMcastMac(dataBroker, hwvtepNodeId, remoteMcastMacsKey);
 
         L2GatewayDevice l2GatewayDevice = new L2GatewayDevice("");
         l2GatewayDevice.setHwvtepNodeId(hwvtepNodeId.getValue());
 
         List<ListenableFuture<?>> futures = new ArrayList<>();
-        futures.add(HwvtepUtils.deleteLogicalSwitch(broker, hwvtepNodeId, logicalSwitchName));
+        futures.add(HwvtepUtils.deleteLogicalSwitch(dataBroker, hwvtepNodeId, logicalSwitchName));
         if (clearUcast) {
             LOG.trace("Clearing the local ucast macs of device {} macs ", hwvtepNodeId.getValue());
             elanL2GatewayUtils.deleteL2GwDeviceUcastLocalMacsFromElan(l2GatewayDevice, logicalSwitchName);

@@ -29,16 +29,15 @@ import org.slf4j.LoggerFactory;
 public final class ManagerListener extends AbstractClusteredAsyncDataTreeChangeListener<Managers> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ManagerListener.class);
-
     private final DataBroker dataBroker;
     private final HwvtepNodeHACache hwvtepNodeHACache;
 
     @Inject
     public ManagerListener(DataBroker dataBroker, HwvtepNodeHACache hwvtepNodeHACache) {
         super(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                HwvtepSouthboundUtils.createHwvtepTopologyInstanceIdentifier().child(Node.class)
-                        .augmentation(HwvtepGlobalAugmentation.class).child(Managers.class),
-                Executors.newListeningSingleThreadExecutor("ManagerListener", LOG));
+            HwvtepSouthboundUtils.createHwvtepTopologyInstanceIdentifier().child(Node.class)
+                .augmentation(HwvtepGlobalAugmentation.class).child(Managers.class),
+            Executors.newListeningSingleThreadExecutor("ManagerListener", LOG));
         this.dataBroker = dataBroker;
         this.hwvtepNodeHACache = hwvtepNodeHACache;
     }
@@ -66,12 +65,12 @@ public final class ManagerListener extends AbstractClusteredAsyncDataTreeChangeL
     public void add(InstanceIdentifier<Managers> key, Managers managers) {
         InstanceIdentifier<Node> parent = key.firstIdentifierOf(Node.class);
         if (managers.key().getTarget().getValue().contains(HwvtepHAUtil.MANAGER_KEY)
-                && managers.getManagerOtherConfigs() != null) {
+            && managers.getManagerOtherConfigs() != null) {
             managers.nonnullManagerOtherConfigs().values().stream()
                 .filter(otherConfig -> otherConfig.key().getOtherConfigKey().contains(HwvtepHAUtil.HA_CHILDREN))
                 .flatMap(otherConfig -> Arrays.stream(otherConfig.getOtherConfigValue().split(",")))
                 .map(HwvtepHAUtil::convertToInstanceIdentifier)
-                .forEach(childIid -> hwvtepNodeHACache.addChild(parent, childIid));
+                .forEach(childIid -> HwvtepHACache.getInstance().addChild(parent, childIid));
         }
     }
 }
