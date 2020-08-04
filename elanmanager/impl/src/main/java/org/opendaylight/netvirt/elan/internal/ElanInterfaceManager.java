@@ -38,8 +38,8 @@ import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.Datastore.Operational;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
@@ -610,7 +610,7 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
                     } else {
                         LOG.info("Adding elan interface forwarding table for mac entry {} elan interface"
                                 + " {} elan instance {}.", staticMacEntry.getMacAddress(), interfaceName, elanName);
-                        elanForwardingEntriesHandler.addElanInterfaceForwardingTableList(
+                        elanForwardingEntriesHandler. addElanInterfaceForwardingTableList(
                             elanName, interfaceName, staticMacEntry, tx);
                     }
                 })), LOG, "Error in update: identifier={}, original={}, update={}", identifier, original, update);

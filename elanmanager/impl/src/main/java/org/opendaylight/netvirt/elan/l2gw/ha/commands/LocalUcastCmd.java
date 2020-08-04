@@ -7,10 +7,10 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
-import java.util.ArrayList;
 import java.util.List;
-import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SrcnodeAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SrcnodeAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepLogicalSwitchRef;
@@ -32,10 +32,9 @@ public class LocalUcastCmd
     }
 
     @Override
-    @Nullable
     public List<LocalUcastMacs> getData(HwvtepGlobalAugmentation node) {
-        if (node != null && node.getLocalUcastMacs() != null) {
-            return new ArrayList<LocalUcastMacs>(node.nonnullLocalUcastMacs().values());
+        if (node != null) {
+            return node.getLocalUcastMacs();
         }
         return null;
     }
@@ -47,7 +46,7 @@ public class LocalUcastCmd
 
     @Override
     public InstanceIdentifier<LocalUcastMacs> generateId(InstanceIdentifier<Node> id, LocalUcastMacs node) {
-        HwvtepLogicalSwitchRef lsRef = HwvtepHAUtil.convertLogicalSwitchRef(node.key().getLogicalSwitchRef(), id);
+        HwvtepLogicalSwitchRef lsRef = HwvtepHAUtil.convertLogicalSwitchRef(node.getKey().getLogicalSwitchRef(), id);
         LocalUcastMacsKey key = new LocalUcastMacsKey(lsRef, node.getMacEntryKey());
 
         return id.augmentation(HwvtepGlobalAugmentation.class).child(LocalUcastMacs.class, key);
@@ -59,15 +58,21 @@ public class LocalUcastCmd
         ucmlBuilder.setLocatorRef(HwvtepHAUtil.convertLocatorRef(src.getLocatorRef(), nodePath));
         ucmlBuilder.setLogicalSwitchRef(
                 HwvtepHAUtil.convertLogicalSwitchRef(src.getLogicalSwitchRef(), nodePath));
+        String srcTorNodeId = ((InstanceIdentifier<LogicalSwitches>)src.getLogicalSwitchRef().getValue())
+                .firstKeyOf(Node.class).getNodeId().getValue();
+        SrcnodeAugmentation srcnodeAugmentation = new SrcnodeAugmentationBuilder()
+                .setSrcTorNodeid(srcTorNodeId)
+                .build();
+        ucmlBuilder.addAugmentation(SrcnodeAugmentation.class, srcnodeAugmentation);
         ucmlBuilder.setMacEntryUuid(HwvtepHAUtil.getUUid(src.getMacEntryKey().getValue()));
         LocalUcastMacsKey key = new LocalUcastMacsKey(ucmlBuilder.getLogicalSwitchRef(), ucmlBuilder.getMacEntryKey());
-        ucmlBuilder.withKey(key);
+        ucmlBuilder.setKey(key);
         return ucmlBuilder.build();
     }
 
     @Override
     public Identifier getKey(LocalUcastMacs data) {
-        return data.key();
+        return data.getKey();
     }
 
     @Override

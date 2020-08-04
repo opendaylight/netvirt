@@ -12,14 +12,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.PreDestroy;
-import org.eclipse.jdt.annotation.Nullable;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.TaskRetryLooper;
-import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.DataObjectModification;
-import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
-import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
-import org.opendaylight.mdsal.binding.api.DataTreeModification;
-import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -40,7 +39,7 @@ import org.slf4j.LoggerFactory;
 public abstract class ChildListener<P extends DataObject, C extends DataObject, G>
         implements DataTreeChangeListener<P>, AutoCloseable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ChildListener.class);
+    public static final Logger LOG = LoggerFactory.getLogger("HwvtepEventLogger");
     private static final long STARTUP_LOOP_TICK = 500;
     private static final int STARTUP_LOOP_MAX_RETRIES = 8;
 
@@ -54,14 +53,19 @@ public abstract class ChildListener<P extends DataObject, C extends DataObject, 
     }
 
     public void init() throws Exception {
-        registration = registerListener(LogicalDatastoreType.OPERATIONAL, getParentWildCardPath());
+        //registration = registerListener(LogicalDatastoreType.OPERATIONAL, getParentWildCardPath());
     }
 
     protected ListenerRegistration<?> registerListener(final LogicalDatastoreType dsType,
                                                  final InstanceIdentifier wildCard) throws Exception {
-        DataTreeIdentifier<P> treeId = DataTreeIdentifier.create(dsType, wildCard);
+        if (registration != null) {
+            LOG.error("LocalUcast listener already registered");
+            return registration;
+        }
+        DataTreeIdentifier<P> treeId = new DataTreeIdentifier<>(dsType, wildCard);
         TaskRetryLooper looper = new TaskRetryLooper(STARTUP_LOOP_TICK, STARTUP_LOOP_MAX_RETRIES);
-        return looper.loopUntilNoException(() -> dataBroker.registerDataTreeChangeListener(treeId, this));
+        registration = looper.loopUntilNoException(() -> dataBroker.registerDataTreeChangeListener(treeId, this));
+        return registration;
     }
 
     /**
@@ -116,6 +120,7 @@ public abstract class ChildListener<P extends DataObject, C extends DataObject, 
     public void close() {
         if (registration != null) {
             registration.close();
+            registration = null;
         }
     }
 
@@ -145,9 +150,6 @@ public abstract class ChildListener<P extends DataObject, C extends DataObject, 
                         case WRITE:
                             if (modification.getDataBefore() == null) {
                                 onParentAdded(change);
-                            } else {
-                                LOG.info("Unexpected write to parent before {}", modification.getDataBefore());
-                                LOG.info("Unexpected write to parent after {}", modification.getDataAfter());
                             }
                             extractDataChanged(iid, modification, updatedMacsGrouped, deletedMacsGrouped);
                             break;
@@ -205,7 +207,7 @@ public abstract class ChildListener<P extends DataObject, C extends DataObject, 
         }
     }
 
-    protected DataObjectModification.@Nullable ModificationType getModificationType(
+    protected DataObjectModification.ModificationType getModificationType(
             final DataObjectModification<? extends DataObject> mod) {
         try {
             return mod.getModificationType();

@@ -7,9 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
-import java.util.ArrayList;
 import java.util.List;
-import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepPhysicalLocatorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentation;
@@ -29,10 +27,9 @@ public class TunnelCmd  extends MergeCommand<Tunnels, PhysicalSwitchAugmentation
     }
 
     @Override
-    @Nullable
     public List<Tunnels> getData(PhysicalSwitchAugmentation node) {
-        if (node != null && node.nonnullTunnels() != null) {
-            return new ArrayList<Tunnels>(node.nonnullTunnels().values());
+        if (node != null) {
+            return node.getTunnels();
         }
         return null;
     }
@@ -63,13 +60,13 @@ public class TunnelCmd  extends MergeCommand<Tunnels, PhysicalSwitchAugmentation
         HwvtepPhysicalLocatorRef hwvtepPhysicalLocatorRef1 =
                 HwvtepHAUtil.convertLocatorRef(src.getRemoteLocatorRef(), nodePath);
 
-        tunnelsBuilder.withKey(new TunnelsKey(hwvtepPhysicalLocatorRef,hwvtepPhysicalLocatorRef1));
+        tunnelsBuilder.setKey(new TunnelsKey(hwvtepPhysicalLocatorRef,hwvtepPhysicalLocatorRef1));
         return tunnelsBuilder.build();
     }
 
     @Override
     public Identifier getKey(Tunnels data) {
-        return data.key();
+        return data.getKey();
     }
 
     @Override

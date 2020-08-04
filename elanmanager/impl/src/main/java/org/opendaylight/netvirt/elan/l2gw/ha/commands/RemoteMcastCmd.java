@@ -9,8 +9,6 @@ package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentationBuilder;
@@ -33,10 +31,9 @@ public class RemoteMcastCmd extends
     }
 
     @Override
-    @Nullable
     public List<RemoteMcastMacs> getData(HwvtepGlobalAugmentation augmentation) {
-        if (augmentation != null && augmentation.nonnullRemoteMcastMacs() != null) {
-            return new ArrayList<RemoteMcastMacs>(augmentation.nonnullRemoteMcastMacs().values());
+        if (augmentation != null) {
+            return augmentation.getRemoteMcastMacs();
         }
         return null;
     }
@@ -48,7 +45,7 @@ public class RemoteMcastCmd extends
 
     @Override
     public InstanceIdentifier<RemoteMcastMacs> generateId(InstanceIdentifier<Node> id, RemoteMcastMacs node) {
-        HwvtepLogicalSwitchRef lsRef = HwvtepHAUtil.convertLogicalSwitchRef(node.key().getLogicalSwitchRef(), id);
+        HwvtepLogicalSwitchRef lsRef = HwvtepHAUtil.convertLogicalSwitchRef(node.getKey().getLogicalSwitchRef(), id);
         RemoteMcastMacsKey key = new RemoteMcastMacsKey(lsRef, node.getMacEntryKey());
 
         return id.augmentation(HwvtepGlobalAugmentation.class).child(RemoteMcastMacs.class, key);
@@ -58,7 +55,7 @@ public class RemoteMcastCmd extends
     public RemoteMcastMacs transform(InstanceIdentifier<Node> nodePath, RemoteMcastMacs src) {
         RemoteMcastMacsBuilder ucmlBuilder = new RemoteMcastMacsBuilder(src);
         List<LocatorSet> locatorSet = new ArrayList<>();
-        for (LocatorSet locator : src.nonnullLocatorSet()) {
+        for (LocatorSet locator : src.getLocatorSet()) {
             locatorSet.add(new LocatorSetBuilder().setLocatorRef(HwvtepHAUtil.buildLocatorRef(nodePath,
                     HwvtepHAUtil.getTepIpVal(locator.getLocatorRef()))).build());
         }
@@ -68,14 +65,14 @@ public class RemoteMcastCmd extends
 
         RemoteMcastMacsKey key = new RemoteMcastMacsKey(ucmlBuilder.getLogicalSwitchRef(),
                  ucmlBuilder.getMacEntryKey());
-        ucmlBuilder.withKey(key);
+        ucmlBuilder.setKey(key);
 
         return ucmlBuilder.build();
     }
 
     @Override
     public Identifier getKey(RemoteMcastMacs data) {
-        return data.key();
+        return data.getKey();
     }
 
     @Override
@@ -90,7 +87,7 @@ public class RemoteMcastCmd extends
                 .getHwvtepNodeName();
         InstanceIdentifier<?> origMacRefIdentifier = orig.getLogicalSwitchRef().getValue();
         HwvtepNodeName origMacNodeName = origMacRefIdentifier.firstKeyOf(LogicalSwitches.class).getHwvtepNodeName();
-        if (Objects.equals(updated.getMacEntryKey(), orig.getMacEntryKey())
+        if (updated.getMacEntryKey().equals(orig.getMacEntryKey())
                 && updatedMacNodeName.equals(origMacNodeName)) {
             List<LocatorSet> updatedLocatorSet = updated.getLocatorSet();
             List<LocatorSet> origLocatorSet = orig.getLocatorSet();
