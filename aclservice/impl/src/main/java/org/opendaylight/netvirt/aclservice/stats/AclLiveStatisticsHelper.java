@@ -310,7 +310,6 @@ public final class AclLiveStatisticsHelper {
      * @param dpId the dp id
      * @return the node ref
      */
-    @SuppressWarnings("deprecation")
     private static NodeRef buildNodeRef(BigInteger dpId) {
         return new NodeRef(InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class, new NodeKey(new NodeId("openflow:" + dpId))).build());
