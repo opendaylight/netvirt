@@ -1,0 +1,8 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+1: Karthikeyan Krishnan <karthikeyangceb007@gmail.com>
+Code-Review+2: Stephen Kitt <skitt@redhat.com>
+Submitted-by: Stephen Kitt <skitt@redhat.com>
+Submitted-at: Tue, 04 Aug 2020 12:39:30 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/c/netvirt/+/91838
+Project: netvirt
+Branch: refs/heads/master
