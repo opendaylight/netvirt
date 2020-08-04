@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -105,6 +106,20 @@ public final class FibHelper {
 
     public static boolean isControllerManagedNonSelfImportedRoute(RouteOrigin routeOrigin) {
         return routeOrigin != RouteOrigin.SELF_IMPORTED;
+    }
+
+    public static boolean isControllerManagedBgpVpnRoute(String vpnName, String rd, VrfEntry vrfEntry) {
+        // Is the encapType of VRFEntry as MPLSOverGRE
+        if (VrfEntry.EncapType.Mplsgre.equals(vrfEntry.getEncapType())) {
+            // Is the vpnName different from rd
+            if (!Objects.equals(vpnName, rd)) {
+                // Is RouteOrigin not SELF-IMPORTED
+                if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.SELF_IMPORTED) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public static void sortIpAddress(List<RoutePaths> routePathList) {
