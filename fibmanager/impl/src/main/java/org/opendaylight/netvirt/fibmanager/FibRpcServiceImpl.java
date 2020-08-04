@@ -217,7 +217,11 @@ public class FibRpcServiceImpl implements FibRpcService {
     }
 
     private String getFlowRef(Uint64 dpnId, short tableId, Uint32 id, String ipAddress) {
-        return FibConstants.FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId
+        String suffixToUse = "";
+        if (tableId == NwConstants.INTERNAL_TUNNEL_TABLE) {
+            suffixToUse = FibConstants.TST_FLOW_ID_SUFFIX;
+        }
+        return FibConstants.FLOWID_PREFIX + suffixToUse + dpnId + NwConstants.FLOWID_SEPARATOR + tableId
                 + NwConstants.FLOWID_SEPARATOR + id + NwConstants.FLOWID_SEPARATOR + ipAddress;
     }
 
