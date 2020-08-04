@@ -55,9 +55,9 @@ public final class ElanL2GwCacheUtils {
         return deviceMap == null ? null : deviceMap.get(l2gwDeviceNodeId);
     }
 
-    public static Collection<L2GatewayDevice> getInvolvedL2GwDevices(String elanName) {
+    public static ConcurrentMap<String, L2GatewayDevice> getInvolvedL2GwDevices(String elanName) {
         ConcurrentMap<String, L2GatewayDevice> result = CACHES.getIfPresent(elanName);
-        return result == null ? Collections.emptyList() : result.values();
+        return result == null ? new ConcurrentHashMap<>(): result;
     }
 
     public static Set<Entry<String, ConcurrentMap<String, L2GatewayDevice>>> getCaches() {

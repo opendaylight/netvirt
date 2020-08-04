@@ -219,6 +219,12 @@ module elan {
       leaf ip-prefix {
         type inet:ip-address;
       }
+
+      leaf src-tor-nodeid {
+          type string;
+          description
+            "The src tor node id";
+      }
     }
   }
 

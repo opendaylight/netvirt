@@ -610,7 +610,7 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
                     } else {
                         LOG.info("Adding elan interface forwarding table for mac entry {} elan interface"
                                 + " {} elan instance {}.", staticMacEntry.getMacAddress(), interfaceName, elanName);
-                        elanForwardingEntriesHandler.addElanInterfaceForwardingTableList(
+                        elanForwardingEntriesHandler. addElanInterfaceForwardingTableList(
                             elanName, interfaceName, staticMacEntry, tx);
                     }
                 })), LOG, "Error in update: identifier={}, original={}, update={}", identifier, original, update);
