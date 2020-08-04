@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.ipv6service;
 
 import com.google.common.base.Strings;
@@ -30,9 +29,6 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.genius.infra.Datastore;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.ipv6util.api.Ipv6Constants.Ipv6RouterAdvertisementType;
 import org.opendaylight.genius.ipv6util.api.Ipv6Util;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -40,6 +36,9 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.Datastore;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.ipv6service.api.ElementCache;
 import org.opendaylight.netvirt.ipv6service.api.IVirtualNetwork;
@@ -248,8 +247,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
         }
     }
 
-    @Nullable
-    private VirtualRouter getRouter(Uuid rtrId) {
+    private @Nullable VirtualRouter getRouter(Uuid rtrId) {
         return rtrId != null ? vrouters.get(rtrId) : null;
     }
 
@@ -399,8 +397,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
         }
     }
 
-    @Nullable
-    private VirtualSubnet getSubnet(Uuid snetId) {
+    private @Nullable VirtualSubnet getSubnet(Uuid snetId) {
         return snetId != null ? vsubnets.get(snetId) : null;
     }
 
@@ -450,8 +447,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
         }
     }
 
-    @Nullable
-    private VirtualPort getPort(Uuid portId) {
+    private @Nullable VirtualPort getPort(Uuid portId) {
         return portId != null ? vintfs.get(portId) : null;
     }
 
@@ -613,8 +609,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
         }
     }
 
-    @Nullable
-    public Set<VirtualPort> removeUnprocessed(Map<Uuid, Set<VirtualPort>> unprocessed, Uuid id) {
+    public @Nullable Set<VirtualPort> removeUnprocessed(Map<Uuid, Set<VirtualPort>> unprocessed, Uuid id) {
         if (id != null) {
             return unprocessed.remove(id);
         }
@@ -623,32 +618,31 @@ public class IfMgr implements ElementCache, AutoCloseable {
 
     public void addUnprocessedRSFlows(Map<Uuid, Integer> unprocessed, Uuid id, Integer action) {
         unprocessed.put(id, action);
-
     }
 
     public Integer removeUnprocessedRSFlows(Map<Uuid, Integer> unprocessed, Uuid id) {
         return unprocessed.remove(id);
     }
 
-    private void addUnprocessedNSFlows(Map<Uuid, Set<Ipv6Address>> unprocessed, Uuid id, Ipv6Address ipv6Address,
+    private static void addUnprocessedNSFlows(Map<Uuid, Set<Ipv6Address>> unprocessed, Uuid id, Ipv6Address ipv6Address,
             Integer action) {
         if (action == Ipv6ServiceConstants.ADD_FLOW) {
             unprocessed.computeIfAbsent(id, key -> Collections.synchronizedSet(ConcurrentHashMap.newKeySet()))
                     .add(ipv6Address);
         } else if (action == Ipv6ServiceConstants.DEL_FLOW) {
             Set<Ipv6Address> ipv6AddressesList = unprocessed.get(id);
-            if ((ipv6AddressesList != null) && (ipv6AddressesList.contains(ipv6Address))) {
+            if (ipv6AddressesList != null && ipv6AddressesList.contains(ipv6Address)) {
                 ipv6AddressesList.remove(ipv6Address);
             }
         }
     }
 
-    private Set<Ipv6Address> removeUnprocessedNSFlows(Map<Uuid, Set<Ipv6Address>> unprocessed, Uuid id) {
+    private static Set<Ipv6Address> removeUnprocessedNSFlows(Map<Uuid, Set<Ipv6Address>> unprocessed, Uuid id) {
         Set<Ipv6Address> removedIps = unprocessed.remove(id);
         return removedIps != null ? removedIps : Collections.emptySet();
     }
 
-    private void addUnprocessedNaFlows(Uuid networkId, Collection<VirtualSubnet> subnets, Integer action) {
+    private static void addUnprocessedNaFlows(Uuid networkId, Collection<VirtualSubnet> subnets, Integer action) {
         if (action == Ipv6ServiceConstants.ADD_FLOW) {
             unprocessedNetNaFlowIntfs.computeIfAbsent(networkId, key -> ConcurrentHashMap.newKeySet())
                     .addAll(subnets);
@@ -660,19 +654,17 @@ public class IfMgr implements ElementCache, AutoCloseable {
         }
     }
 
-    private Set<VirtualSubnet> removeUnprocessedNaFlows(Uuid networkId) {
+    private static Set<VirtualSubnet> removeUnprocessedNaFlows(Uuid networkId) {
         Set<VirtualSubnet> removedSubnets = unprocessedNetNaFlowIntfs.remove(networkId);
         return removedSubnets != null ? removedSubnets : Collections.emptySet();
     }
 
-    @Nullable
-    public VirtualPort getRouterV6InterfaceForNetwork(Uuid networkId) {
+    public @Nullable VirtualPort getRouterV6InterfaceForNetwork(Uuid networkId) {
         LOG.debug("obtaining the virtual interface for {}", networkId);
         return networkId != null ? vrouterv6IntfMap.get(networkId) : null;
     }
 
-    @Nullable
-    public VirtualPort obtainV6Interface(Uuid id) {
+    public @Nullable VirtualPort obtainV6Interface(Uuid id) {
         VirtualPort intf = getPort(id);
         if (intf == null) {
             return null;
@@ -915,8 +907,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
         return interfaceName;
     }
 
-    @Nullable
-    public Long updateNetworkElanTag(Uuid networkId) {
+    public @Nullable Long updateNetworkElanTag(Uuid networkId) {
         Long elanTag = null;
         if (null != this.elanProvider) {
             ElanInstance elanInstance = this.elanProvider.getElanInstance(networkId.getValue());
@@ -938,13 +929,11 @@ public class IfMgr implements ElementCache, AutoCloseable {
         }
     }
 
-    @Nullable
-    public VirtualNetwork getNetwork(Uuid networkId) {
+    public @Nullable VirtualNetwork getNetwork(Uuid networkId) {
         return networkId != null ? vnetworks.get(networkId) : null;
     }
 
-    @Nullable
-    public Long getNetworkElanTag(Uuid networkId) {
+    public @Nullable Long getNetworkElanTag(Uuid networkId) {
         Long elanTag = null;
         IVirtualNetwork net = getNetwork(networkId);
         if (null != net) {
@@ -956,7 +945,6 @@ public class IfMgr implements ElementCache, AutoCloseable {
         return elanTag;
     }
 
-    @Nullable
     public int getNetworkMtu(Uuid networkId) {
         int mtu = 0;
         IVirtualNetwork net = getNetwork(networkId);
@@ -1136,7 +1124,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
                 LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}",
                         interfaceName, rpcResult.getErrors());
             } else {
-                actions = new ArrayList<Action>(rpcResult.getResult().nonnullAction().values());
+                actions = new ArrayList<>(rpcResult.getResult().nonnullAction().values());
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Exception when egress actions for interface {}", interfaceName, e);
@@ -1223,8 +1211,8 @@ public class IfMgr implements ElementCache, AutoCloseable {
                     //check if VM is first or last VM on the DPN for the network
                     for (VirtualNetwork.DpnInterfaceInfo dpnIfaceInfo : dpnIfaceList) {
                         dpnIfaceInfo.setOvsNaResponderFlowConfiguredStatus(intf.getIntfUUID(), lportTag, action);
-                        if ((dpnId.compareTo(dpnIfaceInfo.getDpId()) == 0)
-                                && (dpnIfaceInfo.ofPortMap.size() == Ipv6ServiceConstants.FIRST_OR_LAST_VM_ON_DPN)) {
+                        if (dpnId.compareTo(dpnIfaceInfo.getDpId()) == 0
+                                && dpnIfaceInfo.ofPortMap.size() == Ipv6ServiceConstants.FIRST_OR_LAST_VM_ON_DPN) {
                             LOG.debug("checkIcmpv6NsMatchAndResponderFlow: First or Last VM booted or removed on "
                                             + "DPN {} " + "for the network {} action {}", dpnId,
                                     intf.getNetworkID().getValue(), action);

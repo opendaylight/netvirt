@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.ipv6service.utils;
 
 import java.net.InetAddress;
@@ -19,10 +18,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.genius.infra.Datastore;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.ipv6util.api.Icmpv6Type;
 import org.opendaylight.genius.ipv6util.api.Ipv6Constants;
 import org.opendaylight.genius.ipv6util.api.Ipv6Util;
@@ -63,6 +58,11 @@ import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.binding.util.Datastore;
+import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.mdsal.binding.util.TypedReadWriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
 import org.opendaylight.netvirt.ipv6service.VirtualSubnet;
@@ -198,7 +198,7 @@ public class Ipv6ServiceUtils {
         return matches;
     }
 
-    private List<MatchInfo> getIcmpv6NSMatch(Long elanTag, Ipv6Address ipv6Address) {
+    private static List<MatchInfo> getIcmpv6NSMatch(Long elanTag, Ipv6Address ipv6Address) {
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV6);
         matches.add(MatchIpProtocol.ICMPV6);
@@ -208,7 +208,7 @@ public class Ipv6ServiceUtils {
         return matches;
     }
 
-    private List<MatchInfo> getIcmpv6NAMatch(Long elanTag) {
+    private static List<MatchInfo> getIcmpv6NAMatch(Long elanTag) {
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV6);
         matches.add(MatchIpProtocol.ICMPV6);
@@ -277,7 +277,7 @@ public class Ipv6ServiceUtils {
                 .append(Ipv6ServiceConstants.FLOWID_NS_RESPONDER_SUFFIX).toString();
     }
 
-    private ActionLearn getLearnActionForNsPuntProtection(int ndPuntTimeout) {
+    private static ActionLearn getLearnActionForNsPuntProtection(int ndPuntTimeout) {
         List<FlowMod> flowMods = getFlowModsForIpv6PuntProtection(Icmpv6Type.NEIGHBOR_SOLICITATION);
         flowMods.add(new ActionLearn.MatchFromField(NxmOfFieldType.NXM_NX_ND_TARGET.getType(),
                 NxmOfFieldType.NXM_NX_ND_TARGET.getType(), NxmOfFieldType.NXM_NX_ND_TARGET.getFlowModHeaderLenInt()));
@@ -320,13 +320,13 @@ public class Ipv6ServiceUtils {
         }
     }
 
-    private ActionLearn getLearnActionForRsPuntProtection(int rdPuntTimeout) {
+    private static ActionLearn getLearnActionForRsPuntProtection(int rdPuntTimeout) {
         return new ActionLearn(0, rdPuntTimeout, Ipv6ServiceConstants.RS_PUNT_PROTECTION_FLOW_PRIORITY,
                 NwConstants.COOKIE_IPV6_TABLE, 0, NwConstants.IPV6_TABLE, 0, 0,
                 getFlowModsForIpv6PuntProtection(Icmpv6Type.ROUTER_SOLICITATION));
     }
 
-    private List<FlowMod> getFlowModsForIpv6PuntProtection(Icmpv6Type icmpv6Type) {
+    private static List<FlowMod> getFlowModsForIpv6PuntProtection(Icmpv6Type icmpv6Type) {
         return new ArrayList<>(Arrays.asList(
                 new ActionLearn.MatchFromValue(NwConstants.ETHTYPE_IPV6, NxmOfFieldType.NXM_OF_ETH_TYPE.getType(),
                         NxmOfFieldType.NXM_OF_ETH_TYPE.getFlowModHeaderLenInt()),
@@ -343,11 +343,11 @@ public class Ipv6ServiceUtils {
                         MetaDataUtil.METADATA_LPORT_TAG_OFFSET, MetaDataUtil.METADATA_LPORT_TAG_BITLEN)));
     }
 
-    private boolean isRdPuntProtectionEnabled(int rdPuntTimeout) {
+    private static boolean isRdPuntProtectionEnabled(int rdPuntTimeout) {
         return rdPuntTimeout != 0;
     }
 
-    private boolean isNdPuntProtectionEnabled(int ndPuntTimeout) {
+    private static boolean isNdPuntProtectionEnabled(int ndPuntTimeout) {
         return ndPuntTimeout != 0;
     }
 
@@ -412,7 +412,7 @@ public class Ipv6ServiceUtils {
                 .addAugmentation(StypeOpenflow.class, augBuilder.build()).build();
     }
 
-    private InstanceIdentifier<BoundServices> buildServiceId(String interfaceName,
+    private static InstanceIdentifier<BoundServices> buildServiceId(String interfaceName,
                                               short priority) {
         return InstanceIdentifier.builder(ServiceBindings.class).child(ServicesInfo.class,
                 new ServicesInfoKey(interfaceName, ServiceModeIngress.class))
@@ -482,7 +482,7 @@ public class Ipv6ServiceUtils {
 
     public ActionInfo getLearnActionForNsDrop(Long hardTimeoutinMs) {
         int hardTimeout = (int)(hardTimeoutinMs / 1000);
-        hardTimeout = (hardTimeout > 0) ? hardTimeout : 30;
+        hardTimeout = hardTimeout > 0 ? hardTimeout : 30;
         List<ActionLearn.FlowMod> flowMods = Arrays.asList(
                 new ActionLearn.MatchFromValue(NwConstants.ETHTYPE_IPV6,
                         NwConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getType(),
@@ -512,8 +512,8 @@ public class Ipv6ServiceUtils {
     }
 
     public void instIcmpv6NsMatchFlow(short tableId, Uint64 dpId, Long elanTag, int lportTag, String vmMacAddress,
-                                      Ipv6Address ndTargetAddr, int addOrRemove, TypedReadWriteTransaction tx,
-                                      Boolean isSllOptionSet)
+                                      Ipv6Address ndTargetAddr, int addOrRemove,
+                                      TypedReadWriteTransaction<Configuration> tx, Boolean isSllOptionSet)
         throws ExecutionException, InterruptedException  {
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
@@ -555,7 +555,7 @@ public class Ipv6ServiceUtils {
     public void installIcmpv6NaResponderFlow(short tableId, Uint64 dpId,
                                              Long elanTag, int lportTag, IVirtualPort intf, Ipv6Address ndTargetAddr,
                                              String rtrIntMacAddress, int addOrRemove,
-                                             TypedReadWriteTransaction tx, Boolean isTllOptionSet)
+                                             TypedReadWriteTransaction<Configuration> tx, Boolean isTllOptionSet)
         throws ExecutionException, InterruptedException {
 
         List<MatchInfo> neighborAdvertisementMatch = getIcmpv6NaResponderMatch(elanTag, lportTag, intf.getMacAddress(),
@@ -613,7 +613,7 @@ public class Ipv6ServiceUtils {
     }
 
     public void installIcmpv6NsDefaultPuntFlow(short tableId, Uint64 dpId,  Long elanTag, Ipv6Address ipv6Address,
-                                               int addOrRemove, TypedReadWriteTransaction tx)
+                                               int addOrRemove, TypedReadWriteTransaction<Configuration> tx)
         throws ExecutionException, InterruptedException {
         List<MatchInfo> neighborSolicitationMatch = getIcmpv6NSMatch(elanTag, ipv6Address);
         neighborSolicitationMatch.add(new MatchIpv6Source(UNSPECIFIED_ADDR.getValue() + "/128"));
@@ -638,9 +638,8 @@ public class Ipv6ServiceUtils {
         }
     }
 
-    private List<MatchInfo> getIcmpv6NsMatchFlow(Long elanTag, int lportTag, String vmMacAddress,
-                                                 Ipv6Address ndTargetAddr,
-                                                 Boolean isSllOptionSet) {
+    private static List<MatchInfo> getIcmpv6NsMatchFlow(Long elanTag, int lportTag, String vmMacAddress,
+                                                        Ipv6Address ndTargetAddr, Boolean isSllOptionSet) {
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV6);
         matches.add(MatchIpProtocol.ICMPV6);
@@ -655,8 +654,8 @@ public class Ipv6ServiceUtils {
         return matches;
     }
 
-    private List<MatchInfo> getIcmpv6NaResponderMatch(Long elanTag, int lportTag, String vmMacAddress,
-                                                      Ipv6Address ndTarget, Boolean isNdOptionTypeSet) {
+    private static List<MatchInfo> getIcmpv6NaResponderMatch(Long elanTag, int lportTag, String vmMacAddress,
+                                                             Ipv6Address ndTarget, Boolean isNdOptionTypeSet) {
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV6);
         matches.add(MatchIpProtocol.ICMPV6);
