@@ -7,10 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentationBuilder;
@@ -31,10 +28,9 @@ public class RemoteUcastCmd extends MergeCommand<RemoteUcastMacs,
     }
 
     @Override
-    @Nullable
     public List<RemoteUcastMacs> getData(HwvtepGlobalAugmentation node) {
-        if (node != null && node.nonnullRemoteUcastMacs() != null) {
-            return new ArrayList<RemoteUcastMacs>(node.nonnullRemoteUcastMacs().values());
+        if (node != null) {
+            return node.getRemoteUcastMacs();
         }
         return null;
     }
@@ -46,7 +42,7 @@ public class RemoteUcastCmd extends MergeCommand<RemoteUcastMacs,
 
     @Override
     public InstanceIdentifier<RemoteUcastMacs> generateId(InstanceIdentifier<Node> id, RemoteUcastMacs node) {
-        HwvtepLogicalSwitchRef lsRef = HwvtepHAUtil.convertLogicalSwitchRef(node.key().getLogicalSwitchRef(), id);
+        HwvtepLogicalSwitchRef lsRef = HwvtepHAUtil.convertLogicalSwitchRef(node.getKey().getLogicalSwitchRef(), id);
         RemoteUcastMacsKey key = new RemoteUcastMacsKey(lsRef, node.getMacEntryKey());
         return id.augmentation(HwvtepGlobalAugmentation.class).child(RemoteUcastMacs.class, key);
     }
@@ -60,14 +56,14 @@ public class RemoteUcastCmd extends MergeCommand<RemoteUcastMacs,
 
         RemoteUcastMacsKey key = new RemoteUcastMacsKey(ucmlBuilder.getLogicalSwitchRef(),
                 ucmlBuilder.getMacEntryKey());
-        ucmlBuilder.withKey(key);
+        ucmlBuilder.setKey(key);
 
         return ucmlBuilder.build();
     }
 
     @Override
     public Identifier getKey(RemoteUcastMacs data) {
-        return data.key();
+        return data.getKey();
     }
 
     @Override
@@ -82,7 +78,7 @@ public class RemoteUcastCmd extends MergeCommand<RemoteUcastMacs,
                 .getHwvtepNodeName();
         InstanceIdentifier<?> origMacRefIdentifier = orig.getLogicalSwitchRef().getValue();
         HwvtepNodeName origMacNodeName = origMacRefIdentifier.firstKeyOf(LogicalSwitches.class).getHwvtepNodeName();
-        return Objects.equals(updated.getMacEntryKey(), orig.getMacEntryKey())
+        return updated.getMacEntryKey().equals(orig.getMacEntryKey())
                 && updatedMacNodeName.equals(origMacNodeName);
     }
 

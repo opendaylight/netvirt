@@ -7,10 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepPhysicalLocatorAugmentation;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
@@ -24,10 +21,9 @@ public class PhysicalLocatorCmd extends MergeCommand<TerminationPoint, NodeBuild
     }
 
     @Override
-    @Nullable
     public List<TerminationPoint> getData(Node node) {
-        if (node != null && node.getTerminationPoint() != null) {
-            return new ArrayList<TerminationPoint>(node.nonnullTerminationPoint().values());
+        if (node != null) {
+            return node.getTerminationPoint();
         }
         return null;
     }
@@ -39,7 +35,7 @@ public class PhysicalLocatorCmd extends MergeCommand<TerminationPoint, NodeBuild
 
     @Override
     public InstanceIdentifier<TerminationPoint> generateId(InstanceIdentifier<Node> id, TerminationPoint node) {
-        return id.child(TerminationPoint.class, node.key());
+        return id.child(TerminationPoint.class, node.getKey());
     }
 
     @Override
@@ -49,7 +45,7 @@ public class PhysicalLocatorCmd extends MergeCommand<TerminationPoint, NodeBuild
 
     @Override
     public Identifier getKey(TerminationPoint data) {
-        return data.key();
+        return data.getKey();
     }
 
     @Override
@@ -60,10 +56,10 @@ public class PhysicalLocatorCmd extends MergeCommand<TerminationPoint, NodeBuild
     @Override
     public boolean areEqual(TerminationPoint updated, TerminationPoint orig) {
         HwvtepPhysicalLocatorAugmentation updatedPhysicalLocator =
-                updated.augmentation(HwvtepPhysicalLocatorAugmentation.class);
+                updated.getAugmentation(HwvtepPhysicalLocatorAugmentation.class);
         HwvtepPhysicalLocatorAugmentation origPhysicalLocator =
-                orig.augmentation(HwvtepPhysicalLocatorAugmentation.class);
-        return Objects.equals(updatedPhysicalLocator.getDstIp(), origPhysicalLocator.getDstIp())
+                orig.getAugmentation(HwvtepPhysicalLocatorAugmentation.class);
+        return updatedPhysicalLocator.getDstIp().equals(origPhysicalLocator.getDstIp())
                 && updatedPhysicalLocator.getEncapsulationType() == origPhysicalLocator.getEncapsulationType();
     }
 

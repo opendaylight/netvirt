@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2018 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -7,17 +7,18 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.recovery.impl;
 
-import java.util.Optional;
+import com.google.common.base.Optional;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
-import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.serviceutils.srm.ServiceRecoveryInterface;
 import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
@@ -60,7 +61,6 @@ public class L2GatewayConnectionInstanceRecoveryHandler implements ServiceRecove
     }
 
     @Override
-    @SuppressWarnings("ForbidCertainMethod")
     public void recoverService(String entityId) {
         LOG.info("recover l2gateway connection {}", entityId);
         // Fetch the l2 gateway connection from l2 gateway connection config DS first.
@@ -70,30 +70,42 @@ public class L2GatewayConnectionInstanceRecoveryHandler implements ServiceRecove
                 .child(L2gatewayConnections.class)
                 .child(L2gatewayConnection.class, new L2gatewayConnectionKey(uuid));
 
-        Optional<L2gatewayConnection> l2gatewayConnectionOptional = Optional.empty();
-        try {
-            l2gatewayConnectionOptional = SingleTransactionDataBroker.syncReadOptional(
-                    dataBroker, LogicalDatastoreType.CONFIGURATION, connectionInstanceIdentifier);
-        } catch (ExecutionException | InterruptedException e) {
-            LOG.error("recoverService: Exception while reading L2gatewayConnection DS", e);
-        }
+        Optional<L2gatewayConnection> l2gatewayConnectionOptional = MDSALUtil
+                .read(dataBroker, LogicalDatastoreType.CONFIGURATION, connectionInstanceIdentifier);
         //l2GatewayConnectionUtils.addL2GatewayConnection(l2gatewayConnectionOptional.get());
 
-        if (l2gatewayConnectionOptional.isPresent()) {
-            L2gatewayConnection l2gatewayConnection = l2gatewayConnectionOptional.get();
+        L2gatewayConnection l2gatewayConnection = l2gatewayConnectionOptional.get();
 
-            try {
-                LOG.info("deleting l2 gateway connection {}",l2gatewayConnection.key());
-                txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                    tx -> tx.delete(LogicalDatastoreType.CONFIGURATION, connectionInstanceIdentifier)).get();
-                LOG.info("recreating l2 gateway connection {}, {}",entityId, l2gatewayConnection.key());
-                txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                    tx -> tx.put(LogicalDatastoreType.CONFIGURATION, connectionInstanceIdentifier,
-                            l2gatewayConnection)).get();
-            } catch (InterruptedException | ExecutionException e) {
-                LOG.error("Service recovery failed for l2gw connection {}", entityId);
-            }
+        try {
+            LOG.info("deleting l2 gateway connection {}",l2gatewayConnection.getKey());
+            txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                tx -> tx.delete(LogicalDatastoreType.CONFIGURATION, connectionInstanceIdentifier)).get();
+            LOG.info("recreating l2 gateway connection {}, {}",entityId, l2gatewayConnection.getKey());
+            txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                tx -> tx.put(LogicalDatastoreType.CONFIGURATION, connectionInstanceIdentifier,
+                        l2gatewayConnection)).get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Service recovery failed for l2gw connection {}", entityId);
         }
+        /*List<L2gatewayConnection> l2gatewayConnections = l2GatewayConnectionUtils
+                .getL2GwConnectionsByL2GatewayId(uuid);
+        // Do a delete and recreation of l2 gateway connection instances.
+        //No null check required since l2gatewayConnections is known to be non-null.
+        for (L2gatewayConnection l2gatewayConnection: l2gatewayConnections) {
+            InstanceIdentifier<L2gatewayConnection> identifier = InstanceIdentifier.create(Neutron.class)
+                    .child(L2gatewayConnections.class)
+                    .child(L2gatewayConnection.class, l2gatewayConnection.getKey());
+            try {
+                LOG.info("deleting l2 gateway connection interface {}",l2gatewayConnection.getKey());
+                txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                    tx -> tx.delete(LogicalDatastoreType.CONFIGURATION, identifier)).get();
+                LOG.info("recreating l2 gateway interface {}, {}",entityId, l2gatewayConnection.getKey());
+                txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                    tx -> tx.put(LogicalDatastoreType.CONFIGURATION, identifier, l2gatewayConnection)).get();
+            } catch (InterruptedException | ExecutionException e) {
+                LOG.error("Service recovery failed for l2gw interface {}", entityId);
+            }
+        }*/
     }
 
     public String buildServiceRegistryKey() {

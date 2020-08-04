@@ -9,10 +9,9 @@ package org.opendaylight.netvirt.elan.l2gw.ha.handlers;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.genius.infra.Datastore.Configuration;
-import org.opendaylight.genius.infra.Datastore.Operational;
-import org.opendaylight.genius.infra.TypedReadWriteTransaction;
-import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -23,13 +22,14 @@ public class HAEventHandler implements IHAEventHandler {
     private final OpNodeUpdatedHandler opNodeUpdatedHandler = new OpNodeUpdatedHandler();
 
     @Inject
-    public HAEventHandler() {
+    public HAEventHandler(DataBroker db) {
+
     }
 
     @Override
     public void copyChildGlobalOpUpdateToHAParent(InstanceIdentifier<Node> haPath,
                                                   DataObjectModification<Node> mod,
-                                                  TypedReadWriteTransaction<Operational> tx) {
+                                                  ReadWriteTransaction tx) {
         if (haPath == null) {
             return;
         }
@@ -40,7 +40,7 @@ public class HAEventHandler implements IHAEventHandler {
     public void copyChildPsOpUpdateToHAParent(Node updatedSrcPSNode,
                                               InstanceIdentifier<Node> haPath,
                                               DataObjectModification<Node> mod,
-                                              TypedReadWriteTransaction<Operational> tx) {
+                                              ReadWriteTransaction tx) {
         if (haPath == null) {
             return;
         }
@@ -50,7 +50,7 @@ public class HAEventHandler implements IHAEventHandler {
     @Override
     public void copyHAPSUpdateToChild(InstanceIdentifier<Node> haChildNodeId,
                                       DataObjectModification<Node> mod,
-                                      TypedReadWriteTransaction<Configuration> tx) {
+                                      ReadWriteTransaction tx) {
         if (haChildNodeId == null) {
             return;
         }
@@ -60,7 +60,7 @@ public class HAEventHandler implements IHAEventHandler {
     @Override
     public void copyHAGlobalUpdateToChild(InstanceIdentifier<Node> haChildNodeId,
                                           DataObjectModification<Node> mod,
-                                          TypedReadWriteTransaction<Configuration> tx) {
+                                          ReadWriteTransaction tx) {
         if (haChildNodeId == null) {
             return;
         }
