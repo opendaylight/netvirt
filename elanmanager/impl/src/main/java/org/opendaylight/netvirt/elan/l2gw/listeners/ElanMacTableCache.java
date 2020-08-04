@@ -5,10 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
-
 package org.opendaylight.netvirt.elan.l2gw.listeners;
-
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -33,7 +30,7 @@ public class ElanMacTableCache extends AbstractClusteredAsyncDataTreeChangeListe
     public ElanMacTableCache(final DataBroker dataBroker) {
         super(dataBroker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(ElanForwardingTables.class)
                 .child(MacTable.class),
-                Executors.newListeningSingleThreadExecutor("ElanMacTableCache", LOG));
+            Executors.newListeningSingleThreadExecutor("ElanMacTableCache", LOG));
         this.dataBroker = dataBroker;
     }
 

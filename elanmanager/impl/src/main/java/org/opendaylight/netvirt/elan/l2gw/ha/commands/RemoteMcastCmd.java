@@ -91,7 +91,7 @@ public class RemoteMcastCmd extends
         InstanceIdentifier<?> origMacRefIdentifier = orig.getLogicalSwitchRef().getValue();
         HwvtepNodeName origMacNodeName = origMacRefIdentifier.firstKeyOf(LogicalSwitches.class).getHwvtepNodeName();
         if (Objects.equals(updated.getMacEntryKey(), orig.getMacEntryKey())
-                && updatedMacNodeName.equals(origMacNodeName)) {
+            && updatedMacNodeName.equals(origMacNodeName)) {
             List<LocatorSet> updatedLocatorSet = updated.getLocatorSet();
             List<LocatorSet> origLocatorSet = orig.getLocatorSet();
             if (!areSameSize(updatedLocatorSet, origLocatorSet)) {

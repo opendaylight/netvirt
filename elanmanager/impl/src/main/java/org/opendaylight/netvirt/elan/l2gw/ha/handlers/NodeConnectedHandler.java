@@ -180,7 +180,7 @@ public class NodeConnectedHandler {
 
         globalAugmentationMerger.mergeConfigData(dstBuilder, src, childPath);
         globalNodeMerger.mergeConfigData(nodeBuilder, srcNode, childPath);
-        nodeBuilder.addAugmentation(HwvtepGlobalAugmentation.class, dstBuilder.build());
+        nodeBuilder.addAugmentation(dstBuilder.build());
         Node dstNode = nodeBuilder.build();
         tx.mergeParentStructurePut(childPath, dstNode);
     }
@@ -216,7 +216,7 @@ public class NodeConnectedHandler {
         haBuilder.setManagers(HwvtepHAUtil.buildManagersForHANode(childNode, existingHANodeOptional));
         haBuilder.setSwitches(HwvtepHAUtil.buildSwitchesForHANode(childNode, haNodePath, existingHANodeOptional));
         haBuilder.setDbVersion(childData.getDbVersion());
-        haNodeBuilder.addAugmentation(HwvtepGlobalAugmentation.class, haBuilder.build());
+        haNodeBuilder.addAugmentation(haBuilder.build());
         Node haNode = haNodeBuilder.build();
         tx.mergeParentStructureMerge(haNodePath, haNode);
     }
@@ -257,7 +257,7 @@ public class NodeConnectedHandler {
         psAugmentationMerger.mergeConfigData(dstBuilder, src, childPath);
         psNodeMerger.mergeConfigData(childPsBuilder, haPsNode, childPath);
 
-        childPsBuilder.addAugmentation(PhysicalSwitchAugmentation.class, dstBuilder.build());
+        childPsBuilder.addAugmentation(dstBuilder.build());
         Node childPSNode = childPsBuilder.build();
         tx.mergeParentStructurePut(childPsPath, childPSNode);
     }
@@ -289,7 +289,7 @@ public class NodeConnectedHandler {
         psNodeMerger.mergeOperationalData(haPSNodeBuilder, existingHAPSNode, childPsNode, haPath);
         mergeOpManagedByAttributes(src, dstBuilder, haPath);
 
-        haPSNodeBuilder.addAugmentation(PhysicalSwitchAugmentation.class, dstBuilder.build());
+        haPSNodeBuilder.addAugmentation(dstBuilder.build());
         Node haPsNode = haPSNodeBuilder.build();
         tx.mergeParentStructureMerge(haPspath, haPsNode);
     }

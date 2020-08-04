@@ -76,5 +76,10 @@ module elan-config {
             type uint16;
             default 20;
         }
+        leaf l2gw-stale-localucastmacs-cleanup-delay-secs {
+            description "The delay after which Stale Local Ucast MAcs is deleted after hwvteps are connected";
+            type uint16;
+            default 600;
+        }
     }
 }

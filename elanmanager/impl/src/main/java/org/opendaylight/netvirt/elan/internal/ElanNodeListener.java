@@ -52,7 +52,6 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.util.Datastore;
 import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
 import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
 import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
@@ -142,7 +141,7 @@ public class ElanNodeListener extends AbstractAsyncDataTreeChangeListener<Node> 
             LOG.warn("Unexpected nodeId {}", nodeId.getValue());
             return;
         }
-        addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION, tx -> {
+        addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
             Uint64 dpId = Uint64.valueOf(node[1]);
             createTableMissEntry(tx, dpId);
             createMulticastFlows(tx, dpId);
