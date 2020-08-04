@@ -67,7 +67,7 @@ public class DeleteLogicalSwitchJob implements Callable<List<? extends Listenabl
     @Override
     public List<ListenableFuture<?>> call() {
         if (cancelled) {
-            LOG.info("Delete logical switch job cancelled ");
+            LOG.info("Delete logical switch job cancelled for {}", logicalSwitchName);
             return Collections.emptyList();
         }
         LOG.debug("running logical switch deleted job for {} in {}", logicalSwitchName, hwvtepNodeId);

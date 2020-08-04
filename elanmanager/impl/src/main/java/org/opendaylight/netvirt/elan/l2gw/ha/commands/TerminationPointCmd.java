@@ -69,11 +69,18 @@ public class TerminationPointCmd extends MergeCommand<TerminationPoint, NodeBuil
         TerminationPointBuilder tpBuilder = new TerminationPointBuilder(src);
         tpBuilder.removeAugmentation(HwvtepPhysicalPortAugmentation.class);
         HwvtepPhysicalPortAugmentationBuilder tpAugmentationBuilder =
-                new HwvtepPhysicalPortAugmentationBuilder(augmentation);
-
+                new HwvtepPhysicalPortAugmentationBuilder();
+        tpAugmentationBuilder.setAclBindings(augmentation.getAclBindings());
+        tpAugmentationBuilder.setHwvtepNodeDescription(augmentation.getHwvtepNodeDescription());
+        tpAugmentationBuilder.setHwvtepNodeName(augmentation.getHwvtepNodeName());
+        tpAugmentationBuilder.setPhysicalPortUuid(augmentation.getPhysicalPortUuid());
+        tpAugmentationBuilder.setVlanStats(augmentation.getVlanStats());
         if (augmentation.getVlanBindings() != null && augmentation.getVlanBindings().size() > 0) {
             tpAugmentationBuilder.setVlanBindings(augmentation.nonnullVlanBindings().values().stream().map(
                 vlanBindings -> {
+                    if (vlanBindings.getLogicalSwitchRef() == null) {
+                        LOG.error("Failed to get logical switch ref for vlan binding {} {} ", path, src);
+                    }
                     VlanBindingsBuilder vlanBindingsBuilder = new VlanBindingsBuilder(vlanBindings);
                     vlanBindingsBuilder.setLogicalSwitchRef(
                             HwvtepHAUtil.convertLogicalSwitchRef(vlanBindings.getLogicalSwitchRef(), path));
@@ -81,7 +88,7 @@ public class TerminationPointCmd extends MergeCommand<TerminationPoint, NodeBuil
                 }).collect(Collectors.toList()));
         }
 
-        tpBuilder.addAugmentation(HwvtepPhysicalPortAugmentation.class, tpAugmentationBuilder.build());
+        tpBuilder.addAugmentation(tpAugmentationBuilder.build());
         return tpBuilder.build();
     }
 

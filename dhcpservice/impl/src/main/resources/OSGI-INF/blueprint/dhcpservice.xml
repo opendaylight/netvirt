@@ -18,8 +18,6 @@
              interface="org.opendaylight.infrautils.jobcoordinator.JobCoordinator" />
   <reference id="l2GatewayCache"
              interface="org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache"/>
-  <reference id="hwvtepNodeHACache"
-             interface="org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache"/>
   <reference id="metricProvider"
                interface="org.opendaylight.infrautils.metrics.MetricProvider"/>
 

@@ -738,7 +738,8 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
     }
 
     private boolean checkL2GatewayConnection(Pair<IpAddress, String> tunnelElanPair) {
-        for (L2GatewayDevice device : ElanL2GwCacheUtils.getInvolvedL2GwDevices(tunnelElanPair.getRight())) {
+        for (L2GatewayDevice device : ElanL2GwCacheUtils
+            .getInvolvedL2GwDevices(tunnelElanPair.getRight()).values()) {
             if (Objects.equals(device.getTunnelIp(), tunnelElanPair.getLeft())) {
                 return true;
             }
