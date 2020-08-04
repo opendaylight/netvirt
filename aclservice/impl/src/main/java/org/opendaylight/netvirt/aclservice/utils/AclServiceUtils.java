@@ -5,11 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.aclservice.utils;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.OPERATIONAL;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
@@ -34,10 +33,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.genius.infra.Datastore.Operational;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -66,6 +61,10 @@ import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.binding.util.Datastore.Operational;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.mdsal.binding.util.TypedWriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
@@ -134,7 +133,6 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public final class AclServiceUtils {
-
     private static final Logger LOG = LoggerFactory.getLogger(AclServiceUtils.class);
 
     private final DataBroker dataBroker;
@@ -583,7 +581,7 @@ public final class AclServiceUtils {
             // matching both lportTag and aclTag. Hence performing "or"
             // operation on both lportTag and aclTag metadata.
             Uint64 metaData = Uint64.fromLongBits(MetaDataUtil.getLportTagMetaData(lportTag).longValue()
-                    | (getRemoteAclTagMetadata(BigInteger.valueOf(remoteAclTag)).longValue()));
+                    | getRemoteAclTagMetadata(BigInteger.valueOf(remoteAclTag)).longValue());
             Uint64 metaDataMask = Uint64.fromLongBits(MetaDataUtil.METADATA_MASK_LPORT_TAG.longValue()
                     | MetaDataUtil.METADATA_MASK_REMOTE_ACL_TAG.longValue());
             matches.add(new MatchMetadata(metaData, metaDataMask));
@@ -602,8 +600,8 @@ public final class AclServiceUtils {
             // matching both lportTag and conntrackClassifierType. Hence performing "or"
             // operation on both lportTag and conntrackClassifierType metadata.
             Uint64 metaData = Uint64.fromLongBits(MetaDataUtil.getLportTagMetaData(lportTag).longValue()
-                    | (MetaDataUtil.getAclConntrackClassifierTypeFromMetaData(
-                       Uint64.valueOf(conntrackClassifierType.getValue()))).longValue());
+                    | MetaDataUtil.getAclConntrackClassifierTypeFromMetaData(
+                       Uint64.valueOf(conntrackClassifierType.getValue())).longValue());
             Uint64 metaDataMask = Uint64.fromLongBits(MetaDataUtil.METADATA_MASK_LPORT_TAG.longValue()
                    | MetaDataUtil.METADATA_MASK_ACL_CONNTRACK_CLASSIFIER_TYPE.longValue());
             matches.add(new MatchMetadata(metaData, metaDataMask));
@@ -1041,7 +1039,7 @@ public final class AclServiceUtils {
         for (Uuid aclId : aclList) {
             String aclName = aclId.getValue();
             jobCoordinator.enqueueJob(aclName, () -> {
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                List<ListenableFuture<?>> futures = new ArrayList<>();
                 futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
                     for (AllowedAddressPairs aap : allowedAddresses) {
                         PortIds portIdObj =
@@ -1070,7 +1068,7 @@ public final class AclServiceUtils {
         for (Uuid aclId : aclList) {
             String aclName = aclId.getValue();
             jobCoordinator.enqueueJob(aclName, () -> {
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                List<ListenableFuture<?>> futures = new ArrayList<>();
                 futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
                     for (AllowedAddressPairs aap : allowedAddresses) {
                         InstanceIdentifier<PortIds> path =
