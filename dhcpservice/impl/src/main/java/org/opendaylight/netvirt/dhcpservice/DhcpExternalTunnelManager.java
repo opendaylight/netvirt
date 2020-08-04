@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
@@ -37,12 +37,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
-import org.opendaylight.genius.infra.Datastore;
-import org.opendaylight.genius.infra.Datastore.Configuration;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.infra.TypedReadWriteTransaction;
-import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -55,6 +49,12 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.binding.util.Datastore;
+import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.mdsal.binding.util.TypedReadWriteTransaction;
+import org.opendaylight.mdsal.binding.util.TypedWriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
@@ -120,7 +120,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
     private final IInterfaceManager interfaceManager;
     private final JobCoordinator jobCoordinator;
     private final L2GatewayCache l2GatewayCache;
-    private IElanService elanService;
+    private final IElanService elanService;
     private final DhcpServiceCounters dhcpServiceCounters;
 
     private final ConcurrentMap<Uint64, Set<Pair<IpAddress, String>>> designatedDpnsToTunnelIpElanNameCache =
@@ -691,7 +691,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
                 vmMacAddress, NwConstants.ADD_FLOW, mdsalUtil, dhcpServiceCounters, tx);
     }
 
-    public List<ListenableFuture<Void>> handleTunnelStateDown(IpAddress tunnelIp, Uint64 interfaceDpn) {
+    public List<? extends ListenableFuture<?>> handleTunnelStateDown(IpAddress tunnelIp, Uint64 interfaceDpn) {
         LOG.trace("In handleTunnelStateDown tunnelIp {}, interfaceDpn {}", tunnelIp, interfaceDpn);
         if (interfaceDpn == null) {
             return Collections.emptyList();
@@ -957,7 +957,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         return tunnelInterface.getOperStatus() == OperStatus.Up;
     }
 
-    public List<ListenableFuture<Void>> handleTunnelStateUp(IpAddress tunnelIp, Uint64 interfaceDpn) {
+    public List<? extends ListenableFuture<?>> handleTunnelStateUp(IpAddress tunnelIp, Uint64 interfaceDpn) {
         LOG.trace("In handleTunnelStateUp tunnelIp {}, interfaceDpn {}", tunnelIp, interfaceDpn);
         synchronized (getTunnelIpDpnKey(tunnelIp, interfaceDpn)) {
             Set<Pair<IpAddress, String>> tunnelIpElanPair =

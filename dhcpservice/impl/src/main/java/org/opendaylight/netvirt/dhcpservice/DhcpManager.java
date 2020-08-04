@@ -18,9 +18,6 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
-import org.opendaylight.genius.infra.Datastore.Configuration;
-import org.opendaylight.genius.infra.TypedReadWriteTransaction;
-import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -35,6 +32,9 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
+import org.opendaylight.mdsal.binding.util.TypedReadWriteTransaction;
+import org.opendaylight.mdsal.binding.util.TypedWriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
@@ -65,7 +65,7 @@ public class DhcpManager {
     private final IInterfaceManager interfaceManager;
     private final IElanService elanService;
     private final JobCoordinator jobCoordinator;
-    private DhcpPortCache dhcpPortCache;
+    private final DhcpPortCache dhcpPortCache;
     private final ItmRpcService itmRpcService;
     private final DhcpServiceCounters dhcpServiceCounters;
 
@@ -151,7 +151,7 @@ public class DhcpManager {
     public Subnet getNeutronSubnet(Port port) {
         if (port != null) {
             // DHCP Service is only interested in IPv4 IPs/Subnets
-            return getNeutronSubnet(new ArrayList<FixedIps>(port.nonnullFixedIps().values()));
+            return getNeutronSubnet(new ArrayList<>(port.nonnullFixedIps().values()));
         }
         return null;
     }
