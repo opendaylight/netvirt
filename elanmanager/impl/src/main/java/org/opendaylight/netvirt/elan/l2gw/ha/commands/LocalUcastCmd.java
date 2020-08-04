@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SrcnodeAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SrcnodeAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepLogicalSwitchRef;
@@ -23,15 +25,12 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-
-
 public class LocalUcastCmd
         extends MergeCommand<LocalUcastMacs, HwvtepGlobalAugmentationBuilder, HwvtepGlobalAugmentation> {
 
     public LocalUcastCmd() {
     }
 
-    @Override
     @Nullable
     public List<LocalUcastMacs> getData(HwvtepGlobalAugmentation node) {
         if (node != null && node.getLocalUcastMacs() != null) {
@@ -59,6 +58,12 @@ public class LocalUcastCmd
         ucmlBuilder.setLocatorRef(HwvtepHAUtil.convertLocatorRef(src.getLocatorRef(), nodePath));
         ucmlBuilder.setLogicalSwitchRef(
                 HwvtepHAUtil.convertLogicalSwitchRef(src.getLogicalSwitchRef(), nodePath));
+        String srcTorNodeId = ((InstanceIdentifier<LogicalSwitches>)src.getLogicalSwitchRef().getValue())
+                .firstKeyOf(Node.class).getNodeId().getValue();
+        SrcnodeAugmentation srcnodeAugmentation = new SrcnodeAugmentationBuilder()
+                .setSrcTorNodeid(srcTorNodeId)
+                .build();
+        ucmlBuilder.addAugmentation(srcnodeAugmentation);
         ucmlBuilder.setMacEntryUuid(HwvtepHAUtil.getUUid(src.getMacEntryKey().getValue()));
         LocalUcastMacsKey key = new LocalUcastMacsKey(ucmlBuilder.getLogicalSwitchRef(), ucmlBuilder.getMacEntryKey());
         ucmlBuilder.withKey(key);

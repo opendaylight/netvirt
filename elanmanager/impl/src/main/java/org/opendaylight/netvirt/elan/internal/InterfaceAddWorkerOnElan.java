@@ -51,6 +51,7 @@ public class InterfaceAddWorkerOnElan implements Callable<List<? extends Listena
         try {
             return dataChangeListener.addElanInterface(elanInterface, interfaceInfo, elanInstance);
         } catch (RuntimeException e) {
+            //return FluentFutures.immediateFailedFluentFuture(e);
             return ElanUtils.returnFailedListenableFutureIfTransactionCommitFailedExceptionCauseOrElseThrow(e);
         }
     }

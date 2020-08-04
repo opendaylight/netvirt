@@ -26,10 +26,15 @@ public final class HAJobScheduler implements Thread.UncaughtExceptionHandler {
         ThreadFactory threadFact = new ThreadFactoryBuilder()
                 .setNameFormat("hwvtep-ha-task-%d").setUncaughtExceptionHandler(this).build();
         executorService = Executors.newSingleThreadScheduledExecutor(threadFact);
+        //TODO put metric for waiting job
     }
 
     public static HAJobScheduler getInstance() {
         return instance;
+    }
+
+    public void setThreadPool(ExecutorService service) {
+        executorService = service;
     }
 
     public void submitJob(Runnable runnable) {
