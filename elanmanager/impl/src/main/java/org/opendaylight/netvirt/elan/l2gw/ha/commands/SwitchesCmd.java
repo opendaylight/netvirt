@@ -7,9 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
-import java.util.ArrayList;
 import java.util.List;
-import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentationBuilder;
@@ -26,10 +24,9 @@ public class SwitchesCmd extends MergeCommand<Switches, HwvtepGlobalAugmentation
     }
 
     @Override
-    @Nullable
     public List<Switches> getData(HwvtepGlobalAugmentation node) {
-        if (node != null && node.nonnullSwitches() != null) {
-            return new ArrayList<Switches>(node.nonnullSwitches().values());
+        if (node != null) {
+            return node.getSwitches();
         }
         return null;
     }
@@ -41,7 +38,7 @@ public class SwitchesCmd extends MergeCommand<Switches, HwvtepGlobalAugmentation
 
     @Override
     public InstanceIdentifier<Switches> generateId(InstanceIdentifier<Node> id, Switches node) {
-        SwitchesKey switchesKey = transform(id, node).key();
+        SwitchesKey switchesKey = transform(id, node).getKey();
         return id.augmentation(HwvtepGlobalAugmentation.class).child(Switches.class, switchesKey);
     }
 
@@ -62,7 +59,7 @@ public class SwitchesCmd extends MergeCommand<Switches, HwvtepGlobalAugmentation
         InstanceIdentifier<Node> id2 = HwvtepHAUtil.convertToInstanceIdentifier(dstNodeId);
 
         builder.setSwitchRef(new HwvtepPhysicalSwitchRef(id2));
-        builder.withKey(new SwitchesKey(new HwvtepPhysicalSwitchRef(id2)));
+        builder.setKey(new SwitchesKey(new HwvtepPhysicalSwitchRef(id2)));
         return builder.build();
     }
 

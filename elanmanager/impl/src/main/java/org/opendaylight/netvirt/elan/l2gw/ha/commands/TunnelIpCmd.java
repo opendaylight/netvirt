@@ -7,10 +7,8 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical._switch.attributes.TunnelIps;
@@ -25,10 +23,9 @@ public class TunnelIpCmd extends
     }
 
     @Override
-    @Nullable
     public List<TunnelIps> getData(PhysicalSwitchAugmentation node) {
-        if (node != null && node.nonnullTunnelIps() != null) {
-            return new ArrayList<TunnelIps>(node.nonnullTunnelIps().values());
+        if (node != null) {
+            return node.getTunnelIps();
         }
         return null;
     }
@@ -40,7 +37,7 @@ public class TunnelIpCmd extends
 
     @Override
     public InstanceIdentifier<TunnelIps> generateId(InstanceIdentifier<Node> id, TunnelIps src) {
-        return id.augmentation(PhysicalSwitchAugmentation.class).child(TunnelIps.class, src.key());
+        return id.augmentation(PhysicalSwitchAugmentation.class).child(TunnelIps.class, src.getKey());
     }
 
     @Override
@@ -50,7 +47,7 @@ public class TunnelIpCmd extends
 
     @Override
     public Identifier getKey(TunnelIps data) {
-        return data.key();
+        return data.getKey();
     }
 
     @Override

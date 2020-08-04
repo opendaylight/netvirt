@@ -7,9 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
-import java.util.ArrayList;
 import java.util.List;
-import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentationBuilder;
@@ -26,10 +24,9 @@ public class LogicalSwitchesCmd extends MergeCommand<LogicalSwitches,
     }
 
     @Override
-    @Nullable
     public List<LogicalSwitches> getData(HwvtepGlobalAugmentation node) {
-        if (node != null && node.getLogicalSwitches() != null) {
-            return new ArrayList<LogicalSwitches>(node.nonnullLogicalSwitches().values());
+        if (node != null) {
+            return node.getLogicalSwitches();
         }
         return null;
     }
@@ -41,7 +38,7 @@ public class LogicalSwitchesCmd extends MergeCommand<LogicalSwitches,
 
     @Override
     public InstanceIdentifier<LogicalSwitches> generateId(InstanceIdentifier<Node> id, LogicalSwitches node) {
-        return id.augmentation(HwvtepGlobalAugmentation.class).child(LogicalSwitches.class, node.key());
+        return id.augmentation(HwvtepGlobalAugmentation.class).child(LogicalSwitches.class, node.getKey());
     }
 
     @Override
@@ -53,7 +50,7 @@ public class LogicalSwitchesCmd extends MergeCommand<LogicalSwitches,
 
     @Override
     public Identifier getKey(LogicalSwitches data) {
-        return data.key();
+        return data.getKey();
     }
 
     @Override

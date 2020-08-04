@@ -10,8 +10,7 @@ package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
+import javax.annotation.Nonnull;
 
 public abstract class BaseCommand<T> {
 
@@ -20,11 +19,10 @@ public abstract class BaseCommand<T> {
      * @param updated Updated List
      * @param original Origina list to be compared with
      * @param comparator based on which diff will be returned
-     * @param <U> U extends DataObject
+     * @param <T> T extends DataObject
      * @return List of diff based on comparator
      */
-    public <U> List<U> diffOf(@Nullable List<U> updated, @Nullable final List<U> original,
-            final Comparator<U> comparator) {
+    public <T> List<T> diffOf(List<T> updated, final List<T> original, final Comparator comparator) {
         if (updated == null) {
             return new ArrayList<>();
         }
@@ -32,10 +30,10 @@ public abstract class BaseCommand<T> {
             return new ArrayList<>(updated);
         }
 
-        List<U> result = new ArrayList<>();
-        for (U ele : updated) {
+        List<T> result = new ArrayList<>();
+        for (T ele : updated) {
             boolean present = false;
-            for (U orig : original) {
+            for (T orig : original) {
                 if (0 == comparator.compare(ele, orig)) {
                     present = true;
                     break;
@@ -54,7 +52,7 @@ public abstract class BaseCommand<T> {
      * @param original Origina list to be compared with
      * @return List of diff based
      */
-    @NonNull
+    @Nonnull
     public List<T> diffOf(List<T> updated, final List<T> original) {
         if (updated == null) {
             return new ArrayList<>();
