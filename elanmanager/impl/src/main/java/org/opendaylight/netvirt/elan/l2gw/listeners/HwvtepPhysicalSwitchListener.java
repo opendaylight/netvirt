@@ -324,10 +324,10 @@ public class HwvtepPhysicalSwitchListener
                 for (TunnelIps tunnelIp : tunnelIps.values()) {
                     IpAddress tunnelIpAddr = tunnelIp.getTunnelIpsKey();
                     l2GwDevice.addTunnelIp(tunnelIpAddr);
+                    l2GwDevice = l2GatewayCache.get(psName);
+                    handleAdd(l2GwDevice);
                 }
             }
-
-            handleAdd(l2GwDevice);
             elanClusterUtils.runOnlyInOwnerNode("Update config tunnels IP ",
                 () -> updateConfigTunnelIp(identifier, phySwitchAdded));
         });
