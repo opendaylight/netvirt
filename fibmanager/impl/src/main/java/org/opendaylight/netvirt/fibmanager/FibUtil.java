@@ -28,11 +28,6 @@ import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.genius.datastoreutils.ExpectedDataObjectNotFoundException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
-import org.opendaylight.genius.infra.Datastore.Configuration;
-import org.opendaylight.genius.infra.Datastore.Operational;
-import org.opendaylight.genius.infra.TypedReadTransaction;
-import org.opendaylight.genius.infra.TypedReadWriteTransaction;
-import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.itm.api.IITMProvider;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -41,6 +36,11 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
+import org.opendaylight.mdsal.binding.util.Datastore.Operational;
+import org.opendaylight.mdsal.binding.util.TypedReadTransaction;
+import org.opendaylight.mdsal.binding.util.TypedReadWriteTransaction;
+import org.opendaylight.mdsal.binding.util.TypedWriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.netvirt.fibmanager.NexthopManager.AdjacencyResult;
@@ -469,7 +469,7 @@ public class FibUtil {
                     prefix, rd, nextHopToRemove, e);
         }
         if (entry.isPresent()) {
-            final List<RoutePaths> routePaths = new ArrayList<RoutePaths>(entry.get().nonnullRoutePaths().values());
+            final List<RoutePaths> routePaths = new ArrayList<>(entry.get().nonnullRoutePaths().values());
             if (routePaths == null || routePaths.isEmpty()) {
                 LOG.warn("routePaths is null/empty for given rd {}, prefix {}", rd, prefix);
                 return;
@@ -593,27 +593,27 @@ public class FibUtil {
     }
 
     public static java.util.Optional<Uint32> getLabelFromRoutePaths(final VrfEntry vrfEntry) {
-        List<RoutePaths> routePaths = new ArrayList<RoutePaths>(vrfEntry.nonnullRoutePaths().values());
+        List<RoutePaths> routePaths = new ArrayList<>(vrfEntry.nonnullRoutePaths().values());
         if (routePaths == null || routePaths.isEmpty()
-                || new ArrayList<RoutePaths>(vrfEntry.nonnullRoutePaths().values()).get(0).getLabel() == null) {
+                || new ArrayList<>(vrfEntry.nonnullRoutePaths().values()).get(0).getLabel() == null) {
             return java.util.Optional.empty();
         }
-        return java.util.Optional.of(new ArrayList<RoutePaths>(vrfEntry
+        return java.util.Optional.of(new ArrayList<>(vrfEntry
                 .nonnullRoutePaths().values()).get(0).getLabel());
 
     }
 
     public static java.util.Optional<String> getFirstNextHopAddress(final VrfEntry vrfEntry) {
-        List<RoutePaths> routePaths = new ArrayList<RoutePaths>(vrfEntry.nonnullRoutePaths().values());
+        List<RoutePaths> routePaths = new ArrayList<>(vrfEntry.nonnullRoutePaths().values());
         if (routePaths == null || routePaths.isEmpty()) {
             return java.util.Optional.empty();
         }
-        return java.util.Optional.of(new ArrayList<RoutePaths>(vrfEntry.nonnullRoutePaths().values())
+        return java.util.Optional.of(new ArrayList<>(vrfEntry.nonnullRoutePaths().values())
                 .get(0).getNexthopAddress());
     }
 
     public static java.util.Optional<Uint32> getLabelForNextHop(final VrfEntry vrfEntry, String nextHopIp) {
-        List<RoutePaths> routePaths = new ArrayList<RoutePaths>(vrfEntry.nonnullRoutePaths().values());
+        List<RoutePaths> routePaths = new ArrayList<>(vrfEntry.nonnullRoutePaths().values());
         if (routePaths == null || routePaths.isEmpty()) {
             return java.util.Optional.empty();
         }

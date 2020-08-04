@@ -8,9 +8,9 @@
 package org.opendaylight.netvirt.fibmanager;
 
 import static java.util.stream.Collectors.toList;
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 import static org.opendaylight.genius.mdsalutil.NWUtil.isIpv4Address;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.OPERATIONAL;
 
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -33,8 +33,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.itm.globals.ITMConstants;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
@@ -56,6 +54,8 @@ import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldVlanVid;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
@@ -93,7 +93,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.Tun
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.DcGatewayIpList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.dc.gateway.ip.list.DcGatewayIp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetEgressActionsForTunnelInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetEgressActionsForTunnelOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetInternalOrExternalInterfaceNameInputBuilder;
@@ -283,7 +282,7 @@ public class NexthopManager implements AutoCloseable {
                             ifName, rpcResult.getErrors());
                     return Collections.emptyList();
                 } else {
-                    actions = new ArrayList<Action>(rpcResult.getResult().nonnullAction().values());
+                    actions = new ArrayList<>(rpcResult.getResult().nonnullAction().values());
                 }
             } else {
                 RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = odlInterfaceRpcService
@@ -294,7 +293,7 @@ public class NexthopManager implements AutoCloseable {
                                     + "Errors {}", ifName, vpnId, destIpPrefix, rpcResult.getErrors());
                     return Collections.emptyList();
                 } else {
-                    actions = new ArrayList<Action>(rpcResult.getResult().nonnullAction().values());
+                    actions = new ArrayList<>(rpcResult.getResult().nonnullAction().values());
                 }
             }
             List<ActionInfo> listActionInfo = new ArrayList<>();
@@ -624,7 +623,7 @@ public class NexthopManager implements AutoCloseable {
             if (FibUtil.lockCluster(lockManager, nextHopLockStr, WAIT_TIME_TO_ACQUIRE_LOCK)) {
                 VpnNexthop nh = getVpnNexthop(vpnId, primaryIpAddress);
                 if (nh != null) {
-                    List<IpAdjacencies> prefixesList = new ArrayList<IpAdjacencies>(nh.nonnullIpAdjacencies().values());
+                    List<IpAdjacencies> prefixesList = new ArrayList<>(nh.nonnullIpAdjacencies().values());
                     IpAdjacencies prefix = new IpAdjacenciesBuilder().setIpAdjacency(currDestIpPrefix).build();
                     prefixesList.remove(prefix);
                     if (prefixesList.isEmpty()) { //remove the group only if there are no more flows using this group
@@ -1088,7 +1087,7 @@ public class NexthopManager implements AutoCloseable {
     public void createDcGwLoadBalancingGroup(Uint64 dpnId, String destinationIp,
                                              Class<? extends TunnelTypeBase> tunnelType) {
         jobCoordinator.enqueueJob(FibHelper.getJobKeyForDcGwLoadBalancingGroup(dpnId), () -> {
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            List<ListenableFuture<?>> futures = new ArrayList<>();
             futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, operationalTx -> {
                 synchronized (getDcGateWaySyncKey(destinationIp)) {
                     FibUtil.addL3vpnDcGateWay(destinationIp, operationalTx);
@@ -1148,7 +1147,7 @@ public class NexthopManager implements AutoCloseable {
         if (dcGatewayIpListConfig == null) {
             return Collections.emptyList();
         }
-        return new ArrayList<DcGatewayIp>(dcGatewayIpListConfig.nonnullDcGatewayIp().values())
+        return new ArrayList<>(dcGatewayIpListConfig.nonnullDcGatewayIp().values())
                 .stream()
                 .filter(dcGwIp -> dcGwIp.getTunnnelType().equals(TunnelTypeMplsOverGre.class))
                 .map(dcGwIp -> dcGwIp.getIpAddress().stringValue()).sorted()
@@ -1186,7 +1185,7 @@ public class NexthopManager implements AutoCloseable {
                 LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}",
                         interfaceName, rpcResult.getErrors());
             } else {
-                actions = new ArrayList<Action>(rpcResult.getResult().nonnullAction().values());
+                actions = new ArrayList<>(rpcResult.getResult().nonnullAction().values());
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Exception when egress actions for interface {}", interfaceName, e);
@@ -1205,7 +1204,7 @@ public class NexthopManager implements AutoCloseable {
             if (availableDcGws.contains(destinationIp)) {
                 availableDcGws.remove(destinationIp);
             }
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            List<ListenableFuture<?>> futures = new ArrayList<>();
             futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, operationalTx -> {
                 futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, configTx -> {
                     availableDcGws.forEach(dcGwIp -> {
@@ -1250,7 +1249,7 @@ public class NexthopManager implements AutoCloseable {
             if (availableDcGws.contains(destinationIp)) {
                 availableDcGws.remove(destinationIp);
             }
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            List<ListenableFuture<?>> futures = new ArrayList<>();
             futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, configTx -> {
                 availableDcGws.forEach(dcGwIp -> {
                     List<String> dcGws = Arrays.asList(dcGwIp, destinationIp);
