@@ -7,7 +7,9 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
@@ -44,11 +46,12 @@ public class InterfaceRemoveWorkerOnElan implements Callable<List<? extends List
 
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public List<ListenableFuture<Void>> call() {
+    public List<ListenableFuture<?>> call() {
         try {
             return dataChangeListener.removeElanInterface(elanInfo, interfaceName, interfaceInfo);
         } catch (RuntimeException e) {
-            return ElanUtils.returnFailedListenableFutureIfTransactionCommitFailedExceptionCauseOrElseThrow(e);
+            //return  ElanUtils.returnFailedListenableFutureIfTransactionCommitFailedExceptionCauseOrElseThrow(e);
+            return Collections.singletonList(Futures.immediateFailedFuture(e));
         }
     }
 

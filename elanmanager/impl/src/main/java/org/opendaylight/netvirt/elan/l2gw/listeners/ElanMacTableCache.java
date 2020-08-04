@@ -5,10 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
-
 package org.opendaylight.netvirt.elan.l2gw.listeners;
-
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -22,47 +19,39 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 @Singleton
 public class ElanMacTableCache extends AbstractClusteredAsyncDataTreeChangeListener<MacTable> {
     private static final Logger LOG = LoggerFactory.getLogger(ElanMacTableCache.class);
     private final DataBroker dataBroker;
     private final ConcurrentHashMap<String, MacTable> macsByElan = new ConcurrentHashMap<>();
-
     @Inject
     public ElanMacTableCache(final DataBroker dataBroker) {
         super(dataBroker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(ElanForwardingTables.class)
                 .child(MacTable.class),
-                Executors.newListeningSingleThreadExecutor("ElanMacTableCache", LOG));
+            Executors.newListeningSingleThreadExecutor("ElanMacTableCache", LOG));
         this.dataBroker = dataBroker;
     }
-
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
     }
-
     @Override
     @PreDestroy
     public void close() {
         super.close();
         Executors.shutdownAndAwaitTermination(getExecutorService());
     }
-
     @Override
     public void remove(InstanceIdentifier<MacTable> key, MacTable mac) {
         macsByElan.remove(mac.getElanInstanceName());
     }
-
     @Override
     public void update(InstanceIdentifier<MacTable> key, MacTable old, MacTable mac) {
         macsByElan.put(mac.getElanInstanceName(), mac);
     }
-
     @Override
     public void add(InstanceIdentifier<MacTable> key, MacTable mac) {
         macsByElan.put(mac.getElanInstanceName(), mac);
     }
-
     public MacTable getByElanName(String name) {
         return macsByElan.get(name);
     }

@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.elan.evpn.utils;
 
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
+
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -17,9 +19,8 @@ import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.genius.infra.Datastore;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -113,7 +114,7 @@ public class ElanEvpnFlowUtils {
         String flowId = ElanEvpnFlowUtils.evpnGetKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, nexthopIp,
                 macToRemove, elanTag, true);
         Flow flowToRemove = new FlowBuilder().setId(new FlowId(flowId)).setTableId(NwConstants.ELAN_DMAC_TABLE).build();
-        return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(Datastore.CONFIGURATION,
+        return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
             tx -> mdsalManager.removeFlow(tx, dpId, flowToRemove)));
     }
 
@@ -122,7 +123,7 @@ public class ElanEvpnFlowUtils {
         String flowId = ElanEvpnFlowUtils.evpnGetKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, nexthopIp,
                 macToRemove, elanTag, false);
         Flow flowToRemove = new FlowBuilder().setId(new FlowId(flowId)).setTableId(NwConstants.ELAN_DMAC_TABLE).build();
-        return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(Datastore.CONFIGURATION,
+        return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
             tx -> mdsalManager.removeFlow(tx, dpId, flowToRemove)));
     }
 

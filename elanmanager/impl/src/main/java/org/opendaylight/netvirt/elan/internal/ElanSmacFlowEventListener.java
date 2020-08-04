@@ -7,8 +7,9 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.OPERATIONAL;
+
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -21,10 +22,9 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.genius.infra.Datastore;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.infra.TypedReadWriteTransaction;
+import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
@@ -32,6 +32,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.NamedSimpleReentrantLock;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.TypedReadWriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
@@ -113,12 +114,12 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
                 return;
             }
             jobCoordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(interfaceName), () -> {
-                List<ListenableFuture<Void>> elanFutures = new ArrayList<>();
+                List<ListenableFuture<?>> elanFutures = new ArrayList<>();
                 MacEntry macEntry = elanUtils.getInterfaceMacEntriesOperationalDataPath(interfaceName, physAddress);
                 InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
                 String elanInstanceName = elanTagInfo.getName();
                 LOG.info("Deleting the Mac-Entry:{} present on ElanInstance:{}", macEntry, elanInstanceName);
-                ListenableFuture<Void> result = txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
+                ListenableFuture<?> result = txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
                     if (macEntry != null && interfaceInfo != null) {
                         deleteSmacAndDmacFlows(elanInstanceCache.get(elanInstanceName).orElse(null),
                                 interfaceInfo, srcMacAddress, tx);
@@ -142,7 +143,7 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
                 Optional<MacEntry> existingInterfaceMacEntry = ElanUtils.read(broker,
                         LogicalDatastoreType.OPERATIONAL, macEntryIdForElanInterface);
                 if (existingInterfaceMacEntry.isPresent()) {
-                    ListenableFuture<Void> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL,
+                    ListenableFuture<?> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL,
                         tx -> {
                             tx.delete(macEntryIdForElanInterface);
                             MacEntry macEntryInElanInstance = elanUtils.getMacEntryForElanInstance(elanInstanceName,
@@ -178,7 +179,7 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
     }
 
     private void deleteSmacAndDmacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, String macAddress,
-                                        TypedReadWriteTransaction<Datastore.Configuration> deleteFlowTx)
+                                        TypedReadWriteTransaction<Configuration> deleteFlowTx)
             throws ExecutionException, InterruptedException {
         if (elanInfo == null || interfaceInfo == null) {
             return;
