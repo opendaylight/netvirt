@@ -26,8 +26,6 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -59,6 +57,8 @@ import org.opendaylight.genius.utils.batching.SubTransactionImpl;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.fibmanager.NexthopManager.AdjacencyResult;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
@@ -162,7 +162,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
     @NonNull
     protected List<AdjacencyResult> resolveAdjacency(final Uint64 remoteDpnId, final Uint32 vpnId,
                                                      final VrfEntry vrfEntry, String rd) {
-        List<RoutePaths> routePaths = new ArrayList<RoutePaths>(vrfEntry.nonnullRoutePaths().values());
+        List<RoutePaths> routePaths = new ArrayList<>(vrfEntry.nonnullRoutePaths().values());
         FibHelper.sortIpAddress(routePaths);
         List<AdjacencyResult> adjacencyList = new ArrayList<>();
         List<String> prefixIpList;
@@ -480,7 +480,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                 LOG.error(
                         "Failed to retrieve egress action for prefix {} route-paths {} interface {}. "
                                 + "Aborting remote FIB entry creation.",
-                        vrfEntry.getDestPrefix(), new ArrayList<RoutePaths>(vrfEntry.nonnullRoutePaths().values()),
+                        vrfEntry.getDestPrefix(), new ArrayList<>(vrfEntry.nonnullRoutePaths().values()),
                         egressInterface);
                 return;
             }
