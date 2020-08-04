@@ -29,7 +29,7 @@ public class LogicalSwitchesCmd extends MergeCommand<LogicalSwitches,
     @Nullable
     public List<LogicalSwitches> getData(HwvtepGlobalAugmentation node) {
         if (node != null && node.getLogicalSwitches() != null) {
-            return new ArrayList<LogicalSwitches>(node.nonnullLogicalSwitches().values());
+            return new ArrayList<>(node.nonnullLogicalSwitches().values());
         }
         return null;
     }

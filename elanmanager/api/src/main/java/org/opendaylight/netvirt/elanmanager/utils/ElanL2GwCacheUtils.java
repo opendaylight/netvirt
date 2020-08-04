@@ -11,8 +11,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -55,9 +53,9 @@ public final class ElanL2GwCacheUtils {
         return deviceMap == null ? null : deviceMap.get(l2gwDeviceNodeId);
     }
 
-    public static Collection<L2GatewayDevice> getInvolvedL2GwDevices(String elanName) {
+    public static ConcurrentMap<String, L2GatewayDevice> getInvolvedL2GwDevices(String elanName) {
         ConcurrentMap<String, L2GatewayDevice> result = CACHES.getIfPresent(elanName);
-        return result == null ? Collections.emptyList() : result.values();
+        return result == null ? new ConcurrentHashMap<>() : result;
     }
 
     public static Set<Entry<String, ConcurrentMap<String, L2GatewayDevice>>> getCaches() {

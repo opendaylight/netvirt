@@ -7,19 +7,20 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
-import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.OPERATIONAL;
-import static org.opendaylight.netvirt.elan.utils.ElanConstants.ELAN_EOS_DELAY;
+import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
 
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
+
+import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
-import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipChange;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipListener;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
@@ -29,7 +30,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfacesKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class ElanInstanceEntityOwnershipListener implements EntityOwnershipListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ElanInstanceEntityOwnershipListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger("HwvtepEventLogger");
 
     private final L2GatewayConnectionListener l2GatewayConnectionListener;
     private final ElanDpnInterfaceClusteredListener elanDpnInterfaceClusteredListener;
@@ -47,14 +47,15 @@ public class ElanInstanceEntityOwnershipListener implements EntityOwnershipListe
 
     @Inject
     public ElanInstanceEntityOwnershipListener(L2GatewayConnectionListener l2GatewayConnectionListener,
-                                               ElanDpnInterfaceClusteredListener elanDpnInterfaceClusteredListener,
-                                               Scheduler scheduler, DataBroker dataBroker,
-                                               EntityOwnershipService entityOwnershipService) {
+                                        ElanDpnInterfaceClusteredListener elanDpnInterfaceClusteredListener,
+                                        Scheduler scheduler, DataBroker dataBroker,
+                                        EntityOwnershipService entityOwnershipService) {
         this.l2GatewayConnectionListener = l2GatewayConnectionListener;
         this.elanDpnInterfaceClusteredListener = elanDpnInterfaceClusteredListener;
         this.scheduler = scheduler;
         this.dataBroker = dataBroker;
         entityOwnershipService.registerListener(HwvtepSouthboundConstants.ELAN_ENTITY_TYPE, this);
+        ResourceBatchingManager.getInstance().registerDefaultBatchHandlers(this.dataBroker);
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
@@ -88,17 +89,16 @@ public class ElanInstanceEntityOwnershipListener implements EntityOwnershipListe
                                 elanDpnInterfacesInstanceIdentifier);
                         if (optional.isPresent() && optional.get().getElanDpnInterfacesList() != null) {
                             LOG.debug("Found elan dpn interfaces list");
-                            optional.get().nonnullElanDpnInterfacesList().values().forEach(elanDpnInterfacesList -> {
-                                Map<DpnInterfacesKey, DpnInterfaces> dpnInterfaces
-                                        = elanDpnInterfacesList.nonnullDpnInterfaces();
+                            optional.get().getElanDpnInterfacesList().forEach(elanDpnInterfacesList -> {
+                                List<DpnInterfaces> dpnInterfaces = elanDpnInterfacesList.getDpnInterfaces();
                                 InstanceIdentifier<ElanDpnInterfacesList> parentIid = InstanceIdentifier
                                         .builder(ElanDpnInterfaces.class).child(ElanDpnInterfacesList.class,
                                                 new ElanDpnInterfacesListKey(elanDpnInterfacesList
                                                         .getElanInstanceName())).build();
-                                for (DpnInterfaces dpnInterface : dpnInterfaces.values()) {
+                                for (DpnInterfaces dpnInterface : dpnInterfaces) {
                                     LOG.debug("Found elan dpn interfaces");
                                     elanDpnInterfaceClusteredListener.add(parentIid
-                                                    .child(DpnInterfaces.class, dpnInterface.key()),
+                                                    .child(DpnInterfaces.class, dpnInterface.getKey()),
                                             dpnInterface);
                                 }
                             });
@@ -107,10 +107,10 @@ public class ElanInstanceEntityOwnershipListener implements EntityOwnershipListe
                         LOG.info("Not the owner for Elan entity {}", ownershipChange);
                     }
                     ft = null;
-                } catch (ExecutionException | InterruptedException e) {
+                } catch (Exception e) {
                     LOG.error("Failed to read mdsal ", e);
                 }
-            }, ELAN_EOS_DELAY, TimeUnit.MINUTES);
+            }, 5, TimeUnit.MINUTES);
         }
     }
 }

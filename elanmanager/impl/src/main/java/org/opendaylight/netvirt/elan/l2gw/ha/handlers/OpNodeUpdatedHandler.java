@@ -7,9 +7,8 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.handlers;
 
-import org.opendaylight.genius.infra.Datastore.Operational;
-import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalAugmentationMerger;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalNodeMerger;
@@ -38,7 +37,7 @@ public class OpNodeUpdatedHandler {
     public void copyChildPsOpUpdateToHAParent(Node updatedSrcPSNode,
                                               InstanceIdentifier<Node> haPath,
                                               DataObjectModification<Node> mod,
-                                              TypedReadWriteTransaction<Operational> tx) {
+                                              ReadWriteTransaction tx) {
 
         InstanceIdentifier<Node> haPSPath = HwvtepHAUtil.convertPsPath(updatedSrcPSNode, haPath);
 
@@ -56,7 +55,7 @@ public class OpNodeUpdatedHandler {
      */
     public void copyChildGlobalOpUpdateToHAParent(InstanceIdentifier<Node> haPath,
                                                   DataObjectModification<Node> mod,
-                                                  TypedReadWriteTransaction<Operational> tx) {
+                                                  ReadWriteTransaction tx) {
 
         globalAugmentationMerger.mergeOpUpdate(haPath,
                 mod.getModifiedAugmentation(HwvtepGlobalAugmentation.class), tx);
