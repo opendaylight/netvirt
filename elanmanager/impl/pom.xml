@@ -135,6 +135,16 @@ this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
             <artifactId>blueprint-maven-plugin-annotation</artifactId>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>org.opendaylight.infrautils</groupId>
+            <artifactId>inject</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
 
         <!-- Only for unit-test -->
         <dependency>
