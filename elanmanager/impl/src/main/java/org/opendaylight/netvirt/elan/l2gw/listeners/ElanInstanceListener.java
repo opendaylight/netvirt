@@ -15,6 +15,7 @@ import java.util.List;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
@@ -27,7 +28,10 @@ import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.serviceutils.srm.RecoverableListener;
 import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
 import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanForwardingTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.forwarding.tables.MacTable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.forwarding.tables.MacTableKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.L2gatewayConnections;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.l2gatewayconnections.L2gatewayConnection;
@@ -57,6 +61,7 @@ public class ElanInstanceListener extends AbstractClusteredAsyncDataTreeChangeLi
         this.txRunner = new ManagedNewTransactionRunnerImpl(db);
         this.elanClusterUtils = elanClusterUtils;
         serviceRecoveryRegistry.addRecoverableListener(l2GatewayServiceRecoveryHandler.buildServiceRegistryKey(), this);
+        ResourceBatchingManager.getInstance().registerDefaultBatchHandlers(db);
     }
 
     public void init() {
@@ -76,6 +81,9 @@ public class ElanInstanceListener extends AbstractClusteredAsyncDataTreeChangeLi
         LOG.info("Registering ElanInstanceListener");
     }
 
+    @Override
+
+
     public void deregisterListener() {
         super.close();
         LOG.info("Deregistering ElanInstanceListener");
@@ -86,7 +94,7 @@ public class ElanInstanceListener extends AbstractClusteredAsyncDataTreeChangeLi
                           final ElanInstance del) {
         elanClusterUtils.runOnlyInOwnerNode(del.getElanInstanceName(), "delete Elan instance",
             () -> {
-                LOG.info("Elan instance {} deleted from Configuration tree ", del);
+                LOG.info("Elan instance {} deleted from Configuration tree ", del.getElanInstanceName());
                 List<L2gatewayConnection> connections =
                         L2GatewayConnectionUtils.getL2GwConnectionsByElanName(
                                 this.broker, del.getElanInstanceName());
@@ -105,8 +113,17 @@ public class ElanInstanceListener extends AbstractClusteredAsyncDataTreeChangeLi
                     });
                 LoggingFutures.addErrorLogging(future, LOG,
                         "Failed to delete associate L2 gateway connection while deleting network");
+                txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
+                    InstanceIdentifier<MacTable> macTableIid = getElanMacEntryPath(del.getElanInstanceName());
+                    tx.delete(macTableIid);
+                });
                 return Collections.singletonList(future);
             });
+    }
+
+    public static InstanceIdentifier<MacTable> getElanMacEntryPath(String elanName) {
+        return InstanceIdentifier.builder(ElanForwardingTables.class).child(MacTable.class,
+            new MacTableKey(elanName)).build();
     }
 
     @Override

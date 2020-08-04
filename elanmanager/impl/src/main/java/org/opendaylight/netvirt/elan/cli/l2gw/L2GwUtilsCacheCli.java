@@ -20,7 +20,7 @@ import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
+import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
@@ -39,15 +39,13 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
     String cacheName;
 
     @Option(name = "-elan", aliases = {"--elan"}, description = "elan name",
-            required = false, multiValued = false)
+        required = false, multiValued = false)
     String elanName;
 
     private final L2GatewayCache l2GatewayCache;
-    private final HwvtepNodeHACache hwvtepNodeHACache;
 
-    public L2GwUtilsCacheCli(L2GatewayCache l2GatewayCache, HwvtepNodeHACache hwvtepNodeHACache) {
+    public L2GwUtilsCacheCli(L2GatewayCache l2GatewayCache) {
         this.l2GatewayCache = l2GatewayCache;
-        this.hwvtepNodeHACache = hwvtepNodeHACache;
     }
 
     @Override
@@ -63,15 +61,7 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
         }
         switch (cacheName) {
             case L2GATEWAY_CONN_CACHE_NAME:
-                if (elanName == null) {
-                    for (Entry<String, ConcurrentMap<String, L2GatewayDevice>> entry : ElanL2GwCacheUtils.getCaches()) {
-                        print(entry.getKey(), entry.getValue().values());
-                        session.getConsole().println(DEMARCATION);
-                        session.getConsole().println(DEMARCATION);
-                    }
-                } else {
-                    print(elanName, ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName));
-                }
+                dumpElanL2GwCache();
                 break;
             case L2GATEWAY_CACHE_NAME:
                 dumpL2GwCache();
@@ -102,23 +92,23 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
     private void dumpHACache(PrintStream printStream) {
 
         printStream.println("HA enabled nodes");
-        for (InstanceIdentifier<Node> id : hwvtepNodeHACache.getHAChildNodes()) {
+        for (InstanceIdentifier<Node> id : HwvtepHACache.getInstance().getHAChildNodes()) {
             String nodeId = id.firstKeyOf(Node.class).getNodeId().getValue();
             printStream.println(nodeId);
         }
 
         printStream.println("HA parent nodes");
-        for (InstanceIdentifier<Node> id : hwvtepNodeHACache.getHAParentNodes()) {
+        for (InstanceIdentifier<Node> id : HwvtepHACache.getInstance().getHAParentNodes()) {
             String nodeId = id.firstKeyOf(Node.class).getNodeId().getValue();
             printStream.println(nodeId);
-            for (InstanceIdentifier<Node> childId : hwvtepNodeHACache.getChildrenForHANode(id)) {
+            for (InstanceIdentifier<Node> childId : HwvtepHACache.getInstance().getChildrenForHANode(id)) {
                 nodeId = childId.firstKeyOf(Node.class).getNodeId().getValue();
                 printStream.println("    " + nodeId);
             }
         }
 
         printStream.println("Connected Nodes");
-        Map<String, Boolean> nodes = hwvtepNodeHACache.getNodeConnectionStatuses();
+        Map<String, Boolean> nodes = HwvtepHACache.getInstance().getConnectedNodes();
         for (Entry<String, Boolean> entry : nodes.entrySet()) {
             printStream.print(entry.getKey());
             printStream.print("    : connected : ");
@@ -137,10 +127,22 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
         }
     }
 
-    private void print(String elan, Collection<L2GatewayDevice> devices) {
+    private void dumpElanL2GwCache() {
+        if (elanName == null) {
+            for (Entry<String, ConcurrentMap<String, L2GatewayDevice>> entry : ElanL2GwCacheUtils.getCaches()) {
+                print(entry.getKey(), entry.getValue());
+                session.getConsole().println(DEMARCATION);
+                session.getConsole().println(DEMARCATION);
+            }
+        } else {
+            print(elanName, ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName));
+        }
+    }
+
+    private void print(String elan, ConcurrentMap<String, L2GatewayDevice> devices) {
         session.getConsole().println("Elan name : " + elan);
-        session.getConsole().println("No of devices in elan " + devices.size());
-        for (L2GatewayDevice device : devices) {
+        session.getConsole().println("No of devices in elan " + devices.keySet().size());
+        for (L2GatewayDevice device : devices.values()) {
             session.getConsole().println("device " + device);
         }
     }

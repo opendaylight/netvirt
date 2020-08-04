@@ -10,8 +10,8 @@ package org.opendaylight.netvirt.elan.internal;
 import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 import static org.opendaylight.mdsal.binding.util.Datastore.OPERATIONAL;
 
+import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.NamedSimpleReentrantLock;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.util.Datastore;
+import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
 import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
 import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.mdsal.binding.util.TypedReadWriteTransaction;
@@ -118,23 +118,24 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
                 InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
                 String elanInstanceName = elanTagInfo.getName();
                 LOG.info("Deleting the Mac-Entry:{} present on ElanInstance:{}", macEntry, elanInstanceName);
-                ListenableFuture<?> result = txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
-                    if (macEntry != null && interfaceInfo != null) {
-                        deleteSmacAndDmacFlows(elanInstanceCache.get(elanInstanceName).orElse(null),
-                                interfaceInfo, srcMacAddress, tx);
-                    } else if (macEntry == null) { //Remove flow of src flow entry only for MAC movement
-                        MacEntry macEntryOfElanForwarding = elanUtils.getMacEntryForElanInstance(elanTagInfo.getName(),
-                                physAddress).orElse(null);
-                        if (macEntryOfElanForwarding != null) {
-                            String macAddress = macEntryOfElanForwarding.getMacAddress().getValue();
-                            elanUtils.deleteSmacFlowOnly(elanInstanceCache.get(elanInstanceName).orElse(null),
-                                    interfaceInfo, macAddress, tx);
-                        } else {
-                            deleteSmacAndDmacFlows(elanInstanceCache.get(elanInstanceName).orElse(null), interfaceInfo,
-                                    srcMacAddress, tx);
+                FluentFuture<? extends Object> result =
+                    txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
+                        if (macEntry != null && interfaceInfo != null) {
+                            deleteSmacAndDmacFlows(elanInstanceCache.get(elanInstanceName).orElse(null),
+                                    interfaceInfo, srcMacAddress, tx);
+                        } else if (macEntry == null) { //Remove flow of src flow entry only for MAC movement
+                            MacEntry macEntryOfElanForwarding = elanUtils
+                                .getMacEntryForElanInstance(elanTagInfo.getName(), physAddress).orElse(null);
+                            if (macEntryOfElanForwarding != null) {
+                                String macAddress = macEntryOfElanForwarding.getMacAddress().getValue();
+                                elanUtils.deleteSmacFlowOnly(elanInstanceCache.get(elanInstanceName).orElse(null),
+                                        interfaceInfo, macAddress, tx);
+                            } else {
+                                deleteSmacAndDmacFlows(elanInstanceCache.get(elanInstanceName).orElse(null),
+                                    interfaceInfo, srcMacAddress, tx);
+                            }
                         }
-                    }
-                });
+                    });
                 elanFutures.add(result);
                 addCallBack(result, srcMacAddress);
                 InstanceIdentifier<MacEntry> macEntryIdForElanInterface = ElanUtils
@@ -142,8 +143,8 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
                 Optional<MacEntry> existingInterfaceMacEntry = ElanUtils.read(broker,
                         LogicalDatastoreType.OPERATIONAL, macEntryIdForElanInterface);
                 if (existingInterfaceMacEntry.isPresent()) {
-                    ListenableFuture<?> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL,
-                        tx -> {
+                    FluentFuture<? extends Object> future =
+                        txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
                             tx.delete(macEntryIdForElanInterface);
                             MacEntry macEntryInElanInstance = elanUtils.getMacEntryForElanInstance(elanInstanceName,
                                 physAddress).orElse(null);
@@ -162,9 +163,9 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
         }
     }
 
-    private static void addCallBack(ListenableFuture<?> writeResult, String srcMacAddress) {
+    private static void addCallBack(FluentFuture<? extends Object> writeResult, String srcMacAddress) {
         //WRITE Callback
-        Futures.addCallback(writeResult, new FutureCallback<Object>() {
+        writeResult.addCallback(new FutureCallback<Object>() {
             @Override
             public void onSuccess(Object noarg) {
                 LOG.debug("Successfully removed macEntry {} from Operational Datastore", srcMacAddress);
@@ -178,7 +179,7 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
     }
 
     private void deleteSmacAndDmacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, String macAddress,
-                                        TypedReadWriteTransaction<Datastore.Configuration> deleteFlowTx)
+                                        TypedReadWriteTransaction<Configuration> deleteFlowTx)
             throws ExecutionException, InterruptedException {
         if (elanInfo == null || interfaceInfo == null) {
             return;
