@@ -49,6 +49,7 @@ public interface NatConstants {
     int SNAT_PACKET_RETRY_THEADPOOL_SIZE = 15;
     String NAT_DJC_PREFIX = "NAT-";
     int NAT_DJC_MAX_RETRIES = 3;
+    String TST_FLOW_ID_SUFFIX = "TST.";
     int DEFAULT_VPN_INTERNAL_TUNNEL_TABLE_PRIORITY = 8;
     String NETWORK_ROUTER_INTERFACE = "network:router_interface";
     // Flow Actions
