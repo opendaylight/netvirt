@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.aclservice;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -374,6 +374,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      * @param subnetInfoList the port subnet info list
      * @param addOrRemove whether to delete or add flow
      */
+    @Override
     protected void programSubnetBroadcastRules(List<FlowEntity> flowEntries, AclInterface port,
             List<SubnetInfo> subnetInfoList, int addOrRemove) {
         // No action required on egress.

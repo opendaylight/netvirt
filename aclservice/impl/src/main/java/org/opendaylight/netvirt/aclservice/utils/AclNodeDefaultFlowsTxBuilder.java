@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.aclservice.utils;
 
 import com.google.common.collect.Lists;
@@ -13,8 +12,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.genius.infra.Datastore.Configuration;
-import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -37,6 +34,8 @@ import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtMark;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
+import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
+import org.opendaylight.mdsal.binding.util.TypedWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig.DefaultBehavior;
 import org.opendaylight.yangtools.yang.common.Uint64;
@@ -49,7 +48,6 @@ import org.slf4j.LoggerFactory;
  * @author Somashekar Byrappa
  */
 public class AclNodeDefaultFlowsTxBuilder {
-
     private static final Logger LOG = LoggerFactory.getLogger(AclNodeDefaultFlowsTxBuilder.class);
 
     private final Uint64 dpId;
@@ -232,9 +230,9 @@ public class AclNodeDefaultFlowsTxBuilder {
     private List<MatchInfoBase> getMetadataForCommitterDropFlag() {
         List<MatchInfoBase> matches = new ArrayList<>();
         Uint64 metaData = Uint64.fromLongBits(MetaDataUtil.METADATA_MASK_ACL_DROP.longValue()
-                & (AclConstants.METADATA_DROP_FLAG.longValue() << 2));
+                & AclConstants.METADATA_DROP_FLAG.longValue() << 2);
         Uint64 metaDataMask = Uint64.fromLongBits(MetaDataUtil.METADATA_MASK_ACL_DROP.longValue()
-                & (AclConstants.METADATA_DROP_FLAG.longValue() << 2));
+                & AclConstants.METADATA_DROP_FLAG.longValue() << 2);
         matches.add(new MatchMetadata(metaData, metaDataMask));
 
         return matches;
