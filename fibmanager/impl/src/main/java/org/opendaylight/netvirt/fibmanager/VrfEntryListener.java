@@ -1059,7 +1059,7 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
 
         FlowEntity terminatingServiceTableFlowEntity =
             MDSALUtil.buildFlowEntity(destDpId, NwConstants.INTERNAL_TUNNEL_TABLE,
-            getTableMissFlowRef(destDpId, NwConstants.INTERNAL_TUNNEL_TABLE, label),
+            getTstTableMissFlowRef(destDpId, NwConstants.INTERNAL_TUNNEL_TABLE, label),
                     FibConstants.DEFAULT_VPN_INTERNAL_TUNNEL_TABLE_PRIORITY,
                     String.format("%s:%s", "TST Flow Entry ", label), 0, 0,
                     Uint64.valueOf(COOKIE_TUNNEL.longValue() + label.longValue()),
@@ -1085,7 +1085,7 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
         mkMatches.add(new MatchTunnelId(Uint64.valueOf(label.longValue())));
         flowEntity = MDSALUtil.buildFlowEntity(dpId,
             NwConstants.INTERNAL_TUNNEL_TABLE,
-            getTableMissFlowRef(dpId, NwConstants.INTERNAL_TUNNEL_TABLE, label),
+            getTstTableMissFlowRef(dpId, NwConstants.INTERNAL_TUNNEL_TABLE, label),
                 FibConstants.DEFAULT_VPN_INTERNAL_TUNNEL_TABLE_PRIORITY,
                 String.format("%s:%s", "TST Flow Entry ", label), 0, 0,
                 Uint64.valueOf(COOKIE_TUNNEL.longValue() + label.longValue()), mkMatches, null);
@@ -2061,9 +2061,9 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
                 .FLOWID_SEPARATOR + nextHop;
     }
 
-    private String getTableMissFlowRef(Uint64 dpnId, short tableId, Uint32 tableMiss) {
-        return FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId + NwConstants.FLOWID_SEPARATOR
-                + tableMiss + FLOWID_PREFIX;
+    private String getTstTableMissFlowRef(Uint64 dpnId, short tableId, Uint32 tableMiss) {
+        return FLOWID_PREFIX + FibConstants.TST_FLOW_ID_SUFFIX + dpnId + NwConstants.FLOWID_SEPARATOR
+                + tableId + NwConstants.FLOWID_SEPARATOR + tableMiss + FLOWID_PREFIX;
     }
 
     @Nullable
