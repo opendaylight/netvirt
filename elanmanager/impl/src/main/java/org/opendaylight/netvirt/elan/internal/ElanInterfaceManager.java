@@ -8,8 +8,9 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import static java.util.Collections.emptyList;
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.OPERATIONAL;
+
 import static org.opendaylight.infrautils.utils.concurrent.LoggingFutures.addErrorLogging;
 import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlanNetworkOrVxlanSegment;
 
@@ -36,12 +37,10 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
-import org.opendaylight.genius.infra.Datastore.Configuration;
-import org.opendaylight.genius.infra.Datastore.Operational;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.infra.TypedReadWriteTransaction;
-import org.opendaylight.genius.infra.TypedWriteTransaction;
+import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
+import org.opendaylight.mdsal.binding.util.Datastore.Operational;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.itm.globals.ITMConstants;
@@ -71,6 +70,8 @@ import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.infrautils.utils.concurrent.NamedSimpleReentrantLock.Acquired;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.TypedReadWriteTransaction;
+import org.opendaylight.mdsal.binding.util.TypedWriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
@@ -278,13 +279,13 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
     }
 
     @SuppressWarnings("checkstyle:ForbidCertainMethod")
-    public List<ListenableFuture<Void>> removeElanInterface(ElanInstance elanInfo, String interfaceName,
+    public List<ListenableFuture<?>> removeElanInterface(ElanInstance elanInfo, String interfaceName,
             InterfaceInfo interfaceInfo) {
         String elanName = elanInfo.getElanInstanceName();
         EVENT_LOGGER.debug("ELAN-InterfaceState, REMOVE {} Instance {}", interfaceName, elanName);
         Uint32 elanTag = elanInfo.getElanTag();
         // We use two transaction so we don't suffer on multiple shards (interfaces and flows)
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
+        List<ListenableFuture<?>> futures = new ArrayList<>();
         RemoveElanInterfaceHolder holder = new RemoveElanInterfaceHolder();
         futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, interfaceTx -> {
             Elan elanState = removeElanStateForInterface(elanInfo, interfaceName, interfaceTx);
@@ -425,11 +426,11 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
         }
     }
 
-    List<ListenableFuture<Void>> removeEntriesForElanInterface(ElanInstance elanInfo, InterfaceInfo
+    List<ListenableFuture<?>> removeEntriesForElanInterface(ElanInstance elanInfo, InterfaceInfo
             interfaceInfo, String interfaceName, boolean isLastElanInterface) {
         String elanName = elanInfo.getElanInstanceName();
         EVENT_LOGGER.debug("ELAN-InterfaceEntries, REMOVE {} Instance {}", interfaceName, elanName);
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
+        List<ListenableFuture<?>> futures = new ArrayList<>();
         futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, flowTx -> {
             futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, interfaceTx -> {
                 InstanceIdentifier<ElanInterfaceMac> elanInterfaceId = ElanUtils
@@ -610,7 +611,7 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
                     } else {
                         LOG.info("Adding elan interface forwarding table for mac entry {} elan interface"
                                 + " {} elan instance {}.", staticMacEntry.getMacAddress(), interfaceName, elanName);
-                        elanForwardingEntriesHandler.addElanInterfaceForwardingTableList(
+                        elanForwardingEntriesHandler. addElanInterfaceForwardingTableList(
                             elanName, interfaceName, staticMacEntry, tx);
                     }
                 })), LOG, "Error in update: identifier={}, original={}, update={}", identifier, original, update);
@@ -664,9 +665,9 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
         }), LOG, "Error processing added ELAN interface");
     }
 
-    List<ListenableFuture<Void>> handleunprocessedElanInterfaces(ElanInstance elanInstance) {
+    List<ListenableFuture<?>> handleunprocessedElanInterfaces(ElanInstance elanInstance) {
         LOG.trace("Handling unprocessed elan interfaces for elan instance {}", elanInstance.getElanInstanceName());
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
+        List<ListenableFuture<?>> futures = new ArrayList<>();
         Queue<ElanInterface> elanInterfaces = unProcessedElanInterfaces.get(elanInstance.getElanInstanceName());
         if (elanInterfaces == null || elanInterfaces.isEmpty()) {
             return futures;
@@ -732,7 +733,7 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
     }
 
     @SuppressWarnings("checkstyle:ForbidCertainMethod")
-    List<ListenableFuture<Void>> addElanInterface(ElanInterface elanInterface,
+    List<ListenableFuture<?>> addElanInterface(ElanInterface elanInterface,
             InterfaceInfo interfaceInfo, ElanInstance elanInstance) {
         Preconditions.checkNotNull(elanInstance, "elanInstance cannot be null");
         Preconditions.checkNotNull(interfaceInfo, "interfaceInfo cannot be null");
@@ -743,7 +744,7 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
         LOG.trace("Adding elan interface: interface name {} , instance name {}", interfaceName, elanInstanceName);
         EVENT_LOGGER.debug("ELAN-InterfaceState, ADD {} Instance {}", interfaceName, elanInstanceName);
 
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
+        List<ListenableFuture<?>> futures = new ArrayList<>();
         AddElanInterfaceHolder holder = new AddElanInterfaceHolder();
         futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, operTx -> {
             Elan elanInfo = ElanUtils.getElanByName(broker, elanInstanceName);
@@ -854,11 +855,11 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
     }
 
     @SuppressWarnings("checkstyle:ForbidCertainMethod")
-    List<ListenableFuture<Void>> setupEntriesForElanInterface(ElanInstance elanInstance,
+    List<ListenableFuture<?>> setupEntriesForElanInterface(ElanInstance elanInstance,
             ElanInterface elanInterface, InterfaceInfo interfaceInfo, boolean isFirstInterfaceInDpn) {
         String elanInstanceName = elanInstance.getElanInstanceName();
         String interfaceName = elanInterface.getName();
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
+        List<ListenableFuture<?>> futures = new ArrayList<>();
         Uint64 dpId = interfaceInfo.getDpId();
         boolean isInterfaceOperational = isOperational(interfaceInfo);
         futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, confTx -> {
@@ -1144,7 +1145,7 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
     }
 
     // Install DMAC entry on dst DPN
-    public List<ListenableFuture<Void>> installDMacAddressTables(ElanInstance elanInfo, InterfaceInfo interfaceInfo,
+    public List<ListenableFuture<?>> installDMacAddressTables(ElanInstance elanInfo, InterfaceInfo interfaceInfo,
             Uint64 dstDpId) {
         String interfaceName = interfaceInfo.getInterfaceName();
         ElanInterfaceMac elanInterfaceMac = elanUtils.getElanInterfaceMacByInterfaceName(interfaceName);
@@ -1763,6 +1764,7 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
                 dpnTepIp);
         LOG.debug("phyLocAlreadyExists = {} for locator [{}] in remote mcast entry for elan [{}], nodeId [{}]",
                 phyLocAlreadyExists, dpnTepIp.stringValue(), elanName, externalNodeId.getValue());
+        /*
         List<PhysAddress> staticMacs = elanL2GatewayUtils.getElanDpnMacsFromInterfaces(lstElanInterfaceNames);
 
         if (phyLocAlreadyExists) {
@@ -1771,6 +1773,7 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
         }
         elanL2GatewayMulticastUtils.scheduleMcastMacUpdateJob(elanName, elanL2GwDevice);
         elanL2GatewayUtils.scheduleAddDpnMacsInExtDevice(elanName, dpnId, staticMacs, elanL2GwDevice);
+        */
     }
 
     /**

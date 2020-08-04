@@ -8,7 +8,11 @@
 
 package org.opendaylight.netvirt.elan.cli.l2gw;
 
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.OPERATIONAL;
+
 import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
@@ -23,15 +27,15 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
+import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.ReadTransaction;
-import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.util.Datastore;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.LogicalSwitchesCmd;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.MergeCommand;
@@ -49,7 +53,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.DevicesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.l2gatewayconnections.L2gatewayConnection;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateways.attributes.l2gateways.L2gateway;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
@@ -61,7 +64,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hw
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteMcastMacs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteMcastMacsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical.port.attributes.VlanBindings;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical.port.attributes.VlanBindingsKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TpId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -90,94 +92,92 @@ public class L2GwValidateCli extends OsgiCommandSupport {
     private final Map<Uuid, L2gateway> uuidToL2Gateway = new HashMap<>();
     private final InstanceIdentifier<Topology> topoIid = HwvtepSouthboundUtils.createHwvtepTopologyInstanceIdentifier();
     private final Map<InstanceIdentifier<Node>, Map<InstanceIdentifier, DataObject>> operationalNodesData =
-            new HashMap<>();
+        new HashMap<>();
     private final Map<InstanceIdentifier<Node>, Map<InstanceIdentifier, DataObject>> configNodesData =
-            new HashMap<>();
+        new HashMap<>();
 
     private final DataBroker dataBroker;
     private final L2GatewayCache l2GatewayCache;
-    private final HwvtepNodeHACache hwvtepNodeHACache;
+    private final ManagedNewTransactionRunner txRunner;
 
     private List<L2gateway> l2gateways;
     private List<L2gatewayConnection> l2gatewayConnections;
 
     private PrintWriter pw;
 
-    public L2GwValidateCli(DataBroker dataBroker, L2GatewayCache l2GatewayCache,
-            HwvtepNodeHACache hwvtepNodeHACache) {
+    public L2GwValidateCli(DataBroker dataBroker, L2GatewayCache l2GatewayCache) {
         this.dataBroker = dataBroker;
         this.l2GatewayCache = l2GatewayCache;
-        this.hwvtepNodeHACache = hwvtepNodeHACache;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
     }
 
     @Override
     @SuppressFBWarnings("DM_DEFAULT_ENCODING")
-    @Nullable
     public Object doExecute() throws Exception {
-        try {
-            pw = new PrintWriter(new FileOutputStream(new File("l2gw.validation.txt")));
-            readNodes();
-            verifyHANodes();
-            verifyConfigVsOperationalDiff();
-            verifyL2GatewayConnections();
-            pw.close();
-        } catch (ExecutionException | InterruptedException e) {
-            session.getConsole().println("Failed with error " + e.getMessage());
-            LOG.error("Failed with error ", e);
-        }
+        pw = new PrintWriter(new FileOutputStream(new File("l2gw.validation.txt")));
+        readNodes();
+        verifyHANodes();
+        verifyConfigVsOperationalDiff();
+        verifyL2GatewayConnections();
+        pw.close();
         return null;
     }
 
-    private void readNodes() throws ExecutionException, InterruptedException {
-        try (ReadTransaction tx = dataBroker.newReadOnlyTransaction()) {
-            InstanceIdentifier<Topology> topoId = HwvtepSouthboundUtils.createHwvtepTopologyInstanceIdentifier();
-
-            Optional<Topology> operationalTopoOptional = tx.read(LogicalDatastoreType.OPERATIONAL, topoId).get();
-            Optional<Topology> configTopoOptional = tx.read(LogicalDatastoreType.CONFIGURATION, topoId).get();
-
-            if (operationalTopoOptional.isPresent()) {
-                for (Node node : operationalTopoOptional.get().nonnullNode().values()) {
-                    InstanceIdentifier<Node> nodeIid = topoId.child(Node.class, node.key());
-                    operationalNodes.put(nodeIid, node);
+    private void readNodes() {
+        try {
+            InstanceIdentifier<Topology> topoId = HwvtepSouthboundUtils
+                .createHwvtepTopologyInstanceIdentifier();
+            txRunner.callWithNewReadOnlyTransactionAndClose(OPERATIONAL, operTx -> {
+                Optional<Topology> operationalTopoOptional = operTx.read(topoId).get();
+                if (operationalTopoOptional.isPresent()) {
+                    for (Node node : operationalTopoOptional.get().nonnullNode().values()) {
+                        InstanceIdentifier<Node> nodeIid = topoId.child(Node.class, node.key());
+                        operationalNodes.put(nodeIid, node);
+                    }
                 }
-            }
-            if (configTopoOptional.isPresent()) {
-                for (Node node : configTopoOptional.get().nonnullNode().values()) {
-                    InstanceIdentifier<Node> nodeIid = topoId.child(Node.class, node.key());
-                    configNodes.put(nodeIid, node);
+            });
+
+            txRunner.callWithNewReadOnlyTransactionAndClose(CONFIGURATION, configTx -> {
+                Optional<Topology> configTopoOptional = configTx.read(topoId).get();
+                if (configTopoOptional.isPresent()) {
+                    for (Node node : configTopoOptional.get().nonnullNode().values()) {
+                        InstanceIdentifier<Node> nodeIid = topoId.child(Node.class, node.key());
+                        configNodes.put(nodeIid, node);
+                    }
                 }
-            }
+                fillNodesData(operationalNodes, operationalNodesData);
+                fillNodesData(configNodes, configNodesData);
 
-            fillNodesData(operationalNodes, operationalNodesData);
-            fillNodesData(configNodes, configNodesData);
-
-            Optional<ElanInstances> elanInstancesOptional = tx.read(LogicalDatastoreType.CONFIGURATION,
+                Optional<ElanInstances> elanInstancesOptional = configTx.read(
                     InstanceIdentifier.builder(ElanInstances.class).build()).get();
 
-            if (elanInstancesOptional.isPresent() && elanInstancesOptional.get().getElanInstance() != null) {
-                for (ElanInstance elanInstance : elanInstancesOptional.get().nonnullElanInstance().values()) {
-                    elanInstanceMap.put(elanInstance.getElanInstanceName(), elanInstance);
+                if (elanInstancesOptional.isPresent()
+                    && elanInstancesOptional.get().getElanInstance() != null) {
+                    for (ElanInstance elanInstance : elanInstancesOptional.get().nonnullElanInstance().values()) {
+                        elanInstanceMap.put(elanInstance.getElanInstanceName(), elanInstance);
+                    }
                 }
-            }
+            });
             l2gatewayConnections = L2GatewayConnectionUtils.getAllL2gatewayConnections(dataBroker);
             l2gateways = L2GatewayConnectionUtils.getL2gatewayList(dataBroker);
             for (L2gateway l2gateway : l2gateways) {
                 uuidToL2Gateway.put(l2gateway.getUuid(), l2gateway);
             }
+        } catch (Exception e) {
+            LOG.error("Exception : ", e);
         }
     }
 
-    private static boolean isPresent(Map<InstanceIdentifier<Node>, Map<InstanceIdentifier, DataObject>> dataMap,
-                              InstanceIdentifier<Node> nodeIid, InstanceIdentifier dataIid) {
+    private boolean isPresent(Map<InstanceIdentifier<Node>, Map<InstanceIdentifier, DataObject>> dataMap,
+        InstanceIdentifier<Node> nodeIid, InstanceIdentifier dataIid) {
         if (dataMap.containsKey(nodeIid)) {
             return dataMap.get(nodeIid).containsKey(dataIid);
         }
         return false;
     }
 
-    @Nullable
-    private static DataObject getData(Map<InstanceIdentifier<Node>, Map<InstanceIdentifier, DataObject>> dataMap,
-                               InstanceIdentifier<Node> nodeIid, InstanceIdentifier dataIid) {
+    private DataObject getData(Map<InstanceIdentifier<Node>, Map<InstanceIdentifier, DataObject>> dataMap,
+        InstanceIdentifier<Node> nodeIid, InstanceIdentifier dataIid) {
         if (dataMap.containsKey(nodeIid)) {
             return dataMap.get(nodeIid).get(dataIid);
         }
@@ -185,7 +185,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
     }
 
     private void fillNodesData(Map<InstanceIdentifier<Node>, Node> nodes,
-                               Map<InstanceIdentifier<Node>, Map<InstanceIdentifier, DataObject>> dataMap) {
+        Map<InstanceIdentifier<Node>, Map<InstanceIdentifier, DataObject>> dataMap) {
 
         for (Map.Entry<InstanceIdentifier<Node>, Node> entry : nodes.entrySet()) {
             InstanceIdentifier<Node> nodeId = entry.getKey();
@@ -221,7 +221,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
     private void verifyConfigVsOperationalDiff() {
         for (Node cfgNode : configNodes.values()) {
             InstanceIdentifier<Node> nodeId = topoIid.child(Node.class, cfgNode.key());
-            compareNodes(cfgNode, operationalNodes.get(nodeId), false, LogicalDatastoreType.CONFIGURATION);
+            compareNodes(cfgNode, operationalNodes.get(nodeId), false, CONFIGURATION);
         }
     }
 
@@ -233,7 +233,8 @@ public class L2GwValidateCli extends OsgiCommandSupport {
     private void verifyHANodes() {
         pw.println("Verifying HA nodes");
         boolean parentChildComparison = true;
-        Set<InstanceIdentifier<Node>> parentNodes = hwvtepNodeHACache.getHAParentNodes();
+        HwvtepHACache haCache = HwvtepHACache.getInstance();
+        Set<InstanceIdentifier<Node>> parentNodes = HwvtepHACache.getInstance().getHAParentNodes();
         if (HwvtepHAUtil.isEmpty(parentNodes)) {
             return;
         }
@@ -241,7 +242,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
             String parentNodeId = parentNodeIid.firstKeyOf(Node.class).getNodeId().getValue();
             Node parentOpNode = operationalNodes.get(parentNodeIid);
             Node parentCfgNode = configNodes.get(parentNodeIid);
-            Set<InstanceIdentifier<Node>> childNodeIids = hwvtepNodeHACache.getChildrenForHANode(parentNodeIid);
+            Set<InstanceIdentifier<Node>> childNodeIids = haCache.getChildrenForHANode(parentNodeIid);
             if (HwvtepHAUtil.isEmpty(childNodeIids)) {
                 pw.println("No child nodes could be found for parent node " + parentNodeId);
                 continue;
@@ -250,7 +251,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
                 String childNodeId = childNodeIid.firstKeyOf(Node.class).getNodeId().getValue();
                 if (parentOpNode != null) {
                     compareNodes(parentOpNode, operationalNodes.get(childNodeIid), parentChildComparison,
-                            LogicalDatastoreType.OPERATIONAL);
+                        OPERATIONAL);
                 } else {
                     pw.println("Missing parent operational node for id " + parentNodeId);
                 }
@@ -261,7 +262,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
                         }
                     } else {
                         compareNodes(parentCfgNode, configNodes.get(childNodeIid), parentChildComparison,
-                                LogicalDatastoreType.CONFIGURATION);
+                            CONFIGURATION);
                     }
                 } else {
                     pw.println("Missing parent config node for id " + parentNodeId);
@@ -270,17 +271,16 @@ public class L2GwValidateCli extends OsgiCommandSupport {
         }
     }
 
-    private static boolean containsLogicalSwitch(Node node) {
+    private boolean containsLogicalSwitch(Node node) {
         if (node == null || node.augmentation(HwvtepGlobalAugmentation.class) == null
-                || HwvtepHAUtil.isEmptyList(
-                new ArrayList(node.augmentation(HwvtepGlobalAugmentation.class).nonnullLogicalSwitches().values()))) {
+            || node.augmentation(HwvtepGlobalAugmentation.class).nonnullSwitches().isEmpty()) {
             return false;
         }
         return true;
     }
 
-    private boolean compareNodes(Node node1, Node node2, boolean parentChildComparison,
-                                 LogicalDatastoreType datastoreType) {
+    private <D extends Datastore>boolean compareNodes(Node node1, Node node2, boolean parentChildComparison,
+        Class<D> datastoreType) {
 
         if (node1 == null || node2 == null) {
             return false;
@@ -319,8 +319,8 @@ public class L2GwValidateCli extends OsgiCommandSupport {
                 data2 = cmd.transform(nodeIid1, data2);
             }
             Function<DataObject, DataObject> withoutUuidTransformer = cmd::withoutUuid;
-            data1 = data1.stream().map(withoutUuidTransformer).collect(Collectors.toList());
-            data2 = data2.stream().map(withoutUuidTransformer).collect(Collectors.toList());
+            data1 = Lists.transform(data1, withoutUuidTransformer);
+            data2 = Lists.transform(data2, withoutUuidTransformer);
 
             Map<Identifier<?>, DataObject> map1 = new HashMap<>();
             Map<Identifier<?>, DataObject> map2 = new HashMap<>();
@@ -343,11 +343,11 @@ public class L2GwValidateCli extends OsgiCommandSupport {
             if (!diff.isEmpty()) {
                 if (parentChildComparison) {
                     pw.println("Missing " + cmd.getDescription() + " child entries in " + datastoreType
-                            + " parent node " + nodeId1 + " contain " + " more entries than child "
-                            + nodeId2 + " " + diff.size());
+                        + " parent node " + nodeId1 + " contain " + " more entries than child "
+                        + nodeId2 + " " + diff.size());
                 } else {
                     pw.println("Missing " + cmd.getDescription() + " op entries config "
-                            + nodeId1 + " contain " + " more entries than operational node " + diff.size());
+                        + nodeId1 + " contain " + " more entries than operational node " + diff.size());
                 }
                 if (diff.size() < 10) {
                     for (Object obj : diff) {
@@ -369,10 +369,10 @@ public class L2GwValidateCli extends OsgiCommandSupport {
             if (!diff.isEmpty()) {
                 if (parentChildComparison) {
                     pw.println("Extra " + cmd.getDescription() + " child entries in " + datastoreType + " node "
-                            + nodeId2 + " contain " + " more entries than parent node " + nodeId1 + " " + diff.size());
+                        + nodeId2 + " contain " + " more entries than parent node " + nodeId1 + " " + diff.size());
                 } else {
                     pw.println("Extra " + cmd.getDescription() + " operational node "
-                            + nodeId2 + " contain " + " more entries than config node " + diff.size());
+                        + nodeId2 + " contain " + " more entries than config node " + diff.size());
                 }
                 if (diff.size() < 10) {
                     for (Object obj : diff) {
@@ -388,33 +388,37 @@ public class L2GwValidateCli extends OsgiCommandSupport {
         boolean isValid = true;
         for (L2gatewayConnection l2gatewayConnection : l2gatewayConnections) {
 
-            L2gateway l2gateway = uuidToL2Gateway.get(l2gatewayConnection.getL2gatewayId());
-            String logicalSwitchName = l2gatewayConnection.getNetworkId().getValue();
-            Map<DevicesKey, Devices> devices = l2gateway.nonnullDevices();
+            Uuid l2GatewayDeiceUuid = l2gatewayConnection.getL2gatewayId();
+            if (l2GatewayDeiceUuid != null) {
+                L2gateway l2gateway = uuidToL2Gateway.get(l2GatewayDeiceUuid);
+                String logicalSwitchName = l2gatewayConnection.getNetworkId().getValue();
+                List<Devices> devices = new ArrayList<>(l2gateway.nonnullDevices().values());
 
-            for (Devices device : devices.values()) {
+                for (Devices device : devices) {
 
-                L2GatewayDevice l2GatewayDevice = l2GatewayCache.get(device.getDeviceName());
-                isValid = verifyL2GatewayDevice(l2gateway, device, l2GatewayDevice);
-                if (!isValid) {
-                    continue;
-                }
-                NodeId nodeId = new NodeId(l2GatewayDevice.getHwvtepNodeId());
-                InstanceIdentifier<Node> nodeIid = topoIid.child(Node.class, new NodeKey(nodeId));
+                    L2GatewayDevice l2GatewayDevice = l2GatewayCache.get(device.getDeviceName());
+                    isValid = verifyL2GatewayDevice(l2gateway, device, l2GatewayDevice);
+                    if (!isValid) {
+                        continue;
+                    }
+                    NodeId nodeId = new NodeId(l2GatewayDevice.getHwvtepNodeId());
+                    InstanceIdentifier<Node> nodeIid = topoIid.child(Node.class, new NodeKey(nodeId));
 
-                isValid = verfiyLogicalSwitch(logicalSwitchName, nodeIid);
-                if (isValid) {
-                    isValid = verifyMcastMac(logicalSwitchName, nodeIid);
-                    verifyVlanBindings(nodeIid, logicalSwitchName, device, l2gatewayConnection.getSegmentId());
-                    L2GatewayDevice elanL2gatewayDevice = ElanL2GwCacheUtils
+                    isValid = verfiyLogicalSwitch(logicalSwitchName, nodeIid);
+                    if (isValid) {
+                        isValid = verifyMcastMac(logicalSwitchName, nodeIid);
+                        verifyVlanBindings(nodeIid, logicalSwitchName, device, l2gatewayConnection.getSegmentId());
+                        L2GatewayDevice elanL2gatewayDevice = ElanL2GwCacheUtils
                             .getL2GatewayDeviceFromCache(logicalSwitchName, nodeId.getValue());
-                    if (elanL2gatewayDevice == null) {
-                        pw.println("Failed elan l2gateway device not found for network " + logicalSwitchName
+                        if (elanL2gatewayDevice == null) {
+                            pw.println("Failed elan l2gateway device not found for network " + logicalSwitchName
                                 + " and device " + device.getDeviceName() + " " + l2GatewayDevice.getHwvtepNodeId()
                                 + " l2gw connection id " + l2gatewayConnection.getUuid());
+                        }
                     }
                 }
             }
+
         }
     }
 
@@ -438,8 +442,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
         return true;
     }
 
-    private static InstanceIdentifier<TerminationPoint> getPhysicalPortTerminationPointIid(NodeId nodeId,
-            String portName) {
+    private  InstanceIdentifier<TerminationPoint> getPhysicalPortTerminationPointIid(NodeId nodeId, String portName) {
         TerminationPointKey tpKey = new TerminationPointKey(new TpId(portName));
         InstanceIdentifier<TerminationPoint> iid = HwvtepSouthboundUtils.createTerminationPointId(nodeId, tpKey);
         return iid;
@@ -448,82 +451,82 @@ public class L2GwValidateCli extends OsgiCommandSupport {
     private boolean verfiyLogicalSwitch(String logicalSwitchName, InstanceIdentifier<Node> nodeIid) {
         NodeId nodeId = nodeIid.firstKeyOf(Node.class).getNodeId();
         InstanceIdentifier<LogicalSwitches> logicalSwitchPath = HwvtepSouthboundUtils
-                .createLogicalSwitchesInstanceIdentifier(nodeId, new HwvtepNodeName(logicalSwitchName));
+            .createLogicalSwitchesInstanceIdentifier(nodeId, new HwvtepNodeName(logicalSwitchName));
 
         if (!isPresent(configNodesData, nodeIid, logicalSwitchPath)) {
             pw.println("Failed to find config logical switch " + logicalSwitchName + " for node "
-                    + nodeId.getValue());
+                + nodeId.getValue());
             return false;
         }
 
         if (!isPresent(operationalNodesData, nodeIid, logicalSwitchPath)) {
             pw.println("Failed to find operational logical switch " + logicalSwitchName + " for node "
-                    + nodeId.getValue());
+                + nodeId.getValue());
             return false;
         }
         return true;
     }
 
     private boolean verifyMcastMac(String logicalSwitchName,
-                                   InstanceIdentifier<Node> nodeIid) {
+        InstanceIdentifier<Node> nodeIid) {
         NodeId nodeId = nodeIid.firstKeyOf(Node.class).getNodeId();
 
         HwvtepLogicalSwitchRef lsRef = new HwvtepLogicalSwitchRef(HwvtepSouthboundUtils
-                .createLogicalSwitchesInstanceIdentifier(
-                        new NodeId(new Uri(nodeId)), new HwvtepNodeName(logicalSwitchName)));
+            .createLogicalSwitchesInstanceIdentifier(
+                new NodeId(new Uri(nodeId)), new HwvtepNodeName(logicalSwitchName)));
 
         RemoteMcastMacs remoteMcastMac = new RemoteMcastMacsBuilder()
-                .setMacEntryKey(new MacAddress(ElanConstants.UNKNOWN_DMAC)).setLogicalSwitchRef(lsRef).build();
+            .setMacEntryKey(new MacAddress(ElanConstants.UNKNOWN_DMAC)).setLogicalSwitchRef(lsRef).build();
         InstanceIdentifier<RemoteMcastMacs> mcastMacIid = HwvtepSouthboundUtils
-                .createRemoteMcastMacsInstanceIdentifier(new NodeId(new Uri(nodeId)), remoteMcastMac.key());
+            .createRemoteMcastMacsInstanceIdentifier(new NodeId(new Uri(nodeId)), remoteMcastMac.key());
 
 
         if (!isPresent(configNodesData, nodeIid, mcastMacIid)) {
             pw.println("Failed to find config mcast mac for logical switch " + logicalSwitchName
-                    + " node id " + nodeId.getValue());
+                + " node id " + nodeId.getValue());
             return false;
         }
 
         if (!isPresent(operationalNodesData, nodeIid, mcastMacIid)) {
             pw.println("Failed to find operational mcast mac for logical switch " + logicalSwitchName
-                    + " node id " + nodeId.getValue());
+                + " node id " + nodeId.getValue());
             return false;
         }
         return true;
     }
 
     private boolean verifyVlanBindings(InstanceIdentifier<Node> nodeIid,
-                                       String logicalSwitchName,
-                                       Devices hwVtepDevice,
-                                       Integer defaultVlanId) {
+        String logicalSwitchName,
+        Devices hwVtepDevice,
+        Integer defaultVlanId) {
         boolean valid = true;
         NodeId nodeId = nodeIid.firstKeyOf(Node.class).getNodeId();
         if (hwVtepDevice.getInterfaces() == null) {
             return false;
         }
         for (org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712
-                 .l2gateway.attributes.devices.Interfaces deviceInterface : hwVtepDevice.nonnullInterfaces().values()) {
+            .l2gateway.attributes.devices.Interfaces deviceInterface : hwVtepDevice.nonnullInterfaces().values()) {
 
             NodeId switchNodeId = HwvtepSouthboundUtils.createManagedNodeId(nodeId, hwVtepDevice.getDeviceName());
             InstanceIdentifier<Node> physicalSwitchNodeIid = topoIid.child(Node.class, new NodeKey(switchNodeId));
             InstanceIdentifier<TerminationPoint> terminationPointIid =
-                    getPhysicalPortTerminationPointIid(switchNodeId, deviceInterface.getInterfaceName());
+                getPhysicalPortTerminationPointIid(switchNodeId, deviceInterface.getInterfaceName());
 
             TerminationPoint operationalTerminationPoint = (TerminationPoint) getData(operationalNodesData,
-                    physicalSwitchNodeIid, terminationPointIid);
+                physicalSwitchNodeIid, terminationPointIid);
             if (operationalTerminationPoint == null) {
                 valid = false;
                 pw.println("Failed to find the operational port " + deviceInterface.getInterfaceName()
-                        + " for node " + hwVtepDevice.getDeviceName() + " nodeid " + nodeId.getValue());
+                    + " for node " + hwVtepDevice.getDeviceName() + " nodeid " + nodeId.getValue());
                 continue;
             }
             TerminationPoint configTerminationPoint = (TerminationPoint) getData(configNodesData,
-                    physicalSwitchNodeIid, terminationPointIid);
+                physicalSwitchNodeIid, terminationPointIid);
             if (configTerminationPoint == null) {
                 valid = false;
                 pw.println("Failed to find the configurational port " + deviceInterface.getInterfaceName()
-                        + " for node " + hwVtepDevice.getDeviceName() +  " for logical switch " + logicalSwitchName
-                        + " nodeid " + nodeId.getValue());
+                    + " for node " + hwVtepDevice.getDeviceName() +  " for logical switch " + logicalSwitchName
+                    + " nodeid " + nodeId.getValue());
                 continue;
             }
 
@@ -537,29 +540,27 @@ public class L2GwValidateCli extends OsgiCommandSupport {
             }
 
             HwvtepPhysicalPortAugmentation portAugmentation = configTerminationPoint.augmentation(
-                    HwvtepPhysicalPortAugmentation.class);
-            if (portAugmentation == null || HwvtepHAUtil.isEmptyList(
-                    new ArrayList(portAugmentation.nonnullVlanBindings().values()))) {
+                HwvtepPhysicalPortAugmentation.class);
+            if (portAugmentation == null || portAugmentation.nonnullVlanBindings().values().isEmpty()) {
                 pw.println("Failed to find the config vlan bindings for port " + deviceInterface.getInterfaceName()
-                        + " for node " + hwVtepDevice.getDeviceName() +  " for logical switch " + logicalSwitchName
-                        + " nodeid " + nodeId.getValue());
+                    + " for node " + hwVtepDevice.getDeviceName() +  " for logical switch " + logicalSwitchName
+                    + " nodeid " + nodeId.getValue());
                 valid = false;
                 continue;
             }
             portAugmentation = operationalTerminationPoint.augmentation(HwvtepPhysicalPortAugmentation.class);
-            if (portAugmentation == null || HwvtepHAUtil.isEmptyList(
-                    new ArrayList(portAugmentation.nonnullVlanBindings().values()))) {
+            if (portAugmentation == null || portAugmentation.nonnullVlanBindings().values().isEmpty()) {
                 pw.println("Failed to find the operational vlan bindings for port " + deviceInterface.getInterfaceName()
-                        + " for node " + hwVtepDevice.getDeviceName() +  " for logical switch " + logicalSwitchName
-                        + " nodeid " + nodeId.getValue());
+                    + " for node " + hwVtepDevice.getDeviceName() +  " for logical switch " + logicalSwitchName
+                    + " nodeid " + nodeId.getValue());
                 valid = false;
                 continue;
             }
             VlanBindings expectedBindings = !expectedVlans.isEmpty() ? expectedVlans.get(0) : null;
             boolean foundBindings = false;
-            Map<VlanBindingsKey, VlanBindings> vlanBindingses = configTerminationPoint.augmentation(
-                    HwvtepPhysicalPortAugmentation.class).nonnullVlanBindings();
-            for (VlanBindings actual : vlanBindingses.values()) {
+            List<VlanBindings> vlanBindingses = new ArrayList<>(configTerminationPoint.augmentation(
+                HwvtepPhysicalPortAugmentation.class).nonnullVlanBindings().values());
+            for (VlanBindings actual : vlanBindingses) {
                 if (actual.equals(expectedBindings)) {
                     foundBindings = true;
                     break;
@@ -567,11 +568,11 @@ public class L2GwValidateCli extends OsgiCommandSupport {
             }
             if (!foundBindings) {
                 pw.println("Mismatch in vlan bindings for port " + deviceInterface.getInterfaceName()
-                        + " for node " + hwVtepDevice.getDeviceName() +  " for logical switch " + logicalSwitchName
-                        + " nodeid " + nodeId.getValue());
+                    + " for node " + hwVtepDevice.getDeviceName() +  " for logical switch " + logicalSwitchName
+                    + " nodeid " + nodeId.getValue());
                 pw.println("Failed to find the vlan bindings " + expectedBindings);
                 pw.println("Actual bindings present in config are ");
-                for (VlanBindings actual : vlanBindingses.values()) {
+                for (VlanBindings actual : vlanBindingses) {
                     pw.println(actual.toString());
                 }
                 valid = false;

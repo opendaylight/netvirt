@@ -14,6 +14,7 @@ import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
+import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,12 +46,13 @@ public class InterfaceAddWorkerOnElan implements Callable<List<? extends Listena
 
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public List<ListenableFuture<Void>> call() {
+    public List<ListenableFuture<?>> call() {
         LOG.info("InterfaceAddWorkerOnElan: Handling elan interface add for elan interface: {} and elan instance: {} ",
                 elanInterface.getName(), elanInstance.getElanInstanceName());
         try {
             return dataChangeListener.addElanInterface(elanInterface, interfaceInfo, elanInstance);
         } catch (RuntimeException e) {
+            //return FluentFutures.immediateFailedFluentFuture(e);
             return ElanUtils.returnFailedListenableFutureIfTransactionCommitFailedExceptionCauseOrElseThrow(e);
         }
     }

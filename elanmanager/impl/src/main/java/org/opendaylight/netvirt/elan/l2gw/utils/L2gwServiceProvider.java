@@ -41,7 +41,7 @@ public class L2gwServiceProvider extends AbstractLifecycle implements IL2gwServi
 
     @Inject
     public L2gwServiceProvider(final DataBroker dataBroker, final ElanClusterUtils elanClusterUtils,
-                               ItmRpcService itmRpcService, L2GatewayConnectionUtils l2GatewayConnectionUtils) {
+        ItmRpcService itmRpcService, L2GatewayConnectionUtils l2GatewayConnectionUtils) {
         this.dataBroker = dataBroker;
         this.elanClusterUtils = elanClusterUtils;
         this.itmRpcService = itmRpcService;
@@ -53,6 +53,7 @@ public class L2gwServiceProvider extends AbstractLifecycle implements IL2gwServi
                                               String hwvtepNodeId, IpAddress tunnelIpAddr) {
         elanClusterUtils.runOnlyInOwnerNode(hwvtepNodeId, "Handling Physical Switch add create itm tunnels ",
             () -> {
+                LOG.info("Creating itm tunnel for {}", tunnelIpAddr);
                 ElanL2GatewayUtils.createItmTunnels(dataBroker, itmRpcService, hwvtepNodeId, psName, tunnelIpAddr);
                 return Collections.emptyList();
             });
@@ -60,6 +61,9 @@ public class L2gwServiceProvider extends AbstractLifecycle implements IL2gwServi
         List<L2gatewayConnection> l2GwConns = L2GatewayConnectionUtils.getAssociatedL2GwConnections(
                 dataBroker, l2GwDevice.getL2GatewayIds());
         LOG.debug("L2GatewayConnections associated for {} physical switch", psName);
+        if (l2GwConns == null || l2GwConns.isEmpty()) {
+            LOG.info("No connections are provisioned for {} {} {}", l2GwDevice, psName, hwvtepNodeId);
+        }
         for (L2gatewayConnection l2GwConn : l2GwConns) {
             LOG.trace("L2GatewayConnection {} changes executed on physical switch {}",
                     l2GwConn.getL2gatewayId(), psName);
