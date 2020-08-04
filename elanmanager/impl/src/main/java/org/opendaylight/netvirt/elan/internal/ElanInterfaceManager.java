@@ -1763,6 +1763,7 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
                 dpnTepIp);
         LOG.debug("phyLocAlreadyExists = {} for locator [{}] in remote mcast entry for elan [{}], nodeId [{}]",
                 phyLocAlreadyExists, dpnTepIp.stringValue(), elanName, externalNodeId.getValue());
+        /*
         List<PhysAddress> staticMacs = elanL2GatewayUtils.getElanDpnMacsFromInterfaces(lstElanInterfaceNames);
 
         if (phyLocAlreadyExists) {
@@ -1771,6 +1772,7 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
         }
         elanL2GatewayMulticastUtils.scheduleMcastMacUpdateJob(elanName, elanL2GwDevice);
         elanL2GatewayUtils.scheduleAddDpnMacsInExtDevice(elanName, dpnId, staticMacs, elanL2GwDevice);
+        */
     }
 
     /**

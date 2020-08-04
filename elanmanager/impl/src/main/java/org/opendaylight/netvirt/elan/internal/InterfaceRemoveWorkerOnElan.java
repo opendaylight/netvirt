@@ -48,7 +48,8 @@ public class InterfaceRemoveWorkerOnElan implements Callable<List<? extends List
         try {
             return dataChangeListener.removeElanInterface(elanInfo, interfaceName, interfaceInfo);
         } catch (RuntimeException e) {
-            return ElanUtils.returnFailedListenableFutureIfTransactionCommitFailedExceptionCauseOrElseThrow(e);
+            return  ElanUtils.returnFailedListenableFutureIfTransactionCommitFailedExceptionCauseOrElseThrow(e);
+            //return Collections.singletonList(Futures.immediateFailedFuture(e));
         }
     }
 

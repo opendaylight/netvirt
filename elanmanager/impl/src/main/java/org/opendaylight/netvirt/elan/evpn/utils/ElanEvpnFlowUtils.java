@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.elan.evpn.utils;
 
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
+
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -23,7 +25,6 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.utils.concurrent.NamedSimpleReentrantLock.Acquired;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.util.Datastore;
 import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
 import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
@@ -112,7 +113,7 @@ public class ElanEvpnFlowUtils {
         String flowId = ElanEvpnFlowUtils.evpnGetKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, nexthopIp,
                 macToRemove, elanTag, true);
         Flow flowToRemove = new FlowBuilder().setId(new FlowId(flowId)).setTableId(NwConstants.ELAN_DMAC_TABLE).build();
-        return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(Datastore.CONFIGURATION,
+        return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
             tx -> mdsalManager.removeFlow(tx, dpId, flowToRemove)));
     }
 
@@ -121,7 +122,7 @@ public class ElanEvpnFlowUtils {
         String flowId = ElanEvpnFlowUtils.evpnGetKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, nexthopIp,
                 macToRemove, elanTag, false);
         Flow flowToRemove = new FlowBuilder().setId(new FlowId(flowId)).setTableId(NwConstants.ELAN_DMAC_TABLE).build();
-        return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(Datastore.CONFIGURATION,
+        return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
             tx -> mdsalManager.removeFlow(tx, dpId, flowToRemove)));
     }
 

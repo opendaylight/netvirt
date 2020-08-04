@@ -3,6 +3,8 @@ module elan {
     namespace "urn:opendaylight:netvirt:elan";
     prefix elan;
 
+    import network-topology {prefix "topo"; revision-date "2013-10-21"; }
+    import hwvtep {prefix "hwvtep"; revision-date "2015-09-01"; }
     import yang-ext {prefix ext; revision-date "2013-07-09";}
 
     import ietf-interfaces {
@@ -219,7 +221,23 @@ module elan {
       leaf ip-prefix {
         type inet:ip-address;
       }
+
+      leaf src-tor-nodeid {
+          type string;
+          description
+            "The src tor node id";
+      }
     }
+  }
+
+  augment "/topo:network-topology/topo:topology/topo:node/hwvtep:local-ucast-macs" {
+      description "Augmentation for physical switch nodes managed by hwvtep";
+      ext:augment-identifier "srcnode-augmentation";
+      leaf src-tor-nodeid {
+        type string;
+        description
+          "The src tor node id";
+      }
   }
 
   container elan-forwarding-tables {

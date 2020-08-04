@@ -402,7 +402,8 @@ public class ElanUtils {
     }
 
     @Nullable
-    public MacEntry getInterfaceMacEntriesOperationalDataPathFromId(TypedReadTransaction<Operational> tx,
+    public MacEntry getInterfaceMacEntriesOperationalDataPathFromId(
+        TypedReadTransaction<Operational> tx,
             InstanceIdentifier<MacEntry> identifier) throws ExecutionException, InterruptedException {
         return tx.read(identifier).get().orElse(null);
     }
