@@ -20,7 +20,7 @@ import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepClusteredDataTreeChangeListener;
-import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
+import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
@@ -53,7 +53,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Listener for physical locator presence in operational datastore.
  */
@@ -72,7 +71,7 @@ public class HwvtepTerminationPointListener
     @Inject
     public HwvtepTerminationPointListener(DataBroker broker, ElanL2GatewayUtils elanL2GatewayUtils,
             ElanClusterUtils elanClusterUtils, L2GatewayCache l2GatewayCache,
-            HwvtepNodeHACache hwvtepNodeHACache) {
+            HwvtepHACache hwvtepHACache) {
         //super(TerminationPoint.class, HwvtepTerminationPointListener.class, hwvtepNodeHACache);
 
         super(broker, DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
@@ -80,7 +79,7 @@ public class HwvtepTerminationPointListener
                 .child(Topology.class, new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID)).child(Node.class)
                 .child(TerminationPoint.class)),
             Executors.newListeningSingleThreadExecutor("HwvtepTerminationPointListener", LOG),
-            hwvtepNodeHACache);
+            hwvtepHACache);
         this.broker = broker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
         this.elanL2GatewayUtils = elanL2GatewayUtils;

@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import static java.util.Collections.emptyMap;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
@@ -38,7 +39,6 @@ import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.infrautils.inject.AbstractLifecycle;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.util.Datastore;
 import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
 import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -221,7 +221,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                 ElanInstance updateElanInstance = new ElanInstanceBuilder().setElanInstanceName(elanInstanceName)
                         .setDescription(description).setMacTimeout(macTimeout)
                         .withKey(new ElanInstanceKey(elanInstanceName))
-                        .addAugmentation(EtreeInstance.class, etreeInstance).build();
+                        .addAugmentation(etreeInstance).build();
                 MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
                         ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName), updateElanInstance);
                 LOG.debug("Updating the Etree Instance {} with MAC TIME-OUT {} and Description {} ",
@@ -232,7 +232,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             ElanInstance elanInstance = new ElanInstanceBuilder().setElanInstanceName(elanInstanceName)
                     .setMacTimeout(macTimeout).setDescription(description)
                     .withKey(new ElanInstanceKey(elanInstanceName))
-                    .addAugmentation(EtreeInstance.class, etreeInstance).build();
+                    .addAugmentation(etreeInstance).build();
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
                     ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName), elanInstance);
             LOG.debug("Creating the new Etree Instance {}", elanInstance);
@@ -290,14 +290,14 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             if (staticMacAddresses == null) {
                 elanInterface = new ElanInterfaceBuilder().setElanInstanceName(etreeInstanceName)
                         .setDescription(description).setName(interfaceName).withKey(new ElanInterfaceKey(interfaceName))
-                        .addAugmentation(EtreeInterface.class, etreeInterface).build();
+                        .addAugmentation(etreeInterface).build();
             } else {
                 List<StaticMacEntries> staticMacEntries = ElanUtils.getStaticMacEntries(staticMacAddresses);
                 elanInterface = new ElanInterfaceBuilder().setElanInstanceName(etreeInstanceName)
                         .setDescription(description).setName(interfaceName)
                         .setStaticMacEntries(staticMacEntries)
                         .withKey(new ElanInterfaceKey(interfaceName))
-                        .addAugmentation(EtreeInterface.class, etreeInterface).build();
+                        .addAugmentation(etreeInterface).build();
             }
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
                     ElanUtils.getElanInterfaceConfigurationDataPathId(interfaceName), elanInterface);
@@ -887,7 +887,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                 ArpResponderUtil.generateCookie(lportTag, ipAddress),
                 ArpResponderUtil.getMatchCriteria(lportTag, elanInstance, ipAddress),
                     arpResponderInputInstructionsMap);
-        LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
+        LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
             tx -> mdsalManager.addFlow(tx, dpnId, flowEntity)), LOG, "Error adding flow {}", flowEntity);
         LOG.info("Installed the ARP Responder flow for Interface {}", ingressInterfaceName);
     }
@@ -926,7 +926,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                 ArpResponderUtil.generateCookie(lportTag, ipAddress),
                 ArpResponderUtil.getMatchCriteria(lportTag, elanInstance, ipAddress),
                     arpResponderInputInstructionsMap);
-        LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
+        LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
             tx -> mdsalManager.addFlow(tx, dpnId, flowEntity)), LOG, "Error adding flow {}", flowEntity);
         LOG.trace("Installed the ExternalTunnel ARP Responder flow for ElanInstance {}", elanInstanceName);
     }

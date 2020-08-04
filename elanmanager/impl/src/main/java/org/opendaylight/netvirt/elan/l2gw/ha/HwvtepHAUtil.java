@@ -7,26 +7,22 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha;
 
-
-import com.google.common.base.Strings;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
+import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.util.Datastore;
 import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
 import org.opendaylight.mdsal.binding.util.TypedReadWriteTransaction;
-import org.opendaylight.mdsal.binding.util.TypedWriteTransaction;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.SwitchesCmd;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -43,7 +39,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hw
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.ManagersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.ManagersKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.Switches;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.SwitchesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.managers.ManagerOtherConfigs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.managers.ManagerOtherConfigsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.managers.ManagerOtherConfigsKey;
@@ -79,8 +74,9 @@ public final class HwvtepHAUtil {
     public static final String MANAGER_KEY = "managerKey";
     public static final String L2GW_JOB_KEY = ":l2gw";
 
-    private HwvtepHAUtil() {
+    static HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
 
+    private HwvtepHAUtil() {
     }
 
     public static HwvtepPhysicalLocatorRef buildLocatorRef(InstanceIdentifier<Node> nodeIid, String tepIp) {
@@ -106,6 +102,21 @@ public final class HwvtepHAUtil {
     public static String getTepIpVal(HwvtepPhysicalLocatorRef locatorRef) {
         InstanceIdentifier<TerminationPoint> tpId = (InstanceIdentifier<TerminationPoint>) locatorRef.getValue();
         return tpId.firstKeyOf(TerminationPoint.class).getTpId().getValue().substring("vxlan_over_ipv4:".length());
+    }
+
+    public static String getLogicalSwitchSwitchName(HwvtepLogicalSwitchRef logicalSwitchRef) {
+        InstanceIdentifier<LogicalSwitches> id = (InstanceIdentifier<LogicalSwitches>) logicalSwitchRef.getValue();
+        return id.firstKeyOf(LogicalSwitches.class).getHwvtepNodeName().getValue();
+    }
+
+    public static String getNodeIdFromLocatorRef(HwvtepPhysicalLocatorRef locatorRef) {
+        InstanceIdentifier<TerminationPoint> tpId = (InstanceIdentifier<TerminationPoint>) locatorRef.getValue();
+        return tpId.firstKeyOf(Node.class).getNodeId().getValue();
+    }
+
+    public static String getNodeIdFromLogicalSwitches(HwvtepLogicalSwitchRef logicalSwitchRef) {
+        InstanceIdentifier<LogicalSwitches> id = (InstanceIdentifier<LogicalSwitches>) logicalSwitchRef.getValue();
+        return id.firstKeyOf(Node.class).getNodeId().getValue();
     }
 
     public static InstanceIdentifier<Node> createInstanceIdentifierFromHAId(String haUUidVal) {
@@ -144,6 +155,15 @@ public final class HwvtepHAUtil {
         otherConfigsBuilder.setOtherConfigKey(key);
         otherConfigsBuilder.setOtherConfigValue(val);
         return otherConfigsBuilder;
+    }
+
+    public static <D extends Datastore> Node readNode(TypedReadWriteTransaction<D> tx, InstanceIdentifier<Node> nodeId)
+            throws ExecutionException, InterruptedException {
+        Optional<Node> optional = tx.read(nodeId).get();
+        if (optional.isPresent()) {
+            return optional.get();
+        }
+        return null;
     }
 
     public static String convertToGlobalNodeId(String psNodeId) {
@@ -193,10 +213,12 @@ public final class HwvtepHAUtil {
     }
 
     public static boolean isEmpty(Collection collection) {
-        return collection == null || collection.isEmpty();
+        if (collection == null || collection.isEmpty()) {
+            return true;
+        }
+        return false;
     }
 
-    @Nullable
     public static Node getOriginal(DataObjectModification<Node> mod) {
         Node node = null;
         switch (mod.getModificationType()) {
@@ -215,18 +237,23 @@ public final class HwvtepHAUtil {
         return node;
     }
 
-    @Nullable
     public static Node getUpdated(DataObjectModification<Node> mod) {
+        Node node = null;
         switch (mod.getModificationType()) {
             case SUBTREE_MODIFIED:
+                node = mod.getDataAfter();
+                break;
             case WRITE:
-                return mod.getDataAfter();
+                if (mod.getDataAfter() !=  null) {
+                    node = mod.getDataAfter();
+                }
+                break;
             default:
-                return null;
+                break;
         }
+        return node;
     }
 
-    @Nullable
     public static Node getCreated(DataObjectModification<Node> mod) {
         if (mod.getModificationType() == DataObjectModification.ModificationType.WRITE
                 && mod.getDataBefore() == null) {
@@ -235,7 +262,6 @@ public final class HwvtepHAUtil {
         return null;
     }
 
-    @Nullable
     public static Node getRemoved(DataObjectModification<Node> mod) {
         if (mod.getModificationType() == DataObjectModification.ModificationType.DELETE) {
             return mod.getDataBefore();
@@ -243,7 +269,14 @@ public final class HwvtepHAUtil {
         return null;
     }
 
-    @Nullable
+    public static String getPsName(Node psNode) {
+        String psNodeId = psNode.getNodeId().getValue();
+        if (psNodeId.contains(PHYSICALSWITCH)) {
+            return psNodeId.substring(psNodeId.indexOf(PHYSICALSWITCH) + PHYSICALSWITCH.length());
+        }
+        return null;
+    }
+
     public static String getPsName(InstanceIdentifier<Node> psNodeIid) {
         String psNodeId = psNodeIid.firstKeyOf(Node.class).getNodeId().getValue();
         if (psNodeId.contains(PHYSICALSWITCH)) {
@@ -252,7 +285,6 @@ public final class HwvtepHAUtil {
         return null;
     }
 
-    @Nullable
     public static String getPsName(String psNodeId) {
         if (psNodeId.contains(PHYSICALSWITCH)) {
             return psNodeId.substring(psNodeId.indexOf(PHYSICALSWITCH) + PHYSICALSWITCH.length());
@@ -268,7 +300,6 @@ public final class HwvtepHAUtil {
         return convertToInstanceIdentifier(psNodeId);
     }
 
-    @Nullable
     public static InstanceIdentifier<Node> convertPsPath(Node psNode, InstanceIdentifier<Node> nodePath) {
         String psNodeId = psNode.getNodeId().getValue();
         if (psNodeId.contains(PHYSICALSWITCH)) {
@@ -288,7 +319,6 @@ public final class HwvtepHAUtil {
         return nodeBuilder;
     }
 
-    @Nullable
     public static String getHAIdFromManagerOtherConfig(Node node) {
         if (node.augmentation(HwvtepGlobalAugmentation.class) == null) {
             return null;
@@ -296,9 +326,9 @@ public final class HwvtepHAUtil {
         HwvtepGlobalAugmentation globalAugmentation = node.augmentation(HwvtepGlobalAugmentation.class);
         if (globalAugmentation != null) {
             List<Managers> managers = new ArrayList<Managers>(globalAugmentation.nonnullManagers().values());
-            if (managers != null && !managers.isEmpty() && managers.get(0).getManagerOtherConfigs() != null) {
+            if (managers != null && managers.size() > 0 && managers. get(0).nonnullManagerOtherConfigs() != null) {
                 for (ManagerOtherConfigs configs : managers.get(0).nonnullManagerOtherConfigs().values()) {
-                    if (HA_ID.equals(configs.getOtherConfigKey())) {
+                    if (configs.getOtherConfigKey().equals(HA_ID)) {
                         return configs.getOtherConfigValue();
                     }
                 }
@@ -322,12 +352,12 @@ public final class HwvtepHAUtil {
                 haGlobalConfigNodeOptional.get().augmentation(HwvtepGlobalAugmentation.class);
         if (augmentation != null && augmentation.getManagers() != null
                 && augmentation.getManagers().size() > 0) {
-            Managers managers = new ArrayList<Managers>(augmentation.nonnullManagers().values()).get(0);
+            Managers managers = new ArrayList<>(augmentation.nonnullManagers().values()).get(0);
             if (null == managers.getManagerOtherConfigs()) {
                 return childNodeIds;
             }
             for (ManagerOtherConfigs otherConfigs : managers.nonnullManagerOtherConfigs().values()) {
-                if (HA_CHILDREN.equals(otherConfigs.getOtherConfigKey())) {
+                if (otherConfigs.getOtherConfigKey().equals(HA_CHILDREN)) {
                     String nodeIdsVal = otherConfigs.getOtherConfigValue();
                     if (nodeIdsVal != null) {
                         String[] parts = nodeIdsVal.split(",");
@@ -340,6 +370,31 @@ public final class HwvtepHAUtil {
             }
         }
         return childNodeIds;
+    }
+
+    /**
+     * Return PS children for passed PS node .
+     *
+     * @param psNodId PS node path
+     * @return child Switches
+     */
+    public static Set<InstanceIdentifier<Node>> getPSChildrenIdsForHAPSNode(String psNodId) {
+        if (!psNodId.contains(PHYSICALSWITCH)) {
+            return Collections.emptySet();
+        }
+        String nodeId = convertToGlobalNodeId(psNodId);
+        InstanceIdentifier<Node> iid = convertToInstanceIdentifier(nodeId);
+        if (hwvtepHACache.isHAParentNode(iid)) {
+            Set<InstanceIdentifier<Node>> childSwitchIds = new HashSet<>();
+            Set<InstanceIdentifier<Node>> childGlobalIds = hwvtepHACache.getChildrenForHANode(iid);
+            final String append = psNodId.substring(psNodId.indexOf(PHYSICALSWITCH));
+            for (InstanceIdentifier<Node> childId : childGlobalIds) {
+                String childIdVal = childId.firstKeyOf(Node.class).getNodeId().getValue();
+                childSwitchIds.add(convertToInstanceIdentifier(childIdVal + append));
+            }
+            return childSwitchIds;
+        }
+        return Collections.EMPTY_SET;
     }
 
     public static HwvtepGlobalAugmentation getGlobalAugmentationOfNode(Node node) {
@@ -378,11 +433,23 @@ public final class HwvtepHAUtil {
         List<NodeId> childNodeIds = getChildNodeIdsFromManagerOtherConfig(haGlobalCfg);
         nodeIds.addAll(childNodeIds);
 
+        InstanceIdentifier<Node> parentIid = HwvtepHACache.getInstance().getParent(
+                convertToInstanceIdentifier(childNode.getNodeId().getValue()));
+        HwvtepHACache.getInstance().getChildrenForHANode(parentIid).stream()
+                .forEach(iid -> nodeIds.add(iid.firstKeyOf(Node.class).getNodeId()));
+
         ManagersBuilder builder1 = new ManagersBuilder();
 
         builder1.withKey(new ManagersKey(new Uri(MANAGER_KEY)));
         List<ManagerOtherConfigs> otherConfigses = new ArrayList<>();
-        String children = nodeIds.stream().map(NodeId::getValue).collect(Collectors.joining(","));
+        StringBuffer stringBuffer = new StringBuffer();
+        for (NodeId nodeId : nodeIds) {
+            stringBuffer.append(nodeId.getValue());
+            stringBuffer.append(",");
+        }
+
+        String children = stringBuffer.substring(0, stringBuffer.toString().length() - 1);
+
         otherConfigses.add(getOtherConfigBuilder(HA_CHILDREN, children).build());
         builder1.setManagerOtherConfigs(otherConfigses);
         List<Managers> managers = new ArrayList<>();
@@ -417,7 +484,7 @@ public final class HwvtepHAUtil {
         if (!switchesAlreadyPresent) {
             HwvtepGlobalAugmentation augmentation = childNode.augmentation(HwvtepGlobalAugmentation.class);
             if (augmentation != null && augmentation.getSwitches() != null) {
-                List<Switches> src = new ArrayList<Switches>(augmentation.nonnullSwitches().values());
+                List<Switches> src = new ArrayList<>(augmentation.nonnullSwitches().values());
                 if (src != null && src.size() > 0) {
                     psList.add(new SwitchesCmd().transform(haNodePath, src.get(0)));
                 }
@@ -434,7 +501,7 @@ public final class HwvtepHAUtil {
      * @param haNodePath Ha node path
      * @param haGlobalCfg HA global node object
      */
-    public static void buildGlobalConfigForHANode(TypedWriteTransaction<Configuration> tx,
+    public static void buildGlobalConfigForHANode(TypedReadWriteTransaction<Configuration> tx,
                                                   Node childNode,
                                                   InstanceIdentifier<Node> haNodePath,
                                                   Optional<Node> haGlobalCfg) {
@@ -445,13 +512,13 @@ public final class HwvtepHAUtil {
         hwvtepGlobalBuilder.setManagers(buildManagersForHANode(childNode, haGlobalCfg));
 
         nodeBuilder.setNodeId(haNodePath.firstKeyOf(Node.class).getNodeId());
-        nodeBuilder.addAugmentation(HwvtepGlobalAugmentation.class, hwvtepGlobalBuilder.build());
+        nodeBuilder.addAugmentation(hwvtepGlobalBuilder.build());
         Node configHANode = nodeBuilder.build();
         tx.mergeParentStructureMerge(haNodePath, configHANode);
     }
 
     public static <D extends Datastore> void deleteNodeIfPresent(TypedReadWriteTransaction<D> tx,
-            InstanceIdentifier<?> iid) throws ExecutionException, InterruptedException {
+        InstanceIdentifier<?> iid) throws ExecutionException, InterruptedException {
         if (tx.read(iid).get().isPresent()) {
             LOG.info("Deleting child node {}", getNodeIdVal(iid));
             tx.delete(iid);
@@ -466,28 +533,29 @@ public final class HwvtepHAUtil {
      * @param tx Transaction
      */
     public static void deletePSNodesOfNode(InstanceIdentifier<Node> key, Node haNode,
-            TypedReadWriteTransaction<Configuration> tx) throws ExecutionException, InterruptedException {
+        TypedReadWriteTransaction<Configuration> tx) throws ExecutionException, InterruptedException {
         //read from switches attribute and clean up them
         HwvtepGlobalAugmentation globalAugmentation = haNode.augmentation(HwvtepGlobalAugmentation.class);
         if (globalAugmentation == null) {
             return;
         }
         HashMap<InstanceIdentifier<Node>,Boolean> deleted = new HashMap<>();
-        Map<SwitchesKey, Switches> switches = globalAugmentation.nonnullSwitches();
+        List<Switches> switches = new ArrayList<>(globalAugmentation.nonnullSwitches().values());
         if (switches != null) {
-            for (Switches switche : switches.values()) {
+            for (Switches switche : switches) {
                 InstanceIdentifier<Node> psId = (InstanceIdentifier<Node>)switche.getSwitchRef().getValue();
                 deleteNodeIfPresent(tx, psId);
                 deleted.put(psId, Boolean.TRUE);
             }
         }
         //also read from managed by attribute of switches and cleanup them as a back up if the above cleanup fails
-        Optional<Topology> topologyOptional = tx .read(key.firstIdentifierOf(Topology.class)).get();
+        Optional<Topology> topologyOptional = tx
+                .read(key.firstIdentifierOf(Topology.class)).get();
         String deletedNodeId = key.firstKeyOf(Node.class).getNodeId().getValue();
         if (topologyOptional.isPresent()) {
             Topology topology = topologyOptional.get();
             if (topology.getNode() != null) {
-                for (Node psNode : topology.nonnullNode().values()) {
+                for (Node psNode : topology.getNode().values()) {
                     PhysicalSwitchAugmentation ps = psNode.augmentation(PhysicalSwitchAugmentation.class);
                     if (ps != null) {
                         InstanceIdentifier<Node> iid = (InstanceIdentifier<Node>)ps.getManagedBy().getValue();
@@ -505,12 +573,50 @@ public final class HwvtepHAUtil {
         }
     }
 
-    public static void addToCacheIfHAChildNode(InstanceIdentifier<Node> childPath, Node childNode,
-            HwvtepNodeHACache hwvtepNodeHACache) {
-        String haId = HwvtepHAUtil.getHAIdFromManagerOtherConfig(childNode);
-        if (!Strings.isNullOrEmpty(haId)) {
-            InstanceIdentifier<Node> parentId = HwvtepHAUtil.createInstanceIdentifierFromHAId(haId);
-            hwvtepNodeHACache.addChild(parentId, childPath/*child*/);
+    /**
+     * Delete switches from Node in Operational Data Tree .
+     *
+     * @param haPath HA node path from whih switches will be deleted
+     * @param tx  Transaction object
+     * @throws ReadFailedException  Exception thrown if read fails
+     */
+    /*public static void deleteSwitchesManagedByNode(InstanceIdentifier<Node> haPath,
+                                                   ReadWriteTransaction tx)
+            throws ReadFailedException {
+
+        Optional<Node> nodeOptional = tx.read(OPERATIONAL, haPath).checkedGet();
+        if (!nodeOptional.isPresent()) {
+            return;
         }
-    }
+        Node node = nodeOptional.get();
+        HwvtepGlobalAugmentation globalAugmentation = node.augmentation(HwvtepGlobalAugmentation.class);
+        if (globalAugmentation == null) {
+            return;
+        }
+        List<Switches> switches = globalAugmentation.getSwitches();
+        if (switches != null) {
+            for (Switches switche : switches) {
+                InstanceIdentifier<Node> id = (InstanceIdentifier<Node>)switche.getSwitchRef().getValue();
+                deleteNodeIfPresent(tx, OPERATIONAL, id);
+            }
+        }
+    }*/
+
+    /**
+     * Returns true/false if all the childrens are deleted from Operational Data store.
+     *
+     * @param children IID for the child node to read from OP data tree
+     * @param tx Transaction
+     * @return true/false boolean
+     * @throws ReadFailedException Exception thrown if read fails
+     */
+    /*public static boolean areAllChildDeleted(Set<InstanceIdentifier<Node>> children,
+                                             ReadWriteTransaction tx) throws ReadFailedException {
+        for (InstanceIdentifier<Node> childId : children) {
+            if (tx.read(OPERATIONAL, childId).checkedGet().isPresent()) {
+                return false;
+            }
+        }
+        return true;
+    }*/
 }

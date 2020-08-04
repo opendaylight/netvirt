@@ -16,7 +16,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
+import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
@@ -104,7 +104,7 @@ public class NodeConnectedHandlerTest extends AbstractConcurrentDataBrokerTest {
 
         haPsNodePath = createInstanceIdentifier(haNodeId.getValue() + "/physicalswitch/" + switchName);
 
-        nodeConnectedHandler = new NodeConnectedHandler(getDataBroker(), Mockito.mock(HwvtepNodeHACache.class));
+        nodeConnectedHandler = new NodeConnectedHandler(getDataBroker(), Mockito.mock(HwvtepHACache.class));
     }
 
     @Test

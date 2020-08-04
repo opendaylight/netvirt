@@ -9,9 +9,12 @@ package org.opendaylight.netvirt.elan.l2gw.ha.handlers;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
 import org.opendaylight.mdsal.binding.util.Datastore.Operational;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.mdsal.binding.util.TypedReadWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -21,9 +24,11 @@ public class HAEventHandler implements IHAEventHandler {
 
     private final ConfigNodeUpdatedHandler configNodeUpdatedHandler = new ConfigNodeUpdatedHandler();
     private final OpNodeUpdatedHandler opNodeUpdatedHandler = new OpNodeUpdatedHandler();
+    private final ManagedNewTransactionRunner txRunner;
 
     @Inject
-    public HAEventHandler() {
+    public HAEventHandler(DataBroker db) {
+        this.txRunner = new ManagedNewTransactionRunnerImpl(db);
     }
 
     @Override
@@ -33,7 +38,7 @@ public class HAEventHandler implements IHAEventHandler {
         if (haPath == null) {
             return;
         }
-        opNodeUpdatedHandler.copyChildGlobalOpUpdateToHAParent(haPath, mod, tx);
+        opNodeUpdatedHandler.copyChildGlobalOpUpdateToHAParent(haPath, mod, tx, txRunner);
     }
 
     @Override
@@ -44,7 +49,7 @@ public class HAEventHandler implements IHAEventHandler {
         if (haPath == null) {
             return;
         }
-        opNodeUpdatedHandler.copyChildPsOpUpdateToHAParent(updatedSrcPSNode, haPath, mod, tx);
+        opNodeUpdatedHandler.copyChildPsOpUpdateToHAParent(updatedSrcPSNode, haPath, mod, tx, txRunner);
     }
 
     @Override
@@ -54,7 +59,7 @@ public class HAEventHandler implements IHAEventHandler {
         if (haChildNodeId == null) {
             return;
         }
-        configNodeUpdatedHandler.copyHAPSUpdateToChild(haChildNodeId, mod, tx);
+        configNodeUpdatedHandler.copyHAPSUpdateToChild(haChildNodeId, mod, tx, txRunner);
     }
 
     @Override
@@ -64,7 +69,7 @@ public class HAEventHandler implements IHAEventHandler {
         if (haChildNodeId == null) {
             return;
         }
-        configNodeUpdatedHandler.copyHAGlobalUpdateToChild(haChildNodeId, mod, tx);
+        configNodeUpdatedHandler.copyHAGlobalUpdateToChild(haChildNodeId, mod, tx, txRunner);
     }
 
 }
