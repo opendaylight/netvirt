@@ -122,18 +122,15 @@ public class VirtualNetwork implements IVirtualNetwork {
     }
 
     public static class DpnInterfaceInfo {
-        Uint64 dpId;
-        int rsPuntFlowConfigured;
-        final Set<Uuid> subnetCidrPuntFlowList = ConcurrentHashMap.newKeySet();
+        private Uint64 dpId;
+        private int rsPuntFlowConfigured = Ipv6ServiceConstants.FLOWS_NOT_CONFIGURED;
+        private final Set<Uuid> subnetCidrPuntFlowList = ConcurrentHashMap.newKeySet();
         final Set<Ipv6Address> ndTargetFlowsPunted = ConcurrentHashMap.newKeySet();
-        ConcurrentMap<Long, Uuid> ofPortMap;
-        ConcurrentMap<Uuid, Integer> ovsNaResponderFlowConfigured;
+        final ConcurrentMap<Long, Uuid> ofPortMap = new ConcurrentHashMap<>();
+        private final ConcurrentMap<Uuid, Integer> ovsNaResponderFlowConfigured = new ConcurrentHashMap<>();
 
         DpnInterfaceInfo(Uint64 dpnId) {
             dpId = dpnId;
-            ofPortMap = new ConcurrentHashMap();
-            rsPuntFlowConfigured = Ipv6ServiceConstants.FLOWS_NOT_CONFIGURED;
-            ovsNaResponderFlowConfigured = new ConcurrentHashMap();
         }
 
         public void setDpId(Uint64 dpId) {
