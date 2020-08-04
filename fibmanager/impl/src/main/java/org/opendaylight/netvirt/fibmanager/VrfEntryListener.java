@@ -66,7 +66,6 @@ import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchMplsLabel;
-import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.genius.utils.batching.SubTransaction;
@@ -939,20 +938,20 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
                 () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
                     baseVrfEntryHandler.makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, instructions,
                             NwConstants.ADD_FLOW, TransactionAdapter.toWriteTransaction(tx), null);
-                    if (FibUtil.isBgpVpn(vpnName, rd)) {
+                    if (FibHelper.isControllerManagedBgpVpnRoute(vpnName, rd, vrfEntry)) {
                         optLabel.ifPresent(label -> {
                             if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.SELF_IMPORTED) {
                                 LOG.debug(
-                                        "Installing LFIB and tunnel table entry on dpn {} for interface {} with label "
+                                        "Installing LFIB entry on dpn {} for interface {} with label "
                                                 + "{}, rd {}, prefix {}, nexthop {}", dpnId,
                                         localNextHopInfo.getVpnInterfaceName(), optLabel, rd, vrfEntry.getDestPrefix(),
                                         nextHopAddressList);
                                 makeLFibTableEntry(dpnId, label, lfibinstructions, DEFAULT_FIB_FLOW_PRIORITY,
                                         NwConstants.ADD_FLOW, tx);
-                                makeTunnelTableEntry(dpnId, label, localGroupId, tx);
                             } else {
-                                LOG.debug("Route with rd {} prefix {} label {} nexthop {} for vpn {} is an imported "
-                                                + "route. LFib and Terminating table entries will not be created.",
+                                LOG.debug("Route with rd {} prefix {} label {} nexthop {} for vpn {}"
+                                        + "is either an imported route or a route off a plain router."
+                                        + "LFib table entries will not be created.",
                                         rd, vrfEntry.getDestPrefix(), optLabel, nextHopAddressList, vpnId);
                             }
                         });
@@ -1031,72 +1030,6 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, lriId, builder.build());
         }
         return false;
-    }
-
-    void makeTunnelTableEntry(Uint64 dpId, Uint32 label, long groupId/*String egressInterfaceName*/,
-                                      TypedWriteTransaction<Configuration> tx) {
-        List<ActionInfo> actionsInfos = Collections.singletonList(new ActionGroup(groupId));
-
-        createTerminatingServiceActions(dpId, label, actionsInfos, tx);
-
-        LOG.debug("Terminating service Entry for dpID {} : label : {} egress : {} installed successfully",
-            dpId, label, groupId);
-    }
-
-    public void createTerminatingServiceActions(Uint64 destDpId, Uint32 label, List<ActionInfo> actionsInfos,
-                                                TypedWriteTransaction<Configuration> tx) {
-        List<MatchInfo> mkMatches = new ArrayList<>();
-
-        LOG.debug("create terminatingServiceAction on DpnId = {} and serviceId = {} and actions = {}",
-            destDpId, label, actionsInfos);
-
-        // Matching metadata
-        // FIXME vxlan vni bit set is not working properly with OVS.need to revisit
-        mkMatches.add(new MatchTunnelId(Uint64.valueOf(label.longValue())));
-
-        List<InstructionInfo> mkInstructions = new ArrayList<>();
-        mkInstructions.add(new InstructionApplyActions(actionsInfos));
-
-        FlowEntity terminatingServiceTableFlowEntity =
-            MDSALUtil.buildFlowEntity(destDpId, NwConstants.INTERNAL_TUNNEL_TABLE,
-            getTableMissFlowRef(destDpId, NwConstants.INTERNAL_TUNNEL_TABLE, label),
-                    FibConstants.DEFAULT_VPN_INTERNAL_TUNNEL_TABLE_PRIORITY,
-                    String.format("%s:%s", "TST Flow Entry ", label), 0, 0,
-                    Uint64.valueOf(COOKIE_TUNNEL.longValue() + label.longValue()),
-                    mkMatches, mkInstructions);
-
-        FlowKey flowKey = new FlowKey(new FlowId(terminatingServiceTableFlowEntity.getFlowId()));
-
-        FlowBuilder flowbld = terminatingServiceTableFlowEntity.getFlowBuilder();
-
-        Node nodeDpn = FibUtil.buildDpnNode(terminatingServiceTableFlowEntity.getDpnId());
-        InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
-            .child(Node.class, nodeDpn.key()).augmentation(FlowCapableNode.class)
-            .child(Table.class, new TableKey(terminatingServiceTableFlowEntity.getTableId()))
-            .child(Flow.class, flowKey).build();
-        tx.mergeParentStructurePut(flowInstanceId, flowbld.build());
-    }
-
-    private void removeTunnelTableEntry(Uint64 dpId, Uint32 label, TypedWriteTransaction<Configuration> tx) {
-        FlowEntity flowEntity;
-        LOG.debug("remove terminatingServiceActions called with DpnId = {} and label = {}", dpId, label);
-        List<MatchInfo> mkMatches = new ArrayList<>();
-        // Matching metadata
-        mkMatches.add(new MatchTunnelId(Uint64.valueOf(label.longValue())));
-        flowEntity = MDSALUtil.buildFlowEntity(dpId,
-            NwConstants.INTERNAL_TUNNEL_TABLE,
-            getTableMissFlowRef(dpId, NwConstants.INTERNAL_TUNNEL_TABLE, label),
-                FibConstants.DEFAULT_VPN_INTERNAL_TUNNEL_TABLE_PRIORITY,
-                String.format("%s:%s", "TST Flow Entry ", label), 0, 0,
-                Uint64.valueOf(COOKIE_TUNNEL.longValue() + label.longValue()), mkMatches, null);
-        Node nodeDpn = FibUtil.buildDpnNode(flowEntity.getDpnId());
-        FlowKey flowKey = new FlowKey(new FlowId(flowEntity.getFlowId()));
-        InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
-            .child(Node.class, nodeDpn.key()).augmentation(FlowCapableNode.class)
-            .child(Table.class, new TableKey(flowEntity.getTableId())).child(Flow.class, flowKey).build();
-
-        tx.delete(flowInstanceId);
-        LOG.debug("Terminating service Entry for dpID {} : label : {} removed successfully", dpId, label);
     }
 
     public List<Uint64> deleteLocalFibEntry(Uint32 vpnId, String rd, VrfEntry vrfEntry) {
@@ -1195,14 +1128,11 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
                 () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
                     baseVrfEntryHandler.makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, null,
                             NwConstants.DEL_FLOW, TransactionAdapter.toWriteTransaction(tx), null);
-                    if (FibUtil.isBgpVpn(vpnName, rd)) {
-                        if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.SELF_IMPORTED) {
-                            FibUtil.getLabelFromRoutePaths(vrfEntry).ifPresent(label -> {
-                                makeLFibTableEntry(dpnId, label, null /* instructions */, DEFAULT_FIB_FLOW_PRIORITY,
-                                        NwConstants.DEL_FLOW, tx);
-                                removeTunnelTableEntry(dpnId, label, tx);
-                            });
-                        }
+                    if (FibHelper.isControllerManagedBgpVpnRoute(vpnName, rd, vrfEntry)) {
+                        FibUtil.getLabelFromRoutePaths(vrfEntry).ifPresent(label -> {
+                            makeLFibTableEntry(dpnId, label, null /* instructions */,
+                                    DEFAULT_FIB_FLOW_PRIORITY, NwConstants.DEL_FLOW, tx);
+                        });
                     }
                 })));
             //TODO: verify below adjacency call need to be optimized (?)
@@ -2059,11 +1989,6 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
     private String getInterVpnFibFlowRef(String interVpnLinkName, String prefix, String nextHop) {
         return FLOWID_PREFIX + interVpnLinkName + NwConstants.FLOWID_SEPARATOR + prefix + NwConstants
                 .FLOWID_SEPARATOR + nextHop;
-    }
-
-    private String getTableMissFlowRef(Uint64 dpnId, short tableId, Uint32 tableMiss) {
-        return FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId + NwConstants.FLOWID_SEPARATOR
-                + tableMiss + FLOWID_PREFIX;
     }
 
     @Nullable
