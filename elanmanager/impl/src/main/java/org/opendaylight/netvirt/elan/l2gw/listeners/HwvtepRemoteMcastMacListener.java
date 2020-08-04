@@ -14,7 +14,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepClusteredDataTreeChangeListener;
 import org.opendaylight.genius.utils.SystemPropertyReader;
-import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
+import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
@@ -75,13 +75,13 @@ public class HwvtepRemoteMcastMacListener
                                         L2GatewayDevice l2GatewayDevice,
                                         List<IpAddress> expectedPhyLocatorIps,
                                         Callable<List<? extends ListenableFuture<?>>> task,
-                                        JobCoordinator jobCoordinator, HwvtepNodeHACache hwvtepNodeHACache)
+                                        JobCoordinator jobCoordinator, HwvtepHACache hwvtepHACache)
                                                 throws Exception {
         super(broker, DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
             HwvtepSouthboundUtils.createRemoteMcastMacsInstanceIdentifier(new NodeId(l2GatewayDevice.getHwvtepNodeId()),
             logicalSwitchName, new MacAddress(ElanConstants.UNKNOWN_DMAC))),
             Executors.newListeningSingleThreadExecutor("HwvtepRemoteMcastMacListener", LOG),
-            hwvtepNodeHACache);
+            hwvtepHACache);
         this.elanUtils = elanUtils;
         this.nodeId = new NodeId(l2GatewayDevice.getHwvtepNodeId());
         this.taskToRun = task;

@@ -27,7 +27,6 @@ public final class L2GatewayUtils {
     private static final Logger LOG = LoggerFactory.getLogger(L2GatewayUtils.class);
 
     private L2GatewayUtils() {
-
     }
 
     protected static boolean isLastL2GatewayBeingDeleted(L2GatewayDevice l2GwDevice) {
