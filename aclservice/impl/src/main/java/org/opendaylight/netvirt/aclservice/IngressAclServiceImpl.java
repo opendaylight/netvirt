@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.aclservice;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
@@ -195,9 +195,9 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
 
         Uint64 metaData = Uint64.fromLongBits(MetaDataUtil.METADATA_MASK_ACL_DROP.longValue()
-                & (AclConstants.METADATA_DROP_FLAG.longValue() << 2));
+                & AclConstants.METADATA_DROP_FLAG.longValue() << 2);
         Uint64 metaDataMask = Uint64.fromLongBits(MetaDataUtil.METADATA_MASK_ACL_DROP.longValue()
-                & (AclConstants.METADATA_DROP_FLAG.longValue() << 2));
+                & AclConstants.METADATA_DROP_FLAG.longValue() << 2);
 
         matches.add(new NxMatchRegister(NxmNxReg6.class, MetaDataUtil.getLportTagForReg6(lportTag).longValue(),
                 MetaDataUtil.getLportTagMaskForReg6()));
@@ -398,6 +398,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      * @param subnetInfoList the port subnet info list
      * @param addOrRemove whether to delete or add flow
      */
+    @Override
     protected void programSubnetBroadcastRules(List<FlowEntity> flowEntries, AclInterface port,
             List<SubnetInfo> subnetInfoList, int addOrRemove) {
         programIpv4BroadcastRule(flowEntries, port, subnetInfoList, addOrRemove);
