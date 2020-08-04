@@ -74,6 +74,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <artifactId>org.apache.karaf.shell.console</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
 
         <!-- Dependencies used only by code under src/test (<scope>test) -->
         <dependency>
