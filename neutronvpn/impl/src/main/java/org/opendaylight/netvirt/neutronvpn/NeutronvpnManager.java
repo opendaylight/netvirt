@@ -2447,6 +2447,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             }
             Set<VpnTarget> routeTargets = vpnManager.getRtListForVpn(vpnId.getValue());
             boolean isIpFamilyUpdated = false;
+            IpVersionChoice ipVersion = IpVersionChoice.UNDEFINED;
             for (Uuid nw : networkList) {
                 Network network = neutronvpnUtils.getNeutronNetwork(nw);
                 if (network == null) {
@@ -2476,9 +2477,21 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                  */
                 if (neutronvpnUtils.getIsExternal(network)) {
                     extNwMap.put(nw, network);
-                }
-                if (NeutronvpnUtils.getIsExternal(network)) {
                     isExternalNetwork = true;
+                    //Check whether router-gw is set with external network before external network to BGPVPN association
+                    List<Uuid> routerList = neutronvpnUtils.getRouterIdsForExtNetwork(nw);
+                    if (!routerList.isEmpty()) {
+                        for (Uuid routerId : routerList) {
+                            //If v6 subnet was already added to router means it requires IPv6 AddrFamily in VpnInstance
+                            if (neutronvpnUtils.isV6SubnetPartOfRouter(routerId)) {
+                                ipVersion = ipVersion.addVersion(IpVersionChoice.IPV6);
+                                LOG.debug("associateNetworksToVpn: External network {} is already associated with "
+                                        + "router(router-gw) {} and V6 subnet is part of that router. Hence Set IPv6 "
+                                        + "address family type in Internet VPN Instance {}", network, routerId, vpnId);
+                                break;
+                            }
+                        }
+                    }
                 }
                 List<Subnetmap> subnetmapList = neutronvpnUtils.getSubnetmapListFromNetworkId(nw);
                 if (subnetmapList == null || subnetmapList.isEmpty()) {
@@ -2488,7 +2501,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 if (vpnManager.checkForOverlappingSubnets(nw, subnetmapList, vpnId, routeTargets, failedNwList)) {
                     continue;
                 }
-                IpVersionChoice ipVersion = IpVersionChoice.UNDEFINED;
                 for (Subnetmap subnetmap : subnetmapList) {
                     IpVersionChoice ipVers = NeutronvpnUtils.getIpVersionFromString(subnetmap.getSubnetIp());
                     if (!ipVersion.isIpVersionChosen(ipVers)) {
@@ -2602,6 +2614,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         List<String> failedNwList = new ArrayList<>();
         HashSet<Uuid> passedNwList = new HashSet<>();
         ConcurrentMap<Uuid, Network> extNwMap = new ConcurrentHashMap<>();
+        IpVersionChoice ipVersion = IpVersionChoice.UNDEFINED;
         if (networkList.isEmpty()) {
             LOG.error("dissociateNetworksFromVpn: Failed as networks list is empty");
             failedNwList.add(String.format("Failed to disassociate networks from VPN %s as networks list is empty",
@@ -2641,8 +2654,21 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
              */
             if (neutronvpnUtils.getIsExternal(network)) {
                 extNwMap.put(nw, network);
+                //Handle external-Nw to BGPVPN Disassociation and still ext-router is being set with external-Nw
+                List<Uuid> routerList = neutronvpnUtils.getRouterIdsForExtNetwork(nw);
+                if (!routerList.isEmpty()) {
+                    for (Uuid routerId : routerList) {
+                        //If v6 subnet was already added to router means it requires IPv6 AddrFamily in VpnInstance
+                        if (neutronvpnUtils.isV6SubnetPartOfRouter(routerId)) {
+                            ipVersion = ipVersion.addVersion(IpVersionChoice.IPV6);
+                            LOG.debug("dissociateNetworksFromVpn: External network {} is still associated with "
+                                    + "router(router-gw) {} and V6 subnet is part of that router. Hence Set IPv6 "
+                                    + "address family type in Internet VPN Instance {}", network, routerId, vpnId);
+                            break;
+                        }
+                    }
+                }
             }
-            IpVersionChoice ipVersion = IpVersionChoice.UNDEFINED;
             for (Uuid subnet : networkSubnets) {
                 Subnetmap subnetmap = neutronvpnUtils.getSubnetmap(subnet);
                 if (subnetmap == null) {
