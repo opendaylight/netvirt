@@ -95,6 +95,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neu
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalSubnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpPortInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
@@ -1811,6 +1812,28 @@ public class NeutronvpnUtils {
         public void onFailure(Throwable throwable) {
             settableFuture.setException(throwable);
         }
+    }
+
+    public List<Uuid> getRouterIdsForExtNetwork(Uuid extNetwork) {
+        InstanceIdentifier<ExternalNetworks> externalNwIdentifier = InstanceIdentifier.create(ExternalNetworks.class);
+        Optional<ExternalNetworks> externalNwData;
+        try {
+            externalNwData = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, externalNwIdentifier);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.warn("getRouterIdsForExtNetwork: Exception while reading External-Network DS for the network {}",
+                    extNetwork.getValue(), e);
+            return Collections.emptyList();
+        }
+        if (externalNwData.isPresent()) {
+            for (org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external
+                    .networks.Networks externalNw : externalNwData.get().getNetworks().values()) {
+                if (externalNw.getId().equals(extNetwork)) {
+                    return externalNw.getRouterIds();
+                }
+            }
+        }
+        return Collections.emptyList();
     }
 }
 
