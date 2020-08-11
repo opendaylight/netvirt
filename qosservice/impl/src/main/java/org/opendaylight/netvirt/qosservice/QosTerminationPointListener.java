@@ -8,18 +8,18 @@
 
 package org.opendaylight.netvirt.qosservice;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 
 import java.util.Collections;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;

@@ -39,5 +39,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <artifactId>mdsalutil-api</artifactId>
             <version>0.10.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>org.opendaylight.mdsal</groupId>
+            <artifactId>mdsal-binding-util</artifactId>
+        </dependency>
     </dependencies>
 </project>
