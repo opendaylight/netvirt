@@ -7,16 +7,16 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
-import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.OPERATIONAL;
 
 import com.google.common.util.concurrent.FluentFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.cache.DataObjectCache;
 import org.opendaylight.infrautils.caches.CacheProvider;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NeutronVipStates;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.neutron.vip.states.VipState;

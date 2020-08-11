@@ -8,7 +8,8 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import static java.util.Collections.emptyList;
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
+import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.CONFIGURATION;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
@@ -38,12 +39,6 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.sal.common.util.Arguments;
 import org.opendaylight.genius.datastoreutils.ExpectedDataObjectNotFoundException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
-import org.opendaylight.genius.infra.Datastore.Configuration;
-import org.opendaylight.genius.infra.Datastore.Operational;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.TypedReadTransaction;
-import org.opendaylight.genius.infra.TypedReadWriteTransaction;
-import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
@@ -70,6 +65,13 @@ import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.Datastore;
+import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
+import org.opendaylight.mdsal.binding.util.Datastore.Operational;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.TypedReadTransaction;
+import org.opendaylight.mdsal.binding.util.TypedReadWriteTransaction;
+import org.opendaylight.mdsal.binding.util.TypedWriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
@@ -1744,7 +1746,7 @@ public final class NatUtil {
     }
 
     @Nullable
-    public static Routers getRoutersFromConfigDS(TypedReadTransaction<Configuration> confTx, String routerName) {
+    public static <D extends Datastore> Routers getRoutersFromConfigDS(TypedReadTransaction<D> confTx, String routerName) {
         try {
             return confTx.read(NatUtil.buildRouterIdentifier(routerName)).get().orElse(null);
         } catch (InterruptedException | ExecutionException e) {
@@ -2137,7 +2139,7 @@ public final class NatUtil {
     }
 
     @Nullable
-    public static String getPrimaryRd(String vpnName, TypedReadTransaction<Configuration> tx)
+    public static <D extends Datastore> String getPrimaryRd(String vpnName, TypedReadTransaction<D> tx)
         throws ExecutionException, InterruptedException {
         return tx.read(getVpnInstanceIdentifier(vpnName)).get().map(NatUtil::getPrimaryRd).orElse(null);
     }

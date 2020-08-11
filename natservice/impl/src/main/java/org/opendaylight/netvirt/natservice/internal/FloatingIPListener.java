@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.CONFIGURATION;
 
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -22,10 +22,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
-import org.opendaylight.genius.infra.Datastore.Configuration;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -51,6 +47,11 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.Datastore;
+import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.mdsal.binding.util.TypedReadWriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.natservice.api.CentralizedSwitchScheduler;
 import org.opendaylight.netvirt.natservice.api.NatSwitchCache;
@@ -485,9 +486,9 @@ public class FloatingIPListener extends AbstractAsyncDataTreeChangeListener<Inte
         return updatedDpnId;
     }
 
-    void createNATFlowEntries(String interfaceName, final InternalToExternalPortMap mapping,
+    <D extends Datastore> void createNATFlowEntries(String interfaceName, final InternalToExternalPortMap mapping,
             final InstanceIdentifier<RouterPorts> portIid, final String routerName, @Nullable Uint64 dpnId,
-            TypedReadWriteTransaction<Configuration> confTx) throws ExecutionException, InterruptedException {
+            TypedReadWriteTransaction<D> confTx) throws ExecutionException, InterruptedException {
         if (!validateIpMapping(mapping)) {
             LOG.error("createNATFlowEntries : Not a valid ip addresses in the mapping {}", mapping);
             return;

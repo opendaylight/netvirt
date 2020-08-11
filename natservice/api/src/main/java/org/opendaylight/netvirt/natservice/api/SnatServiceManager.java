@@ -9,8 +9,8 @@ package org.opendaylight.netvirt.natservice.api;
 
 import java.util.concurrent.ExecutionException;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.genius.infra.Datastore.Configuration;
-import org.opendaylight.genius.infra.TypedReadWriteTransaction;
+import org.opendaylight.mdsal.binding.util.Datastore;
+import org.opendaylight.mdsal.binding.util.TypedReadWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
@@ -28,7 +28,7 @@ public interface SnatServiceManager {
         CNT_ROUTER_DISBL
     }
 
-    void notify(TypedReadWriteTransaction<Configuration> confTx, Routers router, @Nullable Routers oldRouter,
+    <D extends Datastore> void notify(TypedReadWriteTransaction<D> confTx, Routers router, @Nullable Routers oldRouter,
                 Uint64 primarySwitchId, @Nullable Uint64 dpnId, Action action)
         throws ExecutionException, InterruptedException;
 
