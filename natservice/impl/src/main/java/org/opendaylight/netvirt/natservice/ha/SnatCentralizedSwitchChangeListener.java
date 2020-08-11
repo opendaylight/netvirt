@@ -8,7 +8,7 @@
 
 package org.opendaylight.netvirt.natservice.ha;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 
 import java.time.Duration;
 import java.util.Objects;
@@ -17,13 +17,13 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
-import org.opendaylight.genius.infra.Datastore;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.mdsal.binding.util.TypedReadWriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.natservice.api.SnatServiceManager;
 import org.opendaylight.netvirt.natservice.internal.NatConstants;
@@ -124,21 +124,31 @@ public class SnatCentralizedSwitchChangeListener
             Routers updatedRouter = NatUtil.getRoutersFromConfigDS(confTx, updatedRouterToNaptSwitch.getRouterName());
             if (!Objects.equals(origPrimarySwitchId, updatedPrimarySwitchId)) {
                 if (origRouter != null) {
-                    snatServiceManger.notify(confTx, origRouter, null, origPrimarySwitchId, null,
-                            SnatServiceManager.Action.CNT_ROUTER_ALL_SWITCH_DISBL);
-                    if (origRouterToNaptSwitch.isEnableSnat()) {
+                    try {
                         snatServiceManger.notify(confTx, origRouter, null, origPrimarySwitchId, null,
-                                SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
+                                SnatServiceManager.Action.CNT_ROUTER_ALL_SWITCH_DISBL);
+                        if (origRouterToNaptSwitch.isEnableSnat()) {
+                            snatServiceManger.notify(confTx, origRouter, null, origPrimarySwitchId, null,
+                                    SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
+                        }
+                    } catch (ExecutionException | InterruptedException e) {
+                        LOG.error("Exception while notifying snatManager for : {}", origRouter, e);
                     }
                     natDataUtil.removeFromRouterMap(origRouter);
                 }
                 if (updatedRouter != null) {
                     natDataUtil.updateRouterMap(updatedRouter);
-                    snatServiceManger.notify(confTx, updatedRouter, null, updatedPrimarySwitchId, null,
-                            SnatServiceManager.Action.CNT_ROUTER_ALL_SWITCH_ENBL);
-                    if (updatedRouterToNaptSwitch.isEnableSnat()) {
-                        snatServiceManger.notify(confTx, updatedRouter, null, updatedPrimarySwitchId, null,
-                                SnatServiceManager.Action.SNAT_ALL_SWITCH_ENBL);
+                    try {
+                        snatServiceManger
+                            .notify(confTx, updatedRouter, null, updatedPrimarySwitchId, null,
+                                SnatServiceManager.Action.CNT_ROUTER_ALL_SWITCH_ENBL);
+                        if (updatedRouterToNaptSwitch.isEnableSnat()) {
+                            snatServiceManger
+                                .notify(confTx, updatedRouter, null, updatedPrimarySwitchId, null,
+                                    SnatServiceManager.Action.SNAT_ALL_SWITCH_ENBL);
+                        }
+                    } catch (ExecutionException | InterruptedException e) {
+                        LOG.error("Exception while notifying snatManager for : {}", updatedRouter, e);
                     }
                 }
             } else {
@@ -158,6 +168,7 @@ public class SnatCentralizedSwitchChangeListener
                         snatServiceManger.notify(confTx, origRouter, null, origPrimarySwitchId, null,
                                 SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
                     }
+
                 }
             }
         }), LOG, "Error handling SNAT centralized switch update");
@@ -201,16 +212,19 @@ public class SnatCentralizedSwitchChangeListener
                         isEnableSnat)), LOG, "Error handling router addition");
     }
 
-    private void handleAdd(TypedReadWriteTransaction<Datastore.Configuration> confTx,
-            String routerName, Routers router, Uint64 primarySwitchId, boolean isSnatEnabled)
-            throws ExecutionException, InterruptedException {
+    private void handleAdd(TypedReadWriteTransaction<Configuration> confTx,
+            String routerName, Routers router, Uint64 primarySwitchId, boolean isSnatEnabled) {
         if (router != null) {
             natDataUtil.addtoRouterMap(router);
-            snatServiceManger.notify(confTx, router, null, primarySwitchId, null,
-                    SnatServiceManager.Action.CNT_ROUTER_ALL_SWITCH_ENBL);
-            if (isSnatEnabled) {
+            try {
                 snatServiceManger.notify(confTx, router, null, primarySwitchId, null,
+                    SnatServiceManager.Action.CNT_ROUTER_ALL_SWITCH_ENBL);
+                if (isSnatEnabled) {
+                    snatServiceManger.notify(confTx, router, null, primarySwitchId, null,
                         SnatServiceManager.Action.SNAT_ALL_SWITCH_ENBL);
+                }
+            } catch (ExecutionException | InterruptedException e) {
+                LOG.error("Exception while notfiying for {}", router, e);
             }
         } else {
             LOG.error("Router {} not found for primarySwitch {}", routerName, primarySwitchId);
