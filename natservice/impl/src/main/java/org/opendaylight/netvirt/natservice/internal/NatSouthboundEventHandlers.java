@@ -7,8 +7,8 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.OPERATIONAL;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
@@ -28,13 +28,13 @@ import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
-import org.opendaylight.genius.infra.Datastore.Operational;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.Datastore.Operational;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.mdsal.binding.util.TypedReadWriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -207,9 +207,9 @@ public class NatSouthboundEventHandlers {
 
         @Override
         @SuppressWarnings("checkstyle:IllegalCatch")
-        public List<ListenableFuture<Void>> call() {
+        public List<ListenableFuture<?>> call() {
             LOG.trace("call : Received interface {} PORT UP OR ADD event ", interfaceName);
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            List<ListenableFuture<?>> futures = new ArrayList<>();
             final ReentrantLock lock = NatUtil.lockForNat(intfDpnId);
             lock.lock();
             try {
@@ -238,9 +238,9 @@ public class NatSouthboundEventHandlers {
 
         @Override
         @SuppressWarnings("checkstyle:IllegalCatch")
-        public List<ListenableFuture<Void>> call() {
+        public List<ListenableFuture<?>> call() {
             LOG.trace("call : Received interface {} PORT DOWN or REMOVE event", interfaceName);
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            List<ListenableFuture<?>> futures = new ArrayList<>();
             final ReentrantLock lock = NatUtil.lockForNat(intfDpnId);
             lock.lock();
             try {
@@ -270,12 +270,12 @@ public class NatSouthboundEventHandlers {
 
         @Override
         @SuppressWarnings("checkstyle:IllegalCatch")
-        public List<ListenableFuture<Void>> call() {
+        public List<ListenableFuture<?>> call() {
             final String interfaceName = update.getName();
             LOG.trace("call : Received interface {} state change event", interfaceName);
             LOG.debug("call : DPN ID {} for the interface {} ", intfDpnId, interfaceName);
 
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            List<ListenableFuture<?>> futures = new ArrayList<>();
             final ReentrantLock lock = NatUtil.lockForNat(intfDpnId);
             lock.lock();
             try {
@@ -320,7 +320,7 @@ public class NatSouthboundEventHandlers {
             return;
         }
         InstanceIdentifier<RouterPorts> portIid = NatUtil.buildRouterPortsIdentifier(routerId);
-        FluentFuture<Void> future = txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
+        FluentFuture<?> future = txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
             for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
                 floatingIPListener.createNATFlowEntries(portName, intExtPortMap, portIid, routerId, dpnId, tx);
             }
@@ -350,7 +350,7 @@ public class NatSouthboundEventHandlers {
     @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
             justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private void processInterfaceRemoved(String portName, Uint64 dpnId, String routerId,
-            List<ListenableFuture<Void>> futures) {
+            List<ListenableFuture<?>> futures) {
         LOG.trace("processInterfaceRemoved : Processing Interface Removed Event for interface {} on DPN ID {}",
                 portName, dpnId);
         List<InternalToExternalPortMap> intExtPortMapList = getIntExtPortMapListForPortName(portName, routerId);
@@ -359,7 +359,7 @@ public class NatSouthboundEventHandlers {
             return;
         }
         InstanceIdentifier<RouterPorts> portIid = NatUtil.buildRouterPortsIdentifier(routerId);
-        ListenableFuture<Void> future = txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
+        ListenableFuture<?> future = txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
             for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
                 LOG.trace("processInterfaceRemoved : Removing DNAT Flow entries for dpnId {} ", dpnId);
                 floatingIPListener.removeNATFlowEntries(portName, intExtPortMap, portIid, routerId, dpnId, tx);
@@ -454,8 +454,8 @@ public class NatSouthboundEventHandlers {
 
         @Override
         @SuppressWarnings("checkstyle:IllegalCatch")
-        public List<ListenableFuture<Void>> call() {
-            final List<ListenableFuture<Void>> futures = new ArrayList<>();
+        public List<ListenableFuture<?>> call() {
+            final List<ListenableFuture<?>> futures = new ArrayList<>();
             LOG.trace("call : Interface {} removed event received", interfaceName);
             try {
                 LOG.trace("call : Port removed event received for interface {} ", interfaceName);

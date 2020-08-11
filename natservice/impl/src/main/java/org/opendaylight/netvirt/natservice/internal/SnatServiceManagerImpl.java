@@ -12,8 +12,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.genius.infra.Datastore;
-import org.opendaylight.genius.infra.TypedReadWriteTransaction;
+import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
+import org.opendaylight.mdsal.binding.util.TypedReadWriteTransaction;
 import org.opendaylight.netvirt.natservice.api.SnatServiceListener;
 import org.opendaylight.netvirt.natservice.api.SnatServiceManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
@@ -46,7 +46,7 @@ public class SnatServiceManagerImpl implements SnatServiceManager {
     }
 
     @Override
-    public void notify(TypedReadWriteTransaction<Datastore.Configuration> confTx,
+    public void notify(TypedReadWriteTransaction<Configuration> confTx,
                        Routers router, Routers oldRouter, Uint64 primarySwitchId, Uint64 dpnId, Action action)
             throws ExecutionException, InterruptedException {
         for (SnatServiceListener snatServiceListener : snatServiceListeners) {
