@@ -7,14 +7,14 @@
  */
 package org.opendaylight.netvirt.dhcpservice.jobs;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
 import org.opendaylight.netvirt.dhcpservice.DhcpServiceUtils;
 
 public class DhcpAllocationPoolAddJob implements Callable<List<? extends ListenableFuture<?>>> {
@@ -28,11 +28,11 @@ public class DhcpAllocationPoolAddJob implements Callable<List<? extends Listena
     }
 
     @Override
-    public List<ListenableFuture<Void>> call() {
+    public List<ListenableFuture<?>> call() {
         return installDhcpEntries();
     }
 
-    private List<ListenableFuture<Void>> installDhcpEntries() {
+    private List<ListenableFuture<?>> installDhcpEntries() {
         return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
             tx -> DhcpServiceUtils.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE, tx)));
     }
