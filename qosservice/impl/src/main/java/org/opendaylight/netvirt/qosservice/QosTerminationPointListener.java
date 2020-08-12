@@ -8,31 +8,35 @@
 
 package org.opendaylight.netvirt.qosservice;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-
+import java.util.ArrayList;
 import java.util.Collections;
-import javax.annotation.PreDestroy;
+import java.util.List;
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
-import org.opendaylight.infrautils.utils.concurrent.Executors;
-import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
-import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.DirectionEgress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.DirectionIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.policies.QosPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.policies.qos.policy.BandwidthLimitRules;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeGre;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypePatch;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.port._interface.attributes.InterfaceExternalIds;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.southboundrpc.rev190820.configure.termination.point.with.qos.input.EgressQos;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.southboundrpc.rev190820.configure.termination.point.with.qos.input.IngressQos;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -40,15 +44,22 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class QosTerminationPointListener extends
-        AbstractClusteredAsyncDataTreeChangeListener<OvsdbTerminationPointAugmentation> {
+        AsyncClusteredDataTreeChangeListenerBase<OvsdbTerminationPointAugmentation, QosTerminationPointListener> {
     private static final Logger LOG = LoggerFactory.getLogger(QosTerminationPointListener.class);
     private static final String EXTERNAL_ID_INTERFACE_ID = "iface-id";
     private final DataBroker dataBroker;
     private final QosNeutronUtils qosNeutronUtils;
     private final QosEosHandler qosEosHandler;
     private final QosAlertManager qosAlertManager;
-    private final ManagedNewTransactionRunner txRunner;
     private final JobCoordinator jobCoordinator;
+
+    private static final List<Class<? extends InterfaceTypeBase>> SKIP_IFACE_FOR_QOSPROCESSING = new ArrayList<>();
+
+    static {
+        SKIP_IFACE_FOR_QOSPROCESSING.add(InterfaceTypeVxlan.class);
+        SKIP_IFACE_FOR_QOSPROCESSING.add(InterfaceTypeGre.class);
+        SKIP_IFACE_FOR_QOSPROCESSING.add(InterfaceTypePatch.class);
+    }
 
     @Inject
     public QosTerminationPointListener(final DataBroker dataBroker,
@@ -56,71 +67,91 @@ public class QosTerminationPointListener extends
                                        final QosEosHandler qosEosHandler,
                                        final QosAlertManager qosAlertManager,
                                        final JobCoordinator jobCoordinator) {
-        super(dataBroker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(NetworkTopology.class)
-                .child(Topology.class, new TopologyKey(SouthboundUtils.OVSDB_TOPOLOGY_ID))
-                .child(Node.class).child(TerminationPoint.class)
-                .augmentation(OvsdbTerminationPointAugmentation.class),
-                Executors.newListeningSingleThreadExecutor("QosTerminationPointListener", LOG));
+        super(OvsdbTerminationPointAugmentation.class, QosTerminationPointListener.class);
         this.dataBroker = dataBroker;
         this.qosNeutronUtils = qosNeutronUtils;
         this.qosEosHandler = qosEosHandler;
         this.qosAlertManager = qosAlertManager;
-        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.jobCoordinator = jobCoordinator;
     }
 
+    @PostConstruct
     public void init() {
-        LOG.trace("{} init and registerListener done", getClass().getSimpleName());
+        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
     @Override
-    @PreDestroy
-    public void close() {
-        super.close();
-        Executors.shutdownAndAwaitTermination(getExecutorService());
+    protected InstanceIdentifier<OvsdbTerminationPointAugmentation> getWildCardPath() {
+        return InstanceIdentifier.create(NetworkTopology.class)
+                .child(Topology.class, new TopologyKey(SouthboundUtils.OVSDB_TOPOLOGY_ID))
+                .child(Node.class).child(TerminationPoint.class)
+                .augmentation(OvsdbTerminationPointAugmentation.class);
     }
 
     @Override
-    public void remove(InstanceIdentifier<OvsdbTerminationPointAugmentation> instanceIdentifier,
+    protected void remove(InstanceIdentifier<OvsdbTerminationPointAugmentation> instanceIdentifier,
                           OvsdbTerminationPointAugmentation tp) {
+
+        if (tp.getInterfaceType() != null && SKIP_IFACE_FOR_QOSPROCESSING.contains(tp.getInterfaceType())) {
+            // ignore processing event for InterfaceTypeVxlan, InterfaceTypeGre, InterfaceTypePatch type ports
+            LOG.trace("Ignore remove evevnt for {} of type {}", tp.getName(), tp.getInterfaceType());
+            return;
+        }
         if (isBandwidthRuleApplied(tp)) {
             String ifaceId = getIfaceId(tp);
             if (ifaceId != null) {
                 qosAlertManager.removeInterfaceIdFromQosAlertCache(ifaceId);
             }
         }
+        Port port = qosNeutronUtils.getNeutronPort(getIfaceId(tp));
+        if (port == null) {
+            LOG.error("Neutron port not found for tp  {}", tp.getName());
+            return;
+        }
+        if (tp.getQosEntry() == null || tp.getQosEntry().isEmpty()) {
+            LOG.debug("Port {} has no qosEntries associated with it", port.getUuid().getValue());
+            return;
+        }
+        QosPolicy qosPolicy = qosNeutronUtils.getQosPolicy(port);
+        if (qosPolicy == null || qosPolicy.getBandwidthLimitRules() == null
+                || qosPolicy.getBandwidthLimitRules().isEmpty()) {
+            return;
+        }
+        InstanceIdentifier<Node> nodeIid = instanceIdentifier.firstIdentifierOf(Node.class);
+        NodeKey nodeKey = nodeIid.firstKeyOf(Node.class);
+        String nodeId = nodeKey.getNodeId().getValue();
+        nodeId = nodeId.substring(0, nodeId.indexOf(QosConstants.BRIDGE_PREFIX));
+        LOG.debug("Trying to delete qospolciy {} nodeid {} portname {} portid {}", qosPolicy.getUuid(),
+                nodeId, port.getName(), port.getUuid().getValue());
+        qosNeutronUtils.delPortFromQosPolicyPortMapDS(qosPolicy.getUuid(), nodeId, port.getUuid().getValue());
+        // Update Cache map to remove the port.
     }
 
     private boolean isBandwidthRuleCleared(OvsdbTerminationPointAugmentation original,
                                          OvsdbTerminationPointAugmentation update) {
-        if ((update.getIngressPolicingRate().toJava() == 0 && update.getIngressPolicingBurst().toJava() == 0)
-                && (original.getIngressPolicingRate().toJava() != 0
-                || original.getIngressPolicingBurst().toJava() != 0)) {
-            return true;
-        }
-        return false;
+        return (update.getIngressPolicingRate() == 0 && update.getIngressPolicingBurst() == 0)
+                && (original.getIngressPolicingRate() != 0 || original.getIngressPolicingBurst() != 0);
     }
 
     private boolean isBandwidthRuleApplied(OvsdbTerminationPointAugmentation tp) {
-        if (tp.getIngressPolicingRate().toJava() != 0 || tp.getIngressPolicingBurst().toJava() != 0) {
-            return true;
-        }
-        return false;
+        return tp.getIngressPolicingRate() != 0 || tp.getIngressPolicingBurst() != 0;
     }
 
     private boolean isBandwidthRuleApplied(OvsdbTerminationPointAugmentation original,
                                            OvsdbTerminationPointAugmentation update) {
-        if ((original.getIngressPolicingRate().toJava() == 0 && original.getIngressPolicingBurst().toJava() == 0)
-                && (update.getIngressPolicingRate().toJava() != 0 || update.getIngressPolicingBurst().toJava() != 0)) {
-            return true;
-        }
-        return false;
+        return (original.getIngressPolicingRate() == 0 && original.getIngressPolicingBurst() == 0)
+                && (update.getIngressPolicingRate() != 0 || update.getIngressPolicingBurst() != 0);
     }
 
     @Override
-    public void update(InstanceIdentifier<OvsdbTerminationPointAugmentation> instanceIdentifier,
+    protected void update(InstanceIdentifier<OvsdbTerminationPointAugmentation> instanceIdentifier,
                           OvsdbTerminationPointAugmentation original,
                           OvsdbTerminationPointAugmentation update) {
+        if (update.getInterfaceType() != null && SKIP_IFACE_FOR_QOSPROCESSING.contains(update.getInterfaceType())) {
+            // ignore processing event for InterfaceTypeVxlan, InterfaceTypeGre, InterfaceTypePatch type ports
+            LOG.trace("Ignore update evevnt for {} of type {}", update.getName(), update.getInterfaceType());
+            return;
+        }
         String ifaceId = getIfaceId(update);
         if (ifaceId != null) {
             if (isBandwidthRuleCleared(original, update)) {
@@ -152,8 +183,15 @@ public class QosTerminationPointListener extends
     }
 
     @Override
-    public void add(InstanceIdentifier<OvsdbTerminationPointAugmentation> instanceIdentifier,
+    protected void add(InstanceIdentifier<OvsdbTerminationPointAugmentation> instanceIdentifier,
                        OvsdbTerminationPointAugmentation tpAugment) {
+
+        if (tpAugment.getInterfaceType() != null
+            && SKIP_IFACE_FOR_QOSPROCESSING.contains(tpAugment.getInterfaceType())) {
+            // ignore processing event for InterfaceTypeVxlan, InterfaceTypeGre, InterfaceTypePatch type ports
+            LOG.trace("Ignore add evevnt for {} of type {}", tpAugment.getName(), tpAugment.getInterfaceType());
+            return;
+        }
         String ifaceId = getIfaceId(tpAugment);
         if ((ifaceId != null) && isBandwidthRuleApplied(tpAugment)) {
             qosAlertManager.addInterfaceIdInQoSAlertCache(ifaceId);
@@ -167,6 +205,11 @@ public class QosTerminationPointListener extends
         }
     }
 
+    @Override
+    protected QosTerminationPointListener getDataTreeChangeListener() {
+        return QosTerminationPointListener.this;
+    }
+
     private void setPortBandwidthRule(InstanceIdentifier<OvsdbTerminationPointAugmentation> identifier,
                                       OvsdbTerminationPointAugmentation update, Port port) {
         QosPolicy qosPolicy = qosNeutronUtils.getQosPolicy(port);
@@ -174,33 +217,33 @@ public class QosTerminationPointListener extends
                 || qosPolicy.getBandwidthLimitRules().isEmpty()) {
             return;
         }
-        LOG.debug("setting bandwidth rule for port: {}, {}, qos policy: {}",
-                port.getUuid(), update.getName(), qosPolicy.getName());
-
-        jobCoordinator.enqueueJob("QosPort-" + port.getUuid(), () ->
-                Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
-                    BandwidthLimitRules bwRule = qosPolicy.getBandwidthLimitRules().get(0);
-                    OvsdbTerminationPointAugmentationBuilder tpAugmentationBuilder =
-                            new OvsdbTerminationPointAugmentationBuilder();
-                    tpAugmentationBuilder.setName(update.getName());
-                    tpAugmentationBuilder.setIngressPolicingRate(bwRule.getMaxKbps().longValue());
-                    tpAugmentationBuilder.setIngressPolicingBurst(bwRule.getMaxBurstKbps().longValue());
-
-                    tx.mergeParentStructureMerge(InstanceIdentifier.create(NetworkTopology.class)
-                            .child(Topology.class, new TopologyKey(SouthboundUtils.OVSDB_TOPOLOGY_ID))
-                            .child(Node.class, identifier.firstKeyOf(Node.class))
-                            .child(TerminationPoint.class, identifier.firstKeyOf(TerminationPoint.class))
-                            .augmentation(OvsdbTerminationPointAugmentation.class),
-                            tpAugmentationBuilder.build());
-
-                })));
+        LOG.debug("setting bandwidth rule for port: {}, tp {}, qos policy uuid: {}",
+                port.getUuid(), update.getName(), qosPolicy.getUuid().getValue());
+        jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
+            List<IngressQos> ingressQosList = Collections.emptyList();
+            List<EgressQos> egressQosList = Collections.emptyList();
+            InstanceIdentifier<Node> nodeIid = identifier.firstIdentifierOf(Node.class);
+            List<BandwidthLimitRules> bwRuleList = qosPolicy.getBandwidthLimitRules();
+            for (BandwidthLimitRules bwRule : bwRuleList) {
+                if (bwRule.getDirection() == null || bwRule.getDirection() == DirectionEgress.class) {
+                    ingressQosList = qosNeutronUtils.getQosIngressParamsList(bwRule);
+                } else if (bwRule.getDirection() == DirectionIngress.class) {
+                    egressQosList = qosNeutronUtils.getQosEgressParamsList(bwRule, port.getUuid(),
+                            nodeIid, qosPolicy.getUuid(), update.getName());
+                }
+            }
+            if (!ingressQosList.isEmpty() || !egressQosList.isEmpty()) {
+                qosNeutronUtils.configureTerminationPoint(ingressQosList, egressQosList,
+                        update.getName(), nodeIid);
+            }
+            return Collections.emptyList();
+        });
     }
 
-    @Nullable
     private String getIfaceId(OvsdbTerminationPointAugmentation tpAugmentation) {
         if (tpAugmentation.getInterfaceExternalIds() != null) {
-            for (InterfaceExternalIds entry: tpAugmentation.getInterfaceExternalIds().values()) {
-                if (EXTERNAL_ID_INTERFACE_ID.equals(entry.getExternalIdKey())) {
+            for (InterfaceExternalIds entry: tpAugmentation.getInterfaceExternalIds()) {
+                if (entry.getExternalIdKey().equals(EXTERNAL_ID_INTERFACE_ID)) {
                     return entry.getExternalIdValue();
                 }
             }

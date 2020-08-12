@@ -8,12 +8,14 @@
 
 package org.opendaylight.netvirt.qosservice;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.MoreExecutors;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import java.io.StringWriter;
+import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -26,14 +28,17 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
+import javax.json.stream.JsonGeneratorFactory;
+
 import org.apache.felix.service.command.CommandSession;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
-import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
-import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.GetNodeConnectorStatisticsInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.GetNodeConnectorStatisticsOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.OpendaylightDirectStatisticsService;
@@ -46,10 +51,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.qosalert.config.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.qosalert.config.rev170301.QosalertConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.port.statistics.rev131214.node.connector.statistics.and.port.number.map.NodeConnectorStatisticsAndPortNumberMap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.port.statistics.rev131214.node.connector.statistics.and.port.number.map.NodeConnectorStatisticsAndPortNumberMapKey;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
-import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,19 +62,32 @@ import org.slf4j.LoggerFactory;
 public final class QosAlertManager implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(QosAlertManager.class);
 
+    private static final FutureCallback<Void> DEFAULT_FUTURE_CALLBACK = new FutureCallback<Void>() {
+        @Override
+        public void onSuccess(Void result) {
+            LOG.debug("Datastore operation completed successfully");
+        }
+
+        @Override
+        public void onFailure(Throwable error) {
+            LOG.error("Error in datastore operation {}", error);
+        }
+
+    };
+
     private volatile boolean alertEnabled;
     private volatile int pollInterval;
     private volatile Thread thread;
     private volatile boolean statsPollThreadStart;
 
-    private final ManagedNewTransactionRunner txRunner;
+    private final DataBroker dataBroker;
     private final QosalertConfig defaultConfig;
     private final OpendaylightDirectStatisticsService odlDirectStatisticsService;
     private final QosNeutronUtils qosNeutronUtils;
     private final QosEosHandler qosEosHandler;
     private final IInterfaceManager interfaceManager;
     private final Set unprocessedInterfaceIds = ConcurrentHashMap.newKeySet();
-    private final ConcurrentMap<Uint64, ConcurrentMap<String, QosAlertPortData>> qosAlertDpnPortNumberMap =
+    private final ConcurrentMap<BigInteger, ConcurrentMap<String, QosAlertPortData>> qosAlertDpnPortNumberMap =
             new ConcurrentHashMap<>();
     private final AlertThresholdSupplier alertThresholdSupplier = new AlertThresholdSupplier();
 
@@ -79,7 +96,7 @@ public final class QosAlertManager implements Runnable {
             final OpendaylightDirectStatisticsService odlDirectStatisticsService, final QosalertConfig defaultConfig,
             final QosNeutronUtils qosNeutronUtils, final QosEosHandler qosEosHandler,
             final IInterfaceManager interfaceManager) {
-        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
+        this.dataBroker = dataBroker;
         this.odlDirectStatisticsService = odlDirectStatisticsService;
         this.interfaceManager = interfaceManager;
         this.defaultConfig = defaultConfig;
@@ -141,6 +158,7 @@ public final class QosAlertManager implements Runnable {
         if (statsPollThreadStart && alertEnabled && thread == null) {
             initPortStatsData();
             thread = new Thread(this);
+            thread.setName("QosAlertPollThread");
             thread.setDaemon(true);
             thread.start();
         }
@@ -148,9 +166,9 @@ public final class QosAlertManager implements Runnable {
 
     private void getDefaultConfig() {
         alertEnabled = defaultConfig.isQosAlertEnabled();
-        pollInterval = defaultConfig.getQosAlertPollInterval().toJava();
+        pollInterval = defaultConfig.getQosAlertPollInterval();
 
-        alertThresholdSupplier.set(defaultConfig.getQosDropPacketThreshold().toJava());
+        alertThresholdSupplier.set(defaultConfig.getQosDropPacketThreshold().shortValue());
     }
 
     public void setQosalertConfig(QosalertConfig config) {
@@ -160,7 +178,7 @@ public final class QosAlertManager implements Runnable {
                 config.getQosAlertPollInterval());
 
         alertEnabled = config.isQosAlertEnabled().booleanValue();
-        pollInterval = config.getQosAlertPollInterval().toJava();
+        pollInterval = config.getQosAlertPollInterval();
 
         alertThresholdSupplier.set(config.getQosDropPacketThreshold().shortValue());
 
@@ -209,43 +227,6 @@ public final class QosAlertManager implements Runnable {
         }
     }
 
-    public void displayConfig(CommandSession session) {
-
-        session.getConsole().println("Qos Alert Configuration Details");
-        session.getConsole().println("Threshold: " + alertThresholdSupplier.get().shortValue());
-        session.getConsole().println("AlertEnabled: " + alertEnabled);
-        session.getConsole().println("Poll Interval: " + pollInterval);
-
-        Uint64 dpnId;
-        String portData;
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        if (qosAlertDpnPortNumberMap.isEmpty()) {
-            session.getConsole().println("\nQosAlert Cache not found\n");
-            return;
-        } else {
-            session.getConsole().println("\nDPN Map");
-            JsonObject jsonObject;
-            JsonArray jsonArray;
-            JsonArray jsonArrayOuter = new JsonArray();
-            for (Entry<Uint64, ConcurrentMap<String, QosAlertPortData>> dpnEntry
-                    : qosAlertDpnPortNumberMap.entrySet()) {
-                dpnId = dpnEntry.getKey();
-                jsonObject = new JsonObject();
-                jsonObject.addProperty("DpnId", dpnId.toString());
-                ConcurrentMap<String, QosAlertPortData> portInnerMap = qosAlertDpnPortNumberMap.get(dpnId);
-                jsonArray = new JsonArray();
-                for (ConcurrentMap.Entry<String, QosAlertPortData> portEntry : portInnerMap.entrySet()) {
-                    portData = "Port_number: " + portEntry.getKey() + ", " + portEntry.getValue();
-                    jsonArray.add(portData);
-                }
-                jsonObject.add("QosAlertPortData Cache", jsonArray);
-                jsonArrayOuter.add(jsonObject);
-            }
-            session.getConsole().println(gson.toJson(jsonArrayOuter));
-            session.getConsole().println();
-        }
-    }
-
     public void processInterfaceUpEvent(String ifaceId) {
         LOG.trace("processInterfaceUpEvent {}", ifaceId);
         if (unprocessedInterfaceIds.remove(ifaceId)) {
@@ -254,8 +235,8 @@ public final class QosAlertManager implements Runnable {
     }
 
     private void addToQosAlertCache(InterfaceInfo interfaceInfo) {
-        Uint64 dpnId = interfaceInfo.getDpId();
-        if (dpnId.equals(Uint64.valueOf(0L))) {
+        BigInteger dpnId = interfaceInfo.getDpId();
+        if (dpnId.equals(IfmConstants.INVALID_DPID)) {
             LOG.warn("Interface {} could not be added to Qos Alert Cache because Dpn Id is not found",
                     interfaceInfo.getInterfaceName());
             return;
@@ -284,14 +265,14 @@ public final class QosAlertManager implements Runnable {
         if (interfaceInfo == null) {
             return;
         }
-        Uint64 dpnId = interfaceInfo.getDpId();
+        BigInteger dpnId = interfaceInfo.getDpId();
         String portNumber = String.valueOf(interfaceInfo.getPortNo());
         removeFromQosAlertCache(dpnId, portNumber);
     }
 
     public void removeLowerLayerIfFromQosAlertCache(String lowerLayerIf) {
         LOG.trace("If present, remove lowerLayerIf {} from cache", lowerLayerIf);
-        Uint64 dpnId = qosNeutronUtils.getDpnIdFromLowerLayerIf(lowerLayerIf);
+        BigInteger dpnId = qosNeutronUtils.getDpnIdFromLowerLayerIf(lowerLayerIf);
         String portNumber = qosNeutronUtils.getPortNumberFromLowerLayerIf(lowerLayerIf);
         if (dpnId == null || portNumber == null) {
             LOG.warn("Interface {} not in openflow:dpnid:portnum format, could not remove from cache", lowerLayerIf);
@@ -300,7 +281,7 @@ public final class QosAlertManager implements Runnable {
         removeFromQosAlertCache(dpnId, portNumber);
     }
 
-    private void removeFromQosAlertCache(Uint64 dpnId, String portNumber) {
+    private void removeFromQosAlertCache(BigInteger dpnId, String portNumber) {
         if (qosAlertDpnPortNumberMap.containsKey(dpnId)
                 && qosAlertDpnPortNumberMap.get(dpnId).containsKey(portNumber)) {
             qosAlertDpnPortNumberMap.get(dpnId).remove(portNumber);
@@ -310,6 +291,58 @@ public final class QosAlertManager implements Runnable {
                 qosAlertDpnPortNumberMap.remove(dpnId);
             }
         }
+    }
+
+    public void displayAlertConfig(CommandSession session) {
+
+        session.getConsole().println("Qos Alert Configuration Details");
+        session.getConsole().println("Threshold: " + alertThresholdSupplier.get().shortValue());
+        session.getConsole().println("AlertEnabled: " + alertEnabled);
+        session.getConsole().println("Poll Interval: " + pollInterval);
+
+    }
+
+    public void displayQosConfig(CommandSession session) {
+
+        BigInteger dpnId;
+        String portData;
+
+        Map<String, Object> properties = new HashMap<>(1);
+        properties.put(JsonGenerator.PRETTY_PRINTING, true);
+        JsonGeneratorFactory jsonGeneratorFactory = Json.createGeneratorFactory(properties);
+        StringWriter stringWriter = new StringWriter();
+        JsonGenerator generator = jsonGeneratorFactory.createGenerator(stringWriter);
+        JsonGenerator arrayGenerator;
+        stringWriter.getBuffer().setLength(0);
+
+        generator.writeStartArray();
+        if (!(qosAlertDpnPortNumberMap.isEmpty())) {
+            session.getConsole().println("Dpn Map");
+            for (ConcurrentMap.Entry<BigInteger, ConcurrentMap<String, QosAlertPortData>> dpnEntry
+                    : qosAlertDpnPortNumberMap.entrySet()) {
+                dpnId = dpnEntry.getKey();
+                generator.writeStartObject().write("DpnId", dpnId);
+                arrayGenerator = generator.writeStartArray("Ports");
+                ConcurrentMap<String, QosAlertPortData> portInnerMap = qosAlertDpnPortNumberMap.get(dpnId);
+                for (ConcurrentMap.Entry<String, QosAlertPortData> portEntry : portInnerMap.entrySet()) {
+                    portData = "Port_number: " + portEntry.getKey() + ", " + portEntry.getValue();
+                    arrayGenerator.write(portData);
+                }
+                arrayGenerator.writeEnd();
+                generator.writeEnd();
+            }
+            generator.writeEnd();
+            generator.close();
+        }
+        session.getConsole().println(stringWriter.toString());
+    }
+
+    private static <T extends DataObject> void asyncWrite(LogicalDatastoreType datastoreType,
+                                                          InstanceIdentifier<T> path, T data, DataBroker broker,
+                                                          FutureCallback<Void> callback) {
+        WriteTransaction tx = broker.newWriteOnlyTransaction();
+        tx.put(datastoreType, path, data, WriteTransaction.CREATE_MISSING_PARENTS);
+        Futures.addCallback(tx.submit(), callback, MoreExecutors.directExecutor());
     }
 
     private void writeConfigDataStore(boolean qosAlertEnabled, short dropPacketThreshold, int alertPollInterval) {
@@ -322,16 +355,15 @@ public final class QosAlertManager implements Runnable {
                 .setQosAlertPollInterval(alertPollInterval)
                 .build();
 
-        LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
-            tx -> tx.mergeParentStructurePut(path,
-                    qosAlertConfig)), LOG, "Error writing to the config data store");
+        asyncWrite(LogicalDatastoreType.CONFIGURATION, path, qosAlertConfig, dataBroker,
+                DEFAULT_FUTURE_CALLBACK);
     }
 
     private void pollDirectStatisticsForAllNodes() {
         LOG.trace("Polling direct statistics from nodes");
 
-        for (Entry<Uint64, ConcurrentMap<String, QosAlertPortData>> entry : qosAlertDpnPortNumberMap.entrySet()) {
-            Uint64 dpn = entry.getKey();
+        for (Entry<BigInteger, ConcurrentMap<String, QosAlertPortData>> entry : qosAlertDpnPortNumberMap.entrySet()) {
+            BigInteger dpn = entry.getKey();
             LOG.trace("Polling DPN ID {}", dpn);
             GetNodeConnectorStatisticsInputBuilder input = new GetNodeConnectorStatisticsInputBuilder()
                     .setNode(new NodeRef(InstanceIdentifier.builder(Nodes.class)
@@ -354,13 +386,11 @@ public final class QosAlertManager implements Runnable {
 
                 GetNodeConnectorStatisticsOutput nodeConnectorStatisticsOutput = rpcResult.getResult();
 
-                Map<NodeConnectorStatisticsAndPortNumberMapKey, NodeConnectorStatisticsAndPortNumberMap>
-                        nodeConnectorStatisticsAndPortNumberMap =
-                        nodeConnectorStatisticsOutput.nonnullNodeConnectorStatisticsAndPortNumberMap();
+                List<NodeConnectorStatisticsAndPortNumberMap> nodeConnectorStatisticsAndPortNumberMapList =
+                        nodeConnectorStatisticsOutput.getNodeConnectorStatisticsAndPortNumberMap();
 
                 ConcurrentMap<String, QosAlertPortData> portDataMap = entry.getValue();
-                for (NodeConnectorStatisticsAndPortNumberMap stats
-                        : nodeConnectorStatisticsAndPortNumberMap.values()) {
+                for (NodeConnectorStatisticsAndPortNumberMap stats : nodeConnectorStatisticsAndPortNumberMapList) {
                     QosAlertPortData portData = portDataMap.get(stats.getNodeConnectorId().getValue());
                     if (portData != null) {
                         portData.updatePortStatistics(stats);
@@ -375,18 +405,18 @@ public final class QosAlertManager implements Runnable {
 
     private void initPortStatsData() {
         qosAlertDpnPortNumberMap.values().forEach(portDataMap -> portDataMap.values()
-                .forEach(QosAlertPortData::initPortData));
+                .forEach(portData -> portData.initPortData()));
     }
 
-    private static class AlertThresholdSupplier implements Supplier<Uint64> {
-        private volatile Uint64 alertThreshold = Uint64.valueOf(0);
+    private static class AlertThresholdSupplier implements Supplier<BigInteger> {
+        private volatile BigInteger alertThreshold = BigInteger.valueOf(0);
 
         void set(short threshold) {
-            alertThreshold = Uint64.valueOf(threshold);
+            alertThreshold = BigInteger.valueOf(threshold);
         }
 
         @Override
-        public Uint64 get() {
+        public BigInteger get() {
             return alertThreshold;
         }
     }

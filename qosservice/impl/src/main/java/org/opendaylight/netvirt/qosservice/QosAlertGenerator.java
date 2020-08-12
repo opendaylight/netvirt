@@ -5,22 +5,21 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.opendaylight.netvirt.qosservice;
 
-import org.opendaylight.yangtools.yang.common.Uint64;
+import java.math.BigInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class QosAlertGenerator {
     private static final Logger LOG = LoggerFactory.getLogger(QosAlertGenerator.class);
 
-    private QosAlertGenerator() {
-
-    }
+    private QosAlertGenerator() { }
 
     public static void raiseAlert(final String qosPolicyName, final String qosPolicyUuid, final String portUuid,
-                                  final String networkUuid, final Uint64 rxPackets,
-                                  final Uint64 rxDroppedPackets) {
+                                  final String networkUuid, final BigInteger rxPackets,
+                                  final BigInteger rxDroppedPackets) {
         LOG.debug(QosConstants.ALERT_MSG_FORMAT, qosPolicyName, qosPolicyUuid, portUuid, networkUuid,
                                                                                         rxPackets, rxDroppedPackets);
     }

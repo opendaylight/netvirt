@@ -11,7 +11,6 @@ package org.opendaylight.netvirt.qosservice;
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +31,6 @@ public class QosAlertThresholdCLI extends OsgiCommandSupport {
     }
 
     @Override
-    @Nullable
     protected Object doExecute() {
         LOG.debug("setting threshold in qos alert manager:{}", threshold);
         qosAlertManager.setThreshold(Short.parseShort(threshold));

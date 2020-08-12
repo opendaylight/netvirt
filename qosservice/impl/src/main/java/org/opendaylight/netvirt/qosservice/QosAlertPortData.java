@@ -8,30 +8,29 @@
 
 package org.opendaylight.netvirt.qosservice;
 
+import java.math.BigInteger;
 import java.util.function.Supplier;
+import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.policies.QosPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.port.statistics.rev131214.node.connector.statistics.and.port.number.map.NodeConnectorStatisticsAndPortNumberMap;
-import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * This class is ThreadSafe.
- */
+@NotThreadSafe
 public class QosAlertPortData {
     private static final Logger LOG = LoggerFactory.getLogger(QosAlertPortData.class);
-    private static final Uint64 BIG_HUNDRED = Uint64.valueOf("100").intern();
+    private static final BigInteger BIG_HUNDRED = new BigInteger("100");
 
     private final Port port;
     private final QosNeutronUtils qosNeutronUtils;
-    private final Supplier<Uint64> alertThreshold;
-    private volatile Uint64 rxPackets;
-    private volatile Uint64 rxDroppedPackets;
+    private final Supplier<BigInteger> alertThreshold;
+    private volatile BigInteger rxPackets;
+    private volatile BigInteger rxDroppedPackets;
     private volatile boolean statsDataInit;
 
     public QosAlertPortData(final Port port, final QosNeutronUtils qosNeutronUtils,
-            final Supplier<Uint64> alertThreshold) {
+            final Supplier<BigInteger> alertThreshold) {
         this.port = port;
         this.qosNeutronUtils = qosNeutronUtils;
         this.alertThreshold = alertThreshold;
@@ -61,15 +60,15 @@ public class QosAlertPortData {
     }
 
     private void calculateAlertCondition(NodeConnectorStatisticsAndPortNumberMap statsData)  {
-        Uint64 rxDiff = Uint64.valueOf(statsData.getPackets().getReceived().toJava().subtract(rxPackets.toJava()));
-        Uint64 rxDroppedDiff = Uint64.valueOf(statsData.getReceiveDrops().toJava().subtract(rxDroppedPackets.toJava()));
+        BigInteger rxDiff = statsData.getPackets().getReceived().subtract(rxPackets);
+        BigInteger rxDroppedDiff = statsData.getReceiveDrops().subtract(rxDroppedPackets);
 
-        if ((rxDiff.toJava().signum() < 0) || (rxDroppedDiff.toJava().signum() < 0)) {
+        if ((rxDiff.signum() < 0) || (rxDroppedDiff.signum() < 0)) {
             LOG.debug("Port {} counters reset", port.getUuid().getValue());
             initPortData(); // counters wrapped. wait for one more poll.
             return;
         }
-        Uint64 rxTotalDiff = Uint64.valueOf(rxDiff.toJava().add(rxDroppedDiff.toJava()));
+        BigInteger rxTotalDiff = rxDiff.add(rxDroppedDiff);
         LOG.trace("Port {} rxDiff:{} rxDropped diff:{} total diff:{}", port.getUuid().getValue(), rxDiff,
                                                                             rxDroppedDiff, rxTotalDiff);
         QosPolicy qosPolicy = qosNeutronUtils.getQosPolicy(port);
@@ -78,15 +77,14 @@ public class QosAlertPortData {
             return;
         }
 
-        if (rxDroppedDiff.toJava().multiply(BIG_HUNDRED.toJava())
-                .compareTo(rxTotalDiff.toJava().multiply(alertThreshold.get().toJava())) > 0) {
+        if (rxDroppedDiff.multiply(BIG_HUNDRED).compareTo(rxTotalDiff.multiply(alertThreshold.get())) > 0) {
             LOG.trace(QosConstants.ALERT_MSG_FORMAT, qosPolicy.getName(), qosPolicy.getUuid().getValue(),
                     port.getUuid().getValue(), port.getNetworkId().getValue(), statsData.getPackets().getReceived(),
                                                                                         statsData.getReceiveDrops());
 
             QosAlertGenerator.raiseAlert(qosPolicy.getName(), qosPolicy.getUuid().getValue(),
-                    port.getUuid().getValue(), port.getNetworkId().getValue(),
-                    statsData.getPackets().getReceived(), statsData.getReceiveDrops());
+                    port.getUuid().getValue(), port.getNetworkId().getValue(), statsData.getPackets().getReceived(),
+                                                                                          statsData.getReceiveDrops());
         }
 
     }

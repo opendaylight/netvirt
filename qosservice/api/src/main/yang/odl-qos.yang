@@ -1,0 +1,43 @@
+module odl-qos {
+    yang-version 1;
+    namespace "urn:opendaylight:netvirt:qos";
+    prefix "qos";
+
+    import ietf-yang-types { prefix "yang"; /*revision-date 2013-07-15; */}
+
+    revision "2019-10-04" {
+        description "Initial revision of QoS Module";
+    }
+
+    description "This YANG module defines QoS Module.";
+
+    /* QoS policy port map container*/
+    container qos-policy-port-map {
+        config false;
+        list qos-policy-list {
+            key "qos-policy-id";
+            leaf qos-policy-id {
+                type yang:uuid;
+                description "UUID in string format representing the QoS policy";
+            }
+            list node-list {
+                key "node-id";
+                leaf node-id {
+                    type string;
+                    description "Node id";
+                }
+                list port-list {
+                    key port-id;
+                    leaf port-id {
+                        type string;
+                        description "Port Identifier";
+                    }
+                    leaf tp-name {
+                         type string;
+                         description "Termination Point Name";
+                    }
+                }
+            }
+        }
+    }
+}

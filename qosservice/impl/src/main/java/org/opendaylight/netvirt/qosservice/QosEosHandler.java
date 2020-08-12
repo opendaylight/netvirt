@@ -15,6 +15,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.mdsal.eos.binding.api.Entity;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipCandidateRegistration;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipChange;
@@ -32,13 +33,15 @@ public class QosEosHandler implements EntityOwnershipListener, AutoCloseable {
     private volatile boolean isEosOwner;
 
     private final EntityOwnershipService entityOwnershipService;
+    private final EntityOwnershipUtils entityOwnershipUtils;
     private EntityOwnershipListenerRegistration listenerRegistration;
     private EntityOwnershipCandidateRegistration candidateRegistration;
     private final List<Consumer<Boolean>> localOwnershipChangedListeners = new CopyOnWriteArrayList<>();
 
     @Inject
-    public QosEosHandler(final EntityOwnershipService eos) {
+    public QosEosHandler(final EntityOwnershipService eos,final EntityOwnershipUtils entityOwnershipUtils) {
         entityOwnershipService = eos;
+        this.entityOwnershipUtils = entityOwnershipUtils;
     }
 
     @PostConstruct
@@ -49,6 +52,7 @@ public class QosEosHandler implements EntityOwnershipListener, AutoCloseable {
     @Override
     @PreDestroy
     public void close() {
+
         if (listenerRegistration != null) {
             listenerRegistration.close();
         }
@@ -69,8 +73,10 @@ public class QosEosHandler implements EntityOwnershipListener, AutoCloseable {
         Entity instanceEntity = new Entity(
                 QosConstants.QOS_ALERT_OWNER_ENTITY_TYPE, QosConstants.QOS_ALERT_OWNER_ENTITY_TYPE);
         try {
+            LOG.trace("registering with entity ownership service");
             candidateRegistration = entityOwnershipService.registerCandidate(instanceEntity);
-            LOG.trace("entity ownership registeration successful");
+            entityOwnershipUtils.waitOnEntityOwner(QosConstants.QOS_ALERT_OWNER_ENTITY_TYPE,instanceEntity);
+            LOG.debug("entity ownership registeration successful");
         } catch (CandidateAlreadyRegisteredException e) {
             LOG.trace("qosalert instance entity {} was already registered for ownership", instanceEntity);
         }

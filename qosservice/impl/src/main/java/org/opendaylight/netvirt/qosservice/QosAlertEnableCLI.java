@@ -11,7 +11,6 @@ package org.opendaylight.netvirt.qosservice;
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +33,6 @@ public class QosAlertEnableCLI extends OsgiCommandSupport {
     }
 
     @Override
-    @Nullable
     protected Object doExecute() {
         LOG.debug("Setting poll enable in qos alert manager:{}", value);
         qosAlertManager.setEnable(Boolean.parseBoolean(value));

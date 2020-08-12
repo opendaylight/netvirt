@@ -7,34 +7,33 @@
  */
 package org.opendaylight.netvirt.qosservice;
 
+import java.math.BigInteger;
 import java.util.Collections;
-import java.util.Objects;
-import javax.annotation.PreDestroy;
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
-import org.opendaylight.infrautils.utils.concurrent.Executors;
-import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.qosservice.recovery.QosServiceRecoveryHandler;
 import org.opendaylight.serviceutils.srm.RecoverableListener;
 import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
-import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosPortExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.policies.QosPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class QosNeutronPortChangeListener extends AbstractClusteredAsyncDataTreeChangeListener<Port>
-        implements RecoverableListener {
+public class QosNeutronPortChangeListener extends AsyncClusteredDataTreeChangeListenerBase<Port,
+                                             QosNeutronPortChangeListener> implements RecoverableListener {
     private static final Logger LOG = LoggerFactory.getLogger(QosNeutronPortChangeListener.class);
     private final DataBroker dataBroker;
     private final QosNeutronUtils qosNeutronUtils;
@@ -46,10 +45,9 @@ public class QosNeutronPortChangeListener extends AbstractClusteredAsyncDataTree
             final QosNeutronUtils qosNeutronUtils, final QosServiceRecoveryHandler qosServiceRecoveryHandler,
                                         final ServiceRecoveryRegistry serviceRecoveryRegistry,
                                         final QosEosHandler qosEosHandler,
-                                        final JobCoordinator jobCoordinator) {
-        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Neutron.class)
-                .child(Ports.class).child(Port.class),
-                Executors.newListeningSingleThreadExecutor("QosNeutronPortChangeListener", LOG));
+                                        final JobCoordinator jobCoordinator,
+                                        final IdManagerService idManager) {
+        super(Port.class, QosNeutronPortChangeListener.class);
         this.dataBroker = dataBroker;
         this.qosNeutronUtils = qosNeutronUtils;
         this.qosEosHandler = qosEosHandler;
@@ -59,50 +57,56 @@ public class QosNeutronPortChangeListener extends AbstractClusteredAsyncDataTree
         LOG.trace("{} created",  getClass().getSimpleName());
     }
 
+    @PostConstruct
     public void init() {
+        registerListener();
         LOG.trace("{} init and registerListener done", getClass().getSimpleName());
     }
 
     @Override
-    @PreDestroy
-    public void close() {
-        super.close();
-        Executors.shutdownAndAwaitTermination(getExecutorService());
+    protected InstanceIdentifier<Port> getWildCardPath() {
+        return InstanceIdentifier.create(Neutron.class).child(Ports.class).child(Port.class);
     }
 
     @Override
     public void registerListener() {
-        super.register();
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
-    public void deregisterListener() {
-        super.close();
+    protected QosNeutronPortChangeListener getDataTreeChangeListener() {
+        return QosNeutronPortChangeListener.this;
     }
 
     @Override
-    public void add(InstanceIdentifier<Port> instanceIdentifier, Port port) {
+    protected void add(InstanceIdentifier<Port> instanceIdentifier, Port port) {
         qosNeutronUtils.addToPortCache(port);
+        QosPolicy qosPolicy = qosNeutronUtils.getQosPolicy(port);
+        if (qosPolicy != null) {
+            qosNeutronUtils.handleNeutronPortQosAdd(port, qosPolicy.getUuid());
+        } else {
+            LOG.debug("add: no qos policy attached to port {}", port.getUuid().getValue());
+        }
     }
 
     @Override
-    public void remove(InstanceIdentifier<Port> instanceIdentifier, Port port) {
+    protected void remove(InstanceIdentifier<Port> instanceIdentifier, Port port) {
         qosNeutronUtils.removeFromPortCache(port);
     }
 
     @Override
-    public void update(InstanceIdentifier<Port> instanceIdentifier, Port original, Port update) {
+    protected void update(InstanceIdentifier<Port> instanceIdentifier, Port original, Port update) {
         qosNeutronUtils.addToPortCache(update);
         // check for QoS updates
-        QosPortExtension updateQos = update.augmentation(QosPortExtension.class);
-        QosPortExtension originalQos = original.augmentation(QosPortExtension.class);
+        QosPortExtension updateQos = update.getAugmentation(QosPortExtension.class);
+        QosPortExtension originalQos = original.getAugmentation(QosPortExtension.class);
 
         if (originalQos == null && updateQos != null) {
             // qosservice policy add
             qosNeutronUtils.addToQosPortsCache(updateQos.getQosPolicyId(), update);
             qosNeutronUtils.handleNeutronPortQosAdd(update, updateQos.getQosPolicyId());
         } else if (originalQos != null && updateQos != null
-                && !Objects.equals(originalQos.getQosPolicyId(), updateQos.getQosPolicyId())) {
+                && !originalQos.getQosPolicyId().equals(updateQos.getQosPolicyId())) {
 
             // qosservice policy update
             qosNeutronUtils.removeFromQosPortsCache(originalQos.getQosPolicyId(), original);
@@ -120,6 +124,8 @@ public class QosNeutronPortChangeListener extends AbstractClusteredAsyncDataTree
         }
     }
 
+
+
     private void checkForPortIpAddressUpdate(Port original, Port update) {
         QosPolicy qosPolicy = qosNeutronUtils.getQosPolicy(update);
         if (qosPolicy == null || !qosNeutronUtils.hasDscpMarkingRule(qosPolicy)) {
@@ -132,11 +138,11 @@ public class QosNeutronPortChangeListener extends AbstractClusteredAsyncDataTree
             return;
         }
         jobCoordinator.enqueueJob("QosPort-" + update.getUuid().getValue(), () -> {
-            short dscpVal = qosPolicy.getDscpmarkingRules().get(0).getDscpMark().toJava();
+            short dscpVal = qosPolicy.getDscpmarkingRules().get(0).getDscpMark();
             String ifName = update.getUuid().getValue();
-            Uint64 dpnId = qosNeutronUtils.getDpnForInterface(ifName);
-            if (dpnId.equals(Uint64.ZERO)) {
-                LOG.warn("dpnId not found for intf {}", ifName);
+            BigInteger dpnId = qosNeutronUtils.getDpnForInterface(ifName);
+            if (dpnId.equals(BigInteger.ZERO)) {
+                LOG.error("dpnId not found for intf {}", ifName);
                 return Collections.emptyList();
             }
             Interface intf = qosNeutronUtils.getInterfaceStateFromOperDS(ifName);

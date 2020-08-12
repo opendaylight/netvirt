@@ -7,11 +7,15 @@
  */
 package org.opendaylight.netvirt.qosservice;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.PreDestroy;
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -21,84 +25,82 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.infrautils.utils.concurrent.Executors;
-import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.qosservice.recovery.QosServiceRecoveryHandler;
 import org.opendaylight.serviceutils.srm.RecoverableListener;
 import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
-import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class QosNodeListener extends AbstractAsyncDataTreeChangeListener<FlowCapableNode>
+public class QosNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapableNode, QosNodeListener>
         implements RecoverableListener {
     private static final Logger LOG = LoggerFactory.getLogger(QosNodeListener.class);
 
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalUtils;
+    private final QosEosHandler qosEosHandler;
 
     @Inject
     public QosNodeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalUtils,
                            final ServiceRecoveryRegistry serviceRecoveryRegistry,
-                           final QosServiceRecoveryHandler qosServiceRecoveryHandler) {
-        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Nodes.class).child(Node.class)
-                .augmentation(FlowCapableNode.class),
-                Executors.newListeningSingleThreadExecutor("QosNodeListener", LOG));
+                           final QosServiceRecoveryHandler qosServiceRecoveryHandler,
+                           final IdManagerService idManager,final  QosEosHandler qosEosHandler) {
+        super(FlowCapableNode.class, QosNodeListener.class);
         this.dataBroker = dataBroker;
         this.mdsalUtils = mdsalUtils;
+        this.qosEosHandler = qosEosHandler;
         serviceRecoveryRegistry.addRecoverableListener(qosServiceRecoveryHandler.buildServiceRegistryKey(),
                 this);
         LOG.trace("{} created",  getClass().getSimpleName());
     }
 
+    @Override
+    @PostConstruct
     public void init() {
+        registerListener();
         LOG.trace("{} init and registerListener done", getClass().getSimpleName());
     }
 
     @Override
-    @PreDestroy
-    public void close() {
-        super.close();
-        Executors.shutdownAndAwaitTermination(getExecutorService());
-    }
-
-    @Override
     public void registerListener() {
-        super.register();
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
-    public void deregisterListener() {
-        super.close();
+    protected InstanceIdentifier<FlowCapableNode> getWildCardPath() {
+        return InstanceIdentifier.create(Nodes.class).child(Node.class).augmentation(FlowCapableNode.class);
     }
 
     @Override
-    public void remove(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModification) {
+    protected void remove(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModification) {
         //do nothing
     }
 
     @Override
-    public void update(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModificationBefore,
+    protected void update(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModificationBefore,
                           FlowCapableNode dataObjectModificationAfter) {
         //do nothing
     }
 
     @Override
-    public void add(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModification) {
+    protected void add(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModification) {
         NodeKey nodeKey = key.firstKeyOf(Node.class);
-        Uint64 dpId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
+        BigInteger dpId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
         createTableMissEntry(dpId);
     }
 
-    public void createTableMissEntry(Uint64 dpnId) {
+    @Override
+    protected QosNodeListener getDataTreeChangeListener() {
+        return QosNodeListener.this;
+    }
+
+    public void createTableMissEntry(BigInteger dpnId) {
         List<MatchInfo> matches = new ArrayList<>();
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();

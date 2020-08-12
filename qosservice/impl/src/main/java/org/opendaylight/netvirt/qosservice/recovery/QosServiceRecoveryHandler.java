@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.qosservice.recovery;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.serviceutils.srm.RecoverableListener;
 import org.opendaylight.serviceutils.srm.ServiceRecoveryInterface;
 import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.serviceutils.srm.types.rev180626.NetvirtQos;
@@ -40,13 +39,13 @@ public class QosServiceRecoveryHandler implements ServiceRecoveryInterface {
     private void deregisterListeners() {
         LOG.trace("De-Registering QOS Listeners for recovery");
         serviceRecoveryRegistry.getRecoverableListeners(buildServiceRegistryKey())
-            .forEach((RecoverableListener::deregisterListener));
+            .forEach((recoverableListener -> recoverableListener.deregisterListener()));
     }
 
     private void registerListeners() {
         LOG.trace("Re-Registering QOS Listeners for recovery");
         serviceRecoveryRegistry.getRecoverableListeners(buildServiceRegistryKey())
-            .forEach((RecoverableListener::registerListener));
+            .forEach((recoverableListener -> recoverableListener.registerListener()));
     }
 
     public String buildServiceRegistryKey() {
