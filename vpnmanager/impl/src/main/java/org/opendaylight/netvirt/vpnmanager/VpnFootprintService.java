@@ -8,7 +8,7 @@
 
 package org.opendaylight.netvirt.vpnmanager;
 
-import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+import static org.opendaylight.mdsal.binding.util.Datastore.OPERATIONAL;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -27,12 +27,12 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
@@ -137,7 +137,7 @@ public class VpnFootprintService implements IVpnFootprintService {
         final ReentrantLock lock = JvmGlobalLocks.getLockForString(vpnName);
         lock.lock();
         try {
-            ListenableFuture<Void> future = txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx -> {
+            ListenableFuture<?> future = txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx -> {
                 InstanceIdentifier<VpnToDpnList> id = VpnHelper.getVpnToDpnListIdentifier(primaryRd, dpnId);
                 VpnInterfaces vpnInterface = new VpnInterfacesBuilder().setInterfaceName(intfName).build();
                 Optional<VpnToDpnList> dpnInVpn = tx.read(id).get();
@@ -206,7 +206,7 @@ public class VpnFootprintService implements IVpnFootprintService {
         final ReentrantLock lock = JvmGlobalLocks.getLockForString(vpnName);
         lock.lock();
         try {
-            ListenableFuture<Void> future = txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx -> {
+            ListenableFuture<?> future = txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx -> {
                 InstanceIdentifier<VpnToDpnList> id = VpnHelper.getVpnToDpnListIdentifier(primaryRd, dpnId);
                 IpAddressesBuilder ipAddressesBldr = new IpAddressesBuilder()
                         .setIpAddressSource(ipAddressSourceValuePair.getKey());
@@ -267,7 +267,7 @@ public class VpnFootprintService implements IVpnFootprintService {
         lock.lock();
         try {
             try {
-                ListenableFuture<Void> future = txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx -> {
+                ListenableFuture<?> future = txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx -> {
                     InstanceIdentifier<VpnToDpnList> id = VpnHelper.getVpnToDpnListIdentifier(rd, dpnId);
                     Optional<VpnToDpnList> dpnInVpnOpt = tx.read(id).get();
                     if (!dpnInVpnOpt.isPresent()) {
@@ -338,7 +338,7 @@ public class VpnFootprintService implements IVpnFootprintService {
         final ReentrantLock lock = JvmGlobalLocks.getLockForString(vpnName);
         lock.lock();
         try {
-            ListenableFuture<Void> future = txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx -> {
+            ListenableFuture<?> future = txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx -> {
                 InstanceIdentifier<VpnToDpnList> id = VpnHelper.getVpnToDpnListIdentifier(rd, dpnId);
 
                 Optional<VpnToDpnList> dpnInVpnOpt = tx.read(id).get();
@@ -494,7 +494,7 @@ public class VpnFootprintService implements IVpnFootprintService {
      * JobCallback class is used as a future callback for main and rollback workers
      * to handle success and failure.
      */
-    private class DpnEnterExitVpnWorker implements FutureCallback<List<Void>> {
+    private class DpnEnterExitVpnWorker implements FutureCallback<List<?>> {
         private final Logger log = LoggerFactory.getLogger(DpnEnterExitVpnWorker.class);
         Uint64 dpnId;
         String vpnName;
@@ -513,7 +513,7 @@ public class VpnFootprintService implements IVpnFootprintService {
          * Confirm this
          */
         @Override
-        public void onSuccess(List<Void> voids) {
+        public void onSuccess(List<?> voids) {
             if (entered) {
                 publishAddNotification(dpnId, vpnName, rd);
                 log.info("onSuccess: FootPrint established for vpn {} rd {} on dpn {}", vpnName, rd, dpnId);
