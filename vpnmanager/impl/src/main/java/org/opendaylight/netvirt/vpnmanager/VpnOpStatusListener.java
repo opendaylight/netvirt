@@ -24,15 +24,15 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
-import org.opendaylight.genius.infra.Datastore;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.Datastore;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
@@ -119,7 +119,7 @@ public class VpnOpStatusListener extends AbstractAsyncDataTreeChangeListener<Vpn
             jobCoordinator.enqueueJob("VPN-" + update.getVpnInstanceName(), () -> {
                 // Two transactions are used, one for operational, one for config; we only submit the config
                 // transaction if the operational transaction succeeds
-                ListenableFuture<Void> operationalFuture = txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                ListenableFuture<?> operationalFuture = txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                                                                                 Datastore.OPERATIONAL, operTx -> {
                         // Clean up VPNExtraRoutes Operational DS
                         if (rds != null && VpnUtil.isBgpVpn(vpnName, primaryRd)) {
@@ -191,9 +191,9 @@ public class VpnOpStatusListener extends AbstractAsyncDataTreeChangeListener<Vpn
                         VpnUtil.removeVpnOpInstance(primaryRd, operTx);
                     });
 
-                Futures.addCallback(operationalFuture, new FutureCallback<Void>() {
+                Futures.addCallback(operationalFuture, new FutureCallback<Object>() {
                     @Override
-                    public void onSuccess(Void result) {
+                    public void onSuccess(Object result) {
                         Futures.addCallback(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                                                             Datastore.CONFIGURATION, confTx -> {
                                 // Clean up VpnInstanceToVpnId from Config DS
@@ -325,7 +325,7 @@ public class VpnOpStatusListener extends AbstractAsyncDataTreeChangeListener<Vpn
         LOG.debug("add: Ignoring vpn Op {} with rd {}", value.getVpnInstanceName(), value.getVrfId());
     }
 
-    private class PostDeleteVpnInstanceWorker implements FutureCallback<Void> {
+    private class PostDeleteVpnInstanceWorker implements FutureCallback<Object> {
         private final Logger log = LoggerFactory.getLogger(VpnOpStatusListener.PostDeleteVpnInstanceWorker.class);
         String vpnName;
 
@@ -338,7 +338,7 @@ public class VpnOpStatusListener extends AbstractAsyncDataTreeChangeListener<Vpn
          * Release the ID used for VPN back to IdManager
          */
         @Override
-        public void onSuccess(Void ignored) {
+        public void onSuccess(Object ignored) {
             vpnUtil.releaseId(VpnConstants.VPN_IDPOOL_NAME, vpnName);
             log.info("onSuccess: VpnId for VpnName {} is released to IdManager successfully.", vpnName);
         }

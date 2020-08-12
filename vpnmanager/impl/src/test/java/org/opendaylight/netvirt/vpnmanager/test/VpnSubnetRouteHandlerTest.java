@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Future;
-import javax.inject.Inject;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -27,12 +26,16 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.SubnetOpDpnManager;
 import org.opendaylight.netvirt.vpnmanager.VpnInterfaceManager;
 import org.opendaylight.netvirt.vpnmanager.VpnNodeListener;
@@ -51,6 +54,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.DpnEndpoints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfoBuilder;
@@ -88,6 +92,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
+import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
@@ -182,8 +187,18 @@ public class VpnSubnetRouteHandlerTest {
     VpnNodeListener vpnNodeListener;
     @Mock
     IFibManager fibManager;
+    @Mock
+    INeutronVpnManager neutronVpnService;
+    @Mock
+    IMdsalApiManager mdsalManager;
+    @Mock
+    JobCoordinator jobCoordinator;
+    @Mock
+    IInterfaceManager interfaceManager;
+    @Mock
+    OdlInterfaceRpcService ifmRpcService;
 
-    private @Inject VpnUtil vpnUtil;
+    VpnUtil vpnUtil;
 
     VpnSubnetRouteHandler vpnSubnetRouteHandler;
 
@@ -206,6 +221,8 @@ public class VpnSubnetRouteHandlerTest {
     public void setUp() throws Exception {
         setupMocks();
 
+        vpnUtil = new VpnUtil(dataBroker, idManager, fibManager, bgpManager, lockManager, neutronVpnService,
+                mdsalManager, jobCoordinator, interfaceManager, ifmRpcService);
         vpnSubnetRouteHandler = new VpnSubnetRouteHandler(dataBroker, subnetOpDpnManager, bgpManager, vpnOpDataSyncer,
                 vpnNodeListener, fibManager, vpnUtil);
         final Future<RpcResult<AllocateIdOutput>> idOutputOptional =
@@ -222,27 +239,27 @@ public class VpnSubnetRouteHandlerTest {
         vpnInstanceOptional = Optional.of(vpnInstnce);
         optionalNetworks = Optional.of(networks);
 
-        doReturn(Futures.immediateFuture(optionalIfState)).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(FluentFutures.immediateFluentFuture(optionalIfState)).when(mockReadTx).read(LogicalDatastoreType
             .OPERATIONAL, ifStateId);
-        doReturn(Futures.immediateFuture(optionalSubs)).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(FluentFutures.immediateFluentFuture(optionalSubs)).when(mockReadTx).read(LogicalDatastoreType
             .OPERATIONAL, subOpIdentifier);
-        doReturn(Futures.immediateFuture(optionalSubDpn)).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(FluentFutures.immediateFluentFuture(optionalSubDpn)).when(mockReadTx).read(LogicalDatastoreType
             .OPERATIONAL, dpnOpId);
-        doReturn(Futures.immediateFuture(optionalTunnelInfo)).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(FluentFutures.immediateFluentFuture(optionalTunnelInfo)).when(mockReadTx).read(LogicalDatastoreType
             .CONFIGURATION, tunnelInfoId);
-        doReturn(Futures.immediateFuture(optionalPortOp)).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(FluentFutures.immediateFluentFuture(optionalPortOp)).when(mockReadTx).read(LogicalDatastoreType
             .OPERATIONAL, portOpIdentifier);
-        doReturn(Futures.immediateFuture(optionalPtOp)).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(FluentFutures.immediateFluentFuture(optionalPtOp)).when(mockReadTx).read(LogicalDatastoreType
             .OPERATIONAL, portOpIdentifr);
-        doReturn(Futures.immediateFuture(optionalPortOp)).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(FluentFutures.immediateFluentFuture(optionalPortOp)).when(mockReadTx).read(LogicalDatastoreType
             .OPERATIONAL, instPortOp);
-        doReturn(Futures.immediateFuture(optionalSubnetMap)).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(FluentFutures.immediateFluentFuture(optionalSubnetMap)).when(mockReadTx).read(LogicalDatastoreType
             .CONFIGURATION, subMapid);
-        doReturn(Futures.immediateFuture(optionalVpnInstnce)).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(FluentFutures.immediateFluentFuture(optionalVpnInstnce)).when(mockReadTx).read(LogicalDatastoreType
             .CONFIGURATION, instVpnInstance);
-        doReturn(Futures.immediateFuture(vpnInstanceOptional)).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(FluentFutures.immediateFluentFuture(vpnInstanceOptional)).when(mockReadTx).read(LogicalDatastoreType
             .CONFIGURATION, vpnInstanceIdentifier);
-        doReturn(Futures.immediateFuture(Optional.empty())).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(FluentFutures.immediateFluentFuture(Optional.empty())).when(mockReadTx).read(LogicalDatastoreType
             .CONFIGURATION, netsIdentifier);
         doReturn(idOutputOptional).when(idManager).allocateId(allocateIdInput);
 
@@ -309,7 +326,7 @@ public class VpnSubnetRouteHandlerTest {
         networks = new NetworksBuilder().setId(portId).withKey(new NetworksKey(portId)).build();
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();
         doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();
-        doReturn(Futures.immediateFuture(null)).when(mockWriteTx).commit();
+        doReturn(FluentFutures.immediateNullFluentFuture()).when(mockWriteTx).commit();
     }
 
     @Ignore

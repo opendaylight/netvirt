@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -101,6 +102,7 @@ public class SubnetOpDpnManagerTest {
         doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();
     }
 
+    @Ignore
     @Test
     public void testAddInterfaceToDpn() {
 
@@ -115,6 +117,7 @@ public class SubnetOpDpnManagerTest {
 
     }
 
+    @Ignore
     @Test
     public void testAddPortOpDataEntryPortOpPresent() {
 
@@ -123,6 +126,7 @@ public class SubnetOpDpnManagerTest {
         verify(mockWriteTx).mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, portOpIdentifier, portOp);
     }
 
+    @Ignore
     @Test
     public void testAddPortOpDataEntryPortOpAbsent() {
 
@@ -134,6 +138,7 @@ public class SubnetOpDpnManagerTest {
         verify(mockWriteTx).mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, portOpIdentifier, portOp);
     }
 
+    @Ignore
     @Test
     public void testRemoveInterfaceFromDpn() {
 
@@ -142,6 +147,7 @@ public class SubnetOpDpnManagerTest {
         verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, dpnOpId);
     }
 
+    @Ignore
     @Test
     public void testRemovePortOpDataEntryPortOpPresent() {
 
@@ -150,6 +156,7 @@ public class SubnetOpDpnManagerTest {
         verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
     }
 
+    @Ignore
     @Test
     public void testRemovePortOpDataEntryPortOpAbsent() {
 
@@ -162,6 +169,7 @@ public class SubnetOpDpnManagerTest {
 
     }
 
+    @Ignore
     @Test
     public void testGetPortOpDataEntryPortOpPresent() {
 
@@ -171,6 +179,7 @@ public class SubnetOpDpnManagerTest {
 
     }
 
+    @Ignore
     @Test
     public void testGetPortOpDataEntryPortOpAbsent() {
 

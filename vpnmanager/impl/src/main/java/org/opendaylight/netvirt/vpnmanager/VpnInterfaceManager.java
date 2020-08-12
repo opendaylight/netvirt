@@ -8,8 +8,8 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import static java.util.Collections.emptyList;
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.OPERATIONAL;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
@@ -38,12 +38,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
-import org.opendaylight.genius.infra.Datastore.Configuration;
-import org.opendaylight.genius.infra.Datastore.Operational;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.infra.TypedReadWriteTransaction;
-import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -55,6 +49,12 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
+import org.opendaylight.mdsal.binding.util.Datastore.Operational;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.mdsal.binding.util.TypedReadWriteTransaction;
+import org.opendaylight.mdsal.binding.util.TypedWriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
@@ -281,12 +281,12 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
                     jobCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName, () -> {
                         // TODO Deal with sequencing — the config tx must only submitted if the oper tx goes in
                         // (the inventory tx goes in last)
-                        List<ListenableFuture<Void>> futures = new ArrayList<>();
+                        List<ListenableFuture<?>> futures = new ArrayList<>();
                         //set of prefix used, as entry in prefix-to-interface datastore
                         // is prerequisite for refresh Fib to avoid race condition leading to
                         // missing remote next hop in bucket actions on bgp-vpn delete
                         Set<String> prefixListForRefreshFib = new HashSet<>();
-                        ListenableFuture<Void> confFuture =
+                        ListenableFuture<?> confFuture =
                             txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                                 confTx -> futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL,
                                     operTx -> futures.add(
@@ -343,7 +343,7 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
             } else if (Boolean.TRUE.equals(vpnInterface.isRouterInterface())) {
                 jobCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterface.getName(),
                     () -> {
-                        ListenableFuture<Void> future =
+                        ListenableFuture<?> future =
                             txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, confTx -> {
                                 createFibEntryForRouterInterface(primaryRd, vpnInterface, interfaceName,
                                     confTx, vpnName);
@@ -1254,7 +1254,7 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
                                 final String interfaceName) {
         if (Boolean.TRUE.equals(vpnInterface.isRouterInterface())) {
             jobCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterface.getName(), () -> {
-                ListenableFuture<Void> future =
+                ListenableFuture<?> future =
                     txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, confTx -> {
                         deleteFibEntryForRouterInterface(vpnInterface, confTx, vpnName);
                         LOG.info("remove: Router interface {} for vpn {}", interfaceName, vpnName);
@@ -1278,8 +1278,8 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
         removeInterfaceFromUnprocessedList(identifier, vpnInterface);
         jobCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
             () -> {
-                List<ListenableFuture<Void>> futures = new ArrayList<>(3);
-                ListenableFuture<Void> configFuture = txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                List<ListenableFuture<?>> futures = new ArrayList<>(3);
+                ListenableFuture<?> configFuture = txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                     writeConfigTxn -> futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL,
                         writeOperTxn -> futures.add(
                             txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, writeInvTxn -> {
@@ -1627,7 +1627,7 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
         LOG.info("VPN Interface update event - intfName {}", vpnInterfaceName);
         //handles switching between <internal VPN - external VPN>
         jobCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterfaceName, () -> {
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            List<ListenableFuture<?>> futures = new ArrayList<>();
             if (handleVpnInstanceUpdateForVpnInterface(identifier, original, update, futures)) {
                 LOG.info("update: handled Instance update for VPNInterface {} on dpn {} from oldVpn(s) {} "
                                 + "to newVpn(s) {}",
@@ -1645,7 +1645,7 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
 
     private boolean handleVpnInstanceUpdateForVpnInterface(InstanceIdentifier<VpnInterface> identifier,
                                                            VpnInterface original, VpnInterface update,
-                                                           List<ListenableFuture<Void>> futures) {
+                                                           List<ListenableFuture<?>> futures) {
         boolean isVpnInstanceUpdate = false;
         final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class);
         final String interfaceName = key.getName();
@@ -1750,7 +1750,7 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
     private void updateVpnInstanceChange(InstanceIdentifier<VpnInterface> identifier, String interfaceName,
                                          VpnInterface original, VpnInterface update, List<String> oldVpnList,
                                          List<String> newVpnList, List<String> oldVpnListCopy,
-                                         List<ListenableFuture<Void>> futures) {
+                                         List<ListenableFuture<?>> futures) {
         final Adjacencies origAdjs = original.augmentation(Adjacencies.class);
         final List<Adjacency> oldAdjs = origAdjs != null && origAdjs.getAdjacency() != null
                 ? new ArrayList<Adjacency>(origAdjs.getAdjacency().values()) : new ArrayList<>();
@@ -1814,9 +1814,9 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private List<ListenableFuture<Void>> updateVpnInstanceAdjChange(VpnInterface original, VpnInterface update,
+    private List<ListenableFuture<?>> updateVpnInstanceAdjChange(VpnInterface original, VpnInterface update,
                                                                     String vpnInterfaceName,
-                                                                    List<ListenableFuture<Void>> futures) {
+                                                                    List<ListenableFuture<?>> futures) {
         final Adjacencies origAdjs = original.augmentation(Adjacencies.class);
         final List<Adjacency> oldAdjs = origAdjs != null && origAdjs.getAdjacency()
                 != null ? new ArrayList<Adjacency>(origAdjs.getAdjacency().values()) : new ArrayList<>();
@@ -1836,7 +1836,7 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
                 // is prerequisite for refresh Fib to avoid race condition leading to missing remote next hop
                 // in bucket actions on bgp-vpn delete
                 Set<String> prefixListForRefreshFib = new HashSet<>();
-                ListenableFuture<Void> configTxFuture = txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+                ListenableFuture<?> configTxFuture = txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                     confTx -> futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL,
                         operTx -> {
                             InstanceIdentifier<VpnInterfaceOpDataEntry> vpnInterfaceOpIdentifier =
@@ -1896,7 +1896,7 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
                 Futures.addCallback(configTxFuture, new VpnInterfaceCallBackHandler(primaryRd, prefixListForRefreshFib),
                     MoreExecutors.directExecutor());
                 futures.add(configTxFuture);
-                for (ListenableFuture<Void> future : futures) {
+                for (ListenableFuture<?> future : futures) {
                     LoggingFutures.addErrorLogging(future, LOG, "update: failed for interface {} on vpn {}",
                             update.getName(), update.getVpnInstanceNames());
                 }
@@ -2432,14 +2432,14 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
                                     // TODO Deal with sequencing — the config tx must only submitted
                                     // if the oper tx goes in
                                     if (vpnUtil.isAdjacencyEligibleToVpn(adjacency, vpnName)) {
-                                        List<ListenableFuture<Void>> futures = new ArrayList<>();
+                                        List<ListenableFuture<?>> futures = new ArrayList<>();
                                         futures.add(
                                             txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, operTx -> {
                                                 //set of prefix used, as entry in prefix-to-interface datastore
                                                 // is prerequisite for refresh Fib to avoid race condition leading
                                                 // to missing remote next hop in bucket actions on bgp-vpn delete
                                                 Set<String> prefixListForRefreshFib = new HashSet<>();
-                                                ListenableFuture<Void> configTxFuture =
+                                                ListenableFuture<?> configTxFuture =
                                                     txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                                                         confTx -> addNewAdjToVpnInterface(existingVpnInterfaceId,
                                                             primaryRd, adjacency,
@@ -2464,7 +2464,7 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
         });
     }
 
-    private class PostVpnInterfaceWorker implements FutureCallback<Void> {
+    private class PostVpnInterfaceWorker implements FutureCallback<Object> {
         private final String interfaceName;
         private final boolean add;
         private final String txnDestination;
@@ -2476,7 +2476,7 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
         }
 
         @Override
-        public void onSuccess(Void voidObj) {
+        public void onSuccess(Object voidObj) {
             if (add) {
                 LOG.debug("VpnInterfaceManager: VrfEntries for {} stored into destination {} successfully",
                         interfaceName, txnDestination);
@@ -2497,7 +2497,7 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
         }
     }
 
-    private class VpnInterfaceCallBackHandler implements FutureCallback<Void> {
+    private class VpnInterfaceCallBackHandler implements FutureCallback<Object> {
         private final String primaryRd;
         private final Set<String> prefixListForRefreshFib;
 
@@ -2507,7 +2507,7 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
         }
 
         @Override
-        public void onSuccess(Void voidObj) {
+        public void onSuccess(Object voidObj) {
             prefixListForRefreshFib.forEach(prefix -> {
                 fibManager.refreshVrfEntry(primaryRd, prefix);
             });

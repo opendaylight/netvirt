@@ -16,12 +16,13 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.Datastore;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
@@ -239,22 +240,24 @@ public class SubnetmapChangeListener extends AbstractAsyncDataTreeChangeListener
     protected long getElanTag(String elanInstanceName) {
         final long[] elanTag = {0L};
 
-        LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
-            InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class)
-                    .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
-            ElanInstance elanInstance = tx.read(LogicalDatastoreType.CONFIGURATION, elanIdentifierId)
-                    .get().orElse(null);
-            if (elanInstance != null) {
-                if (elanInstance.getElanTag() != null) {
-                    elanTag[0] =elanInstance.getElanTag().longValue();
-                } else {
-                    LOG.error("Notification failed because of failure in fetching elanTag for ElanInstance {}",
-                            elanInstanceName);
-                }
-            } else {
-                LOG.error("Notification failed because of failure in reading ELANInstance {}", elanInstanceName);
-            }
-        }), LOG, "Error binding an ELAN tag for elanInstance {}", elanInstanceName);
+        LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(Datastore.CONFIGURATION,
+                tx -> {
+                    InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class)
+                            .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
+                    ElanInstance elanInstance = tx.read(elanIdentifierId)
+                            .get().orElse(null);
+                    if (elanInstance != null) {
+                        if (elanInstance.getElanTag() != null) {
+                            elanTag[0] = elanInstance.getElanTag().longValue();
+                        } else {
+                            LOG.error("Notification failed because of failure in fetching elanTag for ElanInstance {}",
+                                    elanInstanceName);
+                        }
+                    } else {
+                        LOG.error("Notification failed because of failure in reading ELANInstance {}",
+                                elanInstanceName);
+                    }
+                }), LOG, "Error binding an ELAN tag for elanInstance {}", elanInstanceName);
 
         return elanTag[0];
     }
