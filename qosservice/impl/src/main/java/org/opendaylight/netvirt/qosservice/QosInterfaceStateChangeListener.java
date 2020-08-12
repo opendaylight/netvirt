@@ -8,8 +8,9 @@
 
 package org.opendaylight.netvirt.qosservice;
 
+import com.google.common.base.Optional;
 import java.util.Collections;
-import java.util.Optional;
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -37,7 +38,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class QosInterfaceStateChangeListener extends AbstractClusteredAsyncDataTreeChangeListener<Interface>
-        implements RecoverableListener {
+    implements RecoverableListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(QosInterfaceStateChangeListener.class);
 
@@ -47,6 +48,7 @@ public class QosInterfaceStateChangeListener extends AbstractClusteredAsyncDataT
     private final QosNeutronUtils qosNeutronUtils;
     private final INeutronVpnManager neutronVpnManager;
     private final JobCoordinator jobCoordinator;
+    private  final QosEosHandler qosEosHandler;
 
     @Inject
     public QosInterfaceStateChangeListener(final DataBroker dataBroker, final QosAlertManager qosAlertManager,
@@ -54,16 +56,18 @@ public class QosInterfaceStateChangeListener extends AbstractClusteredAsyncDataT
                                            final INeutronVpnManager neutronVpnManager,
                                            final ServiceRecoveryRegistry serviceRecoveryRegistry,
                                            final QosServiceRecoveryHandler qosServiceRecoveryHandler,
-                                           final JobCoordinator jobCoordinator) {
+                                           final JobCoordinator jobCoordinator,
+                                           final  QosEosHandler qosEosHandler) {
         super(dataBroker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(InterfacesState.class)
                 .child(Interface.class),
-                Executors.newListeningSingleThreadExecutor("QosInterfaceStateChangeListener", LOG));
+            Executors.newListeningSingleThreadExecutor("QosInterfaceStateChangeListener", LOG));
         this.dataBroker = dataBroker;
         this.uuidUtil = new UuidUtil();
         this.qosAlertManager = qosAlertManager;
         this.qosNeutronUtils = qosNeutronUtils;
         this.neutronVpnManager = neutronVpnManager;
         this.jobCoordinator = jobCoordinator;
+        this.qosEosHandler = qosEosHandler;
         serviceRecoveryRegistry.addRecoverableListener(qosServiceRecoveryHandler.buildServiceRegistryKey(),
                 this);
         LOG.trace("{} created",  getClass().getSimpleName());
@@ -89,7 +93,6 @@ public class QosInterfaceStateChangeListener extends AbstractClusteredAsyncDataT
     public void deregisterListener() {
         super.close();
     }
-
 
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
@@ -120,6 +123,7 @@ public class QosInterfaceStateChangeListener extends AbstractClusteredAsyncDataT
 
     private java.util.Optional<Port> getNeutronPort(String portName) {
         return uuidUtil.newUuidIfValidPattern(portName)
+                .toJavaUtil()
                 .map(qosNeutronUtils::getNeutronPort);
     }
 
@@ -129,7 +133,7 @@ public class QosInterfaceStateChangeListener extends AbstractClusteredAsyncDataT
         if (uuid.isPresent()) {
             Port port = qosNeutronUtils.getNeutronPort(portName);
             if (port != null) {
-                return Optional.ofNullable(uuid.map(qosNeutronUtils::getNeutronPort).orElse(null));
+                return Optional.fromJavaUtil(uuid.toJavaUtil().map(qosNeutronUtils::getNeutronPort));
             }
             if (qosNeutronUtils.isBindServiceDone(uuid)) {
                 LOG.trace("Qos Service : interface {} clearing stale flow entries if any", portName);
@@ -141,8 +145,9 @@ public class QosInterfaceStateChangeListener extends AbstractClusteredAsyncDataT
                     return Collections.emptyList();
                 });
             }
+
         }
-        return Optional.empty();
+        return Optional.absent();
     }
 
     @Override
@@ -150,7 +155,7 @@ public class QosInterfaceStateChangeListener extends AbstractClusteredAsyncDataT
         if (L2vlan.class.equals(intrf.getType())) {
             final String interfaceName = intrf.getName();
             // Guava Optional asSet().forEach() emulates Java 8 Optional ifPresent()
-            getNeutronPortForRemove(intrf).stream().forEach(port -> {
+            getNeutronPortForRemove(intrf).asSet().forEach(port -> {
                 LOG.trace("Qos Service : Received interface {} PORT DOWN event ", interfaceName);
 
                 String lowerLayerIf = intrf.getLowerLayerIf().get(0);
@@ -181,5 +186,3 @@ public class QosInterfaceStateChangeListener extends AbstractClusteredAsyncDataT
         }
     }
 }
-
-

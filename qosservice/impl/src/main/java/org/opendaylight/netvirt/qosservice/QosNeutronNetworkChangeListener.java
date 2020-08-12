@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.qosservice;
 
 import java.util.Objects;
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -28,27 +29,32 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class QosNeutronNetworkChangeListener extends AbstractClusteredAsyncDataTreeChangeListener<Network>
-        implements RecoverableListener {
+    implements RecoverableListener {
     private static final Logger LOG = LoggerFactory.getLogger(QosNeutronNetworkChangeListener.class);
     private final DataBroker dataBroker;
     private final QosNeutronUtils qosNeutronUtils;
+    private  final QosEosHandler qosEosHandler;
 
     @Inject
     public QosNeutronNetworkChangeListener(final DataBroker dataBroker,
                                            final QosNeutronUtils qosNeutronUtils,
                                            final ServiceRecoveryRegistry serviceRecoveryRegistry,
-                                           final QosServiceRecoveryHandler qosServiceRecoveryHandler) {
+                                           final QosServiceRecoveryHandler qosServiceRecoveryHandler,
+                                           final  QosEosHandler qosEosHandler) {
         super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Neutron.class)
                 .child(Networks.class).child(Network.class),
-                Executors.newListeningSingleThreadExecutor("QosNeutronNetworkChangeListener", LOG));
+            Executors.newListeningSingleThreadExecutor("QosNeutronNetworkChangeListener", LOG));
         this.dataBroker = dataBroker;
         this.qosNeutronUtils = qosNeutronUtils;
+        this.qosEosHandler = qosEosHandler;
         serviceRecoveryRegistry.addRecoverableListener(qosServiceRecoveryHandler.buildServiceRegistryKey(),
                 this);
         LOG.trace("{} created",  getClass().getSimpleName());
     }
 
+    @PostConstruct
     public void init() {
+        registerListener();
         LOG.trace("{} init and registerListener done", getClass().getSimpleName());
     }
 
@@ -82,16 +88,20 @@ public class QosNeutronNetworkChangeListener extends AbstractClusteredAsyncDataT
         QosNetworkExtension originalQos = original.augmentation(QosNetworkExtension.class);
         if (originalQos == null && updateQos != null) {
             // qosservice policy add
+            LOG.trace("New Qos policy applied on the Network {}", update.getUuid().getValue());
             qosNeutronUtils.addToQosNetworksCache(updateQos.getQosPolicyId(), update);
-            qosNeutronUtils.handleNeutronNetworkQosUpdate(update, updateQos.getQosPolicyId());
+            qosNeutronUtils.handleNeutronNetworkQosAdd(update, updateQos.getQosPolicyId());
         } else if (originalQos != null && updateQos != null
-                && !Objects.equals(originalQos.getQosPolicyId(), updateQos.getQosPolicyId())) {
+                && !Objects.equals(originalQos.getQosPolicyId(),updateQos.getQosPolicyId())) {
             // qosservice policy update
+            LOG.trace("Qos policy updated on the Network {}", update.getUuid().getValue());
             qosNeutronUtils.removeFromQosNetworksCache(originalQos.getQosPolicyId(), original);
             qosNeutronUtils.addToQosNetworksCache(updateQos.getQosPolicyId(), update);
-            qosNeutronUtils.handleNeutronNetworkQosUpdate(update, updateQos.getQosPolicyId());
+            qosNeutronUtils.handleNeutronNetworkQosUpdate(update, originalQos.getQosPolicyId(),
+                    updateQos.getQosPolicyId());
         } else if (originalQos != null && updateQos == null) {
             // qosservice policy delete
+            LOG.trace("Qos policy removed on the Network {}", update.getUuid().getValue());
             qosNeutronUtils.handleNeutronNetworkQosRemove(original, originalQos.getQosPolicyId());
             qosNeutronUtils.removeFromQosNetworksCache(originalQos.getQosPolicyId(), original);
         }
@@ -104,8 +114,7 @@ public class QosNeutronNetworkChangeListener extends AbstractClusteredAsyncDataT
         QosNetworkExtension networkQos = network.augmentation(QosNetworkExtension.class);
         if (networkQos != null) {
             qosNeutronUtils.addToQosNetworksCache(networkQos.getQosPolicyId(), network);
-            qosNeutronUtils.handleNeutronNetworkQosUpdate(network, networkQos.getQosPolicyId());
+            qosNeutronUtils.handleNeutronNetworkQosAdd(network, networkQos.getQosPolicyId());
         }
     }
 }
-

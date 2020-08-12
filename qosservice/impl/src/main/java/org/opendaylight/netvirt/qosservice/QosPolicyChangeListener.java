@@ -7,28 +7,28 @@
  */
 package org.opendaylight.netvirt.qosservice;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
-
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.PreDestroy;
+import java.util.Map;
+import java.util.Map.Entry;
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
-import org.opendaylight.infrautils.utils.concurrent.Executors;
-import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
-import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.netvirt.neutronvpn.api.utils.ChangeUtils;
 import org.opendaylight.netvirt.qosservice.recovery.QosServiceRecoveryHandler;
 import org.opendaylight.serviceutils.srm.RecoverableListener;
 import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
-import org.opendaylight.serviceutils.tools.listener.AbstractClusteredAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.QosPolicies;
@@ -45,59 +45,57 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class QosPolicyChangeListener extends AbstractClusteredAsyncDataTreeChangeListener<QosPolicy>
-        implements RecoverableListener {
+public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListenerBase<QosPolicy,
+                                                QosPolicyChangeListener> implements RecoverableListener {
     private static final Logger LOG = LoggerFactory.getLogger(QosPolicyChangeListener.class);
     private final DataBroker dataBroker;
-    private final ManagedNewTransactionRunner txRunner;
     private final QosNeutronUtils qosNeutronUtils;
     private final JobCoordinator jobCoordinator;
+    private final QosEosHandler qosEosHandler;
 
     @Inject
     public QosPolicyChangeListener(final DataBroker dataBroker,
                                    final QosNeutronUtils qosNeutronUtils, final JobCoordinator jobCoordinator,
                                    final ServiceRecoveryRegistry serviceRecoveryRegistry,
-                                   final QosServiceRecoveryHandler qosServiceRecoveryHandler) {
-        super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Neutron.class)
-                .child(QosPolicies.class).child(QosPolicy.class),
-                Executors.newListeningSingleThreadExecutor("QosPolicyChangeListener", LOG));
+                                   final QosServiceRecoveryHandler qosServiceRecoveryHandler,
+                                   final IdManagerService idManager,final QosEosHandler qosEosHandler) {
+        super(QosPolicy.class, QosPolicyChangeListener.class);
         this.dataBroker = dataBroker;
-        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.qosNeutronUtils = qosNeutronUtils;
         this.jobCoordinator = jobCoordinator;
+        this.qosEosHandler = qosEosHandler;
         serviceRecoveryRegistry.addRecoverableListener(qosServiceRecoveryHandler.buildServiceRegistryKey(),
                 this);
         LOG.trace("{} created",  getClass().getSimpleName());
-        init();
     }
 
+    @PostConstruct
     public void init() {
+        registerListener();
         supportedQoSRuleTypes();
         LOG.trace("{} init and registerListener done", getClass().getSimpleName());
     }
 
     @Override
-    @PreDestroy
-    public void close() {
-        super.close();
-        Executors.shutdownAndAwaitTermination(getExecutorService());
-    }
-
-    @Override
     public void registerListener() {
-        super.register();
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
-    public void deregisterListener() {
-        super.close();
+    protected InstanceIdentifier<QosPolicy> getWildCardPath() {
+        return InstanceIdentifier.create(Neutron.class).child(QosPolicies.class).child(QosPolicy.class);
     }
-/*
+
     @Override
     public void onDataTreeChanged(Collection<DataTreeModification<QosPolicy>> changes) {
         handleQosPolicyChanges(changes);
         handleBandwidthLimitRulesChanges(changes);
         handleDscpMarkingRulesChanges(changes);
+    }
+
+    @Override
+    protected QosPolicyChangeListener getDataTreeChangeListener() {
+        return QosPolicyChangeListener.this;
     }
 
     private void handleQosPolicyChanges(Collection<DataTreeModification<QosPolicy>> changes) {
@@ -154,10 +152,10 @@ public class QosPolicyChangeListener extends AbstractClusteredAsyncDataTreeChang
                 ChangeUtils.extractRemoved(changes, DscpmarkingRules.class)) {
             remove(dscpMarkIid, dscpMarkOriginalMap.get(dscpMarkIid));
         }
-    }*/
+    }
 
     @Override
-    public void add(InstanceIdentifier<QosPolicy> identifier, QosPolicy input) {
+    protected void add(InstanceIdentifier<QosPolicy> identifier, QosPolicy input) {
         LOG.debug("Adding  QosPolicy : key: {}, value={}",
                 identifier.firstKeyOf(QosPolicy.class).getUuid().getValue(),input);
         qosNeutronUtils.addToQosPolicyCache(input);
@@ -169,62 +167,67 @@ public class QosPolicyChangeListener extends AbstractClusteredAsyncDataTreeChang
 
         Uuid qosUuid = identifier.firstKeyOf(QosPolicy.class).getUuid();
         for (Network network : qosNeutronUtils.getQosNetworks(qosUuid)) {
-            qosNeutronUtils.handleNeutronNetworkQosUpdate(network, qosUuid);
+            qosNeutronUtils.handleNeutronNetworkQosAdd(network, qosUuid);
         }
 
         for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
-            jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> Collections.singletonList(
-                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
-                        tx -> qosNeutronUtils.setPortBandwidthLimits(port, input, tx))));
+            jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
+                WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                qosNeutronUtils.setPortBandwidthLimits(port, qosUuid, Collections.singletonList(input));
+                futures.add(wrtConfigTxn.submit());
+                return futures;
+            });
         }
     }
 
-/*    private void add(InstanceIdentifier<DscpmarkingRules> identifier, DscpmarkingRules input) {
+    private void add(InstanceIdentifier<DscpmarkingRules> identifier, DscpmarkingRules input) {
         LOG.debug("Adding DscpMarkingRules : key: {}, value={}",
                 identifier.firstKeyOf(QosPolicy.class).getUuid().getValue(), input);
 
         Uuid qosUuid = identifier.firstKeyOf(QosPolicy.class).getUuid();
 
         for (Network network : qosNeutronUtils.getQosNetworks(qosUuid)) {
-            qosNeutronUtils.handleNeutronNetworkQosUpdate(network, qosUuid);
+            qosNeutronUtils.handleNeutronNetworkQosAdd(network, qosUuid);
         }
 
         for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
             jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
+                WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
                 qosNeutronUtils.setPortDscpMarking(port, input);
-                return Collections.emptyList();
+                futures.add(wrtConfigTxn.submit());
+                return futures;
             });
         }
-    }*/
+    }
 
     @Override
-    public void remove(InstanceIdentifier<QosPolicy> identifier, QosPolicy input) {
+    protected void remove(InstanceIdentifier<QosPolicy> identifier, QosPolicy input) {
         LOG.debug("Removing QosPolicy : key: {}, value={}",
                 identifier.firstKeyOf(QosPolicy.class).getUuid().getValue(), input);
         qosNeutronUtils.removeFromQosPolicyCache(input);
+        qosNeutronUtils.delQosPolicyFromQosPolicyPortMapDS(input.getUuid());
     }
 
-/*    private void remove(InstanceIdentifier<BandwidthLimitRules> identifier, BandwidthLimitRules input) {
+    private void remove(InstanceIdentifier<BandwidthLimitRules> identifier, BandwidthLimitRules input) {
         LOG.debug("Removing BandwidthLimitRules : key: {}, value={}",
                 identifier.firstKeyOf(QosPolicy.class).getUuid().getValue(), input);
 
         Uuid qosUuid = identifier.firstKeyOf(QosPolicy.class).getUuid();
-        BandwidthLimitRulesBuilder bwLimitBuilder = new BandwidthLimitRulesBuilder();
-        BandwidthLimitRules zeroBwLimitRule =
-                bwLimitBuilder.setMaxBurstKbps(Uint64.ZERO).setMaxKbps(Uint64.ZERO).build();
-
         for (Network network : qosNeutronUtils.getQosNetworks(qosUuid)) {
-            qosNeutronUtils.handleNeutronNetworkQosBwRuleRemove(network, zeroBwLimitRule);
+            qosNeutronUtils.handleNeutronNetworkQosBwRuleRemove(network, qosUuid, input);
         }
 
         for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
-            jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> Collections.singletonList(
-                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
-                        tx -> qosNeutronUtils.setPortBandwidthLimits(port, zeroBwLimitRule, tx))));
+            jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
+                qosNeutronUtils.unsetPortBandwidthLimits(port, qosUuid, Collections.singletonList(input));
+                return Collections.emptyList();
+            });
         }
-    }*/
+    }
 
-/*    private void remove(InstanceIdentifier<DscpmarkingRules> identifier,DscpmarkingRules input) {
+    private void remove(InstanceIdentifier<DscpmarkingRules> identifier,DscpmarkingRules input) {
         LOG.debug("Removing DscpMarkingRules : key: {}, value={}",
                 identifier.firstKeyOf(QosPolicy.class).getUuid().getValue(), input);
 
@@ -240,7 +243,7 @@ public class QosPolicyChangeListener extends AbstractClusteredAsyncDataTreeChang
                 return Collections.emptyList();
             });
         }
-    }*/
+    }
 
     public void reapplyPolicy(String entityid) {
         Uuid policyUuid = Uuid.getDefaultInstance(entityid);
@@ -249,68 +252,75 @@ public class QosPolicyChangeListener extends AbstractClusteredAsyncDataTreeChang
             return;
         }
 
-        @NonNull List<BandwidthLimitRules> nonnullBandwidthLimitRules =
-            new ArrayList<BandwidthLimitRules>(qosNeutronUtils.getQosPolicyMap().get(policyUuid)
-                    .nonnullBandwidthLimitRules().values());
-        if (!nonnullBandwidthLimitRules.isEmpty()) {
-            BandwidthLimitRules bandwidthLimitRules = nonnullBandwidthLimitRules.get(0);
+        if (!qosNeutronUtils.getQosPolicyMap().get(policyUuid).getBandwidthLimitRules().isEmpty()) {
+            BandwidthLimitRules bandwidthLimitRules =
+                    qosNeutronUtils.getQosPolicyMap().get(policyUuid).getBandwidthLimitRules().get(0);
             update(policyUuid, bandwidthLimitRules);
         }
 
-        @NonNull List<DscpmarkingRules> nonnullDscpmarkingRules =
-            new ArrayList<DscpmarkingRules>(qosNeutronUtils.getQosPolicyMap().get(policyUuid)
-                    .nonnullDscpmarkingRules().values());
-        if (!nonnullDscpmarkingRules.isEmpty()) {
-            DscpmarkingRules dscpmarkingRules = nonnullDscpmarkingRules.get(0);
+        if (!qosNeutronUtils.getQosPolicyMap().get(policyUuid).getDscpmarkingRules().isEmpty()) {
+            DscpmarkingRules dscpmarkingRules =
+                    qosNeutronUtils.getQosPolicyMap().get(policyUuid).getDscpmarkingRules().get(0);
             update(policyUuid, dscpmarkingRules);
         }
     }
 
     @Override
-    public void update(InstanceIdentifier<QosPolicy> identifier, QosPolicy original, QosPolicy update) {
+    protected void update(InstanceIdentifier<QosPolicy> identifier, QosPolicy original, QosPolicy update) {
         LOG.debug("Updating QosPolicy : key: {}, original value={}, update value={}",
                 identifier.firstKeyOf(QosPolicy.class).getUuid().getValue(), original, update);
         qosNeutronUtils.addToQosPolicyCache(update);
     }
 
-/*    private void update(InstanceIdentifier<BandwidthLimitRules> identifier, BandwidthLimitRules original,
+    private void update(InstanceIdentifier<BandwidthLimitRules> identifier, BandwidthLimitRules original,
                         BandwidthLimitRules update) {
         LOG.debug("Updating BandwidthLimitRules : key: {}, original value={}, update value={}",
                 identifier.firstKeyOf(QosPolicy.class).getUuid().getValue(), original,
                 update);
         Uuid qosUuid = identifier.firstKeyOf(QosPolicy.class).getUuid();
+        if (original.equals(update)) {
+            LOG.debug("Both updated value and original value is same skipping update");
+            return;
+        }
         update(qosUuid, update);
-    }*/
+    }
 
     private void update(Uuid qosUuid, BandwidthLimitRules update) {
         for (Network network : qosNeutronUtils.getQosNetworks(qosUuid)) {
-            qosNeutronUtils.handleNeutronNetworkQosUpdate(network, qosUuid);
+            qosNeutronUtils.handleNeutronNetworkQosAdd(network, qosUuid);
         }
 
         for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
-            jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> Collections.singletonList(
-                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
-                        tx -> qosNeutronUtils.setPortBandwidthLimits(port, update, tx))));
+            jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
+                WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                qosNeutronUtils.setPortBandwidthLimits(port, qosUuid, Collections.singletonList(update));
+                futures.add(wrtConfigTxn.submit());
+                return futures;
+            });
         }
     }
 
-/*    private void update(InstanceIdentifier<DscpmarkingRules> identifier, DscpmarkingRules original,
+    private void update(InstanceIdentifier<DscpmarkingRules> identifier, DscpmarkingRules original,
                         DscpmarkingRules update) {
         LOG.debug("Updating DscpMarkingRules : key: {}, original value={}, update value={}",
                 identifier.firstKeyOf(QosPolicy.class).getUuid().getValue(), original, update);
         Uuid qosUuid = identifier.firstKeyOf(QosPolicy.class).getUuid();
         update(qosUuid, update);
-    }*/
+    }
 
     private void update(Uuid qosUuid, DscpmarkingRules update) {
         for (Network network : qosNeutronUtils.getQosNetworks(qosUuid)) {
-            qosNeutronUtils.handleNeutronNetworkQosUpdate(network, qosUuid);
+            qosNeutronUtils.handleNeutronNetworkQosAdd(network, qosUuid);
         }
 
         for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
             jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
+                WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
                 qosNeutronUtils.setPortDscpMarking(port, update);
-                return Collections.emptyList();
+                futures.add(wrtConfigTxn.submit());
+                return futures;
             });
         }
     }
@@ -323,12 +333,15 @@ public class QosPolicyChangeListener extends AbstractClusteredAsyncDataTreeChang
         value.add(getRuleTypes("dscp_marking_rules"));
 
         qrtBuilder.setRuleTypes(value);
+        final WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
 
-        LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
-            InstanceIdentifier instanceIdentifier = InstanceIdentifier.create(Neutron.class).child(QosRuleTypes.class);
-            tx.merge(instanceIdentifier, qrtBuilder.build());
-        }), LOG, "Error setting up supported QoS rule types");
+        InstanceIdentifier instanceIdentifier = InstanceIdentifier.create(Neutron.class).child(QosRuleTypes.class);
+
+        writeTx.merge(LogicalDatastoreType.OPERATIONAL, instanceIdentifier, qrtBuilder.build());
+        writeTx.submit();
     }
+
+
 
     private RuleTypes getRuleTypes(String ruleType) {
         RuleTypesBuilder rtBuilder = new RuleTypesBuilder();

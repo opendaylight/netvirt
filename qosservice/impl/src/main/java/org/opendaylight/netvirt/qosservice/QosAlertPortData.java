@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  */
 public class QosAlertPortData {
     private static final Logger LOG = LoggerFactory.getLogger(QosAlertPortData.class);
-    private static final Uint64 BIG_HUNDRED = Uint64.valueOf("100").intern();
+    private static final Uint64  BIG_HUNDRED = Uint64.valueOf("100");
 
     private final Port port;
     private final QosNeutronUtils qosNeutronUtils;
@@ -71,7 +71,7 @@ public class QosAlertPortData {
         }
         Uint64 rxTotalDiff = Uint64.valueOf(rxDiff.toJava().add(rxDroppedDiff.toJava()));
         LOG.trace("Port {} rxDiff:{} rxDropped diff:{} total diff:{}", port.getUuid().getValue(), rxDiff,
-                                                                            rxDroppedDiff, rxTotalDiff);
+            rxDroppedDiff, rxTotalDiff);
         QosPolicy qosPolicy = qosNeutronUtils.getQosPolicy(port);
 
         if (qosPolicy == null) {
@@ -79,14 +79,14 @@ public class QosAlertPortData {
         }
 
         if (rxDroppedDiff.toJava().multiply(BIG_HUNDRED.toJava())
-                .compareTo(rxTotalDiff.toJava().multiply(alertThreshold.get().toJava())) > 0) {
+            .compareTo(rxTotalDiff.toJava().multiply(alertThreshold.get().toJava())) > 0) {
             LOG.trace(QosConstants.ALERT_MSG_FORMAT, qosPolicy.getName(), qosPolicy.getUuid().getValue(),
-                    port.getUuid().getValue(), port.getNetworkId().getValue(), statsData.getPackets().getReceived(),
-                                                                                        statsData.getReceiveDrops());
+                port.getUuid().getValue(), port.getNetworkId().getValue(), statsData.getPackets().getReceived(),
+                statsData.getReceiveDrops());
 
             QosAlertGenerator.raiseAlert(qosPolicy.getName(), qosPolicy.getUuid().getValue(),
-                    port.getUuid().getValue(), port.getNetworkId().getValue(),
-                    statsData.getPackets().getReceived(), statsData.getReceiveDrops());
+                port.getUuid().getValue(), port.getNetworkId().getValue(),
+                statsData.getPackets().getReceived(), statsData.getReceiveDrops());
         }
 
     }

@@ -7,8 +7,10 @@
  */
 package org.opendaylight.netvirt.qosservice;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -39,26 +41,30 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class QosNodeListener extends AbstractAsyncDataTreeChangeListener<FlowCapableNode>
-        implements RecoverableListener {
+    implements RecoverableListener {
     private static final Logger LOG = LoggerFactory.getLogger(QosNodeListener.class);
 
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalUtils;
+    private final QosEosHandler qosEosHandler;
 
     @Inject
     public QosNodeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalUtils,
                            final ServiceRecoveryRegistry serviceRecoveryRegistry,
-                           final QosServiceRecoveryHandler qosServiceRecoveryHandler) {
+                           final QosServiceRecoveryHandler qosServiceRecoveryHandler,
+                           final  QosEosHandler qosEosHandler) {
         super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Nodes.class).child(Node.class)
                 .augmentation(FlowCapableNode.class),
-                Executors.newListeningSingleThreadExecutor("QosNodeListener", LOG));
+            Executors.newListeningSingleThreadExecutor("QosNodeListener", LOG));
         this.dataBroker = dataBroker;
         this.mdsalUtils = mdsalUtils;
+        this.qosEosHandler = qosEosHandler;
         serviceRecoveryRegistry.addRecoverableListener(qosServiceRecoveryHandler.buildServiceRegistryKey(),
                 this);
         LOG.trace("{} created",  getClass().getSimpleName());
     }
 
+    @PostConstruct
     public void init() {
         LOG.trace("{} init and registerListener done", getClass().getSimpleName());
     }

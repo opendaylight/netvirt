@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.qosservice;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -22,21 +23,26 @@ import org.slf4j.LoggerFactory;
 
 
 @Singleton
-public class QosAlertConfigListener  extends AbstractClusteredAsyncDataTreeChangeListener<QosalertConfig> {
+public class QosAlertConfigListener extends
+    AbstractClusteredAsyncDataTreeChangeListener<QosalertConfig> {
 
     private static final Logger LOG = LoggerFactory.getLogger(QosAlertConfigListener.class);
     private final DataBroker dataBroker;
     private final QosAlertManager qosAlertManager;
+    private final QosEosHandler qosEosHandler;
 
     @Inject
-    public QosAlertConfigListener(final DataBroker dataBroker, final QosAlertManager qosAlertManager) {
+    public QosAlertConfigListener(final DataBroker dataBroker,
+        final QosAlertManager qosAlertManager, final QosEosHandler qosEosHandler) {
         super(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(QosalertConfig.class),
-                Executors.newListeningSingleThreadExecutor("QosAlertConfigListener", LOG));
+            Executors.newListeningSingleThreadExecutor("QosAlertConfigListener", LOG));
         this.dataBroker = dataBroker;
         this.qosAlertManager = qosAlertManager;
+        this.qosEosHandler = qosEosHandler;
         LOG.trace("{} created",  getClass().getSimpleName());
     }
 
+    @PostConstruct
     public void init() {
         LOG.trace("{} init and registerListener done", getClass().getSimpleName());
     }
@@ -47,7 +53,6 @@ public class QosAlertConfigListener  extends AbstractClusteredAsyncDataTreeChang
         super.close();
         Executors.shutdownAndAwaitTermination(getExecutorService());
     }
-
     @Override
     public void remove(InstanceIdentifier<QosalertConfig> identifier, QosalertConfig del) {
         LOG.debug("QosalertConfig removed: {}", del);
