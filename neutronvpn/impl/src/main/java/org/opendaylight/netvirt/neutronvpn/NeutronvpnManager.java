@@ -9,7 +9,7 @@ package org.opendaylight.netvirt.neutronvpn;
 
 import static java.util.Collections.singletonList;
 import static org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker.syncReadOptional;
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
@@ -46,10 +46,6 @@ import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
-import org.opendaylight.genius.infra.Datastore.Configuration;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
@@ -57,6 +53,10 @@ import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.infrautils.utils.concurrent.NamedLocks;
 import org.opendaylight.infrautils.utils.concurrent.NamedSimpleReentrantLock.AcquireResult;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.mdsal.binding.util.TypedWriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.common.api.OptimisticLockFailedException;
 import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
@@ -1669,7 +1669,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 final Boolean isRouterInterface = port.getDeviceOwner()
                         .equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF) ? true : false;
                 jobCoordinator.enqueueJob("PORT-" + portId.getValue(), () -> {
-                    ListenableFuture<Void> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                    ListenableFuture<?> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                         wrtConfigTxn -> {
                             Adjacencies portAdj = createPortIpAdjacencies(port, isRouterInterface, wrtConfigTxn,
                                     vpnIface);
@@ -1761,8 +1761,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 LOG.debug("withdrawing subnet IP {} from vpn-interface {}", subnetmap.getSubnetIp(), portId.getValue());
                 final Port port = neutronvpnUtils.getNeutronPort(portId);
                 jobCoordinator.enqueueJob("PORT-" + portId.getValue(), () -> {
-                    List<ListenableFuture<Void>> futures = new ArrayList<>();
-                    ListenableFuture<Void> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                    List<ListenableFuture<?>> futures = new ArrayList<>();
+                    ListenableFuture<?> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                         CONFIGURATION, tx -> {
                             if (port != null) {
                                 withdrawPortIpFromVpnIface(vpnId, internetId, port, subnetmap, tx);
@@ -1864,14 +1864,14 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
         //Update Router Interface first synchronously.
         //CAUTION:  Please DONOT make the router interface VPN Movement as an asynchronous commit again !
-        ListenableFuture<Void> future =
+        ListenableFuture<?> future =
                 txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                     tx -> updateVpnInterface(newVpnId, oldVpnId,
                         neutronvpnUtils.getNeutronPort(sn.getRouterInterfacePortId()),
                         isBeingAssociated, true, tx, false));
-        Futures.addCallback(future, new FutureCallback<Void>() {
+        Futures.addCallback(future, new FutureCallback<Object>() {
             @Override
-            public void onSuccess(Void result) {
+            public void onSuccess(Object result) {
                 // Check for ports on this subnet and update association of
                 // corresponding vpn-interfaces to external vpn
                 List<Uuid> portList = sn.getPortList();
