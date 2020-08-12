@@ -44,5 +44,6 @@ public interface NeutronConstants {
     Predicate<Port> IS_ODL_DHCP_PORT = port -> port != null
             && DEVICE_OWNER_DHCP.equals(port.getDeviceOwner()) && port.getDeviceId() != null
             && port.getDeviceId().startsWith("OpenDaylight");
+    long LOCK_WAIT_TIME = 10L;
 
 }
