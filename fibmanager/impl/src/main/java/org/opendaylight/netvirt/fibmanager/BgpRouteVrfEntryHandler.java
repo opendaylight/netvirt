@@ -22,8 +22,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -43,6 +41,10 @@ import org.opendaylight.genius.utils.batching.SubTransaction;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.binding.util.Datastore;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.mdsal.binding.util.TransactionAdapter;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.serviceutils.upgrade.UpgradeState;
@@ -330,8 +332,9 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
                                      WriteTransaction tx,
                                      List<SubTransaction> subTxns) {
         if (tx == null) {
-            LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                newTx -> createRemoteFibEntry(remoteDpnId, vpnId, rd, vrfEntry, newTx, subTxns)), LOG,
+            LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
+                newTx -> createRemoteFibEntry(remoteDpnId, vpnId, rd, vrfEntry,
+                        TransactionAdapter.toWriteTransaction(newTx), subTxns)), LOG,
                 "Error creating remote FIB entry");
             return;
         }
@@ -369,9 +372,10 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
                                   final VrfEntry vrfEntry, Optional<Routes> extraRouteOptional,
                                   @Nullable WriteTransaction tx, List<SubTransaction> subTxns) {
         if (tx == null) {
-            LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
                 newTx -> deleteRemoteRoute(localDpnId, remoteDpnId, vpnId, vrfTableKey, vrfEntry,
-                        extraRouteOptional, newTx)), LOG, "Error deleting remote route");
+                        extraRouteOptional, TransactionAdapter.toWriteTransaction(newTx))),
+                    LOG, "Error deleting remote route");
             return;
         }
 

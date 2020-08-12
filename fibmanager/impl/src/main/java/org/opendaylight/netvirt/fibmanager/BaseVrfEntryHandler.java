@@ -26,8 +26,6 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -59,6 +57,10 @@ import org.opendaylight.genius.utils.batching.SubTransactionImpl;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.binding.util.Datastore;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.mdsal.binding.util.TransactionAdapter;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.fibmanager.NexthopManager.AdjacencyResult;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
@@ -243,8 +245,9 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                                       @Nullable List<InstructionInfo> instructions, int addOrRemove,
                                       WriteTransaction tx, @Nullable List<SubTransaction> subTxns) {
         if (tx == null) {
-            LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                newTx -> makeConnectedRoute(dpId, vpnId, vrfEntry, rd, instructions, addOrRemove, newTx, subTxns)),
+            LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
+                newTx -> makeConnectedRoute(dpId, vpnId, vrfEntry, rd, instructions, addOrRemove,
+                        TransactionAdapter.toWriteTransaction(newTx), subTxns)),
                 LOG, "Error making connected route");
             return;
         }
@@ -450,7 +453,9 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                     (before, after) -> {
                         LOG.info("programRemoteFib: waited for and got interface state {}", absentInterfaceStateIid);
                         LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                            (wtx) -> programRemoteFib(remoteDpnId, vpnId, vrfEntry, wtx, rd, adjacencyResults, null)),
+                                Datastore.CONFIGURATION,
+                            (wtx) -> programRemoteFib(remoteDpnId, vpnId, vrfEntry,
+                                    TransactionAdapter.toWriteTransaction(wtx), rd, adjacencyResults, null)),
                             LOG, "Failed to program remote FIB {}", absentInterfaceStateIid);
                         return DataTreeEventCallbackRegistrar.NextAction.UNREGISTER;
                     },
@@ -458,7 +463,9 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                     (iid) -> {
                         LOG.error("programRemoteFib: timed out waiting for {}", absentInterfaceStateIid);
                         LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                            (wtx) -> programRemoteFib(remoteDpnId, vpnId, vrfEntry, wtx, rd, adjacencyResults, null)),
+                                Datastore.CONFIGURATION,
+                            (wtx) -> programRemoteFib(remoteDpnId, vpnId, vrfEntry,
+                                    TransactionAdapter.toWriteTransaction(wtx), rd, adjacencyResults, null)),
                             LOG, "Failed to program timed-out remote FIB {}", absentInterfaceStateIid);
                     });
                 return;
@@ -515,9 +522,10 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                                   final VrfEntry vrfEntry, Optional<Routes> extraRouteOptional,
                                   @Nullable WriteTransaction tx) {
         if (tx == null) {
-            LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
                 newTx -> deleteRemoteRoute(localDpnId, remoteDpnId, vpnId, vrfTableKey, vrfEntry,
-                        extraRouteOptional, newTx)), LOG, "Error deleting remote route");
+                        extraRouteOptional, TransactionAdapter.toWriteTransaction(newTx))),
+                    LOG, "Error deleting remote route");
             return;
         }
 

@@ -7,9 +7,9 @@
  */
 package org.opendaylight.netvirt.fibmanager;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 import static org.opendaylight.genius.mdsalutil.NWUtil.isIpv4Address;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.OPERATIONAL;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -39,14 +39,6 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
-import org.opendaylight.genius.infra.Datastore.Configuration;
-import org.opendaylight.genius.infra.Datastore.Operational;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.infra.RetryingManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.TransactionAdapter;
-import org.opendaylight.genius.infra.TypedReadWriteTransaction;
-import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -74,6 +66,15 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.Datastore;
+import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
+import org.opendaylight.mdsal.binding.util.Datastore.Operational;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.mdsal.binding.util.RetryingManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.TransactionAdapter;
+import org.opendaylight.mdsal.binding.util.TypedReadWriteTransaction;
+import org.opendaylight.mdsal.binding.util.TypedWriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.NexthopManager.AdjacencyResult;
@@ -333,8 +334,8 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
             //Update the used rds and vpntoextraroute containers only for the deleted nextHops.
             List<String> nextHopsRemoved = FibHelper.getNextHopListFromRoutePaths(original);
             nextHopsRemoved.removeAll(FibHelper.getNextHopListFromRoutePaths(update));
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
-            ListenableFuture<Void> configFuture =
+            List<ListenableFuture<?>> futures = new ArrayList<>();
+            ListenableFuture<?> configFuture =
                 txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, configTx ->
                     futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, operTx ->
                         nextHopsRemoved.parallelStream()
@@ -347,9 +348,9 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
                                 }
                             }))));
             futures.add(configFuture);
-            Futures.addCallback(configFuture, new FutureCallback<Void>() {
+            Futures.addCallback(configFuture, new FutureCallback<Object>() {
                 @Override
-                public void onSuccess(Void result) {
+                public void onSuccess(Object result) {
                     createFibEntries(identifier, update);
                     LOG.info("UPDATE: Updated static Fib Entry with rd {} prefix {} route-paths {}",
                             rd, update.getDestPrefix(), update.getRoutePaths());
@@ -1270,10 +1271,11 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
         List<InstructionInfo> instructions = Lists.newArrayList(new InstructionApplyActions(actionInfos));
         String jobKey = FibUtil.getCreateRemoteNextHopJobKey(vpnId, remoteDpnId, vrfEntry.getDestPrefix());
         jobCoordinator.enqueueJob(jobKey,
-            () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(txn -> {
-                baseVrfEntryHandler.makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, instructions,
-                        NwConstants.ADD_FLOW, txn, null);
-            })));
+            () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
+                txn -> {
+                    baseVrfEntryHandler.makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, instructions,
+                            NwConstants.ADD_FLOW, TransactionAdapter.toWriteTransaction(txn), null);
+                })));
 
         LOG.debug("Successfully added FIB entry for prefix {} in vpnId {}", vrfEntry.getDestPrefix(), vpnId);
     }
@@ -1382,7 +1384,7 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
         }
 
         @Override
-        public List<ListenableFuture<Void>> call() {
+        public List<? extends ListenableFuture<?>> call() {
             // If another renderer(for eg : CSS) needs to be supported, check can be performed here
             // to call the respective helpers.
             return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx -> {
@@ -1710,7 +1712,7 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
     }
 
     public void populateFibOnNewDpn(final Uint64 dpnId, final Uint32 vpnId, final String rd,
-                                    final FutureCallback<List<Void>> callback) {
+                                    final FutureCallback<List<?>> callback) {
         LOG.trace("New dpn {} for vpn {} : populateFibOnNewDpn", dpnId, rd);
         jobCoordinator.enqueueJob(FibUtil.getJobKeyForVpnIdDpnId(vpnId, dpnId),
             () -> {
@@ -1718,11 +1720,11 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
                 final VpnInstanceOpDataEntry vpnInstance = fibUtil.getVpnInstance(rd);
                 final Optional<VrfTables> vrfTable = MDSALUtil.read(dataBroker,
                         LogicalDatastoreType.CONFIGURATION, id);
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                List<ListenableFuture<?>> futures = new ArrayList<>();
                 if (!vrfTable.isPresent()) {
                     LOG.info("populateFibOnNewDpn: dpn: {}: VRF Table not yet available for RD {}", dpnId, rd);
                     if (callback != null) {
-                        ListenableFuture<List<Void>> listenableFuture = Futures.allAsList(futures);
+                        ListenableFuture<List<Object>> listenableFuture = Futures.allAsList(futures);
                         Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
                     }
                     return futures;
@@ -1788,7 +1790,7 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
                         }
                     }));
                     if (callback != null) {
-                        ListenableFuture<List<Void>> listenableFuture = Futures.allAsList(futures);
+                        ListenableFuture<List<Object>> listenableFuture = Futures.allAsList(futures);
                         Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
                     }
                 } finally {
@@ -1895,7 +1897,7 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
     }
 
     public void cleanUpDpnForVpn(final Uint64 dpnId, final Uint32 vpnId, final String rd,
-                                 final FutureCallback<List<Void>> callback) {
+                                 final FutureCallback<List<?>> callback) {
         LOG.trace("cleanUpDpnForVpn: Remove dpn {} for vpn {} : cleanUpDpnForVpn", dpnId, rd);
         jobCoordinator.enqueueJob(FibUtil.getJobKeyForVpnIdDpnId(vpnId, dpnId),
             () -> {
@@ -1904,11 +1906,11 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
                 List<SubTransaction> txnObjects = new ArrayList<>();
                 final Optional<VrfTables> vrfTable = MDSALUtil.read(dataBroker,
                         LogicalDatastoreType.CONFIGURATION, id);
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                List<ListenableFuture<?>> futures = new ArrayList<>();
                 if (!vrfTable.isPresent()) {
                     LOG.error("cleanUpDpnForVpn: VRF Table not available for RD {}", rd);
                     if (callback != null) {
-                        ListenableFuture<List<Void>> listenableFuture = Futures.allAsList(futures);
+                        ListenableFuture<List<Object>> listenableFuture = Futures.allAsList(futures);
                         Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
                     }
                     return futures;
@@ -2008,7 +2010,7 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
                     lock.unlock();
                 }
                 if (callback != null) {
-                    ListenableFuture<List<Void>> listenableFuture = Futures.allAsList(futures);
+                    ListenableFuture<List<Object>> listenableFuture = Futures.allAsList(futures);
                     Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
                 }
                 return futures;

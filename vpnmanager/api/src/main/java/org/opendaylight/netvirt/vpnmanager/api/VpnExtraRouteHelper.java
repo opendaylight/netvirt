@@ -20,9 +20,10 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.Datastore.Operational;
-import org.opendaylight.genius.infra.TypedReadTransaction;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.Datastore;
+import org.opendaylight.mdsal.binding.util.TypedReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelTypeInputBuilder;
@@ -69,8 +70,9 @@ public final class VpnExtraRouteHelper {
         return extraRouteOptional;
     }
 
-    public static Optional<Routes> getVpnExtraroutes(TypedReadTransaction<Operational> operTx, String vpnName,
-            String vpnRd, String destPrefix) throws ExecutionException, InterruptedException {
+    public static Optional<Routes> getVpnExtraroutes(TypedReadTransaction<Datastore.Operational> operTx,
+                                                     String vpnName, String vpnRd, String destPrefix)
+            throws ExecutionException, InterruptedException {
         return operTx.read(getVpnToExtrarouteVrfIdIdentifier(vpnName, vpnRd, destPrefix)).get();
     }
 
@@ -116,7 +118,9 @@ public final class VpnExtraRouteHelper {
                 .map(AllocatedRds::getRd).distinct().collect(toList()) : new ArrayList<>();
     }
 
-    public static  List<String> getUsedRds(TypedReadTransaction<Configuration> confTx, Uint32 vpnId, String destPrefix)
+    public static  List<String> getUsedRds(org.opendaylight.mdsal.binding.util
+                                                   .TypedReadTransaction<Datastore.Configuration> confTx,
+                                           Uint32 vpnId, String destPrefix)
             throws ExecutionException, InterruptedException {
         Optional<DestPrefixes> usedRds = confTx.read(getUsedRdsIdentifier(vpnId, destPrefix)).get();
         return usedRds.isPresent() && usedRds.get().getAllocatedRds() != null

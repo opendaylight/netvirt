@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.fibmanager;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;
@@ -17,8 +17,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -30,6 +28,10 @@ import org.opendaylight.genius.utils.batching.SubTransaction;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.binding.util.Datastore;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.mdsal.binding.util.TransactionAdapter;
 import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.serviceutils.upgrade.UpgradeState;
@@ -182,9 +184,9 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler {
             new InstructionApplyActions(
                 Collections.singletonList(new ActionGroup(groupId))));
         jobCoordinator.enqueueJob(jobKey,
-            () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                tx -> makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW, tx,
-                        null))));
+            () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                tx -> makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW,
+                        TransactionAdapter.toWriteTransaction(tx), null))));
         return dpnId;
     }
 
@@ -197,16 +199,18 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler {
         Map<VpnToDpnListKey, VpnToDpnList> keyVpnToDpnListMap = vpnInstance.nonnullVpnToDpnList();
         if (keyVpnToDpnListMap != null) {
             jobCoordinator.enqueueJob("FIB" + rd + vrfEntry.getDestPrefix(),
-                () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-                    for (VpnToDpnList vpnDpn : keyVpnToDpnListMap.values()) {
-                        if (!localDpnId.contains(vpnDpn.getDpnId())) {
-                            if (vpnDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
-                                createRemoteFibEntry(vpnDpn.getDpnId(), vpnInstance.getVpnId(),
-                                        vrfTableKey, vrfEntry, isNatPrefix, tx);
+                () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                        Datastore.CONFIGURATION, tx -> {
+                        for (VpnToDpnList vpnDpn : keyVpnToDpnListMap.values()) {
+                            if (!localDpnId.contains(vpnDpn.getDpnId())) {
+                                if (vpnDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
+                                    createRemoteFibEntry(vpnDpn.getDpnId(), vpnInstance.getVpnId(),
+                                            vrfTableKey, vrfEntry, isNatPrefix,
+                                            TransactionAdapter.toWriteTransaction(tx));
+                                }
                             }
                         }
-                    }
-                })));
+                    })));
         }
     }
 
@@ -288,44 +292,47 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler {
         List<SubTransaction> subTxns =  new ArrayList<>();
         if (keyVpnToDpnListMap != null) {
             jobCoordinator.enqueueJob("FIB" + rd + vrfEntry.getDestPrefix(),
-                () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-                    final Optional<Routes> extraRouteOptional = Optional.empty();
-                    if (localDpnIdList.size() <= 0) {
-                        for (VpnToDpnList curDpn1 : keyVpnToDpnListMap.values()) {
-                            if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP) {
-                                if (curDpn1.getDpnState() == VpnToDpnList.DpnState.Active) {
-                                    bgpRouteVrfEntryHandler.deleteRemoteRoute(Uint64.ZERO,
-                                            curDpn1.getDpnId(),
-                                            vpnInstance.getVpnId(), vrfTableKey, vrfEntry,
-                                            extraRouteOptional, tx, subTxns);
-                                }
-                            } else {
-                                deleteRemoteRoute(Uint64.ZERO, curDpn1.getDpnId(),
-                                        vpnInstance.getVpnId(), vrfTableKey, vrfEntry,
-                                        extraRouteOptional, tx);
-                            }
-                        }
-                    } else {
-                        for (Uint64 localDpnId : localDpnIdList) {
-                            for (VpnToDpnList curDpn2 : keyVpnToDpnListMap.values()) {
-                                if (!Objects.equals(curDpn2.getDpnId(), localDpnId)) {
-                                    if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP) {
-                                        if (curDpn2.getDpnState() == VpnToDpnList.DpnState.Active) {
-                                            bgpRouteVrfEntryHandler.deleteRemoteRoute(localDpnId,
-                                                    curDpn2.getDpnId(),
-                                                    vpnInstance.getVpnId(), vrfTableKey, vrfEntry,
-                                                    extraRouteOptional, tx, subTxns);
-                                        }
-                                    } else {
-                                        deleteRemoteRoute(localDpnId, curDpn2.getDpnId(),
+                () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                        Datastore.CONFIGURATION, tx -> {
+                        final Optional<Routes> extraRouteOptional = Optional.empty();
+                        if (localDpnIdList.size() <= 0) {
+                            for (VpnToDpnList curDpn1 : keyVpnToDpnListMap.values()) {
+                                if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP) {
+                                    if (curDpn1.getDpnState() == VpnToDpnList.DpnState.Active) {
+                                        bgpRouteVrfEntryHandler.deleteRemoteRoute(Uint64.ZERO,
+                                                curDpn1.getDpnId(),
                                                 vpnInstance.getVpnId(), vrfTableKey, vrfEntry,
-                                                extraRouteOptional, tx);
+                                                extraRouteOptional, TransactionAdapter.toWriteTransaction(tx),
+                                                subTxns);
+                                    }
+                                } else {
+                                    deleteRemoteRoute(Uint64.ZERO, curDpn1.getDpnId(),
+                                            vpnInstance.getVpnId(), vrfTableKey, vrfEntry,
+                                            extraRouteOptional, TransactionAdapter.toWriteTransaction(tx));
+                                }
+                            }
+                        } else {
+                            for (Uint64 localDpnId : localDpnIdList) {
+                                for (VpnToDpnList curDpn2 : keyVpnToDpnListMap.values()) {
+                                    if (!Objects.equals(curDpn2.getDpnId(), localDpnId)) {
+                                        if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP) {
+                                            if (curDpn2.getDpnState() == VpnToDpnList.DpnState.Active) {
+                                                bgpRouteVrfEntryHandler.deleteRemoteRoute(localDpnId,
+                                                        curDpn2.getDpnId(),
+                                                        vpnInstance.getVpnId(), vrfTableKey, vrfEntry,
+                                                        extraRouteOptional,
+                                                        TransactionAdapter.toWriteTransaction(tx), subTxns);
+                                            }
+                                        } else {
+                                            deleteRemoteRoute(localDpnId, curDpn2.getDpnId(),
+                                                    vpnInstance.getVpnId(), vrfTableKey, vrfEntry,
+                                                    extraRouteOptional, TransactionAdapter.toWriteTransaction(tx));
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                })));
+                    })));
         }
     }
 
@@ -339,9 +346,9 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler {
         } else {
             final Uint64 dpnId = localNextHopInfo.getDpnId();
             jobCoordinator.enqueueJob("FIB-" + rd + "-" + vrfEntry.getDestPrefix(),
-                () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                    tx -> makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, null, NwConstants.DEL_FLOW, tx,
-                            null))));
+                () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                    tx -> makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, null, NwConstants.DEL_FLOW,
+                            TransactionAdapter.toWriteTransaction(tx), null))));
             //TODO: verify below adjacency call need to be optimized (?)
             deleteLocalAdjacency(dpnId, vpnId, vrfEntry.getDestPrefix(), vrfEntry.getDestPrefix());
             returnLocalDpnId.add(dpnId);

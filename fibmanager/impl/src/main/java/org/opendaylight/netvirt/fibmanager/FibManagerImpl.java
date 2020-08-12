@@ -15,10 +15,10 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.genius.infra.Datastore.Configuration;
-import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
+import org.opendaylight.mdsal.binding.util.TypedWriteTransaction;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
@@ -74,7 +74,7 @@ public class FibManagerImpl implements IFibManager {
 
     @Override
     public void populateFibOnNewDpn(Uint64 dpnId, Uint32 vpnId, String rd,
-                                    FutureCallback<List<Void>> callback) {
+                                    FutureCallback<List<?>> callback) {
         vrfEntryListener.populateFibOnNewDpn(dpnId, vpnId, rd, callback);
     }
 
@@ -96,7 +96,7 @@ public class FibManagerImpl implements IFibManager {
 
     @Override
     public void cleanUpDpnForVpn(Uint64 dpnId, Uint32 vpnId, String rd,
-                                 FutureCallback<List<Void>> callback) {
+                                 FutureCallback<List<?>> callback) {
         vrfEntryListener.cleanUpDpnForVpn(dpnId, vpnId, rd, callback);
     }
 
