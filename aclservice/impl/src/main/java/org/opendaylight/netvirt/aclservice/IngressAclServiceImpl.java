@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.aclservice;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
