@@ -2160,7 +2160,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             LOG.debug("checkAlarmExtraRoutes is not enable for vpnId {} routeList {}", vpnId, routeList);
             return;
         }
-        VpnInstance vpnInstance = neutronvpnUtils.getVpnInstance(dataBroker, vpnId);
+        VpnInstance vpnInstance = neutronvpnUtils.getVpnInstance(vpnId);
         if (vpnInstance == null || routeList == null || routeList.isEmpty() || !neutronvpnAlarm.isAlarmEnabled()) {
             LOG.debug("checkAlarmExtraRoutes have args null as following : vpnId {} routeList {}",
                     vpnId, routeList);
