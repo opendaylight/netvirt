@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -16,8 +16,8 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.genius.infra.Datastore.Configuration;
-import org.opendaylight.genius.infra.TypedReadWriteTransaction;
+import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
+import org.opendaylight.mdsal.binding.util.TypedReadWriteTransaction;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.infrautils.metrics.MetricProvider;
 import org.opendaylight.mdsal.binding.api.DataBroker;

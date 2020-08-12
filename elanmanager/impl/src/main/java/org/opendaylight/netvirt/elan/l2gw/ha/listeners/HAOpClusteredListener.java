@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 
-import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+import static org.opendaylight.mdsal.binding.util.Datastore.OPERATIONAL;
 
 import com.google.common.collect.Sets;
 import java.util.Collections;
@@ -20,8 +20,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.genius.infra.Datastore.Operational;
-import org.opendaylight.genius.infra.TypedReadWriteTransaction;
+import org.opendaylight.mdsal.binding.util.Datastore.Operational;
+import org.opendaylight.mdsal.binding.util.TypedReadWriteTransaction;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.infrautils.metrics.MetricProvider;
 import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;

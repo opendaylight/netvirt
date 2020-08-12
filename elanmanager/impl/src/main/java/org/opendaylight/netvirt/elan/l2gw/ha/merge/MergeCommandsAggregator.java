@@ -7,8 +7,8 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.merge;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.OPERATIONAL;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -17,10 +17,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiPredicate;
-import org.opendaylight.genius.infra.Datastore;
-import org.opendaylight.genius.infra.Datastore.Configuration;
-import org.opendaylight.genius.infra.Datastore.Operational;
-import org.opendaylight.genius.infra.TypedReadWriteTransaction;
+import org.opendaylight.mdsal.binding.util.Datastore;
+import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
+import org.opendaylight.mdsal.binding.util.Datastore.Operational;
+import org.opendaylight.mdsal.binding.util.TypedReadWriteTransaction;
 import org.opendaylight.genius.utils.SuperTypeUtil;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.LocalMcastCmd;
