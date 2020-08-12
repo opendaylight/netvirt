@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.neutronvpn;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -34,15 +34,15 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
-import org.opendaylight.genius.infra.Datastore;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.Datastore;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.mdsal.binding.util.TypedWriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
@@ -262,7 +262,7 @@ public class NeutronPortChangeListener extends AbstractAsyncDataTreeChangeListen
         if (origSecurityEnabled || updatedSecurityEnabled || isDhcpServerPort) {
             InstanceIdentifier<Interface>  interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(portName);
             jobCoordinator.enqueueJob("PORT- " + portName, () -> {
-                ListenableFuture<Void> future = txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+                ListenableFuture<?> future = txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                     confTx -> {
                         Optional<Interface> optionalInf = confTx.read(interfaceIdentifier).get();
                         if (optionalInf.isPresent()) {
@@ -660,7 +660,7 @@ public class NeutronPortChangeListener extends AbstractAsyncDataTreeChangeListen
             // add direct port to subnetMaps config DS
             // TODO: for direct port as well, operations should be carried out per subnet based on port IP
 
-            ListenableFuture<Void> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
+            ListenableFuture<?> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
                 LOG.info("Of-port-interface creation for port {}", portName);
                 // Create of-port interface for this neutron port
                 String portInterfaceName = createOfPortInterface(port, tx);
@@ -718,7 +718,7 @@ public class NeutronPortChangeListener extends AbstractAsyncDataTreeChangeListen
             return;
         }
         jobCoordinator.enqueueJob("PORT- " + portName, () -> {
-            ListenableFuture<Void> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, confTx -> {
+            ListenableFuture<?> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, confTx -> {
 
                 Uuid vpnId = null;
                 Set<Uuid> routerIds = new HashSet<>();
