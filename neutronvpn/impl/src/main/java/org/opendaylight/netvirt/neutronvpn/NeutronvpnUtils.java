@@ -1033,6 +1033,20 @@ public class NeutronvpnUtils {
         return ext != null && ext.isExternal();
     }
 
+    protected String getExistingOperationalVpn(String primaryRd) {
+        try {
+            Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataOptional = SingleTransactionDataBroker
+                    .syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL, getVpnOpDataIdentifier(primaryRd));
+            if (vpnInstanceOpDataOptional.isPresent()) {
+                return vpnInstanceOpDataOptional.get().getVpnInstanceName();
+            }
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getExistingOperationalVpn: Exception while checking operational status of vpn with rd {}",
+                    primaryRd, e);
+        }
+        return null;
+    }
+
     static InstanceIdentifier<NetworkMap> buildNetworkMapIdentifier(Uuid networkId) {
         InstanceIdentifier<NetworkMap> id = InstanceIdentifier.builder(NetworkMaps.class).child(NetworkMap.class, new
                 NetworkMapKey(networkId)).build();
@@ -1230,6 +1244,20 @@ public class NeutronvpnUtils {
             ret[i] = Integer.valueOf(octets[i], 16).byteValue();
         }
         return ret;
+    }
+
+    public String getVpnForRD(String rd) {
+        InstanceIdentifier<VpnInstances> path = InstanceIdentifier.builder(VpnInstances.class).build();
+        Optional<VpnInstances> vpnInstancesOptional = read(LogicalDatastoreType.CONFIGURATION, path);
+        if (vpnInstancesOptional.isPresent() && vpnInstancesOptional.get().getVpnInstance() != null) {
+            for (VpnInstance vpnInstance : vpnInstancesOptional.get().getVpnInstance().values()) {
+                List<String> rds = vpnInstance.getRouteDistinguisher();
+                if (rds != null && rds.contains(rd)) {
+                    return vpnInstance.getVpnInstanceName();
+                }
+            }
+        }
+        return null;
     }
 
     public List<String> getExistingRDs() {
@@ -1477,7 +1505,7 @@ public class NeutronvpnUtils {
 
     public void updateVpnInstanceWithIpFamily(String vpnName, IpVersionChoice ipVersion, boolean add) {
         jobCoordinator.enqueueJob("VPN-" + vpnName, () -> {
-            VpnInstance vpnInstance = getVpnInstance(dataBroker, new Uuid(vpnName));
+            VpnInstance vpnInstance = getVpnInstance(new Uuid(vpnName));
             if (vpnInstance == null) {
                 return Collections.emptyList();
             }
@@ -1522,13 +1550,12 @@ public class NeutronvpnUtils {
     /**
      * Get the vpnInstance from its Uuid.
      *
-     * @param broker to get informations from ds
      * @param vpnId the Uuid of the VPN
      * @return the VpnInstance or null if unfindable
      */
     @Nullable
-    public VpnInstance getVpnInstance(DataBroker broker, Uuid vpnId) {
-        if (broker == null || vpnId == null) {
+    public VpnInstance getVpnInstance(Uuid vpnId) {
+        if (vpnId == null) {
             return null;
         }
         InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class).child(VpnInstance.class,
@@ -1671,7 +1698,7 @@ public class NeutronvpnUtils {
 
     public void updateVpnInstanceWithBgpVpnType(VpnInstance.BgpvpnType bgpvpnType, @NonNull Uuid vpnName) {
         jobCoordinator.enqueueJob("VPN-" + vpnName.getValue(), () -> {
-            VpnInstance vpnInstance = getVpnInstance(dataBroker, vpnName);
+            VpnInstance vpnInstance = getVpnInstance(vpnName);
             if (vpnInstance == null) {
                 LOG.error("updateVpnInstanceWithBgpVpnType: Failed to Update VpnInstance {} with BGP-VPN type {}."
                         + "VpnInstance is does not exist in the CONFIG. Do nothing.", vpnName.getValue(), bgpvpnType);
