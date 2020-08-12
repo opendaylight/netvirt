@@ -8,7 +8,7 @@
 
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FutureCallback;
@@ -24,8 +24,6 @@ import java.util.Set;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
@@ -35,6 +33,8 @@ import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
 import org.opendaylight.netvirt.elan.l2gw.recovery.impl.L2GatewayInstanceRecoveryHandler;
@@ -134,9 +134,9 @@ public class L2GatewayListener extends AbstractClusteredAsyncDataTreeChangeListe
                         .child(L2gatewayConnections.class).child(L2gatewayConnection.class, connection.key());
                 tx.delete(iid);
             }
-        }), new FutureCallback<Void>() {
+        }), new FutureCallback<Object>() {
             @Override
-            public void onSuccess(Void result) {
+            public void onSuccess(Object result) {
                 for (Devices l2Device : input.nonnullDevices().values()) {
                     LOG.trace("Removing L2gateway device: {}", l2Device);
                     removeL2Device(l2Device, input);
@@ -166,7 +166,7 @@ public class L2GatewayListener extends AbstractClusteredAsyncDataTreeChangeListe
             return;
         }
         jobCoordinator.enqueueJob("l2gw.update", () -> {
-            ListenableFuture<Void> future = txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
+            ListenableFuture<?> future = txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
                 DeviceInterfaces updatedDeviceInterfaces = new DeviceInterfaces(update);
                 original.nonnullDevices().values()
                         .stream()
@@ -197,9 +197,9 @@ public class L2GatewayListener extends AbstractClusteredAsyncDataTreeChangeListe
                                     }));
                         });
             });
-            Futures.addCallback(future, new FutureCallback<Void>() {
+            Futures.addCallback(future, new FutureCallback<Object>() {
                 @Override
-                public void onSuccess(Void success) {
+                public void onSuccess(Object success) {
                     LOG.debug("Successfully deleted vlan bindings for l2gw update {}", update);
                     connections.forEach((l2GwConnection) ->
                             l2gwService.addL2GatewayConnection(l2GwConnection, null, update));

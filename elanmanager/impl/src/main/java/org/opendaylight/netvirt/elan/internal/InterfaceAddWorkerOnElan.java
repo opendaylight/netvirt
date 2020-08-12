@@ -45,7 +45,7 @@ public class InterfaceAddWorkerOnElan implements Callable<List<? extends Listena
 
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public List<ListenableFuture<Void>> call() {
+    public List<ListenableFuture<?>> call() {
         LOG.info("InterfaceAddWorkerOnElan: Handling elan interface add for elan interface: {} and elan instance: {} ",
                 elanInterface.getName(), elanInstance.getElanInstanceName());
         try {

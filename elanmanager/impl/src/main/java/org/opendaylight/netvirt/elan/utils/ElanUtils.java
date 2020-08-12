@@ -9,7 +9,7 @@ package org.opendaylight.netvirt.elan.utils;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -41,14 +41,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
-import org.opendaylight.genius.infra.Datastore;
-import org.opendaylight.genius.infra.Datastore.Configuration;
-import org.opendaylight.genius.infra.Datastore.Operational;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.infra.TypedReadTransaction;
-import org.opendaylight.genius.infra.TypedReadWriteTransaction;
-import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.itm.api.IITMProvider;
@@ -79,6 +71,14 @@ import org.opendaylight.infrautils.utils.concurrent.NamedSimpleReentrantLock.Acq
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.binding.util.Datastore;
+import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
+import org.opendaylight.mdsal.binding.util.Datastore.Operational;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.mdsal.binding.util.TypedReadTransaction;
+import org.opendaylight.mdsal.binding.util.TypedReadWriteTransaction;
+import org.opendaylight.mdsal.binding.util.TypedWriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
@@ -1420,7 +1420,7 @@ public class ElanUtils {
     }
 
     @CheckReturnValue
-    public static ListenableFuture<Void> waitForTransactionToComplete(ListenableFuture<Void> future) {
+    public static ListenableFuture<?> waitForTransactionToComplete(ListenableFuture<?> future) {
         try {
             future.get();
         } catch (InterruptedException | ExecutionException e) {
@@ -1548,7 +1548,7 @@ public class ElanUtils {
         return ELAN_LOCKS.acquire(new ElanLockName(elanTag, macAddress, dpnId));
     }
 
-    public static List<ListenableFuture<Void>>
+    public static List<ListenableFuture<?>>
         returnFailedListenableFutureIfTransactionCommitFailedExceptionCauseOrElseThrow(RuntimeException exception) {
 
         Throwable cause = exception.getCause();

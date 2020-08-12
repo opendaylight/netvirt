@@ -13,9 +13,10 @@ import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.Datastore;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.serviceutils.srm.ServiceRecoveryInterface;
@@ -31,7 +32,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.serviceutils.srm.types.rev1
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 @Singleton
 public class L2GatewayInstanceRecoveryHandler implements ServiceRecoveryInterface {
@@ -84,12 +84,11 @@ public class L2GatewayInstanceRecoveryHandler implements ServiceRecoveryInterfac
                     .child(L2gatewayConnection.class, l2gatewayConnection.key());
                 try {
                     LOG.info("Deleting l2 gateway connection {}", l2gatewayConnection.key());
-                    managedNewTransactionRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                        tx -> tx.delete(LogicalDatastoreType.CONFIGURATION, identifier)).get();
+                    managedNewTransactionRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
+                        tx -> tx.delete(identifier)).get();
                     LOG.info("Recreating l2 gateway connection {}", l2gatewayConnection.key());
-                    managedNewTransactionRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                        tx -> tx.put(LogicalDatastoreType.CONFIGURATION, identifier,
-                            l2gatewayConnection)).get();
+                    managedNewTransactionRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
+                        tx -> tx.put(identifier, l2gatewayConnection)).get();
                 } catch (InterruptedException | ExecutionException e) {
                     LOG.error("Service recovery failed for l2gw {}", entityId);
                 }

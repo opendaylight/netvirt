@@ -44,7 +44,7 @@ public class InterfaceRemoveWorkerOnElan implements Callable<List<? extends List
 
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public List<ListenableFuture<Void>> call() {
+    public List<ListenableFuture<?>> call() {
         try {
             return dataChangeListener.removeElanInterface(elanInfo, interfaceName, interfaceInfo);
         } catch (RuntimeException e) {

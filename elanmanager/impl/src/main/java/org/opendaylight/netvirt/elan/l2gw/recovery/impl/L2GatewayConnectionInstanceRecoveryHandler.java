@@ -12,11 +12,12 @@ import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.Datastore;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.serviceutils.srm.ServiceRecoveryInterface;
@@ -84,12 +85,11 @@ public class L2GatewayConnectionInstanceRecoveryHandler implements ServiceRecove
 
             try {
                 LOG.info("deleting l2 gateway connection {}",l2gatewayConnection.key());
-                txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                    tx -> tx.delete(LogicalDatastoreType.CONFIGURATION, connectionInstanceIdentifier)).get();
+                txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
+                    tx -> tx.delete(connectionInstanceIdentifier)).get();
                 LOG.info("recreating l2 gateway connection {}, {}",entityId, l2gatewayConnection.key());
-                txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                    tx -> tx.put(LogicalDatastoreType.CONFIGURATION, connectionInstanceIdentifier,
-                            l2gatewayConnection)).get();
+                txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
+                    tx -> tx.put(connectionInstanceIdentifier, l2gatewayConnection)).get();
             } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Service recovery failed for l2gw connection {}", entityId);
             }

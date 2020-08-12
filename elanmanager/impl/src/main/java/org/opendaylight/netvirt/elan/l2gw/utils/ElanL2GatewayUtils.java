@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.utils;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FluentFuture;
@@ -41,8 +41,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
@@ -50,6 +48,8 @@ import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
@@ -800,7 +800,7 @@ public class ElanL2GatewayUtils {
      *            the default vlan id
      * @return the listenable future
      */
-    public ListenableFuture<Void> updateVlanBindingsInL2GatewayDevice(NodeId nodeId, String logicalSwitchName,
+    public ListenableFuture<?> updateVlanBindingsInL2GatewayDevice(NodeId nodeId, String logicalSwitchName,
             Devices hwVtepDevice, Integer defaultVlanId) {
         if (hwVtepDevice == null || hwVtepDevice.getInterfaces() == null || hwVtepDevice.getInterfaces().isEmpty()) {
             String errMsg = "HwVtepDevice is null or interfaces are empty.";
@@ -847,7 +847,7 @@ public class ElanL2GatewayUtils {
      *            the vlan bindings to be configured
      * @return the listenable future
      */
-    public ListenableFuture<Void> updateVlanBindingsInL2GatewayDevice(NodeId nodeId, String psName,
+    public ListenableFuture<?> updateVlanBindingsInL2GatewayDevice(NodeId nodeId, String psName,
             String interfaceName, List<VlanBindings> vlanBindings) {
         return txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
             HwvtepUtils.mergeVlanBindings(tx, nodeId, psName, interfaceName, vlanBindings);
@@ -866,7 +866,7 @@ public class ElanL2GatewayUtils {
      *            the default vlan id
      * @return the listenable future
      */
-    public ListenableFuture<Void> deleteVlanBindingsFromL2GatewayDevice(NodeId nodeId, Devices hwVtepDevice,
+    public ListenableFuture<?> deleteVlanBindingsFromL2GatewayDevice(NodeId nodeId, Devices hwVtepDevice,
             Integer defaultVlanId) {
         if (hwVtepDevice == null || hwVtepDevice.getInterfaces() == null || hwVtepDevice.getInterfaces().isEmpty()) {
             String errMsg = "HwVtepDevice is null or interfaces are empty.";

@@ -7,16 +7,16 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.jobs;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanRefUtil;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -52,7 +52,7 @@ public class BcGroupUpdateJob implements Callable<List<? extends ListenableFutur
     }
 
     @Override
-    public List<ListenableFuture<Void>> call() throws Exception {
+    public List<ListenableFuture<?>> call() throws Exception {
         Optional<ElanInstance> elanInstanceOptional =  elanRefUtil.getElanInstanceCache().get(elanName);
         if (elanInstanceOptional.isPresent()) {
             return Lists.newArrayList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
