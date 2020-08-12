@@ -13,9 +13,9 @@ import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
+import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.serviceutils.srm.ServiceRecoveryInterface;
@@ -31,7 +31,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.serviceutils.srm.types.rev1
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 @Singleton
 public class L2GatewayInstanceRecoveryHandler implements ServiceRecoveryInterface {
