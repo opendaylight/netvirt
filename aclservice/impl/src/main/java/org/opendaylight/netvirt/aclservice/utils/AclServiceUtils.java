@@ -8,8 +8,8 @@
 
 package org.opendaylight.netvirt.aclservice.utils;
 
-import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
-import static org.opendaylight.mdsal.binding.util.Datastore.OPERATIONAL;
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
@@ -34,6 +34,10 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.opendaylight.genius.infra.Datastore.Operational;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -62,10 +66,6 @@ import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
-import org.opendaylight.mdsal.binding.util.Datastore.Operational;
-import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
-import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.mdsal.binding.util.TypedWriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
@@ -1041,7 +1041,7 @@ public final class AclServiceUtils {
         for (Uuid aclId : aclList) {
             String aclName = aclId.getValue();
             jobCoordinator.enqueueJob(aclName, () -> {
-                List<ListenableFuture<?>> futures = new ArrayList<>();
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
                 futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
                     for (AllowedAddressPairs aap : allowedAddresses) {
                         PortIds portIdObj =
@@ -1070,7 +1070,7 @@ public final class AclServiceUtils {
         for (Uuid aclId : aclList) {
             String aclName = aclId.getValue();
             jobCoordinator.enqueueJob(aclName, () -> {
-                List<ListenableFuture<?>> futures = new ArrayList<>();
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
                 futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
                     for (AllowedAddressPairs aap : allowedAddresses) {
                         InstanceIdentifier<PortIds> path =
