@@ -57,6 +57,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <artifactId>vpnmanager-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.opendaylight.mdsal</groupId>
+            <artifactId>mdsal-binding-util</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
