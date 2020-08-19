@@ -85,17 +85,18 @@ public class FibRpcServiceImpl implements FibRpcService {
 
         Uint64 dpnId = input.getSourceDpid();
         String vpnName = input.getVpnName();
-        Uint32 vpnId = getVpnId(dataBroker, vpnName);
         String vpnRd = getVpnRd(dataBroker, vpnName);
         String ipAddress = input.getIpAddress();
         LOG.info("Create custom FIB entry - {} on dpn {} for VPN {} ", ipAddress, dpnId, vpnName);
         Map<InstructionKey, Instruction> instructionMap = input.nonnullInstruction();
         LOG.info("ADD: Adding Custom Fib Entry rd {} prefix {} label {}", vpnRd, ipAddress, input.getServiceId());
-        makeLocalFibEntry(vpnId, dpnId, ipAddress, new ArrayList<Instruction>(instructionMap.values()));
         IpAddresses.IpAddressSource ipAddressSource = IpAddresses.IpAddressSource
                 .forValue(input.getIpAddressSource().getIntValue());
         vpnFootprintService.updateVpnToDpnMapping(dpnId, vpnName, vpnRd, null /* interfaceName*/,
                 new ImmutablePair<>(ipAddressSource, ipAddress), true /*add*/);
+
+        Uint32 vpnId = getVpnId(dataBroker, vpnName);
+        makeLocalFibEntry(vpnId, dpnId, ipAddress, new ArrayList<Instruction>(instructionMap.values()));
         LOG.info("ADD: Added Custom Fib Entry rd {} prefix {} label {}", vpnRd, ipAddress, input.getServiceId());
         return RpcResultBuilder.success(new CreateFibEntryOutputBuilder().build()).buildFuture();
     }
