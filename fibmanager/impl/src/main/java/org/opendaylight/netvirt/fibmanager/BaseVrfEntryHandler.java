@@ -336,6 +336,12 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                 return;
             }
         }
+        if (prefixInfo.getPrefixCue() == Prefixes.PrefixCue.Nat) {
+            /* natprefix prefix-to-interface will not hold vpninterface at all. Also such natprefixes
+             * tend to use remote-flows without destMac filled. Hence just return here.
+             */
+            return;
+        }
         String ipPrefix = prefixInfo.getIpAddress();
         String ifName = prefixInfo.getVpnInterfaceName();
         if (ifName == null) {
