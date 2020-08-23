@@ -320,9 +320,9 @@ public final class VpnUtil {
     }
 
     static InstanceIdentifier<VpnInterfaceOpDataEntry> getVpnInterfaceOpDataEntryIdentifier(String vpnInterfaceName,
-                                                                                     String vpnName) {
+                                                                                            String vpnName) {
         return InstanceIdentifier.builder(VpnInterfaceOpData.class).child(VpnInterfaceOpDataEntry.class,
-            new VpnInterfaceOpDataEntryKey(vpnInterfaceName, vpnName)).build();
+                new VpnInterfaceOpDataEntryKey(vpnInterfaceName, vpnName)).build();
     }
 
     static InstanceIdentifier<VpnInstance> getVpnInstanceIdentifier(String vpnName) {
@@ -347,7 +347,7 @@ public final class VpnUtil {
 
     Optional<VpnInterfaceOpDataEntry> getVpnInterfaceOpDataEntry(String vpnInterfaceName, String vpnName) {
         InstanceIdentifier<VpnInterfaceOpDataEntry> id = getVpnInterfaceOpDataEntryIdentifier(vpnInterfaceName,
-                                                                                              vpnName);
+                vpnName);
         Optional<VpnInterfaceOpDataEntry> vpnInterfaceOpDataEntry = read(LogicalDatastoreType.OPERATIONAL,
                 id);
         return vpnInterfaceOpDataEntry;
@@ -363,15 +363,16 @@ public final class VpnUtil {
     }
 
     static Prefixes getPrefixToInterface(Uint64 dpId, String vpnInterfaceName, String ipPrefix,
-            Uuid networkId, NetworkType networkType, Long segmentationId, Prefixes.PrefixCue prefixCue) {
+                                         Uuid networkId, NetworkType networkType, Long segmentationId,
+                                         Prefixes.PrefixCue prefixCue) {
         return new PrefixesBuilder().setDpnId(dpId).setVpnInterfaceName(
-            vpnInterfaceName).setIpAddress(ipPrefix)//.setSubnetId(subnetId)
+                vpnInterfaceName).setIpAddress(ipPrefix)//.setSubnetId(subnetId)
                 .setNetworkId(networkId).setNetworkType(networkType).setSegmentationId(segmentationId)
                 .setPrefixCue(prefixCue).build();
     }
 
     static Prefixes getPrefixToInterface(Uint64 dpId, String vpnInterfaceName, String ipPrefix,
-            Prefixes.PrefixCue prefixCue) {
+                                         Prefixes.PrefixCue prefixCue) {
         return new PrefixesBuilder().setDpnId(dpId).setVpnInterfaceName(vpnInterfaceName).setIpAddress(ipPrefix)
                 .setPrefixCue(prefixCue).build();
     }
@@ -432,7 +433,7 @@ public final class VpnUtil {
     @Nullable
     public VpnInstance getVpnInstance(String vpnInstanceName) {
         InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class).child(VpnInstance.class,
-            new VpnInstanceKey(vpnInstanceName)).build();
+                new VpnInstanceKey(vpnInstanceName)).build();
         Optional<VpnInstance> vpnInstance = read(LogicalDatastoreType.CONFIGURATION, id);
         return vpnInstance.isPresent() ? vpnInstance.get() : null;
     }
@@ -463,9 +464,9 @@ public final class VpnUtil {
         Optional<VpnToDpnList> dpnInVpn = read(LogicalDatastoreType.OPERATIONAL, dpnToVpnId);
         return dpnInVpn.isPresent() && dpnInVpn.get().getVpnInterfaces() != null
                 ? new ArrayList<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op
-                        .data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces>(dpnInVpn.get()
-                        .getVpnInterfaces().values())
-            : emptyList();
+                .data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces>(dpnInVpn.get()
+                .getVpnInterfaces().values())
+                : emptyList();
     }
 
     @NonNull
@@ -480,8 +481,8 @@ public final class VpnUtil {
         // TODO: why check VrfTables if we later go for the specific VrfEntry?
         if (vrfTable != null) {
             InstanceIdentifier<VrfEntry> vrfEntryId =
-                InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).child(
-                    VrfEntry.class, new VrfEntryKey(ipPrefix)).build();
+                    InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).child(
+                            VrfEntry.class, new VrfEntryKey(ipPrefix)).build();
             Optional<VrfEntry> vrfEntry = read(LogicalDatastoreType.CONFIGURATION, vrfEntryId);
             if (vrfEntry.isPresent()) {
                 return vrfEntry.get();
@@ -561,17 +562,21 @@ public final class VpnUtil {
         return Uint32.ZERO;
     }
 
-    void releaseId(String poolName, String idKey) {
+    Integer releaseId(String poolName, String idKey) {
         ReleaseIdInput idInput = new ReleaseIdInputBuilder().setPoolName(poolName).setIdKey(idKey).build();
         try {
-            RpcResult<ReleaseIdOutput> rpcResult = idManager.releaseId(idInput).get();
-            if (!rpcResult.isSuccessful()) {
-                LOG.error("releaseId: RPC Call to release Id for key {} from pool {} returned with Errors {}",
-                        idKey, poolName, rpcResult.getErrors());
+            Future<RpcResult<ReleaseIdOutput>> result = idManager.releaseId(idInput);
+            if (result == null || result.get() == null || !result.get().isSuccessful()) {
+                LOG.error("releaseId: RPC Call to release Id from pool {} with key {} returned with Errors {}",
+                        poolName, idKey,
+                        (result != null && result.get() != null) ? result.get().getErrors() : "RpcResult is null");
+            } else {
+                return result.get().getResult().getIdValues().get(0).intValue();
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("releaseId: Exception when releasing Id for key {} from pool {}", idKey, poolName, e);
         }
+        return VpnConstants.INVALID_IDMAN_ID;
     }
 
     public static String getNextHopLabelKey(String rd, String prefix) {
@@ -593,7 +598,7 @@ public final class VpnUtil {
         return read(LogicalDatastoreType.CONFIGURATION, VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnName))
                 .map(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911
                         .vpn.instance.to.vpn.id.VpnInstance::getVpnId)
-                        .orElse(VpnConstants.INVALID_ID);
+                .orElse(VpnConstants.INVALID_ID);
     }
 
     /**
@@ -604,7 +609,7 @@ public final class VpnUtil {
      */
     public String getVpnRd(String vpnName) {
         Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
-            .VpnInstance> vpnInstance = read(LogicalDatastoreType.CONFIGURATION,
+                .VpnInstance> vpnInstance = read(LogicalDatastoreType.CONFIGURATION,
                 VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnName));
         String rd = null;
         if (vpnInstance.isPresent()) {
@@ -624,7 +629,7 @@ public final class VpnUtil {
 
     List<String> getVpnRdsFromVpnInstanceConfig(String vpnName) {
         InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class)
-            .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
+                .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
         Optional<VpnInstance> vpnInstance = read(LogicalDatastoreType.CONFIGURATION, id);
         return vpnInstance.isPresent() ? getListOfRdsFromVpnInstance(vpnInstance.get()) : new ArrayList<>();
     }
@@ -637,13 +642,13 @@ public final class VpnUtil {
      */
     public void removeVrfEntriesByOrigin(String rd, RouteOrigin origin) {
         InstanceIdentifier<VrfTables> vpnVrfTableIid =
-            InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).build();
+                InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).build();
         Optional<VrfTables> vrfTablesOpc = read(LogicalDatastoreType.CONFIGURATION, vpnVrfTableIid);
         if (vrfTablesOpc.isPresent()) {
             VrfTables vrfTables = vrfTablesOpc.get();
             LoggingFutures.addErrorLogging(
                     new ManagedNewTransactionRunnerImpl(dataBroker).callWithNewWriteOnlyTransactionAndSubmit(
-                                                                            Datastore.CONFIGURATION, tx -> {
+                            Datastore.CONFIGURATION, tx -> {
                             for (VrfEntry vrfEntry : vrfTables.nonnullVrfEntry().values()) {
                                 if (origin == RouteOrigin.value(vrfEntry.getOrigin())) {
                                     tx.delete(vpnVrfTableIid.child(VrfEntry.class, vrfEntry.key()));
@@ -655,7 +660,7 @@ public final class VpnUtil {
 
     public List<VrfEntry> findVrfEntriesByNexthop(String rd, String nexthop) {
         InstanceIdentifier<VrfTables> vpnVrfTableIid =
-            InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).build();
+                InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).build();
         Optional<VrfTables> vrfTablesOpc = read(LogicalDatastoreType.CONFIGURATION, vpnVrfTableIid);
         List<VrfEntry> matches = new ArrayList<>();
         if (vrfTablesOpc.isPresent()) {
@@ -671,10 +676,10 @@ public final class VpnUtil {
 
     public void removeVrfEntries(String rd, List<VrfEntry> vrfEntries) {
         InstanceIdentifier<VrfTables> vpnVrfTableIid =
-            InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).build();
+                InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).build();
         LoggingFutures.addErrorLogging(
                 new ManagedNewTransactionRunnerImpl(dataBroker).callWithNewWriteOnlyTransactionAndSubmit(
-                                                                            Datastore.CONFIGURATION, tx -> {
+                        Datastore.CONFIGURATION, tx -> {
                         for (VrfEntry vrfEntry : vrfEntries) {
                             tx.delete(vpnVrfTableIid.child(VrfEntry.class, vrfEntry.key()));
                         }
@@ -689,7 +694,7 @@ public final class VpnUtil {
                 bgpManager.withdrawPrefix(rd, vrfEntry.getDestPrefix());
             } catch (Exception e) {
                 LOG.error("withdrawRoutes: Could not withdraw route to {} with route-paths {} in VpnRd {}",
-                          vrfEntry.getDestPrefix(), vrfEntry.getRoutePaths(), rd);
+                        vrfEntry.getDestPrefix(), vrfEntry.getRoutePaths(), rd);
             }
         });
     }
@@ -735,17 +740,17 @@ public final class VpnUtil {
     static org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds
         getVpnIdToVpnInstance(Uint32 vpnId, String vpnName, String rd, boolean isExternalVpn) {
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance
-            .VpnIdsBuilder().setVpnId(vpnId).setVpnInstanceName(vpnName).setVrfId(rd).setExternalVpn(isExternalVpn)
+                .VpnIdsBuilder().setVpnId(vpnId).setVpnInstanceName(vpnName).setVrfId(rd).setExternalVpn(isExternalVpn)
                 .build();
 
     }
 
     static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to
-        .vpn.instance.VpnIds> getVpnIdToVpnInstanceIdentifier(Uint32 vpnId) {
+            .vpn.instance.VpnIds> getVpnIdToVpnInstanceIdentifier(Uint32 vpnId) {
         return InstanceIdentifier.builder(VpnIdToVpnInstance.class).child(org.opendaylight.yang.gen.v1.urn
-                .opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds.class,
+                        .opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds.class,
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance
-                    .VpnIdsKey(vpnId)).build();
+                        .VpnIdsKey(vpnId)).build();
     }
 
     /**
@@ -758,10 +763,10 @@ public final class VpnUtil {
     String getVpnName(Uint32 vpnId) {
 
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn
-            .instance.VpnIds> id = getVpnIdToVpnInstanceIdentifier(vpnId);
+                .instance.VpnIds> id = getVpnIdToVpnInstanceIdentifier(vpnId);
         Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds>
-            vpnInstance
-            = read(LogicalDatastoreType.CONFIGURATION, id);
+                vpnInstance
+                = read(LogicalDatastoreType.CONFIGURATION, id);
         String vpnName = null;
         if (vpnInstance.isPresent()) {
             vpnName = vpnInstance.get().getVpnInstanceName();
@@ -771,7 +776,7 @@ public final class VpnUtil {
 
     public static InstanceIdentifier<VpnInstanceOpDataEntry> getVpnInstanceOpDataIdentifier(String rd) {
         return InstanceIdentifier.builder(VpnInstanceOpData.class)
-            .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd)).build();
+                .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd)).build();
     }
 
     @Nullable
@@ -801,8 +806,8 @@ public final class VpnUtil {
         if (optConfiguredVpnInterface.isPresent()) {
             VpnInterface cfgVpnInterface = optConfiguredVpnInterface.get();
             java.util.Optional<List<VpnInstanceNames>> optVpnInstanceList =
-                 java.util.Optional.ofNullable(
-                         new ArrayList<VpnInstanceNames>(cfgVpnInterface.nonnullVpnInstanceNames().values()));
+                    java.util.Optional.ofNullable(
+                            new ArrayList<VpnInstanceNames>(cfgVpnInterface.nonnullVpnInstanceNames().values()));
             if (optVpnInstanceList.isPresent()) {
                 List<String> vpnList = new ArrayList<>();
                 for (VpnInstanceNames vpnInstance : optVpnInstanceList.get()) {
@@ -819,14 +824,14 @@ public final class VpnUtil {
     }
 
     static final FutureCallback<Void> DEFAULT_CALLBACK =
-        new FutureCallback<Void>() {
+            new FutureCallback<Void>() {
             @Override
-            public void onSuccess(Void result) {
+                public void onSuccess(Void result) {
                 LOG.debug("Success in Datastore operation");
             }
 
             @Override
-            public void onFailure(Throwable error) {
+                public void onFailure(Throwable error) {
                 LOG.error("Error in Datastore operation", error);
             }
 
@@ -880,7 +885,7 @@ public final class VpnUtil {
 
     static InstanceIdentifier<IfIndexInterface> getInterfaceInfoEntriesOperationalDataPath(long interfaceTag) {
         return InstanceIdentifier.builder(IfIndexesInterfaceMap.class).child(IfIndexInterface.class,
-            new IfIndexInterfaceKey((int) interfaceTag)).build();
+                new IfIndexInterfaceKey((int) interfaceTag)).build();
     }
 
     @Nullable
@@ -895,13 +900,13 @@ public final class VpnUtil {
 
     static InstanceIdentifier<ElanTagName> getElanInfoEntriesOperationalDataPath(long elanTag) {
         return InstanceIdentifier.builder(ElanTagNameMap.class).child(ElanTagName.class,
-            new ElanTagNameKey(elanTag)).build();
+                new ElanTagNameKey(elanTag)).build();
     }
 
     static void removePrefixToInterfaceForVpnId(Uint32 vpnId, @NonNull TypedWriteTransaction<Operational> operTx) {
         // Clean up PrefixToInterface Operational DS
         operTx.delete(InstanceIdentifier.builder(
-                    PrefixToInterface.class).child(VpnIds.class, new VpnIdsKey(vpnId)).build());
+                PrefixToInterface.class).child(VpnIds.class, new VpnIdsKey(vpnId)).build());
     }
 
     static void removeVpnExtraRouteForVpn(String vpnName, @NonNull TypedWriteTransaction<Operational> operTx) {
@@ -926,7 +931,7 @@ public final class VpnUtil {
     static void removeL3nexthopForVpnId(Uint32 vpnId, @NonNull TypedWriteTransaction<Operational> operTx) {
         // Clean up L3NextHop Operational DS
         operTx.delete(InstanceIdentifier.builder(L3nexthop.class).child(
-                                    VpnNexthops.class, new VpnNexthopsKey(vpnId)).build());
+                VpnNexthops.class, new VpnNexthopsKey(vpnId)).build());
     }
 
     void scheduleVpnInterfaceForRemoval(String interfaceName, Uint64 dpnId, String vpnInstanceName,
@@ -934,9 +939,9 @@ public final class VpnUtil {
         InstanceIdentifier<VpnInterfaceOpDataEntry> interfaceId =
                 getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnInstanceName);
         VpnInterfaceOpDataEntry interfaceToUpdate =
-            new VpnInterfaceOpDataEntryBuilder().withKey(new VpnInterfaceOpDataEntryKey(interfaceName,
-            vpnInstanceName)).setName(interfaceName).setDpnId(dpnId).setVpnInstanceName(vpnInstanceName)
-            .build();
+                new VpnInterfaceOpDataEntryBuilder().withKey(new VpnInterfaceOpDataEntryKey(interfaceName,
+                        vpnInstanceName)).setName(interfaceName).setDpnId(dpnId).setVpnInstanceName(vpnInstanceName)
+                        .build();
         if (writeOperTxn != null) {
             writeOperTxn.mergeParentStructureMerge(interfaceId, interfaceToUpdate);
         } else {
@@ -945,7 +950,7 @@ public final class VpnUtil {
     }
 
     public void createLearntVpnVipToPort(String vpnName, String fixedIp, String portName, String macAddress,
-            TypedWriteTransaction<Operational> writeOperTxn) {
+                                         TypedWriteTransaction<Operational> writeOperTxn) {
         final InstanceIdentifier<LearntVpnVipToPort> id = buildLearntVpnVipToPortIdentifier(vpnName, fixedIp);
         final ReentrantLock lock = lockFor(vpnName, fixedIp);
         lock.lock();
@@ -968,7 +973,7 @@ public final class VpnUtil {
     }
 
     static InstanceIdentifier<LearntVpnVipToPort> buildLearntVpnVipToPortIdentifier(String vpnName,
-            String fixedIp) {
+                                                                                    String fixedIp) {
         return InstanceIdentifier.builder(LearntVpnVipToPortData.class).child(LearntVpnVipToPort.class,
                 new LearntVpnVipToPortKey(fixedIp, vpnName)).build();
     }
@@ -985,14 +990,14 @@ public final class VpnUtil {
                 MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
             }
             LOG.debug("removeLearntVpnVipToPort: Deleted LearntVpnVipToPort entry for fixedIp: {}, vpn {}",
-                fixedIp, vpnName);
+                    fixedIp, vpnName);
         } finally {
             lock.unlock();
         }
     }
 
     public static void removeVpnPortFixedIpToPort(DataBroker broker, String vpnName, String fixedIp,
-                                                     @Nullable TypedWriteTransaction<Configuration> writeConfigTxn) {
+                                                  @Nullable TypedWriteTransaction<Configuration> writeConfigTxn) {
         final InstanceIdentifier<VpnPortipToPort> id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
         final ReentrantLock lock = lockFor(vpnName, fixedIp);
         lock.lock();
@@ -1003,7 +1008,7 @@ public final class VpnUtil {
                 MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, id);
             }
             LOG.debug("removeVpnPortFixedIpToPort: Deleted VpnPortipToPort entry for fixedIp: {}, vpn {}",
-                fixedIp, vpnName);
+                    fixedIp, vpnName);
         } finally {
             lock.unlock();
         }
@@ -1035,7 +1040,7 @@ public final class VpnUtil {
     }
 
     public void removeLearntVpnVipToPortEvent(String eventId,
-            @Nullable TypedWriteTransaction<Operational> writeOperTxn) {
+                                              @Nullable TypedWriteTransaction<Operational> writeOperTxn) {
         InstanceIdentifier<LearntVpnVipToPortEvent> id = buildLearntVpnVipToPortEventIdentifier(eventId);
         if (writeOperTxn != null) {
             writeOperTxn.delete(id);
@@ -1063,7 +1068,7 @@ public final class VpnUtil {
                         .augmentation(Adjacencies.class).child(Adjacency.class, new AdjacencyKey(ip)).build();
                 MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, adjacencyIdentifier);
                 LOG.info("removeMipAdjAndLearntIp: Successfully Deleted Adjacency {} from interface {} vpn {}", ip,
-                    vpnInterface, vpnName);
+                        vpnInterface, vpnName);
             }
             InstanceIdentifier<LearntVpnVipToPort> id = buildLearntVpnVipToPortIdentifier(vpnName, prefix);
             MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
@@ -1137,7 +1142,7 @@ public final class VpnUtil {
 
     @Nullable
     public static VpnPortipToPort getNeutronPortFromVpnPortFixedIp(TypedReadTransaction<Configuration> confTx,
-            String vpnName, String fixedIp) {
+                                                                   String vpnName, String fixedIp) {
         InstanceIdentifier<VpnPortipToPort> id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
         try {
             return confTx.read(id).get().orElse(null);
@@ -1246,7 +1251,7 @@ public final class VpnUtil {
                     Subnet neutronSubnet = neutronVpnService.getNeutronSubnet(externalIp.getSubnetId());
                     if (neutronSubnet == null) {
                         LOG.warn("Failed to retrieve subnet {} referenced by router {}",
-                            externalIp.getSubnetId(), routerData);
+                                externalIp.getSubnetId(), routerData);
                         continue;
                     }
                     if (NWUtil.isIpAddressInRange(IpAddressBuilder.getDefaultInstance(extIp),
@@ -1266,7 +1271,7 @@ public final class VpnUtil {
     @Nullable
     Networks getExternalNetwork(Uuid networkId) {
         InstanceIdentifier<Networks> netsIdentifier = InstanceIdentifier.builder(ExternalNetworks.class)
-            .child(Networks.class, new NetworksKey(networkId)).build();
+                .child(Networks.class, new NetworksKey(networkId)).build();
         Optional<Networks> optionalNets = read(LogicalDatastoreType.CONFIGURATION, netsIdentifier);
         return optionalNets.isPresent() ? optionalNets.get() : null;
     }
@@ -1295,7 +1300,7 @@ public final class VpnUtil {
     Routers getExternalRouter(TypedReadTransaction<Configuration> tx, String routerId)
             throws ExecutionException, InterruptedException {
         InstanceIdentifier<Routers> id = InstanceIdentifier.builder(ExtRouters.class).child(Routers.class,
-            new RoutersKey(routerId)).build();
+                new RoutersKey(routerId)).build();
         return tx.read(id).get().orElse(null);
     }
 
@@ -1304,11 +1309,11 @@ public final class VpnUtil {
     }
 
     FlowEntity buildL3vpnGatewayFlow(Uint64 dpId, String gwMacAddress, Uint32 vpnId,
-                                               Uint32 subnetVpnId) {
+                                     Uint32 subnetVpnId) {
         List<MatchInfo> mkMatches = new ArrayList<>();
         Subnetmap smap = null;
         mkMatches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId.longValue()),
-            MetaDataUtil.METADATA_MASK_VRFID));
+                MetaDataUtil.METADATA_MASK_VRFID));
         mkMatches.add(new MatchEthernetDestination(new MacAddress(gwMacAddress)));
         List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionGotoTable(NwConstants.L3_FIB_TABLE));
@@ -1337,14 +1342,15 @@ public final class VpnUtil {
     static String getL3VpnGatewayFlowRef(short l3GwMacTable, Uint64 dpId, Uint32 vpnId, String gwMacAddress,
                                          Uint32 subnetVpnId) {
         return gwMacAddress + NwConstants.FLOWID_SEPARATOR + vpnId + NwConstants.FLOWID_SEPARATOR + dpId
-            + NwConstants.FLOWID_SEPARATOR + l3GwMacTable + NwConstants.FLOWID_SEPARATOR + subnetVpnId;
+                + NwConstants.FLOWID_SEPARATOR + l3GwMacTable + NwConstants.FLOWID_SEPARATOR + subnetVpnId;
     }
 
     void lockSubnet(String subnetId) {
         //  We set the total wait time for lock to be obtained at 9 seconds since GC pauses can be upto 8 seconds
         //in scale setups.
         TryLockInput input =
-            new TryLockInputBuilder().setLockName(subnetId).setTime(9000L).setTimeUnit(TimeUnits.Milliseconds).build();
+                new TryLockInputBuilder().setLockName(subnetId).setTime(9000L)
+                        .setTimeUnit(TimeUnits.Milliseconds).build();
         Future<RpcResult<TryLockOutput>> result = lockManager.tryLock(input);
         try {
             if (result != null && result.get().isSuccessful()) {
@@ -1408,10 +1414,10 @@ public final class VpnUtil {
         Optional<String> gatewayMac = Optional.empty();
         Uint32 vpnId = getVpnId(macEntry.getVpnName());
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn
-            .instance.VpnIds>
-            vpnIdsInstanceIdentifier = VpnUtil.getVpnIdToVpnInstanceIdentifier(vpnId);
+                .instance.VpnIds>
+                vpnIdsInstanceIdentifier = VpnUtil.getVpnIdToVpnInstanceIdentifier(vpnId);
         Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds>
-            vpnIdsOptional = read(LogicalDatastoreType.CONFIGURATION, vpnIdsInstanceIdentifier);
+                vpnIdsOptional = read(LogicalDatastoreType.CONFIGURATION, vpnIdsInstanceIdentifier);
         if (!vpnIdsOptional.isPresent()) {
             LOG.error("getGWMacAddressFromInterface: VPN {} not configured", vpnId);
             return gatewayMac;
@@ -1434,9 +1440,9 @@ public final class VpnUtil {
                                  TypedReadWriteTransaction<Configuration> writeInvTxn, int addOrRemove, String gwMac)
             throws ExecutionException, InterruptedException {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance
-            .VpnIds> vpnIdsInstanceIdentifier = getVpnIdToVpnInstanceIdentifier(vpnId);
+                .VpnIds> vpnIdsInstanceIdentifier = getVpnIdToVpnInstanceIdentifier(vpnId);
         Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance
-            .VpnIds> vpnIdsOptional = writeInvTxn.read(vpnIdsInstanceIdentifier).get();
+                .VpnIds> vpnIdsOptional = writeInvTxn.read(vpnIdsInstanceIdentifier).get();
         if (vpnIdsOptional.isPresent() && vpnIdsOptional.get().isExternalVpn()) {
             if (gwMac == null) {
                 LOG.error("setupGwMacIfExternalVpn: Failed to get gwMacAddress for interface {} on dpn {} vpn {}",
@@ -1491,7 +1497,7 @@ public final class VpnUtil {
 
     static InstanceIdentifier<Subnetmap> buildSubnetmapIdentifier(Uuid subnetId) {
         return InstanceIdentifier.builder(Subnetmaps.class)
-        .child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
+                .child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
 
     }
 
@@ -1618,8 +1624,8 @@ public final class VpnUtil {
         LOG.debug("getVpnInterfaceOpDataEntryAdjacencyIdentifier intfName {}, vpnName {}, ipAddress {}",
                 intfName, vpnName, ipAddress);
         return InstanceIdentifier.builder(VpnInterfaceOpData.class)
-                    .child(VpnInterfaceOpDataEntry.class, new VpnInterfaceOpDataEntryKey(intfName, vpnName))
-                    .augmentation(AdjacenciesOp.class).child(Adjacency.class, new AdjacencyKey(ipAddress)).build();
+                .child(VpnInterfaceOpDataEntry.class, new VpnInterfaceOpDataEntryKey(intfName, vpnName))
+                .augmentation(AdjacenciesOp.class).child(Adjacency.class, new AdjacencyKey(ipAddress)).build();
     }
 
     public static List<String> getIpsListFromExternalIps(List<ExternalIps> externalIps) {
@@ -1633,14 +1639,14 @@ public final class VpnUtil {
     void bindService(final String vpnInstanceName, final String interfaceName, boolean isTunnelInterface) {
         jobCoordinator.enqueueJob(interfaceName,
             () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(
-                                                                                Datastore.CONFIGURATION, tx -> {
+                    Datastore.CONFIGURATION, tx -> {
                     BoundServices serviceInfo = isTunnelInterface
-                            ? VpnUtil.getBoundServicesForTunnelInterface(vpnInstanceName, interfaceName)
-                            : getBoundServicesForVpnInterface(vpnInstanceName, interfaceName);
+                                ? VpnUtil.getBoundServicesForTunnelInterface(vpnInstanceName, interfaceName)
+                                : getBoundServicesForVpnInterface(vpnInstanceName, interfaceName);
                     tx.mergeParentStructurePut(InterfaceUtils.buildServiceId(interfaceName,
-                            ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME,
-                                    NwConstants.L3VPN_SERVICE_INDEX)),
-                            serviceInfo);
+                                ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME,
+                                        NwConstants.L3VPN_SERVICE_INDEX)),
+                                serviceInfo);
                 })), SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
     }
 
@@ -1650,7 +1656,7 @@ public final class VpnUtil {
         final Uint32 vpnId = getVpnId(vpnName);
         List<Action> actions = Collections.singletonList(
                 new ActionRegLoad(0, VpnConstants.VPN_REG_ID, 0, VpnConstants.VPN_ID_LENGTH, vpnId.longValue())
-                .buildAction());
+                        .buildAction());
         instructions.add(MDSALUtil.buildApplyActionsInstruction(actions, ++instructionKey));
         instructions.add(
                 MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getVpnIdMetadata(vpnId.longValue()),
@@ -1681,11 +1687,11 @@ public final class VpnUtil {
         if (!isInterfaceStateDown) {
             jobCoordinator.enqueueJob(vpnInterfaceName,
                 () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                        Datastore.CONFIGURATION, tx ->
-                        tx.delete(InterfaceUtils.buildServiceId(vpnInterfaceName,
-                                        ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME,
-                                                NwConstants.L3VPN_SERVICE_INDEX))))),
-                SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
+                            Datastore.CONFIGURATION, tx ->
+                                    tx.delete(InterfaceUtils.buildServiceId(vpnInterfaceName,
+                                            ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME,
+                                                    NwConstants.L3VPN_SERVICE_INDEX))))),
+                    SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
         }
     }
 
@@ -1700,11 +1706,11 @@ public final class VpnUtil {
     org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.@Nullable Subnets
         getExternalSubnet(Uuid subnetId) {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets
-            .Subnets> subnetsIdentifier = InstanceIdentifier.builder(ExternalSubnets.class)
+                .Subnets> subnetsIdentifier = InstanceIdentifier.builder(ExternalSubnets.class)
                 .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets
                         .Subnets.class, new SubnetsKey(subnetId)).build();
         Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets>
-            optionalSubnets = read(LogicalDatastoreType.CONFIGURATION, subnetsIdentifier);
+                optionalSubnets = read(LogicalDatastoreType.CONFIGURATION, subnetsIdentifier);
         return optionalSubnets.isPresent() ? optionalSubnets.get() : null;
     }
 
@@ -1741,7 +1747,7 @@ public final class VpnUtil {
     }
 
     public static boolean isEligibleForBgp(@Nullable String rd, @Nullable String vpnName, @Nullable Uint64 dpnId,
-            @Nullable String networkName) {
+                                           @Nullable String networkName) {
         if (rd != null) {
             if (rd.equals(vpnName)) {
                 return false;
@@ -1828,8 +1834,8 @@ public final class VpnUtil {
         };
         Predicate<VpnInstanceOpDataEntry> matchRTs = input -> {
             Iterable<String> commonRTs =
-                intersection(getRts(vpnInstanceOpDataEntry, VpnTarget.VrfRTType.ExportExtcommunity),
-                    getRts(input, VpnTarget.VrfRTType.ImportExtcommunity));
+                    intersection(getRts(vpnInstanceOpDataEntry, VpnTarget.VrfRTType.ExportExtcommunity),
+                            getRts(input, VpnTarget.VrfRTType.ImportExtcommunity));
             return Iterators.size(commonRTs.iterator()) > 0;
         };
         vpnsToImportRoute = getAllVpnInstanceOpData().stream().filter(excludeVpn).filter(matchRTs)
@@ -1921,16 +1927,16 @@ public final class VpnUtil {
             return false;
         }
         InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
-              .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(primaryRd)).build();
+                .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(primaryRd)).build();
 
         Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional = read(LogicalDatastoreType.OPERATIONAL, id);
         if (!vpnInstanceOpDataEntryOptional.isPresent()) {
             LOG.error("isBgpVpnInternet VPN {}."
-                     + "VpnInstanceOpDataEntry not found", vpnName);
+                    + "VpnInstanceOpDataEntry not found", vpnName);
             return false;
         }
         LOG.debug("isBgpVpnInternet VPN {} Successfully VpnInstanceOpDataEntry.getBgpvpnType {}",
-             vpnName, vpnInstanceOpDataEntryOptional.get().getBgpvpnType());
+                vpnName, vpnInstanceOpDataEntryOptional.get().getBgpvpnType());
         if (vpnInstanceOpDataEntryOptional.get().getBgpvpnType() == VpnInstanceOpDataEntry.BgpvpnType.InternetBGPVPN) {
             return true;
         }
@@ -2018,7 +2024,7 @@ public final class VpnUtil {
      * @param vpnName the vpn name
      */
     void removeRouterPortFromElanDpnListForVlanInAllDpn(String elanInstanceName,
-            String routerInterfacePortId, String vpnName) {
+                                                        String routerInterfacePortId, String vpnName) {
         Map<String,String> elanInstanceRouterPortMap = getElanInstanceRouterPortMap(vpnName);
         elanInstanceRouterPortMap.put(elanInstanceName, routerInterfacePortId);
         Set<Uint64> dpnList = getDpnInElan(elanInstanceRouterPortMap);
@@ -2077,7 +2083,7 @@ public final class VpnUtil {
     }
 
     void removeRouterPortFromElanDpn(String elanInstanceName, String routerInterfacePortId,
-            String vpnName, Uint64 dpnId) {
+                                     String vpnName, Uint64 dpnId) {
         InstanceIdentifier<DpnInterfaces> elanDpnInterfaceId = getElanDpnInterfaceOperationalDataPath(
                 elanInstanceName,dpnId);
         final ReentrantLock lock = JvmGlobalLocks.getLockForString(elanInstanceName);
@@ -2250,7 +2256,7 @@ public final class VpnUtil {
     }
 
     public static InstanceIdentifier<DpnInterfaces> getElanDpnInterfaceOperationalDataPath(String elanInstanceName,
-            Uint64 dpId) {
+                                                                                           Uint64 dpId) {
         return InstanceIdentifier.builder(ElanDpnInterfaces.class)
                 .child(ElanDpnInterfacesList.class, new ElanDpnInterfacesListKey(elanInstanceName))
                 .child(DpnInterfaces.class, new DpnInterfacesKey(dpId)).build();
@@ -2275,7 +2281,8 @@ public final class VpnUtil {
     }
 
     public static void sendNeighborSolicationToOfGroup(Ipv6NdUtilService ipv6NdUtilService, Ipv6Address srcIpv6Address,
-            MacAddress srcMac, Ipv6Address dstIpv6Address, Long ofGroupId, Uint64 dpId) {
+                                                       MacAddress srcMac, Ipv6Address dstIpv6Address, Long ofGroupId,
+                                                       Uint64 dpId) {
         SendNeighborSolicitationToOfGroupInput input = new SendNeighborSolicitationToOfGroupInputBuilder()
                 .setSourceIpv6(srcIpv6Address).setSourceLlAddress(srcMac).setTargetIpAddress(dstIpv6Address)
                 .setOfGroupId(ofGroupId).setDpId(dpId).build();
@@ -2367,7 +2374,7 @@ public final class VpnUtil {
     }
 
     static InstanceIdentifier<AssociatedSubnet> getAssociatedSubnetIdentifier(String rt, RouteTarget.RtType rtType,
-                                                                       String cidr) {
+                                                                              String cidr) {
         return InstanceIdentifier.builder(SubnetsAssociatedToRouteTargets.class).child(RouteTarget.class,
                 new RouteTargetKey(rt, rtType)).child(AssociatedSubnet.class, new AssociatedSubnetKey(cidr)).build();
     }
@@ -2521,8 +2528,8 @@ public final class VpnUtil {
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void createVpnPortFixedIpToPort(String vpnName, String fixedIp,
-                                                     String portName, boolean isLearntIp, String macAddress,
-                                                     WriteTransaction writeConfigTxn) {
+                                           String portName, boolean isLearntIp, String macAddress,
+                                           WriteTransaction writeConfigTxn) {
         InstanceIdentifier<VpnPortipToPort> id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
         VpnPortipToPortBuilder builder = new VpnPortipToPortBuilder().withKey(new VpnPortipToPortKey(fixedIp, vpnName))
                 .setVpnName(vpnName).setPortFixedip(fixedIp).setPortName(portName)
