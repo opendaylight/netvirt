@@ -85,7 +85,6 @@ public abstract class L3vpnPopulator implements VpnPopulator {
         Uint32 label = Uint32.valueOf(input.getLabel());
         Uint32 l3vni = Uint32.valueOf(input.getL3vni());
         Uint32 elantag = Uint32.valueOf(input.getElanTag());
-        Uint64 dpnId = input.getDpnId();
         String networkName = input.getNetworkName();
         String gwMacAddress = input.getGatewayMac();
         SubnetRoute route = new SubnetRouteBuilder().setElantag(elantag).build();
@@ -124,9 +123,6 @@ public abstract class L3vpnPopulator implements VpnPopulator {
 
         //Will be handled appropriately with the iRT patch for EVPN
         if (input.getEncapType().equals(VrfEntryBase.EncapType.Mplsgre)) {
-            Uint32 vpnId = vpnUtil.getVpnId(vpnName);
-            addToLabelMapper(label, dpnId, prefix, Collections.singletonList(nextHop), vpnId, null,
-                    elantag, true, rd);
             List<VpnInstanceOpDataEntry> vpnsToImportRoute = vpnUtil.getVpnsImportingMyRoute(vpnName);
             if (vpnsToImportRoute.size() > 0) {
                 VrfEntry importingVrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, nextHop,
@@ -141,7 +137,7 @@ public abstract class L3vpnPopulator implements VpnPopulator {
                             .setVrfEntry(importingVrfEntryList).build();
                     vpnUtil.syncUpdate(LogicalDatastoreType.CONFIGURATION, importingVrfTableId, importingVrfTable);
                     LOG.info("SUBNETROUTE: addSubnetRouteFibEntryToDS: Exported route rd {} prefix {} nexthop {}"
-                            + " label {} to vpn {} importingRd {}", rd, prefix, nextHop, label,
+                                    + " label {} to vpn {} importingRd {}", rd, prefix, nextHop, label,
                             vpnInstance.getVpnInstanceName(), importingRd);
                 }
             }
@@ -173,7 +169,7 @@ public abstract class L3vpnPopulator implements VpnPopulator {
                 if (dpnId != null) {
                     LabelRouteInfoBuilder lriBuilder = new LabelRouteInfoBuilder();
                     lriBuilder.setLabel(label).setDpnId(dpnId).setPrefix(prefix).setNextHopIpList(nextHopIpList)
-                    .setParentVpnid(vpnId).setIsSubnetRoute(isSubnetRoute);
+                            .setParentVpnid(vpnId).setIsSubnetRoute(isSubnetRoute);
                     if (elanTag != null) {
                         lriBuilder.setElanTag(elanTag);
                     } else {
@@ -198,11 +194,12 @@ public abstract class L3vpnPopulator implements VpnPopulator {
                             .child(LabelRouteInfo.class, new LabelRouteInfoKey(label)).build();
                     tx.mergeParentStructureMerge(lriIid, lri);
                     LOG.info("addToLabelMapper: Added label route info to label {} prefix {} nextHopList {} vpnId {}"
-                            + " interface {} rd {} elantag {}", labelStr, prefix, nextHopIpList, vpnId,
+                                    + " interface {} rd {} elantag {}", labelStr, prefix, nextHopIpList, vpnId,
                             vpnInterfaceName, rd, elanTag);
                 } else {
                     LOG.warn("addToLabelMapper: Can't add entry to label map for label {} prefix {} nextHopList {}"
-                            + " vpnId {} interface {} rd {} elantag {}, dpnId is null", labelStr, prefix, nextHopIpList,
+                                    + " vpnId {} interface {} rd {} elantag {}, dpnId is null",
+                            labelStr, prefix, nextHopIpList,
                             vpnId, vpnInterfaceName, rd, elanTag);
                 }
             }), LOG, "addToLabelMapper");
