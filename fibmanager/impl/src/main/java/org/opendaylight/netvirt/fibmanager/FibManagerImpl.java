@@ -11,7 +11,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -22,8 +21,6 @@ import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
-import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
-import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
@@ -41,18 +38,15 @@ public class FibManagerImpl implements IFibManager {
     private final VrfEntryListener vrfEntryListener;
     private IVpnManager vpnmanager;
     private final FibUtil fibUtil;
-    private final InterVpnLinkCache interVpnLinkCache;
 
     @Inject
     public FibManagerImpl(final NexthopManager nexthopManager,
                           final VrfEntryListener vrfEntryListener,
                           final BundleContext bundleContext,
-                          final FibUtil fibUtil,
-                          final InterVpnLinkCache interVpnLinkCache) {
+                          final FibUtil fibUtil) {
         this.nexthopManager = nexthopManager;
         this.vrfEntryListener = vrfEntryListener;
         this.fibUtil = fibUtil;
-        this.interVpnLinkCache = interVpnLinkCache;
 
         GlobalEventExecutor.INSTANCE.execute(() -> {
             ServiceTracker<IVpnManager, ?> tracker = null;
@@ -189,17 +183,7 @@ public class FibManagerImpl implements IFibManager {
     public void removeInterVPNLinkRouteFlows(final String interVpnLinkName,
                                              final boolean isVpnFirstEndPoint,
                                              final VrfEntry vrfEntry) {
-        Optional<InterVpnLinkDataComposite> optInterVpnLink = interVpnLinkCache.getInterVpnLinkByName(interVpnLinkName);
-        if (!optInterVpnLink.isPresent()) {
-            LOG.warn("Could not find InterVpnLink with name {}. InterVpnLink route flows wont be removed",
-                     interVpnLinkName);
-            return;
-        }
-        InterVpnLinkDataComposite interVpnLink = optInterVpnLink.get();
-        String vpnName = isVpnFirstEndPoint ? interVpnLink.getFirstEndpointVpnUuid().get()
-                                              : interVpnLink.getSecondEndpointVpnUuid().get();
-
-        vrfEntryListener.removeInterVPNLinkRouteFlows(interVpnLink, vpnName, vrfEntry);
+       //No Op
     }
 
     @Override

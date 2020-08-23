@@ -21,6 +21,7 @@ public interface VpnConstants {
     int DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY = 1;
     int VPN_ID_LENGTH = 24;
     Uint32 INVALID_ID = Uint32.ZERO;
+    int INVALID_IDMAN_ID = 0;
     String SEPARATOR = ".";
     Uint64 COOKIE_L3_BASE = Uint64.valueOf("8000000", 16).intern();
     String FLOWID_PREFIX = "L3.";
