@@ -107,7 +107,7 @@ public class VpnOpStatusListener extends AbstractAsyncDataTreeChangeListener<Vpn
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void update(InstanceIdentifier<VpnInstanceOpDataEntry> identifier,
-                          VpnInstanceOpDataEntry original, VpnInstanceOpDataEntry update) {
+                       VpnInstanceOpDataEntry original, VpnInstanceOpDataEntry update) {
         LOG.info("update: Processing update for vpn {} with rd {}", update.getVpnInstanceName(), update.getVrfId());
         if (update.getVpnState() == VpnInstanceOpDataEntry.VpnState.PendingDelete
                 && vpnFootprintService.isVpnFootPrintCleared(update)) {
@@ -120,31 +120,31 @@ public class VpnOpStatusListener extends AbstractAsyncDataTreeChangeListener<Vpn
                 // Two transactions are used, one for operational, one for config; we only submit the config
                 // transaction if the operational transaction succeeds
                 ListenableFuture<?> operationalFuture = txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                                                                                Datastore.OPERATIONAL, operTx -> {
-                        // Clean up VPNExtraRoutes Operational DS
+                        Datastore.OPERATIONAL, operTx -> {
+                            // Clean up VPNExtraRoutes Operational DS
                         if (rds != null && VpnUtil.isBgpVpn(vpnName, primaryRd)) {
                             if (update.getType() == VpnInstanceOpDataEntry.Type.L2) {
                                 rds.parallelStream().forEach(rd -> bgpManager.deleteVrf(
-                                        rd, false, AddressFamily.L2VPN));
+                                            rd, false, AddressFamily.L2VPN));
                             }
                             if (update.getIpAddressFamilyConfigured()
-                                    == VpnInstanceOpDataEntry.IpAddressFamilyConfigured.Ipv4) {
+                                        == VpnInstanceOpDataEntry.IpAddressFamilyConfigured.Ipv4) {
                                 rds.parallelStream().forEach(rd -> bgpManager.deleteVrf(
-                                        rd, false, AddressFamily.IPV4));
+                                            rd, false, AddressFamily.IPV4));
                             }
                             if (update.getIpAddressFamilyConfigured()
-                                    == VpnInstanceOpDataEntry.IpAddressFamilyConfigured.Ipv6) {
+                                        == VpnInstanceOpDataEntry.IpAddressFamilyConfigured.Ipv6) {
                                 rds.parallelStream().forEach(rd -> bgpManager.deleteVrf(
-                                        rd, false, AddressFamily.IPV6));
+                                            rd, false, AddressFamily.IPV6));
                             }
                             if (update.getIpAddressFamilyConfigured()
-                                    == VpnInstanceOpDataEntry.IpAddressFamilyConfigured.Ipv4AndIpv6) {
+                                        == VpnInstanceOpDataEntry.IpAddressFamilyConfigured.Ipv4AndIpv6) {
                                 rds.parallelStream()
-                                        .forEach(rd -> bgpManager.deleteVrf(
-                                                rd, false, AddressFamily.IPV4));
+                                            .forEach(rd -> bgpManager.deleteVrf(
+                                                    rd, false, AddressFamily.IPV4));
                                 rds.parallelStream()
-                                        .forEach(rd -> bgpManager.deleteVrf(
-                                                rd, false, AddressFamily.IPV6));
+                                            .forEach(rd -> bgpManager.deleteVrf(
+                                                    rd, false, AddressFamily.IPV6));
                             }
                         }
                         InstanceIdentifier<Vpn> vpnToExtraroute =
@@ -152,7 +152,7 @@ public class VpnOpStatusListener extends AbstractAsyncDataTreeChangeListener<Vpn
                         Optional<Vpn> optVpnToExtraroute = Optional.empty();
                         try {
                             optVpnToExtraroute = SingleTransactionDataBroker.syncReadOptional(dataBroker,
-                                    LogicalDatastoreType.OPERATIONAL, vpnToExtraroute);
+                                        LogicalDatastoreType.OPERATIONAL, vpnToExtraroute);
                         } catch (InterruptedException | ExecutionException e) {
                             LOG.error("update: Failed to read VpnToExtraRoute for vpn {}", vpnName);
                         }
@@ -162,7 +162,7 @@ public class VpnOpStatusListener extends AbstractAsyncDataTreeChangeListener<Vpn
                         if (VpnUtil.isL3VpnOverVxLan(update.getL3vni())) {
                             vpnUtil.removeExternalTunnelDemuxFlows(vpnName);
                         }
-                        // Clean up PrefixToInterface Operational DS
+                            // Clean up PrefixToInterface Operational DS
                         Optional<VpnIds> optPrefixToIntf = Optional.empty();
                         try {
                             optPrefixToIntf = SingleTransactionDataBroker.syncReadOptional(dataBroker,
@@ -195,8 +195,8 @@ public class VpnOpStatusListener extends AbstractAsyncDataTreeChangeListener<Vpn
                     @Override
                     public void onSuccess(Object result) {
                         Futures.addCallback(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                                                            Datastore.CONFIGURATION, confTx -> {
-                                // Clean up VpnInstanceToVpnId from Config DS
+                                Datastore.CONFIGURATION, confTx -> {
+                                    // Clean up VpnInstanceToVpnId from Config DS
                                 VpnUtil.removeVpnIdToVpnInstance(vpnId, confTx);
                                 VpnUtil.removeVpnInstanceToVpnId(vpnName, confTx);
                                 LOG.trace("Removed vpnIdentifier for  rd{} vpnname {}", primaryRd, vpnName);
@@ -212,8 +212,8 @@ public class VpnOpStatusListener extends AbstractAsyncDataTreeChangeListener<Vpn
                                 }
                             }), new VpnOpStatusListener.PostDeleteVpnInstanceWorker(vpnName),
                                 MoreExecutors.directExecutor());
-                            // Note: Release the of VpnId will happen in PostDeleteVpnInstancWorker only if
-                            // operationalTxn/Config succeeds.
+                        // Note: Release the of VpnId will happen in PostDeleteVpnInstancWorker only if
+                        // operationalTxn/Config succeeds.
                     }
 
                     @Override
@@ -233,12 +233,12 @@ public class VpnOpStatusListener extends AbstractAsyncDataTreeChangeListener<Vpn
             }
             if (original == null) {
                 LOG.error("VpnOpStatusListener.update: vpn {} with RD {}. add() handler already called",
-                       vpnName, primaryRd);
+                        vpnName, primaryRd);
                 return;
             }
             if (update.getVpnTargets() == null) {
                 LOG.error("VpnOpStatusListener.update: vpn {} with RD {} vpnTargets not ready",
-                       vpnName, primaryRd);
+                        vpnName, primaryRd);
                 return;
             }
             Map<VpnTargetKey, VpnTarget> vpnTargetMap = update.getVpnTargets().getVpnTarget();
@@ -259,7 +259,7 @@ public class VpnOpStatusListener extends AbstractAsyncDataTreeChangeListener<Vpn
                 }
             } else {
                 LOG.error("VpnOpStatusListener.update: vpn target list is empty, cannot add BGP"
-                      + " VPN {} RD {}", vpnName, primaryRd);
+                        + " VPN {} RD {}", vpnName, primaryRd);
                 return;
             }
             jobCoordinator.enqueueJob("VPN-" + update.getVpnInstanceName(), () -> {
@@ -272,7 +272,7 @@ public class VpnOpStatusListener extends AbstractAsyncDataTreeChangeListener<Vpn
                     try {
                         List<String> importRTList = rd.equals(primaryRd) ? irtList : emptyList();
                         LOG.info("VpnOpStatusListener.update: updating BGPVPN for vpn {} with RD {}"
-                                + " Type is {}, IPtype is {}, iRT {}", vpnName, primaryRd, update.getType(),
+                                        + " Type is {}, IPtype is {}, iRT {}", vpnName, primaryRd, update.getType(),
                                 update.getIpAddressFamilyConfigured(), importRTList);
                         int ipValue = VpnUtil.getIpFamilyValueToRemove(original,update);
                         switch (ipValue) {
@@ -311,7 +311,7 @@ public class VpnOpStatusListener extends AbstractAsyncDataTreeChangeListener<Vpn
                         }
                     } catch (RuntimeException e) {
                         LOG.error("VpnOpStatusListener.update: Exception when updating VRF to BGP for vpn {} rd {}",
-                            vpnName, rd, e);
+                                vpnName, rd, e);
                     }
                 });
                 return emptyList();
@@ -321,7 +321,7 @@ public class VpnOpStatusListener extends AbstractAsyncDataTreeChangeListener<Vpn
 
     @Override
     public void add(final InstanceIdentifier<VpnInstanceOpDataEntry> identifier,
-                       final VpnInstanceOpDataEntry value) {
+                    final VpnInstanceOpDataEntry value) {
         LOG.debug("add: Ignoring vpn Op {} with rd {}", value.getVpnInstanceName(), value.getVrfId());
     }
 
@@ -339,8 +339,12 @@ public class VpnOpStatusListener extends AbstractAsyncDataTreeChangeListener<Vpn
          */
         @Override
         public void onSuccess(Object ignored) {
-            vpnUtil.releaseId(VpnConstants.VPN_IDPOOL_NAME, vpnName);
+            Integer releaseId = vpnUtil.releaseId(VpnConstants.VPN_IDPOOL_NAME, vpnName);
             log.info("onSuccess: VpnId for VpnName {} is released to IdManager successfully.", vpnName);
+            if (releaseId == VpnConstants.INVALID_IDMAN_ID) {
+                LOG.error("VpnOpStatusListener: onSuccess: Failed to release ID for vpn {}, vpn id pool {}", vpnName,
+                        VpnConstants.VPN_IDPOOL_NAME);
+            }
         }
 
         /**
@@ -349,7 +353,7 @@ public class VpnOpStatusListener extends AbstractAsyncDataTreeChangeListener<Vpn
         @Override
         public void onFailure(Throwable throwable) {
             log.error("onFailure: Job for vpnInstance: {} failed with exception:",
-                      vpnName , throwable);
+                    vpnName , throwable);
         }
     }
 }

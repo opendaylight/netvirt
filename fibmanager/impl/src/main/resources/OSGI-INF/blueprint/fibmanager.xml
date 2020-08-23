@@ -15,9 +15,6 @@
              availability="optional"/>
   <reference id="jobCoordinator"
              interface="org.opendaylight.infrautils.jobcoordinator.JobCoordinator"/>
-  <reference id="interVpnLinkCache"
-             interface="org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache"
-             availability="optional"/>
   <reference id="iInterfaceManager"
              interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
   <reference id="iITMProvider"
