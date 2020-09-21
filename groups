@@ -2,4 +2,3 @@
 #
 39378966f1cdcb96001f108b3f7aea97cc5722d9                               	saml/odl-gerrit-netvirt-committers
 c9025ab9ddc1e3171919e085449f22c54f8f7b54                               	GitHub Replication
-ldap:cn=odl-gerrit-netvirt-committers,ou=Groups,dc=freestandards,dc=org	ldap/odl-gerrit-netvirt-committers
