@@ -47,6 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,8 +76,8 @@ public class ElanBridgeManager {
     private final IInterfaceManager interfaceManager;
     private final SouthboundUtils southboundUtils;
     private final Random random;
-    private final Long maxBackoff;
-    private final Long inactivityProbe;
+    private final Uint32 maxBackoff;
+    private final Uint32 inactivityProbe;
 
 
     /**
@@ -95,9 +96,9 @@ public class ElanBridgeManager {
         this.southboundUtils = southboundUtils;
         this.random = new Random(System.currentTimeMillis());
         this.maxBackoff = elanConfig.getControllerMaxBackoff() != null
-                ? elanConfig.getControllerMaxBackoff().toJava() : 1000L;
+                ? elanConfig.getControllerMaxBackoff() : Uint32.valueOf(1000);
         this.inactivityProbe = elanConfig.getControllerInactivityProbe() != null
-                ? elanConfig.getControllerInactivityProbe().toJava() : 0L;
+                ? elanConfig.getControllerInactivityProbe() : Uint32.ZERO;
     }
 
     /**
