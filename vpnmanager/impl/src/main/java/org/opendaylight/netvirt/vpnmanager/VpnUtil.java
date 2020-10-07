@@ -341,7 +341,7 @@ public final class VpnUtil {
                                                               Uint64 dpnId, long lportTag,
                                                               String gwMac, String gwIp) {
         return new VpnInterfaceOpDataEntryBuilder().withKey(new VpnInterfaceOpDataEntryKey(intfName, vpnName))
-                .setDpnId(dpnId).addAugmentation(AdjacenciesOp.class, aug)
+                .setDpnId(dpnId).addAugmentation(aug)
                 .setLportTag(lportTag).setGatewayMacAddress(gwMac).setGatewayIpAddress(gwIp).build();
     }
 
@@ -424,7 +424,7 @@ public final class VpnUtil {
     public List<VrfEntry> getAllVrfEntries(String rd) {
         VrfTables vrfTables = getVrfTable(rd);
         if (vrfTables != null && vrfTables.getVrfEntry() != null) {
-            return new ArrayList<VrfEntry>(vrfTables.getVrfEntry().values());
+            return new ArrayList<>(vrfTables.getVrfEntry().values());
         }
         return emptyList();
     }
@@ -447,7 +447,7 @@ public final class VpnUtil {
             return
                     vpnInstanceOpDataOptional.isPresent() && vpnInstanceOpDataOptional.get()
                             .getVpnInstanceOpDataEntry() != null
-                            ? new ArrayList<VpnInstanceOpDataEntry>(vpnInstanceOpDataOptional.get()
+                            ? new ArrayList<>(vpnInstanceOpDataOptional.get()
                             .getVpnInstanceOpDataEntry().values()) : emptyList();
         } catch (Exception e) {
             LOG.error("getAllVpnInstanceOpData: Could not retrieve all vpn instance op data subtree...", e);
@@ -463,8 +463,7 @@ public final class VpnUtil {
         InstanceIdentifier<VpnToDpnList> dpnToVpnId = VpnHelper.getVpnToDpnListIdentifier(primaryRd, dpnId);
         Optional<VpnToDpnList> dpnInVpn = read(LogicalDatastoreType.OPERATIONAL, dpnToVpnId);
         return dpnInVpn.isPresent() && dpnInVpn.get().getVpnInterfaces() != null
-                ? new ArrayList<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op
-                .data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces>(dpnInVpn.get()
+                ? new ArrayList<>(dpnInVpn.get()
                 .getVpnInterfaces().values())
                 : emptyList();
     }
@@ -497,7 +496,7 @@ public final class VpnUtil {
         InstanceIdentifier<Adjacencies> path = identifier.augmentation(Adjacencies.class);
         Optional<Adjacencies> adjacencies = read(LogicalDatastoreType.CONFIGURATION, path);
         if (adjacencies.isPresent()) {
-            return new ArrayList<Adjacency>(adjacencies.get().nonnullAdjacency().values());
+            return new ArrayList<>(adjacencies.get().nonnullAdjacency().values());
         }
         return null;
     }
@@ -569,7 +568,7 @@ public final class VpnUtil {
             if (result == null || result.get() == null || !result.get().isSuccessful()) {
                 LOG.error("releaseId: RPC Call to release Id from pool {} with key {} returned with Errors {}",
                         poolName, idKey,
-                        (result != null && result.get() != null) ? result.get().getErrors() : "RpcResult is null");
+                        result != null && result.get() != null ? result.get().getErrors() : "RpcResult is null");
             } else {
                 return result.get().getResult().getIdValues().get(0).intValue();
             }
@@ -621,7 +620,7 @@ public final class VpnUtil {
     public static String getVpnRd(TypedReadTransaction<Configuration> confTx, String vpnName) {
         try {
             return confTx.read(VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnName)).get().map(
-                vpnInstance -> vpnInstance.getVrfId()).orElse(null);
+                org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance::getVrfId).orElse(null);
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
@@ -807,7 +806,7 @@ public final class VpnUtil {
             VpnInterface cfgVpnInterface = optConfiguredVpnInterface.get();
             java.util.Optional<List<VpnInstanceNames>> optVpnInstanceList =
                     java.util.Optional.ofNullable(
-                            new ArrayList<VpnInstanceNames>(cfgVpnInterface.nonnullVpnInstanceNames().values()));
+                            new ArrayList<>(cfgVpnInterface.nonnullVpnInstanceNames().values()));
             if (optVpnInstanceList.isPresent()) {
                 List<String> vpnList = new ArrayList<>();
                 for (VpnInstanceNames vpnInstance : optVpnInstanceList.get()) {
@@ -824,7 +823,7 @@ public final class VpnUtil {
     }
 
     static final FutureCallback<Void> DEFAULT_CALLBACK =
-            new FutureCallback<Void>() {
+            new FutureCallback<>() {
             @Override
                 public void onSuccess(Void result) {
                 LOG.debug("Success in Datastore operation");
@@ -2068,7 +2067,7 @@ public final class VpnUtil {
                 elanInterfaceList = new ArrayList<>();
             } else {
                 dpnInterface = dpnInElanInterfaces.get();
-                elanInterfaceList = (dpnInterface.getInterfaces() != null && !dpnInterface.getInterfaces().isEmpty())
+                elanInterfaceList = dpnInterface.getInterfaces() != null && !dpnInterface.getInterfaces().isEmpty()
                         ? new ArrayList<>(dpnInterface.getInterfaces()) : elanInterfaceList;
             }
             if (!elanInterfaceList.contains(routerInterfacePortId)) {
@@ -2097,7 +2096,7 @@ public final class VpnUtil {
                 return;
             } else {
                 dpnInterface = dpnInElanInterfaces.get();
-                elanInterfaceList = (dpnInterface.getInterfaces() != null && !dpnInterface.getInterfaces().isEmpty())
+                elanInterfaceList = dpnInterface.getInterfaces() != null && !dpnInterface.getInterfaces().isEmpty()
                         ? new ArrayList<>(dpnInterface.getInterfaces()) : elanInterfaceList;
             }
             if (!elanInterfaceList.contains(routerInterfacePortId)) {
@@ -2194,7 +2193,7 @@ public final class VpnUtil {
         if (subnetMapsData.isPresent()) {
             List<Subnetmap> subnetMapList = new ArrayList<>();
             Subnetmaps subnetMaps = subnetMapsData.get();
-            subnetMapList = (subnetMaps.getSubnetmap() != null && !subnetMaps.getSubnetmap().isEmpty())
+            subnetMapList = subnetMaps.getSubnetmap() != null && !subnetMaps.getSubnetmap().isEmpty()
                     ? new ArrayList<>(subnetMaps.getSubnetmap().values()) : subnetMapList;
 
             if (subnetMapList != null && !subnetMapList.isEmpty()) {

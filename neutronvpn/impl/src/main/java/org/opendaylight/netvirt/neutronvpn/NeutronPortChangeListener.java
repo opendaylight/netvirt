@@ -57,7 +57,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlanBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.SplitHorizon;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.SplitHorizonBuilder;
@@ -177,7 +176,7 @@ public class NeutronPortChangeListener extends AbstractAsyncDataTreeChangeListen
         // in order to validate the supported vnic types from the hostconfig
         if (input.getFixedIps() != null
             && !input.getFixedIps().isEmpty()
-            && !(isPortTypeSwitchdev(input) && !isPortBound(input))) {
+            && (!isPortTypeSwitchdev(input) || isPortBound(input))) {
             handleNeutronPortCreated(input);
         }
         NeutronUtils.createPortStatus(input.getUuid().getValue(), portStatus, dataBroker);
@@ -251,8 +250,8 @@ public class NeutronPortChangeListener extends AbstractAsyncDataTreeChangeListen
                 handleFloatingIpPortUpdated(original, update);
             }
         } else {
-            Set<FixedIps> oldIPs = getFixedIpSet(new ArrayList<FixedIps>(original.nonnullFixedIps().values()));
-            Set<FixedIps> newIPs = getFixedIpSet(new ArrayList<FixedIps>(update.nonnullFixedIps().values()));
+            Set<FixedIps> oldIPs = getFixedIpSet(new ArrayList<>(original.nonnullFixedIps().values()));
+            Set<FixedIps> newIPs = getFixedIpSet(new ArrayList<>(update.nonnullFixedIps().values()));
             if (!oldIPs.equals(newIPs)) {
                 handleNeutronPortUpdated(original, update);
             }
@@ -274,15 +273,15 @@ public class NeutronPortChangeListener extends AbstractAsyncDataTreeChangeListen
                             if (origSecurityEnabled || updatedSecurityEnabled) {
                                 InterfaceAcl infAcl = handlePortSecurityUpdated(original, update, origSecurityEnabled,
                                         updatedSecurityEnabled, interfaceBuilder).build();
-                                interfaceBuilder.addAugmentation(InterfaceAcl.class, infAcl);
+                                interfaceBuilder.addAugmentation(infAcl);
                             } else if (isDhcpServerPort) {
                                 Set<FixedIps> oldIPs = getFixedIpSet(
-                                        new ArrayList<FixedIps>(original.nonnullFixedIps().values()));
+                                        new ArrayList<>(original.nonnullFixedIps().values()));
                                 Set<FixedIps> newIPs = getFixedIpSet(
-                                        new ArrayList<FixedIps>(update.nonnullFixedIps().values()));
+                                        new ArrayList<>(update.nonnullFixedIps().values()));
                                 if (!oldIPs.equals(newIPs)) {
                                     InterfaceAcl infAcl = neutronvpnUtils.getDhcpInterfaceAcl(update);
-                                    interfaceBuilder.addAugmentation(InterfaceAcl.class, infAcl);
+                                    interfaceBuilder.addAugmentation(infAcl);
                                 }
                             }
                             LOG.info("update: Of-port-interface updation for port {}", portName);
@@ -305,7 +304,7 @@ public class NeutronPortChangeListener extends AbstractAsyncDataTreeChangeListen
             // populate floating-ip uuid and floating-ip port attributes (uuid, mac and subnet id for the ONLY
             // fixed IP) to be used by NAT, depopulated in NATService once mac is retrieved in the removal path
             addToFloatingIpPortInfo(new Uuid(update.getDeviceId()), update.getUuid(),
-                    new ArrayList<FixedIps>(update.nonnullFixedIps().values()).get(0)
+                    new ArrayList<>(update.nonnullFixedIps().values()).get(0)
                     .getSubnetId(), update.getMacAddress().getValue());
             elanService.addKnownL3DmacAddress(update.getMacAddress().getValue(), update.getNetworkId().getValue());
         }
@@ -650,9 +649,7 @@ public class NeutronPortChangeListener extends AbstractAsyncDataTreeChangeListen
         if (NeutronConstants.IS_ODL_DHCP_PORT.test(port)) {
             return;
         }
-        if (!(NeutronUtils.isPortVnicTypeNormal(port)
-                || isPortTypeSwitchdev(port)
-                && isSupportedVnicTypeByHost(port, NeutronConstants.VNIC_TYPE_DIRECT))) {
+        if (!NeutronUtils.isPortVnicTypeNormal(port) && (!isPortTypeSwitchdev(port) || !isSupportedVnicTypeByHost(port, NeutronConstants.VNIC_TYPE_DIRECT))) {
             for (FixedIps ip: keyFixedIpsMap.values()) {
                 nvpnManager.updateSubnetmapNodeWithPorts(ip.getSubnetId(), null, portId);
             }
@@ -711,7 +708,7 @@ public class NeutronPortChangeListener extends AbstractAsyncDataTreeChangeListen
         final String portName = port.getUuid().getValue();
         final Uuid portId = port.getUuid();
         final Map<FixedIpsKey, FixedIps> keyFixedIpsMap = port.nonnullFixedIps();
-        if (!(NeutronUtils.isPortVnicTypeNormal(port) || isPortTypeSwitchdev(port))) {
+        if (!NeutronUtils.isPortVnicTypeNormal(port) && !isPortTypeSwitchdev(port)) {
             for (FixedIps ip : keyFixedIpsMap.values()) {
                 // remove direct port from subnetMaps config DS
                 // TODO: for direct port as well, operations should be carried out per subnet based on port IP
@@ -886,10 +883,9 @@ public class NeutronPortChangeListener extends AbstractAsyncDataTreeChangeListen
                         NeutronvpnUtils.getUpdatedSecurityGroups(interfaceAcl.getSecurityGroups(),
                                 portOriginal.getSecurityGroups(), portUpdated.getSecurityGroups()));
                 List<AllowedAddressPairs> updatedAddressPairs = NeutronvpnUtils.getUpdatedAllowedAddressPairs(
-                        new ArrayList<AllowedAddressPairs>(interfaceAcl.nonnullAllowedAddressPairs().values()),
+                        new ArrayList<>(interfaceAcl.nonnullAllowedAddressPairs().values()),
                         new ArrayList<>(portOriginal.nonnullAllowedAddressPairs().values()),
-                        new ArrayList<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port
-                                .attributes.AllowedAddressPairs>(portUpdated.nonnullAllowedAddressPairs().values()));
+                        new ArrayList<>(portUpdated.nonnullAllowedAddressPairs().values()));
                 interfaceAclBuilder.setAllowedAddressPairs(NeutronvpnUtils.getAllowedAddressPairsForFixedIps(
                         updatedAddressPairs, portOriginal.getMacAddress(), portOriginal.getFixedIps(),
                         portUpdated.nonnullFixedIps().values()));
@@ -974,25 +970,25 @@ public class NeutronPortChangeListener extends AbstractAsyncDataTreeChangeListen
                 ifL2vlanBuilder.setVlanId(new VlanId(portIdToSubport.getVlanId().intValue()));
                 String parentRefName = portIdToSubport.getTrunkPortId().getValue();
                 ParentRefsBuilder parentRefsBuilder = new ParentRefsBuilder().setParentInterface(parentRefName);
-                interfaceBuilder.addAugmentation(ParentRefs.class, parentRefsBuilder.build());
+                interfaceBuilder.addAugmentation(parentRefsBuilder.build());
                 SplitHorizon splitHorizon =
                         new SplitHorizonBuilder().setOverrideSplitHorizonProtection(true).build();
-                interfaceBuilder.addAugmentation(SplitHorizon.class, splitHorizon);
+                interfaceBuilder.addAugmentation(splitHorizon);
             }
         }
 
         ifL2vlanBuilder.setL2vlanMode(l2VlanMode);
 
         interfaceBuilder.setEnabled(true).setName(interfaceName).setType(L2vlan.class)
-                .addAugmentation(IfL2vlan.class, ifL2vlanBuilder.build());
+                .addAugmentation(ifL2vlanBuilder.build());
 
         if (NeutronvpnUtils.getPortSecurityEnabled(port)) {
             InterfaceAclBuilder interfaceAclBuilder = new InterfaceAclBuilder();
             interfaceAclBuilder.setPortSecurityEnabled(true);
             neutronvpnUtils.populateInterfaceAclBuilder(interfaceAclBuilder, port);
-            interfaceBuilder.addAugmentation(InterfaceAcl.class, interfaceAclBuilder.build());
+            interfaceBuilder.addAugmentation(interfaceAclBuilder.build());
         } else if (neutronvpnConfig.isLimitBumtrafficToDhcpserver() && NeutronvpnUtils.isDhcpServerPort(port)) {
-            interfaceBuilder.addAugmentation(InterfaceAcl.class, neutronvpnUtils.getDhcpInterfaceAcl(port));
+            interfaceBuilder.addAugmentation(neutronvpnUtils.getDhcpInterfaceAcl(port));
         }
         return interfaceBuilder.build();
     }
