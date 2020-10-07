@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.bgpmanager.oam;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -23,6 +22,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -97,7 +97,7 @@ public class BgpCounters implements Runnable, AutoCloseable {
         try (Socket socket = new Socket(bgpSdncMip, 2605);
              PrintWriter toRouter = new PrintWriter(socket.getOutputStream(), true);
              BufferedReader fromRouter = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-             BufferedWriter toFile = new BufferedWriter(new FileWriter(filename, true))) {
+             BufferedWriter toFile = new BufferedWriter(new FileWriter(filename, StandardCharsets.UTF_8, true))) {
             socket.setSoTimeout(2 * 1000);
 
             // Wait for the password prompt

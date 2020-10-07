@@ -91,7 +91,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeEgress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceTypeFlowBased;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.StypeOpenflow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.StypeOpenflowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfoKey;
@@ -346,7 +345,7 @@ public final class AclServiceUtils {
                 .setInstruction(instructions);
         return new BoundServicesBuilder().withKey(new BoundServicesKey(servicePriority)).setServiceName(serviceName)
                 .setServicePriority(servicePriority).setServiceType(ServiceTypeFlowBased.class)
-                .addAugmentation(StypeOpenflow.class, augBuilder.build()).build();
+                .addAugmentation(augBuilder.build()).build();
     }
 
     public static List<Uuid> getUpdatedAclList(List<Uuid> updatedAclList, List<Uuid> currentAclList) {
@@ -583,7 +582,7 @@ public final class AclServiceUtils {
             // matching both lportTag and aclTag. Hence performing "or"
             // operation on both lportTag and aclTag metadata.
             Uint64 metaData = Uint64.fromLongBits(MetaDataUtil.getLportTagMetaData(lportTag).longValue()
-                    | (getRemoteAclTagMetadata(BigInteger.valueOf(remoteAclTag)).longValue()));
+                    | getRemoteAclTagMetadata(BigInteger.valueOf(remoteAclTag)).longValue());
             Uint64 metaDataMask = Uint64.fromLongBits(MetaDataUtil.METADATA_MASK_LPORT_TAG.longValue()
                     | MetaDataUtil.METADATA_MASK_REMOTE_ACL_TAG.longValue());
             matches.add(new MatchMetadata(metaData, metaDataMask));
@@ -602,8 +601,8 @@ public final class AclServiceUtils {
             // matching both lportTag and conntrackClassifierType. Hence performing "or"
             // operation on both lportTag and conntrackClassifierType metadata.
             Uint64 metaData = Uint64.fromLongBits(MetaDataUtil.getLportTagMetaData(lportTag).longValue()
-                    | (MetaDataUtil.getAclConntrackClassifierTypeFromMetaData(
-                       Uint64.valueOf(conntrackClassifierType.getValue()))).longValue());
+                    | MetaDataUtil.getAclConntrackClassifierTypeFromMetaData(
+                       Uint64.valueOf(conntrackClassifierType.getValue())).longValue());
             Uint64 metaDataMask = Uint64.fromLongBits(MetaDataUtil.METADATA_MASK_LPORT_TAG.longValue()
                    | MetaDataUtil.METADATA_MASK_ACL_CONNTRACK_CLASSIFIER_TYPE.longValue());
             matches.add(new MatchMetadata(metaData, metaDataMask));

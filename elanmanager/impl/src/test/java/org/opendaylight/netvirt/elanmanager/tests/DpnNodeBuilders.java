@@ -45,7 +45,7 @@ public final class DpnNodeBuilders {
                 InstanceIdentifier.builder(Nodes.class)
                         .child(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node.class,
                                 nodeDpn.key()).augmentation(FlowCapableNode.class).child(Group.class,
-                        new GroupKey(new GroupId(Long.valueOf(groupId)))).build();
+                            new GroupKey(new GroupId(Long.valueOf(groupId)))).build();
         return groupInstanceId;
     }
 }
