@@ -17,11 +17,9 @@ import org.opendaylight.mdsal.binding.util.TypedWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepNodeName;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical._switch.attributes.TunnelIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical._switch.attributes.TunnelIpsBuilder;
@@ -56,7 +54,7 @@ public class NodeConnectedHandlerUtils {
 
         GlobalAugmentationHelper.addSwitches(augmentationBuilder, psPath);
 
-        nodeBuilder.addAugmentation(HwvtepGlobalAugmentation.class, augmentationBuilder.build());
+        nodeBuilder.addAugmentation(augmentationBuilder.build());
 
         tx.put(path, nodeBuilder.build());
     }
@@ -75,7 +73,7 @@ public class NodeConnectedHandlerUtils {
         physicalSwitchAugmentationBuilder.setTunnelIps(tunnelIps);
 
         NodeBuilder nodeBuilder = prepareOperationalNode(path);
-        nodeBuilder.addAugmentation(PhysicalSwitchAugmentation.class, physicalSwitchAugmentationBuilder.build());
+        nodeBuilder.addAugmentation(physicalSwitchAugmentationBuilder.build());
         PhysicalSwitchHelper.dId = parentPath;
         nodeBuilder.setTerminationPoint(PhysicalSwitchHelper
                 .addPhysicalSwitchTerminationPoints(path, portNameList));
