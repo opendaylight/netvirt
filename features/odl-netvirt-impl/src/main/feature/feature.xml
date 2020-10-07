@@ -8,7 +8,7 @@
 -->
 <features name="odl-netvirt-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.2.0">
     <feature name="odl-netvirt-impl" version="${project.version}">
-        <feature version="[2,3)">odl-mdsal-broker</feature>
+        <feature version="[3,4)">odl-mdsal-broker</feature>
         <bundle>wrap:mvn:org.apache.thrift/libthrift/0.9.3$overwrite=merge&amp;Bundle-Version=0.9.3&amp;Export-Package=*;-noimport:=true;version="0.9.3"</bundle>
         <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-aclservice-config.xml">
             mvn:org.opendaylight.netvirt/aclservice-impl/${project.version}/xml/config

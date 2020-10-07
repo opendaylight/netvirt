@@ -5,13 +5,12 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.fibmanager;
 
+import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
-import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -146,10 +145,11 @@ public class FibUtil {
                                       String vpnName, String ipAddress) {
         LOG.debug("getAdjacencyIdentifierOp vpninterface {} vpn {} ip {}", vpnInterfaceName, vpnName, ipAddress);
         return getAdjListPathOp(vpnInterfaceName, vpnName).builder()
-                          .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204
-                                          .adjacency.list.Adjacency.class,
-                          new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204
-                                  .adjacency.list.AdjacencyKey(ipAddress)).build();
+            .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.adjacency
+                    .list.Adjacency.class,
+                    new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.adjacency
+                    .list.AdjacencyKey(ipAddress))
+            .build();
     }
 
     static InstanceIdentifier<AdjacenciesOp> getAdjListPathOp(String vpnInterfaceName, String vpnName) {
@@ -322,7 +322,7 @@ public class FibUtil {
             return;
         }
 
-        Preconditions.checkNotNull(nextHopList, "NextHopList can't be null");
+        requireNonNull(nextHopList, "NextHopList can't be null");
 
         try {
             InstanceIdentifier<VrfEntry> vrfEntryId =
@@ -374,7 +374,7 @@ public class FibUtil {
             // Filling the nextHop with dummy nextHopAddress
             VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder(prefix, label,
                     FibConstants.DEFAULT_NEXTHOP_IP, RouteOrigin.LOCAL, null /* parentVpnRd */)
-                .addAugmentation(RouterInterface.class, routerInterface).build();
+                .addAugmentation(routerInterface).build();
 
             if (writeConfigTxn != null) {
                 writeConfigTxn.mergeParentStructureMerge(vrfEntryId, vrfEntry);
@@ -422,7 +422,7 @@ public class FibUtil {
 
             InstanceIdentifier.InstanceIdentifierBuilder<VrfEntry> idBuilder =
                     InstanceIdentifier.builder(FibEntries.class)
-                            .child(VrfTables.class, new VrfTablesKey(rd)).child(VrfEntry.class,
+                        .child(VrfTables.class, new VrfTablesKey(rd)).child(VrfEntry.class,
                             new VrfEntryKey(prefix));
             InstanceIdentifier<VrfEntry> vrfEntryId = idBuilder.build();
             if (writeConfigTxn != null) {
@@ -469,7 +469,7 @@ public class FibUtil {
                     prefix, rd, nextHopToRemove, e);
         }
         if (entry.isPresent()) {
-            final List<RoutePaths> routePaths = new ArrayList<RoutePaths>(entry.get().nonnullRoutePaths().values());
+            final List<RoutePaths> routePaths = new ArrayList<>(entry.get().nonnullRoutePaths().values());
             if (routePaths == null || routePaths.isEmpty()) {
                 LOG.warn("routePaths is null/empty for given rd {}, prefix {}", rd, prefix);
                 return;
@@ -593,27 +593,27 @@ public class FibUtil {
     }
 
     public static java.util.Optional<Uint32> getLabelFromRoutePaths(final VrfEntry vrfEntry) {
-        List<RoutePaths> routePaths = new ArrayList<RoutePaths>(vrfEntry.nonnullRoutePaths().values());
+        List<RoutePaths> routePaths = new ArrayList<>(vrfEntry.nonnullRoutePaths().values());
         if (routePaths == null || routePaths.isEmpty()
-                || new ArrayList<RoutePaths>(vrfEntry.nonnullRoutePaths().values()).get(0).getLabel() == null) {
+                || new ArrayList<>(vrfEntry.nonnullRoutePaths().values()).get(0).getLabel() == null) {
             return java.util.Optional.empty();
         }
-        return java.util.Optional.of(new ArrayList<RoutePaths>(vrfEntry
+        return java.util.Optional.of(new ArrayList<>(vrfEntry
                 .nonnullRoutePaths().values()).get(0).getLabel());
 
     }
 
     public static java.util.Optional<String> getFirstNextHopAddress(final VrfEntry vrfEntry) {
-        List<RoutePaths> routePaths = new ArrayList<RoutePaths>(vrfEntry.nonnullRoutePaths().values());
+        List<RoutePaths> routePaths = new ArrayList<>(vrfEntry.nonnullRoutePaths().values());
         if (routePaths == null || routePaths.isEmpty()) {
             return java.util.Optional.empty();
         }
-        return java.util.Optional.of(new ArrayList<RoutePaths>(vrfEntry.nonnullRoutePaths().values())
+        return java.util.Optional.of(new ArrayList<>(vrfEntry.nonnullRoutePaths().values())
                 .get(0).getNexthopAddress());
     }
 
     public static java.util.Optional<Uint32> getLabelForNextHop(final VrfEntry vrfEntry, String nextHopIp) {
-        List<RoutePaths> routePaths = new ArrayList<RoutePaths>(vrfEntry.nonnullRoutePaths().values());
+        List<RoutePaths> routePaths = new ArrayList<>(vrfEntry.nonnullRoutePaths().values());
         if (routePaths == null || routePaths.isEmpty()) {
             return java.util.Optional.empty();
         }
@@ -772,7 +772,7 @@ public class FibUtil {
     }
 
     public static String getGreLbGroupKey(List<String> availableDcGws) {
-        Preconditions.checkNotNull(availableDcGws, "AvailableDcGws is null");
+        requireNonNull(availableDcGws, "AvailableDcGws is null");
         return "gre-" + availableDcGws.stream().sorted().collect(joining(":"));
     }
 
@@ -987,7 +987,7 @@ public class FibUtil {
         try {
             VpnToDpnList vpnToDpnList = SingleTransactionDataBroker.syncRead(dataBroker,
                     LogicalDatastoreType.OPERATIONAL, vpnToDpnListId);
-            if (!(vpnToDpnList == null) && !(vpnToDpnList.getVpnInterfaces() == null)
+            if ((vpnToDpnList != null) && (vpnToDpnList.getVpnInterfaces() != null)
                     && !vpnToDpnList.getVpnInterfaces().isEmpty()) {
                 return true;
             }

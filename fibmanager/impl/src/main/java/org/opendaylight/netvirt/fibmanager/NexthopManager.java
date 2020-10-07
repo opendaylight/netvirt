@@ -7,12 +7,12 @@
  */
 package org.opendaylight.netvirt.fibmanager;
 
+import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 import static org.opendaylight.genius.mdsalutil.NWUtil.isIpv4Address;
 import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 import static org.opendaylight.mdsal.binding.util.Datastore.OPERATIONAL;
 
-import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1095,7 +1095,7 @@ public class NexthopManager implements AutoCloseable {
                 }
                 futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, configTx -> {
                     List<String> availableDcGws = getDcGwIps();
-                    Preconditions.checkNotNull(availableDcGws, "There are no dc-gws present");
+                    requireNonNull(availableDcGws, "There are no dc-gws present");
                     int noOfDcGws = availableDcGws.size();
                     if (noOfDcGws == 1) {
                         LOG.trace("There are no enough DC GateWays {} present to program LB group", availableDcGws);

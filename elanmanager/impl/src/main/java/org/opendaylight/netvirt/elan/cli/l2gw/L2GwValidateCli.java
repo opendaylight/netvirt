@@ -12,7 +12,6 @@ import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 import static org.opendaylight.mdsal.binding.util.Datastore.OPERATIONAL;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -20,6 +19,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -315,8 +315,8 @@ public class L2GwValidateCli extends OsgiCommandSupport {
                 data1 = cmd.getData(node1);
                 data2 = cmd.getData(node2);
             }
-            data1 = data1 == null ? Collections.EMPTY_LIST : data1;
-            data2 = data2 == null ? Collections.EMPTY_LIST : data2;
+            data1 = data1 == null ? Collections.emptyList() : data1;
+            data2 = data2 == null ? Collections.emptyList() : data2;
 
             if (parentChildComparison) {
                 data2 = cmd.transform(nodeIid1, data2);
@@ -333,7 +333,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
             for (DataObject dataObject : data2) {
                 map2.put(cmd.getKey(dataObject), dataObject);
             }
-            Set<DataObject> diff = Sets.newHashSet();
+            Set<DataObject> diff = new HashSet<>();
 
             for (Entry<Identifier<?>, DataObject> entry : map1.entrySet()) {
                 DataObject obj1 = entry.getValue();
@@ -359,7 +359,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
                 }
             }
 
-            diff = Sets.newHashSet();
+            diff = new HashSet<>();
             for (Entry<Identifier<?>, DataObject> entry : map2.entrySet()) {
                 DataObject obj1 = entry.getValue();
                 DataObject obj2 = map1.get(entry.getKey());

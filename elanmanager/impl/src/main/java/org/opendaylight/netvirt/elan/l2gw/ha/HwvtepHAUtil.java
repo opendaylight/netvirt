@@ -394,7 +394,7 @@ public final class HwvtepHAUtil {
             }
             return childSwitchIds;
         }
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
     }
 
     public static HwvtepGlobalAugmentation getGlobalAugmentationOfNode(Node node) {

@@ -100,11 +100,11 @@ public abstract class MergeCommand<T extends DataObject, Y extends Builder, Z ex
 
     List<T> getDataSafe(Z existingData) {
         if (existingData == null) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         List<T> result = getData(existingData);
         if (result == null) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         return result;
     }

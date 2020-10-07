@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.elanmanager.tests;
 
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -74,6 +73,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
@@ -288,8 +288,8 @@ public class ElanServiceTestBase {
         InstructionsBuilder builder = new InstructionsBuilder();
         InstructionBuilder instructionBuilder = new InstructionBuilder(
                 new ArrayList<Instruction>(instructions.nonnullInstruction().values()).get(0));
-        instructionBuilder.setInstruction(sortActions(instructionBuilder.getInstruction()));
-        builder.setInstruction(Lists.newArrayList(instructionBuilder.build()));
+        instructionBuilder.setInstruction(sortActions(instructionBuilder.getInstruction())).setOrder(0);
+        builder.setInstruction(BindingMap.of(instructionBuilder.build()));
         return flowBuilder.setInstructions(builder.build()).build();
     }
 

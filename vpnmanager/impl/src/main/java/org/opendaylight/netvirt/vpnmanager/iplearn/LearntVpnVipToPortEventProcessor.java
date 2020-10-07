@@ -237,7 +237,7 @@ public class LearntVpnVipToPortEventProcessor
                 adjacencyList.add(newAdjBuilder.build());
                 Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(adjacencyList);
                 VpnInterface newVpnIntf = new VpnInterfaceBuilder(optVpnInterface.get())
-                        .addAugmentation(Adjacencies.class, aug).build();
+                        .addAugmentation(aug).build();
                 SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIfId,
                     newVpnIntf, VpnUtil.SINGLE_TRANSACTION_BROKER_NO_RETRY);
                 LOG.debug(" Successfully stored subnetroute Adjacency into VpnInterface {}", vpnInterface);

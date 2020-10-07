@@ -68,7 +68,7 @@ public class ElanMacEntryListener extends AbstractClusteredAsyncDataTreeChangeLi
                 ElanInstance elanInstance = elanInstanceCache.get(elanName).orElse(null);
                 elanL2GatewayUtils.removeMacsFromElanExternalDevices(elanInstance,
                         Lists.newArrayList(del.getMacAddress()));
-                return Collections.EMPTY_LIST;
+                return Collections.emptyList();
             });
     }
 

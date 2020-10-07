@@ -7,9 +7,9 @@
  */
 package org.opendaylight.netvirt.fibmanager;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.opendaylight.genius.mdsalutil.NWUtil.isIpv4Address;
 
-import com.google.common.base.Preconditions;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.inject.Inject;
@@ -36,8 +36,8 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler {
-
     private static final Logger LOG = LoggerFactory.getLogger(RouterInterfaceVrfEntryHandler.class);
+
     private final IMdsalApiManager mdsalManager;
     private final IPv6Handler ipv6Handler;
 
@@ -68,9 +68,8 @@ public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler {
     private boolean installRouterFibEntries(VrfEntry vrfEntry, String rd, int addOrRemove,
             RouterInterface routerInterface) {
         final VpnInstanceOpDataEntry vpnInstance = getFibUtil().getVpnInstance(rd);
-        Preconditions.checkNotNull(vpnInstance, "Vpn Instance not available " + rd);
-        Preconditions.checkNotNull(vpnInstance.getVpnId(),
-                "Vpn Instance with rd " + vpnInstance.getVrfId() + " has null vpnId!");
+        checkNotNull(vpnInstance, "Vpn Instance not available %s", rd);
+        checkNotNull(vpnInstance.getVpnId(), "Vpn Instance with rd %s has null vpnId!", vpnInstance.getVrfId());
 
         // FIXME: separate this out somehow?
         final ReentrantLock lock = JvmGlobalLocks.getLockForString(vpnInstance.getVpnInstanceName());

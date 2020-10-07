@@ -287,7 +287,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                         if (vpnInterfaces.isEmpty()) {
                             Map<IpAddressesKey, IpAddresses> ipAddressesMap = dpnInVpn.nonnullIpAddresses();
                             VpnToDpnListBuilder dpnInVpnBuilder =
-                                    new VpnToDpnListBuilder(dpnInVpn).setVpnInterfaces(Collections.EMPTY_LIST);
+                                    new VpnToDpnListBuilder(dpnInVpn).setVpnInterfaces(Collections.emptyMap());
                             if (ipAddressesMap == null || ipAddressesMap.isEmpty()) {
                                 dpnInVpnBuilder.setDpnState(VpnToDpnList.DpnState.Inactive);
                                 lastDpnOnVpn.set(true);

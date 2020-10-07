@@ -7,11 +7,12 @@
  */
 package org.opendaylight.netvirt.fibmanager;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 import static org.opendaylight.genius.mdsalutil.NWUtil.isIpv4Address;
 import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 import static org.opendaylight.mdsal.binding.util.Datastore.OPERATIONAL;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -198,7 +199,7 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
 
     @Override
     public void add(final InstanceIdentifier<VrfEntry> identifier, final VrfEntry vrfEntry) {
-        Preconditions.checkNotNull(vrfEntry, "VrfEntry should not be null or empty.");
+        requireNonNull(vrfEntry, "VrfEntry should not be null or empty.");
         String rd = identifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
         LOG.debug("ADD: Adding Fib Entry rd {} prefix {} route-paths {}",
                 rd, vrfEntry.getDestPrefix(), vrfEntry.getRoutePaths());
@@ -236,7 +237,7 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
 
     @Override
     public void remove(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry) {
-        Preconditions.checkNotNull(vrfEntry, "VrfEntry should not be null or empty.");
+        requireNonNull(vrfEntry, "VrfEntry should not be null or empty.");
         String rd = identifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
         LOG.debug("REMOVE: Removing Fib Entry rd {} prefix {} route-paths {}",
                 rd, vrfEntry.getDestPrefix(), vrfEntry.getRoutePaths());
@@ -277,7 +278,7 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
     // originalRoutePath is a little dicey - safest to keep the checking even if not needed.
     @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE")
     public void update(InstanceIdentifier<VrfEntry> identifier, VrfEntry original, VrfEntry update) {
-        Preconditions.checkNotNull(update, "VrfEntry should not be null or empty.");
+        requireNonNull(update, "VrfEntry should not be null or empty.");
         final String rd = identifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
         LOG.debug("UPDATE: Updating Fib Entries to rd {} prefix {} route-paths {} origin {} old-origin {}", rd,
                 update.getDestPrefix(), update.getRoutePaths(), update.getOrigin(), original.getOrigin());
@@ -383,9 +384,8 @@ public class VrfEntryListener extends AbstractAsyncDataTreeChangeListener<VrfEnt
         List<SubTransaction> txnObjects =  new ArrayList<>();
         final VpnInstanceOpDataEntry vpnInstance =
                 fibUtil.getVpnInstance(vrfTableKey.getRouteDistinguisher());
-        Preconditions.checkNotNull(vpnInstance, "Vpn Instance not available " + vrfTableKey.getRouteDistinguisher());
-        Preconditions.checkNotNull(vpnInstance.getVpnId(), "Vpn Instance with rd " + vpnInstance.getVrfId()
-                + " has null vpnId!");
+        checkNotNull(vpnInstance, "Vpn Instance not available %s", vrfTableKey.getRouteDistinguisher());
+        checkNotNull(vpnInstance.getVpnId(), "Vpn Instance with rd %s has null vpnId!", vpnInstance.getVrfId());
         final Map<VpnToDpnListKey, VpnToDpnList> keyVpnToDpnListMap;
         if (vrfEntry.getParentVpnRd() != null
                 && FibHelper.isControllerManagedNonSelfImportedRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
