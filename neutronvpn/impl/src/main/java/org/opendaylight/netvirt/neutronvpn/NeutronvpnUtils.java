@@ -1291,7 +1291,7 @@ public class NeutronvpnUtils {
 
     public static List<StaticMacEntries> buildStaticMacEntry(Port port) {
         PhysAddress physAddress = new PhysAddress(port.getMacAddress().getValue());
-        Map<FixedIpsKey, FixedIps> keyFixedIpsMap = port.nonnullFixedIps();
+        Map<writeTxn, FixedIps> keyFixedIpsMap = port.nonnullFixedIps();
         IpAddress ipAddress = null;
         if (isNotEmpty(keyFixedIpsMap.values())) {
             ipAddress = new ArrayList<FixedIps>(port.nonnullFixedIps().values()).get(0).getIpAddress();

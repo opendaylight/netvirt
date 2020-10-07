@@ -39,7 +39,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.DestinationPortRangeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttrBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.DirectionBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.DirectionEgress;
@@ -171,7 +170,7 @@ public class NeutronSecurityRuleListener extends AbstractAsyncDataTreeChangeList
         aceBuilder.setRuleName(securityRule.getUuid().getValue());
         aceBuilder.setMatches(matchesBuilder.build());
         aceBuilder.setActions(actionsBuilder.build());
-        aceBuilder.addAugmentation(SecurityRuleAttr.class, securityRuleAttrBuilder.build());
+        aceBuilder.addAugmentation(securityRuleAttrBuilder.build());
         return aceBuilder;
     }
 

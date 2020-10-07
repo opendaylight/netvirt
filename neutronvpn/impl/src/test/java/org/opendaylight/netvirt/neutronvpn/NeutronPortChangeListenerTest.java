@@ -12,8 +12,8 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
@@ -45,6 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.config.r
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIpsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIpsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortBuilder;
 import org.opendaylight.yangtools.util.concurrent.FluentFutures;
@@ -116,9 +117,9 @@ public class NeutronPortChangeListenerTest {
         IpAddress ipv6 = new IpAddress(new Ipv6Address("1::1"));
         FixedIpsBuilder fib = new FixedIpsBuilder();
         fib.setIpAddress(ipv6);
-        List<FixedIps> fixedIps = new ArrayList<>();
-        fixedIps.add(fib.build());
-        pb.setFixedIps(fixedIps);
+        Map<FixedIpsKey, FixedIps> keyFixedIpsMap = new HashMap<>();
+        keyFixedIpsMap.put(new FixedIpsKey(ipv6, new Uuid("12345678-1234-1234-1234-123456789012")), fib.build());
+        pb.setFixedIps(keyFixedIpsMap);
         Port port = pb.build();
         neutronPortChangeListener.add(InstanceIdentifier.create(Port.class), port);
     }
@@ -132,9 +133,9 @@ public class NeutronPortChangeListenerTest {
         IpAddress ipv4 = new IpAddress(new Ipv4Address("2.2.2.2"));
         FixedIpsBuilder fib = new FixedIpsBuilder();
         fib.setIpAddress(ipv4);
-        List<FixedIps> fixedIps = new ArrayList<>();
-        fixedIps.add(fib.build());
-        pb.setFixedIps(fixedIps);
+        Map<FixedIpsKey, FixedIps> keyFixedIpsMap = new HashMap<>();
+        keyFixedIpsMap.put(new FixedIpsKey(ipv4, new Uuid("12345678-1234-1234-1234-123456789012")), fib.build());
+        pb.setFixedIps(keyFixedIpsMap);
         Port port = pb.build();
         neutronPortChangeListener.add(InstanceIdentifier.create(Port.class), port);
     }
@@ -145,8 +146,8 @@ public class NeutronPortChangeListenerTest {
         pb.setUuid(new Uuid("12345678-1234-1234-1234-123456789012"));
         pb.setNetworkId(new Uuid("12345678-1234-1234-1234-123456789012"));
         pb.setMacAddress(new MacAddress("AA:BB:CC:DD:EE:FF"));
-        List<FixedIps> fixedIps = new ArrayList<>();
-        pb.setFixedIps(fixedIps);
+        Map<FixedIpsKey, FixedIps> keyFixedIpsMap = new HashMap<>();
+        pb.setFixedIps(keyFixedIpsMap);
         Port port = pb.build();
         neutronPortChangeListener.add(InstanceIdentifier.create(Port.class), port);
     }

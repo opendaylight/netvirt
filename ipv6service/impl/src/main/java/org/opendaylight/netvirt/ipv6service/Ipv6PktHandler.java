@@ -44,7 +44,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.packet.rev16
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.packet.rev160620.NeighborSolicitationPacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.packet.rev160620.RouterSolicitationPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.packet.rev160620.RouterSolicitationPacketBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.util.rev170210.PacketMetadata;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.util.rev170210.PacketMetadataBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -55,6 +54,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Tr
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInputBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint64;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -431,13 +431,13 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
                 return;
             }
 
-            short tableId = packet.getTableId().getValue().toJava();
+            Uint8 tableId = packet.getTableId().getValue();
             Uint64 metadata = packet.getMatch().getMetadata().getMetadata();
             long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
             String interfaceName = ifMgr.getInterfaceNameFromTag(portTag);
 
             NeighborAdvertisePacket naPacket = new NeighborAdvertisePacketBuilder(naPdu)
-                    .addAugmentation(PacketMetadata.class, new PacketMetadataBuilder().setOfTableId((long) tableId)
+                    .addAugmentation(new PacketMetadataBuilder().setOfTableId(tableId.toUint32())
                             .setMetadata(metadata).setInterface(interfaceName).build())
                     .build();
             fireNaNotification(naPacket);
