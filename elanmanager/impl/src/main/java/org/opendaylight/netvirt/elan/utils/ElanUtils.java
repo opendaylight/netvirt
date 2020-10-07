@@ -124,7 +124,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceTypeFlowBased;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.StypeOpenflow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.StypeOpenflowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfoKey;
@@ -256,7 +255,7 @@ public class ElanUtils {
     private final IITMProvider iitmProvider;
     private final ElanGroupCache elanGroupCache;
 
-    public static final FutureCallback<CommitInfo> DEFAULT_CALLBACK = new FutureCallback<CommitInfo>() {
+    public static final FutureCallback<CommitInfo> DEFAULT_CALLBACK = new FutureCallback<>() {
         @Override
         public void onSuccess(CommitInfo result) {
             LOG.debug("Success in Datastore operation");
@@ -809,7 +808,7 @@ public class ElanUtils {
                 LOG.debug("RPC Call to Get egress actions for interface {} returned with Errors {}", ifName,
                         rpcResult.getErrors());
             } else {
-                listAction = new ArrayList<Action>(rpcResult.getResult().nonnullAction().values());
+                listAction = new ArrayList<>(rpcResult.getResult().nonnullAction().values());
             }
         } catch (Exception e) {
             LOG.warn("Exception when egress actions for interface {}", ifName, e);
@@ -873,9 +872,9 @@ public class ElanUtils {
     public List<DpnInterfaces> getElanDPNByName(String elanInstanceName) {
         InstanceIdentifier<ElanDpnInterfacesList> elanIdentifier = getElanDpnOperationDataPath(elanInstanceName);
         try {
-            return new ArrayList<DpnInterfaces>((SingleTransactionDataBroker.syncReadOptional(broker,
+            return new ArrayList<>(SingleTransactionDataBroker.syncReadOptional(broker,
                     LogicalDatastoreType.OPERATIONAL, elanIdentifier).map(ElanDpnInterfacesList::nonnullDpnInterfaces)
-                    .orElse(emptyMap())).values());
+                    .orElse(emptyMap()).values());
         } catch (ExecutionException | InterruptedException e) {
             LOG.error("getElanDPNByName: Exception while reading elanDpnInterfaceList DS for the elan "
                     + "instance {}", elanInstanceName, e);
@@ -1197,7 +1196,7 @@ public class ElanUtils {
                     .LEAVES_POSTFIX);
             EtreeLeafTagName etreeLeafTagName = new EtreeLeafTagNameBuilder()
                     .setEtreeLeafTag(new EtreeLeafTag(etreeLeafTag)).build();
-            elanTagNameBuilder.addAugmentation(EtreeLeafTagName.class, etreeLeafTagName);
+            elanTagNameBuilder.addAugmentation(etreeLeafTagName);
             addTheLeafTagAsElanTag(elanInstanceName, etreeLeafTag, operTx);
         }
         ElanTagName elanTagName = elanTagNameBuilder.build();
@@ -1217,7 +1216,7 @@ public class ElanUtils {
         if (isEtreeInstance(elanInstanceAdded)) {
             EtreeInstance etreeInstance = new EtreeInstanceBuilder().setEtreeLeafTagVal(new EtreeLeafTag(etreeLeafTag))
                     .build();
-            elanInstanceBuilder.addAugmentation(EtreeInstance.class, etreeInstance);
+            elanInstanceBuilder.addAugmentation(etreeInstance);
         }
         ElanInstance elanInstanceWithTag = elanInstanceBuilder.build();
         LOG.trace("Updated elan Operational DS for elan: {} with elanTag: {} and interfaces: {}", elanInstanceName,
@@ -1257,7 +1256,7 @@ public class ElanUtils {
                 .setInstruction(instructions);
         return new BoundServicesBuilder().withKey(new BoundServicesKey(servicePriority)).setServiceName(serviceName)
                 .setServicePriority(servicePriority).setServiceType(ServiceTypeFlowBased.class)
-                .addAugmentation(StypeOpenflow.class, augBuilder.build()).build();
+                .addAugmentation(augBuilder.build()).build();
     }
 
     public static InstanceIdentifier<BoundServices> buildServiceId(String interfaceName, short serviceIndex) {
@@ -1346,7 +1345,7 @@ public class ElanUtils {
      */
     public List<ExternalTunnel> getAllExternalTunnels(LogicalDatastoreType datastoreType) {
         InstanceIdentifier<ExternalTunnelList> iid = InstanceIdentifier.builder(ExternalTunnelList.class).build();
-        return new ArrayList<ExternalTunnel>(read(broker, datastoreType, iid).map(ExternalTunnelList
+        return new ArrayList<>(read(broker, datastoreType, iid).map(ExternalTunnelList
                 ::nonnullExternalTunnel).orElse(Collections.emptyMap()).values());
     }
 
@@ -1632,7 +1631,7 @@ public class ElanUtils {
         if (macTable == null) {
             return emptyList();
         }
-        return new ArrayList<MacEntry>(macTable.nonnullMacEntry().values());
+        return new ArrayList<>(macTable.nonnullMacEntry().values());
     }
 
     public boolean isTunnelInLogicalGroup(String interfaceName) {
@@ -1730,8 +1729,8 @@ public class ElanUtils {
             LOG.debug("Buckets are not sent for group {}. Skipping merge operation", groupIdInfo);
             return;
         }
-        List<Bucket> newBuckets = new ArrayList<Bucket>(newGroup.getBuckets().nonnullBucket().values());
-        List<Bucket> existingBuckets = new ArrayList<Bucket>(existingGroup.nonnullBucket().values());
+        List<Bucket> newBuckets = new ArrayList<>(newGroup.getBuckets().nonnullBucket().values());
+        List<Bucket> existingBuckets = new ArrayList<>(existingGroup.nonnullBucket().values());
         LOG.debug("New Buckets {} and Existing Buckets {}", newBuckets, existingBuckets);
         List<Bucket> combinedBuckets = new ArrayList<>(existingBuckets);
 
@@ -1739,7 +1738,7 @@ public class ElanUtils {
         Map<String,Bucket> reg6ActionBucketMap = new HashMap<>();
         // Add all buckets in the new group to a map with node connector/reg6 value as key
         newBuckets.forEach(bucket -> {
-            List<Action> actionList = new ArrayList<Action>(bucket.getAction().values());
+            List<Action> actionList = new ArrayList<>(bucket.getAction().values());
             if (actionList != null && !actionList.isEmpty()) {
                 actionList.forEach(action -> {
                     if (action.getAction() instanceof OutputActionCase) {
@@ -1760,7 +1759,7 @@ public class ElanUtils {
         //First, remove buckets with same nc id/reg6 value as in hashmap from combinedBuckets
         //Next, add all the buckets in hashmap to combined buckets
         existingBuckets.forEach(existingBucket -> {
-            List<Action> actionList = new ArrayList<Action>(existingBucket.getAction().values());
+            List<Action> actionList = new ArrayList<>(existingBucket.getAction().values());
             if (actionList != null && !actionList.isEmpty()) {
                 actionList.forEach(action -> {
                     if (action.getAction() instanceof OutputActionCase) {

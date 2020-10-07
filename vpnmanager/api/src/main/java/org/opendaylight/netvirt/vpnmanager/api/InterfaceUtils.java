@@ -28,7 +28,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceTypeFlowBased;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.StypeOpenflow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.StypeOpenflowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfoKey;
@@ -103,8 +102,7 @@ public final class InterfaceUtils {
             new StypeOpenflowBuilder().setFlowCookie(cookie).setFlowPriority(flowPriority).setInstruction(instructions);
         return new BoundServicesBuilder().withKey(new BoundServicesKey(servicePriority))
             .setServiceName(serviceName).setServicePriority(servicePriority)
-            .setServiceType(ServiceTypeFlowBased.class).addAugmentation(StypeOpenflow.class,
-                augBuilder.build()).build();
+            .setServiceType(ServiceTypeFlowBased.class).addAugmentation(augBuilder.build()).build();
     }
 
     public static boolean isOperational(DataBroker dataBroker, String ifName) {
