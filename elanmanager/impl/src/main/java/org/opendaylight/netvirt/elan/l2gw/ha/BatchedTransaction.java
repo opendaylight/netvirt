@@ -19,7 +19,10 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
+import org.opendaylight.mdsal.binding.api.query.QueryExpression;
+import org.opendaylight.mdsal.binding.api.query.QueryResult;
 import org.opendaylight.mdsal.binding.util.Datastore;
 import org.opendaylight.mdsal.binding.util.Datastore.Configuration;
 import org.opendaylight.mdsal.binding.util.TypedReadWriteTransaction;
@@ -255,5 +258,10 @@ public class BatchedTransaction<D extends Datastore> implements TypedReadWriteTr
 
     public void updateMetric(Boolean update) {
         this.updateMetric = update;
+    }
+
+    @Override
+    public <T extends @NonNull DataObject> FluentFuture<QueryResult<T>> execute(QueryExpression<T> query) {
+        throw new UnsupportedOperationException();
     }
 }

@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.elan.internal;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -352,7 +351,7 @@ public class ElanBridgeManager {
             if (dpId != null) {
                 otherConfigs = new ArrayList<>(bridgeAug.nonnullBridgeOtherConfigs().values());
                 if (otherConfigs == null) {
-                    otherConfigs = Lists.newArrayList();
+                    otherConfigs = new ArrayList<>();
                 }
 
                 if (otherConfigs.stream().noneMatch(otherConfig ->
@@ -363,10 +362,10 @@ public class ElanBridgeManager {
                                     .setBridgeOtherConfigValue(dpIdVal).build());
                 }
             } else {
-                otherConfigs = Lists.newArrayList();
+                otherConfigs = new ArrayList<>();
             }
         } else  {
-            otherConfigs = Lists.newArrayList();
+            otherConfigs = new ArrayList<>();
             if (mac != null) {
                 otherConfigs.add(new BridgeOtherConfigsBuilder()
                                 .setBridgeOtherConfigKey(OTHER_CONFIG_HWADDR)

@@ -325,7 +325,7 @@ public class L2GatewayConnectionListener extends AbstractClusteredAsyncDataTreeC
         if (psNode.augmentation(PhysicalSwitchAugmentation.class) != null) {
             return psNode.augmentation(PhysicalSwitchAugmentation.class).nonnullTunnelIps().values();
         }
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     private List<Node> readAllConfigNodes(TypedReadTransaction<Configuration> tx) {
@@ -348,6 +348,6 @@ public class L2GatewayConnectionListener extends AbstractClusteredAsyncDataTreeC
         if (topologyOptional != null && topologyOptional.isPresent() && topologyOptional.get().getNode() != null) {
             return  new ArrayList<>(topologyOptional.get().nonnullNode().values());
         }
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 }

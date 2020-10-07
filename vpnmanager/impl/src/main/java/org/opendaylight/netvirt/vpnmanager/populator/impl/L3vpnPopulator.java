@@ -7,10 +7,10 @@
  */
 package org.opendaylight.netvirt.vpnmanager.populator.impl;
 
+import static java.util.Objects.requireNonNull;
 import static org.opendaylight.infrautils.utils.concurrent.LoggingFutures.addErrorLogging;
 import static org.opendaylight.mdsal.binding.util.Datastore.OPERATIONAL;
 
-import com.google.common.base.Preconditions;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -90,7 +90,7 @@ public abstract class L3vpnPopulator implements VpnPopulator {
         SubnetRoute route = new SubnetRouteBuilder().setElantag(elantag).build();
         RouteOrigin origin = RouteOrigin.CONNECTED; // Only case when a route is considered as directly connected
         VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, nextHop, origin, networkName)
-                .addAugmentation(SubnetRoute.class, route).setL3vni(l3vni).setGatewayMacAddress(gwMacAddress).build();
+                .addAugmentation(route).setL3vni(l3vni).setGatewayMacAddress(gwMacAddress).build();
         LOG.debug("Created vrfEntry for {} nexthop {} label {} and elantag {}", prefix, nextHop, label, elantag);
         InstanceIdentifier<VrfEntry> vrfEntryId =
                 InstanceIdentifier.builder(FibEntries.class)
@@ -126,7 +126,7 @@ public abstract class L3vpnPopulator implements VpnPopulator {
             List<VpnInstanceOpDataEntry> vpnsToImportRoute = vpnUtil.getVpnsImportingMyRoute(vpnName);
             if (vpnsToImportRoute.size() > 0) {
                 VrfEntry importingVrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, nextHop,
-                        RouteOrigin.SELF_IMPORTED, rd).addAugmentation(SubnetRoute.class, route).build();
+                        RouteOrigin.SELF_IMPORTED, rd).addAugmentation(route).build();
                 List<VrfEntry> importingVrfEntryList = Collections.singletonList(importingVrfEntry);
                 for (VpnInstanceOpDataEntry vpnInstance : vpnsToImportRoute) {
                     String importingRd = vpnInstance.getVrfId();
@@ -149,14 +149,13 @@ public abstract class L3vpnPopulator implements VpnPopulator {
     public void addToLabelMapper(Uint32 label, Uint64 dpnId, String prefix, List<String> nextHopIpList, Uint32 vpnId,
                                  @Nullable String vpnInterfaceName, @Nullable Uint32 elanTag,
                                  boolean isSubnetRoute, String rd) {
-        final String labelStr = Preconditions.checkNotNull(label, "addToLabelMapper: label cannot be null or empty!")
-                .toString();
-        Preconditions.checkNotNull(prefix, "addToLabelMapper: prefix cannot be null or empty!");
-        Preconditions.checkNotNull(vpnId, "addToLabelMapper: vpnId cannot be null or empty!");
-        Preconditions.checkNotNull(rd, "addToLabelMapper: rd cannot be null or empty!");
+        final String labelStr = requireNonNull(label, "addToLabelMapper: label cannot be null or empty!").toString();
+        requireNonNull(prefix, "addToLabelMapper: prefix cannot be null or empty!");
+        requireNonNull(vpnId, "addToLabelMapper: vpnId cannot be null or empty!");
+        requireNonNull(rd, "addToLabelMapper: rd cannot be null or empty!");
         if (!isSubnetRoute) {
             // NextHop must be present for non-subnetroute entries
-            Preconditions.checkNotNull(nextHopIpList, "addToLabelMapper: nextHopIp cannot be null or empty!");
+            requireNonNull(nextHopIpList, "addToLabelMapper: nextHopIp cannot be null or empty!");
         }
 
         // FIXME: separate this out somehow?

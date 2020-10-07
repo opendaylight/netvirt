@@ -262,7 +262,7 @@ public class BgpUtil implements AutoCloseable {
     private static InstanceIdentifier<ExternalTeps> getExternalTepsIdentifier(String elanInstanceName, String tepIp) {
         IpAddress tepAdress = tepIp == null ? null : new IpAddress(new Ipv4Address(tepIp));
         return InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class,
-                new ElanInstanceKey(elanInstanceName)).child(ExternalTeps.class,
+            new ElanInstanceKey(elanInstanceName)).child(ExternalTeps.class,
                 new ExternalTepsKey(tepAdress)).build();
     }
 

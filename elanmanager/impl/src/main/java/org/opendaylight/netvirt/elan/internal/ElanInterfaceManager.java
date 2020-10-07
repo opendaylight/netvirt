@@ -8,13 +8,12 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import static java.util.Collections.emptyList;
+import static java.util.Objects.requireNonNull;
 import static org.opendaylight.infrautils.utils.concurrent.LoggingFutures.addErrorLogging;
 import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 import static org.opendaylight.mdsal.binding.util.Datastore.OPERATIONAL;
 import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlanNetworkOrVxlanSegment;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
@@ -734,9 +733,9 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
     @SuppressWarnings("checkstyle:ForbidCertainMethod")
     List<ListenableFuture<?>> addElanInterface(ElanInterface elanInterface,
             InterfaceInfo interfaceInfo, ElanInstance elanInstance) {
-        Preconditions.checkNotNull(elanInstance, "elanInstance cannot be null");
-        Preconditions.checkNotNull(interfaceInfo, "interfaceInfo cannot be null");
-        Preconditions.checkNotNull(elanInterface, "elanInterface cannot be null");
+        requireNonNull(elanInstance, "elanInstance cannot be null");
+        requireNonNull(interfaceInfo, "interfaceInfo cannot be null");
+        requireNonNull(elanInterface, "elanInterface cannot be null");
 
         String interfaceName = elanInterface.getName();
         String elanInstanceName = elanInterface.getElanInstanceName();
@@ -867,7 +866,7 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
                     isFirstInterfaceInDpn, confTx);
                 Map<StaticMacEntriesKey, StaticMacEntries> staticMacEntriesMap =
                     elanInterface.nonnullStaticMacEntries();
-                List<PhysAddress> staticMacAddresses = Lists.newArrayList();
+                List<PhysAddress> staticMacAddresses = new ArrayList<>();
                 if (ElanUtils.isNotEmpty(staticMacEntriesMap.values())) {
                     for (StaticMacEntries staticMacEntry : staticMacEntriesMap.values()) {
                         InstanceIdentifier<MacEntry> macId = getMacEntryOperationalDataPath(elanInstanceName,

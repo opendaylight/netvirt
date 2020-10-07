@@ -7,7 +7,8 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -100,12 +101,9 @@ public class VpnSubnetRouteHandler {
         Optional<SubnetOpDataEntry> optionalSubs = null;
         Uint32 label;
 
-        Preconditions.checkNotNull(subnetId,
-                LOGGING_PREFIX + " onSubnetAddedToVpn: SubnetId cannot be null or empty!");
-        Preconditions.checkNotNull(subnetIp,
-                LOGGING_PREFIX + " onSubnetAddedToVpn: SubnetPrefix cannot be null or empty!");
-        Preconditions.checkNotNull(elanTag,
-                LOGGING_PREFIX + " onSubnetAddedToVpn: ElanTag cannot be null or empty!");
+        requireNonNull(subnetId, LOGGING_PREFIX + " onSubnetAddedToVpn: SubnetId cannot be null or empty!");
+        requireNonNull(subnetIp, LOGGING_PREFIX + " onSubnetAddedToVpn: SubnetPrefix cannot be null or empty!");
+        requireNonNull(elanTag, LOGGING_PREFIX + " onSubnetAddedToVpn: ElanTag cannot be null or empty!");
 
         if (subnetmap.getVpnId() == null) {
             LOG.error("onSubnetAddedToVpn: VpnId {} for subnet {} not found, bailing out", subnetmap.getVpnId(),
@@ -386,12 +384,10 @@ public class VpnSubnetRouteHandler {
         String vpnName = subnetmap.getVpnId().getValue();
         String subnetIp = subnetmap.getSubnetIp();
 
-        Preconditions.checkNotNull(subnetId,
-                LOGGING_PREFIX + " onSubnetUpdatedInVpn: SubnetId cannot be null or empty!");
-        Preconditions.checkNotNull(subnetIp,
-                LOGGING_PREFIX + " onSubnetUpdatedInVpn: SubnetPrefix cannot be null or empty!");
-        Preconditions.checkNotNull(vpnName, LOGGING_PREFIX + " onSubnetUpdatedInVpn: VpnName cannot be null or empty!");
-        Preconditions.checkNotNull(elanTag, LOGGING_PREFIX + " onSubnetUpdatedInVpn: ElanTag cannot be null or empty!");
+        requireNonNull(subnetId, LOGGING_PREFIX + " onSubnetUpdatedInVpn: SubnetId cannot be null or empty!");
+        requireNonNull(subnetIp, LOGGING_PREFIX + " onSubnetUpdatedInVpn: SubnetPrefix cannot be null or empty!");
+        requireNonNull(vpnName, LOGGING_PREFIX + " onSubnetUpdatedInVpn: VpnName cannot be null or empty!");
+        requireNonNull(elanTag, LOGGING_PREFIX + " onSubnetUpdatedInVpn: ElanTag cannot be null or empty!");
         try {
             InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
                     InstanceIdentifier.builder(SubnetOpData.class).child(SubnetOpDataEntry.class,
@@ -480,7 +476,7 @@ public class VpnSubnetRouteHandler {
             }
             SubnetOpDataEntry subnetOpDataEntry = optionalSubs.get();
             SubnetOpDataEntryBuilder subOpBuilder = new SubnetOpDataEntryBuilder(subnetOpDataEntry);
-            List<SubnetToDpn> subnetToDpnList = concat(new ArrayList<SubnetToDpn>(subnetOpDataEntry
+            List<SubnetToDpn> subnetToDpnList = concat(new ArrayList<>(subnetOpDataEntry
                     .nonnullSubnetToDpn().values()), subDpn);
             subOpBuilder.setSubnetToDpn(getSubnetToDpnMap(subnetToDpnList));
             if (subOpBuilder.getRouteAdvState() != TaskState.Advertised) {
@@ -619,7 +615,7 @@ public class VpnSubnetRouteHandler {
                     subOpBuilder.getRouteAdvState(), subOpBuilder.getLastAdvState());
             boolean isExternalSubnetVpn = VpnUtil.isExternalSubnetVpn(subnetOpDataEntry.getVpnName(),
                     subnetId.getValue());
-            List<SubnetToDpn> subnetToDpnList = concat(new ArrayList<SubnetToDpn>(subnetOpDataEntry
+            List<SubnetToDpn> subnetToDpnList = concat(new ArrayList<>(subnetOpDataEntry
                     .nonnullSubnetToDpn().values()), subDpn);
             subOpBuilder.setSubnetToDpn(getSubnetToDpnMap(subnetToDpnList));
             Uint32 label = optionalSubs.get().getLabel();
@@ -886,13 +882,11 @@ public class VpnSubnetRouteHandler {
                                         String vpnName, Long elanTag, Uint32 label, Uint32 l3vni,
                                         Uuid subnetId, boolean isBgpVpn, String networkName) {
 
-        Preconditions.checkNotNull(rd,
-                LOGGING_PREFIX + " addSubnetRouteToFib: RouteDistinguisher cannot be null or empty!");
-        Preconditions.checkNotNull(subnetIp,
-                LOGGING_PREFIX + " addSubnetRouteToFib: SubnetRouteIp cannot be null or empty!");
-        Preconditions.checkNotNull(vpnName, LOGGING_PREFIX + " addSubnetRouteToFib: vpnName cannot be null or empty!");
-        Preconditions.checkNotNull(elanTag, LOGGING_PREFIX + " addSubnetRouteToFib: elanTag cannot be null or empty!");
-        Preconditions.checkNotNull(label, LOGGING_PREFIX + " addSubnetRouteToFib: label cannot be null or empty!");
+        requireNonNull(rd, LOGGING_PREFIX + " addSubnetRouteToFib: RouteDistinguisher cannot be null or empty!");
+        requireNonNull(subnetIp, LOGGING_PREFIX + " addSubnetRouteToFib: SubnetRouteIp cannot be null or empty!");
+        requireNonNull(vpnName, LOGGING_PREFIX + " addSubnetRouteToFib: vpnName cannot be null or empty!");
+        requireNonNull(elanTag, LOGGING_PREFIX + " addSubnetRouteToFib: elanTag cannot be null or empty!");
+        requireNonNull(label, LOGGING_PREFIX + " addSubnetRouteToFib: label cannot be null or empty!");
         VrfEntry.EncapType encapType = VpnUtil.getEncapType(VpnUtil.isL3VpnOverVxLan(l3vni));
         VpnPopulator vpnPopulator = L3vpnRegistry.getRegisteredPopulator(encapType);
         LOG.info("{} addSubnetRouteToFib: Adding SubnetRoute fib entry for vpnName {}, subnetIP {}, elanTag {}",
@@ -905,7 +899,7 @@ public class VpnSubnetRouteHandler {
             vpnPopulator.populateFib(input, null /*writeCfgTxn*/);
             return true;
         }
-        Preconditions.checkNotNull(nextHopIp, LOGGING_PREFIX + "NextHopIp cannot be null or empty!");
+        requireNonNull(nextHopIp, LOGGING_PREFIX + "NextHopIp cannot be null or empty!");
         vpnUtil.syncWrite(LogicalDatastoreType.OPERATIONAL, VpnUtil
                 .getPrefixToInterfaceIdentifier(vpnUtil.getVpnId(vpnName), subnetIp), VpnUtil
                 .getPrefixToInterface(nhDpnId, subnetId.getValue(), subnetIp, Prefixes.PrefixCue.SubnetRoute));
@@ -934,10 +928,8 @@ public class VpnSubnetRouteHandler {
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private boolean deleteSubnetRouteFromFib(String rd, String subnetIp, String vpnName, boolean isBgpVpn) {
-        Preconditions.checkNotNull(rd,
-                LOGGING_PREFIX + " deleteSubnetRouteFromFib: RouteDistinguisher cannot be null or empty!");
-        Preconditions.checkNotNull(subnetIp,
-                LOGGING_PREFIX +  " deleteSubnetRouteFromFib: SubnetRouteIp cannot be null or empty!");
+        requireNonNull(rd, LOGGING_PREFIX + " deleteSubnetRouteFromFib: RouteDistinguisher cannot be null or empty!");
+        requireNonNull(subnetIp, LOGGING_PREFIX +  " deleteSubnetRouteFromFib: SubnetRouteIp cannot be null or empty!");
         deleteSubnetRouteFibEntryFromDS(rd, subnetIp, vpnName);
         if (isBgpVpn) {
             try {

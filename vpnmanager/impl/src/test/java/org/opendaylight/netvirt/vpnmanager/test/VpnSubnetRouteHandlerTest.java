@@ -155,11 +155,11 @@ public class VpnSubnetRouteHandlerTest {
     InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
         .VpnInstance> instVpnInstance = getVpnInstanceToVpnIdIdentifier(interfaceName);
     InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances
-        .VpnInstance>
-        vpnInstanceIdentifier = InstanceIdentifier.builder(VpnInstances.class).child(org.opendaylight.yang.gen.v1.urn
-                    .opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances.VpnInstance.class,
-        new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances
-            .VpnInstanceKey(interfaceName)).build();
+        .VpnInstance> vpnInstanceIdentifier = InstanceIdentifier.builder(VpnInstances.class)
+            .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances
+                    .VpnInstance.class,
+                    new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances
+                        .VpnInstanceKey(interfaceName)).build();
     InstanceIdentifier<Networks> netsIdentifier =
         InstanceIdentifier.builder(ExternalNetworks.class).child(Networks.class, new NetworksKey(portId)).build();
 

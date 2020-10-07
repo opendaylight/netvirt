@@ -7,7 +7,8 @@
  */
 package org.opendaylight.netvirt.qosservice;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import java.util.Optional;
 import java.util.regex.Pattern;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -22,7 +23,7 @@ class UuidUtil {
     private Pattern uuidPattern;
 
     Optional<Uuid> newUuidIfValidPattern(String possibleUuid) {
-        Preconditions.checkNotNull(possibleUuid, "possibleUuid == null");
+        requireNonNull(possibleUuid, "possibleUuid == null");
 
         if (uuidPattern == null) {
             // Thread safe because it really doesn't matter even if we were to do this initialization more than once

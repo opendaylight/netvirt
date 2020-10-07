@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.nodehandlertest;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
@@ -23,7 +22,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hw
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepLogicalSwitchRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepNodeName;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepPhysicalLocatorAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepPhysicalLocatorAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepPhysicalLocatorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LocalMcastMacs;
@@ -103,7 +101,7 @@ public final class TestBuilders {
             tpAugmentationBuilder.setPhysicalLocatorUuid(getUUid(ip));
             tpAugmentationBuilder.setEncapsulationType(createEncapsulationType("vxlan_over_ipv4"));
             tpAugmentationBuilder.setDstIp(IpAddressBuilder.getDefaultInstance(ip));
-            tpBuilder.addAugmentation(HwvtepPhysicalLocatorAugmentation.class, tpAugmentationBuilder.build());
+            tpBuilder.addAugmentation(tpAugmentationBuilder.build());
         }
         return tpBuilder.build();
     }
@@ -205,17 +203,14 @@ public final class TestBuilders {
     }
 
     public static Class<? extends EncapsulationTypeBase> createEncapsulationType(String type) {
-        Preconditions.checkNotNull(type);
         if (type.isEmpty()) {
             return EncapsulationTypeVxlanOverIpv4.class;
-        } else {
-            ImmutableBiMap<Class<? extends EncapsulationTypeBase>, String> encapsTypeMap
-                    = new ImmutableBiMap.Builder<Class<? extends EncapsulationTypeBase>, String>()
-                    .put(EncapsulationTypeVxlanOverIpv4.class, "vxlan_over_ipv4")
-                    .build();
-            ImmutableBiMap<String, Class<? extends EncapsulationTypeBase>> mapper =
-                    encapsTypeMap.inverse();
-            return mapper.get(type);
         }
+
+        ImmutableBiMap<Class<? extends EncapsulationTypeBase>, String> encapsTypeMap =
+            ImmutableBiMap.of(EncapsulationTypeVxlanOverIpv4.class, "vxlan_over_ipv4");
+        ImmutableBiMap<String, Class<? extends EncapsulationTypeBase>> mapper =
+            encapsTypeMap.inverse();
+        return mapper.get(type);
     }
 }

@@ -73,7 +73,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceTypeFlowBased;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.StypeOpenflow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.StypeOpenflowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfoKey;
@@ -239,7 +238,7 @@ public final class DhcpServiceUtils {
     }
 
     private static Map<InstructionKey, Instruction> getDhcpArpInstructions(Long elanTag, int lportTag) {
-        Map<InstructionKey, Instruction> mkInstructions = new HashMap<InstructionKey, Instruction>();
+        Map<InstructionKey, Instruction> mkInstructions = new HashMap<>();
         int instructionKey = 0;
         mkInstructions.put(new InstructionKey(++instructionKey), MDSALUtil.buildAndGetWriteMetadaInstruction(
                 ElanHelper.getElanMetadataLabel(elanTag, lportTag), ElanHelper.getElanMetadataMask(),
@@ -374,7 +373,7 @@ public final class DhcpServiceUtils {
         return new BoundServicesBuilder().withKey(new BoundServicesKey(servicePriority))
                 .setServiceName(serviceName).setServicePriority(servicePriority)
                 .setServiceType(ServiceTypeFlowBased.class)
-                .addAugmentation(StypeOpenflow.class, augBuilder.build()).build();
+                .addAugmentation(augBuilder.build()).build();
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
@@ -382,7 +381,7 @@ public final class DhcpServiceUtils {
             BiConsumer<InstanceIdentifier<SubnetToDhcpPort>, SubnetToDhcpPort> consumer) {
         java.util.Optional<String> ip4Address = getIpV4Address(port);
         java.util.Optional<String> subnetId = getNeutronSubnetId(port);
-        if (!(ip4Address.isPresent() && subnetId.isPresent())) {
+        if ((!ip4Address.isPresent() || !subnetId.isPresent())) {
             return;
         }
         LOG.trace("Adding SubnetPortData entry for subnet {}", subnetId.get());
