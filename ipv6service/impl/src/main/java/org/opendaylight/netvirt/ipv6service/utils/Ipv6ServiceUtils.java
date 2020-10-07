@@ -78,7 +78,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceTypeFlowBased;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.StypeOpenflow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.StypeOpenflowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfoKey;
@@ -409,7 +408,7 @@ public class Ipv6ServiceUtils {
         return new BoundServicesBuilder().withKey(new BoundServicesKey(servicePriority))
                 .setServiceName(serviceName).setServicePriority(servicePriority)
                 .setServiceType(ServiceTypeFlowBased.class)
-                .addAugmentation(StypeOpenflow.class, augBuilder.build()).build();
+                .addAugmentation(augBuilder.build()).build();
     }
 
     private InstanceIdentifier<BoundServices> buildServiceId(String interfaceName,
@@ -482,7 +481,7 @@ public class Ipv6ServiceUtils {
 
     public ActionInfo getLearnActionForNsDrop(Long hardTimeoutinMs) {
         int hardTimeout = (int)(hardTimeoutinMs / 1000);
-        hardTimeout = (hardTimeout > 0) ? hardTimeout : 30;
+        hardTimeout = hardTimeout > 0 ? hardTimeout : 30;
         List<ActionLearn.FlowMod> flowMods = Arrays.asList(
                 new ActionLearn.MatchFromValue(NwConstants.ETHTYPE_IPV6,
                         NwConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getType(),

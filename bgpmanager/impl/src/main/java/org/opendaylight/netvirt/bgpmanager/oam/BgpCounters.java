@@ -23,6 +23,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -97,7 +98,8 @@ public class BgpCounters implements Runnable, AutoCloseable {
         try (Socket socket = new Socket(bgpSdncMip, 2605);
              PrintWriter toRouter = new PrintWriter(socket.getOutputStream(), true);
              BufferedReader fromRouter = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-             BufferedWriter toFile = new BufferedWriter(new FileWriter(filename, true))) {
+             BufferedWriter toFile = new BufferedWriter(new FileWriter(filename, Charset.defaultCharset(),
+                     true))) {
             socket.setSoTimeout(2 * 1000);
 
             // Wait for the password prompt
