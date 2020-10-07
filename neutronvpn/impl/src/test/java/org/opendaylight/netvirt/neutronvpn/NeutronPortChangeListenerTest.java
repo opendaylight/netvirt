@@ -116,9 +116,10 @@ public class NeutronPortChangeListenerTest {
         IpAddress ipv6 = new IpAddress(new Ipv6Address("1::1"));
         FixedIpsBuilder fib = new FixedIpsBuilder();
         fib.setIpAddress(ipv6);
-        List<FixedIps> fixedIps = new ArrayList<>();
-        fixedIps.add(fib.build());
-        pb.setFixedIps(fixedIps);
+        fib.setSubnetId(new Uuid("12345678-1234-1234-1234-123456789012"));
+        List<FixedIps> fixedIpsList = new ArrayList<>();
+        fixedIpsList.add(fib.build());
+        pb.setFixedIps(fixedIpsList);
         Port port = pb.build();
         neutronPortChangeListener.add(InstanceIdentifier.create(Port.class), port);
     }
@@ -132,9 +133,10 @@ public class NeutronPortChangeListenerTest {
         IpAddress ipv4 = new IpAddress(new Ipv4Address("2.2.2.2"));
         FixedIpsBuilder fib = new FixedIpsBuilder();
         fib.setIpAddress(ipv4);
-        List<FixedIps> fixedIps = new ArrayList<>();
-        fixedIps.add(fib.build());
-        pb.setFixedIps(fixedIps);
+        fib.setSubnetId(new Uuid("12345678-1234-1234-1234-123456789012"));
+        List<FixedIps> fixedIpsList = new ArrayList<>();
+        fixedIpsList.add(fib.build());
+        pb.setFixedIps(fixedIpsList);
         Port port = pb.build();
         neutronPortChangeListener.add(InstanceIdentifier.create(Port.class), port);
     }
@@ -145,8 +147,8 @@ public class NeutronPortChangeListenerTest {
         pb.setUuid(new Uuid("12345678-1234-1234-1234-123456789012"));
         pb.setNetworkId(new Uuid("12345678-1234-1234-1234-123456789012"));
         pb.setMacAddress(new MacAddress("AA:BB:CC:DD:EE:FF"));
-        List<FixedIps> fixedIps = new ArrayList<>();
-        pb.setFixedIps(fixedIps);
+        List<FixedIps> fixedIpsList = new ArrayList<>();
+        pb.setFixedIps(fixedIpsList);
         Port port = pb.build();
         neutronPortChangeListener.add(InstanceIdentifier.create(Port.class), port);
     }

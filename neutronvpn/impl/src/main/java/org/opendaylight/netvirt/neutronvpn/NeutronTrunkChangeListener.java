@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.neutronvpn;
 
 import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 
-import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -85,7 +84,7 @@ public class NeutronTrunkChangeListener extends AbstractAsyncDataTreeChangeListe
 
     @Override
     public void add(InstanceIdentifier<Trunk> identifier, Trunk input) {
-        Preconditions.checkNotNull(input.getPortId());
+        Objects.requireNonNull(input.getPortId());
         LOG.trace("Adding Trunk : key: {}, value={}", identifier, input);
         Map<SubPortsKey, SubPorts> keySubPortsMap = input.getSubPorts();
         if (keySubPortsMap != null) {
@@ -95,7 +94,7 @@ public class NeutronTrunkChangeListener extends AbstractAsyncDataTreeChangeListe
 
     @Override
     public void remove(InstanceIdentifier<Trunk> identifier, Trunk input) {
-        Preconditions.checkNotNull(input.getPortId());
+        Objects.requireNonNull(input.getPortId());
         LOG.trace("Removing Trunk : key: {}, value={}", identifier, input);
         Map<SubPortsKey, SubPorts> keySubPortsMap = input.getSubPorts();
         if (keySubPortsMap != null) {
@@ -108,11 +107,11 @@ public class NeutronTrunkChangeListener extends AbstractAsyncDataTreeChangeListe
         if (Objects.equals(original, update)) {
             return;
         }
-        List<SubPorts> updatedSubPorts = new ArrayList<SubPorts>(update.nonnullSubPorts().values());
+        List<SubPorts> updatedSubPorts = new ArrayList<>(update.nonnullSubPorts().values());
         if (updatedSubPorts == null) {
             updatedSubPorts = Collections.emptyList();
         }
-        List<SubPorts> originalSubPorts = new ArrayList<SubPorts>(original.nonnullSubPorts().values());
+        List<SubPorts> originalSubPorts = new ArrayList<>(original.nonnullSubPorts().values());
         if (originalSubPorts == null) {
             originalSubPorts = Collections.emptyList();
         }
@@ -169,8 +168,8 @@ public class NeutronTrunkChangeListener extends AbstractAsyncDataTreeChangeListe
                 .setVlanId(new VlanId(subPort.getSegmentationId().intValue())).build();
             ParentRefs parentRefs = new ParentRefsBuilder().setParentInterface(parentName).build();
             SplitHorizon splitHorizon = new SplitHorizonBuilder().setOverrideSplitHorizonProtection(true).build();
-            interfaceBuilder.setName(portName).setType(L2vlan.class).addAugmentation(IfL2vlan.class, ifL2vlan)
-                .addAugmentation(ParentRefs.class, parentRefs).addAugmentation(SplitHorizon.class, splitHorizon);
+            interfaceBuilder.setName(portName).setType(L2vlan.class).addAugmentation(ifL2vlan)
+                .addAugmentation(parentRefs).addAugmentation(splitHorizon);
             Interface newIface = interfaceBuilder.build();
             /*
              * Interface is already created for parent NeutronPort. We're updating parent refs
@@ -204,7 +203,7 @@ public class NeutronTrunkChangeListener extends AbstractAsyncDataTreeChangeListe
             interfaceBuilder.removeAugmentation(IfL2vlan.class).removeAugmentation(ParentRefs.class)
                 .removeAugmentation(SplitHorizon.class);
             IfL2vlan ifL2vlan = new IfL2vlanBuilder().setL2vlanMode(IfL2vlan.L2vlanMode.Trunk).build();
-            interfaceBuilder.addAugmentation(IfL2vlan.class, ifL2vlan);
+            interfaceBuilder.addAugmentation(ifL2vlan);
             Interface newIface = interfaceBuilder.build();
             /*
              * There is no means to do an update to remove elements from a node.

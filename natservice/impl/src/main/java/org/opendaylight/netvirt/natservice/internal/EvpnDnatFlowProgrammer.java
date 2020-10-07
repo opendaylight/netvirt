@@ -243,7 +243,7 @@ public class EvpnDnatFlowProgrammer {
 
                     Map<AdjacencyKey, Adjacency> keyAdjacencyMap =
                         adjs != null && adjs.getAdjacency() != null ? adjs.nonnullAdjacency()
-                                : new HashMap<AdjacencyKey, Adjacency>();
+                                : new HashMap<>();
                     List<Adjacency> adjacencyListToImport = new ArrayList<>();
                     for (Adjacency adj : keyAdjacencyMap.values()) {
                         Subnetmap sn = VpnHelper.getSubnetmapFromItsUuid(dataBroker, adj.getSubnetId());
@@ -254,7 +254,7 @@ public class EvpnDnatFlowProgrammer {
                     }
                     AdjacenciesOp adjacenciesOp = new AdjacenciesOpBuilder()
                             .setAdjacency(adjacencyListToImport).build();
-                    vpnIfOpDataEntryBuilder.addAugmentation(AdjacenciesOp.class, adjacenciesOp);
+                    vpnIfOpDataEntryBuilder.addAugmentation(adjacenciesOp);
 
                     LOG.debug("onAddFloatingIp : Add vpnInterface {} to Operational l3vpn:vpn-interfaces-op-data ",
                             floatingIpInterface);
@@ -381,7 +381,7 @@ public class EvpnDnatFlowProgrammer {
                 dpnId, l3Vni);
         List<MatchInfo> mkMatches = new ArrayList<>();
         mkMatches.add(new MatchTunnelId(Uint64.valueOf(l3Vni)));
-        Map<InstructionKey, Instruction> customInstructionsMap = new HashMap<InstructionKey, Instruction>();
+        Map<InstructionKey, Instruction> customInstructionsMap = new HashMap<>();
         int instructionKey = 0;
         for (Instruction instructionObj : customInstructions) {
             customInstructionsMap.put(new InstructionKey(++instructionKey), instructionObj);

@@ -27,7 +27,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.AclBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.AclKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntriesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.AclserviceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.AclserviceAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.secgroups.rev150712.security.groups.attributes.SecurityGroups;
@@ -118,7 +117,7 @@ public class NeutronSecurityGroupListener extends AbstractAsyncDataTreeChangeLis
         if (aclTag != NeutronSecurityGroupConstants.INVALID_ACL_TAG) {
             AclserviceAugmentationBuilder aclserviceAugmentationBuilder = new AclserviceAugmentationBuilder();
             aclserviceAugmentationBuilder.setAclTag(aclTag);
-            aclBuilder.addAugmentation(AclserviceAugmentation.class, aclserviceAugmentationBuilder.build());
+            aclBuilder.addAugmentation(aclserviceAugmentationBuilder.build());
         }
 
         return aclBuilder;

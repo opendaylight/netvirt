@@ -31,7 +31,6 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NetworksContainer;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.networkscontainer.Networks;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.networkscontainer.NetworksKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.EvpnAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.EvpnAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceBuilder;
@@ -57,7 +56,7 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class EvpnTestHelper  {
     private static final Logger LOG = LoggerFactory.getLogger(EvpnTestHelper.class);
-    private SingleTransactionDataBroker singleTxdataBroker;
+    private final SingleTransactionDataBroker singleTxdataBroker;
 
     @Inject
     public EvpnTestHelper(SingleTransactionDataBroker singleTxdataBroker) {
@@ -82,25 +81,25 @@ public class EvpnTestHelper  {
     public void updateEvpnNameInElan(String elanInstanceName, String evpnName)
             throws ReadFailedException, TransactionCommitFailedException {
         InstanceIdentifier<ElanInstance> elanIid = ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName);
-        ElanInstance  elanInstance = singleTxdataBroker.syncRead(LogicalDatastoreType.CONFIGURATION, elanIid);
+        ElanInstance elanInstance = singleTxdataBroker.syncRead(LogicalDatastoreType.CONFIGURATION, elanIid);
         EvpnAugmentationBuilder evpnAugmentationBuilder = new EvpnAugmentationBuilder();
         ElanInstanceBuilder elanInstanceBuilder = new ElanInstanceBuilder(elanInstance);
         evpnAugmentationBuilder.setEvpnName(evpnName);
         LOG.debug("Writing Elan-EvpnAugmentation evpnName {} with key {}", evpnName, elanInstanceName);
-        elanInstanceBuilder.addAugmentation(EvpnAugmentation.class, evpnAugmentationBuilder.build());
+        elanInstanceBuilder.addAugmentation(evpnAugmentationBuilder.build());
         singleTxdataBroker.syncWrite(LogicalDatastoreType.CONFIGURATION, elanIid, elanInstanceBuilder.build());
     }
 
     public void deleteEvpnNameInElan(String elanInstanceName)
             throws ReadFailedException, TransactionCommitFailedException {
         InstanceIdentifier<ElanInstance> elanIid = ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName);
-        ElanInstance  elanInstance = singleTxdataBroker.syncRead(LogicalDatastoreType.CONFIGURATION, elanIid);
+        ElanInstance elanInstance = singleTxdataBroker.syncRead(LogicalDatastoreType.CONFIGURATION, elanIid);
 
         EvpnAugmentationBuilder evpnAugmentationBuilder = new EvpnAugmentationBuilder();
         ElanInstanceBuilder elanInstanceBuilder = new ElanInstanceBuilder(elanInstance);
         evpnAugmentationBuilder.setEvpnName(null);
         LOG.debug("deleting evpn name from Elan-EvpnAugmentation {} ",  elanInstanceName);
-        elanInstanceBuilder.addAugmentation(EvpnAugmentation.class, evpnAugmentationBuilder.build());
+        elanInstanceBuilder.addAugmentation(evpnAugmentationBuilder.build());
         singleTxdataBroker.syncWrite(LogicalDatastoreType.CONFIGURATION, elanIid, elanInstanceBuilder.build());
     }
 
@@ -143,9 +142,7 @@ public class EvpnTestHelper  {
         builder.setL2vni(l2vni);
         List<RoutePaths> routePaths = nextHopList.stream()
                 .filter(StringUtils::isNotEmpty)
-                .map(nextHop -> {
-                    return FibHelper.buildRoutePath(nextHop, null);
-                }).collect(Collectors.toList());
+                .map(nextHop -> FibHelper.buildRoutePath(nextHop, null)).collect(Collectors.toList());
         builder.setRoutePaths(routePaths);
     }
 

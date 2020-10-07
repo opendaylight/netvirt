@@ -828,7 +828,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                                   @Nullable VpnInterface vpnIface) {
         List<Adjacency> adjList = new ArrayList<>();
         if (vpnIface != null) {
-            adjList = new ArrayList<Adjacency>(vpnIface.augmentation(Adjacencies.class).getAdjacency().values());
+            adjList = new ArrayList<>(vpnIface.augmentation(Adjacencies.class).getAdjacency().values());
         }
         String infName = port.getUuid().getValue();
         LOG.trace("neutronVpnManager: create config adjacencies for Port: {}", infName);
@@ -860,7 +860,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             if (routerId != null) {
                 Router rtr = neutronvpnUtils.getNeutronRouter(routerId);
                 if (rtr != null && rtr.getRoutes() != null) {
-                    List<Routes> routeList = new ArrayList<Routes>(rtr.getRoutes().values());
+                    List<Routes> routeList = new ArrayList<>(rtr.getRoutes().values());
                     // create extraroute Adjacence for each ipValue,
                     // because router can have IPv4 and IPv6 subnet ports, or can have
                     // more that one IPv4 subnet port or more than one IPv6 subnet port
@@ -1010,9 +1010,9 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             Map<VpnInstanceNamesKey, VpnInstanceNames> keyVpnInstanceNamesMap = vpnInterface.getVpnInstanceNames();
             if (keyVpnInstanceNamesMap != null
                 && VpnHelper.doesVpnInterfaceBelongToVpnInstance(vpnId,
-                    new ArrayList<VpnInstanceNames>(keyVpnInstanceNamesMap.values()))) {
+                    new ArrayList<>(keyVpnInstanceNamesMap.values()))) {
                 VpnHelper.removeVpnInterfaceVpnInstanceNamesFromList(vpnId,
-                        new ArrayList<VpnInstanceNames>(keyVpnInstanceNamesMap.values()));
+                        new ArrayList<>(keyVpnInstanceNamesMap.values()));
                 if (!keyVpnInstanceNamesMap.isEmpty()) {
                     LOG.debug("Deleting vpn interface {} not immediately since vpnInstanceName "
                             + "List not empty", infName);
@@ -1045,9 +1045,9 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         = optionalVpnInterface.get().getVpnInstanceNames();
                 if (keyVpnInstanceNamesMap != null
                     && VpnHelper.doesVpnInterfaceBelongToVpnInstance(vpnId.getValue(),
-                        new ArrayList<VpnInstanceNames>(keyVpnInstanceNamesMap.values()))) {
+                        new ArrayList<>(keyVpnInstanceNamesMap.values()))) {
                     VpnHelper.removeVpnInterfaceVpnInstanceNamesFromList(vpnId.getValue(),
-                            new ArrayList<VpnInstanceNames>(keyVpnInstanceNamesMap.values()));
+                            new ArrayList<>(keyVpnInstanceNamesMap.values()));
                 }
                 VpnInterfaceBuilder vpnIfBuilder = new VpnInterfaceBuilder(optionalVpnInterface.get())
                          .setVpnInstanceNames(keyVpnInstanceNamesMap);
@@ -1141,7 +1141,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     if (!isBeingAssociated) {
                         Adjacencies adjs = vpnIfBuilder.augmentation(Adjacencies.class);
                         Map<AdjacencyKey, Adjacency> keyAdjacencyMap = adjs != null ? adjs.getAdjacency()
-                                : new HashMap<AdjacencyKey, Adjacency>();
+                                : new HashMap<>();
                         Iterator<Adjacency> adjacencyIter = keyAdjacencyMap.values().iterator();
                         while (adjacencyIter.hasNext()) {
                             Adjacency adjacency = adjacencyIter.next();
@@ -1172,7 +1172,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                             }
                         }
                         Adjacencies adjacencies = new AdjacenciesBuilder().setAdjacency(keyAdjacencyMap).build();
-                        vpnIfBuilder.addAugmentation(Adjacencies.class, adjacencies);
+                        vpnIfBuilder.addAugmentation(adjacencies);
                     }
                     for (FixedIps ip : port.nonnullFixedIps().values()) {
                         String ipValue = ip.getIpAddress().stringValue();
@@ -1495,7 +1495,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 Uuid vpnId = new Uuid(vpnInstance.getVpnInstanceName());
                 // create VpnMaps id
                 L3vpnInstancesBuilder l3vpn = new L3vpnInstancesBuilder();
-                List<String> rd = Collections.EMPTY_LIST;
+                List<String> rd = Collections.emptyList();
                 if (vpnInstance.getRouteDistinguisher() != null) {
                     rd = vpnInstance.getRouteDistinguisher();
                 }
@@ -1503,7 +1503,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 List<String> irtList = new ArrayList<>();
 
                 if (vpnInstance.getVpnTargets() != null) {
-                    Map<VpnTargetKey, VpnTarget> keyVpnTargetMap = Collections.EMPTY_MAP;
+                    Map<VpnTargetKey, VpnTarget> keyVpnTargetMap = Collections.emptyMap();
                     if (!vpnInstance.getVpnTargets().getVpnTarget().isEmpty()) {
                         keyVpnTargetMap = vpnInstance.getVpnTargets().getVpnTarget();
                     }
@@ -2296,7 +2296,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                             Adjacencies erAdjs =
                                     new AdjacenciesBuilder().setAdjacency(getAdjacencyMap(newAdjList)).build();
                             VpnInterface vpnIf = new VpnInterfaceBuilder().withKey(new VpnInterfaceKey(infName))
-                                    .addAugmentation(Adjacencies.class, erAdjs).build();
+                                    .addAugmentation(erAdjs).build();
                             SingleTransactionDataBroker.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION,
                                 vpnIfIdentifier, vpnIf);
                         } else {
@@ -2826,8 +2826,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 .input.RouterIdsKey, org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602
                 .associaterouter.input.RouterIds> keyRouterIdsMap = input.nonnullRouterIds();
         Preconditions.checkArgument(!keyRouterIdsMap.isEmpty(), "associateRouter: RouterIds list is empty!");
-        Preconditions.checkNotNull(vpnId, "associateRouter; VpnId not found!");
-        Preconditions.checkNotNull(vpnId, "associateRouter; RouterIds not found!");
+        Objects.requireNonNull(vpnId, "associateRouter; VpnId not found!");
+        Objects.requireNonNull(vpnId, "associateRouter; RouterIds not found!");
         for (org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.associaterouter.input
                 .RouterIds routerId : keyRouterIdsMap.values()) {
             VpnMap vpnMap = neutronvpnUtils.getVpnMap(vpnId);
@@ -2970,8 +2970,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 .dissociaterouter.input.RouterIds> keyRouterIdsMap = input.nonnullRouterIds();
         String routerIdsString = "";
         Preconditions.checkArgument(!keyRouterIdsMap.isEmpty(), "dissociateRouter: RouterIds list is empty!");
-        Preconditions.checkNotNull(vpnId, "dissociateRouter: vpnId not found!");
-        Preconditions.checkNotNull(keyRouterIdsMap, "dissociateRouter: keyRouterIdsMap not found!");
+        Objects.requireNonNull(vpnId, "dissociateRouter: vpnId not found!");
+        Objects.requireNonNull(keyRouterIdsMap, "dissociateRouter: keyRouterIdsMap not found!");
         if (neutronvpnUtils.getVpnMap(vpnId) != null) {
             for (org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.dissociaterouter.input
                     .RouterIds routerId : keyRouterIdsMap.values()) {
@@ -3278,7 +3278,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
 
         if (adjacencies != null) {
-            vpnb.addAugmentation(Adjacencies.class, adjacencies);
+            vpnb.addAugmentation(adjacencies);
         }
         VpnInterface vpnIf = vpnb.build();
         try {
@@ -3322,7 +3322,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     if (adjacencies == null) {
                         return;
                     }
-                    vpnIfBuilder.addAugmentation(Adjacencies.class, adjacencies);
+                    vpnIfBuilder.addAugmentation(adjacencies);
                     if (optionalVpnInterface.get().getVpnInstanceNames() != null) {
                         List<VpnInstanceNames> listVpnInstances = new ArrayList<>(
                                 optionalVpnInterface.get().getVpnInstanceNames().values());
