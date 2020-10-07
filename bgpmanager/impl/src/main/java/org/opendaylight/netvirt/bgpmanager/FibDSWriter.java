@@ -7,7 +7,8 @@
  */
 package org.opendaylight.netvirt.bgpmanager;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,8 +59,8 @@ public class FibDSWriter {
     }
 
     public synchronized void addEntryToFibMap(String rd, String prefix, String nextHop) {
-        ArrayList<String> temp = new ArrayList<String>();
-        if ((fibMap.get(appendrdtoprefix(rd, prefix)) != null)) {
+        ArrayList<String> temp = new ArrayList<>();
+        if (fibMap.get(appendrdtoprefix(rd, prefix)) != null) {
             temp.addAll(fibMap.get(appendrdtoprefix(rd, prefix)));
         }
         temp.add(nextHop);
@@ -77,7 +78,7 @@ public class FibDSWriter {
             return;
         }
 
-        Preconditions.checkNotNull(nextHopList, "NextHopList can't be null");
+        requireNonNull(nextHopList, "NextHopList can't be null");
         for (String nextHop : nextHopList) {
             if (nextHop == null || nextHop.isEmpty()) {
                 LOG.error("nextHop list contains null element");
@@ -89,8 +90,8 @@ public class FibDSWriter {
         LOG.debug("addFibEntryToDS rd {} prefix {} NH {}",
                 rd, prefix, nextHopList.get(0));
 
-        ArrayList<String> temp = new ArrayList<String>();
-        if ((fibMap.get(appendrdtoprefix(rd, prefix)) != null)) {
+        ArrayList<String> temp = new ArrayList<>();
+        if (fibMap.get(appendrdtoprefix(rd, prefix)) != null) {
             temp.addAll(fibMap.get(appendrdtoprefix(rd, prefix)));
         }
         if (!temp.contains(nextHopList.get(0))) {
@@ -122,7 +123,7 @@ public class FibDSWriter {
             return;
         }
 
-        Preconditions.checkNotNull(nextHopList, "NextHopList can't be null");
+        requireNonNull(nextHopList, "NextHopList can't be null");
         for (String nextHop : nextHopList) {
             if (StringUtils.isEmpty(nextHop)) {
                 LOG.error("nextHop list contains null element for macVrf");
