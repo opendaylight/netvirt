@@ -7,7 +7,8 @@
  */
 package org.opendaylight.netvirt.neutronvpn.api.utils;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -159,7 +160,7 @@ public final class NeutronUtils {
     }
 
     public static boolean isUuid(String possibleUuid) {
-        Preconditions.checkNotNull(possibleUuid, "possibleUuid == null");
+        requireNonNull(possibleUuid, "possibleUuid == null");
 
         if (uuidPattern == null) {
             // Thread safe because it really doesn't matter even if we were to do this initialization more than once
