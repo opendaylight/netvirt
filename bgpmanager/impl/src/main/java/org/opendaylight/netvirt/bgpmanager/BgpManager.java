@@ -219,8 +219,8 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     public void withdrawPrefixIfPresent(String rd, String prefix) {
         InstanceIdentifier<Networks> networksId = InstanceIdentifier.builder(Bgp.class)
                 .child(NetworksContainer.class)
-                .child(Networks.class,
-                new NetworksKey(rd, prefix)).build();
+                .child(Networks.class, new NetworksKey(rd, prefix))
+                .build();
         try (ReadTransaction tx = dataBroker.newReadOnlyTransaction()) {
             Futures.addCallback(tx.read(LogicalDatastoreType.CONFIGURATION, networksId),
                 new FutureCallback<Optional<Networks>>() {

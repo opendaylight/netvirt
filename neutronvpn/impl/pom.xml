@@ -21,6 +21,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <packaging>bundle</packaging>
     <modelVersion>4.0.0</modelVersion>
 
+    <properties>
+        <odlparent.modernizer.enforce>false</odlparent.modernizer.enforce>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -145,7 +149,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <dependency>
             <groupId>org.opendaylight.infrautils</groupId>
             <artifactId>metrics-impl-test</artifactId>
-            <version>1.8.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>

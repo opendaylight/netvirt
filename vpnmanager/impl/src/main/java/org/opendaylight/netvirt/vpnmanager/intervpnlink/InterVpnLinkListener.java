@@ -7,9 +7,9 @@
  */
 package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
+import static java.util.Objects.requireNonNull;
 import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 
-import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -279,7 +279,7 @@ public class InterVpnLinkListener extends AbstractAsyncDataTreeChangeListener<In
     }
 
     private boolean checkVpnAvailability(InterVpnLinkKey key, String vpnName) {
-        Preconditions.checkNotNull(vpnName);
+        requireNonNull(vpnName);
 
         List<InterVpnLinkDataComposite> allInterVpnLinks = interVpnLinkCache.getAllInterVpnLinks();
         if (allInterVpnLinks.isEmpty()) {

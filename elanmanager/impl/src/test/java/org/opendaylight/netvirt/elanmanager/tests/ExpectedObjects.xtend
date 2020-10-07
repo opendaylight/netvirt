@@ -18,7 +18,6 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.EncapType
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.networkscontainer.Networks
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.networkscontainer.NetworksBuilder
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.networkscontainer.NetworksKey
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev170119.L2vlan
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder
@@ -36,10 +35,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.apply.actions._case.ApplyActionsBuilder
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.go.to.table._case.GoToTableBuilder
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionBuilder
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan.L2vlanMode
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlanBuilder
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefs
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefsBuilder
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.VlanId
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.ethernet.match.fields.EthernetDestinationBuilder
@@ -78,9 +75,9 @@ class ExpectedObjects {
             description = interfaceName
             name = interfaceName
             type = L2vlan
-            addAugmentation(ParentRefs, new ParentRefsBuilder >> [
+            addAugmentation(new ParentRefsBuilder >> [
                 parentInterface = parentName
-            ])addAugmentation(IfL2vlan, new IfL2vlanBuilder >> [
+            ])addAugmentation(new IfL2vlanBuilder >> [
                 l2vlanMode = L2vlanMode.Trunk
                 vlanId = new VlanId(0)
             ])
@@ -299,10 +296,10 @@ class ExpectedObjects {
        new NetworksBuilder >> [
            bgpControlPlaneType = BgpControlPlaneType.PROTOCOLEVPN
            encapType = EncapType.VXLAN
-           ethtag = Uint32.valueOf(0L)
+           ethtag = Uint32.ZERO
            l2vni = vni
-           l3vni = Uint32.valueOf(0L)
-           label = Uint32.valueOf(0L)
+           l3vni = Uint32.ZERO
+           label = Uint32.ZERO
            macaddress = mac
            nexthop = new Ipv4Address(tepip)
            prefixLen = prefix

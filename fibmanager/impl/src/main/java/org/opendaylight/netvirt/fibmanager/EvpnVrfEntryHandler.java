@@ -7,9 +7,9 @@
  */
 package org.opendaylight.netvirt.fibmanager;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.opendaylight.mdsal.binding.util.Datastore.CONFIGURATION;
 
-import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -54,9 +54,9 @@ import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class EvpnVrfEntryHandler extends BaseVrfEntryHandler {
     private static final Logger LOG = LoggerFactory.getLogger(EvpnVrfEntryHandler.class);
+
     private final ManagedNewTransactionRunner txRunner;
     private final VrfEntryListener vrfEntryListener;
     private final BgpRouteVrfEntryHandler bgpRouteVrfEntryHandler;
@@ -81,9 +81,8 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler {
         final VpnInstanceOpDataEntry vpnInstance = getFibUtil().getVpnInstanceOpData(
                 vrfTableKey.getRouteDistinguisher()).get();
         Uint32 vpnId = vpnInstance.getVpnId();
-        Preconditions.checkNotNull(vpnInstance, "Vpn Instance not available " + vrfTableKey.getRouteDistinguisher());
-        Preconditions.checkNotNull(vpnId, "Vpn Instance with rd " + vpnInstance.getVrfId()
-                + " has null vpnId!");
+        checkNotNull(vpnInstance, "Vpn Instance not available %s", vrfTableKey.getRouteDistinguisher());
+        checkNotNull(vpnId, "Vpn Instance with rd %s has null vpnId!", vpnInstance.getVrfId());
         if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.CONNECTED) {
             SubnetRoute subnetRoute = vrfEntry.augmentation(SubnetRoute.class);
             final Map<VpnToDpnListKey, VpnToDpnList> keyVpnToDpnListMap = vpnInstance.nonnullVpnToDpnList();

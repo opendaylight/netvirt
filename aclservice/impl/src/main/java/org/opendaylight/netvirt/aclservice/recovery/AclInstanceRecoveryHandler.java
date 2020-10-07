@@ -67,7 +67,7 @@ public class AclInstanceRecoveryHandler implements ServiceRecoveryInterface {
                 InterfaceAcl interfaceAclAfter = new InterfaceAclBuilder(interfaceAclBefore).setSecurityGroups(sgList)
                         .build();
                 Interface interfaceAfter = new InterfaceBuilder(interfaceBefore)
-                        .addAugmentation(InterfaceAcl.class,interfaceAclAfter).build();
+                        .addAugmentation(interfaceAclAfter).build();
                 aclInterfaceListener.update(null, interfaceBefore, interfaceAfter);
                 aclInterfaceListener.update(null, interfaceAfter, interfaceBefore);
             } else {

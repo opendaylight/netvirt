@@ -5,10 +5,9 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.neutronvpn;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -116,6 +115,7 @@ public class NeutronPortChangeListenerTest {
         IpAddress ipv6 = new IpAddress(new Ipv6Address("1::1"));
         FixedIpsBuilder fib = new FixedIpsBuilder();
         fib.setIpAddress(ipv6);
+        fib.setSubnetId(new Uuid("12345678-1234-1234-1234-123456789012"));
         List<FixedIps> fixedIps = new ArrayList<>();
         fixedIps.add(fib.build());
         pb.setFixedIps(fixedIps);
@@ -132,6 +132,7 @@ public class NeutronPortChangeListenerTest {
         IpAddress ipv4 = new IpAddress(new Ipv4Address("2.2.2.2"));
         FixedIpsBuilder fib = new FixedIpsBuilder();
         fib.setIpAddress(ipv4);
+        fib.setSubnetId(new Uuid("12345678-1234-1234-1234-123456789012"));
         List<FixedIps> fixedIps = new ArrayList<>();
         fixedIps.add(fib.build());
         pb.setFixedIps(fixedIps);

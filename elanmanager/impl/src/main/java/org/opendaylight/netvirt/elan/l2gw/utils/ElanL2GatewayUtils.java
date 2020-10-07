@@ -1249,7 +1249,7 @@ public class ElanL2GatewayUtils {
     public List<MacAddress> getL2GwDeviceLocalMacs(String elanName, L2GatewayDevice l2gwDevice) {
         Set<MacAddress> macs = new HashSet<>();
         if (l2gwDevice == null) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         Collection<LocalUcastMacs> lstUcastLocalMacs = l2gwDevice.getUcastLocalMacs();
         if (lstUcastLocalMacs != null && !lstUcastLocalMacs.isEmpty()) {
