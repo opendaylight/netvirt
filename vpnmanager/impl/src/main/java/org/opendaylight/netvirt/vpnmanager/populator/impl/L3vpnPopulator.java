@@ -90,7 +90,7 @@ public abstract class L3vpnPopulator implements VpnPopulator {
         SubnetRoute route = new SubnetRouteBuilder().setElantag(elantag).build();
         RouteOrigin origin = RouteOrigin.CONNECTED; // Only case when a route is considered as directly connected
         VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, nextHop, origin, networkName)
-                .addAugmentation(SubnetRoute.class, route).setL3vni(l3vni).setGatewayMacAddress(gwMacAddress).build();
+                .addAugmentation(route).setL3vni(l3vni).setGatewayMacAddress(gwMacAddress).build();
         LOG.debug("Created vrfEntry for {} nexthop {} label {} and elantag {}", prefix, nextHop, label, elantag);
         InstanceIdentifier<VrfEntry> vrfEntryId =
                 InstanceIdentifier.builder(FibEntries.class)
@@ -126,7 +126,7 @@ public abstract class L3vpnPopulator implements VpnPopulator {
             List<VpnInstanceOpDataEntry> vpnsToImportRoute = vpnUtil.getVpnsImportingMyRoute(vpnName);
             if (vpnsToImportRoute.size() > 0) {
                 VrfEntry importingVrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, nextHop,
-                        RouteOrigin.SELF_IMPORTED, rd).addAugmentation(SubnetRoute.class, route).build();
+                        RouteOrigin.SELF_IMPORTED, rd).addAugmentation(route).build();
                 List<VrfEntry> importingVrfEntryList = Collections.singletonList(importingVrfEntry);
                 for (VpnInstanceOpDataEntry vpnInstance : vpnsToImportRoute) {
                     String importingRd = vpnInstance.getVrfId();
