@@ -374,7 +374,7 @@ public class FibUtil {
             // Filling the nextHop with dummy nextHopAddress
             VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder(prefix, label,
                     FibConstants.DEFAULT_NEXTHOP_IP, RouteOrigin.LOCAL, null /* parentVpnRd */)
-                .addAugmentation(RouterInterface.class, routerInterface).build();
+                .addAugmentation(routerInterface).build();
 
             if (writeConfigTxn != null) {
                 writeConfigTxn.mergeParentStructureMerge(vrfEntryId, vrfEntry);
@@ -469,7 +469,7 @@ public class FibUtil {
                     prefix, rd, nextHopToRemove, e);
         }
         if (entry.isPresent()) {
-            final List<RoutePaths> routePaths = new ArrayList<RoutePaths>(entry.get().nonnullRoutePaths().values());
+            final List<RoutePaths> routePaths = new ArrayList<>(entry.get().nonnullRoutePaths().values());
             if (routePaths == null || routePaths.isEmpty()) {
                 LOG.warn("routePaths is null/empty for given rd {}, prefix {}", rd, prefix);
                 return;
@@ -593,27 +593,27 @@ public class FibUtil {
     }
 
     public static java.util.Optional<Uint32> getLabelFromRoutePaths(final VrfEntry vrfEntry) {
-        List<RoutePaths> routePaths = new ArrayList<RoutePaths>(vrfEntry.nonnullRoutePaths().values());
+        List<RoutePaths> routePaths = new ArrayList<>(vrfEntry.nonnullRoutePaths().values());
         if (routePaths == null || routePaths.isEmpty()
-                || new ArrayList<RoutePaths>(vrfEntry.nonnullRoutePaths().values()).get(0).getLabel() == null) {
+                || new ArrayList<>(vrfEntry.nonnullRoutePaths().values()).get(0).getLabel() == null) {
             return java.util.Optional.empty();
         }
-        return java.util.Optional.of(new ArrayList<RoutePaths>(vrfEntry
+        return java.util.Optional.of(new ArrayList<>(vrfEntry
                 .nonnullRoutePaths().values()).get(0).getLabel());
 
     }
 
     public static java.util.Optional<String> getFirstNextHopAddress(final VrfEntry vrfEntry) {
-        List<RoutePaths> routePaths = new ArrayList<RoutePaths>(vrfEntry.nonnullRoutePaths().values());
+        List<RoutePaths> routePaths = new ArrayList<>(vrfEntry.nonnullRoutePaths().values());
         if (routePaths == null || routePaths.isEmpty()) {
             return java.util.Optional.empty();
         }
-        return java.util.Optional.of(new ArrayList<RoutePaths>(vrfEntry.nonnullRoutePaths().values())
+        return java.util.Optional.of(new ArrayList<>(vrfEntry.nonnullRoutePaths().values())
                 .get(0).getNexthopAddress());
     }
 
     public static java.util.Optional<Uint32> getLabelForNextHop(final VrfEntry vrfEntry, String nextHopIp) {
-        List<RoutePaths> routePaths = new ArrayList<RoutePaths>(vrfEntry.nonnullRoutePaths().values());
+        List<RoutePaths> routePaths = new ArrayList<>(vrfEntry.nonnullRoutePaths().values());
         if (routePaths == null || routePaths.isEmpty()) {
             return java.util.Optional.empty();
         }
@@ -987,7 +987,7 @@ public class FibUtil {
         try {
             VpnToDpnList vpnToDpnList = SingleTransactionDataBroker.syncRead(dataBroker,
                     LogicalDatastoreType.OPERATIONAL, vpnToDpnListId);
-            if (!(vpnToDpnList == null) && !(vpnToDpnList.getVpnInterfaces() == null)
+            if ((vpnToDpnList != null) && (vpnToDpnList.getVpnInterfaces() != null)
                     && !vpnToDpnList.getVpnInterfaces().isEmpty()) {
                 return true;
             }

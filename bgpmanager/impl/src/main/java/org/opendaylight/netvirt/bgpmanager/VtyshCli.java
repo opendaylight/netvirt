@@ -245,7 +245,7 @@ public class VtyshCli extends OsgiCommandSupport {
 
         String inputCmd = "show " + command;
         outToSocket.println(inputCmd);
-        StringBuffer output = new StringBuffer();
+        StringBuilder output = new StringBuilder();
         String errorMsg = "";
         while (true) {
             char[] opBuf = new char[100];
