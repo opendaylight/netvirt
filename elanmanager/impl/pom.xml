@@ -190,7 +190,6 @@ this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
         <dependency>
             <groupId>org.opendaylight.infrautils</groupId>
             <artifactId>metrics-impl-test</artifactId>
-            <version>1.8.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -221,6 +220,11 @@ this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
             <groupId>org.opendaylight.genius</groupId>
             <artifactId>testutils</artifactId>
             <version>${genius.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>osgi.core</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

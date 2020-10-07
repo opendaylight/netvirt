@@ -332,13 +332,8 @@ public class DHCP extends Packet {
         int payloadStart = startOffset + numBits;
         int payloadSize = data.length * Byte.SIZE - payloadStart;
 
-        if (payloadClass != null) {
-            try {
-                payload = payloadClass.newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
-                throw new RuntimeException(
-                        "Error parsing payload for Ethernet packet", e);
-            }
+        if (payloadFactory != null) {
+            payload = payloadFactory.get();
             payload.deserialize(data, payloadStart, payloadSize);
             payload.setParent(this);
         } else {

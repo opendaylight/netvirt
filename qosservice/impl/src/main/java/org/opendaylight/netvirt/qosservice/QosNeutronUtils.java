@@ -72,7 +72,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceTypeFlowBased;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.StypeOpenflow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.StypeOpenflowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfoKey;
@@ -190,13 +189,13 @@ public class QosNeutronUtils {
             session.getConsole().println("No cache found");
             return;
         }
-        if (!(qosPolicyMap.isEmpty())) {
+        if (!qosPolicyMap.isEmpty()) {
             displayQosPolicyMap(session, gson);
         }
-        if (!(qosPortsMap.isEmpty())) {
+        if (!qosPortsMap.isEmpty()) {
             displayQosPortsMap(session, gson);
         }
-        if (!(qosNetworksMap.isEmpty())) {
+        if (!qosNetworksMap.isEmpty()) {
             displayQosNetworksMap(session, gson);
         }
     }
@@ -356,7 +355,7 @@ public class QosNeutronUtils {
                 .child(NetworkMap.class, new NetworkMapKey(networkId)).build();
         Optional<NetworkMap> optionalNetworkMap = MDSALUtil.read(LogicalDatastoreType.CONFIGURATION,
                 networkMapId, dataBroker);
-        return (optionalNetworkMap.isPresent() && optionalNetworkMap.get().getSubnetIdList() != null)
+        return optionalNetworkMap.isPresent() && optionalNetworkMap.get().getSubnetIdList() != null
             ? optionalNetworkMap.get().getSubnetIdList() : emptyList();
     }
 
@@ -367,7 +366,7 @@ public class QosNeutronUtils {
                 .child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
         Optional<Subnetmap> optionalSubnetmap = MDSALUtil.read(LogicalDatastoreType.CONFIGURATION,
                 subnetMapId,dataBroker);
-        return (optionalSubnetmap.isPresent() && optionalSubnetmap.get().getPortList() != null)
+        return optionalSubnetmap.isPresent() && optionalSubnetmap.get().getPortList() != null
             ? optionalSubnetmap.get().getPortList() : emptyList();
     }
 
@@ -650,7 +649,7 @@ public class QosNeutronUtils {
 
         TerminationPointBuilder tpBuilder = new TerminationPointBuilder();
         tpBuilder.withKey(tp.key());
-        tpBuilder.addAugmentation(OvsdbTerminationPointAugmentation.class, tpAugmentationBuilder.build());
+        tpBuilder.addAugmentation(tpAugmentationBuilder.build());
         try {
             if (writeConfigTxn != null) {
                 writeConfigTxn.mergeParentStructureMerge(InstanceIdentifier
@@ -954,7 +953,7 @@ public class QosNeutronUtils {
                 .setFlowPriority(priority).setInstruction(instructions);
         return new BoundServicesBuilder().withKey(new BoundServicesKey(qosServiceIndex)).setServiceName(serviceName)
                 .setServicePriority(qosServiceIndex).setServiceType(ServiceTypeFlowBased.class)
-                .addAugmentation(StypeOpenflow.class, augBuilder.build()).build();
+                .addAugmentation(augBuilder.build()).build();
     }
 
     @NonNull
@@ -1043,7 +1042,7 @@ public class QosNeutronUtils {
     @Nullable
     public static String getPortNumberFromLowerLayerIf(String lowerLayerIf) {
         try {
-            return (lowerLayerIf.substring(lowerLayerIf.lastIndexOf(":") + 1));
+            return lowerLayerIf.substring(lowerLayerIf.lastIndexOf(":") + 1);
         } catch (NullPointerException e) {
             return null;
         }
@@ -1053,20 +1052,20 @@ public class QosNeutronUtils {
         int versions = 0;
         for (FixedIps fixedIp: port.nonnullFixedIps().values()) {
             if (fixedIp.getIpAddress().getIpv4Address() != null) {
-                versions |= (1 << QosConstants.IPV4_ADDR_MASK_BIT);
+                versions |= 1 << QosConstants.IPV4_ADDR_MASK_BIT;
             } else if (fixedIp.getIpAddress().getIpv6Address() != null) {
-                versions |= (1 << QosConstants.IPV6_ADDR_MASK_BIT);
+                versions |= 1 << QosConstants.IPV6_ADDR_MASK_BIT;
             }
         }
         return versions;
     }
 
     public boolean hasIpv4Addr(int versions) {
-        return (versions & (1 << QosConstants.IPV4_ADDR_MASK_BIT)) != 0;
+        return (versions & 1 << QosConstants.IPV4_ADDR_MASK_BIT) != 0;
     }
 
     public boolean hasIpv6Addr(int versions) {
-        return (versions & (1 << QosConstants.IPV6_ADDR_MASK_BIT)) != 0;
+        return (versions & 1 << QosConstants.IPV6_ADDR_MASK_BIT) != 0;
     }
 
     public boolean isBindServiceDone(Optional<Uuid> uuid) {

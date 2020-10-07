@@ -39,7 +39,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hw
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepNodeName;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LocalUcastMacs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LocalUcastMacsBuilder;
@@ -159,7 +158,7 @@ public class L2gwBuilders {
         IpAddress ip = IpAddressBuilder.getDefaultInstance(tepIp);
         tunnelIps.add(new TunnelIpsBuilder().withKey(new TunnelIpsKey(ip)).setTunnelIpsKey(ip).build());
         physicalSwitchAugmentationBuilder.setTunnelIps(tunnelIps);
-        nodeBuilder.addAugmentation(PhysicalSwitchAugmentation.class, physicalSwitchAugmentationBuilder.build());
+        nodeBuilder.addAugmentation(physicalSwitchAugmentationBuilder.build());
         singleTransactionDataBroker.syncWrite(LogicalDatastoreType.OPERATIONAL, psNodePath, nodeBuilder.build());
 
         nodeBuilder = new NodeBuilder();
@@ -168,7 +167,7 @@ public class L2gwBuilders {
         builder.setDbVersion("1.6.0");
         builder.setManagers(TestBuilders.buildManagers1());
         GlobalAugmentationHelper.addSwitches(builder, psNodePath);
-        nodeBuilder.addAugmentation(HwvtepGlobalAugmentation.class, builder.build());
+        nodeBuilder.addAugmentation(builder.build());
         singleTransactionDataBroker.syncWrite(LogicalDatastoreType.OPERATIONAL, nodePath, nodeBuilder.build());
     }
 
@@ -188,7 +187,7 @@ public class L2gwBuilders {
         localUcastMacses.add(localUcastMacs);
         HwvtepGlobalAugmentationBuilder builder1 =
                 new HwvtepGlobalAugmentationBuilder().setLocalUcastMacs(localUcastMacses) ;
-        nodeBuilder.addAugmentation(HwvtepGlobalAugmentation.class, builder1.build());
+        nodeBuilder.addAugmentation(builder1.build());
         singleTransactionDataBroker.syncUpdate(LogicalDatastoreType.OPERATIONAL, nodeId, nodeBuilder.build());
         return localUcastMacs;
     }
