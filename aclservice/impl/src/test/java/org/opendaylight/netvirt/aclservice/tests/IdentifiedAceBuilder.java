@@ -25,7 +25,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.packet.handling.PermitBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttrBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Empty;
@@ -67,7 +66,7 @@ public class IdentifiedAceBuilder implements DataTreeIdentifierDataObjectPairBui
                     .setPermit(Empty.getInstance()).build()
                 ).build()
             )
-            .addAugmentation(SecurityRuleAttr.class, new SecurityRuleAttrBuilder()
+            .addAugmentation(new SecurityRuleAttrBuilder()
                 .setDirection(direction)
                 .setRemoteGroupId(optRemoteGroupId.orElse(null)).build()
             ).build();

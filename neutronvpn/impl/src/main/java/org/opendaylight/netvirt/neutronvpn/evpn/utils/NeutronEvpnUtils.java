@@ -98,7 +98,7 @@ public class NeutronEvpnUtils {
                 LOG.debug("Deleting Elan-EvpnAugmentation with key {}", elanInstanceName);
             }
 
-            elanInstanceBuilder.addAugmentation(EvpnAugmentation.class, evpnAugmentationBuilder.build());
+            elanInstanceBuilder.addAugmentation(evpnAugmentationBuilder.build());
             tx.mergeParentStructurePut(elanIid, elanInstanceBuilder.build());
         }), LOG, "Error updating ELAN with VPN info {}, {}, {}", elanInstanceName, vpnInstance, operation);
     }

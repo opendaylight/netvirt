@@ -8,8 +8,8 @@
 
 package org.opendaylight.netvirt.ipv6service;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,7 +38,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.packet.rev160620.NeighborAdvertisePacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.packet.rev160620.NeighborAdvertisePacketBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.util.rev170210.PacketMetadata;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.util.rev170210.PacketMetadataBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
@@ -573,7 +572,7 @@ public class Ipv6PktHandlerTest {
         NeighborAdvertisePacket naPdu = new Ipv6NaDecoder(data).decode();
         NeighborAdvertisePacket naPacket =
                 new NeighborAdvertisePacketBuilder(naPdu)
-                        .addAugmentation(PacketMetadata.class, new PacketMetadataBuilder().setOfTableId((long) 45)
+                        .addAugmentation(new PacketMetadataBuilder().setOfTableId((long) 45)
                                 .setMetadata(mdata).setInterface("ddec9dba-d831-4ad7-84b9-00d7f65f052f").build())
                         .build();
         verify(ipv6PktListener).onNaReceived(naPacket);
