@@ -60,7 +60,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener<Operational> implem
         return psNodeId.startsWith(globalNodeId) && psNodeId.contains("physicalswitch");
     };
 
-    static Predicate<InstanceIdentifier<Node>> IS_NOT_HA_CHILD = (iid) -> hwvtepHACache.getParent(iid) == null;
+    static Predicate<InstanceIdentifier<Node>> IS_NOT_HA_CHILD = iid -> hwvtepHACache.getParent(iid) == null;
 
     private final IHAEventHandler haEventHandler;
     private final HAOpClusteredListener haOpClusteredListener;
@@ -95,6 +95,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener<Operational> implem
         }
     }
 
+    @Override
     public void deregisterListener() {
         LOG.info("Deregistering HAOpNodeListener");
         super.close();
@@ -169,7 +170,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener<Operational> implem
                 Optional<Node> globalNodeOptional = configTx.read(haNodePath).get();
                 if (globalNodeOptional.isPresent()) {
                     //Also update the manager section in config which helps in cluster reboot scenarios
-                    managers.stream().forEach((manager) -> {
+                    managers.stream().forEach(manager -> {
                         InstanceIdentifier<Managers> managerIid = haNodePath
                             .augmentation(HwvtepGlobalAugmentation.class)
                             .child(Managers.class, manager.key());
@@ -349,8 +350,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener<Operational> implem
                 tpAugmentationBuilder.setVlanStats(operPPAugmentation.getVlanStats());
                 tpAugmentationBuilder.setVlanBindings(operPPAugmentation.getVlanBindings());
 
-                tpBuilder.addAugmentation(HwvtepPhysicalPortAugmentation.class,
-                    tpAugmentationBuilder.build());
+                tpBuilder.addAugmentation(tpAugmentationBuilder.build());
                 configTPList.add(tpBuilder.build());
             });
         }
@@ -386,7 +386,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener<Operational> implem
         }
         InstanceIdentifier<Node> haGlobalPath = hwvtepHACache.getParent(disconnectedChildGlobalPath);
         Set<InstanceIdentifier<Node>> childPsPaths = hwvtepHACache.getChildrenForHANode(haGlobalPath).stream()
-                .map((childGlobalPath) -> HwvtepHAUtil.convertPsPath(childPsNode, childGlobalPath))
+                .map(childGlobalPath -> HwvtepHAUtil.convertPsPath(childPsNode, childGlobalPath))
                 .collect(Collectors.toSet());
         //TODO validate what if this is null
         if (haOpClusteredListener.getConnected(childPsPaths).isEmpty()) {
@@ -412,16 +412,16 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener<Operational> implem
             || HwvtepHAUtil.isEmpty(hwvtepGlobalAugmentation.nonnullSwitches().values())) {
             haOpClusteredListener.getConnectedNodes()
                     .stream()
-                    .filter((connectedIid) -> IS_PS_CHILD_TO_GLOBAL_NODE.test(childGlobalNodeId, connectedIid))
-                    .forEach((connectedIid) -> childPsIids.add(connectedIid));
+                    .filter(connectedIid -> IS_PS_CHILD_TO_GLOBAL_NODE.test(childGlobalNodeId, connectedIid))
+                    .forEach(connectedIid -> childPsIids.add(connectedIid));
         } else {
             hwvtepGlobalAugmentation.getSwitches().values().forEach(
-                (switches) -> childPsIids.add(switches.getSwitchRef().getValue()));
+                switches -> childPsIids.add(switches.getSwitchRef().getValue()));
         }
         if (childPsIids.isEmpty()) {
             LOG.info("HAOpNodeListener No child ps found for global {}", childGlobalNodeId);
         }
-        childPsIids.forEach((psIid) -> {
+        childPsIids.forEach(psIid -> {
             try {
                 InstanceIdentifier<Node> childPsIid = psIid;
                 Optional<Node> childPsNode = tx.read(childPsIid).get();
