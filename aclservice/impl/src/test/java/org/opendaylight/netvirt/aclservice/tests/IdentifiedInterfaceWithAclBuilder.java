@@ -19,7 +19,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAclBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.SubnetInfo;
@@ -50,7 +49,7 @@ public class IdentifiedInterfaceWithAclBuilder implements DataTreeIdentifierData
     @Override
     public Interface dataObject() {
         return new InterfaceBuilder()
-            .addAugmentation(InterfaceAcl.class, new InterfaceAclBuilder()
+            .addAugmentation(new InterfaceAclBuilder()
                 .setPortSecurityEnabled(portSecurity)
                 .setSecurityGroups(newSecurityGroups)
                 .setAllowedAddressPairs(ifAllowedAddressPairs)
