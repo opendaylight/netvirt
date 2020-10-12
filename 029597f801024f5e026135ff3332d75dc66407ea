@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4955253d_afa51bd1",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/cache/ElanInterfaceCache.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-10-12T12:40:01Z",
+      "side": 1,
+      "message": "how can this happen?",
+      "range": {
+        "startLine": 78,
+        "startChar": 16,
+        "endLine": 78,
+        "endChar": 34
+      },
+      "revId": "029597f801024f5e026135ff3332d75dc66407ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
