@@ -17,7 +17,7 @@
 
     <groupId>org.opendaylight.netvirt</groupId>
     <artifactId>netvirt-features</artifactId>
-    <version>0.11.1-SNAPSHOT</version>
+    <version>0.11.2-SNAPSHOT</version>
     <name>ODL :: netvirt :: ${project.artifactId}</name>
     <packaging>feature</packaging>
     <modelVersion>4.0.0</modelVersion>
