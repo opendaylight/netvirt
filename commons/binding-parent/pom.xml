@@ -19,18 +19,18 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>binding-parent</artifactId>
   <name>ODL :: netvirt :: ${project.artifactId}</name>
-  <version>0.10.3-SNAPSHOT</version>
+  <version>0.10.4-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <properties>
-    <controller.mdsal.version>1.11.3-SNAPSHOT</controller.mdsal.version>
-    <genius.version>0.8.3-SNAPSHOT</genius.version>
-    <infrautils.version>1.7.3-SNAPSHOT</infrautils.version>
-    <model.bgp.version>2013.07.15.16.3-SNAPSHOT</model.bgp.version>
-    <neutron.version>0.14.3-SNAPSHOT</neutron.version>
-    <openflowplugin.version>0.10.3-SNAPSHOT</openflowplugin.version>
-    <ovsdb.version>1.10.3-SNAPSHOT</ovsdb.version>
-    <serviceutils.version>0.5.3-SNAPSHOT</serviceutils.version>
+    <controller.mdsal.version>1.11.4-SNAPSHOT</controller.mdsal.version>
+    <genius.version>0.8.4-SNAPSHOT</genius.version>
+    <infrautils.version>1.7.4-SNAPSHOT</infrautils.version>
+    <model.bgp.version>2013.07.15.16.4-SNAPSHOT</model.bgp.version>
+    <neutron.version>0.14.4-SNAPSHOT</neutron.version>
+    <openflowplugin.version>0.10.4-SNAPSHOT</openflowplugin.version>
+    <ovsdb.version>1.10.4-SNAPSHOT</ovsdb.version>
+    <serviceutils.version>0.5.4-SNAPSHOT</serviceutils.version>
   </properties>
 
   <dependencyManagement>
@@ -93,7 +93,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <dependency>
               <groupId>org.opendaylight.netvirt</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>0.10.3-SNAPSHOT</version>
+              <version>0.10.4-SNAPSHOT</version>
             </dependency>
           </dependencies>
           <executions>

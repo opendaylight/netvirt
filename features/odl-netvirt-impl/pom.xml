@@ -17,7 +17,7 @@
 
     <groupId>org.opendaylight.netvirt</groupId>
     <artifactId>odl-netvirt-impl</artifactId>
-    <version>0.10.3-SNAPSHOT</version>
+    <version>0.10.4-SNAPSHOT</version>
     <name>OpenDaylight :: NetVirt :: impl</name>
     <packaging>feature</packaging>
     <modelVersion>4.0.0</modelVersion>
@@ -26,28 +26,28 @@
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>odl-mdsal-broker</artifactId>
-            <version>1.11.3-SNAPSHOT</version>
+            <version>1.11.4-SNAPSHOT</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.genius</groupId>
             <artifactId>odl-genius</artifactId>
-            <version>0.8.3-SNAPSHOT</version>
+            <version>0.8.4-SNAPSHOT</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.infrautils</groupId>
             <artifactId>odl-infrautils-inject</artifactId>
-            <version>1.7.3-SNAPSHOT</version>
+            <version>1.7.4-SNAPSHOT</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.infrautils</groupId>
             <artifactId>odl-infrautils-diagstatus</artifactId>
-            <version>1.7.3-SNAPSHOT</version>
+            <version>1.7.4-SNAPSHOT</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
@@ -61,56 +61,56 @@
         <dependency>
             <groupId>org.opendaylight.neutron</groupId>
             <artifactId>odl-neutron-spi</artifactId>
-            <version>0.14.3-SNAPSHOT</version>
+            <version>0.14.4-SNAPSHOT</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.openflowplugin</groupId>
             <artifactId>odl-openflowplugin-southbound</artifactId>
-            <version>0.10.3-SNAPSHOT</version>
+            <version>0.10.4-SNAPSHOT</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.openflowplugin</groupId>
             <artifactId>odl-openflowplugin-app-forwardingrules-manager</artifactId>
-            <version>0.10.3-SNAPSHOT</version>
+            <version>0.10.4-SNAPSHOT</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.openflowplugin</groupId>
             <artifactId>odl-openflowplugin-app-reconciliation-framework</artifactId>
-            <version>0.10.3-SNAPSHOT</version>
+            <version>0.10.4-SNAPSHOT</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.ovsdb</groupId>
             <artifactId>odl-ovsdb-southbound-impl</artifactId>
-            <version>1.10.3-SNAPSHOT</version>
+            <version>1.10.4-SNAPSHOT</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.ovsdb</groupId>
             <artifactId>odl-ovsdb-hwvtepsouthbound</artifactId>
-            <version>1.10.3-SNAPSHOT</version>
+            <version>1.10.4-SNAPSHOT</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.ovsdb</groupId>
             <artifactId>odl-ovsdb-utils</artifactId>
-            <version>1.10.3-SNAPSHOT</version>
+            <version>1.10.4-SNAPSHOT</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.infrautils</groupId>
             <artifactId>odl-infrautils-metrics</artifactId>
-            <version>1.7.3-SNAPSHOT</version>
+            <version>1.7.4-SNAPSHOT</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>

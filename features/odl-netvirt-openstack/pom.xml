@@ -17,7 +17,7 @@
 
     <groupId>org.opendaylight.netvirt</groupId>
     <artifactId>odl-netvirt-openstack</artifactId>
-    <version>0.10.3-SNAPSHOT</version>
+    <version>0.10.4-SNAPSHOT</version>
     <name>OpenDaylight :: NetVirt :: OpenStack</name>
     <packaging>feature</packaging>
     <modelVersion>4.0.0</modelVersion>
@@ -33,14 +33,14 @@
         <dependency>
             <groupId>org.opendaylight.neutron</groupId>
             <artifactId>odl-neutron-service</artifactId>
-            <version>0.14.3-SNAPSHOT</version>
+            <version>0.14.4-SNAPSHOT</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.netconf</groupId>
             <artifactId>odl-restconf</artifactId>
-            <version>1.11.3-SNAPSHOT</version>
+            <version>1.11.4-SNAPSHOT</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
