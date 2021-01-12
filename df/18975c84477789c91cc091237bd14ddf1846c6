@@ -1,0 +1,8 @@
+Verified+1: Robert Varga <nite@hq.sk>
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Robert Varga <nite@hq.sk>
+Submitted-by: Robert Varga <nite@hq.sk>
+Submitted-at: Tue, 12 Jan 2021 11:30:31 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/c/netvirt/+/94535
+Project: netvirt
+Branch: refs/heads/stable/aluminium
