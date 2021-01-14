@@ -19,16 +19,16 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>binding-parent</artifactId>
   <name>ODL :: netvirt :: ${project.artifactId}</name>
-  <version>0.11.2-SNAPSHOT</version>
+  <version>0.11.2</version>
   <packaging>pom</packaging>
 
   <properties>
-    <genius.version>0.9.2-SNAPSHOT</genius.version>
-    <model.bgp.version>2013.07.15.17.2-SNAPSHOT</model.bgp.version>
-    <neutron.version>0.15.2-SNAPSHOT</neutron.version>
-    <openflowplugin.version>0.11.2-SNAPSHOT</openflowplugin.version>
-    <ovsdb.version>1.11.2-SNAPSHOT</ovsdb.version>
-    <serviceutils.version>0.6.2-SNAPSHOT</serviceutils.version>
+    <genius.version>0.9.2</genius.version>
+    <model.bgp.version>2013.07.15.17.2</model.bgp.version>
+    <neutron.version>0.15.2</neutron.version>
+    <openflowplugin.version>0.11.2</openflowplugin.version>
+    <ovsdb.version>1.11.2</ovsdb.version>
+    <serviceutils.version>0.6.2</serviceutils.version>
   </properties>
 
   <dependencyManagement>
@@ -98,7 +98,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <dependency>
               <groupId>org.opendaylight.netvirt</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>0.11.2-SNAPSHOT</version>
+              <version>0.11.2</version>
             </dependency>
           </dependencies>
           <executions>
