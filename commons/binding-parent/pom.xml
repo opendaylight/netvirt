@@ -11,7 +11,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <parent>
     <groupId>org.opendaylight.mdsal</groupId>
     <artifactId>binding-parent</artifactId>
-    <version>7.0.5</version>
+    <version>7.0.6</version>
     <relativePath/>
   </parent>
 
@@ -25,10 +25,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <properties>
     <genius.version>0.10.0-SNAPSHOT</genius.version>
     <model.bgp.version>2013.07.15.18.0-SNAPSHOT</model.bgp.version>
-    <neutron.version>0.16.0-SNAPSHOT</neutron.version>
-    <openflowplugin.version>0.12.0-SNAPSHOT</openflowplugin.version>
-    <ovsdb.version>1.12.0-SNAPSHOT</ovsdb.version>
-    <serviceutils.version>0.7.0-SNAPSHOT</serviceutils.version>
+    <neutron.version>0.16.0</neutron.version>
+    <openflowplugin.version>0.12.0</openflowplugin.version>
+    <ovsdb.version>1.12.0</ovsdb.version>
+    <serviceutils.version>0.7.0</serviceutils.version>
   </properties>
 
   <dependencyManagement>
@@ -36,14 +36,14 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <dependency>
         <groupId>org.opendaylight.infrautils</groupId>
         <artifactId>infrautils-artifacts</artifactId>
-        <version>1.9.5</version>
+        <version>1.9.6</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>org.opendaylight.controller</groupId>
         <artifactId>controller-artifacts</artifactId>
-        <version>3.0.6</version>
+        <version>3.0.7</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
